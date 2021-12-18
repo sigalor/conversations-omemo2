@@ -345,6 +345,7 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+    private final OnClickListener meCommand = v -> Objects.requireNonNull(binding.textinput.getText()).insert(0, Message.ME_COMMAND + " ");
 
     private final OnClickListener boldText = v -> insertFormatting("bold");
 
@@ -714,7 +715,6 @@ public class ConversationFragment extends XmppFragment
                             updateChatMsgHint();
                             updateSendButton();
                             updateEditablity();
-                            updateTextFormat();
                         }
                         break;
                     default:
@@ -3252,7 +3252,6 @@ public class ConversationFragment extends XmppFragment
             updateChatMsgHint();
             updateSendButton();
             updateEditablity();
-            updateTextFormat();
         }
     }
 
@@ -4052,11 +4051,11 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
-    private void updateTextFormat() {
+    private void updateTextFormat(final boolean me) {
         KeyboardUtils.addKeyboardToggleListener(activity, isVisible -> {
             Log.d(Config.LOGTAG, "keyboard visible: " + isVisible);
             if (isVisible) {
-                showTextFormat();
+                showTextFormat(me);
             } else {
                 hideTextFormat();
             }
@@ -4113,6 +4112,7 @@ public class ConversationFragment extends XmppFragment
         binding.threadIdenticonLayout.setLayoutParams(params);
         showRecordVoiceButton();
         updateSnackBar(conversation);
+        updateTextFormat(canSendMeCommand());
     }
 
     protected void updateStatusMessages() {
@@ -4728,8 +4728,10 @@ public class ConversationFragment extends XmppFragment
     }
 
 
-    private void showTextFormat() {
+    private void showTextFormat(final boolean me) {
         this.binding.textformat.setVisibility(View.VISIBLE);
+        this.binding.me.setEnabled(me);
+        this.binding.me.setOnClickListener(meCommand);
         this.binding.bold.setOnClickListener(boldText);
         this.binding.italic.setOnClickListener(italicText);
         this.binding.monospace.setOnClickListener(monospaceText);
