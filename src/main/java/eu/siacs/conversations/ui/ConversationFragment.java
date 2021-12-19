@@ -346,14 +346,35 @@ public class ConversationFragment extends XmppFragment
     };
 
     private final OnClickListener meCommand = v -> Objects.requireNonNull(binding.textinput.getText()).insert(0, Message.ME_COMMAND + " ");
-
+    private final OnClickListener quote = v -> insertQuote();
     private final OnClickListener boldText = v -> insertFormatting("bold");
-
     private final OnClickListener italicText = v -> insertFormatting("italic");
-
     private final OnClickListener monospaceText = v -> insertFormatting("monospace");
-
     private final OnClickListener strikethroughText = v -> insertFormatting("strikethrough");
+    private final OnClickListener help = v -> openHelp();
+    private final OnClickListener close = v -> closeFormatting();
+
+    private void openHelp() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(R.string.format_text);
+        builder.setMessage(R.string.help_format_text);
+        builder.setNeutralButton(getString(R.string.ok), null);
+        builder.create().show();
+    }
+
+    private void closeFormatting() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(R.string.close);
+        builder.setMessage(R.string.close_format_text);
+        builder.setPositiveButton(getString(R.string.close),
+                (dialog, which) -> {
+                    final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                    preferences.edit().putBoolean("showtextformatting", false).apply();
+                    updateSendButton();
+                });
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.create().show();
+    }
 
     private void insertFormatting(String format) {
         final String BOLD = "*";
@@ -4732,10 +4753,24 @@ public class ConversationFragment extends XmppFragment
         this.binding.textformat.setVisibility(View.VISIBLE);
         this.binding.me.setEnabled(me);
         this.binding.me.setOnClickListener(meCommand);
+        this.binding.quote.setOnClickListener(quote);
         this.binding.bold.setOnClickListener(boldText);
         this.binding.italic.setOnClickListener(italicText);
         this.binding.monospace.setOnClickListener(monospaceText);
         this.binding.strikethrough.setOnClickListener(strikethroughText);
+        this.binding.help.setOnClickListener(help);
+        this.binding.close.setOnClickListener(close);
+        if (Compatibility.runsTwentyEight()) {
+            this.binding.me.setTooltipText(activity.getString(R.string.me));
+            this.binding.quote.setTooltipText(activity.getString(R.string.quote));
+            this.binding.bold.setTooltipText(activity.getString(R.string.bold));
+            this.binding.italic.setTooltipText(activity.getString(R.string.italic));
+            this.binding.monospace.setTooltipText(activity.getString(R.string.monospace));
+            this.binding.monospace.setTooltipText(activity.getString(R.string.monospace));
+            this.binding.strikethrough.setTooltipText(activity.getString(R.string.strikethrough));
+            this.binding.help.setTooltipText(activity.getString(R.string.help));
+            this.binding.close.setTooltipText(activity.getString(R.string.close));
+        }
     }
 
     private void hideTextFormat() {
