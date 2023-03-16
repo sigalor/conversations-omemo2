@@ -1161,6 +1161,15 @@ public class XmppConnectionService extends Service {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + " send ping (action=" + action + ",lowTimeout=" + lowTimeout + ")");
                 scheduleWakeUpCall(lowTimeout ? Config.LOW_PING_TIMEOUT : Config.PING_TIMEOUT, account.getUuid().hashCode());
             }
+            long msToMucPing = (mLastMucPing + (Config.PING_MAX_INTERVAL * 2000L)) - SystemClock.elapsedRealtime();
+            if (msToMucPing <= 0) {
+                mLastMucPing = SystemClock.elapsedRealtime();
+                for (Conversation c : getConversations()) {
+                    if (c.getMode() == Conversation.MODE_MULTI && c.getMucOptions().online()) {
+                        mucSelfPingAndRejoin(c);
+                    }
+                }
+            }
         }
         WakeLockHelper.release(wakeLock);
     }
