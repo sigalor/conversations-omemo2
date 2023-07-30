@@ -738,6 +738,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for (int i = this.messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (reactor == null && message.getStatus() < Message.STATUS_SEND) continue;
+                if (reactor != null && message.getCounterpart() == null) continue;
                 if (reactor != null && !(message.getCounterpart().equals(reactor) || message.getCounterpart().asBareJid().equals(reactor))) continue;
 
                 final Element r = message.getReactions();
@@ -1695,7 +1696,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 oldConversation.pagerAdapter.mTabs = null;
             }
 
-            if (mPager == null) return;
+            if (mPager == null) {
+                page1 = null;
+                page2 = null;
+                return;
+            }
             if (sessions != null) show();
 
             if (pager.getChildAt(0) != null) page1 = pager.getChildAt(0);
@@ -2068,6 +2073,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             if (mimeType.startsWith("image/") && "https".equals(uri.getScheme())) {
                                 final Drawable d = cache.get(uri.toString());
                                 if (d == null) {
+                                    synchronized (CommandSession.this) {
+                                        waitingForRefresh = true;
+                                    }
                                     int size = (int)(xmppConnectionService.getResources().getDisplayMetrics().density * 288);
                                     Message dummy = new Message(Conversation.this, uri.toString(), Message.ENCRYPTION_NONE);
                                     dummy.setFileParams(new Message.FileParams(uri.toString()));
@@ -2888,6 +2896,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             protected WebView actionToWebview = null;
             protected int fillableFieldCount = 0;
             protected IqPacket pendingResponsePacket = null;
+            protected boolean waitingForRefresh = false;
 
             CommandSession(String title, String node, XmppConnectionService xmppConnectionService) {
                 loading();
@@ -3364,7 +3373,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             }
 
             public void refresh() {
-                notifyDataSetChanged();
+                synchronized(this) {
+                    if (waitingForRefresh) notifyDataSetChanged();
+                }
             }
 
             protected void loading() {
