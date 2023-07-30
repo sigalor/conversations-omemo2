@@ -1389,4 +1389,6 @@
     <string name="pref_keep_num_backups">¿Cuántos backsups conservar? Por defecto 3. 0 deshabilita. Máximo 9.</string>
     <string name="pref_keep_num_backups_title">Número de backups para conservar</string>
     <string name="pref_broadcast_last_activity_summary">Permitir a tus contactos cuando fue tu última actividad con la aplicación</string>
+    <string name="settings_restore_message_success">Ajustes restaurados con éxito</string>
+    <string name="settings_restore_message_failure">Fallo al restaurar ajustes: %s</string>
 </resources>
