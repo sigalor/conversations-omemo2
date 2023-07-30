@@ -1298,7 +1298,7 @@
     <string name="are_you_sure_verify_fingerprint">Вы уверены, что хотите проверить отпечаток пальца OTR контактов\?</string>
     <string name="delete_avatar">Удалить собственный аватар</string>
     <string name="continue_btn">Продолжать</string>
-    <string name="transcoding_video_x">Сжатие видео (%s %)</string>
+    <string name="transcoding_video_x">Сжатие видео (%s \%%)</string>
     <string name="otr_fingerprint">OTR-отпечаток</string>
     <string name="otr_fingerprint_selected_message">OTR-отпечаток сообщения</string>
     <string name="toast_message_otr_fingerprint">Отпечаток OTR скопирован в буфер обмена!</string>

@@ -646,7 +646,7 @@
     <string name="hide_inactive_devices">Verberg inactief</string>
     <string name="reply">Beantwoorden</string>
     <string name="transcoding_video">Video wordt gecomprimeerd</string>
-    <string name="transcoding_video_x">Video comprimeren (%s %)</string>
+    <string name="transcoding_video_x">Video comprimeren (%s \%%)</string>
     <string name="not_fetching_history_retention_period">Berichten worden niet opgehaald wegens lokale bewaarperiode.</string>
     <plurals name="seconds">
         <item quantity="one">%d seconde</item>

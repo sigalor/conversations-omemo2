@@ -985,7 +985,7 @@
     <string name="add_to_contact_list">Adicionar à lista de contatos</string>
     <string name="use_camera_icon_to_scan_barcode">Use a câmera para escanear o código QR de um contato</string>
     <string name="please_wait_for_keys_to_be_fetched">Por favor, aguarde até que as chaves sejam encontradas</string>
-    <string name="transcoding_video_x">Compactando vídeo (%s %)</string>
+    <string name="transcoding_video_x">Compactando vídeo (%s \%%)</string>
     <string name="pref_use_max_brightness_summary">Mude para o brilho máximo ao abrir vídeos ou imagens em tela cheia.</string>
     <string name="pref_use_auto_rotate_summary">Gire imagens e vídeos em tela cheia para ajustá-los ao tamanho da tela</string>
     <string name="pref_use_i2p">Conectar via I2P</string>

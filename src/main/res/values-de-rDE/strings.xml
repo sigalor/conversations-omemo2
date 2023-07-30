@@ -656,7 +656,7 @@
     <string name="hide_inactive_devices">Verberge Inaktive</string>
     <string name="reply">Antworten</string>
     <string name="transcoding_video">Video wird komprimiert</string>
-    <string name="transcoding_video_x">Video wird komprimiert (%s %)</string>
+    <string name="transcoding_video_x">Video wird komprimiert (%s \%%)</string>
     <string name="not_fetching_history_retention_period">Nachrichten werden aufgrund der eingestellten lokalen Speicherfrist nicht abgerufen.</string>
     <plurals name="seconds">
         <item quantity="one">%d Sekunde</item>
