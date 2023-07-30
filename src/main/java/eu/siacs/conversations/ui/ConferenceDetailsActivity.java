@@ -130,6 +130,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         public void progress(int progress) {
 
         }
+
+        @Override
+        public void showToast() {
+        }
     };
 
     public static void open(final Activity activity, final Conversation conversation) {
