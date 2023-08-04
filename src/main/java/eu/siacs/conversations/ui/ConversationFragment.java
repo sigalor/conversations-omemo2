@@ -824,6 +824,11 @@ public class ConversationFragment extends XmppFragment
             public void progress(int progress) {
 
             }
+
+            @Override
+            public void showToast() {
+
+            }
         });
     }
 
@@ -831,9 +836,12 @@ public class ConversationFragment extends XmppFragment
         if (conversation == null) {
             return;
         }
-        if (type == "application/xdc+zip") newSubThread();
+
+        if (type == "application/xdc+zip")
+            newSubThread();
+
         final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_file), ToastCompat.LENGTH_SHORT);
-        prepareFileToast.show();
+
         activity.delegateUriPermissionsToService(uri);
         activity.xmppConnectionService.attachFileToConversation(conversation, uri, type, new UiInformableCallback<Message>() {
             @Override
@@ -868,6 +876,11 @@ public class ConversationFragment extends XmppFragment
                 hidePrepareFileToast(prepareFileToast);
                 updateSnackBar(conversation);
             }
+
+            @Override
+            public void showToast() {
+                prepareFileToast.show();
+            }
         });
     }
 
@@ -880,8 +893,9 @@ public class ConversationFragment extends XmppFragment
         if (conversation == null) {
             return;
         }
-        final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_image), ToastCompat.LENGTH_LONG);
-        prepareFileToast.show();
+
+        final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_image), ToastCompat.LENGTH_SHORT);
+
         activity.delegateUriPermissionsToService(uri);
         activity.xmppConnectionService.attachImageToConversation(conversation, uri, type,
                 new UiCallback<Message>() {
@@ -892,12 +906,17 @@ public class ConversationFragment extends XmppFragment
 
                     @Override
                     public void progress(int progress) {
+                    }
 
+                    @Override
+                    public void showToast() {
+                        prepareFileToast.show();
                     }
 
                     @Override
                     public void success(Message message) {
-                        hidePrepareFileToast(prepareFileToast);
+                        //hidePrepareFileToast(prepareFileToast);
+                        prepareFileToast.cancel();
                         runOnUiThread(() -> setupReply(null));
                     }
 
@@ -2204,6 +2223,10 @@ public class ConversationFragment extends XmppFragment
                                 @Override
                                 public void success(Contact contact) {
                                     invokeAttachFileIntent(attachmentChoice);
+                                }
+
+                                @Override
+                                public void showToast() {
                                 }
 
                                 @Override
@@ -3885,6 +3908,10 @@ public class ConversationFragment extends XmppFragment
                             }
 
                             @Override
+                            public void showToast() {
+                            }
+
+                            @Override
                             public void success(Contact contact) {
                                 encryptTextMessage(message);
                             }
@@ -3945,6 +3972,10 @@ public class ConversationFragment extends XmppFragment
                     @Override
                     public void progress(int progress) {
 
+                    }
+
+                    @Override
+                    public void showToast() {
                     }
 
                     @Override

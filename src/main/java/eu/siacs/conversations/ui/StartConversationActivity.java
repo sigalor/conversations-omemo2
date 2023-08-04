@@ -207,6 +207,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         public void progress(int progress) {
 
         }
+
+        @Override
+        public void showToast() {
+        }
     };
 
     private ActivityStartConversationBinding binding;
@@ -1426,6 +1430,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             @Override
             public void progress(int progress) {
 
+            }
+
+            @Override
+            public void showToast() {
             }
         });
     }

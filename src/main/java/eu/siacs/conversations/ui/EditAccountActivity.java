@@ -419,6 +419,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         }
 
         @Override
+        public void showToast() {
+        }
+
+        @Override
         public void success(final Avatar avatar) {
             finishInitialSetup(avatar);
         }
@@ -1171,6 +1175,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             @Override
             public void progress(int progress) {
 
+            }
+
+            @Override
+            public void showToast() {
             }
         });
     }

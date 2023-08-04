@@ -690,7 +690,11 @@ public class XmppConnectionService extends Service {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": not compressing picture. sending as file");
             attachFileToConversation(conversation, uri, mimeType, callback);
             return;
+        } else {
+            // there will be a delay so the caller can be informed to show an info to the user
+            callback.showToast();
         }
+
         final Message message;
 
         if (conversation.getReplyTo() == null) {
@@ -1185,6 +1189,11 @@ public class XmppConnectionService extends Service {
 
                 @Override
                 public void progress(int progress) {
+
+                }
+
+                @Override
+                public void showToast() {
 
                 }
             });
