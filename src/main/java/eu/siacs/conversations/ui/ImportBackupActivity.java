@@ -141,18 +141,15 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
     }
 
     private void openBackupFileFromUri(final Uri uri, final boolean finishOnCancel) {
-        try {
-            final ImportBackupService.BackupFile backupFile = ImportBackupService.BackupFile.read(this, uri);
-            showEnterPasswordDialog(backupFile, finishOnCancel);
-        } catch (final IOException e) {
-            Snackbar.make(binding.coordinator, R.string.not_a_backup_file, Snackbar.LENGTH_LONG).show();
-        } catch (IllegalArgumentException e) {
-            Log.d(Config.LOGTAG, "unable to open backup file " + uri, e);
-            Snackbar.make(binding.coordinator, R.string.not_a_backup_file, Snackbar.LENGTH_LONG).show();
-
-        } catch (final SecurityException e) {
-            Snackbar.make(binding.coordinator, R.string.sharing_application_not_grant_permission, Snackbar.LENGTH_LONG).show();
-        }
+        new Thread(() -> {
+            try {
+                final ImportBackupService.BackupFile backupFile = ImportBackupService.BackupFile.read(this, uri);
+                runOnUiThread(() -> showEnterPasswordDialog(backupFile, finishOnCancel));
+            } catch (final IOException | IllegalArgumentException e) {
+                Log.d(Config.LOGTAG, "unable to open backup file " + uri, e);
+                runOnUiThread(() -> Snackbar.make(binding.coordinator, R.string.not_a_backup_file, Snackbar.LENGTH_LONG).show());
+            }
+        }).start();
     }
 
     private void showEnterPasswordDialog(final ImportBackupService.BackupFile backupFile, final boolean finishOnCancel) {
