@@ -1301,4 +1301,5 @@
     <string name="create_monocles_only_backup">Export extra monocles-only data (backup will not import into other apps then)?</string>
     <string name="please_be_patient">Please be patient...</string>
     <string name="notify_only_when_highlighted_or_replied">Notify for mentions and replies</string>
+    <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
 </resources>
