@@ -83,6 +83,7 @@ import android.os.storage.StorageManager;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
+import android.text.style.ImageSpan;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
@@ -268,6 +269,7 @@ public class ConversationFragment extends XmppFragment
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
     private EmojiSearchBinding emojiSearchBinding = null;
+    private PopupWindow emojiPopup = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
     private final OnClickListener clickToMuc = new OnClickListener() {
 
@@ -951,8 +953,8 @@ public class ConversationFragment extends XmppFragment
             commitAttachments();
             return;
         }
-        final Editable text = this.binding.textinput.getText();
-        String body = text == null ? "" : text.toString();
+        Editable body = this.binding.textinput.getText();
+        if (body == null) body = new SpannableStringBuilder("");
         final Conversation conversation = this.conversation;
         if (body.length() == 0 || conversation == null) {
             return;
@@ -965,18 +967,40 @@ public class ConversationFragment extends XmppFragment
             boolean attention = false;
             if (Pattern.compile("\\A@here\\s.*").matcher(body).find()) {
                 attention = true;
-                body = body.replaceFirst("\\A@here\\s+", "");
+                body.delete(0, 6);
+                while (body.length() > 0 && Character.isWhitespace(body.charAt(0))) body.delete(0, 1);
             }
             if (conversation.getReplyTo() != null) {
-                if (Emoticons.isEmoji(body)) {
-                    message = conversation.getReplyTo().react(body);
+                if (Emoticons.isEmoji(body.toString())) {
+                    message = conversation.getReplyTo().react(body.toString());
                 } else {
                     message = conversation.getReplyTo().reply();
                     message.appendBody(body);
                 }
                 message.setEncryption(conversation.getNextEncryption());
             } else {
-                message = new Message(conversation, body, conversation.getNextEncryption());
+                message = new Message(conversation, body.toString(), conversation.getNextEncryption());
+                message.setBody(body);
+                if (message.bodyIsOnlyEmojis()) {
+                    SpannableStringBuilder spannable = message.getSpannableBody(null, null);
+                    ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
+                    if (imageSpans.length == 1) {
+                        // Only one inline image, so it's a sticker
+                        String source = imageSpans[0].getSource();
+                        if (source != null && source.length() > 0 && source.substring(0, 4).equals("cid:")) {
+                            try {
+                                final Cid cid = BobTransfer.cid(Uri.parse(source));
+                                final String url = activity.xmppConnectionService.getUrlForCid(cid);
+                                final File f = activity.xmppConnectionService.getFileForCid(cid);
+                                if (url != null) {
+                                    message.setBody("");
+                                    message.setRelativeFilePath(f.getAbsolutePath());
+                                    activity.xmppConnectionService.getFileBackend().updateFileParams(message);
+                                }
+                            } catch (final Exception e) { }
+                        }
+                    }
+                }
             }
             message.setThread(conversation.getThread());
             if (attention) {
@@ -1430,7 +1454,7 @@ public class ConversationFragment extends XmppFragment
             s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
         });
         setupEmojiSearch();
-        PopupWindow emojiPopup = new PopupWindow(emojiSearchBinding.getRoot(), WindowManager.LayoutParams.MATCH_PARENT, 400);
+        emojiPopup = new PopupWindow(emojiSearchBinding.getRoot(), WindowManager.LayoutParams.MATCH_PARENT, 400);
         Handler emojiDebounce = new Handler(Looper.getMainLooper());
         binding.textinput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -3140,6 +3164,7 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
+        if (emojiPopup != null) emojiPopup.dismiss();
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {

@@ -14,6 +14,16 @@
         android:background="@drawable/list_choice">
 
         <TextView
+            android:id="@+id/nonunicode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.Conversations.Body1"
+            app:emojiCompatEnabled="false"
+            android:visibility="gone"
+            android:textColor="?attr/edit_text_color" />
+
+        <TextView
             android:id="@+id/unicode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,8 +35,8 @@
             android:id="@+id/shortcode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
             android:gravity="center_vertical"
+            android:paddingLeft="8dp"
             android:textAppearance="@style/TextAppearance.Conversations.Body1"
             android:textColor="?attr/edit_text_color" />
 

@@ -1,4 +1,5 @@
 package eu.siacs.conversations.entities;
+import android.util.Log;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -23,6 +24,8 @@ import android.view.View;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.GetThumbnailForCid;
+import de.monocles.chat.InlineImageSpan;
+import de.monocles.chat.SpannedToXHTML;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -495,6 +498,27 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         this.payloads.removeAll(getFallbacks(includeFor));
     }
 
+    public synchronized Element getOrMakeHtml() {
+        Element html = getHtml();
+        if (html != null) return html;
+        html = new Element("html", "http://jabber.org/protocol/xhtml-im");
+        Element body = html.addChild("body", "http://www.w3.org/1999/xhtml");
+        SpannedToXHTML.append(body, new SpannableStringBuilder(getBody()));
+        addPayload(html);
+        return body;
+    }
+
+    public synchronized void setBody(Spanned span) {
+        setBody(span.toString());
+        final Element body = getOrMakeHtml();
+        body.clearChildren();
+        SpannedToXHTML.append(body, span);
+        if (body.getContent().equals(span.toString())) {
+            this.payloads.remove(getHtml(true));
+        }
+    }
+
+
     public List<Element> getFallbacks(String... includeFor) {
         List<Element> fallbacks = new ArrayList<>();
 
@@ -514,6 +538,15 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         }
 
         return fallbacks;
+    }
+
+    public synchronized void appendBody(Spanned append) {
+        final Element body = getOrMakeHtml();
+        SpannedToXHTML.append(body, append);
+        if (body.getContent().equals(this.body + append.toString())) {
+            this.payloads.remove(getHtml());
+        }
+        appendBody(append.toString());
     }
 
     public String getQuoteableBody() {
@@ -1069,6 +1102,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                     public void onClick(View widget) { }
                 };
 
+                spannable.removeSpan(span);
+                spannable.setSpan(new InlineImageSpan(span.getDrawable(), span.getSource()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannable.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
@@ -1081,11 +1116,15 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
 
     public Element getHtml() {
+        return getHtml(false);
+    }
+
+    public Element getHtml(boolean root) {
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
             if (el.getName().equals("html") && el.getNamespace().equals("http://jabber.org/protocol/xhtml-im")) {
-                return el.getChildren().get(0);
+                return root ? el : el.getChildren().get(0);
             }
         }
 
@@ -1253,6 +1292,19 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public synchronized boolean bodyIsOnlyEmojis() {
         if (isEmojisOnly == null) {
             isEmojisOnly = Emoticons.isOnlyEmoji(getBody().replaceAll("\\s", ""));
+            if (isEmojisOnly) return true;
+
+            if (getHtml() != null) {
+                SpannableStringBuilder spannable = getSpannableBody(null, null);
+                ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
+                for (ImageSpan span : imageSpans) {
+                    final int start = spannable.getSpanStart(span);
+                    final int end = spannable.getSpanEnd(span);
+                    spannable.delete(start, end);
+                }
+                final String after = spannable.toString().replaceAll("\\s", "");
+                isEmojisOnly = after.length() == 0 || Emoticons.isOnlyEmoji(after);
+            }
         }
         return isEmojisOnly;
     }

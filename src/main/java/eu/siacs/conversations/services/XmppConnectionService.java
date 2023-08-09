@@ -17,6 +17,10 @@ import static eu.siacs.conversations.utils.RichPreview.RICH_LINK_METADATA;
 import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
 
+import android.graphics.drawable.AnimatedImageDrawable;
+import android.provider.DocumentsContract;
+import com.google.common.io.Files;
+import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.xmpp.OnGatewayResult;
 import eu.siacs.conversations.utils.Consumer;
@@ -272,8 +276,10 @@ public class XmppConnectionService extends Service {
     };
     public DatabaseBackend databaseBackend;
     private final ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor("ContactMerger");
+    private final ReplacingSerialSingleThreadExecutor mStickerScanExecutor = new ReplacingSerialSingleThreadExecutor("StickerScan");
     private long mLastActivity = 0;
     private long mLastMucPing = 0;
+    private long mLastStickerRescan = 0;
     public final FileBackend fileBackend = new FileBackend(this);
     private MemorizingTrustManager mMemorizingTrustManager;
     private final NotificationService mNotificationService = new NotificationService(this);
@@ -736,6 +742,49 @@ public class XmppConnectionService extends Service {
             } else {
                 sendMessage(message);
                 callback.success(message);
+            }
+        });
+    }
+
+    private File stickerDir() {
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final String dir = p.getString("sticker_directory", "Stickers");
+        if (dir.startsWith("content://")) {
+            Uri uri = Uri.parse(dir);
+            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+            return new File(FileUtils.getPath(getBaseContext(), uri));
+        } else {
+            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir);
+        }
+    }
+
+    public void rescanStickers() {
+        long msToRescan = (mLastStickerRescan + 600000L) - SystemClock.elapsedRealtime();
+        if (msToRescan > 0) return;
+
+        mLastStickerRescan = SystemClock.elapsedRealtime();
+        mStickerScanExecutor.execute(() -> {
+            try {
+                for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
+                    try {
+                        if (file.isFile() && file.canRead()) {
+                            DownloadableFile df = new DownloadableFile(file.getAbsolutePath());
+                            Drawable icon = fileBackend.getThumbnail(df, getResources(), (int) (getResources().getDisplayMetrics().density * 288), false);
+                            if (Build.VERSION.SDK_INT >= 28 && icon instanceof AnimatedImageDrawable) {
+                                // Animated drawable not working in spans for me yet
+                                // https://stackoverflow.com/questions/76870075/using-animatedimagedrawable-inside-imagespan-renders-wrong-size
+                                continue;
+                            }
+                            final String filename = Files.getNameWithoutExtension(df.getName());
+                            Cid[] cids = fileBackend.calculateCids(new FileInputStream(df));
+                            emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon));
+                        }
+                    } catch (final Exception e) {
+                        Log.w(Config.LOGTAG, "rescanStickers: " + e);
+                    }
+                }
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "rescanStickers: " + e);
             }
         });
     }
@@ -1628,6 +1677,7 @@ public class XmppConnectionService extends Service {
         mForceDuringOnCreate.set(false);
         toggleForegroundService();
         setupPhoneStateListener();
+        rescanStickers();
         //start export log service every day at given time
         ScheduleAutomaticExport();
         // cancel scheduled exporter

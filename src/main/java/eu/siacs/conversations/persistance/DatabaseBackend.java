@@ -1237,6 +1237,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public DownloadableFile getFileForCid(Cid cid) {
+        if (cid == null) return null;
+
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query("monocles.cids", new String[]{"path"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         DownloadableFile f = null;
