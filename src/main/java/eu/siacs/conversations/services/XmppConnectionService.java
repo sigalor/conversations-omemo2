@@ -92,6 +92,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
 
+import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.WebxdcUpdate;
 
 import org.conscrypt.Conscrypt;
@@ -554,6 +555,8 @@ public class XmppConnectionService extends Service {
     private WakeLock wakeLock;
     private final BroadcastReceiver mInternalEventReceiver = new InternalEventReceiver();
     private final BroadcastReceiver mInternalScreenEventReceiver = new InternalEventReceiver();
+    private EmojiSearch emojiSearch = null;
+
 
     private static String generateFetchKey(Account account, final Avatar avatar) {
         return account.getJid().asBareJid() + "_" + avatar.owner + "_" + avatar.sha1sum;
@@ -735,6 +738,10 @@ public class XmppConnectionService extends Service {
                 callback.success(message);
             }
         });
+    }
+
+    public EmojiSearch emojiSearch() {
+        return emojiSearch;
     }
 
     public Conversation find(Bookmark bookmark) {

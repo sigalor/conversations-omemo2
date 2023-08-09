@@ -125,6 +125,7 @@ dependencies {
     implementation 'org.tomlj:tomlj:1.1.0'
     implementation 'org.jxmpp:jxmpp-stringprep-libidn:1.0.3'
     implementation 'com.tbuonomo:dotsindicator:4.2'
+    implementation 'me.xdrop:fuzzywuzzy:1.4.0'
 }
 
 ext {
