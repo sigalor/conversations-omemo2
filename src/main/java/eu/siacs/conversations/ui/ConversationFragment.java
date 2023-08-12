@@ -84,6 +84,8 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
+
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
@@ -1384,7 +1386,10 @@ public class ConversationFragment extends XmppFragment
 
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
-        binding.textinput.setRichContentListener(new String[]{"image/*"}, mEditorContentListener);
+        binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        if (displayMetrics.heightPixels > 0) binding.textinput.setMaxHeight(displayMetrics.heightPixels / 4);
 
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
         binding.contextPreviewCancel.setOnClickListener((v) -> {
