@@ -10,4 +10,6 @@ public interface UiCallback<T> {
     void userInputRequired(PendingIntent pi, T object);
 
     void progress(int progress);
+
+    void showToast();
 }

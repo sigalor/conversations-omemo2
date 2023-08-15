@@ -200,6 +200,11 @@ public abstract class XmppActivity extends ActionBarActivity {
         public void progress(int progress) {
 
         }
+
+        @Override
+        public void showToast() {
+
+        }
     };
 
     public boolean mSkipBackgroundBinding = false;
@@ -757,6 +762,10 @@ public abstract class XmppActivity extends ActionBarActivity {
                 }
 
                 @Override
+                public void showToast() {
+                }
+
+                @Override
                 public void success(String signature) {
                     account.setPgpSignature(signature);
                     xmppConnectionService.databaseBackend.updateAccount(account);
@@ -806,6 +815,10 @@ public abstract class XmppActivity extends ActionBarActivity {
             @Override
             public void error(int errorCode, Account object) {
 
+            }
+
+            @Override
+            public void showToast() {
             }
 
             @Override

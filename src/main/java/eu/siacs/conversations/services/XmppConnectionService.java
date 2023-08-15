@@ -17,6 +17,10 @@ import static eu.siacs.conversations.utils.RichPreview.RICH_LINK_METADATA;
 import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
 
+import android.graphics.drawable.AnimatedImageDrawable;
+import android.provider.DocumentsContract;
+import com.google.common.io.Files;
+import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.xmpp.OnGatewayResult;
 import eu.siacs.conversations.utils.Consumer;
@@ -92,6 +96,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
 
+import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.WebxdcUpdate;
 
 import org.conscrypt.Conscrypt;
@@ -271,8 +276,10 @@ public class XmppConnectionService extends Service {
     };
     public DatabaseBackend databaseBackend;
     private final ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor("ContactMerger");
+    private final ReplacingSerialSingleThreadExecutor mStickerScanExecutor = new ReplacingSerialSingleThreadExecutor("StickerScan");
     private long mLastActivity = 0;
     private long mLastMucPing = 0;
+    private long mLastStickerRescan = 0;
     public final FileBackend fileBackend = new FileBackend(this);
     private MemorizingTrustManager mMemorizingTrustManager;
     private final NotificationService mNotificationService = new NotificationService(this);
@@ -554,6 +561,8 @@ public class XmppConnectionService extends Service {
     private WakeLock wakeLock;
     private final BroadcastReceiver mInternalEventReceiver = new InternalEventReceiver();
     private final BroadcastReceiver mInternalScreenEventReceiver = new InternalEventReceiver();
+    private EmojiSearch emojiSearch = null;
+
 
     private static String generateFetchKey(Account account, final Avatar avatar) {
         return account.getJid().asBareJid() + "_" + avatar.owner + "_" + avatar.sha1sum;
@@ -690,7 +699,11 @@ public class XmppConnectionService extends Service {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": not compressing picture. sending as file");
             attachFileToConversation(conversation, uri, mimeType, callback);
             return;
+        } else {
+            // there will be a delay so the caller can be informed to show an info to the user
+            callback.showToast();
         }
+
         final Message message;
 
         if (conversation.getReplyTo() == null) {
@@ -731,6 +744,56 @@ public class XmppConnectionService extends Service {
                 callback.success(message);
             }
         });
+    }
+
+    private File stickerDir() {
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final String dir = p.getString("sticker_directory", "Stickers");
+        if (dir.startsWith("content://")) {
+            Uri uri = Uri.parse(dir);
+            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+            return new File(FileUtils.getPath(getBaseContext(), uri));
+        } else {
+            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir);
+        }
+    }
+
+    public void rescanStickers() {
+        long msToRescan = (mLastStickerRescan + 600000L) - SystemClock.elapsedRealtime();
+        if (msToRescan > 0) return;
+
+        mLastStickerRescan = SystemClock.elapsedRealtime();
+        mStickerScanExecutor.execute(() -> {
+            try {
+                for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
+                    try {
+                        if (file.isFile() && file.canRead()) {
+                            DownloadableFile df = new DownloadableFile(file.getAbsolutePath());
+                            Drawable icon = fileBackend.getThumbnail(df, getResources(), (int) (getResources().getDisplayMetrics().density * 288), false);
+                            if (Build.VERSION.SDK_INT >= 28 && icon instanceof AnimatedImageDrawable) {
+                                // Animated drawable not working in spans for me yet
+                                // https://stackoverflow.com/questions/76870075/using-animatedimagedrawable-inside-imagespan-renders-wrong-size
+                                continue;
+                            }
+                            final String filename = Files.getNameWithoutExtension(df.getName());
+                            Cid[] cids = fileBackend.calculateCids(new FileInputStream(df));
+                            for (Cid cid : cids) {
+                                saveCid(cid, file);
+                            }
+                            emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
+                        }
+                    } catch (final Exception e) {
+                        Log.w(Config.LOGTAG, "rescanStickers: " + e);
+                    }
+                }
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "rescanStickers: " + e);
+            }
+        });
+    }
+
+    public EmojiSearch emojiSearch() {
+        return emojiSearch;
     }
 
     public Conversation find(Bookmark bookmark) {
@@ -1187,6 +1250,11 @@ public class XmppConnectionService extends Service {
                 public void progress(int progress) {
 
                 }
+
+                @Override
+                public void showToast() {
+
+                }
             });
         } else {
             sendMessage(message);
@@ -1612,6 +1680,7 @@ public class XmppConnectionService extends Service {
         mForceDuringOnCreate.set(false);
         toggleForegroundService();
         setupPhoneStateListener();
+        rescanStickers();
         //start export log service every day at given time
         ScheduleAutomaticExport();
         // cancel scheduled exporter

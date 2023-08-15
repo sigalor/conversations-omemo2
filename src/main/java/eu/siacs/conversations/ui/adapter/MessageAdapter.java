@@ -538,7 +538,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
     }
 
-    private void displayEmojiMessage(final ViewHolder viewHolder, final String body, final boolean darkBackground) {
+    private void displayEmojiMessage(final ViewHolder viewHolder, final SpannableStringBuilder body, final boolean darkBackground) {
         viewHolder.download_button.setVisibility(View.GONE);
         viewHolder.audioPlayer.setVisibility(View.GONE);
         showImages(false, viewHolder);
@@ -550,10 +550,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_Emoji);
         }
-        final Spannable span = new SpannableString(body);
-        final float size = Emoticons.isEmoji(body) ? 3.0f : 2.0f;
-        span.setSpan(new RelativeSizeSpan(size), 0, body.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        viewHolder.messageBody.setText(span);
+        ImageSpan[] imageSpans = body.getSpans(0, body.length(), ImageSpan.class);
+        float size = imageSpans.length == 1 || Emoticons.isEmoji(body.toString()) ? 3.0f : 2.0f;
+        body.setSpan(new RelativeSizeSpan(size), 0, body.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        viewHolder.messageBody.setText(body);
     }
 
     private void displayXmppMessage(final ViewHolder viewHolder, final String body) {
@@ -676,6 +676,32 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             quoteDepth++;
         }
         return startsWithQuote;
+    }
+
+
+    private SpannableStringBuilder getSpannableBody(final Message message) {
+        Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
+        return message.getMergedBody((cid) -> {
+            try {
+                DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                if (f == null || !f.canRead()) {
+                    if (!message.trusted() && !message.getConversation().canInferPresence()) return null;
+
+                    try {
+                        new BobTransfer(BobTransfer.uri(cid), message.getConversation().getAccount(), message.getCounterpart(), activity.xmppConnectionService).start();
+                    } catch (final NoSuchAlgorithmException | URISyntaxException e) { }
+                    return null;
+                }
+
+                Drawable d = activity.xmppConnectionService.getFileBackend().getThumbnail(f, activity.getResources(), (int) (metrics.density * 288), true);
+                if (d == null) {
+                    new ThumbnailTask().execute(f);
+                }
+                return d;
+            } catch (final IOException e) {
+                return fallbackImg;
+            }
+        }, fallbackImg);
     }
 
     private void displayTextMessage(final ViewHolder viewHolder, final Message message, boolean darkBackground, int type) {
@@ -1602,7 +1628,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayMediaPreviewMessage(viewHolder, message, darkBackground, type);
             } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
                 displayAudioMessage(viewHolder, message, darkBackground, type);
-            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null) {
+            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty()) {
                 displayWebxdcMessage(viewHolder, message, darkBackground, type);
             } else {
                 displayOpenableMessage(viewHolder, message, darkBackground, type);
@@ -1647,7 +1673,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             darkBackground, type);
                 }
             } else if (message.bodyIsOnlyEmojis() && message.getType() != Message.TYPE_PRIVATE) {
-                displayEmojiMessage(viewHolder, message.getBody().trim(), darkBackground);
+                displayEmojiMessage(viewHolder, getSpannableBody(message), darkBackground);
             } else {
                 displayTextMessage(viewHolder, message, darkBackground, type);
             }
