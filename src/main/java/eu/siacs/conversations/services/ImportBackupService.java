@@ -8,6 +8,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -24,6 +25,8 @@ import androidx.core.app.NotificationManagerCompat;
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.CountingInputStream;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.io.CipherInputStream;
@@ -42,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +59,10 @@ import javax.crypto.BadPaddingException;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.crypto.axolotl.SQLiteAxolotlStore;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.ui.ManageAccountActivity;
 import eu.siacs.conversations.utils.BackupFileHeader;
@@ -66,25 +74,28 @@ public class ImportBackupService extends Service {
 
     private static final AtomicBoolean running = new AtomicBoolean(false);
     private final ImportBackupServiceBinder binder = new ImportBackupServiceBinder();
-    private final SerialSingleThreadExecutor executor = new SerialSingleThreadExecutor(getClass().getSimpleName());
-    private final Set<OnBackupProcessed> mOnBackupProcessedListeners = Collections.newSetFromMap(new WeakHashMap<>());
+    private final SerialSingleThreadExecutor executor =
+            new SerialSingleThreadExecutor(getClass().getSimpleName());
+    private final Set<OnBackupProcessed> mOnBackupProcessedListeners =
+            Collections.newSetFromMap(new WeakHashMap<>());
     private DatabaseBackend mDatabaseBackend;
     private NotificationManager notificationManager;
 
-    private static int count(String input, char c) {
-        int count = 0;
-        for (char aChar : input.toCharArray()) {
-            if (aChar == c) {
-                ++count;
-            }
-        }
-        return count;
-    }
+    private static final Collection<String> TABLE_ALLOW_LIST =
+            Arrays.asList(
+                    Account.TABLENAME,
+                    Conversation.TABLENAME,
+                    Message.TABLENAME,
+                    SQLiteAxolotlStore.PREKEY_TABLENAME,
+                    SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
+                    SQLiteAxolotlStore.SESSION_TABLENAME,
+                    SQLiteAxolotlStore.IDENTITIES_TABLENAME);
 
     @Override
     public void onCreate() {
         mDatabaseBackend = DatabaseBackend.getInstance(getBaseContext());
-        notificationManager = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager =
+                (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -106,16 +117,17 @@ public class ImportBackupService extends Service {
             return START_NOT_STICKY;
         }
         if (running.compareAndSet(false, true)) {
-            executor.execute(() -> {
-                startForegroundService();
-                final boolean success = importBackup(uri, password);
-                stopForeground(true);
-                running.set(false);
-                if (success) {
-                    notifySuccess();
-                }
-                stopSelf();
-            });
+            executor.execute(
+                    () -> {
+                        startForegroundService();
+                        final boolean success = importBackup(uri, password);
+                        stopForeground(true);
+                        running.set(false);
+                        if (success) {
+                            notifySuccess();
+                        }
+                        stopSelf();
+                    });
         } else {
             Log.d(Config.LOGTAG, "backup already running");
         }
@@ -216,7 +228,9 @@ public class ImportBackupService extends Service {
                     fileSize = 0;
                 } else {
                     returnCursor.moveToFirst();
-                    fileSize = returnCursor.getLong(returnCursor.getColumnIndex(OpenableColumns.SIZE));
+                    fileSize =
+                            returnCursor.getLong(
+                                    returnCursor.getColumnIndexOrThrow(OpenableColumns.SIZE));
                     returnCursor.close();
                 }
                 inputStream = getContentResolver().openInputStream(uri);
@@ -244,40 +258,46 @@ public class ImportBackupService extends Service {
             final byte[] key = ExportBackupService.getKey(password, backupFileHeader.getSalt());
 
             final AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
-            cipher.init(false, new AEADParameters(new KeyParameter(key), 128, backupFileHeader.getIv()));
-            final CipherInputStream cipherInputStream = new CipherInputStream(countingInputStream, cipher);
+            cipher.init(
+                    false,
+                    new AEADParameters(new KeyParameter(key), 128, backupFileHeader.getIv()));
+            final CipherInputStream cipherInputStream =
+                    new CipherInputStream(countingInputStream, cipher);
 
             final GZIPInputStream gzipInputStream = new GZIPInputStream(cipherInputStream);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(gzipInputStream, Charsets.UTF_8));
+            final BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(gzipInputStream, Charsets.UTF_8));
+            final JsonReader jsonReader = new JsonReader(reader);
+            if (jsonReader.peek() == JsonToken.BEGIN_ARRAY) {
+                jsonReader.beginArray();
+            } else {
+                throw new IllegalStateException("Backup file did not begin with array");
+            }
             db.beginTransaction();
-            String line;
-            StringBuilder multiLineQuery = null;
-            while ((line = reader.readLine()) != null) {
-                int count = count(line, '\'');
-                if (multiLineQuery != null) {
-                    multiLineQuery.append('\n');
-                    multiLineQuery.append(line);
-                    if (count % 2 == 1) {
-                        db.execSQL(multiLineQuery.toString());
-                        multiLineQuery = null;
-                        updateImportBackupNotification(fileSize, countingInputStream.getCount());
-                    }
-                } else {
-                    if (count % 2 == 0) {
-                        db.execSQL(line);
-                        updateImportBackupNotification(fileSize, countingInputStream.getCount());
-                    } else {
-                        multiLineQuery = new StringBuilder(line);
-                    }
+            while (jsonReader.hasNext()) {
+                if (jsonReader.peek() == JsonToken.BEGIN_OBJECT) {
+                    importRow(db, jsonReader, backupFileHeader.getJid(), password);
+                } else if (jsonReader.peek() == JsonToken.END_ARRAY) {
+                    jsonReader.endArray();
+                    continue;
                 }
+                updateImportBackupNotification(fileSize, countingInputStream.getCount());
             }
             db.setTransactionSuccessful();
             db.endTransaction();
             final Jid jid = backupFileHeader.getJid();
-            final Cursor countCursor = db.rawQuery("select count(messages.uuid) from messages join conversations on conversations.uuid=messages.conversationUuid join accounts on conversations.accountUuid=accounts.uuid where accounts.username=? and accounts.server=?", new String[]{jid.getEscapedLocal(), jid.getDomain().toEscapedString()});
+            final Cursor countCursor =
+                    db.rawQuery(
+                            "select count(messages.uuid) from messages join conversations on conversations.uuid=messages.conversationUuid join accounts on conversations.accountUuid=accounts.uuid where accounts.username=? and accounts.server=?",
+                            new String[] {
+                                    jid.getEscapedLocal(), jid.getDomain().toEscapedString()
+                            });
             countCursor.moveToFirst();
             final int count = countCursor.getInt(0);
-            Log.d(Config.LOGTAG, String.format("restored %d messages in %s", count, stopwatch.stop().toString()));
+            Log.d(
+                    Config.LOGTAG,
+                    String.format(
+                            "restored %d messages in %s", count, stopwatch.stop().toString()));
             countCursor.close();
             stopBackgroundService();
             synchronized (mOnBackupProcessedListeners) {
@@ -288,7 +308,8 @@ public class ImportBackupService extends Service {
             return true;
         } catch (final Exception e) {
             final Throwable throwable = e.getCause();
-            final boolean reasonWasCrypto = throwable instanceof BadPaddingException || e instanceof ZipException;
+            final boolean reasonWasCrypto =
+                    throwable instanceof BadPaddingException || e instanceof ZipException;
             synchronized (mOnBackupProcessedListeners) {
                 for (OnBackupProcessed l : mOnBackupProcessedListeners) {
                     if (reasonWasCrypto) {
@@ -301,6 +322,56 @@ public class ImportBackupService extends Service {
             Log.d(Config.LOGTAG, "error restoring backup " + uri, e);
             return false;
         }
+    }
+
+    private void importRow(
+            final SQLiteDatabase db,
+            final JsonReader jsonReader,
+            final Jid account,
+            final String passphrase)
+            throws IOException {
+        jsonReader.beginObject();
+        final String firstParameter = jsonReader.nextName();
+        if (!firstParameter.equals("table")) {
+            throw new IllegalStateException("Expected key 'table'");
+        }
+        final String table = jsonReader.nextString();
+        if (!TABLE_ALLOW_LIST.contains(table)) {
+            throw new IOException(String.format("%s is not recognized for import", table));
+        }
+        final ContentValues contentValues = new ContentValues();
+        final String secondParameter = jsonReader.nextName();
+        if (!secondParameter.equals("values")) {
+            throw new IllegalStateException("Expected key 'values'");
+        }
+        jsonReader.beginObject();
+        while (jsonReader.peek() != JsonToken.END_OBJECT) {
+            final String name = jsonReader.nextName();
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.nextNull();
+                contentValues.putNull(name);
+            } else if (jsonReader.peek() == JsonToken.NUMBER) {
+                contentValues.put(name, jsonReader.nextLong());
+            } else {
+                contentValues.put(name, jsonReader.nextString());
+            }
+        }
+        jsonReader.endObject();
+        jsonReader.endObject();
+        if (Account.TABLENAME.equals(table)) {
+            final Jid jid =
+                    Jid.of(
+                            contentValues.getAsString(Account.USERNAME),
+                            contentValues.getAsString(Account.SERVER),
+                            null);
+            final String password = contentValues.getAsString(Account.PASSWORD);
+            if (jid.equals(account) && passphrase.equals(password)) {
+                Log.d(Config.LOGTAG, "jid and password from backup header had matching row");
+            } else {
+                throw new IOException("jid or password in table did not match backup");
+            }
+        }
+        db.insert(table, null, contentValues);
     }
 
     private void notifySuccess() {
