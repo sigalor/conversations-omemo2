@@ -1600,8 +1600,21 @@ public class ConversationFragment extends XmppFragment
         if (message.isGeoUri()) {
             quoteGeoUri(message, user);
         }
-        if (message.getThread() == null && conversation.getMode() == Conversation.MODE_MULTI) newThread();
+        if (!forkNullThread(message)) newThread();
         setupReply(message);
+    }
+
+    private boolean forkNullThread(Message message) {
+        if (message.getThread() != null || conversation.getMode() != Conversation.MODE_MULTI) return true;
+        for (final Message m : conversation.findReplies(message.getServerMsgId())) {
+            final Element thread = m.getThread();
+            if (thread != null) {
+                setThread(thread);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void setupReply(Message message, @Nullable String user) {
