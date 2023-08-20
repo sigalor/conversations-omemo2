@@ -1302,4 +1302,6 @@
     <string name="please_be_patient">Please be patient...</string>
     <string name="notify_only_when_highlighted_or_replied">Notify for mentions and replies</string>
     <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
+    <string name="pref_follow_thread_in_channel">Auto-follow thread in channels</string>
+    <string name="pref_follow_thread_in_channel_summary">Set the thread marker to match the message currently being looked at</string>
 </resources>
