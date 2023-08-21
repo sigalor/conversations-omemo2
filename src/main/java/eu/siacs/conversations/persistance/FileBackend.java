@@ -704,6 +704,26 @@ public class FileBackend {
         }
     }
 
+    private InputStream openInputStream(Uri uri) throws IOException {
+        if (uri != null && "data".equals(uri.getScheme())) {
+            String[] parts = uri.getSchemeSpecificPart().split(",", 2);
+            byte[] data;
+            if (Arrays.asList(parts[0].split(";")).contains("base64")) {
+                String[] parts2 = parts[0].split(";", 2);
+                parts[0] = parts2[0];
+                data = Base64.decode(parts[1], 0);
+            } else {
+                try {
+                    data = parts[1].getBytes("UTF-8");
+                } catch (final IOException e) {
+                    data = new byte[0];
+                }
+            }
+            return new ByteArrayInputStream(data);
+        }
+        return mXmppConnectionService.getContentResolver().openInputStream(uri);
+    }
+
     private void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
         Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
         file.getParentFile().mkdirs();
@@ -713,7 +733,7 @@ public class FileBackend {
             throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
         }
         try (final OutputStream os = new FileOutputStream(file);
-             final InputStream is = mXmppConnectionService.getContentResolver().openInputStream(uri)) {
+             final InputStream is = openInputStream(uri)) {
             if (is == null) {
                 throw new FileCopyException(R.string.error_file_not_found);
             }
@@ -965,7 +985,7 @@ public class FileBackend {
 
     public void setupRelativeFilePath(final Message message, final Uri uri, final String extension) throws FileCopyException, XmppConnectionService.BlockedMediaException {
         try {
-            setupRelativeFilePath(message, mXmppConnectionService.getContentResolver().openInputStream(uri), extension);
+            setupRelativeFilePath(message, openInputStream(uri), extension);
         } catch (final FileNotFoundException e) {
             throw new FileCopyException(R.string.error_file_not_found);
         } catch (final IOException e) {
