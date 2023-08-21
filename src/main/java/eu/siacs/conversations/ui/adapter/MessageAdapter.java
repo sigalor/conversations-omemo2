@@ -1621,7 +1621,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (checkFileExistence(message, view, viewHolder)) {
                     new Thread(new markFileExistingFinisher(message, activity)).start();
                 }
-                displayInfoMessage(viewHolder, UIHelper.getMessagePreview(activity, message).first, darkBackground, message, type);
+                displayInfoMessage(viewHolder, UIHelper.getMessagePreview(activity, message).first, darkBackground, message);
             }
         } else if (message.isFileOrImage() && message.getEncryption() != Message.ENCRYPTION_PGP && message.getEncryption() != Message.ENCRYPTION_DECRYPTION_FAILED) {
             if (message.getFileParams().width > 0 && message.getFileParams().height > 0) {
