@@ -6,8 +6,8 @@ package de.monocles.chat;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Icon;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.graphics.ImageDecoder;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -18,13 +18,15 @@ import android.view.LayoutInflater;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -32,6 +34,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Consumer;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.common.io.ByteStreams;
@@ -63,7 +66,7 @@ import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.ConversationsActivity;
-import eu.siacs.conversations.utils.Consumer;
+import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.utils.MimeUtils;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xml.Element;
@@ -77,10 +80,12 @@ public class WebxdcPage implements ConversationPage {
     protected String baseUrl;
     protected Message source;
     protected WebxdcUpdate lastUpdate = null;
+    protected WeakReference<XmppActivity> activity;
 
-    public WebxdcPage(Cid cid, Message source, XmppConnectionService xmppConnectionService) {
+    public WebxdcPage(final XmppActivity activity, Cid cid, Message source, XmppConnectionService xmppConnectionService) {
         this.xmppConnectionService = xmppConnectionService;
         this.source = source;
+        this.activity = new WeakReference(activity);
         File f = xmppConnectionService.getFileForCid(cid);
         try {
             if (f != null) zip = new ZipFile(xmppConnectionService.getFileForCid(cid));
@@ -101,6 +106,7 @@ public class WebxdcPage implements ConversationPage {
 
     public Drawable getIcon() {
         if (android.os.Build.VERSION.SDK_INT < 28) return null;
+        if (zip == null) return null;
         ZipEntry entry = zip.getEntry("icon.webp");
         if (entry == null) entry = zip.getEntry("icon.png");
         if (entry == null) entry = zip.getEntry("icon.jpg");
@@ -195,7 +201,7 @@ public class WebxdcPage implements ConversationPage {
         return res;
     }
 
-    public View inflateUi(Context context, Consumer<ConversationPage> remover) {
+    public View inflateUi(Context context, eu.siacs.conversations.utils.Consumer<ConversationPage> remover) {
         if (binding != null) {
             binding.webview.loadUrl("javascript:__webxdcUpdate();");
             return getView();
@@ -251,6 +257,20 @@ public class WebxdcPage implements ConversationPage {
             }
         });
 
+        binding.webview.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                // WebxdcActivity.this.filePathCallback = filePathCallback;
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, fileChooserParams.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE);
+                final XmppActivity activity = WebxdcPage.this.activity.get();
+                if (activity != null) activity.startActivityWithCallback(Intent.createChooser(intent, "Choose a file"), filePathCallback);
+                return activity != null;
+            }
+        });
+
         // disable "safe browsing" as this has privacy issues,
         // eg. at least false positives are sent to the "Safe Browsing Lookup API".
         // as all URLs opened in the WebView are local anyway,
@@ -299,9 +319,7 @@ public class WebxdcPage implements ConversationPage {
                         .setIntent(intent);
                 Drawable icon = getIcon();
                 if (icon != null && icon instanceof BitmapDrawable) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        builder = builder.setIcon(IconCompat.createFromIcon(Icon.createWithBitmap(((BitmapDrawable) icon).getBitmap())));
-                    }
+                    builder = builder.setIcon(IconCompat.createFromIcon(Icon.createWithBitmap(((BitmapDrawable) icon).getBitmap())));
                 }
                 ShortcutManagerCompat.requestPinShortcut(xmppConnectionService, builder.build(), null);
             } else {

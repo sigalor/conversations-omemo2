@@ -1,6 +1,8 @@
 package eu.siacs.conversations.ui;
 
 import java.util.Map;
+
+import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.ui.adapter.CommandAdapter;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
@@ -3527,6 +3529,16 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         final Message message = downloadUuid == null ? null : conversation.findMessageWithFileAndUuid(downloadUuid);
+        if ("webxdc".equals(postInitAction)) {
+            if (message == null) return;
+
+            Cid webxdcCid = message.getFileParams().getCids().get(0);
+            WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message, activity.xmppConnectionService);
+            Conversation conversation = (Conversation) message.getConversation();
+            if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
+                conversation.startWebxdc(webxdc);
+            }
+        }
         if (message != null) {
             startDownloadable(message);
         }

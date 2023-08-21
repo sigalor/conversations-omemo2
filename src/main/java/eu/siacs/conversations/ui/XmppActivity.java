@@ -75,6 +75,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -116,6 +117,7 @@ import net.java.otr4j.session.SessionID;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import android.webkit.ValueCallback;
 import eu.siacs.conversations.utils.CryptoHelper;
 import static eu.siacs.conversations.ui.SettingsActivity.ENABLE_OTR_ENCRYPTION;
 
@@ -153,6 +155,8 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected Toast mToast;
     protected Runnable onOpenPGPKeyPublished = () -> ToastCompat.makeText(XmppActivity.this, R.string.openpgp_has_been_published, ToastCompat.LENGTH_SHORT).show();
     protected ConferenceInvite mPendingConferenceInvite = null;
+    protected PriorityQueue<Pair<Integer, ValueCallback<Uri[]>>> activityCallbacks = new PriorityQueue<>((x, y) -> y.first.compareTo(x.first));
+
     protected ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -997,6 +1001,13 @@ public abstract class XmppActivity extends ActionBarActivity {
         }
     }
 
+    public synchronized void startActivityWithCallback(Intent intent, ValueCallback<Uri[]> cb) {
+        Pair<Integer, ValueCallback<Uri[]>> peek = activityCallbacks.peek();
+        int index = peek == null ? 1 : peek.first + 1;
+        activityCallbacks.add(new Pair<>(index, cb));
+        startActivityForResult(intent, index);
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_INVITE_TO_CONVERSATION && resultCode == RESULT_OK) {
@@ -1007,6 +1018,21 @@ public abstract class XmppActivity extends ActionBarActivity {
                     mToast.show();
                 }
                 mPendingConferenceInvite = null;
+            }
+        } else if (resultCode == RESULT_OK) {
+            for (Pair<Integer, ValueCallback<Uri[]>> cb : new ArrayList<>(activityCallbacks)) {
+                if (cb.first == requestCode) {
+                    activityCallbacks.remove(cb);
+                    ArrayList<Uri> dataUris = new ArrayList<>();
+                    if (data.getDataString() != null) {
+                        dataUris.add(Uri.parse(data.getDataString()));
+                    } else if (data.getClipData() != null) {
+                        for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                            dataUris.add(data.getClipData().getItemAt(i).getUri());
+                        }
+                    }
+                    cb.second.onReceiveValue(dataUris.toArray(new Uri[0]));
+                }
             }
         }
     }
