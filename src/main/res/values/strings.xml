@@ -865,6 +865,7 @@
     <string name="restore">Restore</string>
     <string name="enter_password_to_restore">Enter your password for the account %s to restore the backup.</string>
     <string name="restore_warning">Don\'t use the restore feature under any circumstances except in the case of migrating or losing your device.</string>
+    <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
     <string name="unable_to_restore_backup">Unable to restore backup.</string>
     <string name="unable_to_decrypt_backup">Unable to decrypt backup. Is the password correct?</string>
     <string name="pref_prefer_xmpp_avatar_summary">Prefer the user\'s XMPP avatar instead of the one from your address book</string>
