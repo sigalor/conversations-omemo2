@@ -1393,6 +1393,7 @@ public class ConversationFragment extends XmppFragment
 
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
         binding.contextPreviewCancel.setOnClickListener((v) -> {
+            setThread(null);
             conversation.setUserSelectedThread(false);
             setupReply(null);
         });
@@ -1410,6 +1411,8 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnInlineImageLongClicked(this);
         binding.messagesView.setAdapter(messageListAdapter);
         registerForContextMenu(binding.messagesView);
+        registerForContextMenu(binding.textSendButton);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.binding.textinput.setCustomInsertionActionModeCallback(new EditMessageActionModeCallback(this.binding.textinput));
         }
@@ -1429,6 +1432,7 @@ public class ConversationFragment extends XmppFragment
             conversation.setLockThread(false);
             backPressedLeaveSingleThread.setEnabled(false);
             if (wasLocked) {
+                setThread(null);
                 conversation.setUserSelectedThread(false);
                 refresh();
                 updateThreadFromLastMessage();
@@ -1600,8 +1604,21 @@ public class ConversationFragment extends XmppFragment
         if (message.isGeoUri()) {
             quoteGeoUri(message, user);
         }
-        if (message.getThread() == null && conversation.getMode() == Conversation.MODE_MULTI) newThread();
+        if (!forkNullThread(message)) newThread();
         setupReply(message);
+    }
+
+    private boolean forkNullThread(Message message) {
+        if (message.getThread() != null || conversation.getMode() != Conversation.MODE_MULTI) return true;
+        for (final Message m : conversation.findReplies(message.getServerMsgId())) {
+            final Element thread = m.getThread();
+            if (thread != null) {
+                setThread(thread);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void setupReply(Message message, @Nullable String user) {
@@ -1649,6 +1666,28 @@ public class ConversationFragment extends XmppFragment
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         //This should cancel any remaining click events that would otherwise trigger links
         v.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
+
+        if (v == binding.textSendButton) {
+            super.onCreateContextMenu(menu, v, menuInfo);
+            try {
+                java.lang.reflect.Method m = menu.getClass().getSuperclass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
+                m.setAccessible(true);
+                m.invoke(menu, true);
+            } catch (Exception e) {
+                Log.w("WUT", "" + e);
+                e.printStackTrace();
+            }
+            Menu tmpMenu = new android.widget.PopupMenu(activity, null).getMenu();
+            activity.getMenuInflater().inflate(R.menu.fragment_conversation, tmpMenu);
+            MenuItem attachMenu = tmpMenu.findItem(R.id.action_attach_file);
+            for (int i = 0; i < attachMenu.getSubMenu().size(); i++) {
+                MenuItem item = attachMenu.getSubMenu().getItem(i);
+                MenuItem newItem = menu.add(item.getGroupId(), item.getItemId(), item.getOrder(), item.getTitle());
+                newItem.setIcon(item.getIcon());
+            }
+            return;
+        }
+
         synchronized (this.messageList) {
             super.onCreateContextMenu(menu, v, menuInfo);
             AdapterView.AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) menuInfo;
@@ -1919,7 +1958,7 @@ public class ConversationFragment extends XmppFragment
                 setThread(selectedMessage.getThread());
                 return true;
             default:
-                return super.onContextItemSelected(item);
+                return onOptionsItemSelected(item);
         }
     }
 
@@ -2065,6 +2104,7 @@ public class ConversationFragment extends XmppFragment
         conversation.setLockThread(false);
         backPressedLeaveSingleThread.setEnabled(false);
         if (wasLocked) {
+            setThread(null);
             conversation.setUserSelectedThread(false);
             refresh();
             updateThreadFromLastMessage();
@@ -2722,6 +2762,11 @@ public class ConversationFragment extends XmppFragment
             if (message == null) {
                 newThread();
             } else {
+                if (conversation.getMode() == Conversation.MODE_MULTI) {
+                    if (activity == null || activity.xmppConnectionService == null) return;
+                    if (!activity.xmppConnectionService.getBooleanPreference("follow_thread_in_channel", R.bool.follow_thread_in_channel)) return;
+                }
+
                 setThread(message.getThread());
             }
         }
@@ -3756,6 +3801,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     protected void messageSent() {
+        setThread(null);
         conversation.setUserSelectedThread(false);
         mSendingPgpMessage.set(false);
         this.binding.textinput.setText("");

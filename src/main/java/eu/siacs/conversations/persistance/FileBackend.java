@@ -710,7 +710,8 @@ public class FileBackend {
     public static boolean isPathBlacklisted(String path) {
         Environment.getDataDirectory();
         final String androidDataPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Android" + File.separator + "data" + File.separator + "";
-        return path.startsWith(androidDataPath);
+        final File f = new File(path);
+        return path.startsWith(androidDataPath) || !f.canRead();
     }
 
     public String getOriginalPath(Uri uri) {

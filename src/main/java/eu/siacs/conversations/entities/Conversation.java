@@ -764,6 +764,23 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return reactionEmoji;
     }
 
+
+    public Set<Message> findReplies(String id) {
+        Set<Message> replies = new HashSet<>();
+
+        synchronized (this.messages) {
+            for (int i = this.messages.size() - 1; i >= 0; --i) {
+                final Message message = messages.get(i);
+                if (id.equals(message.getServerMsgId())) break;
+                if (id.equals(message.getUuid())) break;
+                final Element r = message.getReply();
+                if (r != null && r.getAttribute("id") != null && id.equals(r.getAttribute("id"))) {
+                    replies.add(message);
+                }
+            }
+        }
+        return replies;
+    }
     public long loadMoreTimestamp() {
         if (messages.size() < 1) return 0;
         if (getLockThread() && messages.size() > 5000) return 0;
@@ -783,9 +800,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         Set<String> extraIds = new HashSet<>();
         for (ListIterator<Message> iterator = messages.listIterator(messages.size()); iterator.hasPrevious(); ) {
             Message m = iterator.previous();
-            if (m.wasMergedIntoPrevious() || (getLockThread() && !extraIds.contains(m.replyId()) && (m.getThread() == null || !m.getThread().getContent().equals(getThread().getContent())))) {
+            final Element mthread = m.getThread();
+            if (m.wasMergedIntoPrevious() || (getLockThread() && !extraIds.contains(m.replyId()) && (mthread == null || !mthread.getContent().equals(getThread() == null ? "" : getThread().getContent())))) {
                 iterator.remove();
-            } else if (getLockThread() && m.getThread() != null) {
+            } else if (getLockThread() && mthread != null) {
                 Element reply = m.getReply();
                 if (reply != null && reply.getAttribute("id") != null) extraIds.add(reply.getAttribute("id"));
                 Element reactions = m.getReactions();
