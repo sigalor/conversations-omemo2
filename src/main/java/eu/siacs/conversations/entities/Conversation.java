@@ -2953,8 +2953,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             }
 
             protected void updateWithResponseUiThread(final IqPacket iq) {
-                this.loadingTimer.cancel();
+                Timer oldTimer = this.loadingTimer;
                 this.loadingTimer = new Timer();
+                oldTimer.cancel();
                 this.executing = false;
                 this.loading = false;
                 this.loadingHasBeenLong = false;
