@@ -919,7 +919,8 @@
     <string name="restore_backup">Restaurar copia de seguridad</string>
     <string name="restore">Restaurar</string>
     <string name="enter_password_to_restore">Escribe tu contraseña para la cuenta %s para restaurar la copia de seguridad.</string>
-    <string name="restore_warning">No use la característica de restauración bajo ninguna circunstancia excepto en caso de migración o pérdida de su dispositivo.</string>
+    <string name="restore_warning">No uses la característica de restauración bajo ninguna circunstancia excepto en caso de migración o pérdida de tu dispositivo.</string>
+    <string name="restore_warning_continued">¡No intentes resturar copias de seguridad que no hayas creado tu mismo!</string>
     <string name="unable_to_restore_backup">No se puede restaurar la copia de seguridad.</string>
     <string name="unable_to_decrypt_backup">No se puede descifrar la copia de seguridad. ¿Es correcta la contraseña\?</string>
     <string name="pref_prefer_xmpp_avatar_summary">Preferir el avatar de usuarios XMPP en lugar del de tu lista de contactos</string>
@@ -1391,4 +1392,6 @@
     <string name="pref_broadcast_last_activity_summary">Permitir a tus contactos cuando fue tu última actividad con la aplicación</string>
     <string name="settings_restore_message_success">Ajustes restaurados con éxito</string>
     <string name="settings_restore_message_failure">Fallo al restaurar ajustes: %s</string>
+    <string name="pref_follow_thread_in_channel">Hilo de autoseguimiento en canales</string>
+    <string name="pref_follow_thread_in_channel_summary">Configura el marcador de hilo para que coincida con el mensaje que estás mirando ahora</string>
 </resources>
