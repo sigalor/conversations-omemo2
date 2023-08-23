@@ -94,6 +94,7 @@ import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.xmpp.Jid;
+import eu.siacs.conversations.xml.Element;
 
 
 public class NotificationService {
@@ -539,7 +540,7 @@ public class NotificationService {
         final Conversation conversation = (Conversation) message.getConversation();
         return message.getStatus() == Message.STATUS_RECEIVED
                 && !conversation.isMuted()
-                && (conversation.alwaysNotify() || wasHighlightedOrPrivate(message))
+                && (conversation.alwaysNotify() || (wasHighlightedOrPrivate(message) || (conversation.notifyReplies() && wasReplyToMe(message))))
                 && (!conversation.isWithStranger() || notificationsFromStrangers())
                 && message.getType() != Message.TYPE_RTP_SESSION;
     }
@@ -1907,6 +1908,14 @@ public class NotificationService {
         } else {
             return false;
         }
+    }
+
+    private boolean wasReplyToMe(final Message message) {
+        final Element reply = message.getReply();
+        if (reply == null || reply.getAttribute("id") == null) return false;
+        final Message parent = ((Conversation) message.getConversation()).findMessageWithRemoteIdAndCounterpart(reply.getAttribute("id"), null);
+        if (parent == null) return false;
+        return parent.getStatus() >= Message.STATUS_SEND;
     }
 
     public void setOpenConversation(final Conversation conversation) {
