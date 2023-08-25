@@ -616,6 +616,7 @@ public class ConversationFragment extends XmppFragment
             conversation.setLockThread(false);
             this.setEnabled(false);
             conversation.setUserSelectedThread(false);
+            setThread(null);
             refresh();
             updateThreadFromLastMessage();
         }

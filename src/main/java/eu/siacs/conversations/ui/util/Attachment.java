@@ -198,6 +198,6 @@ public class Attachment implements Parcelable {
     }
 
     private static boolean isImage(final String mime) {
-        return mime.startsWith("image/") && !mime.equals("image/svg+xml");
+        return mime.startsWith("image/");
     }
 }
