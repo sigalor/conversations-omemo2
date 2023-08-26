@@ -822,7 +822,12 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     }
 
     private void createBackup() {
-        createBackup(true);
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.pref_create_backup))
+                .setMessage(getString(R.string.create_monocles_backup))
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    createBackup(true);
+                }).show();
     }
 
     private void createBackup(boolean notify) {
