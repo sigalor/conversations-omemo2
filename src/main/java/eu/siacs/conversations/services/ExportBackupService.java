@@ -267,21 +267,20 @@ public class ExportBackupService extends Service {
                 if (extras != null && extras.containsKey("NOTIFY_ON_BACKUP_COMPLETE")) {
                     notify = extras.getBoolean("NOTIFY_ON_BACKUP_COMPLETE");
                 }
-                boolean success = false;
+                boolean success;
                 List<File> files;
                 try {
                     exportSettings();
-
                     files = export(StorageHelper.BackupCompatTypes.Compatible);
-
                     if(files == null) {
                         Log.d(Config.LOGTAG, "Failed to create a Conversations compatible backup. Giving up!");
+                        success = false;
                     }
                     else {
                         List<File> f = export(StorageHelper.BackupCompatTypes.MonoclesOnly);
-
                         if(f == null) {
                             Log.d(Config.LOGTAG, "Failed to create a Monocles-Only compatible backup. Giving up!");
+                            success = false;
                         } else {
                             files.addAll(f);
                             success = files != null;
@@ -293,6 +292,7 @@ public class ExportBackupService extends Service {
                     }
                 } catch (final Exception e) {
                     Log.d(Config.LOGTAG, "unable to create backup", e);
+                    success = false;
                     files = Collections.emptyList();
                 }
                 try {
@@ -311,7 +311,7 @@ public class ExportBackupService extends Service {
                 RUNNING.set(false);
                 if (success) {
                     notifySuccess(files, notify);
-                    FileBackend.rotateBackupFiles(getBackupDirectory(null), this.mAccounts, getApplicationContext());
+                    //FileBackend.deleteOldBackups(new File(getBackupDirectory(null)), this.mAccounts);
                 } else {
                     notifyError();
                 }
@@ -539,6 +539,7 @@ public class ExportBackupService extends Service {
      * The list returned will be sorted already
      * @param dirName The directory to use
      * @param fileNamePattern The pattern the file starts with
+     * @param datePattern The pattern the file has to include
      * @return An empty list if the patterns did not match or the list of files which match the conditions
      */
     public static List<File> enumSortFiles(String dirName, String fileNamePattern) {
