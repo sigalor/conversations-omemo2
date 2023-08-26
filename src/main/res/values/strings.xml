@@ -550,6 +550,7 @@
     <string name="inviteUser_Subject">has invited you via</string>
     <string name="InviteText">Hello,\n\nthe user %s has invited you to monocles. Just click the following link…</string>
     <string name="pref_broadcast_last_activity">Broadcast Last User Interaction</string>
+    <string name="pref_broadcast_last_activity_summary">Let all your contacts know when use monocles chat</string>
     <string name="request_permissions_message">monocles chat will ask you to allow a few permissions. It is important that you allow all these permissions to use all features of this messenger. If you deny any of these permissions the app will close itself.</string>
     <string name="request_permissions_message_again">You have denied some or all permissions needed for monocles chat. Would you like to jump to the settings and allow these permissions? If you denie any of these permissions, the app will close itself.</string>
     <string name="unable_to_connect_to_keychain">Unable to connect to OpenKeychain</string>
@@ -865,7 +866,6 @@
     <string name="restore">Restore</string>
     <string name="enter_password_to_restore">Enter your password for the account %s to restore the backup.</string>
     <string name="restore_warning">Don\'t use the restore feature under any circumstances except in the case of migrating or losing your device.</string>
-    <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
     <string name="unable_to_restore_backup">Unable to restore backup.</string>
     <string name="unable_to_decrypt_backup">Unable to decrypt backup. Is the password correct?</string>
     <string name="pref_prefer_xmpp_avatar_summary">Prefer the user\'s XMPP avatar instead of the one from your address book</string>
@@ -1305,7 +1305,4 @@
     <string name="pref_confirm_delete_attachment">Confirm local file removal</string>
     <string name="pref_keep_num_backups">How many backups should be kept?. Defaults to 3</string>
     <string name="pref_keep_num_backups_title">Number of backups to keep</string>
-    <string name="pref_broadcast_last_activity_summary">Allow contacts to see when you were last active in the app</string>
-    <string name="settings_restore_message_success">Settings successfully restored</string>
-    <string name="settings_restore_message_failure">Failed to restore settings: %s</string>
 </resources>
