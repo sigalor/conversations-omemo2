@@ -341,6 +341,11 @@
         <Preference
             android:title="@string/clear_blocked_media"
             android:key="clear_blocked_media" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/confirm_delete_attachment"
+            android:key="confirm_delete_attachment"
+            android:summary="@string/confirm_delete_attachment_summary"
+            android:title="@string/pref_confirm_delete_attachment" />
     </PreferenceScreen>
     <!--status-->
     <PreferenceScreen

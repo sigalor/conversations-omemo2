@@ -2954,31 +2954,18 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void deleteFile(final Message message) {
+        boolean prefConfirm = activity.xmppConnectionService.getBooleanPreference("confirm_delete_attachment", R.bool.confirm_delete_attachment);
+        if(!prefConfirm) {
+            deleteMessageFile(message);
+            return;
+        }
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setNegativeButton(R.string.cancel, null);
         builder.setTitle(R.string.delete_file_dialog);
         builder.setMessage(R.string.delete_file_dialog_msg);
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
-            List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
-            if (thumbs != null && !thumbs.isEmpty()) {
-                for (Element thumb : thumbs) {
-                    Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                    if (uri.getScheme().equals("cid")) {
-                        Cid cid = BobTransfer.cid(uri);
-                        if (cid == null) continue;
-                        DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                        activity.xmppConnectionService.evictPreview(f);
-                        f.delete();
-                    }
-                }
-            }
-            if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
-                message.setFileDeleted(true);
-                activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
-                activity.xmppConnectionService.updateMessage(message, false);
-                activity.onConversationsListItemUpdated();
-                refresh();
-            }
+            deleteMessageFile(message);
         });
         builder.create().show();
     }
@@ -4526,5 +4513,28 @@ public class ConversationFragment extends XmppFragment
             throw new IllegalStateException("Activity not attached");
         }
         return activity;
+    }
+
+    private void deleteMessageFile(final Message message) {
+        List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
+        if (thumbs != null && !thumbs.isEmpty()) {
+            for (Element thumb : thumbs) {
+                Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                if (uri.getScheme().equals("cid")) {
+                    Cid cid = BobTransfer.cid(uri);
+                    if (cid == null) continue;
+                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                    activity.xmppConnectionService.evictPreview(f);
+                    f.delete();
+                }
+            }
+        }
+        if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
+            message.setFileDeleted(true);
+            activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
+            activity.xmppConnectionService.updateMessage(message, false);
+            activity.onConversationsListItemUpdated();
+            refresh();
+        }
     }
 }
