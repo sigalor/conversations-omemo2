@@ -25,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
@@ -36,6 +37,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.services.ExportBackupService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.ui.adapter.AccountAdapter;
@@ -241,6 +243,16 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 break;
             case R.id.action_add_account_with_cert:
                 addAccountFromKey();
+                break;
+            case R.id.action_create_backup:
+                Intent intent = new Intent(this, ExportBackupService.class);
+                intent.putExtra("monocles_db", true);
+                intent.putExtra("NOTIFY_ON_BACKUP_COMPLETE", true);
+                ContextCompat.startForegroundService(this, intent);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(R.string.backup_started_message);
+                builder.setPositiveButton(R.string.ok, null);
+                builder.create().show();
                 break;
             default:
                 break;

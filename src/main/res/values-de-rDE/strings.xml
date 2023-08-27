@@ -1353,4 +1353,5 @@
     <string name="related_chats">Zugehörige Chats</string>
     <string name="confirm_delete_attachment_summary">Soll das Löschen von lokalen Dateien in Chats immer bestätigt werden?</string>
     <string name="pref_confirm_delete_attachment">Bestätigung zum Löschen lokaler Dateien in Chats</string>
+    <string name="menuitem_create_backup_action">Datensicherung erstellen</string>
 </resources>
