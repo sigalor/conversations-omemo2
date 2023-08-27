@@ -1573,6 +1573,7 @@ public class XmppConnectionService extends Service {
     @Override
     public void onCreate() {
         org.jxmpp.stringprep.libidn.LibIdnXmppStringprep.setup();
+        emojiSearch = new EmojiSearch(this);
         updateNotificationChannels();
         setTheme(ThemeHelper.find(this));
         ThemeHelper.applyCustomColors(this);
