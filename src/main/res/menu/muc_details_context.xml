@@ -61,38 +61,6 @@
         android:orderInCategory="100"
         android:title="@string/manage_permission"
         android:visible="false">
-        <menu>
-            <item
-                android:id="@+id/give_membership"
-                android:orderInCategory="100"
-                android:title="@string/grant_membership"
-                android:visible="false" />
-            <item
-                android:id="@+id/remove_membership"
-                android:orderInCategory="100"
-                android:title="@string/remove_membership"
-                android:visible="false" />
-            <item
-                android:id="@+id/give_admin_privileges"
-                android:orderInCategory="100"
-                android:title="@string/grant_admin_privileges"
-                android:visible="false" />
-            <item
-                android:id="@+id/remove_admin_privileges"
-                android:orderInCategory="100"
-                android:title="@string/remove_admin_privileges"
-                android:visible="false" />
-            <item
-                android:id="@+id/give_owner_privileges"
-                android:orderInCategory="100"
-                android:title="@string/grant_owner_privileges"
-                android:visible="false" />
-            <item
-                android:id="@+id/revoke_owner_privileges"
-                android:orderInCategory="100"
-                android:title="@string/remove_owner_privileges"
-                android:visible="false" />
-        </menu>
     </item>
     <item
         android:id="@+id/kick_from_room"
