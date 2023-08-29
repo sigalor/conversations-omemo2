@@ -216,24 +216,37 @@ public class Element implements Node {
 
 	public String toString(final ImmutableMap<String, String> parentNS) {
 		final var mutns = new Hashtable<>(parentNS);
-		final var attr = getSerializableAttributes(mutns);
 		final StringBuilder elementOutput = new StringBuilder();
 		if (childNodes.size() == 0) {
+			final var attr = getSerializableAttributes(mutns);
 			Tag emptyTag = Tag.empty(name);
 			emptyTag.setAttributes(attr);
 			elementOutput.append(emptyTag.toString());
 		} else {
 			final var ns = ImmutableMap.copyOf(mutns);
-			Tag startTag = Tag.start(name);
-			startTag.setAttributes(attr);
+			final var startTag = startTag(mutns);
 			elementOutput.append(startTag);
 			for (Node child : ImmutableList.copyOf(childNodes)) {
 				elementOutput.append(child.toString(ns));
 			}
-			Tag endTag = Tag.end(name);
-			elementOutput.append(endTag);
+			elementOutput.append(endTag());
 		}
 		return elementOutput.toString();
+	}
+
+	public Tag startTag() {
+		return startTag(new Hashtable<>());
+	}
+
+	public Tag startTag(final Hashtable<String, String> mutns) {
+		final var attr = getSerializableAttributes(mutns);
+		final var startTag = Tag.start(name);
+		startTag.setAttributes(attr);
+		return startTag;
+	}
+
+	public Tag endTag() {
+		return Tag.end(name);
 	}
 
 	protected Hashtable<String, String> getSerializableAttributes(Hashtable<String, String> ns) {

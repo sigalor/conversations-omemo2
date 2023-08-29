@@ -83,6 +83,7 @@ dependencies {
     implementation "androidx.emoji2:emoji2-emojipicker:1.5.0"
 
     implementation 'org.bouncycastle:bcmail-jdk18on:1.78.1'
+    implementation 'org.bouncycastle:bcpg-jdk18on:1.78.1'
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'

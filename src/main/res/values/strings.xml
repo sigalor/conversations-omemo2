@@ -1339,4 +1339,6 @@
     <string name="unban_from_channel">Unban from channel</string>
     <string name="pref_custom_tab">Integrate Browser UI</string>
     <string name="pref_custom_tab_summary">Ask your browser to render as if integrated with this app ("custom tab")</string>
+    <string name="pref_export">Export Data (experimental)</string>
+    <string name="pref_export_summary">Export data useful for importing into another app. Not a full backup.</string>
 </resources>
