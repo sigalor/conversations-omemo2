@@ -331,7 +331,7 @@ public class MucOptions {
         }
         synchronized (users) {
             for (User user : users) {
-                if (jid.equals(user.realJid)) {
+                if (jid.asBareJid().equals(user.realJid)) {
                     return user;
                 }
             }
