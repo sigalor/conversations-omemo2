@@ -33,7 +33,6 @@ import com.google.common.base.Strings;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -47,11 +46,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPOutputStream;
 
@@ -72,7 +68,6 @@ import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.utils.BackupFileHeader;
 import eu.siacs.conversations.utils.Compatibility;
-import eu.siacs.conversations.utils.StorageHelper;
 import eu.siacs.conversations.utils.WakeLockHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import static eu.siacs.conversations.utils.Compatibility.s;
@@ -267,21 +262,16 @@ public class ExportBackupService extends Service {
                 if (extras != null && extras.containsKey("NOTIFY_ON_BACKUP_COMPLETE")) {
                     notify = extras.getBoolean("NOTIFY_ON_BACKUP_COMPLETE");
                 }
-
-                boolean success = false;
-                List<File> files = Collections.emptyList();
+                boolean success;
+                List<File> files;
                 try {
-                    List<File> f1 = export(Config.CONVERSATIONS_COMPAT_TYPE);
-                    List<File> f2 = export(Config.MONOCLES_COMPAT_TYPE);
-                    success = f1.size() > 0 && f2.size() > 0 && exportSettings();
-                    if(success) {
-                        files.addAll(f1);
-                        files.addAll(f2);
-                    }
+                    files = export(intent.getBooleanExtra("monocles_db", true));
+                    success = files != null;
                 } catch (final Exception e) {
                     Log.d(Config.LOGTAG, "unable to create backup", e);
+                    success = false;
+                    files = Collections.emptyList();
                 }
-
                 try {
                     if (ReadableLogsEnabled) {  // todo
                         List<Conversation> conversations = mDatabaseBackend.getConversations(Conversation.STATUS_AVAILABLE);
@@ -294,17 +284,14 @@ public class ExportBackupService extends Service {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
                 stopForeground(true);
                 RUNNING.set(false);
-
                 if (success) {
                     notifySuccess(files, notify);
-                    FileBackend.rotateBackupFiles(getBackupDirectory(null), this.mAccounts, getApplicationContext());
+                    FileBackend.deleteOldBackups(new File(getBackupDirectory(null)), this.mAccounts);
                 } else {
                     notifyError();
                 }
-
                 WakeLockHelper.release(wakeLock);
                 stopSelf();
             }).start();
@@ -406,7 +393,7 @@ public class ExportBackupService extends Service {
         }
     }
 
-    private List<File> export(String compatType) throws Exception {
+    private List<File> export(boolean withmonoclesDb) throws Exception {
         wakeLock.acquire(15 * 60 * 1000L /*15 minutes*/);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getBaseContext(), NotificationService.BACKUP_CHANNEL_ID);
         mBuilder.setContentTitle(getString(R.string.notification_create_backup_title))
@@ -418,11 +405,7 @@ public class ExportBackupService extends Service {
         final SecureRandom secureRandom = new SecureRandom();
         final List<File> files = new ArrayList<>();
         Log.d(Config.LOGTAG, "starting backup for " + max + " accounts");
-
-        // Needed to lookup up the number of files to keep during backup file rotation
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        final Integer keepNumBackups = Integer.parseInt(pref.getString("keep_num_backups", Config.KEEP_DEFAULT_MAX_BACKUPS));
-
+        Log.d(Config.LOGTAG, "backup settings " + exportSettings());
         for (final Account account : this.mAccounts) {
             try {
                 final String password = account.getPassword();
@@ -437,9 +420,8 @@ public class ExportBackupService extends Service {
                 secureRandom.nextBytes(salt);
                 final BackupFileHeader backupFileHeader = new BackupFileHeader(getString(R.string.app_name), account.getJid(), System.currentTimeMillis(), IV, salt);
                 final Progress progress = new Progress(mBuilder, max, count);
-                final String fileNameStart = account.getJid().asBareJid().toEscapedString() + "_" + compatType;
-                final File file = new File(getBackupDirectory(null), fileNameStart + "_" + ((new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date())) + ".ceb");
-
+                final File file = new File(getBackupDirectory(null), account.getJid().asBareJid().toEscapedString() + "_" + ((new SimpleDateFormat("yyyy-MM-dd")).format(new Date())) + ".ceb");
+                files.add(file);
                 final File directory = file.getParentFile();
                 if (directory != null && directory.mkdirs()) {
                     Log.d(Config.LOGTAG, "created backup directory " + directory.getAbsolutePath());
@@ -460,30 +442,17 @@ public class ExportBackupService extends Service {
                 PrintWriter writer = new PrintWriter(gzipOutputStream);
                 SQLiteDatabase db = this.mDatabaseBackend.getReadableDatabase();
                 final String uuid = account.getUuid();
-
                 accountExport(db, uuid, writer);
                 simpleExport(db, Conversation.TABLENAME, Conversation.ACCOUNT, uuid, writer);
-
-                // always backup in conversations format first
                 messageExport(db, uuid, writer, progress);
-
-                // then backup additional data, if requested by the user
-                if (compatType == Config.MONOCLES_COMPAT_TYPE)
-                    messageExportmonocles(db, uuid, writer, progress);
-
+                if (withmonoclesDb) messageExportmonocles(db, uuid, writer, progress);
                 for (String table : Arrays.asList(SQLiteAxolotlStore.PREKEY_TABLENAME, SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME, SQLiteAxolotlStore.SESSION_TABLENAME, SQLiteAxolotlStore.IDENTITIES_TABLENAME)) {
                     simpleExport(db, table, SQLiteAxolotlStore.ACCOUNT, uuid, writer);
                 }
-
                 writer.flush();
                 writer.close();
                 mediaScannerScanFile(file);
-
-                // only add the current file to the list of written files if the files was actually written!
-                files.add(file);
-
                 Log.d(Config.LOGTAG, "written backup to " + file.getAbsoluteFile());
-
             } catch (Exception e) {
                 Log.d(Config.LOGTAG, "backup for " + account.getJid() + " failed with " + e);
             }
@@ -498,7 +467,7 @@ public class ExportBackupService extends Service {
         boolean success = false;
         ObjectOutputStream output = null;
         try {
-            final File file = new File(getBackupDirectory(null), "settings_" + ((new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ".dat"));
+            final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Database" + File.separator, "settings.dat");
             final File directory = file.getParentFile();
             if (directory != null && directory.mkdirs()) {
                 Log.d(Config.LOGTAG, "created backup directory " + directory.getAbsolutePath());
@@ -521,7 +490,6 @@ public class ExportBackupService extends Service {
                 ex.printStackTrace();
             }
         }
-
         return success;
     }
 

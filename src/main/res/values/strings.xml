@@ -550,6 +550,7 @@
     <string name="inviteUser_Subject">has invited you via</string>
     <string name="InviteText">Hello,\n\nthe user %s has invited you to monocles. Just click the following link…</string>
     <string name="pref_broadcast_last_activity">Broadcast Last User Interaction</string>
+    <string name="pref_broadcast_last_activity_summary">Let all your contacts know when use monocles chat</string>
     <string name="request_permissions_message">monocles chat will ask you to allow a few permissions. It is important that you allow all these permissions to use all features of this messenger. If you deny any of these permissions the app will close itself.</string>
     <string name="request_permissions_message_again">You have denied some or all permissions needed for monocles chat. Would you like to jump to the settings and allow these permissions? If you denie any of these permissions, the app will close itself.</string>
     <string name="unable_to_connect_to_keychain">Unable to connect to OpenKeychain</string>
@@ -865,7 +866,6 @@
     <string name="restore">Restore</string>
     <string name="enter_password_to_restore">Enter your password for the account %s to restore the backup.</string>
     <string name="restore_warning">Don\'t use the restore feature under any circumstances except in the case of migrating or losing your device.</string>
-    <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
     <string name="unable_to_restore_backup">Unable to restore backup.</string>
     <string name="unable_to_decrypt_backup">Unable to decrypt backup. Is the password correct?</string>
     <string name="pref_prefer_xmpp_avatar_summary">Prefer the user\'s XMPP avatar instead of the one from your address book</string>
@@ -1298,17 +1298,10 @@
     <string name="choose_sticker_location">Choose sticker location</string>
     <string name="you_may_sometimes_have_to">You may sometimes have to force quit the app to get changes applied.</string>
     <string name="colors">Colors</string>
-    <string name="create_monocles_backup">This will create two backups. One is compatible to Monocles only, the second one is compatible with Conversations</string>#
-    <string name="backup_started">The backup has been started. You will be notified after the process has finished</string>
+    <string name="create_monocles_only_backup">Export extra monocles-only data (backup will not import into other apps then)?</string>
     <string name="please_be_patient">Please be patient...</string>
-    <string name="confirm_delete_attachment_summary">Do you want to skip confirmation if you delete a local file from a chats?</string>
-    <string name="pref_confirm_delete_attachment">Show confirmation dialog for local file removal</string>
-    <string name="pref_keep_num_backups">How many backups should be kept? Defaults to 3. 0 disables it. Maximum is 9.</string>
-    <string name="pref_keep_num_backups_title">Number of backups to keep</string>
-    <string name="pref_broadcast_last_activity_summary">Allow contacts to see when you were last active in the app</string>
-    <string name="settings_restore_message_success">Settings successfully restored</string>
-    <string name="settings_restore_message_failure">Failed to restore settings: %s</string>
+    <string name="notify_only_when_highlighted_or_replied">Notify for mentions and replies</string>
+    <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
     <string name="pref_follow_thread_in_channel">Auto-follow thread in channels</string>
     <string name="pref_follow_thread_in_channel_summary">Set the thread marker to match the message currently being looked at</string>
-    <string name="notify_only_when_highlighted_or_replied">Notify for mentions and replies</string>
 </resources>

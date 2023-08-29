@@ -1,6 +1,8 @@
 package eu.siacs.conversations.ui;
 
 import java.util.Map;
+
+import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.ui.adapter.CommandAdapter;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
@@ -2950,46 +2952,33 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void deleteFile(final Message message) {
-
-        // check if the user wants to skip confirmation
-        boolean prefConfirm = activity.xmppConnectionService.getBooleanPreference("confirm_delete_attachment", R.bool.confirm_delete_attachment);
-        if(!prefConfirm) {
-            _deleteFile(message);
-            return;
-        }
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setNegativeButton(R.string.cancel, null);
         builder.setTitle(R.string.delete_file_dialog);
         builder.setMessage(R.string.delete_file_dialog_msg);
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
-            _deleteFile(message);
-        });
-        builder.create().show();
-    }
-
-    private void _deleteFile(final Message message) {
-        List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
-        if (thumbs != null && !thumbs.isEmpty()) {
-            for (Element thumb : thumbs) {
-                Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                if (uri.getScheme().equals("cid")) {
-                    Cid cid = BobTransfer.cid(uri);
-                    if (cid == null) continue;
-                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                    activity.xmppConnectionService.evictPreview(f);
-                    f.delete();
+            List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
+            if (thumbs != null && !thumbs.isEmpty()) {
+                for (Element thumb : thumbs) {
+                    Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                    if (uri.getScheme().equals("cid")) {
+                        Cid cid = BobTransfer.cid(uri);
+                        if (cid == null) continue;
+                        DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                        activity.xmppConnectionService.evictPreview(f);
+                        f.delete();
+                    }
                 }
             }
-        }
-        if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
-            message.setFileDeleted(true);
-            activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
-            activity.xmppConnectionService.updateMessage(message, false);
-            activity.onConversationsListItemUpdated();
-            refresh();
-        }
-
+            if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
+                message.setFileDeleted(true);
+                activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
+                activity.xmppConnectionService.updateMessage(message, false);
+                activity.onConversationsListItemUpdated();
+                refresh();
+            }
+        });
+        builder.create().show();
     }
 
     public void resendMessage(final Message message) {
@@ -3540,6 +3529,16 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         final Message message = downloadUuid == null ? null : conversation.findMessageWithFileAndUuid(downloadUuid);
+        if ("webxdc".equals(postInitAction)) {
+            if (message == null) return;
+
+            Cid webxdcCid = message.getFileParams().getCids().get(0);
+            WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message, activity.xmppConnectionService);
+            Conversation conversation = (Conversation) message.getConversation();
+            if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
+                conversation.startWebxdc(webxdc);
+            }
+        }
         if (message != null) {
             startDownloadable(message);
         }
