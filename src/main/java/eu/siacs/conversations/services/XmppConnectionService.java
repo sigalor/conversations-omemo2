@@ -2183,6 +2183,9 @@ public class XmppConnectionService extends Service {
                 }
             }
             sendMessagePacket(account, packet);
+            if (message.getConversation().getMode() == Conversation.MODE_MULTI && message.hasCustomEmoji()) {
+                if (message.getConversation() instanceof Conversation) presenceToMuc((Conversation) message.getConversation());
+            }
         }
     }
 
@@ -3812,6 +3815,17 @@ public class XmppConnectionService extends Service {
         }
     }
 
+    public void presenceToMuc(final Conversation conversation) {
+        final MucOptions options = conversation.getMucOptions();
+        if (options.online()) {
+            Account account = conversation.getAccount();
+            final Jid joinJid = options.getSelf().getFullJid();
+            final PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, options.nonanonymous(), options.getSelf().getNick());
+            packet.setTo(joinJid);
+            sendPresencePacket(account, packet);
+        }
+    }
+
     public boolean renameInMuc(final Conversation conversation, final String nick, final UiCallback<Conversation> callback) {
         final MucOptions options = conversation.getMucOptions();
         final Jid joinJid = options.createJoinJid(nick);
@@ -4749,12 +4763,7 @@ public class XmppConnectionService extends Service {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": avatar changed. resending presence to online group chats");
             for (Conversation conversation : conversations) {
                 if (conversation.getAccount() == account && conversation.getMode() == Conversational.MODE_MULTI) {
-                    final MucOptions mucOptions = conversation.getMucOptions();
-                    if (mucOptions.online()) {
-                        PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, mucOptions.nonanonymous(), mucOptions.getSelf().getNick());
-                        packet.setTo(mucOptions.getSelf().getFullJid());
-                        connection.sendPresencePacket(packet);
-                    }
+                    presenceToMuc(conversation);
                 }
             }
         }
