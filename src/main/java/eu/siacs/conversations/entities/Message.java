@@ -1,5 +1,4 @@
 package eu.siacs.conversations.entities;
-import android.util.Log;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
