@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.borjabravo.readmoretextview.ReadMoreTextView
-        app:trimExpandedText="@string/read_less"
-        app:trimCollapsedText="@string/read_more"
+        app:trimExpandedText="@string/show_less"
+        app:trimCollapsedText="@string/show_more"
         app:trimMode="trimModeLength"
         app:trimLength="250"
         app:colorClickableText="@color/accent"
