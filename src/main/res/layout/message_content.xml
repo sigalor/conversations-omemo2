@@ -2,7 +2,12 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
+    <com.borjabravo.readmoretextview.ReadMoreTextView
+        app:trimExpandedText="@string/read_less"
+        app:trimCollapsedText="@string/read_more"
+        app:trimMode="trimModeLength"
+        app:trimLength="250"
+        app:colorClickableText="@color/accent"
         android:id="@+id/message_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
