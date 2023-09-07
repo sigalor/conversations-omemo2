@@ -126,6 +126,7 @@ dependencies {
     implementation 'org.jxmpp:jxmpp-stringprep-libidn:1.0.3'
     implementation 'com.tbuonomo:dotsindicator:4.2'
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
+    implementation 'com.borjabravo:readmoretextview:2.1.0'
 }
 
 ext {
@@ -147,8 +148,8 @@ android {
         targetSdkVersion 32
 
         //versionNameSuffix " beta_(2023-01-10)" // " beta_(XXXX-XX-XX)" // activate for beta versions
-        versionCode 135
-        versionName "1.7.3"
+        versionCode 136
+        versionName "1.7.4"
         //resConfigs "en"
 
         archivesBaseName += "-$versionName"

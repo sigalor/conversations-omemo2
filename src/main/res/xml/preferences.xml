@@ -161,6 +161,14 @@
             android:key="allowmergemessages"
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
+        <!-- TODO: Add setting for number of signs to collapse message
+        <EditTextPreference
+            android:defaultValue="@string/collapse_message_signs"
+            android:key="collapse_message_signs"
+            android:summary="@string/collapse_message_signs_summary"
+            android:title="@string/collapse_message_signs_title"
+            android:inputType="number" />
+            -->
         <Preference
             android:key="show_intro"
             android:summary="@string/pref_show_intro_summary"

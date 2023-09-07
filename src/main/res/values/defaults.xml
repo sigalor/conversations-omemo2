@@ -106,6 +106,7 @@
     <string name="default_push_account">none</string>
     <bool name="dialler_integration_incoming">true</bool>
     <bool name="follow_thread_in_channel">false</bool>
+    <string name="collapse_message_signs">230</string>
 
 
     <string-array name="domains">
