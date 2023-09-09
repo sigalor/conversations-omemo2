@@ -1198,6 +1198,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public boolean wasMergedIntoPrevious() {
         Message prev = this.prev();
+        if (prev != null && getModerated() != null && prev.getModerated() != null) return true;
         return prev != null && prev.mergeable(this);
     }
 
