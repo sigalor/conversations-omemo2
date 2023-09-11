@@ -1511,12 +1511,19 @@ public class NotificationService {
                     }
                 }
             }
+            final ShortcutInfoCompat info;
             if (conversation.getMode() == Conversation.MODE_SINGLE) {
                 Contact contact = conversation.getContact();
                 Uri systemAccount = contact.getSystemAccount();
                 if (systemAccount != null) {
                     mBuilder.addPerson(systemAccount.toString());
                 }
+                info = mXmppConnectionService.getShortcutService().getShortcutInfoCompat(contact);
+            } else {
+                info =
+                        mXmppConnectionService
+                                .getShortcutService()
+                                .getShortcutInfoCompat(conversation.getMucOptions());
             }
             mBuilder.setWhen(conversation.getLatestMessage().getTimeSent());
             mBuilder.setSmallIcon(R.drawable.ic_notification);
@@ -1526,10 +1533,6 @@ public class NotificationService {
                 mBuilder.setSubText(conversation.getAccount().getJid().asBareJid().toString());
             }
 
-            ShortcutInfoCompat info = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                info = mXmppConnectionService.getShortcutService().getShortcutInfoCompat(conversation.getContact());
-            }
             mBuilder.setShortcutInfo(info);
             if (Build.VERSION.SDK_INT >= 30) {
                 mXmppConnectionService.getSystemService(ShortcutManager.class).pushDynamicShortcut(info.toShortcutInfo());

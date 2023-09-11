@@ -2161,8 +2161,10 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void addShortcut() {
-        ShortcutInfoCompat info = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        ShortcutInfoCompat info;
+        if (conversation.getMode() == Conversation.MODE_MULTI) {
+            info = activity.xmppConnectionService.getShortcutService().getShortcutInfoCompat(conversation.getMucOptions());
+        } else {
             info = activity.xmppConnectionService.getShortcutService().getShortcutInfoCompat(conversation.getContact());
         }
         ShortcutManagerCompat.requestPinShortcut(activity, info, null);
