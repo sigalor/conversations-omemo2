@@ -1309,4 +1309,5 @@
     <string name="collapse_message_signs_summary">Set the maximum number of signs to collapse a message</string>
     <string name="collapse_message_signs_title">Collapse long text messages</string>
     <string name="action_complete">Action complete</string>
+    <string name="moderate_recent">Moderate messages?</string>
 </resources>
