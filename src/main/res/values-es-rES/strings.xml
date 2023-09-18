@@ -1399,4 +1399,6 @@
     <string name="show_more">\nmostrar más</string>
     <string name="collapse_message_signs_summary">Establecer el número máximo de signos para colapsar un mensaje</string>
     <string name="collapse_message_signs_title">Colapsar texto de mensajes largos</string>
+    <string name="action_complete">Acción completado</string>
+    <string name="moderate_recent">¿Moderar mensajes?</string>
 </resources>
