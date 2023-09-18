@@ -3380,6 +3380,9 @@ public class ConversationFragment extends XmppFragment
         if (commandAdapter == null) return;
 
         Jid commandJid = conversation.getContact().resourceWhichSupport(Namespace.COMMANDS);
+        if (commandJid == null && conversation.getMode() == Conversation.MODE_MULTI && conversation.getMucOptions().hasFeature(Namespace.COMMANDS)) {
+            commandJid = conversation.getJid().asBareJid();
+        }
         if (commandJid == null && conversation.getJid().isDomainJid()) {
             commandJid = conversation.getJid();
         }
