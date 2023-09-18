@@ -1610,7 +1610,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             public void onOpen(SwipeLayout layout) {
                 //when the BottomView totally show.
                 MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
-
+                swipeLayout.close(true);
             }
 
             @Override
