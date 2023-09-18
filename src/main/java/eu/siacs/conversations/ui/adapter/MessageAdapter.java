@@ -78,6 +78,7 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
@@ -1576,14 +1577,54 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 MessageAdapter.this.mOnContactPictureClickedListener.onContactPictureClicked(message);
             }
         });
-        SwipeDetector swipeDetector = new SwipeDetector((action) -> {
-            if (action == SwipeDetector.Action.LR && MessageAdapter.this.mOnMessageBoxSwipedListener != null) {
+
+
+
+
+        SwipeLayout swipeLayout =  (SwipeLayout) view.findViewById(R.id.layout_swipe);
+
+//set show mode.
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+
+//add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
+        swipeLayout.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
+
+        swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
+            @Override
+            public void onClose(SwipeLayout layout) {
+                //when the SurfaceView totally cover the BottomView.
+            }
+
+            @Override
+            public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                //you are swiping.
+            }
+
+            @Override
+            public void onStartOpen(SwipeLayout layout) {
+
+            }
+
+            @Override
+            public void onOpen(SwipeLayout layout) {
+                //when the BottomView totally show.
                 MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
+
+            }
+
+            @Override
+            public void onStartClose(SwipeLayout layout) {
+
+            }
+
+            @Override
+            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
             }
         });
-        viewHolder.message_box.setOnTouchListener(swipeDetector);
-        viewHolder.image.setOnTouchListener(swipeDetector);
-        viewHolder.time.setOnTouchListener(swipeDetector);
+
+
+
+
 
         // Treat touch-up as click so we don't have to touch twice
         // (touch twice is because it's waiting to see if you double-touch for text selection)
@@ -1595,7 +1636,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }
 
-            swipeDetector.onTouch(v, event);
 
             return false;
         });
