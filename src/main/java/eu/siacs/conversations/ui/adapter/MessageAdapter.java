@@ -79,6 +79,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.util.Attributes;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
@@ -1614,11 +1615,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
             @Override
             public void onStartClose(SwipeLayout layout) {
-
+                swipeLayout.close(true);
             }
 
             @Override
             public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                swipeLayout.close(true);
             }
         });
 
