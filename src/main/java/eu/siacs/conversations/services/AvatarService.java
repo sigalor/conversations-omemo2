@@ -126,6 +126,17 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
         return avatar;
     }
 
+    public Bitmap getRoundedShortcut(final MucOptions mucOptions) {
+        final DisplayMetrics metrics = mXmppConnectionService.getResources().getDisplayMetrics();
+        final int size = Math.round(metrics.density * 48);
+        Bitmap bitmap = FileBackend.drawDrawable(get(mucOptions, size, false));
+        final Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(output);
+        final Paint paint = new Paint();
+        drawAvatar(bitmap, canvas, paint);
+        return output;
+    }
+
     public Bitmap getRoundedShortcut(final Contact contact) {
         return getRoundedShortcut(contact, false);
     }
@@ -149,7 +160,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
         return output;
     }
 
-    private void drawAvatar(Bitmap bitmap, Canvas canvas, Paint paint) {
+    private static void drawAvatar(Bitmap bitmap, Canvas canvas, Paint paint) {
         final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
         final RectF rectF = new RectF(rect);
         paint.setAntiAlias(true);

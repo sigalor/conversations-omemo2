@@ -977,8 +977,8 @@ public class ConversationFragment extends XmppFragment
                 while (body.length() > 0 && Character.isWhitespace(body.charAt(0))) body.delete(0, 1);
             }
             if (conversation.getReplyTo() != null) {
-                if (Emoticons.isEmoji(body.toString())) {
-                    message = conversation.getReplyTo().react(body.toString());
+                if (Emoticons.isEmoji(body.toString().replaceAll("\\s", ""))) {
+                    message = conversation.getReplyTo().react(body.toString().replaceAll("\\s", ""));
                 } else {
                     message = conversation.getReplyTo().reply();
                     message.appendBody(body);
@@ -1087,10 +1087,8 @@ public class ConversationFragment extends XmppFragment
             this.binding.textinput.setHint(R.string.you_are_not_participating);
         } else {
             this.binding.textInputHint.setVisibility(View.GONE);
-            if (getActivity() != null) {
-                this.binding.textinput.setHint(UIHelper.getMessageHint(getActivity(), conversation));
-                getActivity().invalidateOptionsMenu();
-            }
+            this.binding.textinput.setHint(UIHelper.getMessageHint(activity, conversation));
+            activity.invalidateOptionsMenu();
         }
         binding.messagesView.post(this::updateThreadFromLastMessage);
     }
@@ -2163,8 +2161,10 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void addShortcut() {
-        ShortcutInfoCompat info = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        ShortcutInfoCompat info;
+        if (conversation.getMode() == Conversation.MODE_MULTI) {
+            info = activity.xmppConnectionService.getShortcutService().getShortcutInfoCompat(conversation.getMucOptions());
+        } else {
             info = activity.xmppConnectionService.getShortcutService().getShortcutInfoCompat(conversation.getContact());
         }
         ShortcutManagerCompat.requestPinShortcut(activity, info, null);
@@ -2767,7 +2767,9 @@ public class ConversationFragment extends XmppFragment
             } else {
                 if (conversation.getMode() == Conversation.MODE_MULTI) {
                     if (activity == null || activity.xmppConnectionService == null) return;
-                    if (!activity.xmppConnectionService.getBooleanPreference("follow_thread_in_channel", R.bool.follow_thread_in_channel)) return;
+                    if (message.getStatus() < Message.STATUS_SEND) {
+                        if (!activity.xmppConnectionService.getBooleanPreference("follow_thread_in_channel", R.bool.follow_thread_in_channel)) return;
+                    }
                 }
 
                 setThread(message.getThread());
@@ -3333,6 +3335,7 @@ public class ConversationFragment extends XmppFragment
         activity.xmppConnectionService.getNotificationService().setOpenConversation(this.conversation);
 
         if (commandAdapter != null && conversation != originalConversation) {
+            commandAdapter.clear();
             conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), originalConversation);
             refreshCommands(false);
         }
@@ -3344,7 +3347,7 @@ public class ConversationFragment extends XmppFragment
                 if (activity == null) return;
 
                 final Element command = commandAdapter.getItem(position);
-                activity.startCommand(conversation.getAccount(), command.getAttributeAsJid("jid"), command.getAttribute("node"));
+                activity.startCommand(ConversationFragment.this.conversation.getAccount(), command.getAttributeAsJid("jid"), command.getAttribute("node"));
             });
             refreshCommands(false);
         }
@@ -3397,6 +3400,7 @@ public class ConversationFragment extends XmppFragment
             conversation.hideViewPager();
         } else {
             if (!delayShow) conversation.showViewPager();
+            binding.commandsViewProgressbar.setVisibility(View.VISIBLE);
             activity.xmppConnectionService.fetchCommands(conversation.getAccount(), commandJid, (a, iq) -> {
                 if (activity == null) return;
 
@@ -3782,14 +3786,20 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                conversation.populateWithMessages(ConversationFragment.this.messageList);
-                updateStatusMessages();
-                if (conversation.unreadCount() > 0) {
-                    binding.unreadCountCustomView.setVisibility(View.VISIBLE);
-                    binding.unreadCountCustomView.setUnreadCount(conversation.unreadCount());
+                if (messageListAdapter.hasSelection()) {
+                    if (notifyConversationRead) binding.messagesView.postDelayed(this::refresh, 1000L);
+                } else {
+                    conversation.populateWithMessages(this.messageList);
+                    updateStatusMessages();
+                    this.messageListAdapter.notifyDataSetChanged();
                 }
-                this.messageListAdapter.notifyDataSetChanged();
-                updateChatMsgHint();
+                if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
+                    binding.unreadCountCustomView.setVisibility(View.VISIBLE);
+                    binding.unreadCountCustomView.setUnreadCount(
+                            conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
+                }
+                updateSnackBar(conversation);
+                if (activity != null) updateChatMsgHint();
                 if (notifyConversationRead && activity != null) {
                     binding.messagesView.post(this::fireReadEvent);
                 }
@@ -4393,6 +4403,7 @@ public class ConversationFragment extends XmppFragment
                 final Jid tcp = message.getTrueCounterpart();
                 final User userByRealJid = tcp != null ? conversation.getMucOptions().findOrCreateUserByRealJid(tcp, cp) : null;
                 final User user = userByRealJid != null ? userByRealJid : conversation.getMucOptions().findUserByFullJid(cp);
+                if (user == null) return;
                 popupMenu.inflate(R.menu.muc_details_context);
                 final Menu menu = popupMenu.getMenu();
                 MucDetailsContextMenuHelper.configureMucDetailsContextMenu(activity, menu, conversation, user, true, getUsername(message));

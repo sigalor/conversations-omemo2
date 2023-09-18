@@ -55,6 +55,7 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -166,6 +167,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private boolean mShowMapsInside = false;
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
+    private String selectionUuid = null;
+
 
     public MessageAdapter(final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
         super(activity, 0, messages);
@@ -231,6 +234,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.mOnMessageBoxClickedListener = listener;
     }
 
+    public boolean hasSelection() {
+        return selectionUuid != null;
+    }
+
     public Activity getActivity() {
         return activity;
     }
@@ -287,6 +294,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.retract_indicator.setVisibility(View.GONE);
             }
         }
+        viewHolder.messageBody.setAccessibilityDelegate(null);
+
         final Transferable transferable = message.getTransferable();
         boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI
                 && message.getMergedStatus() <= Message.STATUS_RECEIVED;
@@ -1573,9 +1582,23 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
         });
         viewHolder.message_box.setOnTouchListener(swipeDetector);
-        viewHolder.messageBody.setOnTouchListener(swipeDetector);
         viewHolder.image.setOnTouchListener(swipeDetector);
         viewHolder.time.setOnTouchListener(swipeDetector);
+
+        // Treat touch-up as click so we don't have to touch twice
+        // (touch twice is because it's waiting to see if you double-touch for text selection)
+        viewHolder.messageBody.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                    MessageAdapter.this.mOnMessageBoxClickedListener
+                            .onContactPictureClicked(message);
+                }
+            }
+
+            swipeDetector.onTouch(v, event);
+
+            return false;
+        });
         viewHolder.contact_picture.setOnLongClickListener(v -> {
             if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
                 MessageAdapter.this.mOnContactPictureLongClickedListener.onContactPictureLongClicked(v, message);
@@ -1729,6 +1752,21 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             setBubbleBackgroundColor(viewHolder.message_box, type, message.isPrivateMessage(), isInValidSession);
         }
         displayStatus(viewHolder, message, type, darkBackground);
+
+        viewHolder.messageBody.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void sendAccessibilityEvent(View host, int eventType) {
+                super.sendAccessibilityEvent(host, eventType);
+                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED) {
+                    if (viewHolder.messageBody.hasSelection()) {
+                        selectionUuid = message.getUuid();
+                    } else if (message.getUuid() != null && message.getUuid().equals(selectionUuid)) {
+                        selectionUuid = null;
+                    }
+                }
+            }
+        });
+
         return view;
     }
 

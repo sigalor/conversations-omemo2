@@ -1,5 +1,4 @@
 package eu.siacs.conversations.entities;
-import android.util.Log;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -1199,6 +1198,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public boolean wasMergedIntoPrevious() {
         Message prev = this.prev();
+        if (prev != null && getModerated() != null && prev.getModerated() != null) return true;
         return prev != null && prev.mergeable(this);
     }
 
@@ -1299,6 +1299,16 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             treatAsDownloadable = MessageUtils.treatAsDownloadable(this.body, isOOb());
         }
         return treatAsDownloadable;
+    }
+
+    public synchronized boolean hasCustomEmoji() {
+        if (getHtml() != null) {
+            SpannableStringBuilder spannable = getSpannableBody(null, null);
+            ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
+            return imageSpans.length > 0;
+        }
+
+        return false;
     }
 
     public synchronized boolean bodyIsOnlyEmojis() {
