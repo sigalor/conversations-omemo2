@@ -2,11 +2,11 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.borjabravo.readmoretextview.ReadMoreTextView
+    <de.monocles.chat.ReadMoreTextView
         app:trimExpandedText="@string/show_less"
         app:trimCollapsedText="@string/show_more"
         app:trimMode="trimModeLength"
-        app:trimLength="@string/collapse_message_signs"
+        app:trimLength="230"
         app:colorClickableText="@color/accent"
         android:id="@+id/message_body"
         android:layout_width="wrap_content"
