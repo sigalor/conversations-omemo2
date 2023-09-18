@@ -19,7 +19,7 @@
         android:id="@+id/bottom_wrapper"
         android:layout_width="80dp"
         android:weightSum="1"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:clickable="true"
         android:focusable="true"
