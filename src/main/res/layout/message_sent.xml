@@ -17,7 +17,7 @@
 
     <LinearLayout
         android:id="@+id/bottom_wrapper"
-        android:layout_width="50dp"
+        android:layout_width="80dp"
         android:weightSum="1"
         android:layout_height="match_parent"
         android:orientation="horizontal"
