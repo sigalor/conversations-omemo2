@@ -1585,7 +1585,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         SwipeLayout swipeLayout =  (SwipeLayout) view.findViewById(R.id.layout_swipe);
 
 //set show mode.
-        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
 
 //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
         swipeLayout.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
@@ -1603,18 +1603,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
             @Override
             public void onStartOpen(SwipeLayout layout) {
-
             }
 
             @Override
             public void onOpen(SwipeLayout layout) {
                 //when the BottomView totally show.
+                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
+                swipeLayout.close(true);
             }
 
             @Override
             public void onStartClose(SwipeLayout layout) {
                 swipeLayout.close(true);
-                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
             }
 
             @Override
