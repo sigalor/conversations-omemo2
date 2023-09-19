@@ -1594,7 +1594,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             @Override
             public void onClose(SwipeLayout layout) {
                 //when the SurfaceView totally cover the BottomView.
-                MessageAdapter.resetClickListener();
             }
 
             @Override
