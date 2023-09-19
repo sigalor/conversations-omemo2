@@ -119,7 +119,10 @@ public final class MucDetailsContextMenuHelper {
         final boolean advancedMode = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("advanced_muc_mode", false);
         final boolean isGroupChat = mucOptions.isPrivateAndNonAnonymous();
         MenuItem sendPrivateMessage = menu.findItem(R.id.send_private_message);
-
+        MenuItem showAvatar = menu.findItem(R.id.action_show_avatar);
+        showAvatar.setVisible(user != null);
+        MenuItem showMucContactDetails = menu.findItem(R.id.action_muc_contact_details);
+        showMucContactDetails.setVisible(user != null && user.getRealJid() == null);
         MenuItem blockAvatar = menu.findItem(R.id.action_block_avatar);
         if (user != null && user.getAvatar() != null) {
             blockAvatar.setVisible(true);
