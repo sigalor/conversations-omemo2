@@ -74,7 +74,7 @@
     <string name="touch_to_fix">Pulsa aquí para gestionar tus cuentas</string>
     <string name="attach_file">Adjuntar</string>
     <string name="not_in_roster">El contacto no está en tu lista. ¿Quieres añadirlo\?</string>
-    <string name="add_contact">Añadir contacto o sala</string>
+    <string name="add_contact">Añadir un contacto</string>
     <string name="send_failed">Error al enviar</string>
     <string name="preparing_image">Preparando imagen para enviar</string>
     <string name="action_clear_history">Limpiar historial</string>
@@ -934,7 +934,7 @@
     <string name="message_deleted">El mensaje fue eliminado</string>
     <string name="channel_details">Detalles del canal</string>
     <string name="join_public_channel">Unirse a canal público</string>
-    <string name="create_private_group_chat">Crear grupo de chat privado</string>
+    <string name="create_private_group_chat">Crear una sala privada</string>
     <string name="create_public_channel">Crear canal público</string>
     <string name="create_dialog_channel_name">Nombre del canal</string>
     <string name="xmpp_address">Dirección XMPP</string>
@@ -1334,7 +1334,7 @@
     <string name="pref_up_push_account_title">Cuenta</string>
     <string name="pref_up_push_account_summary">Cuenta a través de la cual se recibirán los mensajes push.</string>
     <string name="pref_up_push_server_title">Servidor Push</string>
-    <string name="pref_up_push_server_summary">Servidor push elegido por el usuario para retransmitir mensajes messages vía XMPP a tu dispositivo.</string>
+    <string name="pref_up_push_server_summary">Un servidor push elegido por el usuario para retransmitir los mensajes push a las aplicaciones de tu dispositivo.</string>
     <string name="no_account_deactivated">Nada (desactivado)</string>
     <string name="pref_theme_custom">Personalizado</string>
     <string name="moderate_message">Moderar</string>

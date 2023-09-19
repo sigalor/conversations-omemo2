@@ -856,7 +856,7 @@
     <string name="add_contact_or_create_or_join_group_chat">Adicionar contato, criar ou entrar em um grupo, ou buscar salas</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">A mensagem não pôde ser entregue</item>
-        <item quantity="many"/>
+        <item quantity="many"></item>
         <item quantity="other">Algumas mensagens não puderam ser entregues</item>
     </plurals>
     <string name="failed_deliveries">Envios com falha</string>
@@ -1379,4 +1379,8 @@
     <string name="update_default_stickers">Atualizar figurinhas padrão</string>
     <string name="clear_blocked_media">Limpar mídia bloqueada</string>
     <string name="custom_primary_color">Cor primária personalizada</string>
+    <string name="choose_sticker_location">Escolha a localização da figurinha</string>
+    <string name="you_may_sometimes_have_to">Às vezes, você pode ter que forçar o encerramento do aplicativo para que as alterações sejam aplicadas.</string>
+    <string name="colors">Cores</string>
+    <string name="create_monocles_only_backup">Exportar dados extras apenas para Monocles (o backup não será importado para outros aplicativos)\?</string>
 </resources>
