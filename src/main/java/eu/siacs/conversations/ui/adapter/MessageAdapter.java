@@ -1594,6 +1594,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             @Override
             public void onClose(SwipeLayout layout) {
                 //when the SurfaceView totally cover the BottomView.
+                MessageAdapter.resetClickListener();
             }
 
             @Override
@@ -1609,12 +1610,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             @Override
             public void onOpen(SwipeLayout layout) {
                 //when the BottomView totally show.
-                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
             }
 
             @Override
             public void onStartClose(SwipeLayout layout) {
                 swipeLayout.close(true);
+                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
             }
 
             @Override
