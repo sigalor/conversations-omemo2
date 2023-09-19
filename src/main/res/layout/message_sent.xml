@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_swipe"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     app:drag_edge="left"
-    app:show_mode="lay_down"
+    app:show_mode="pull_out"
     android:orientation="vertical"
     android:paddingStart="8dp"
     android:paddingLeft="8dp"
@@ -19,7 +19,7 @@
         android:id="@+id/bottom_wrapper"
         android:layout_width="80dp"
         android:weightSum="1"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
         android:clickable="true"
         android:focusable="true"
@@ -27,9 +27,10 @@
         <!--What you want to show-->
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/message_photo_box"
@@ -182,5 +183,5 @@
             </com.wefika.flowlayout.FlowLayout>
         </LinearLayout>
     </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 </com.daimajia.swipe.SwipeLayout>
