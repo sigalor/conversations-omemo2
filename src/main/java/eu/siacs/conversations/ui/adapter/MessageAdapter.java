@@ -1946,7 +1946,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         public ImageView edit_indicator;
         public ImageView retract_indicator;
         public RelativeLayout audioPlayer;
-        public RelativeLayout images;
+        public LinearLayout images;
         protected LinearLayout message_box;
         protected Button download_button;
         protected Button resend_button;
