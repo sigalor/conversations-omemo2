@@ -25,8 +25,8 @@
     <string name="just_now">przed chwilą</string>
     <string name="minute_ago">minutę temu</string>
     <string name="minutes_ago">%d minut temu</string>
-    <string name="sending">wysyłanie...</string>
-    <string name="message_decrypting">Odszyfrowywanie wiadomości. To zajmie tylko chwilę...</string>
+    <string name="sending">wysyłanie…</string>
+    <string name="message_decrypting">Odszyfrowywanie wiadomości. To zajmie tylko chwilę…</string>
     <string name="pgp_message">Wiadomość zaszyfrowana OpenPGP</string>
     <string name="nick_in_use">Pseudonim jest już w użyciu</string>
     <string name="admin">Administrator</string>
@@ -43,7 +43,7 @@
     <string name="remove_bookmark_text">Czy usunąć zakładkę %s\? Konwersacja powiązana z zakładką nie zostanie usunięta.</string>
     <string name="register_account">Zarejestruj nowe konto na serwerze</string>
     <string name="change_password_on_server">Zmień hasło na serwerze</string>
-    <string name="share_with">Udostępnij...</string>
+    <string name="share_with">Udostępnij…</string>
     <string name="start_conversation">Rozpocznij konwersację</string>
     <string name="invite_contact">Zaproś kontakt</string>
     <string name="contacts">Kontakty</string>
@@ -84,8 +84,8 @@
     <string name="decryption_failed">Nie można odszyfrować. Sprawdź poprawność klucza prywatnego.</string>
     <string name="restart">Zrestartuj</string>
     <string name="install">Zainstaluj</string>
-    <string name="offering">oferowanie...</string>
-    <string name="waiting">oczekiwanie...</string>
+    <string name="offering">oferowanie…</string>
+    <string name="waiting">oczekiwanie…</string>
     <string name="no_pgp_key">Nie znaleziono klucza OpenPGP</string>
     <string name="no_pgp_keys">Nie znaleziono kluczy OpenPGP</string>
     <string name="pref_general">Główne</string>
@@ -119,14 +119,14 @@
     <string name="error_not_an_image_file">Wybrany plik nie jest obrazem</string>
     <string name="error_compressing_image">Błąd kompresji obrazu</string>
     <string name="error_file_not_found">Nie odnaleziono pliku</string>
-    <string name="error_io_exception">Ogólny błąd wejścia/wyjścia</string>
+    <string name="error_io_exception">Ogólny błąd wejścia/wyjścia. Być może na urządzeniu brakło miejsca\?</string>
     <string name="error_security_exception_during_image_copy">Aplikacja użyta do wyboru obrazu nie zezwoliła na odczyt pliku.
 \n
 \n<small>Wybierz obraz przy użyciu innego menedżera plików</small></string>
     <string name="account_status_unknown">nieznany</string>
     <string name="account_status_disabled">Tymczasowo wyłączono</string>
     <string name="account_status_online">Połączono</string>
-    <string name="account_status_connecting">Łączenie...</string>
+    <string name="account_status_connecting">Łączenie…</string>
     <string name="account_status_offline">Rozłączono</string>
     <string name="account_status_unauthorized">Błąd uwierzytelnienia</string>
     <string name="account_status_not_found">Nie odnaleziono serwera</string>
@@ -165,13 +165,8 @@
     <string name="server_info_show_more">Informacje o serwerze</string>
     <string name="server_info_mam">XEP-0313: MAM</string>
     <string name="server_info_carbon_messages">XEP-0280: Kopie wiadomości</string>
-    <string name="server_info_csi">XEP-0352: Client State Indication</string>
-    <string name="server_info_blocking">XEP-0191: Blocking Command</string>
-    <string name="server_info_roster_version">XEP-0237: Roster Versioning</string>
-    <string name="server_info_stream_management">XEP-0198: Stream Management</string>
     <string name="server_info_pep">XEP-0163: PEP (Awatary / OMEMO)</string>
     <string name="server_info_http_upload">XEP-0363: Przesyłanie plików przez HTTP</string>
-    <string name="server_info_push">XEP-0357: Push</string>
     <string name="server_info_available">tak</string>
     <string name="server_info_unavailable">nie</string>
     <string name="missing_public_keys">Brak informacji o kluczu publicznym</string>
@@ -190,7 +185,7 @@
     <string name="omemo_fingerprint_x509">Odcisk v\\OMEMO</string>
     <string name="other_devices">Pozostałe urządzenia</string>
     <string name="trust_omemo_fingerprints">Zaufane odciski OMEMO</string>
-    <string name="fetching_keys">Pobieranie kluczy...</string>
+    <string name="fetching_keys">Pobieranie kluczy…</string>
     <string name="done">Ukończono</string>
     <string name="verify">Weryfikuj</string>
     <string name="decrypt">Odszyfruj</string>
@@ -216,7 +211,7 @@
     <string name="add_back">Dodaj</string>
     <string name="publish">Publikuj</string>
     <string name="touch_to_choose_picture">Naciśnij awatar, żeby wybrać obraz z galerii</string>
-    <string name="publishing">Publikowanie...</string>
+    <string name="publishing">Publikowanie…</string>
     <string name="error_publish_avatar_server_reject">Serwer odrzucił żądanie publikacji</string>
     <string name="error_publish_avatar_converting">Wystąpił błąd podczas konwersji obrazu</string>
     <string name="error_saving_avatar">Nie udało się zapisać obrazu w pamięci urządzenia</string>
@@ -331,7 +326,7 @@
     <string name="error_trustkeys_title">Coś poszło nie tak</string>
     <string name="fetching_history_from_server">Pobieranie historii z serwera</string>
     <string name="no_more_history_on_server">Koniec historii na serwerze</string>
-    <string name="updating">Aktualizowanie...</string>
+    <string name="updating">Aktualizowanie…</string>
     <string name="password_changed">Hasło zostało zmienione!</string>
     <string name="could_not_change_password">Nie udało się zmienić hasła</string>
     <string name="ask_question">Zadaj pytanie</string>
@@ -455,7 +450,7 @@
     <string name="authenticate_with_certificate">Pozostaw puste by autoryzować za pomocą certyfikatu</string>
     <string name="mam_prefs">Preferencje archiwizacji</string>
     <string name="server_side_mam_prefs">Preferencje archiwizacji po stronie serwera</string>
-    <string name="fetching_mam_prefs">Pobieranie preferencji archiwizacji. Proszę czekać...</string>
+    <string name="fetching_mam_prefs">Pobieranie preferencji archiwizacji. Proszę czekać…</string>
     <string name="unable_to_fetch_mam_prefs">Nie można pobrać preferencji archiwizacji</string>
     <string name="captcha_required">Captcha wymagana</string>
     <string name="captcha_hint">Wprowadź tekst z powyższego obrazka</string>
@@ -463,8 +458,8 @@
     <string name="jid_does_not_match_certificate">chat address nie odpowiada certyfikatowi</string>
     <string name="action_renew_certificate">Odnów certyfikat</string>
     <string name="error_fetching_omemo_key">Błąd pobierania klucza OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Zweryfikowano klucz OMEMO z certyfikatem</string>
-    <string name="device_does_not_support_certificates">Twoje urządzenie nie wspiera wyboru certyfikatów klienckich</string>
+    <string name="verified_omemo_key_with_certificate">Zweryfikowano klucz OMEMO z certyfikatem!</string>
+    <string name="device_does_not_support_certificates">Twoje urządzenie nie wspiera wyboru certyfikatu klienta!</string>
     <string name="changelog">Zmiany</string>
     <string name="account_settings_hostname">Nazwa hosta</string>
     <string name="account_settings_port">Port</string>
@@ -514,9 +509,9 @@
     <string name="no_keys_just_confirm">Zaufałeś już temu użytkownikowi. Wybierając \'gotowe\' tylko potwierdzasz, że %s jest częścią czatu grupowego.</string>
     <string name="this_account_is_disabled">Wyłączyłeś to konto</string>
     <string name="no_application_to_share_uri">Nie odnaleziono aplikacji do udostępnienia URI</string>
-    <string name="share_uri_with">Udostępnij URI za pomocą...</string>
+    <string name="share_uri_with">Udostępnij URI za pomocą…</string>
     <string name="mgmt_account_reconnect">Połącz ponownie</string>
-    <string name="welcome_text">... jest darmowym i otwartym klientem sieci XMPP.</string>
+    <string name="welcome_text">… jest darmowym i otwartym klientem sieci XMPP.</string>
     <string name="your_full_jid_will_be">Twój pełen chat address będzie następujący: %s</string>
     <string name="create_account">Utwórz Konto</string>
     <string name="welcome_existing_account">Posiadam już konto</string>
@@ -651,8 +646,8 @@
     <string name="pref_notifications_from_strangers">Powiadomienia od nieznajomych</string>
     <string name="pref_notifications_from_strangers_summary">Powiadamiaj o wiadomościach otrzymanych od nieznajomych</string>
     <string name="received_message_from_stranger">Odebrano wiadomość od nieznajomego</string>
-    <string name="contacts_are_typing">1%s pisze...</string>
-    <string name="contact_is_typing">%s pisze...</string>
+    <string name="contacts_are_typing">1%s pisze…</string>
+    <string name="contact_is_typing">%s pisze…</string>
     <string name="one_participant">Jeden uczestnik</string>
     <string name="more_participants">%d uczestników</string>
     <string name="presence_offline">Nieaktywny</string>
@@ -1076,4 +1071,15 @@
     <string name="not_encrypted">Nieszyfrowane</string>
     <string name="missed_calls_channel_name">Nieodebrane połączenia</string>
     <string name="no_application_found">Nie znaleziono żadnych aplikacji</string>
+    <string name="please_be_patient">Proszę o chwilę cierpliwości…</string>
+    <string name="action_dialpad">Klawiatura</string>
+    <string name="or_use_another">… albo wybierz jedną z poniższych</string>
+    <string name="optimize_database">Optymalizacja bazy danych… Proszę czekać…</string>
+    <plurals name="x_unread_conversations">
+        <item quantity="one">%d nieprzeczytana wiadomość</item>
+        <item quantity="few">%d nieprzeczytanych wiadomości</item>
+        <item quantity="many">%d nieprzeczytanych wiadomości</item>
+        <item quantity="other">%d nieprzeczytanych wiadomości</item>
+    </plurals>
+    <string name="conference_technical_problems">Z powodu problemów technicznych nastąpiło rozłączenie z pokoju</string>
 </resources>

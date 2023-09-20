@@ -72,7 +72,7 @@
     <string name="add">Добавить</string>
     <string name="add_anyway">Добавить в любом случае</string>
     <string name="add_back">Добавить в ответ</string>
-    <string name="add_contact">Добавить контакт или комнату</string>
+    <string name="add_contact">Добавить контакт</string>
     <string name="add_contact_or_create_or_join_group_chat">Добавьте контакт, создайте и войдите в комнату или откройте комнаты</string>
     <string name="add_phone_book_text">Хотите добавить %s в Вашу адресную книгу\?</string>
     <string name="add_to_contact_list">Добавить в контакты</string>
@@ -1394,4 +1394,5 @@
     <string name="choose_sticker_location">Выберите место для стикера</string>
     <string name="you_may_sometimes_have_to">Иногда вам может потребоваться принудительно закрыть приложение, чтобы изменения вступили в силу.</string>
     <string name="create_monocles_only_backup">Экспортировать дополнительные данные только для моноклей (тогда резервная копия не будет импортирована в другие приложения)\?</string>
+    <string name="please_be_patient">Пожалуйста, будьте терпеливы...</string>
 </resources>

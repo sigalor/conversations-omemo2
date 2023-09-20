@@ -2,11 +2,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.borjabravo.readmoretextview.ReadMoreTextView
+    <de.monocles.chat.ReadMoreTextView
         app:trimExpandedText="@string/show_less"
         app:trimCollapsedText="@string/show_more"
         app:trimMode="trimModeLength"
-        app:trimLength="@string/collapse_message_signs"
         app:colorClickableText="@color/accent"
         android:id="@+id/message_body"
         android:layout_width="wrap_content"
@@ -26,13 +25,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/images"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="4dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:orientation="horizontal">
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/message_image"
@@ -72,7 +72,7 @@
             android:paddingBottom="2dp"
             android:textColor="@color/realwhite"
             android:textSize="12sp" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <Button
         android:id="@+id/download_button"
@@ -88,7 +88,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"></ListView>
+        android:dividerHeight="0dp" />
 
     <RelativeLayout
         android:id="@+id/audio_player"
