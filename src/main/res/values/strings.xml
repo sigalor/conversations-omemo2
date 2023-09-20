@@ -1304,7 +1304,7 @@
     <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
     <string name="pref_follow_thread_in_channel">Auto-follow thread in channels</string>
     <string name="pref_follow_thread_in_channel_summary">Set the thread marker to match the message currently being looked at</string>
-    <string name="show_less">\nshow less</string>
+    <string name="show_less">\n\nshow less</string>
     <string name="show_more">\nshow more</string>
     <string name="collapse_message_signs_summary">Set the maximum number of signs to collapse a message</string>
     <string name="collapse_message_signs_title">Collapse long text messages</string>
