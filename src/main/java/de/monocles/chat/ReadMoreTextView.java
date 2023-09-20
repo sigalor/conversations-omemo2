@@ -15,19 +15,16 @@
  */
 package de.monocles.chat;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.text.Layout;
-import android.text.Selection;
-import android.text.Spannable;
+import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
@@ -41,8 +38,8 @@ public class ReadMoreTextView extends AppCompatTextView {
 
     private static final int TRIM_MODE_LINES = 0;
     private static final int TRIM_MODE_LENGTH = 1;
-    private static final int DEFAULT_TRIM_LENGTH = 230;
-    private static final int DEFAULT_TRIM_LINES = 4;
+    private static final int DEFAULT_TRIM_LENGTH = 240;
+    private static final int DEFAULT_TRIM_LINES = 2;
     private static final int INVALID_END_INDEX = -1;
     private static final boolean DEFAULT_SHOW_TRIM_EXPANDED_TEXT = true;
     private static final String ELLIPSIZE = "... ";
@@ -53,15 +50,13 @@ public class ReadMoreTextView extends AppCompatTextView {
     private int trimLength;
     private CharSequence trimCollapsedText;
     private CharSequence trimExpandedText;
-    private final ReadMoreClickableSpan viewMoreSpan;
+    private ReadMoreClickableSpan viewMoreSpan;
     private int colorClickableText;
-    private final boolean showTrimExpandedText;
+    private boolean showTrimExpandedText;
 
     private int trimMode;
     private int lineEndIndex;
     private int trimLines;
-
-    private Watcher watcher;
 
     public ReadMoreTextView(Context context) {
         this(context, null);
@@ -85,58 +80,13 @@ public class ReadMoreTextView extends AppCompatTextView {
         this.trimMode = typedArray.getInt(R.styleable.ReadMoreTextView_trimMode, TRIM_MODE_LINES);
         typedArray.recycle();
         viewMoreSpan = new ReadMoreClickableSpan();
-        setOnTouchListener(new OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                TextView widget = (TextView) v;
-                Spannable buffer = Spannable.Factory.getInstance().newSpannable(widget.getText());
-                int action = event.getAction();
-
-                // https://stackoverflow.com/questions/8558732/listview-textview-with-linkmovementmethod-makes-list-item-unclickable
-
-                // to fix a bug when call setMovementMethod will make list item unclickable
-                if (action == MotionEvent.ACTION_UP ||
-                        action == MotionEvent.ACTION_DOWN) {
-                    int x = (int) event.getX();
-                    int y = (int) event.getY();
-
-                    x -= widget.getTotalPaddingLeft();
-                    y -= widget.getTotalPaddingTop();
-
-                    x += widget.getScrollX();
-                    y += widget.getScrollY();
-
-                    Layout layout = widget.getLayout();
-                    int line = layout.getLineForVertical(y);
-                    int off = layout.getOffsetForHorizontal(line, x);
-
-                    ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
-
-                    if (link.length != 0) {
-                        if (action == MotionEvent.ACTION_UP) {
-                            link[0].onClick(widget);
-                        } else {
-                            Selection.setSelection(buffer,
-                                    buffer.getSpanStart(link[0]),
-                                    buffer.getSpanEnd(link[0]));
-                        }
-
-                        return true;
-                    } else {
-                        Selection.removeSelection(buffer);
-                    }
-                }
-                return false;
-            }
-        });
         onGlobalLayoutLineEndIndex();
         setText();
     }
 
     private void setText() {
-        super.setText(text, bufferType);
         super.setText(getDisplayableText(), bufferType);
+        setMovementMethod(LinkMovementMethod.getInstance());
         setHighlightColor(Color.TRANSPARENT);
     }
 
@@ -176,21 +126,10 @@ public class ReadMoreTextView extends AppCompatTextView {
     }
 
     private CharSequence updateCollapsedText() {
-        if (watcher != null) {
-            watcher.onCollapsed();
-        }
         int trimEndIndex = text.length();
         switch (trimMode) {
             case TRIM_MODE_LINES:
-                trimEndIndex = lineEndIndex;
-                //find enough space to layout ELLIPSIZE
-                float ellipsizeWidth = getPaint().measureText(ELLIPSIZE + trimCollapsedText);
-                float collapsedWidth = getPaint().measureText(text.subSequence(trimEndIndex, trimEndIndex + 1).toString());
-                while (collapsedWidth < ellipsizeWidth) {
-                    --trimEndIndex;
-                    collapsedWidth += getPaint().measureText(text.subSequence(trimEndIndex, trimEndIndex + 1).toString());
-                }
-
+                trimEndIndex = lineEndIndex - (ELLIPSIZE.length() + trimCollapsedText.length() + 1);
                 if (trimEndIndex < 0) {
                     trimEndIndex = trimLength + 1;
                 }
@@ -206,9 +145,6 @@ public class ReadMoreTextView extends AppCompatTextView {
     }
 
     private CharSequence updateExpandedText() {
-        if (watcher != null) {
-            watcher.onExpanded();
-        }
         if (showTrimExpandedText) {
             SpannableStringBuilder s = new SpannableStringBuilder(text, 0, text.length()).append(trimExpandedText);
             return addClickableSpan(s, trimExpandedText);
@@ -219,15 +155,6 @@ public class ReadMoreTextView extends AppCompatTextView {
     private CharSequence addClickableSpan(SpannableStringBuilder s, CharSequence trimText) {
         s.setSpan(viewMoreSpan, s.length() - trimText.length(), s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return s;
-    }
-
-    public void toggleCollapsed(boolean readMore) {
-        this.readMore = readMore;
-        setText();
-    }
-
-    public void setToggleWatcher(Watcher watcher) {
-        this.watcher = watcher;
     }
 
     public void setTrimLength(int trimLength) {
@@ -270,42 +197,33 @@ public class ReadMoreTextView extends AppCompatTextView {
 
     private void onGlobalLayoutLineEndIndex() {
         if (trimMode == TRIM_MODE_LINES) {
-            getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
-                public boolean onPreDraw() {
+                public void onGlobalLayout() {
                     ViewTreeObserver obs = getViewTreeObserver();
-                    obs.removeOnPreDrawListener(this);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        obs.removeOnGlobalLayoutListener(this);
+                    } else {
+                        obs.removeGlobalOnLayoutListener(this);
+                    }
                     refreshLineEndIndex();
                     setText();
-                    return true;
                 }
             });
         }
     }
 
-    @Override
-    public boolean performLongClick() {
-        //a side affect that every slide move will trigger a long click event
-        return false;
-    }
-
     private void refreshLineEndIndex() {
         try {
             if (trimLines == 0) {
-                lineEndIndex = getLayout().getLineVisibleEnd(0);
+                lineEndIndex = getLayout().getLineEnd(0);
             } else if (trimLines > 0 && getLineCount() >= trimLines) {
-                lineEndIndex = getLayout().getLineVisibleEnd(trimLines - 1);
+                lineEndIndex = getLayout().getLineEnd(trimLines - 1);
             } else {
                 lineEndIndex = INVALID_END_INDEX;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public interface Watcher {
-        public void onExpanded();
-
-        public void onCollapsed();
     }
 }
