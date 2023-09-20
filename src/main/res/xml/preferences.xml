@@ -43,7 +43,7 @@
 
                 <CheckBoxPreference
                     android:defaultValue="false"
-                    android:key="custom_theme_dark"
+                    android:key="custom_theme_d ark"
                     android:title="@string/custom_theme_is_dark" />
                 <com.rarepebble.colorpicker.ColorPreference
                     android:key="custom_theme_primary"
@@ -508,6 +508,12 @@
                 android:key="export_plain_text_logs"
                 android:summary="@string/pref_export_plain_text_logs_summary"
                 android:title="@string/pref_export_plain_text_logs" />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="@string/import_database">
+            <Preference
+                android:key="import_database"
+                android:summary="@string/pref_import_database_or_settings_summary"
+                android:title="@string/pref_import_database_or_settings" />
         </PreferenceCategory>
     </PreferenceScreen>
     <!--Expert-->

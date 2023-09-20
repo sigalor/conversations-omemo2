@@ -1310,4 +1310,8 @@
     <string name="collapse_message_signs_title">Collapse long text messages</string>
     <string name="action_complete">Action complete</string>
     <string name="moderate_recent">Moderate messages?</string>
+    <string name="settings_restore_message_success">Settings successfully restored</string>
+    <string name="settings_restore_message_failure">Failed to restore settings: %s</string>
+    <string name="pref_import_database_or_settings">Import database or settings</string>
+    <string name="pref_import_database_or_settings_summary">Import a backup or your database  or of a settings file</string>
 </resources>

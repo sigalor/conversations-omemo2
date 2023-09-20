@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat;
 import eu.siacs.conversations.utils.CameraUtils;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URI;
@@ -64,7 +65,7 @@ import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.services.UnifiedPushDistributor;
 import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.xmpp.InvalidJid;
-
+import eu.siacs.conversations.ui.ImportBackupActivity;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener {
 
@@ -118,7 +119,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
-    // public static final int REQUEST_IMPORT_SETTINGS = 0xbf8702; //TODO: Reintegrate settings import
+    public static final int REQUEST_IMPORT_SETTINGS = 0xbf8703;
     Preference multiAccountPreference;
     Preference autoMessageExpiryPreference;
     Preference autoFileExpiryPreference;
@@ -419,6 +420,18 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
+        final Preference importSettingsPreference = mSettingsFragment.findPreference("import_database");
+        if (importSettingsPreference != null) {
+            importSettingsPreference.setSummary(getString(R.string.pref_import_database_or_settings_summary));
+            importSettingsPreference.setOnPreferenceClickListener(preference -> {
+                if (hasStoragePermission(REQUEST_IMPORT_SETTINGS)) {
+                    Intent intent = new Intent(getApplicationContext(), ImportBackupActivity.class);
+                    startActivity(intent);
+                }
+                return true;
+            });
+        }
+
         final Preference prefereXmppAvatarPreference = mSettingsFragment.findPreference(PREFER_XMPP_AVATAR);
         if (prefereXmppAvatarPreference != null) {
             prefereXmppAvatarPreference.setOnPreferenceClickListener(preference -> {
@@ -577,14 +590,12 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 return true;
             });
         }
-/* TODO: Handle SDK < 30
         final String theTheme = PreferenceManager.getDefaultSharedPreferences(this).getString(THEME, "");
         if (Build.VERSION.SDK_INT < 30 || !theTheme.equals("custom")) {
-            final PreferenceCategory uiCategory = (PreferenceCategory) mSettingsFragment.findPreference("ui");
+            final PreferenceScreen uiCategory = (PreferenceScreen) mSettingsFragment.findPreference("userinterface");
             final Preference customTheme = mSettingsFragment.findPreference("custom_theme");
             if (customTheme != null) uiCategory.removePreference(customTheme);
         }
-        */
     }
     private void updateTheme() {
         final int theme = findTheme();
