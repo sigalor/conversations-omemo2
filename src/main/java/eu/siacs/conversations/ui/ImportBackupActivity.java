@@ -41,6 +41,8 @@ import eu.siacs.conversations.databinding.DialogEnterPasswordBinding;
 import eu.siacs.conversations.services.ImportBackupService;
 import eu.siacs.conversations.ui.adapter.BackupFileAdapter;
 import eu.siacs.conversations.utils.ThemeHelper;
+import eu.siacs.conversations.utils.BackupFileHeader;
+
 
 public class ImportBackupActivity extends XmppActivity implements ServiceConnection, ImportBackupService.OnBackupFilesLoaded, BackupFileAdapter.OnItemClickedListener, ImportBackupService.OnBackupProcessed {
 
@@ -238,6 +240,8 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
                 } else {
                     restoreSettingsFromFile(uri);
                 }
+            } catch (final BackupFileHeader.OutdatedBackupFileVersion e) {
+                Snackbar.make(binding.coordinator, R.string.outdated_backup_file_format, Snackbar.LENGTH_LONG).show();
             } catch (final IOException | IllegalArgumentException e) {
                 Log.d(Config.LOGTAG, "unable to open backup file " + uri, e);
                 runOnUiThread(() -> Snackbar.make(binding.coordinator, R.string.not_a_backup_file, Snackbar.LENGTH_LONG).show());
