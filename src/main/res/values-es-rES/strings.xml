@@ -1399,6 +1399,11 @@
     <string name="show_more">\nmostrar más</string>
     <string name="collapse_message_signs_summary">Establecer el número máximo de signos para colapsar un mensaje</string>
     <string name="collapse_message_signs_title">Colapsar texto de mensajes largos</string>
-    <string name="action_complete">Acción completado</string>
+    <string name="action_complete">Acción completada</string>
     <string name="moderate_recent">¿Moderar mensajes?</string>
+    <string name="related_chats">Chats relacionados</string>
+    <string name="settings_restore_message_success">Ajustes restaurados con éxito</string>
+    <string name="settings_restore_message_failure">Fallo al restaurar ajustes: %s</string>
+    <string name="pref_import_database_or_settings">Importar base de datos o ajustes</string>
+    <string name="pref_import_database_or_settings_summary">Importar una copia de tu base de datos o de un fichero de ajustes</string>
 </resources>
