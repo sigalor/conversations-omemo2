@@ -134,7 +134,8 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
             this.file.setKeyAndIv(this.key);
         }
         this.file.setExpectedSize(originalFileSize + (file.getKey() != null ? 16 : 0));
-        this.slotFuture = new SlotRequester(mXmppConnectionService).request(method, account, file, message.getFileParams().getName(), mime);
+        message.resetFileParams();
+        this.slotFuture = new SlotRequester(mXmppConnectionService).request(method, account, file, mime);
         Futures.addCallback(this.slotFuture, new FutureCallback<SlotRequester.Slot>() {
             @Override
             public void onSuccess(@Nullable SlotRequester.Slot result) {
