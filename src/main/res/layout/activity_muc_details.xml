@@ -96,7 +96,7 @@
                                                 android:minWidth="0dp"
                                                 android:layout_marginTop="32dp"
                                                 android:layout_marginRight="4dp"
-                                                android:text="Related Chats"
+                                                android:text="@string/related_chats"
                                                 android:textColor="?attr/colorAccent" />
 
                                             <TextView

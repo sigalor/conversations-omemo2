@@ -1350,4 +1350,5 @@
     <string name="choose_sticker_location">Wähle den Speicherort der Sticker</string>
     <string name="settings_restore_message_success">Die Einstellungen wurden erfolgreich eingelesen</string>
     <string name="settings_restore_message_failure">Die Einstellungen konnten nicht eingelesen werden: %s</string>
+    <string name="related_chats">Zugehörige Chats</string>
 </resources>
