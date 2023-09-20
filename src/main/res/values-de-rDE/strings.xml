@@ -1344,4 +1344,8 @@
     <string name="pref_follow_thread_in_channel_summary">Setze den Thread Marker auf den Thread der Nachricht die du gerade betrachtest.</string>
     <string name="show_less">\nzeige weniger</string>
     <string name="show_more">zeige mehr</string>
+    <string name="change_stickers_location">Ändere den Speicherort der Sticker</string>
+    <string name="update_default_stickers">Aktualisiere die standard Sticker</string>
+    <string name="clear_blocked_media">Leere blockierte Medien</string>
+    <string name="choose_sticker_location">Wähle den Speicherort der Sticker</string>
 </resources>
