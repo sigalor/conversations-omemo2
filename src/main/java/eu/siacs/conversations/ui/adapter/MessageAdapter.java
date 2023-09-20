@@ -1582,10 +1582,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
 
 
-        SwipeLayout swipeLayout =  (SwipeLayout) view.findViewById(R.id.layout_swipe);
+        SwipeLayout swipeLayout = view.findViewById(R.id.layout_swipe);
 
 //set show mode.
-        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
 
 //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
         swipeLayout.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
