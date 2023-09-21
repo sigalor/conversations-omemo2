@@ -1203,7 +1203,7 @@
 \nTu equipo de monocles chat</string>
     <string name="updated_to_monocles_google">Tenemos que disculparnos porque no pudimos actualizar directamente a monocles chat. En el siguiente enlace, recibirás instrucciones sobre cómo transferir todos tus perfiles de Monocles Messenger a monocles chat. Al hacer clic en mover datos, intentamos mover todos los archivos enviados y recibidos desde Monocles Messenger a monocles chat. Después de una migración exitosa, recuerda eliminar Monocles Messenger de su dispositivo.</string>
     <string name="link">Enlace</string>
-    <string name="create_monocles_account"><a href="https://ocean.monocles.eu/apps/registration/">Inscribete</a></string>
+    <string name="create_monocles_account">Inscribete</string>
     <string name="no_application_found">No se encontró aplicación</string>
     <string name="move_data">Mover datos</string>
     <string name="error_moving_data">Se ha producido un error moviendo tus antiguos datos. Por favor, muévelos manualmente.</string>

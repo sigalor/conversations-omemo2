@@ -100,8 +100,8 @@
     <string name="offering">angeboten…</string>
     <string name="waiting">warten…</string>
     <string name="monocles_account_introduction">Du kannst monocles chat mit jedem modernen XMPP-Konto nutzen oder erhalte ein günstiges und <b>sicheres monocles Konto, versorgt mit regenerativen Energien!</b></string>
-    <string name="create_monocles_account"><a href="https://ocean.monocles.eu/apps/registration/"><b>Zur Registrierung</b></a></string>
-    <string name="or_use_another">... oder wähle einen anderen Server</string>
+    <string name="create_monocles_account">Zur Registrierung</string>
+    <string name="or_use_another">... oder wähle einen anderen Anbieter</string>
     <string name="no_pgp_key">Kein OpenPGP-Schlüssel gefunden</string>
     <string name="contact_has_no_pgp_key">monocles chat ist nicht in der Lage, deine Nachrichten zu verschlüsseln, weil dein Kontakt seinen Schlüssel nicht preisgibt.
 \n

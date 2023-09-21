@@ -1176,7 +1176,7 @@
     <string name="pref_use_colored_muc_names">Colorir nomes de usuário</string>
     <string name="show_videos_images_only">Apenas imagens/vídeos</string>
     <string name="rtp_state_reconnecting">Reconectando</string>
-    <string name="create_monocles_account"><a href="https://ocean.monocles.eu/apps/registration/">Obtenha uma conta Monocles!</a></string>
+    <string name="create_monocles_account">Obtenha uma conta Monocles!</string>
     <string name="monocles_account_introduction">Você pode usar o Monocles Chat com todas as contas XMPP modernas ou obter uma conta de Monocles acessível e segura, hospedada na estação do servidor de Monocles e alimentada com energias renováveis!</string>
     <string name="error_moving_data">Ocorreu um erro ao mover seus dados antigos. Mova-os manualmente.</string>
     <string name="data_successfully_moved">Seus dados foram movidos com sucesso.</string>
