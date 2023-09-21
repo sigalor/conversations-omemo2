@@ -1393,8 +1393,8 @@
     <string name="pref_follow_thread_in_channel">Hilo de autoseguimiento en canales</string>
     <string name="pref_follow_thread_in_channel_summary">Configura el marcador de hilo para que coincida con el mensaje que estás mirando ahora</string>
     <string name="notify_only_when_highlighted_or_replied">Notificar para menciones y repuestas</string>
-    <string name="show_less">\nmostrar menos</string>
-    <string name="show_more">\nmostrar más</string>
+    <string name="show_less">\n\n... mostrar menos</string>
+    <string name="show_more">\n\n... mostrar más</string>
     <string name="collapse_message_signs_summary">Establecer el número máximo de signos para colapsar un mensaje</string>
     <string name="collapse_message_signs_title">Colapsar texto de mensajes largos</string>
     <string name="action_complete">Acción completada</string>
