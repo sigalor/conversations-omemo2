@@ -103,7 +103,7 @@
                 app:trimExpandedText="@string/show_less"
                 app:trimCollapsedText="@string/show_more"
                 app:trimMode="trimModeLength"
-                app:colorClickableText="@color/accent"
+                app:colorClickableText="?attr/colorAccent"
                 android:id="@+id/context_preview_text"
                 android:layout_weight="1"
                 android:layout_width="0dp"
