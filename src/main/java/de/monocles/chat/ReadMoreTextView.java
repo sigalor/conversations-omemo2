@@ -51,9 +51,9 @@ public class ReadMoreTextView extends AppCompatTextView {
     private int trimLength;
     private CharSequence trimCollapsedText;
     private CharSequence trimExpandedText;
-    private ReadMoreClickableSpan viewMoreSpan;
+    private final ReadMoreClickableSpan viewMoreSpan;
     private int colorClickableText;
-    private boolean showTrimExpandedText;
+    private final boolean showTrimExpandedText;
     private ReadMoreListener readMoreListener;
 
     private int trimMode;
