@@ -149,7 +149,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 32
 
-        //versionNameSuffix " beta_(2023-01-10)" // " beta_(XXXX-XX-XX)" // activate for beta versions
+        //versionNameSuffix " beta_(2023-09-22)" // " beta_(XXXX-XX-XX)" // activate for beta versions
         versionCode 136
         versionName "1.7.4"
         //resConfigs "en"
@@ -229,7 +229,7 @@ android {
 
             debug {
                 debuggable true
-                signingConfig signingConfigs.debug
+                signingConfig null
                 minifyEnabled true
                 shrinkResources true
                 runProguard true
