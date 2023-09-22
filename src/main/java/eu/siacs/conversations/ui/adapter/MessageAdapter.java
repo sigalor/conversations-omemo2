@@ -320,7 +320,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_white_18dp : R.drawable.ic_check_black_18dp);
+                        //viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_white_18dp : R.drawable.ic_check_black_18dp);
+                        viewHolder.indicatorReceived.setImageResource(R.drawable.ic_check_blue_18dp);
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -331,7 +332,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_all_white_18dp : R.drawable.ic_check_all_black_18dp);
+                        //viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_all_white_18dp : R.drawable.ic_check_all_black_18dp);
+                        viewHolder.indicatorReceived.setImageResource(R.drawable.ic_check_all_blue_18dp);
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
