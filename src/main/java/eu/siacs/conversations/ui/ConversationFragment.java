@@ -1087,8 +1087,10 @@ public class ConversationFragment extends XmppFragment
             this.binding.textinput.setHint(R.string.you_are_not_participating);
         } else {
             this.binding.textInputHint.setVisibility(View.GONE);
-            this.binding.textinput.setHint(UIHelper.getMessageHint(activity, conversation));
-            activity.invalidateOptionsMenu();
+            if (getActivity() != null) {
+                this.binding.textinput.setHint(UIHelper.getMessageHint(getActivity(), conversation));
+                getActivity().invalidateOptionsMenu();
+            }
         }
         binding.messagesView.post(this::updateThreadFromLastMessage);
     }
@@ -3776,20 +3778,14 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                if (messageListAdapter.hasSelection()) {
-                    if (notifyConversationRead) binding.messagesView.postDelayed(this::refresh, 1000L);
-                } else {
-                    conversation.populateWithMessages(this.messageList);
-                    updateStatusMessages();
-                    this.messageListAdapter.notifyDataSetChanged();
-                }
-                if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
+                conversation.populateWithMessages(ConversationFragment.this.messageList);
+                updateStatusMessages();
+                if (conversation.unreadCount() > 0) {
                     binding.unreadCountCustomView.setVisibility(View.VISIBLE);
-                    binding.unreadCountCustomView.setUnreadCount(
-                            conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
+                    binding.unreadCountCustomView.setUnreadCount(conversation.unreadCount());
                 }
-                updateSnackBar(conversation);
-                if (activity != null) updateChatMsgHint();
+                this.messageListAdapter.notifyDataSetChanged();
+                updateChatMsgHint();
                 if (notifyConversationRead && activity != null) {
                     binding.messagesView.post(this::fireReadEvent);
                 }
