@@ -3,11 +3,13 @@ package de.monocles.chat.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -20,7 +22,7 @@ public class PermissionsActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int PERMISSION_LENGTH = 2;
-    public static final int STORAGE_PERMISSION = 0, ALL_FILES_PERMISSION = 1;
+    public static final int STORAGE_PERMISSION = 0;
 
     private final OnPermissionGranted[] permissionCallbacks = new OnPermissionGranted[PERMISSION_LENGTH];
 
@@ -49,7 +51,9 @@ public class PermissionsActivity extends AppCompatActivity
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> finish());
         builder.setPositiveButton(R.string.grant, (dialog, which) -> {
             permissionCallbacks[STORAGE_PERMISSION] = onPermissionGranted;
-            ActivityCompat.requestPermissions(PermissionsActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION);
+            ActivityCompat.requestPermissions(PermissionsActivity.this,
+                    permissions(),
+                    0);
         });
         builder.setOnCancelListener(dialog -> finish());
         final AlertDialog dialog = builder.create();
@@ -60,6 +64,30 @@ public class PermissionsActivity extends AppCompatActivity
 
     public interface OnPermissionGranted {
         void onPermissionGranted();
+    }
+
+
+    //Check for API 33
+    public static String[] storage_permissions = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    public static String[] storage_permissions_33 = {
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_MEDIA_VIDEO
+    };
+
+    public static String[] permissions() {
+        String[] p;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            p = storage_permissions_33;
+        } else {
+            p = storage_permissions;
+        }
+        return p;
     }
 }
 
