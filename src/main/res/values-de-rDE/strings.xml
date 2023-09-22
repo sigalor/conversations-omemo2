@@ -1354,4 +1354,6 @@
     <string name="confirm_delete_attachment_summary">Soll das Löschen von lokalen Dateien in Chats immer bestätigt werden?</string>
     <string name="pref_confirm_delete_attachment">Bestätigung zum Löschen lokaler Dateien in Chats</string>
     <string name="menuitem_create_backup_action">Datensicherung erstellen</string>
+    <string name="pref_use_blue_readmarkers_title">Benutze blaue Readmarker</string>
+    <string name="pref_use_blue_readmarkers_summary">Benutze blaue Readmarker anstatt weiß oder schwarz (Standard ist Nein)</string>
 </resources>

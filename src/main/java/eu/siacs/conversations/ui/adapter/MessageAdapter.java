@@ -55,6 +55,7 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -168,6 +169,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private boolean mShowMapsInside = false;
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
+    private boolean mUseBlueReadMarkers = false;
+
 
     public MessageAdapter(final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
         super(activity, 0, messages);
@@ -320,8 +323,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        //viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_white_18dp : R.drawable.ic_check_black_18dp);
-                        viewHolder.indicatorReceived.setImageResource(R.drawable.ic_check_blue_18dp);
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, ReadmakerType.RECEIVED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -332,8 +334,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        //viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_all_white_18dp : R.drawable.ic_check_all_black_18dp);
-                        viewHolder.indicatorReceived.setImageResource(R.drawable.ic_check_all_blue_18dp);
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, ReadmakerType.DISPLAYED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -1895,6 +1896,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.mPlayGifInside = p.getBoolean(PLAY_GIF_INSIDE, activity.getResources().getBoolean(R.bool.play_gif_inside));
         this.mShowLinksInside = p.getBoolean(SHOW_LINKS_INSIDE, activity.getResources().getBoolean(R.bool.show_links_inside));
         this.mShowMapsInside = p.getBoolean(SHOW_MAPS_INSIDE, activity.getResources().getBoolean(R.bool.show_maps_inside));
+        this.mUseBlueReadMarkers = p.getBoolean("use_blue_readmarkers", activity.getResources().getBoolean(R.bool.use_blue_readmarkers));
     }
 
     public void setHighlightedTerm(List<String> terms) {
@@ -2004,6 +2006,43 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected void onPostExecute(final Drawable[] d) {
             if (isCancelled()) return;
             activity.xmppConnectionService.updateConversationUi();
+        }
+    }
+
+    private enum ReadmakerType {
+        RECEIVED,
+        DISPLAYED
+    }
+
+    private int getReadmakerType(boolean isDarkbackground, ReadmakerType readmakerType) {
+        if(isDarkbackground) {
+            if(readmakerType == ReadmakerType.DISPLAYED) {
+                if(mUseBlueReadMarkers) {
+                    return R.drawable.ic_check_all_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_all_white_18dp;
+                }
+            } else {
+                if(mUseBlueReadMarkers) {
+                    return R.drawable.ic_check_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_white_18dp;
+                }
+            }
+        } else {
+            if(readmakerType == ReadmakerType.DISPLAYED) {
+                if(mUseBlueReadMarkers) {
+                    return R.drawable.ic_check_all_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_all_black_18dp;
+                }
+            } else {
+                if(mUseBlueReadMarkers) {
+                    return R.drawable.ic_check_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_black_18dp;
+                }
+            }
         }
     }
 }

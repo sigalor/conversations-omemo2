@@ -2,4 +2,5 @@
 <resources>
     <bool name="show_avatar_incoming_call">true</bool>
     <bool name="confirm_delete_attachment">true</bool>
+    <bool name="use_blue_readmarkers">false</bool>
 </resources>

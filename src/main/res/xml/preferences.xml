@@ -161,6 +161,11 @@
             android:key="allowmergemessages"
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/use_blue_readmarkers"
+            android:key="use_blue_readmarkers"
+            android:summary="@string/pref_use_blue_readmarkers_summary"
+            android:title="@string/pref_use_blue_readmarkers_title" />
         <!-- TODO: Add setting for number of signs to collapse message
         <EditTextPreference
             android:defaultValue="@string/collapse_message_signs"
