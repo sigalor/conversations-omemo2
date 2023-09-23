@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui.adapter;
 
+import static de.monocles.chat.Util.getReadmakerType;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 
 import android.content.SharedPreferences;
@@ -25,6 +26,7 @@ import com.google.common.base.Strings;
 
 import java.util.List;
 
+import de.monocles.chat.Util;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ConversationListRowBinding;
 import eu.siacs.conversations.entities.Conversation;
@@ -53,10 +55,12 @@ public class ConversationAdapter
     private List<Conversation> conversations;
     private OnConversationClickListener listener;
     private boolean hasInternetConnection = false;
+    private boolean mUseBlueReadMarkers = false;
 
     public ConversationAdapter(XmppActivity activity, List<Conversation> conversations) {
         this.activity = activity;
         this.conversations = conversations;
+        this.mUseBlueReadMarkers = getPreferences().getBoolean("use_blue_readmarkers", activity.getResources().getBoolean(R.bool.use_blue_readmarkers));
     }
 
     @NonNull
@@ -415,14 +419,14 @@ public class ConversationAdapter
                 case Message.STATUS_SEND_RECEIVED:
                     if (viewHolder.binding.indicatorReceived != null) {
                         viewHolder.binding.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.binding.indicatorReceived.setImageResource(activity.isDarkTheme() ? R.drawable.ic_check_white_18dp : R.drawable.ic_check_black_18dp);
+                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmakerType.RECEIVED));
                         viewHolder.binding.indicatorReceived.setAlpha(activity.isDarkTheme() ? 0.7f : 0.57f);
                     }
                     break;
                 case Message.STATUS_SEND_DISPLAYED:
                     if (viewHolder.binding.indicatorReceived != null) {
                         viewHolder.binding.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.binding.indicatorReceived.setImageResource(activity.isDarkTheme() ? R.drawable.ic_check_all_white_18dp : R.drawable.ic_check_all_black_18dp);
+                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmakerType.DISPLAYED));
                         viewHolder.binding.indicatorReceived.setAlpha(activity.isDarkTheme() ? 0.7f : 0.57f);
                     }
                     break;

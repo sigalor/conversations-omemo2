@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
 import de.monocles.chat.BobTransfer;
+import de.monocles.chat.Util;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
@@ -8,6 +9,7 @@ import eu.siacs.conversations.xml.Element;
 import io.ipfs.cid.Cid;
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static de.monocles.chat.Util.getReadmakerType;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY_OLD;
 import static eu.siacs.conversations.persistance.FileBackend.formatTime;
@@ -323,7 +325,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, ReadmakerType.RECEIVED));
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmakerType.RECEIVED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -334,7 +336,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, ReadmakerType.DISPLAYED));
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmakerType.DISPLAYED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -2006,43 +2008,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected void onPostExecute(final Drawable[] d) {
             if (isCancelled()) return;
             activity.xmppConnectionService.updateConversationUi();
-        }
-    }
-
-    private enum ReadmakerType {
-        RECEIVED,
-        DISPLAYED
-    }
-
-    private int getReadmakerType(boolean isDarkbackground, ReadmakerType readmakerType) {
-        if(isDarkbackground) {
-            if(readmakerType == ReadmakerType.DISPLAYED) {
-                if(mUseBlueReadMarkers) {
-                    return R.drawable.ic_check_all_blue_18dp;
-                } else {
-                    return R.drawable.ic_check_all_white_18dp;
-                }
-            } else {
-                if(mUseBlueReadMarkers) {
-                    return R.drawable.ic_check_blue_18dp;
-                } else {
-                    return R.drawable.ic_check_white_18dp;
-                }
-            }
-        } else {
-            if(readmakerType == ReadmakerType.DISPLAYED) {
-                if(mUseBlueReadMarkers) {
-                    return R.drawable.ic_check_all_blue_18dp;
-                } else {
-                    return R.drawable.ic_check_all_black_18dp;
-                }
-            } else {
-                if(mUseBlueReadMarkers) {
-                    return R.drawable.ic_check_blue_18dp;
-                } else {
-                    return R.drawable.ic_check_black_18dp;
-                }
-            }
         }
     }
 }
