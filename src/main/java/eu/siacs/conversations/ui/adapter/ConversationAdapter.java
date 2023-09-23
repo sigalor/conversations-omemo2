@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.core.graphics.ColorUtils;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -34,7 +33,6 @@ import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.services.AttachFileToConversationRunnable;
-import eu.siacs.conversations.ui.ConversationFragment;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.StyledAttributes;
@@ -419,14 +417,14 @@ public class ConversationAdapter
                 case Message.STATUS_SEND_RECEIVED:
                     if (viewHolder.binding.indicatorReceived != null) {
                         viewHolder.binding.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmakerType.RECEIVED));
+                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmarkerType.RECEIVED));
                         viewHolder.binding.indicatorReceived.setAlpha(activity.isDarkTheme() ? 0.7f : 0.57f);
                     }
                     break;
                 case Message.STATUS_SEND_DISPLAYED:
                     if (viewHolder.binding.indicatorReceived != null) {
                         viewHolder.binding.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmakerType.DISPLAYED));
+                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmarkerType.DISPLAYED));
                         viewHolder.binding.indicatorReceived.setAlpha(activity.isDarkTheme() ? 0.7f : 0.57f);
                     }
                     break;

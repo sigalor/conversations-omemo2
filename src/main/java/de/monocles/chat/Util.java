@@ -28,14 +28,14 @@ public class Util {
         listView.requestLayout();
     }
 
-    public enum ReadmakerType {
+    public enum ReadmarkerType {
         RECEIVED,
         DISPLAYED
     }
 
-    public static int getReadmakerType(boolean isDarkBackground, boolean useBlueReadmarkers, ReadmakerType readmakerType) {
+    public static int getReadmakerType(boolean isDarkBackground, boolean useBlueReadmarkers, ReadmarkerType readmakerType) {
         if(isDarkBackground) {
-            if(readmakerType == ReadmakerType.DISPLAYED) {
+            if(readmakerType == ReadmarkerType.DISPLAYED) {
                 if(useBlueReadmarkers) {
                     return R.drawable.ic_check_all_blue_18dp;
                 } else {
@@ -49,7 +49,7 @@ public class Util {
                 }
             }
         } else {
-            if(readmakerType == ReadmakerType.DISPLAYED) {
+            if(readmakerType == ReadmarkerType.DISPLAYED) {
                 if(useBlueReadmarkers) {
                     return R.drawable.ic_check_all_blue_18dp;
                 } else {

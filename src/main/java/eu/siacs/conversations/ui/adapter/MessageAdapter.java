@@ -2,8 +2,6 @@ package eu.siacs.conversations.ui.adapter;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.Util;
-import eu.siacs.conversations.entities.Contact;
-import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
 import eu.siacs.conversations.xml.Element;
 import io.ipfs.cid.Cid;
@@ -21,7 +19,7 @@ import static eu.siacs.conversations.ui.util.MyLinkify.removeTrackingParameter;
 import static eu.siacs.conversations.ui.util.MyLinkify.removeTrailingBracket;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 import eu.siacs.conversations.ui.util.ShareUtil;
-import de.monocles.chat.SwipeDetector;
+
 import android.net.Uri;
 import android.text.style.URLSpan;
 import android.text.style.ImageSpan;
@@ -37,7 +35,7 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -47,12 +45,9 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -81,7 +76,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.swipe.SwipeLayout;
-import com.daimajia.swipe.util.Attributes;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
@@ -100,9 +94,7 @@ import java.security.NoSuchAlgorithmException;
 import de.monocles.chat.WebxdcUpdate;
 import de.monocles.chat.WebxdcPage;
 
-import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
@@ -110,7 +102,6 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
-import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Message.FileParams;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
@@ -142,7 +133,7 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.mam.MamReference;
 import me.drakeet.support.toast.ToastCompat;
 import pl.droidsonroids.gif.GifImageView;
-import eu.siacs.conversations.xml.Element;
+
 import android.widget.ListView;
 
 
@@ -325,7 +316,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmakerType.RECEIVED));
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmarkerType.RECEIVED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -336,7 +327,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmakerType.DISPLAYED));
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmarkerType.DISPLAYED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
