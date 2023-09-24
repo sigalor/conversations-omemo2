@@ -21,6 +21,7 @@ import static eu.siacs.conversations.utils.StorageHelper.getConversationsDirecto
 import static eu.siacs.conversations.xmpp.Patches.ENCRYPTION_EXCEPTIONS;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.common.collect.ImmutableList;
@@ -2485,11 +2486,13 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundResource(0);
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
+                File bgfile =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg");
                 Glide.with(this)
                         .asBitmap()
-                        .load(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg"))
+                        .load(bgfile)
                         .placeholder(R.drawable.chatbg)
-                        .into(new SimpleTarget<Bitmap>(100,100) {
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                 Drawable dr = new BitmapDrawable(resource);
