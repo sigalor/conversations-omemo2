@@ -8,6 +8,7 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 import static eu.siacs.conversations.ui.SettingsActivity.WARN_UNENCRYPTED_CHAT;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -18,6 +19,10 @@ import static eu.siacs.conversations.utils.PermissionUtils.getFirstDenied;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
 import static eu.siacs.conversations.utils.StorageHelper.getConversationsDirectory;
 import static eu.siacs.conversations.xmpp.Patches.ENCRYPTION_EXCEPTIONS;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.common.collect.ImmutableList;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
@@ -37,7 +42,10 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -87,7 +95,7 @@ import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
-
+import android.content.Context;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
@@ -2477,7 +2485,18 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundResource(0);
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
-                binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                Glide.with(this)
+                        .asBitmap()
+                        .load(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg"))
+                        .placeholder(R.drawable.chatbg)
+                        .into(new SimpleTarget<Bitmap>(100,100) {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                Drawable dr = new BitmapDrawable(resource);
+                                binding.conversationsFragment.setBackgroundDrawable(dr);
+                                // Possibly runOnUiThread()
+                            }
+                        });
             }
         }
     }
