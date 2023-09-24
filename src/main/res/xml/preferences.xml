@@ -78,6 +78,15 @@
             android:key="font_size"
             android:summary="@string/pref_font_size_summary"
             android:title="@string/pref_font_size" />
+        <!-- Choose background
+        <ListPreference
+            android:defaultValue="@string/default_background"
+            android:entries="@array/chat_background"
+            android:entryValues="@array/chat_background_values"
+            android:key="chat_background"
+            android:summary="@string/pref_chat_background_summary"
+            android:title="@string/chat_background" />
+                        -->
         <CheckBoxPreference
             android:defaultValue="@bool/use_unicolored_chatbg"
             android:key="unicolored_chatbg"

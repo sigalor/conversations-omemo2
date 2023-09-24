@@ -3,4 +3,6 @@
     <bool name="show_avatar_incoming_call">true</bool>
     <bool name="confirm_delete_attachment">true</bool>
     <bool name="use_blue_readmarkers">false</bool>
+    <bool name="use_default_chatbg">true</bool>
+    <bool name="use_custom_chatbg">false</bool>
 </resources>
