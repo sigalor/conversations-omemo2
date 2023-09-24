@@ -1203,7 +1203,7 @@
 \nTu equipo de monocles chat</string>
     <string name="updated_to_monocles_google">Tenemos que disculparnos porque no pudimos actualizar directamente a monocles chat. En el siguiente enlace, recibirás instrucciones sobre cómo transferir todos tus perfiles de Monocles Messenger a monocles chat. Al hacer clic en mover datos, intentamos mover todos los archivos enviados y recibidos desde Monocles Messenger a monocles chat. Después de una migración exitosa, recuerda eliminar Monocles Messenger de su dispositivo.</string>
     <string name="link">Enlace</string>
-    <string name="create_monocles_account">Inscribete</string>
+    <string name="create_monocles_account">Inscríbete</string>
     <string name="no_application_found">No se encontró aplicación</string>
     <string name="move_data">Mover datos</string>
     <string name="error_moving_data">Se ha producido un error moviendo tus antiguos datos. Por favor, muévelos manualmente.</string>
@@ -1405,4 +1405,9 @@
     <string name="pref_import_database_or_settings">Importar base de datos o ajustes</string>
     <string name="pref_import_database_or_settings_summary">Importar una copia de tu base de datos o de un fichero de ajustes</string>
     <string name="create_monocles_only_backup">¿Exportar los datos adicionales sólo de Monocles (entonces la copia de seguridad no se importará a otras aplicaciones)\?</string>
+    <string name="confirm_delete_attachment_summary">¿Quieres saltar la confirmación de borrado de fichero local de una conversación?</string>
+    <string name="pref_confirm_delete_attachment">Saltar confirmación en borrado de ficheros locales de conversaciones</string>
+    <string name="menuitem_create_backup_action">Crear backup</string>
+    <string name="pref_use_blue_readmarkers_title">Usar marcador de lectura azul</string>
+    <string name="pref_use_blue_readmarkers_summary">Usar marcador de lectura azul en lugar de blanco o negro (falso por defecto)</string>
 </resources>
