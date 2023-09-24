@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,6 +30,7 @@
                     android:layout_alignParentBottom="true"
                     android:minHeight="256dp"
                     android:orientation="vertical"
+                    android:gravity="center"
                     android:paddingStart="16dp"
                     android:paddingLeft="16dp"
                     android:paddingEnd="16dp"
@@ -56,30 +58,33 @@
                         android:text="@string/monocles_account_introduction"
                         android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
 
-                    <TextView
+                    <de.monocles.chat.ReadMoreTextView
                         android:id="@+id/instructions"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
                         android:text="@string/magic_create_text"
+                        app:colorClickableText="?attr/colorAccent"
                         android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/activity_main_link"
-                        android:layout_width="match_parent"
-                        android:gravity="center_vertical|center_horizontal"
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.Conversations.Button"
                         android:text="@string/create_monocles_account"
-                        android:textSize="19sp"
-                        android:layout_height="60dp" />
+                        android:textColorLink="@color/white"
+                        android:textColor="@color/white"
+                        android:layout_margin="10dp"/>
 
                     <View
-                        android:layout_width="match_parent"
-                        android:layout_height="23dp"
-                        android:layout_weight="1" />
+                        android:layout_width="250dp"
+                        android:layout_height="1.5dp"
+                        android:background="@color/primary_monocles"
+                        android:layout_margin="10dp"/>
 
                     <TextView
                         android:id="@+id/alternative"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/or_use_another"

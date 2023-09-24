@@ -1,13 +1,13 @@
 package eu.siacs.conversations.ui.adapter;
 
 import de.monocles.chat.BobTransfer;
-import eu.siacs.conversations.entities.Contact;
-import eu.siacs.conversations.entities.Roster;
+import de.monocles.chat.Util;
 import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
 import eu.siacs.conversations.xml.Element;
 import io.ipfs.cid.Cid;
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static de.monocles.chat.Util.getReadmakerType;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY_OLD;
 import static eu.siacs.conversations.persistance.FileBackend.formatTime;
@@ -19,7 +19,7 @@ import static eu.siacs.conversations.ui.util.MyLinkify.removeTrackingParameter;
 import static eu.siacs.conversations.ui.util.MyLinkify.removeTrailingBracket;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 import eu.siacs.conversations.ui.util.ShareUtil;
-import de.monocles.chat.SwipeDetector;
+
 import android.net.Uri;
 import android.text.style.URLSpan;
 import android.text.style.ImageSpan;
@@ -35,7 +35,7 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -45,12 +45,9 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -79,7 +76,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.swipe.SwipeLayout;
-import com.daimajia.swipe.util.Attributes;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
@@ -98,9 +94,7 @@ import java.security.NoSuchAlgorithmException;
 import de.monocles.chat.WebxdcUpdate;
 import de.monocles.chat.WebxdcPage;
 
-import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
@@ -108,7 +102,6 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
-import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Message.FileParams;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
@@ -140,7 +133,7 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.mam.MamReference;
 import me.drakeet.support.toast.ToastCompat;
 import pl.droidsonroids.gif.GifImageView;
-import eu.siacs.conversations.xml.Element;
+
 import android.widget.ListView;
 
 
@@ -169,7 +162,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private boolean mShowMapsInside = false;
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
-    private String selectionUuid = null;
+    private boolean mUseBlueReadMarkers = false;
 
 
     public MessageAdapter(final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
@@ -236,10 +229,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.mOnMessageBoxClickedListener = listener;
     }
 
-    public boolean hasSelection() {
-        return selectionUuid != null;
-    }
-
     public Activity getActivity() {
         return activity;
     }
@@ -296,8 +285,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.retract_indicator.setVisibility(View.GONE);
             }
         }
-        viewHolder.messageBody.setAccessibilityDelegate(null);
-
         final Transferable transferable = message.getTransferable();
         boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI
                 && message.getMergedStatus() <= Message.STATUS_RECEIVED;
@@ -329,7 +316,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_white_18dp : R.drawable.ic_check_black_18dp);
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmarkerType.RECEIVED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -340,7 +327,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (mIndicateReceived) {
                     if (viewHolder.indicatorReceived != null) {
                         viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(darkBackground ? R.drawable.ic_check_all_white_18dp : R.drawable.ic_check_all_black_18dp);
+                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, mUseBlueReadMarkers, Util.ReadmarkerType.DISPLAYED));
                         viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
                     }
                 } else {
@@ -1582,10 +1569,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
 
 
-        SwipeLayout swipeLayout =  (SwipeLayout) view.findViewById(R.id.layout_swipe);
+        SwipeLayout swipeLayout = view.findViewById(R.id.layout_swipe);
 
 //set show mode.
-        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
 
 //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
         swipeLayout.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
@@ -1793,21 +1780,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             setBubbleBackgroundColor(viewHolder.message_box, type, message.isPrivateMessage(), isInValidSession);
         }
         displayStatus(viewHolder, message, type, darkBackground);
-
-        viewHolder.messageBody.setAccessibilityDelegate(new View.AccessibilityDelegate() {
-            @Override
-            public void sendAccessibilityEvent(View host, int eventType) {
-                super.sendAccessibilityEvent(host, eventType);
-                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED) {
-                    if (viewHolder.messageBody.hasSelection()) {
-                        selectionUuid = message.getUuid();
-                    } else if (message.getUuid() != null && message.getUuid().equals(selectionUuid)) {
-                        selectionUuid = null;
-                    }
-                }
-            }
-        });
-
         return view;
     }
 
@@ -1917,6 +1889,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.mPlayGifInside = p.getBoolean(PLAY_GIF_INSIDE, activity.getResources().getBoolean(R.bool.play_gif_inside));
         this.mShowLinksInside = p.getBoolean(SHOW_LINKS_INSIDE, activity.getResources().getBoolean(R.bool.show_links_inside));
         this.mShowMapsInside = p.getBoolean(SHOW_MAPS_INSIDE, activity.getResources().getBoolean(R.bool.show_maps_inside));
+        this.mUseBlueReadMarkers = p.getBoolean("use_blue_readmarkers", activity.getResources().getBoolean(R.bool.use_blue_readmarkers));
     }
 
     public void setHighlightedTerm(List<String> terms) {

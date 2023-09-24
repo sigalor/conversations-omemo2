@@ -1087,8 +1087,10 @@ public class ConversationFragment extends XmppFragment
             this.binding.textinput.setHint(R.string.you_are_not_participating);
         } else {
             this.binding.textInputHint.setVisibility(View.GONE);
-            this.binding.textinput.setHint(UIHelper.getMessageHint(activity, conversation));
-            activity.invalidateOptionsMenu();
+            if (getActivity() != null) {
+                this.binding.textinput.setHint(UIHelper.getMessageHint(getActivity(), conversation));
+                getActivity().invalidateOptionsMenu();
+            }
         }
         binding.messagesView.post(this::updateThreadFromLastMessage);
     }
@@ -2954,31 +2956,18 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void deleteFile(final Message message) {
+        boolean prefConfirm = activity.xmppConnectionService.getBooleanPreference("confirm_delete_attachment", R.bool.confirm_delete_attachment);
+        if(!prefConfirm) {
+            deleteMessageFile(message);
+            return;
+        }
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setNegativeButton(R.string.cancel, null);
         builder.setTitle(R.string.delete_file_dialog);
         builder.setMessage(R.string.delete_file_dialog_msg);
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
-            List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
-            if (thumbs != null && !thumbs.isEmpty()) {
-                for (Element thumb : thumbs) {
-                    Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                    if (uri.getScheme().equals("cid")) {
-                        Cid cid = BobTransfer.cid(uri);
-                        if (cid == null) continue;
-                        DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                        activity.xmppConnectionService.evictPreview(f);
-                        f.delete();
-                    }
-                }
-            }
-            if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
-                message.setFileDeleted(true);
-                activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
-                activity.xmppConnectionService.updateMessage(message, false);
-                activity.onConversationsListItemUpdated();
-                refresh();
-            }
+            deleteMessageFile(message);
         });
         builder.create().show();
     }
@@ -3393,6 +3382,9 @@ public class ConversationFragment extends XmppFragment
         if (commandAdapter == null) return;
 
         Jid commandJid = conversation.getContact().resourceWhichSupport(Namespace.COMMANDS);
+        if (commandJid == null && conversation.getMode() == Conversation.MODE_MULTI && conversation.getMucOptions().hasFeature(Namespace.COMMANDS)) {
+            commandJid = conversation.getJid().asBareJid();
+        }
         if (commandJid == null && conversation.getJid().isDomainJid()) {
             commandJid = conversation.getJid();
         }
@@ -3786,20 +3778,14 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                if (messageListAdapter.hasSelection()) {
-                    if (notifyConversationRead) binding.messagesView.postDelayed(this::refresh, 1000L);
-                } else {
-                    conversation.populateWithMessages(this.messageList);
-                    updateStatusMessages();
-                    this.messageListAdapter.notifyDataSetChanged();
-                }
-                if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
+                conversation.populateWithMessages(ConversationFragment.this.messageList);
+                updateStatusMessages();
+                if (conversation.unreadCount() > 0) {
                     binding.unreadCountCustomView.setVisibility(View.VISIBLE);
-                    binding.unreadCountCustomView.setUnreadCount(
-                            conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
+                    binding.unreadCountCustomView.setUnreadCount(conversation.unreadCount());
                 }
-                updateSnackBar(conversation);
-                if (activity != null) updateChatMsgHint();
+                this.messageListAdapter.notifyDataSetChanged();
+                updateChatMsgHint();
                 if (notifyConversationRead && activity != null) {
                     binding.messagesView.post(this::fireReadEvent);
                 }
@@ -4526,5 +4512,28 @@ public class ConversationFragment extends XmppFragment
             throw new IllegalStateException("Activity not attached");
         }
         return activity;
+    }
+
+    private void deleteMessageFile(final Message message) {
+        List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
+        if (thumbs != null && !thumbs.isEmpty()) {
+            for (Element thumb : thumbs) {
+                Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                if (uri.getScheme().equals("cid")) {
+                    Cid cid = BobTransfer.cid(uri);
+                    if (cid == null) continue;
+                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                    activity.xmppConnectionService.evictPreview(f);
+                    f.delete();
+                }
+            }
+        }
+        if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
+            message.setFileDeleted(true);
+            activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
+            activity.xmppConnectionService.updateMessage(message, false);
+            activity.onConversationsListItemUpdated();
+            refresh();
+        }
     }
 }

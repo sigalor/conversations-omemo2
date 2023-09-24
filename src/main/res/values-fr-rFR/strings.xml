@@ -1252,6 +1252,6 @@
     <string name="receiving_file_x">Réception de %1$s (%2$s %)</string>
     <string name="sending_x_file_x">Envoi de %1$s (%2$s %)</string>
     <string name="account_status_i2p_unavailable">Réseau I2P non disponible</string>
-    <string name="transcoding_video_x">Compression de la vidéo (%s %)</string>
+    <string name="transcoding_video_x">Compression de la vidéo (%s \%%)</string>
     <string name="account_status_incompatible_client">Client incompatible</string>
 </resources>

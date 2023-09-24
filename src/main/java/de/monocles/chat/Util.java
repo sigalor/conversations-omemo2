@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ListAdapter;
 
+import eu.siacs.conversations.R;
+
 public class Util {
     public static void justifyListViewHeightBasedOnChildren (ListView listView) {
         ListAdapter adapter = listView.getAdapter();
@@ -24,5 +26,42 @@ public class Util {
         par.height = totalHeight + (listView.getDividerHeight() * (adapter.getCount() - 1));
         listView.setLayoutParams(par);
         listView.requestLayout();
+    }
+
+    public enum ReadmarkerType {
+        RECEIVED,
+        DISPLAYED
+    }
+
+    public static int getReadmakerType(boolean isDarkBackground, boolean useBlueReadmarkers, ReadmarkerType readmakerType) {
+        if(isDarkBackground) {
+            if(readmakerType == ReadmarkerType.DISPLAYED) {
+                if(useBlueReadmarkers) {
+                    return R.drawable.ic_check_all_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_all_white_18dp;
+                }
+            } else {
+                if(useBlueReadmarkers) {
+                    return R.drawable.ic_check_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_white_18dp;
+                }
+            }
+        } else {
+            if(readmakerType == ReadmarkerType.DISPLAYED) {
+                if(useBlueReadmarkers) {
+                    return R.drawable.ic_check_all_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_all_black_18dp;
+                }
+            } else {
+                if(useBlueReadmarkers) {
+                    return R.drawable.ic_check_blue_18dp;
+                } else {
+                    return R.drawable.ic_check_black_18dp;
+                }
+            }
+        }
     }
 }

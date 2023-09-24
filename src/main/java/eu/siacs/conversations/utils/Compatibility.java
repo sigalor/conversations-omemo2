@@ -201,4 +201,8 @@ public class Compatibility {
     public static boolean runsThirty() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
+
+    public static boolean runsThirtyThree() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
+    }
 }

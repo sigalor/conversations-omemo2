@@ -985,7 +985,7 @@
     <string name="add_to_contact_list">Adicionar à lista de contatos</string>
     <string name="use_camera_icon_to_scan_barcode">Use a câmera para escanear o código QR de um contato</string>
     <string name="please_wait_for_keys_to_be_fetched">Por favor, aguarde até que as chaves sejam encontradas</string>
-    <string name="transcoding_video_x">Compactando vídeo (%s %)</string>
+    <string name="transcoding_video_x">Compactando vídeo (%s \%%)</string>
     <string name="pref_use_max_brightness_summary">Mude para o brilho máximo ao abrir vídeos ou imagens em tela cheia.</string>
     <string name="pref_use_auto_rotate_summary">Gire imagens e vídeos em tela cheia para ajustá-los ao tamanho da tela</string>
     <string name="pref_use_i2p">Conectar via I2P</string>
@@ -1176,7 +1176,7 @@
     <string name="pref_use_colored_muc_names">Colorir nomes de usuário</string>
     <string name="show_videos_images_only">Apenas imagens/vídeos</string>
     <string name="rtp_state_reconnecting">Reconectando</string>
-    <string name="create_monocles_account"><a href="https://ocean.monocles.eu/apps/registration/">Obtenha uma conta Monocles!</a></string>
+    <string name="create_monocles_account">Obtenha uma conta Monocles!</string>
     <string name="monocles_account_introduction">Você pode usar o Monocles Chat com todas as contas XMPP modernas ou obter uma conta de Monocles acessível e segura, hospedada na estação do servidor de Monocles e alimentada com energias renováveis!</string>
     <string name="error_moving_data">Ocorreu um erro ao mover seus dados antigos. Mova-os manualmente.</string>
     <string name="data_successfully_moved">Seus dados foram movidos com sucesso.</string>

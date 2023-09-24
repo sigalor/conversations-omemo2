@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static eu.siacs.conversations.ui.SettingsActivity.REQUEST_CREATE_BACKUP;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
 
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
@@ -36,6 +38,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.services.ExportBackupService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.ui.adapter.AccountAdapter;
@@ -242,6 +245,11 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             case R.id.action_add_account_with_cert:
                 addAccountFromKey();
                 break;
+            case R.id.action_create_backup:
+                if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
+                    createBackup();
+                }
+                break;
             default:
                 break;
         }
@@ -352,6 +360,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
     }
 
+    //TODO: disable and enable all accounts function
     private void disableAllAccounts() {
         List<Account> list = new ArrayList<>();
         synchronized (this.accountList) {
@@ -500,5 +509,28 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     @Override
     public void informUser(final int r) {
         runOnUiThread(() -> ToastCompat.makeText(ManageAccountActivity.this, r, ToastCompat.LENGTH_LONG).show());
+    }
+
+    private void createBackup() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.pref_create_backup))
+                .setMessage(getString(R.string.create_monocles_only_backup))
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    createBackup(true, true);
+                })
+                .setNegativeButton(R.string.no, (dialog, whichButton) -> {
+                    createBackup(false, false);
+                }).show();
+    }
+
+    private void createBackup(boolean notify, boolean withmonoclesDb) {
+        Intent intent = new Intent(this, ExportBackupService.class);
+        intent.putExtra("monocles_db", withmonoclesDb);
+        intent.putExtra("NOTIFY_ON_BACKUP_COMPLETE", notify);
+        ContextCompat.startForegroundService(this, intent);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.backup_started_message);
+        builder.setPositiveButton(R.string.ok, null);
+        builder.create().show();
     }
 }

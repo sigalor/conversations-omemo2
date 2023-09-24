@@ -2,6 +2,7 @@ package eu.siacs.conversations.ui;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +10,9 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -44,15 +47,10 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
     private String username;
     private String preAuth;
 
-
     private void setupHyperlink() {
-        TextView linkTextView = findViewById(R.id.activity_main_link);
         TextView link2TextView = findViewById(R.id.instructions);
-        linkTextView.setMovementMethod(LinkMovementMethod.getInstance());
         link2TextView.setMovementMethod(LinkMovementMethod.getInstance());
-
     }
-
 
     @Override
     protected void refreshUiReal() {
@@ -195,6 +193,18 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         });
         binding.username.addTextChangedListener(this);
         setupHyperlink();
+
+        Button Button = (Button) findViewById(R.id.activity_main_link);
+        Button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                intent.setData(Uri.parse("https://ocean.monocles.eu/apps/registration/"));
+                startActivity(intent);
+            }
+        });
+
     }
 
     private String updateDomain() {

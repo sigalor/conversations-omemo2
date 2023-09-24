@@ -161,6 +161,11 @@
             android:key="allowmergemessages"
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/use_blue_readmarkers"
+            android:key="use_blue_readmarkers"
+            android:summary="@string/pref_use_blue_readmarkers_summary"
+            android:title="@string/pref_use_blue_readmarkers_title" />
         <!-- TODO: Add setting for number of signs to collapse message
         <EditTextPreference
             android:defaultValue="@string/collapse_message_signs"
@@ -341,6 +346,11 @@
         <Preference
             android:title="@string/clear_blocked_media"
             android:key="clear_blocked_media" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/confirm_delete_attachment"
+            android:key="confirm_delete_attachment"
+            android:summary="@string/confirm_delete_attachment_summary"
+            android:title="@string/pref_confirm_delete_attachment" />
     </PreferenceScreen>
     <!--status-->
     <PreferenceScreen

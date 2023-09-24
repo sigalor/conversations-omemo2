@@ -454,10 +454,12 @@ public class FileBackend {
                 !decrypted
                         && (message.getEncryption() == Message.ENCRYPTION_PGP
                         || message.getEncryption() == Message.ENCRYPTION_DECRYPTED);
+
         String path = message.getRelativeFilePath();
         if (path == null) {
             path = fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
         }
+
         final DownloadableFile file = getFileForPath(path, message.getMimeType());
         if (encrypted) {
             return new DownloadableFile(
@@ -773,18 +775,32 @@ public class FileBackend {
         if ("ogg".equals(extension) && type != null && type.startsWith("audio/")) {
             extension = "oga";
         }
-        String filename = "Sent" + File.separator + fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
-        try {
-            setupRelativeFilePath(message, uri, extension);
-            copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
-            final String name = getDisplayNameFromUri(uri);
-            if (name != null) {
-                message.getFileParams().setName(name);
-            }
-        } catch (final XmppConnectionService.BlockedMediaException e) {
-            message.setRelativeFilePath(null);
-            message.setDeleted(true);
+
+        String fileName = getFileNameFromUri(uri, message, extension);
+        setupRelativeFilePath(message, fileName, mime);
+        copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
+        final String name = getDisplayNameFromUri(uri);
+        if (name != null) {
+            message.getFileParams().setName(name);
         }
+    }
+
+    /***
+     * Return the filename from an URI object
+     * @param uri The URI object
+     * @param m The Message as a fallback
+     * @param ext The filextension as a fallback
+     * @return The complete filename (only the filename) with extension
+     */
+    private String getFileNameFromUri(Uri uri, Message m, String ext) {
+        Cursor cursor = mXmppConnectionService.getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        int i = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        String fileName = cursor.getString(i);
+        if(fileName == null || fileName.length() == 0) {
+            fileName = String.format("%s.%s", mXmppConnectionService.getFileBackend().getFile(m).getName(), ext);
+        }
+        return fileName;
     }
 
     private String getDisplayNameFromUri(final Uri uri) {

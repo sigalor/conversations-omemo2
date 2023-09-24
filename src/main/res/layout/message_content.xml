@@ -6,7 +6,7 @@
         app:trimExpandedText="@string/show_less"
         app:trimCollapsedText="@string/show_more"
         app:trimMode="trimModeLength"
-        app:colorClickableText="@color/accent"
+        app:colorClickableText="?attr/colorAccent"
         android:id="@+id/message_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

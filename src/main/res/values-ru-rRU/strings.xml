@@ -12,9 +12,9 @@
     <string name="account_registrations_are_not_supported">Регистрация учетной записи не поддерживается</string>
     <string name="account_settings_example_jabber_id">username@monocles.eu</string>
     <string name="account_settings_hostname">Имя хоста</string>
-    <string name="account_settings_jabber_id">chat address</string>
+    <string name="account_settings_jabber_id">адрес чата</string>
     <string name="account_settings_port">Порт</string>
-    <string name="account_status_bind_failure">Неудачная связка</string>
+    <string name="account_status_bind_failure">Не удачная связка</string>
     <string name="account_status_connecting">Подключение…</string>
     <string name="account_status_disabled">Временно отключено</string>
     <string name="account_status_host_unknown">Сервер не отвечает за домен</string>
@@ -36,7 +36,7 @@
     <string name="account_status_tls_error">Согласование TLS не удалось</string>
     <string name="account_status_tls_error_domain">Домен не верифицируется</string>
     <string name="account_status_tor_unavailable">Сеть Tor недоступна</string>
-    <string name="account_status_unauthorized">Неавторизован</string>
+    <string name="account_status_unauthorized">Не авторизован</string>
     <string name="account_status_unknown">Неизвестно</string>
     <string name="action_account">Редактировать аккаунт</string>
     <string name="action_accounts">Управление учетными записями</string>
@@ -115,7 +115,7 @@
     <string name="back">Назад</string>
     <string name="backup_channel_name">Резервная копия &amp; Восстановление</string>
     <string name="backup_started_message">Резервное копирование было запущено. Вы получите уведомление, как только оно будет завершено.</string>
-    <string name="bad_key_for_encryption">Неправильный ключ для шифрования.</string>
+    <string name="bad_key_for_encryption">Не правильный ключ для шифрования.</string>
     <string name="ban_from_channel">Заблокировать на канале</string>
     <string name="ban_from_conference">Заблокировать для комнаты</string>
     <string name="ban_from_conference_message">Вы пытаетесь навсегда запретить %s доступ в комнату</string>
@@ -150,11 +150,11 @@
     <string name="change_password_on_server">Изменить пароль на сервере</string>
     <string name="changelog">Изменения</string>
     <string name="channel_already_exists">Канал с таким именем уже существует</string>
-    <string name="channel_bare_jid_example">канал@конференция.example.com</string>
+    <string name="channel_bare_jid_example">комната@конференция.example.com</string>
     <string name="channel_details">Детали канала</string>
     <string name="channel_discover_opt_in_message">Обнаружение каналов использует стороннюю службу под названием &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Использование этой функции позволит передать ваш IP-адрес и условия поиска в эту службу. Смотрите их &lt;a href=https://search.jabber.network/privacy&gt;Политику конфиденциальности&lt;/a&gt; для получения дополнительной информации.</string>
     <string name="channel_discovery_opt_in_title">Уведомление о конфиденциальности</string>
-    <string name="channel_full_jid_example">канал@конференция.example.com/имя</string>
+    <string name="channel_full_jid_example">комната@конференция.example.com/имя</string>
     <string name="channel_options">Конфигурация публичного канала</string>
     <string name="check_x_filesize">Проверить %s размер</string>
     <string name="check_x_filesize_on_host">Проверить %1$s размер по %2$s</string>
@@ -185,7 +185,7 @@
     <string name="conference_shutdown">Этот комната была закрыта</string>
     <string name="conference_unknown_error">Вы больше не состоите в этой комнате</string>
     <string name="confirm">Подтвердить</string>
-    <string name="connect">Подключиться</string>
+    <string name="connect">Подключение</string>
     <string name="connected_accounts">%1$d из %2$d аккаунтов подключены</string>
     <string name="contact">Контакт</string>
     <string name="contact_added_you">Контакт добавил вас в список контактов</string>
@@ -227,7 +227,7 @@
     <string name="crash_report_title">monocles chat упал</string>
     <string name="create">Создать</string>
     <string name="create_account">Создать новую учетную запись</string>
-    <string name="create_dialog_channel_name">Название канала</string>
+    <string name="create_dialog_channel_name">Название комнаты</string>
     <string name="create_dialog_group_chat_name">Название комнаты</string>
     <string name="create_issue">Сообщить об ошибке</string>
     <string name="create_private_group_chat">Создание приватной комнаты</string>
@@ -270,7 +270,7 @@
     <string name="delete_recording_dialog_message">Вы действительно хотите отменить и удалить свою запись\?</string>
     <string name="delete_selected_keys">Удалить выбранные ключи</string>
     <string name="delete_x_file">Удалить %s</string>
-    <string name="delivery_failed_channel_name">Неудачные доставки</string>
+    <string name="delivery_failed_channel_name">Не удачные доставки</string>
     <string name="destroy_channel">Закрыть канал</string>
     <string name="destroy_channel_dialog">Вы хотите удалить групповой чат %s\? Это действие нельзя отменить.</string>
     <string name="destroy_channel_failed">Канал не может быть закрыт</string>
@@ -282,7 +282,7 @@
     <string name="device_does_not_support_battery_op">Ваше устройство не поддерживает исключение из списка оптимизации батареи</string>
     <string name="device_does_not_support_certificates">Ваше устройство не поддерживает выбор клиентских сертификатов!</string>
     <string name="device_does_not_support_data_saver">Ваше устройство не поддерживает отключение экономии трафика для monocles chat.</string>
-    <string name="device_does_not_support_unknown_source_op">Ваше устройство не поддерживает установку из неизвестных источников.</string>
+    <string name="device_does_not_support_unknown_source_op">Ваше устройство не поддерживает установку из не известных источников.</string>
     <string name="dialog_manage_certs_negativebutton">Отменить</string>
     <string name="dialog_manage_certs_positivebutton">Удалить выделение</string>
     <string name="dialog_manage_certs_title">Удалить сертификаты</string>
@@ -392,7 +392,7 @@
     <string name="group_chat_will_make_your_jabber_id_public">Этот канал будет создан с помощью вашего публичного chat address</string>
     <string name="hang_up">Завершить разговор</string>
     <string name="help">Помощь</string>
-    <string name="hide_inactive_devices">Скрыть неактивных</string>
+    <string name="hide_inactive_devices">Скрыть не активных</string>
     <string name="hide_offline">Скрыть \"не в сети\"</string>
     <string name="hide_warning">Скрыть предупреждение</string>
     <string name="highlight_in_muc">отметить пользователя</string>
@@ -451,9 +451,9 @@
     <string name="intro_required_permissions">Необходимые разрешения</string>
     <string name="intro_start_chatting">Начните чатиться</string>
     <string name="intro_whats_xmpp">Что такое XMPP / Jabber / monocles chat\?</string>
-    <string name="invalid_barcode">Неверный QR-код</string>
-    <string name="invalid_jid">Недействительный chat address</string>
-    <string name="invalid_muc_nick">Неверное имя</string>
+    <string name="invalid_barcode">Не верный QR-код</string>
+    <string name="invalid_jid">Недействительный адрес чата</string>
+    <string name="invalid_muc_nick">Не верное имя</string>
     <string name="invalid_username">Некорректное имя</string>
     <string name="invite">Пригласить</string>
     <string name="inviteUser_Subject">приглашает вас присоединиться через</string>
@@ -473,12 +473,12 @@
     <string name="just_now">только что</string>
     <string name="kick_from_conference">Выгнать из комнаты</string>
     <string name="kick_from_room">Выгнать из комнаты</string>
-    <string name="kick_now">Исключить</string>
+    <string name="kick_now">Выгнать</string>
     <string name="kicking_from_conference">Вы пытаетесь выгнать %s из группового чата.</string>
     <string name="kicking_from_public_conference">Вы пытаетесь исключить %s из группового канала.</string>
     <string name="large">Большой</string>
     <string name="last_seen_day">1 день назад</string>
-    <string name="last_seen_days">%d дн. назад</string>
+    <string name="last_seen_days">%d дней назад</string>
     <string name="last_seen_hour">1 час назад</string>
     <string name="last_seen_hours">%d час. назад</string>
     <string name="last_seen_just_away">недавно</string>
@@ -598,7 +598,7 @@
     <string name="no_i2p_calls">Звонки через I2P недоступны</string>
     <string name="no_keys_just_confirm">Вы уже доверяете этому контакту. Нажимая \"Готово\" вы только подтвердите, что %s состоит в этой комнате.</string>
     <string name="no_location_permission">monocles chat требуется доступ к службам определения местоположения</string>
-    <string name="no_market_app_installed">Приложение market не установлено.</string>
+    <string name="no_market_app_installed">Приложение market не установленно.</string>
     <string name="no_microphone_permission">monocles chat требуется доступ к микрофону</string>
     <string name="no_more_history_on_server">На сервере нет сообщений</string>
     <string name="no_name_set_instructions">Имя не установлено.</string>
@@ -617,14 +617,14 @@
     <string name="non_anonymous">Сделать chat address видимыми для всех</string>
     <string name="none">Нет</string>
     <string name="not_a_backup_file">Выбранный Вами файл не является резервной копией monocles chat</string>
-    <string name="not_a_valid_port">Некорректный номер порта</string>
+    <string name="not_a_valid_port">Не корректный номер порта</string>
     <string name="not_connected_try_again">Вы не подключены. Попробуйте позже</string>
     <string name="not_encrypted">Не зашифровано</string>
     <string name="not_encrypted_for_this_device">Сообщение не было зашифровано для этого устройства.</string>
     <string name="not_fetching_history_retention_period">Не извлекает сообщения из-за локального периода хранения.</string>
     <string name="not_in_roster">Контакта нет в вашем списке. Хотите добавить его\?</string>
-    <string name="not_trusted">Недоверенный</string>
-    <string name="not_valid_hostname">Некорректное имя хоста</string>
+    <string name="not_trusted">Не доверенный</string>
+    <string name="not_valid_hostname">Не корректное имя хоста</string>
     <string name="notification_backup_created_subtitle">Резервная копия сохранена в %s</string>
     <string name="notification_backup_created_title">Резервная копия создана</string>
     <string name="notification_backup_failed_subtitle">Резервная копия не может быть сохранена в %s</string>
@@ -646,9 +646,9 @@
     <string name="oldAndroidVersionMessage">Вы используете старую версию Android, которая больше не будет поддерживаться в будущих обновлениях. Начиная с monocles chat версии 1.0 поддерживаются только устройства с Android 5 и выше. Пожалуйста, обновите прошивку Вашего устройства.</string>
     <string name="omemo_decryption_failed">Ошибка расшифровки OMEMO-сообщения.</string>
     <string name="omemo_fingerprint">OMEMO отпечаток</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO fingerprint (оригинальное сообщение)</string>
+    <string name="omemo_fingerprint_selected_message">OMEMO отпечаток (оригинальное сообщение)</string>
     <string name="omemo_fingerprint_x509">v\\OMEMO отпечаток</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO fingerprint (оригинальное сообщение)</string>
+    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO отпечаток (оригинальное сообщение)</string>
     <string name="once">Один раз</string>
     <string name="one_participant">Один участник</string>
     <string name="ongoing_call">Текущий вызов</string>
@@ -683,7 +683,7 @@
     <string name="owners_can_invite_others">Владельцы могут приглашать других.</string>
     <string name="p1_s3_filetransfer">Обмен файла HTTP для S3</string>
     <string name="participant">Участник</string>
-    <string name="participants">Пользователи</string>
+    <string name="participants">Участники</string>
     <string name="password">Пароль</string>
     <string name="password_changed">Пароль изменен!</string>
     <string name="password_forgotten_text">Забыли пароль учетной записи\? Мы попробуем открыть страницу поддержки Вашего сервера.</string>
@@ -699,7 +699,7 @@
     <string name="pictures_usage">Использование памяти изображениями</string>
     <string name="plain_text_document">Текстовый документ</string>
     <string name="please_enable_an_account">Пожалуйста, включите учетную запись</string>
-    <string name="please_enter_name">Пожалуйста, укажите название канала</string>
+    <string name="please_enter_name">Пожалуйста, укажите название комнаты</string>
     <string name="please_enter_password">Пожалуйста, введите пароль для этого аккаунта</string>
     <string name="please_enter_xmpp_address">Пожалуйста укажите XMPP адрес</string>
     <string name="please_wait">Пожалуйста, подождите…</string>
@@ -795,7 +795,7 @@
     <string name="pref_notification_sound">Звук уведомления</string>
     <string name="pref_notification_sound_summary">Звук уведомления для новых сообщений</string>
     <string name="pref_notifications_from_strangers">Уведомления от незнакомцев</string>
-    <string name="pref_notifications_from_strangers_summary">Уведомлять о сообщениях от незнакомых контактов.</string>
+    <string name="pref_notifications_from_strangers_summary">Уведомлять о сообщениях от не знакомых контактов.</string>
     <string name="pref_omemo_setting">OMEMO шифрование</string>
     <string name="pref_omemo_setting_summary_always">OMEMO всегда будет использоваться для одиночных и частных комнат.</string>
     <string name="pref_omemo_setting_summary_always_off">ОМЕМО никогда не будет использоваться.</string>
@@ -915,7 +915,7 @@
     <string name="presence_dnd">Занят</string>
     <string name="presence_offline">Не в сети</string>
     <string name="presence_online">В сети</string>
-    <string name="presence_xa">Недоступен</string>
+    <string name="presence_xa">Не доступен</string>
     <string name="private_message">шепчет</string>
     <string name="private_message_to">к %s</string>
     <string name="problem_connecting_to_account">Невозможно подключиться к аккаунту</string>
@@ -927,7 +927,7 @@
     <string name="quote">Ответить</string>
     <string name="readmore">Подробнее</string>
     <string name="receive_presence_updates">Принимать обновления присутствия</string>
-    <string name="received_message_from_stranger">Принимать сообщения от незнакомых контактов</string>
+    <string name="received_message_from_stranger">Принимать сообщения от не знакомых контактов</string>
     <string name="receiving_file">Получено %1$s</string>
     <string name="recently_used">Часто используемые</string>
     <string name="reconnecting_call">Повторное соединение звонка</string>
@@ -1062,7 +1062,7 @@
     <string name="show_block_list">Показать черный список</string>
     <string name="show_edit_log">История сообщений</string>
     <string name="show_error_message">Показать сообщения об ошибках</string>
-    <string name="show_inactive_devices">Показать неактивных</string>
+    <string name="show_inactive_devices">Показать не активных</string>
     <string name="show_intro_again">Ознакомительные экраны будут показаны снова</string>
     <string name="show_intro_again_failed">Не удалось сбросить ознакомительные экраны. Попробуйте еще раз…</string>
     <string name="show_location">Показать местоположение</string>
@@ -1298,7 +1298,7 @@
     <string name="are_you_sure_verify_fingerprint">Вы уверены, что хотите проверить отпечаток пальца OTR контактов\?</string>
     <string name="delete_avatar">Удалить собственный аватар</string>
     <string name="continue_btn">Продолжать</string>
-    <string name="transcoding_video_x">Сжатие видео (%s %)</string>
+    <string name="transcoding_video_x">Сжатие видео (%s \%%)</string>
     <string name="otr_fingerprint">OTR-отпечаток</string>
     <string name="otr_fingerprint_selected_message">OTR-отпечаток сообщения</string>
     <string name="toast_message_otr_fingerprint">Отпечаток OTR скопирован в буфер обмена!</string>
@@ -1395,4 +1395,21 @@
     <string name="you_may_sometimes_have_to">Иногда вам может потребоваться принудительно закрыть приложение, чтобы изменения вступили в силу.</string>
     <string name="create_monocles_only_backup">Экспортировать дополнительные данные только для моноклей (тогда резервная копия не будет импортирована в другие приложения)\?</string>
     <string name="please_be_patient">Пожалуйста, будьте терпеливы...</string>
+    <string name="notify_only_when_highlighted_or_replied">Уведомлять об упоминаниях и ответах</string>
+    <string name="pref_follow_thread_in_channel_summary">Установите маркер темы, соответствующий просматриваемому в данный момент сообщению.</string>
+    <string name="restore_warning_continued">Не пытайтесь восстановить резервные копии, которые вы не создавали самостоятельно!</string>
+    <string name="pref_follow_thread_in_channel">Автоматическое отслеживание цепочек в каналах</string>
+    <string name="show_less">"
+\nсвернуть"</string>
+    <string name="show_more">"
+\nразвернуть"</string>
+    <string name="collapse_message_signs_summary">Установите максимальное количество знаков, чтобы свернуть сообщение</string>
+    <string name="collapse_message_signs_title">Свернуть длинные текстовые сообщения</string>
+    <string name="settings_restore_message_failure">Не удалось восстановить настройки: %s.</string>
+    <string name="settings_restore_message_success">Настройки успешно восстановлены</string>
+    <string name="pref_import_database_or_settings">Импортировать базу данных или настройки</string>
+    <string name="pref_import_database_or_settings_summary">Импортируйте резервную копию вашей базы данных или файла настроек.</string>
+    <string name="related_chats">Похожие чаты</string>
+    <string name="action_complete">Действие завершено</string>
+    <string name="moderate_recent">Модерировать сообщения\?</string>
 </resources>
