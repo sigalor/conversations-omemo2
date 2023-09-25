@@ -591,10 +591,10 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
         final String theTheme = PreferenceManager.getDefaultSharedPreferences(this).getString(THEME, "");
-        if (Build.VERSION.SDK_INT < 30 || !theTheme.equals("custom")) {
-            final PreferenceScreen uiCategory = (PreferenceScreen) mSettingsFragment.findPreference("userinterface");
+        if (Build.VERSION.SDK_INT < 30 ) {
+            final PreferenceScreen uiScreen = (PreferenceScreen) mSettingsFragment.findPreference("userinterface");
             final Preference customTheme = mSettingsFragment.findPreference("custom_theme");
-            if (customTheme != null) uiCategory.removePreference(customTheme);
+            if (customTheme != null) uiScreen.removePreference(customTheme);
         }
     }
     private void updateTheme() {
