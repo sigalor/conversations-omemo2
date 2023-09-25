@@ -2547,12 +2547,12 @@ public class ConversationFragment extends XmppFragment
                                 @Override
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                     Drawable dr = new BitmapDrawable(resource);
-                                    binding.conversationsFragment.setBackgroundDrawable(dr);
+                                    getActivity().getWindow().setBackgroundDrawable(dr);
                                     // Possibly runOnUiThread()
                                 }
                             });
                 } else {
-                    binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                    getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                 }
             }
         }
