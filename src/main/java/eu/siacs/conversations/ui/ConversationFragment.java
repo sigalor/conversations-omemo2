@@ -2486,20 +2486,24 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundResource(0);
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
-                File bgfile =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg");
-                Glide.with(this)
-                        .asBitmap()
-                        .load(bgfile)
-                        .placeholder(R.drawable.chatbg)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .into(new SimpleTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                Drawable dr = new BitmapDrawable(resource);
-                                binding.conversationsFragment.setBackgroundDrawable(dr);
-                                // Possibly runOnUiThread()
-                            }
-                        });
+                File bgfileUri =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg");
+                if(bgfileUri.exists()) {
+                    Glide.with(this)
+                            .asBitmap()
+                            .load(bgfileUri)
+                            .placeholder(R.drawable.chatbg)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .into(new SimpleTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    Drawable dr = new BitmapDrawable(resource);
+                                    binding.conversationsFragment.setBackgroundDrawable(dr);
+                                    // Possibly runOnUiThread()
+                                }
+                            });
+                } else {
+                    binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                }
             }
         }
     }
