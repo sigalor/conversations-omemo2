@@ -186,14 +186,14 @@
     <string name="add_phone_book_text">¿Quieres añadir a %s a tus contactos\?</string>
     <string name="server_info_show_more">Información de servidor</string>
     <string name="server_info_mam">XEP-0313: MAM</string>
-    <string name="server_info_carbon_messages">XEP-0280: Message Carbons</string>
-    <string name="server_info_csi">XEP-0352: Client State Indication</string>
-    <string name="server_info_blocking">XEP-0191: Blocking Command</string>
-    <string name="server_info_roster_version">XEP-0237: Roster Versioning</string>
-    <string name="server_info_stream_management">XEP-0198: Stream Management</string>
-    <string name="server_info_pep">XEP-0163: PEP (Avatars / OMEMO)</string>
-    <string name="server_info_http_upload">XEP-0363: HTTP File Upload</string>
-    <string name="server_info_push">XEP-0357: Push</string>
+    <string name="server_info_carbon_messages">XEP-0280: Mensaje duplicado</string>
+    <string name="server_info_csi">XEP-0352: Indicación del estado del cliente</string>
+    <string name="server_info_blocking">XEP-0191: Comando de bloqueo</string>
+    <string name="server_info_roster_version">XEP-0237: Control de las versiones de la lista</string>
+    <string name="server_info_stream_management">XEP-0198: Gestión de la transmisión</string>
+    <string name="server_info_pep">XEP-0163: PEP (Avatares/OMEMO)</string>
+    <string name="server_info_http_upload">XEP-0363: Cargar archivos a traves de HTTP</string>
+    <string name="server_info_push">XEP-0357: Mensajes push</string>
     <string name="server_info_available">sí</string>
     <string name="server_info_unavailable">no</string>
     <string name="missing_public_keys">Se han perdido las claves de anuncio públicas</string>
@@ -419,7 +419,7 @@
     <string name="sending_x_file">Enviando %s</string>
     <string name="sending_x_file_x">Enviando %1$s (%2$s %)</string>
     <string name="offering_x_file">Ofreciendo %s</string>
-    <string name="hide_offline">Ocultar desconectados</string>
+    <string name="hide_offline">Ocultar los desconectados</string>
     <string name="is_typing">está escribiendo…</string>
     <string name="pref_chat_states">Notificación de escritura</string>
     <string name="pref_chat_states_summary">Permitir a tus contactos saber cuando estás escribiendo un mensaje</string>
@@ -602,7 +602,7 @@
     <string name="contact_asks_for_presence_subscription">El contacto solicita ver tus actualizaciones de estado</string>
     <string name="allow">Permitir</string>
     <string name="no_permission_to_access_x">Sin permiso de acceso a %s</string>
-    <string name="remote_server_not_found">Servidor no encontrado</string>
+    <string name="remote_server_not_found">Servidor remoto no encontrado</string>
     <string name="error_file_corrupt">Este archivo parece estar dañado.</string>
     <string name="unable_to_update_account">No se ha podido actualizar la cuenta</string>
     <string name="report_jid_as_spammer">Reportar a este Id Jabber por enviar mensajes no deseados.</string>
@@ -646,7 +646,7 @@
     <string name="verifying_omemo_keys_trusted_source">Vas a verificar las claves OMEMO de %1$s después de hacer click en el enlace. Esto solo es seguro si conseguiste este enlace desde una fuente de confianza donde solo %2$s pudo haber publicado el enlace.</string>
     <string name="verify_omemo_keys">Verificar claves OMEMO</string>
     <string name="show_inactive_devices">Mostrar desconectados</string>
-    <string name="hide_inactive_devices">Ocultar desconectados</string>
+    <string name="hide_inactive_devices">Ocultar los inactivos</string>
     <string name="reply">Responder</string>
     <string name="transcoding_video">Comprimiendo video</string>
     <string name="transcoding_video_x">Comprimiendo vídeo (%s \%%)</string>
@@ -1101,7 +1101,7 @@
     <string name="action_delete">Borrar</string>
     <string name="attach_choose_video">Elige un vídeo</string>
     <string name="please_enable_an_account">Por favor habilita una cuenta</string>
-    <string name="server_info_external_service_discovery">XEP-0215: External Service Discovery</string>
+    <string name="server_info_external_service_discovery">XEP-0215: Descubrir servicios externos</string>
     <string name="return_to_ongoing_call">Volver a la llamada en curso</string>
     <string name="make_call">Hacer llamada</string>
     <string name="audio_call">Llamada de audio</string>
@@ -1203,7 +1203,7 @@
 \nTu equipo de monocles chat</string>
     <string name="updated_to_monocles_google">Tenemos que disculparnos porque no pudimos actualizar directamente a monocles chat. En el siguiente enlace, recibirás instrucciones sobre cómo transferir todos tus perfiles de Monocles Messenger a monocles chat. Al hacer clic en mover datos, intentamos mover todos los archivos enviados y recibidos desde Monocles Messenger a monocles chat. Después de una migración exitosa, recuerda eliminar Monocles Messenger de su dispositivo.</string>
     <string name="link">Enlace</string>
-    <string name="create_monocles_account">Inscríbete</string>
+    <string name="create_monocles_account">Inscribete</string>
     <string name="no_application_found">No se encontró aplicación</string>
     <string name="move_data">Mover datos</string>
     <string name="error_moving_data">Se ha producido un error moviendo tus antiguos datos. Por favor, muévelos manualmente.</string>
@@ -1218,7 +1218,7 @@
     <string name="easy_invite_share_text">Únete a %1$s y conversa conmigo: %2$s</string>
     <string name="share_invite_with">Compartir invitación con…</string>
     <string name="no_active_accounts_support_this">Ninguna cuenta activa admite esta función</string>
-    <string name="server_info_easy_invite">XEP-0401: Easy User Onboarding</string>
+    <string name="server_info_easy_invite">XEP-0401: Fácil incorporación de los usuarios</string>
     <string name="pref_mappreview_host_summary">Usar un proveedor de vista previa de mapa personalizado</string>
     <string name="pref_mappreview_host">Proveedor de vista previa de mapa</string>
     <string name="webview_not_available">Webview no está disponible en tu dispositivo.</string>
@@ -1385,6 +1385,8 @@
     <string name="create_monocles_backup">Esto creará 2 backups. Uno compatible solo con Monocles, el otro es compatible con Conversations</string>#
     <string name="backup_started">El backup ha comenzado. Serás notificado después de que haya terminado</string>
     <string name="please_be_patient">Tenga paciencia...</string>
+    <string name="confirm_delete_attachment_summary">¿Quiere omitir la confirmación de borrado de un fichero local desde los chats?</string>
+    <string name="pref_confirm_delete_attachment">Mostrar diálogo de confirmación de borrado de fichero local</string>
     <string name="pref_keep_num_backups">¿Cuántos backsups conservar? Por defecto 3. 0 deshabilita. Máximo 9.</string>
     <string name="pref_keep_num_backups_title">Número de backups para conservar</string>
     <string name="pref_broadcast_last_activity_summary">Permitir a tus contactos cuando fue tu última actividad con la aplicación</string>
@@ -1403,9 +1405,7 @@
     <string name="pref_import_database_or_settings">Importar base de datos o ajustes</string>
     <string name="pref_import_database_or_settings_summary">Importar una copia de tu base de datos o de un fichero de ajustes</string>
     <string name="create_monocles_only_backup">¿Exportar los datos adicionales sólo de Monocles (entonces la copia de seguridad no se importará a otras aplicaciones)\?</string>
-    <string name="confirm_delete_attachment_summary">¿Quieres saltar la confirmación de borrado de fichero local de una conversación?</string>
-    <string name="pref_confirm_delete_attachment">Saltar confirmación en borrado de ficheros locales de conversaciones</string>
-    <string name="menuitem_create_backup_action">Crear backup</string>
-    <string name="pref_use_blue_readmarkers_title">Usar marcador de lectura azul</string>
-    <string name="pref_use_blue_readmarkers_summary">Usar marcador de lectura azul en lugar de blanco o negro (falso por defecto)</string>
+    <string name="menuitem_create_backup_action">Crear una copia de seguridad</string>
+    <string name="pref_use_blue_readmarkers_title">Utilizar marcadores de lectura azules</string>
+    <string name="pref_use_blue_readmarkers_summary">Utiliza marcadores de lectura azules en lugar de blancos o negros (no está predeterminado)</string>
 </resources>

@@ -819,7 +819,7 @@
     <string name="pref_remove_trusted_certificates_summary">Удалить подтвержденные вручную сертификаты</string>
     <string name="pref_remove_trusted_certificates_title">Удалить сертификаты</string>
     <string name="pref_resend_delay_summary">Время задержки повторной отправки.</string>
-    <string name="pref_resend_delay_title">Задержка повторной отправки (MillsSecond)</string>
+    <string name="pref_resend_delay_title">Задержка повторной отправки (миллисекунды)</string>
     <string name="pref_ringtone">Рингтон</string>
     <string name="pref_screen_security">Запретить скриншоты</string>
     <string name="pref_screen_security_summary">Запретить Вашим собеседникам делать скриншоты бесед.</string>
@@ -1318,7 +1318,7 @@
     <string name="pref_theme_White">Белый</string>
     <string name="rtp_state_content_add_video">Переключиться на видеовызов\?</string>
     <string name="rtp_state_content_add">Добавить дополнительные треки\?</string>
-    <string name="create_monocles_account">Получить аккаунт monocles</string>
+    <string name="create_monocles_account">Зарегистрироваться</string>
     <string name="copy_file_to">Скопировать файл в %s</string>
     <string name="help_format_text">Вы можете использовать простые параметры стиля для форматирования текста. Ключи для определения начала и конца форматирования находятся точно в начале и конце слова или группы слов. Должен быть пробел перед начальным ключом и пробел после конечного ключа, иначе форматирование не будет распознано.
 \nВы можете использовать инструменты непосредственно во время письма, нажатие на инструмент вставит ключ в позицию курсора. Или вы можете отметить слово или группу слов и нажать кнопку форматирования.</string>
@@ -1412,4 +1412,7 @@
     <string name="related_chats">Похожие чаты</string>
     <string name="action_complete">Действие завершено</string>
     <string name="moderate_recent">Модерировать сообщения\?</string>
+    <string name="confirm_delete_attachment_summary">Хотите пропустить подтверждение при удалении локального файла из чата\?</string>
+    <string name="pref_confirm_delete_attachment">Пропустить подтверждение удаления файлов из чатов</string>
+    <string name="menuitem_create_backup_action">Создать резервную копию</string>
 </resources>
