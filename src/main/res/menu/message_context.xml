@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/open_with"
@@ -39,6 +40,11 @@
         android:id="@+id/delete_message"
         android:title="@string/delete_message"
         android:visible="false" />
+    <item
+        android:id="@+id/message_reaction"
+        android:title="@string/message_reaction"
+        android:visible="true"
+        app:actionLayout="@layout/emoji_search_row"/>
     <item
         android:id="@+id/moderate_message"
         android:title="@string/moderate_message"
