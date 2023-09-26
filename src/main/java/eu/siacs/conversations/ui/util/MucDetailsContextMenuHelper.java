@@ -15,8 +15,6 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import androidx.databinding.DataBindingUtil;
-
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -24,11 +22,9 @@ import java.util.ArrayList;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.databinding.DialogQuickeditBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
-import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.MucOptions.User;
 import eu.siacs.conversations.entities.RawBlockable;
@@ -39,8 +35,6 @@ import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.MucUsersActivity;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.xmpp.Jid;
-import android.util.Pair;
-import java.util.ArrayList;
 
 public final class MucDetailsContextMenuHelper {
     private static final int ACTION_BAN = 0;
@@ -50,7 +44,6 @@ public final class MucDetailsContextMenuHelper {
     private static final int ACTION_REMOVE_ADMIN = 4;
     private static final int ACTION_GRANT_OWNER = 5;
     private static final int ACTION_REMOVE_OWNER = 6;
-
     private static int titleColor = 0xff0091ea;
 
     public static void onCreateContextMenu(ContextMenu menu, View v) {
@@ -114,35 +107,58 @@ public final class MucDetailsContextMenuHelper {
     public static void configureMucDetailsContextMenu(Activity activity, Menu menu, Conversation conversation, User user) {
         configureMucDetailsContextMenu(activity, menu, conversation, user, false, null);
     }
+
     public static void configureMucDetailsContextMenu(Activity activity, Menu menu, Conversation conversation, User user, boolean forceContextMenu, String username) {
-        final MucOptions mucOptions = conversation.getMucOptions();
         final boolean advancedMode = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("advanced_muc_mode", false);
+        final MucOptions mucOptions = conversation.getMucOptions();
         final boolean isGroupChat = mucOptions.isPrivateAndNonAnonymous();
-        MenuItem sendPrivateMessage = menu.findItem(R.id.send_private_message);
+        MenuItem title = menu.findItem(R.id.title);
         MenuItem showAvatar = menu.findItem(R.id.action_show_avatar);
         showAvatar.setVisible(user != null);
         MenuItem showMucContactDetails = menu.findItem(R.id.action_muc_contact_details);
         showMucContactDetails.setVisible(user != null && user.getRealJid() == null);
+        if (forceContextMenu && username != null) {
+            SpannableStringBuilder menuTitle = new SpannableStringBuilder(username);
+            menuTitle.setSpan(new ForegroundColorSpan(titleColor), 0, menuTitle.length(), 0);
+            menuTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, menuTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            menuTitle.setSpan(new RelativeSizeSpan(0.875f), 0, menuTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            title.setTitle(menuTitle);
+            title.setVisible(true);
+        } else {
+            title.setVisible(false);
+        }
+        MenuItem sendPrivateMessage = menu.findItem(R.id.send_private_message);
         MenuItem blockAvatar = menu.findItem(R.id.action_block_avatar);
         if (user != null && user.getAvatar() != null) {
             blockAvatar.setVisible(true);
         }
-
+        MenuItem blockUnblockMUCUser = menu.findItem(R.id.context_muc_contact_block_unblock);
         if (user != null && user.getRealJid() != null) {
             MenuItem showContactDetails = menu.findItem(R.id.action_contact_details);
             MenuItem startConversation = menu.findItem(R.id.start_conversation);
-            MenuItem removeFromRoom = menu.findItem(R.id.kick_from_room);
+            MenuItem addToRoster = menu.findItem(R.id.add_contact);
             MenuItem managePermissions = menu.findItem(R.id.manage_permissions);
+            MenuItem removeFromRoom = menu.findItem(R.id.kick_from_room);
             removeFromRoom.setTitle(isGroupChat ? R.string.kick_from_room : R.string.remove_from_channel);
             MenuItem invite = menu.findItem(R.id.invite);
+            MenuItem highlightInMuc = menu.findItem(R.id.highlight_in_muc);
             startConversation.setVisible(true);
-            final Contact contact = user.getContact();
+            final Jid jid = user.getRealJid();
+            final Account account = conversation.getAccount();
+            final Contact contact = jid == null ? null : account.getRoster().getContact(jid);
             final User self = conversation.getMucOptions().getSelf();
-            if ((contact != null && contact.showInRoster()) || mucOptions.isPrivateAndNonAnonymous()) {
-                showContactDetails.setVisible(contact == null || !contact.isSelf());
+            addToRoster.setVisible(contact != null && !contact.showInRoster());
+            showContactDetails.setVisible(contact == null || !contact.isSelf());
+            if (user.getAvatar() != null) {
+                blockAvatar.setVisible(true);
             }
             if ((activity instanceof ConferenceDetailsActivity || activity instanceof MucUsersActivity) && user.getRole() == MucOptions.Role.NONE) {
                 invite.setVisible(true);
+            }
+            if (activity instanceof ConversationsActivity) {
+                highlightInMuc.setVisible(false);
+            } else if (activity instanceof ConferenceDetailsActivity) {
+                highlightInMuc.setVisible(true);
             }
             boolean managePermissionsVisible = false;
             if ((self.getAffiliation().ranks(MucOptions.Affiliation.ADMIN) && self.getAffiliation().outranks(user.getAffiliation())) || self.getAffiliation() == MucOptions.Affiliation.OWNER) {
@@ -168,32 +184,18 @@ public final class MucDetailsContextMenuHelper {
                 }
             }
             managePermissions.setVisible(managePermissionsVisible);
-            sendPrivateMessage.setVisible(!isGroupChat && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
+            sendPrivateMessage.setVisible(true);
+            sendPrivateMessage.setEnabled(mucOptions.allowPm());
+            blockUnblockMUCUser.setVisible(true);
         } else {
             sendPrivateMessage.setVisible(true);
             sendPrivateMessage.setEnabled(user != null && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
+            blockUnblockMUCUser.setVisible(user != null);
         }
     }
 
     public static boolean onContextItemSelected(MenuItem item, User user, XmppActivity activity) {
         return onContextItemSelected(item, user, activity, null);
-    }
-
-    public static void maybeModerateRecent(XmppActivity activity, Conversation conversation, User user) {
-        if (!conversation.getMucOptions().getSelf().getRole().ranks(MucOptions.Role.MODERATOR) || !conversation.getMucOptions().hasFeature("urn:xmpp:message-moderate:0")) return;
-
-        DialogQuickeditBinding binding = DataBindingUtil.inflate(activity.getLayoutInflater(), R.layout.dialog_quickedit, null, false);
-        binding.inputEditText.setText("Spam");
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.moderate_recent)
-                .setMessage("Do you want to moderate all recent messages from this user?")
-                .setView(binding.getRoot())
-                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                    for (Message m : conversation.findMessagesBy(user)) {
-                        activity.xmppConnectionService.moderateMessage(conversation.getAccount(), m, binding.inputEditText.getText().toString());
-                    }
-                })
-                .setNegativeButton(R.string.no, null).show();
     }
 
     public static boolean onContextItemSelected(MenuItem item, User user, XmppActivity activity, final String fingerprint) {
@@ -235,10 +237,9 @@ public final class MucDetailsContextMenuHelper {
             case R.id.start_conversation:
                 startConversation(user, activity);
                 return true;
-          //  case R.id.add_contact:        // TODO: Re add it later again
-          //      activity.showAddToRosterDialog(contact);
-          //      return true;
-
+              case R.id.add_contact:        // TODO: Re add it later again
+                  activity.showAddToRosterDialog(contact);
+                  return true;
             case R.id.manage_permissions:
                 Pair<CharSequence[], Integer[]> choices = getPermissionsChoices(activity, conversation, user);
                 int[] selected = new int[] { -1 };
@@ -247,14 +248,13 @@ public final class MucDetailsContextMenuHelper {
                         .setSingleChoiceItems(choices.first, -1, (dialog, whichItem) -> {
                             selected[0] = whichItem;
                         })
-                        .setPositiveButton(R.string.confirm, (dialog, whichButton) -> {
+                        .setPositiveButton(R.string.action_complete, (dialog, whichButton) -> {
                             switch (selected[0] >= 0 ? choices.second[selected[0]] : -1) {
                                 case ACTION_BAN:
                                     activity.xmppConnectionService.changeAffiliationInConference(conversation, jid, MucOptions.Affiliation.OUTCAST, onAffiliationChanged);
                                     if (user.getRole() != MucOptions.Role.NONE) {
                                         activity.xmppConnectionService.changeRoleInConference(conversation, user.getName(), MucOptions.Role.NONE);
                                     }
-                                    maybeModerateRecent(activity, conversation, user);
                                     break;
                                 case ACTION_GRANT_MEMBERSHIP:
                                 case ACTION_REMOVE_ADMIN:

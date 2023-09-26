@@ -853,7 +853,7 @@ public abstract class XmppActivity extends ActionBarActivity {
 
     }
 
-    protected void showAddToRosterDialog(final Contact contact) {
+    public void showAddToRosterDialog(final Contact contact) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(contact.getJid().toString());
         builder.setMessage(getString(R.string.not_in_roster));

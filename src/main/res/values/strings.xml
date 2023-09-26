@@ -1313,11 +1313,13 @@
     <string name="settings_restore_message_success">Settings successfully restored</string>
     <string name="settings_restore_message_failure">Failed to restore settings: %s</string>
     <string name="pref_import_database_or_settings">Import database or settings</string>
-    <string name="pref_import_database_or_settings_summary">Import a backup or your database  or of a settings file</string>
+    <string name="pref_import_database_or_settings_summary">Import a backup of your database or of a settings file</string>
     <string name="related_chats">Related Chats</string>
     <string name="confirm_delete_attachment_summary">Do you want to skip confirmation if you delete to delete a local file from a chat?</string>
     <string name="pref_confirm_delete_attachment">Skip Confirmation for file removal from chats</string>
     <string name="menuitem_create_backup_action">Create backup</string>
     <string name="pref_use_blue_readmarkers_title">Use blue readmarkers</string>
     <string name="pref_use_blue_readmarkers_summary">Use blue readmarkers instead of white or black (default false)</string>
+    <string name="chat_background">Chats background</string>
+    <string name="pref_chat_background_summary">Choose a background or place a \"bg.jpg\" in monocles chat\'s pictures folder to set a custom background</string>
 </resources>

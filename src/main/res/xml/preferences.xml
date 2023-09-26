@@ -28,49 +28,49 @@
             android:key="theme_color"
             android:summary="@string/pref_theme_color_options_summary"
             android:title="@string/pref_theme_color_options" />
-        <PreferenceScreen
-            android:key="custom_theme"
-            android:title="@string/custom_theme_options">
-            <Preference
-                android:key="pref_static_field_key"
-                android:selectable="false"
-                android:persistent="false"
-                android:summary="@string/you_may_sometimes_have_to"/>
+            <PreferenceScreen
+                android:key="custom_theme"
+                android:title="@string/custom_theme_options">
+                <Preference
+                    android:key="pref_static_field_key"
+                    android:selectable="false"
+                    android:persistent="false"
+                    android:summary="@string/you_may_sometimes_have_to"/>
 
-            <PreferenceCategory
-                android:key="custom_theme_colors"
-                android:title="@string/colors">
+                <PreferenceCategory
+                    android:key="custom_theme_colors"
+                    android:title="@string/colors">
 
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="custom_theme_d ark"
-                    android:title="@string/custom_theme_is_dark" />
-                <com.rarepebble.colorpicker.ColorPreference
-                    android:key="custom_theme_primary"
-                    android:title="@string/custom_primary_color"
-                    android:defaultValue="@color/perpy"
-                    app:colorpicker_showAlpha="false" />
-                <com.rarepebble.colorpicker.ColorPreference
-                    android:key="custom_theme_primary_dark"
-                    android:title="@string/custom_primary_dark_color"
-                    android:defaultValue="@color/black_perpy"
-                    app:colorpicker_showAlpha="false" />
-                <com.rarepebble.colorpicker.ColorPreference
-                    android:key="custom_theme_accent"
-                    android:title="@string/custom_accent_color"
-                    android:defaultValue="@color/black_perpy"
-                    app:colorpicker_showAlpha="false" />
-            </PreferenceCategory>
+                    <CheckBoxPreference
+                        android:defaultValue="false"
+                        android:key="custom_theme_dark"
+                        android:title="@string/custom_theme_is_dark" />
+                    <com.rarepebble.colorpicker.ColorPreference
+                        android:key="custom_theme_primary"
+                        android:title="@string/custom_primary_color"
+                        android:defaultValue="@color/perpy"
+                        app:colorpicker_showAlpha="false" />
+                    <com.rarepebble.colorpicker.ColorPreference
+                        android:key="custom_theme_primary_dark"
+                        android:title="@string/custom_primary_dark_color"
+                        android:defaultValue="@color/black_perpy"
+                        app:colorpicker_showAlpha="false" />
+                    <com.rarepebble.colorpicker.ColorPreference
+                        android:key="custom_theme_accent"
+                        android:title="@string/custom_accent_color"
+                        android:defaultValue="@color/black_perpy"
+                        app:colorpicker_showAlpha="false" />
+                </PreferenceCategory>
 
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetClass="eu.siacs.conversations.ui.SettingsActivity"
-                android:targetPackage="de.monocles.chat">
-                <extra
-                    android:name="page"
-                    android:value="custom_theme" />
-            </intent>
-        </PreferenceScreen>
+                <intent
+                    android:action="android.intent.action.VIEW"
+                    android:targetClass="eu.siacs.conversations.ui.SettingsActivity"
+                    android:targetPackage="de.monocles.chat">
+                    <extra
+                        android:name="page"
+                        android:value="custom_theme" />
+                </intent>
+            </PreferenceScreen>
         <ListPreference
             android:defaultValue="@string/default_font_size"
             android:entries="@array/font_size_entries"
@@ -78,6 +78,15 @@
             android:key="font_size"
             android:summary="@string/pref_font_size_summary"
             android:title="@string/pref_font_size" />
+        <!-- Choose background
+        <ListPreference
+            android:defaultValue="@string/default_background"
+            android:entries="@array/chat_background"
+            android:entryValues="@array/chat_background_values"
+            android:key="chat_background"
+            android:summary="@string/pref_chat_background_summary"
+            android:title="@string/chat_background" />
+                        -->
         <CheckBoxPreference
             android:defaultValue="@bool/use_unicolored_chatbg"
             android:key="unicolored_chatbg"
