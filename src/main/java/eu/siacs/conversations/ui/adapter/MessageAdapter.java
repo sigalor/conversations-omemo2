@@ -385,7 +385,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.time.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Caption_Warning);
             }
             DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
-            if (file.exists()) {
+            if (error==false && file.exists()) {    //TODO: Improve this quick fix
                 if (activity.xmppConnectionService.mHttpConnectionManager.getAutoAcceptFileSize() >= message.getFileParams().size && (transferable != null && transferable.getStatus() == Transferable.STATUS_FAILED)) {
                     isResendable = true;
                     viewHolder.resend_button.setVisibility(View.GONE);
