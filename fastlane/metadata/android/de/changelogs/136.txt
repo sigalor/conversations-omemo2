@@ -1,6 +1,6 @@
 * Ausgeblendeter Text für lange Nachrichten
 * Animiertes Wischen zum Antworten
-* Benutzerdefinierter Chat-Hintergrund (speichern Sie eine "bg.jpg" in "/Documents/monocles chat/pictures/bg.jpg")
+* Benutzerdefinierter Chat-Hintergrund
 * Blaue Häkchensymbole für Nachrichten in den Einstellungen hinzugefügt
 * Verwalten von Chat-Raum-Berechtigungen mit Dialog (Behebt Fehler bei Benutzerberechtigungen)
 * Finde Chatraum-Benutzer nach barejid, wenn nach realjid gesucht wird

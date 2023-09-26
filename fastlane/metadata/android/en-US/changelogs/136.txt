@@ -1,6 +1,6 @@
 * Expendable text for long messages
 * Animated swipe to reply
-* Custom chat background (save a "bg.jpg" in "/Documents/monocles chat/pictures/bg.jpg")
+* Custom chat background
 * Added blue message checkmark icons in settings
 * Manage chat room permissions with dialog (Fixes user permissions bug)
 * Find chat room users by barejid when looking by realjid
