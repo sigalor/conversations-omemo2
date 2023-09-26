@@ -28,21 +28,33 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 import de.monocles.chat.DownloadDefaultStickers;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+
 import eu.siacs.conversations.utils.CameraUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStoreException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import android.provider.MediaStore;
@@ -120,6 +132,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
     public static final int REQUEST_IMPORT_SETTINGS = 0xbf8703;
+    public static final int REQUEST_IMPORT_BACKGROUND = 0xbf8704;
+
     Preference multiAccountPreference;
     Preference autoMessageExpiryPreference;
     Preference autoFileExpiryPreference;
@@ -147,6 +161,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         getWindow().getDecorView().setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_secondary));
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
+        registerFilePicker();
     }
 
     @Override
@@ -156,6 +171,44 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
         p.edit().putString("sticker_directory", data.getData().toString()).commit();
+    }
+
+    private ActivityResultLauncher<String> filePicker;
+
+    //execute this in your AppCompatActivity onCreate
+    public void registerFilePicker() {
+        filePicker = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    try {
+                        onPickFile(uri);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
+    }
+
+    //execute this to launch the picker
+    public void openFilePicker() {
+        String mimeType = "*/*";
+        filePicker.launch(mimeType);
+    }
+
+    //this gets executed when the user picks a file
+    public void onPickFile(Uri uri) throws IOException {
+        if (uri != null && Build.VERSION.SDK_INT >= 26) {
+            try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+                try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg"))) {
+                    // Transfer bytes from in to out
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = inputStream.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -432,6 +485,18 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
+
+        final Preference importBackgroundPreference = mSettingsFragment.findPreference("import_background");
+        if (importBackgroundPreference != null) {
+            importBackgroundPreference.setSummary(getString(R.string.pref_chat_background_summary));
+            importBackgroundPreference.setOnPreferenceClickListener(preference -> {
+                if (hasStoragePermission(REQUEST_IMPORT_BACKGROUND)) {
+                    openFilePicker();
+                }
+                return true;
+            });
+        }
+
         final Preference prefereXmppAvatarPreference = mSettingsFragment.findPreference(PREFER_XMPP_AVATAR);
         if (prefereXmppAvatarPreference != null) {
             prefereXmppAvatarPreference.setOnPreferenceClickListener(preference -> {
@@ -597,6 +662,44 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             if (customTheme != null) uiScreen.removePreference(customTheme);
         }
     }
+
+    String mCurrentPhotoPath = "";
+
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void snapOrSelectPicture() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(Intent.createChooser(takePictureIntent, "SELECT FILE"), 1001);
+            }
+        }
+    }
+
+
     private void updateTheme() {
         final int theme = findTheme();
         if (this.mTheme != theme) {

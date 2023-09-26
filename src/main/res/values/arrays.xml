@@ -30,19 +30,6 @@
         <item>custom</item>
         <!--  <item>White</item> TODO: White Theme-->
     </string-array>
-
-    <string-array name="chat_background">
-        <item>@string/unicoloured_background</item>
-        <item>@string/default_background</item>
-        <item>@string/custom_background</item>
-    </string-array>
-
-    <string-array name="chat_background_values">
-        <item>unicolored_chatbg</item>
-        <item>default_chatbg</item>
-        <item>custom_chatbg</item>
-    </string-array>
-
     <string-array name="filesizes">
         <item>@string/never</item>
         <item>1 MiB</item>
@@ -179,7 +166,4 @@
         <item>610</item>
         <item>2584</item>
     </string-array>
-    <string name="default_background">Default background</string>
-    <string name="custom_background">Custom background</string>
-    <string name="unicoloured_background">Unicoloured background</string>
 </resources>
