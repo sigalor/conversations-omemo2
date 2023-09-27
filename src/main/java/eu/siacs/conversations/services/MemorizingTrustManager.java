@@ -43,6 +43,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 
@@ -80,6 +81,8 @@ import javax.net.ssl.X509TrustManager;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.crypto.BundledTrustManager;
+import eu.siacs.conversations.crypto.CombiningTrustManager;
 import eu.siacs.conversations.crypto.XmppDomainVerifier;
 import eu.siacs.conversations.entities.MTMDecision;
 import eu.siacs.conversations.http.HttpConnectionManager;
@@ -136,11 +139,11 @@ public class MemorizingTrustManager {
      * The context is used for file management, to display the dialog /
      * notification and for obtaining translated strings.
      *
-     * @param m Context for the application.
+     * @param context                   Context for the application.
      * @param defaultTrustManager Delegate trust management to this TM. If null, the user must accept every certificate.
      */
-    public MemorizingTrustManager(Context m, X509TrustManager defaultTrustManager) {
-        init(m);
+    public MemorizingTrustManager(final Context context, final X509TrustManager defaultTrustManager) {
+        init(context);
         this.appTrustManager = getTrustManager(appKeyStore);
         this.defaultTrustManager = defaultTrustManager;
     }
@@ -156,12 +159,23 @@ public class MemorizingTrustManager {
      * The context is used for file management, to display the dialog /
      * notification and for obtaining translated strings.
      *
-     * @param m Context for the application.
+     * @param context Context for the application.
      */
-    public MemorizingTrustManager(Context m) {
-        init(m);
+    public MemorizingTrustManager(final Context context) {
+        init(context);
         this.appTrustManager = getTrustManager(appKeyStore);
-        this.defaultTrustManager = getTrustManager(null);
+        try {
+            final BundledTrustManager bundleTrustManager =
+                    BundledTrustManager.builder()
+                            .loadKeyStore(
+                                    context.getResources()
+                                            .openRawResource(R.raw.letsencrypt_with_intermediates),
+                                    "letsencrypt")
+                            .build();
+            this.defaultTrustManager = CombiningTrustManager.combineWithDefault(bundleTrustManager);
+        } catch (final NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean isIp(final String server) {
@@ -220,18 +234,18 @@ public class MemorizingTrustManager {
         }
     }
 
-    void init(final Context m) {
-        master = m;
-        masterHandler = new Handler(m.getMainLooper());
+    void init(final Context context) {
+        master = context;
+        masterHandler = new Handler(context.getMainLooper());
         notificationManager = (NotificationManager) master.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Application app;
-        if (m instanceof Application) {
-            app = (Application) m;
-        } else if (m instanceof Service) {
-            app = ((Service) m).getApplication();
-        } else if (m instanceof AppCompatActivity) {
-            app = ((AppCompatActivity) m).getApplication();
+        if (context instanceof Application) {
+            app = (Application) context;
+        } else if (context instanceof Service) {
+            app = ((Service) context).getApplication();
+        } else if (context instanceof AppCompatActivity) {
+            app = ((AppCompatActivity) context).getApplication();
         } else
             throw new ClassCastException("MemorizingTrustManager context must be either Activity or Service!");
 
@@ -275,20 +289,21 @@ public class MemorizingTrustManager {
         keyStoreUpdated();
     }
 
-    X509TrustManager getTrustManager(KeyStore ks) {
+    private X509TrustManager getTrustManager(final KeyStore keyStore) {
+        Preconditions.checkNotNull(keyStore);
         try {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-            tmf.init(ks);
+            tmf.init(keyStore);
             for (TrustManager t : tmf.getTrustManagers()) {
                 if (t instanceof X509TrustManager) {
                     return (X509TrustManager) t;
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // Here, we are covering up errors. It might be more useful
             // however to throw them out of the constructor so the
             // embedding app knows something went wrong.
-            LOGGER.log(Level.SEVERE, "getTrustManager(" + ks + ")", e);
+            LOGGER.log(Level.SEVERE, "getTrustManager(" + keyStore + ")", e);
         }
         return null;
     }
