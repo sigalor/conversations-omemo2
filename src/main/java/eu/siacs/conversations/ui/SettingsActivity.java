@@ -206,6 +206,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                     while ((len = inputStream.read(buf)) > 0) {
                         out.write(buf, 0, len);
                     }
+                    updateTheme();
                 }
             }
         }
