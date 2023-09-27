@@ -1,5 +1,5 @@
 ﻿monocles chat ist ein Fork der Anwendung blabber.im und der offiziellen Android-App <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a> mit
-einigen Änderungen, insbesondere zur Verbesserung der Benutzerfreundlichkeit,
+einigen Änderungen, insbesondere zur Verbesserung der Sicherheit, also auch der Benutzerfreundlichkeit,
 um den Umstieg von oftmals vorinstallierten Messengern zu erleichtern.
 
 Verbindungssicherheit und der Schutz persönlicher Daten ist uns sehr wichtig,
