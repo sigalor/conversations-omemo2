@@ -1408,4 +1408,8 @@
     <string name="menuitem_create_backup_action">Crear una copia de seguridad</string>
     <string name="pref_use_blue_readmarkers_title">Utilizar marcadores de lectura azules</string>
     <string name="pref_use_blue_readmarkers_summary">Utiliza marcadores de lectura azules en lugar de blancos o negros</string>
+    <string name="message_reaction">Enviar reacción</string>
+    <string name="chat_background">Fondo en chats</string>
+    <string name="custom_background">Fondo personalizado</string>
+    <string name="pref_chat_background_summary">Elegir una imagen como fondo de chat. El fichero de imagen será copiado en /Documents/monocles chat/pictures/bg.jpg</string>
 </resources>
