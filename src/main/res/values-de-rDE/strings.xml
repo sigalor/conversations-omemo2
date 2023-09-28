@@ -1361,5 +1361,5 @@
     <string name="action_complete">Fertig</string>
     <string name="message_reaction">Reaktion senden</string>
     <string name="custom_background">Eigener Hintergrund</string>
-    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund. Das Bild wird in /Documents/monocles chat/pictures/bg.jpg kopiert.</string>
+    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund. Das Bild wird in /Documents/monocles chat/backgrounds/bg.jpg kopiert.</string>
 </resources>

@@ -2495,7 +2495,7 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundResource(0);
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
-                File bgfileUri =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg");
+                File bgfileUri =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
                 if(bgfileUri.exists()) {
                     Glide.with(this)
                             .asBitmap()
