@@ -1737,6 +1737,7 @@ public class ConversationFragment extends XmppFragment
             MenuItem moderateMessage = menu.findItem(R.id.moderate_message);
             MenuItem onlyThisThread = menu.findItem(R.id.only_this_thread);
             MenuItem deleteMessage = menu.findItem(R.id.delete_message);
+            MenuItem messageReaction = menu.findItem(R.id.message_reaction);  //add the most used emoticons
             MenuItem shareWith = menu.findItem(R.id.share_with);
             MenuItem sendAgain = menu.findItem(R.id.send_again);
             MenuItem copyUrl = menu.findItem(R.id.copy_url);
@@ -1968,6 +1969,14 @@ public class ConversationFragment extends XmppFragment
                 setThread(selectedMessage.getThread());
                 refresh();
                 setThread(selectedMessage.getThread());
+                return true;
+            case R.id.message_reaction:
+                if (conversation.getMode() == Conversation.MODE_MULTI) {
+                    quoteMessage(selectedMessage, user);
+                } else {
+                    quoteMessage(selectedMessage, null);
+                }
+                chooseReaction(selectedMessage);
                 return true;
             default:
                 return onOptionsItemSelected(item);
@@ -3111,8 +3120,20 @@ public class ConversationFragment extends XmppFragment
         this.conversation.setDraftMessage(editable.toString());
         this.binding.textinput.setText("");
         this.binding.textinput.append(message.getBody());
-
     }
+
+    private void chooseReaction(Message message) {
+        while (message.mergeable(message.next())) {
+            message = message.next();
+        }
+        setThread(message.getThread());
+        conversation.setUserSelectedThread(true);
+        //this.conversation.setCorrectingMessage(message);
+        //final Editable editable = binding.textinput.getText();
+        //this.conversation.setDraftMessage(editable.toString());
+        this.binding.textinput.setText(":");    // TODO: Directly choose emojis from popup menu
+    }
+    
 
     private void highlightInConference(String nick) {
         final Editable editable = this.binding.textinput.getText();
