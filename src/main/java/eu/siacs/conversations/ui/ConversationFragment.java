@@ -2502,6 +2502,7 @@ public class ConversationFragment extends XmppFragment
                             .load(bgfileUri)
                             .placeholder(R.drawable.chatbg)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
                             .into(new SimpleTarget<Bitmap>() {
                                 @Override
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

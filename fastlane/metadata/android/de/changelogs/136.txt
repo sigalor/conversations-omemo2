@@ -24,3 +24,4 @@
 * Benutzerdefiniertes Thema korrigiert
 * Absturz bei Unterbrechung des Dateitransfers behoben
 * Menupunkt für Nachrichtenreaktionen hinzugefügt
+* Integriere letsencrypt Zertifikat

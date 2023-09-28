@@ -24,3 +24,4 @@
 * Fix custom theme
 * Fix crash when interrupting file transfer
 * Menu item for message reaction
+* Bundle letsencrypt certificate

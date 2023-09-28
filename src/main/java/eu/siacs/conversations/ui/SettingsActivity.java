@@ -43,6 +43,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -179,24 +186,18 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public void registerFilePicker() {
         filePicker = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
-                uri -> {
-                    try {
-                        onPickFile(uri);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                uri -> onPickFile(uri)
         );
     }
 
     //execute this to launch the picker
     public void openFilePicker() {
-        String mimeType = "*/*";
+        String mimeType = "image/*";
         filePicker.launch(mimeType);
     }
 
     //this gets executed when the user picks a file
-    public void onPickFile(Uri uri) throws IOException {
+    public void onPickFile(Uri uri) {
         if (uri != null && Build.VERSION.SDK_INT >= 26) {
             try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
                 try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "pictures" + File.separator + "bg.jpg"))) {
@@ -206,12 +207,12 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                     while ((len = inputStream.read(buf)) > 0) {
                         out.write(buf, 0, len);
                     }
-                    updateTheme();
+                    refreshUiReal();
                 }
+            } catch (IOException exception) {
             }
         }
     }
-
     @Override
     void onBackendConnected() {
         boolean diallerIntegrationPossible = false;
@@ -663,43 +664,6 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             if (customTheme != null) uiScreen.removePreference(customTheme);
         }
     }
-
-    String mCurrentPhotoPath = "";
-
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private void snapOrSelectPicture() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(Intent.createChooser(takePictureIntent, "SELECT FILE"), 1001);
-            }
-        }
-    }
-
 
     private void updateTheme() {
         final int theme = findTheme();
