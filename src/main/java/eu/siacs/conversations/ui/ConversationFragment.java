@@ -2500,7 +2500,6 @@ public class ConversationFragment extends XmppFragment
                     Glide.with(this)
                             .asBitmap()
                             .load(bgfileUri)
-                            .placeholder(R.drawable.chatbg)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
                             .into(new SimpleTarget<Bitmap>() {

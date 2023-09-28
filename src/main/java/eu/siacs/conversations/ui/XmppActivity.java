@@ -524,7 +524,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     public boolean unicoloredBG() {
-        return getBooleanPreference("unicolored_chatbg", R.bool.use_unicolored_chatbg) || getPreferences().getString(SettingsActivity.THEME, getString(R.string.theme)).equals("black");
+        return getBooleanPreference("unicolored_chatbg", R.bool.use_unicolored_chatbg); // || getPreferences().getString(SettingsActivity.THEME, getString(R.string.theme)).equals("black");
     }
     public boolean enableOTR() {
         return getBooleanPreference(ENABLE_OTR_ENCRYPTION, R.bool.enable_otr);
