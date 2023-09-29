@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,7 +38,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.utils.CameraUtils;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -211,11 +216,49 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                     while ((len = inputStream.read(buf)) > 0) {
                         out.write(buf, 0, len);
                     }
-                    refreshUiReal();
                 }
+                compressImage();
             } catch (IOException exception) {
             }
         }
+    }
+
+    public void compressImage(){
+        File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
+
+        int MAX_IMAGE_SIZE = 100 * 1024;
+        int streamLength = MAX_IMAGE_SIZE;
+        int compressQuality = 105;
+        ByteArrayOutputStream bmpStream = new ByteArrayOutputStream();
+        while (streamLength >= MAX_IMAGE_SIZE && compressQuality > 5) {
+            try {
+                bmpStream.flush();//to avoid out of memory error
+                bmpStream.reset();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            compressQuality -= 5;
+            Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), new BitmapFactory.Options());
+            bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream);
+            byte[] bmpPicByteArray = bmpStream.toByteArray();
+            streamLength = bmpPicByteArray.length;
+            if(BuildConfig.DEBUG) {
+                Log.d("test upload", "Quality: " + compressQuality);
+                Log.d("test upload", "Size: " + streamLength);
+            }
+        }
+
+        FileOutputStream fo;
+
+        try {
+            fo = new FileOutputStream(f);
+            fo.write(bmpStream.toByteArray());
+            fo.flush();
+            fo.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
     @Override
     void onBackendConnected() {
