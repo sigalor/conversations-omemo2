@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -203,6 +204,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     }
 
     //this gets executed when the user picks a file
+    @SuppressLint("StaticFieldLeak")        //TODO: Don't suppress lint
     public void onPickFile(Uri uri) {
         if (uri != null && Build.VERSION.SDK_INT >= 26) {
             new AsyncTask<Void, Void, Void>() {
