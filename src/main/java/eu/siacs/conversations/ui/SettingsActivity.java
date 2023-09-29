@@ -17,6 +17,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -204,6 +205,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     //this gets executed when the user picks a file
     public void onPickFile(Uri uri) {
         if (uri != null && Build.VERSION.SDK_INT >= 26) {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
             File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
             if (!folder.exists()) {
                 folder.mkdirs();
@@ -217,9 +221,14 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                         out.write(buf, 0, len);
                     }
                 }
-                compressImage();
+                        compressImage();
+
             } catch (IOException exception) {
             }
+                    return null;
+                }
+
+            }.execute();
         }
     }
 
