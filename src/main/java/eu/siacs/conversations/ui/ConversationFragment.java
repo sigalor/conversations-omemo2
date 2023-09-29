@@ -2501,7 +2501,7 @@ public class ConversationFragment extends XmppFragment
                             .asBitmap()
                             .load(bgfileUri)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)
+                            //.skipMemoryCache(true)                //TODO: Maybe find another solution
                             .into(new SimpleTarget<Bitmap>() {
                                 @Override
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
