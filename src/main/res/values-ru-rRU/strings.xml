@@ -178,11 +178,11 @@
     <string name="conference_destroyed">Эта комната была закрыта</string>
     <string name="conference_details">Детали комнаты</string>
     <string name="conference_kicked">Вас выгнали из этой комнаты</string>
-    <string name="conference_members_only">Этот комната только для ее членов</string>
+    <string name="conference_members_only">Эта комната только для ее членов</string>
     <string name="conference_options">Настройки приватной комнаты</string>
     <string name="conference_requires_password">Комната требует пароль</string>
     <string name="conference_resource_constraint">Ресурсное ограничение</string>
-    <string name="conference_shutdown">Этот комната была закрыта</string>
+    <string name="conference_shutdown">Эта комната была закрыта</string>
     <string name="conference_unknown_error">Вы больше не состоите в этой комнате</string>
     <string name="confirm">Подтвердить</string>
     <string name="connect">Подключение</string>
@@ -334,7 +334,7 @@
     <string name="error_message">Сообщение об ошибке</string>
     <string name="error_message_copied_to_clipboard">Сообщение об ошибке скопировано в буфер</string>
     <string name="error_moving_data">Произошла ошибка при переносе Ваших старых данных. Пожалуйста, перенесите их вручную.</string>
-    <string name="error_no_keys_to_trust_presence">Для этого контакта не существует доступных ключей. Make убедитесь, что у вас есть подписка на взаимное присутствие.</string>
+    <string name="error_no_keys_to_trust_presence">Для этого контакта нет доступных ключей.\nУбедитесь, что у вас есть подписка на взаимное присутствие.</string>
     <string name="error_no_keys_to_trust_server_error">Нет подходящих ключей для этого контакта. Запрос новых ключей с сервера закончился неудачей. Возможно, что-то не так с сервером вашего контакта.</string>
     <string name="error_not_an_image_file">Выбранный файл не является изображением</string>
     <string name="error_out_of_memory">Недостаточно памяти. Изображение слишком большое</string>
@@ -395,7 +395,7 @@
     <string name="hide_inactive_devices">Скрыть не активных</string>
     <string name="hide_offline">Скрыть \"не в сети\"</string>
     <string name="hide_warning">Скрыть предупреждение</string>
-    <string name="highlight_in_muc">отметить пользователя</string>
+    <string name="highlight_in_muc">Отметить пользователя</string>
     <string name="host_does_not_support_group_chat_avatars">Хост не поддерживает аватары комнаты</string>
     <string name="hostname_example">monocles.de</string>
     <string name="hostname_or_onion">Имя хоста или onion-адрес</string>
@@ -432,7 +432,7 @@
     <string name="intro_desc_account">Если у Вас уже есть учетная запись, Вы можете просто войти в систему с помощью chat address и пароля</string>
     <string name="intro_desc_account2">Вы можете создать новый профиль на monocles chat, просто введя ник.</string>
     <string name="intro_desc_account3">У Вас есть возможность импортировать существующую учетную запись. Если есть файлы резервных копий, они будут показаны.</string>
-    <string name="intro_desc_chat_details">Хотите открыть детали чате\? Просто нажмите на название чата в строке меню вверху.</string>
+    <string name="intro_desc_chat_details">Хотите открыть детали чата\? Просто нажмите на название чата в строке меню вверху.</string>
     <string name="intro_desc_highlight_user">Если вы хотите выделить пользователя в комнате, просто коснитесь его аватара в чате. В качестве альтернативы, особенно если пользователя нет в чате, переключитесь на сведения о чате и найдите пользователя в списке участников. При длительном касании аватара пользователя появится всплывающее меню, в котором можно выделить пользователя.</string>
     <string name="intro_desc_main">Узнать больше…</string>
     <string name="intro_desc_open_chat">Теперь Вы можете начать общаться, обмениваться местоположением, файлами, видео, изображениями и отправлять голосовые сообщения.</string>
@@ -598,7 +598,7 @@
     <string name="no_i2p_calls">Звонки через I2P недоступны</string>
     <string name="no_keys_just_confirm">Вы уже доверяете этому контакту. Нажимая \"Готово\" вы только подтвердите, что %s состоит в этой комнате.</string>
     <string name="no_location_permission">monocles chat требуется доступ к службам определения местоположения</string>
-    <string name="no_market_app_installed">Приложение market не установленно.</string>
+    <string name="no_market_app_installed">Приложение маркета не установленно.</string>
     <string name="no_microphone_permission">monocles chat требуется доступ к микрофону</string>
     <string name="no_more_history_on_server">На сервере нет сообщений</string>
     <string name="no_name_set_instructions">Имя не установлено.</string>
@@ -906,7 +906,7 @@
     <string name="pref_vibrate_summary">Вибрировать при получении нового сообщения</string>
     <string name="pref_video_quality">Качество видео</string>
     <string name="pref_video_quality_summary">Изменять размер и сжимать видео</string>
-    <string name="pref_warn_unencrypted_chat">Предупреждать если чат не защищен</string>
+    <string name="pref_warn_unencrypted_chat">Предупреждать, если чат не защищен</string>
     <string name="pref_warn_unencrypted_chat_summary">Использовать шифрование, если доступно. Если Вы не используете шифрование - отображать предупреждение в чате.</string>
     <string name="preparing_file">Подготовка файла к передаче</string>
     <string name="preparing_image">Подготовка изображения к передаче</string>
@@ -989,13 +989,13 @@
     <string name="save_x_file">Сохранить %s</string>
     <string name="scan_qr_code">Сканировать QR-код</string>
     <string name="search">Поиск</string>
-    <string name="search_all_conversations">Все чаты</string>
-    <string name="search_bookmarks">Поиск групповых чатов</string>
+    <string name="search_all_conversations">Поиск всех разговоров</string>
+    <string name="search_bookmarks">Поиск закладок</string>
     <string name="search_channels">Поиск каналов</string>
     <string name="search_contacts">Поиск контактов</string>
     <string name="search_messages">Поиск сообщений</string>
     <string name="search_participants">Поиск участников</string>
-    <string name="search_this_conversation">Этот чат</string>
+    <string name="search_this_conversation">Поиск этого разговора</string>
     <string name="secrets_do_not_match">Секреты не совпадают</string>
     <string name="secure_password_generated">Сгенерирован надежный пароль</string>
     <string name="security_violation_not_attaching_file">Файл пропущен из-за проблем с безопасностью.</string>
@@ -1084,10 +1084,10 @@
     <string name="start_conversation">Начать беседу</string>
     <string name="start_orbot">Запуск Orbot</string>
     <string name="status_message">Статус</string>
-    <string name="strikethrough">перечеркнутый</string>
+    <string name="strikethrough">зачеркивание</string>
     <string name="success_import_settings">Настройки успешно импортированы.</string>
     <string name="sure_delete_fingerprint">Вы уверены, что хотите удалить этот отпечаток\?</string>
-    <string name="switch_to_conversation">Перейти к чату</string>
+    <string name="switch_to_conversation">Перейти к разговору</string>
     <string name="sync_with_contacts">Синхронизировать контакты</string>
     <string name="sync_with_contacts_long">monocles chat хочет сопоставить список XMPP с контактами, чтобы показывать их полные имена и аватары.
 \n
@@ -1336,7 +1336,7 @@
     <string name="title_undo_swipe_out_conversation">Отменить удаление чата</string>
     <string name="audio_video_disabled_tor">Звонки отключены при использовании Tor</string>
     <string name="reject_switch_to_video">Отклонить запрос на переключение на видео</string>
-    <string name="pref_up_push_account_title">аккаунт</string>
+    <string name="pref_up_push_account_title">Аккаунт</string>
     <string name="pref_up_push_server_title">Push сервер</string>
     <string name="no_account_deactivated">Нет (деактивировано)</string>
     <string name="undo">Отменить</string>
@@ -1359,7 +1359,7 @@
     <string name="refresh_feature_discovery">Обнаружение функций</string>
     <string name="i_am_snikket_user">Я использую Сниккет</string>
     <string name="action_edit_contact">Изменить контакт</string>
-    <string name="only_this_thread">Показать только эту тему</string>
+    <string name="only_this_thread">Показать только эту нить</string>
     <string name="pref_dialler_integration_incoming">Используйте учетные записи телефонов для входящих вызовов</string>
     <string name="pref_dialler_integration_incoming_summary">Входящие вызовы с телефонных номеров могут звонить с помощью системного номеронабирателя вместо настроек уведомлений этого приложения.</string>
     <string name="thread_marker">Маркер нити</string>
@@ -1367,7 +1367,7 @@
     <string name="tags">Теги</string>
     <string name="save_as_sticker">Сохранить как стикер</string>
     <string name="sticker_name">Название стикера</string>
-    <string name="action_execute">Идти</string>
+    <string name="action_execute">Выполнить действие</string>
     <string name="block_avatar">Заблокировать аватар</string>
     <string name="block_media">Блокировать медиа</string>
     <string name="new_contact">Новый контакт</string>
@@ -1396,7 +1396,7 @@
     <string name="create_monocles_only_backup">Экспортировать дополнительные данные только для моноклей (тогда резервная копия не будет импортирована в другие приложения)\?</string>
     <string name="please_be_patient">Пожалуйста, будьте терпеливы...</string>
     <string name="notify_only_when_highlighted_or_replied">Уведомлять об упоминаниях и ответах</string>
-    <string name="pref_follow_thread_in_channel_summary">Установите маркер темы, соответствующий просматриваемому в данный момент сообщению.</string>
+    <string name="pref_follow_thread_in_channel_summary">Установите маркер нити, соответствующий просматриваемому в данный момент сообщению.</string>
     <string name="restore_warning_continued">Не пытайтесь восстановить резервные копии, которые вы не создавали самостоятельно!</string>
     <string name="pref_follow_thread_in_channel">Автоматическое отслеживание цепочек в каналах</string>
     <string name="show_less">"
@@ -1415,4 +1415,10 @@
     <string name="confirm_delete_attachment_summary">Хотите пропустить подтверждение при удалении локального файла из чата\?</string>
     <string name="pref_confirm_delete_attachment">Пропустить подтверждение удаления файлов из чатов</string>
     <string name="menuitem_create_backup_action">Создать резервную копию</string>
+    <string name="pref_use_blue_readmarkers_title">Используйте синие маркеры чтения</string>
+    <string name="pref_use_blue_readmarkers_summary">Используйте синие маркеры чтения вместо белых или черных.</string>
+    <string name="chat_background">Фон чатов</string>
+    <string name="message_reaction">Отправить реакцию</string>
+    <string name="custom_background">Пользовательский фон</string>
+    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocles chat/backgrounds/bg.jpg</string>
 </resources>
