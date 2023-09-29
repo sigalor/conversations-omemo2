@@ -66,7 +66,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'exifinterface'
     }
     implementation 'im.conversations.webrtc:webrtc-android:117.1.0'
-    //implementation 'org.snikket:webrtc-android:107.0.0'
     implementation 'org.jitsi:org.otr4j:0.23'
     implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
     implementation 'org.gnu.inet:libidn:1.15'
