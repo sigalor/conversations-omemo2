@@ -71,13 +71,6 @@
                         android:value="custom_theme" />
                 </intent>
             </PreferenceScreen>
-        <ListPreference
-            android:defaultValue="@string/default_font_size"
-            android:entries="@array/font_size_entries"
-            android:entryValues="@array/font_size_entry_values"
-            android:key="font_size"
-            android:summary="@string/pref_font_size_summary"
-            android:title="@string/pref_font_size" />
         <CheckBoxPreference
             android:defaultValue="@bool/use_unicolored_chatbg"
             android:key="unicolored_chatbg"
@@ -87,6 +80,13 @@
             android:key="import_background"
             android:summary="@string/pref_chat_background_summary"
             android:title="@string/custom_background" />
+        <ListPreference
+            android:defaultValue="@string/default_font_size"
+            android:entries="@array/font_size_entries"
+            android:entryValues="@array/font_size_entry_values"
+            android:key="font_size"
+            android:summary="@string/pref_font_size_summary"
+            android:title="@string/pref_font_size" />
         <CheckBoxPreference
             android:defaultValue="@bool/use_colored_muc_names"
             android:key="colored_muc_names"
