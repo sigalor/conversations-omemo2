@@ -5,4 +5,5 @@
     <bool name="use_blue_readmarkers">true</bool>
     <bool name="use_default_chatbg">true</bool>
     <bool name="use_custom_chatbg">false</bool>
+    <bool name="set_round_avatars" />
 </resources>

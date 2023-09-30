@@ -81,6 +81,13 @@
             android:key="import_background"
             android:summary="@string/pref_chat_background_summary"
             android:title="@string/custom_background" />
+        <!--
+        <CheckBoxPreference
+            android:defaultValue="@bool/set_round_avatars"
+            android:key="avatar_shape"
+            android:summary="@string/pref_set_round_avatars_summary"
+            android:title="@string/pref_set_round_avatars" />
+            -->
         <ListPreference
             android:defaultValue="@string/default_font_size"
             android:entries="@array/font_size_entries"
