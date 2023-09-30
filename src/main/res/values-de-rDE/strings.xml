@@ -1367,4 +1367,5 @@
     <string name="custom_primary_color">Individuelle Primärfarbe</string>
     <string name="custom_primary_dark_color">Individuelle dunkle Primärfarbe</string>
     <string name="custom_accent_color">Individuelle Akzentfarbe</string>
+    <string name="pref_custom_theme_color_options_summary">Erstelle deine eigenen Designfarben</string>
 </resources>

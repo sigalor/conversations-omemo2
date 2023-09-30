@@ -30,7 +30,8 @@
             android:title="@string/pref_theme_color_options" />
             <PreferenceScreen
                 android:key="custom_theme"
-                android:title="@string/custom_theme_options">
+                android:title="@string/custom_theme_options"
+                android:summary="@string/pref_custom_theme_color_options_summary">
                 <Preference
                     android:key="pref_static_field_key"
                     android:selectable="false"

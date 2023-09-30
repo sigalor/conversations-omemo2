@@ -1324,4 +1324,5 @@
     <string name="message_reaction">Send reaction</string>
     <string name="custom_background">Custom background</string>
     <string name="pref_chat_background_summary">Choose an own image file as chat background. The image file will be copied to /Documents/monocles chat/backgrounds/bg.jpg</string>
+    <string name="pref_custom_theme_color_options_summary">Set your own theme colours</string>
 </resources>
