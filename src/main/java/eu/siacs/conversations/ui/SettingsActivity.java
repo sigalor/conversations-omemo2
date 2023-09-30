@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -44,6 +45,7 @@ import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.utils.CameraUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -210,23 +212,23 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... voids) {
-            File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
-                try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"))) {
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[1024];
-                    int len;
-                    while ((len = inputStream.read(buf)) > 0) {
-                        out.write(buf, 0, len);
+                    File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
+                    if (!folder.exists()) {
+                        folder.mkdirs();
                     }
-                }
-                        compressImage();
+                    try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+                        try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"))) {
+                            // Transfer bytes from in to out
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = inputStream.read(buf)) > 0) {
+                                out.write(buf, 0, len);
+                            }
+                        }
+                        compressImage(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"), uri, 0);
 
-            } catch (IOException exception) {
-            }
+                    } catch (IOException exception) {
+                    }
                     return null;
                 }
 
@@ -234,43 +236,147 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         }
     }
 
-    public void compressImage(){
-        File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
-
-        int MAX_IMAGE_SIZE = 100 * 1024;
-        int streamLength = MAX_IMAGE_SIZE;
-        int compressQuality = 105;
-        ByteArrayOutputStream bmpStream = new ByteArrayOutputStream();
-        while (streamLength >= MAX_IMAGE_SIZE && compressQuality > 5) {
-            try {
-                bmpStream.flush();//to avoid out of memory error
-                bmpStream.reset();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            compressQuality -= 5;
-            Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), new BitmapFactory.Options());
-            bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream);
-            byte[] bmpPicByteArray = bmpStream.toByteArray();
-            streamLength = bmpPicByteArray.length;
-            if(BuildConfig.DEBUG) {
-                Log.d("test upload", "Quality: " + compressQuality);
-                Log.d("test upload", "Size: " + streamLength);
-            }
-        }
-
-        FileOutputStream fo;
-
+    public void compressImage(File f, Uri image, int sampleSize) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        int IMAGE_QUALITY = 65;
+        int ImageSize = (int) (0.2 * 1024 * 1024);
         try {
-            fo = new FileOutputStream(f);
-            fo.write(bmpStream.toByteArray());
-            fo.flush();
-            fo.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (!f.exists() && !f.createNewFile()) {
+                throw new IOException(String.valueOf(R.string.error_unable_to_create_temporary_file));
+            }
+            is = getContentResolver().openInputStream(image);
+            if (is == null) {
+                throw new IOException(String.valueOf(R.string.error_not_an_image_file));
+            }
+            final Bitmap originalBitmap;
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            final int inSampleSize = (int) Math.pow(2, sampleSize);
+            Log.d(Config.LOGTAG, "reading bitmap with sample size " + inSampleSize);
+            options.inSampleSize = inSampleSize;
+            originalBitmap = BitmapFactory.decodeStream(is, null, options);
+            is.close();
+            if (originalBitmap == null) {
+                throw new IOException("Source file was not an image");
+            }
+            if (!"image/jpeg".equals(options.outMimeType) && hasAlpha(originalBitmap)) {
+                originalBitmap.recycle();
+                throw new IOException("Source file had alpha channel");
+            }
+            int size;
+            int resolution = 1920;
+            if (resolution == 0) {
+                int height = originalBitmap.getHeight();
+                int width = originalBitmap.getWidth();
+                size = height > width ? height : width;
+            } else {
+                size = resolution;
+            }
+            Bitmap scaledBitmap = resize(originalBitmap, size);
+            //final int rotation = getRotation(image);
+            //scaledBitmap = rotate(scaledBitmap, rotation);
+            boolean targetSizeReached = false;
+            int quality = IMAGE_QUALITY;
+            while (!targetSizeReached) {
+                os = new FileOutputStream(f);
+                boolean success = scaledBitmap.compress(Config.IMAGE_FORMAT, quality, os);
+                if (!success) {
+                    throw new IOException(String.valueOf(R.string.error_compressing_image));
+                }
+                os.flush();
+                targetSizeReached = (f.length() <= ImageSize && ImageSize != 0) || quality <= 50;
+                quality -= 5;
+            }
+            scaledBitmap.recycle();
+        } catch (final FileNotFoundException e) {
+            cleanup(f);
+            throw new IOException(String.valueOf(R.string.error_file_not_found));
+        } catch (final IOException e) {
+            cleanup(f);
+            throw new IOException(String.valueOf(R.string.error_io_exception));
+        } catch (SecurityException e) {
+            cleanup(f);
+            throw new IOException(String.valueOf(R.string.error_security_exception_during_image_copy));
+        } catch (final OutOfMemoryError e) {
+            ++sampleSize;
+            if (sampleSize <= 3) {
+                compressImage(f, image, sampleSize);
+            } else {
+                throw new IOException(String.valueOf(R.string.error_out_of_memory));
+            }
+        } finally {
+            close(os);
+            close(is);
         }
-
     }
+
+    public static void close(final Closeable stream) {
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (Exception e) {
+                Log.d(Config.LOGTAG, "unable to close stream", e);
+            }
+        }
+    }
+
+    private static void cleanup(final File file) {
+        try {
+            file.delete();
+        } catch (Exception e) {
+
+        }
+    }
+
+    /*  TODO: Just Maybe add later
+        private int getRotation ( final File file){
+            try (final InputStream inputStream = new FileInputStream(file)) {
+                return getRotation(inputStream);
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+*/
+    private Bitmap resize(final Bitmap originalBitmap, int size) throws IOException {
+        int w = originalBitmap.getWidth();
+        int h = originalBitmap.getHeight();
+        if (w <= 0 || h <= 0) {
+            throw new IOException("Decoded bitmap reported bounds smaller 0");
+        } else if (Math.max(w, h) > size) {
+            int scalledW;
+            int scalledH;
+            if (w <= h) {
+                scalledW = Math.max((int) (w / ((double) h / size)), 1);
+                scalledH = size;
+            } else {
+                scalledW = size;
+                scalledH = Math.max((int) (h / ((double) w / size)), 1);
+            }
+            final Bitmap result = Bitmap.createScaledBitmap(originalBitmap, scalledW, scalledH, true);
+            if (!originalBitmap.isRecycled()) {
+                originalBitmap.recycle();
+            }
+            return result;
+        } else {
+            return originalBitmap;
+        }
+    }
+
+    private static boolean hasAlpha(final Bitmap bitmap) {
+        final int w = bitmap.getWidth();
+        final int h = bitmap.getHeight();
+        final int yStep = Math.max(1, w / 100);
+        final int xStep = Math.max(1, h / 100);
+        for (int x = 0; x < w; x += xStep) {
+            for (int y = 0; y < h; y += yStep) {
+                if (Color.alpha(bitmap.getPixel(x, y)) < 255) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     void onBackendConnected() {
         boolean diallerIntegrationPossible = false;
@@ -455,12 +561,12 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                     preference -> {
                         final MemorizingTrustManager mtm =
                                 xmppConnectionService.getMemorizingTrustManager();
-                final ArrayList<String> aliases = Collections.list(mtm.getCertificates());
-                if (aliases.size() == 0) {
-                    displayToast(getString(R.string.toast_no_trusted_certs));
-                    return true;
-                }
-                final ArrayList<Integer> selectedItems = new ArrayList<>();
+                        final ArrayList<String> aliases = Collections.list(mtm.getCertificates());
+                        if (aliases.size() == 0) {
+                            displayToast(getString(R.string.toast_no_trusted_certs));
+                            return true;
+                        }
+                        final ArrayList<Integer> selectedItems = new ArrayList<>();
                         final AlertDialog.Builder dialogBuilder =
                                 new AlertDialog.Builder(SettingsActivity.this);
                         dialogBuilder.setTitle(
@@ -468,57 +574,57 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                         dialogBuilder.setMultiChoiceItems(
                                 aliases.toArray(new CharSequence[aliases.size()]),
                                 null,
-                        (dialog, indexSelected, isChecked) -> {
-                            if (isChecked) {
-                                selectedItems.add(indexSelected);
-                            } else if (selectedItems.contains(indexSelected)) {
-                                selectedItems.remove(Integer.valueOf(indexSelected));
-                            }
-                            if (selectedItems.size() > 0)
-                                ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
-                            else {
-                                ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-                            }
-                        });
-
-                dialogBuilder.setPositiveButton(
-                        getResources()
-                                .getString(R.string.dialog_manage_certs_positivebutton),
-                        (dialog, which) -> {
-                            int count = selectedItems.size();
-                            if (count > 0) {
-                                for (int i = 0; i < count; i++) {
-                                    try {
-                                        Integer item =
-                                                Integer.valueOf(
-                                                        selectedItems.get(i).toString());
-                                        String alias = aliases.get(item);
-                                        mtm.deleteCertificate(alias);
-                                    } catch (KeyStoreException e) {
-                                        e.printStackTrace();
-                                        displayToast("Error: " + e.getLocalizedMessage());
+                                (dialog, indexSelected, isChecked) -> {
+                                    if (isChecked) {
+                                        selectedItems.add(indexSelected);
+                                    } else if (selectedItems.contains(indexSelected)) {
+                                        selectedItems.remove(Integer.valueOf(indexSelected));
                                     }
-                                }
-                                if (xmppConnectionServiceBound) {
-                                    reconnectAccounts();
-                                }
-                                displayToast(
-                                        getResources()
-                                                .getQuantityString(
-                                                        R.plurals.toast_delete_certificates,
-                                                        count,
-                                                        count));
-                            }
-                        });
+                                    if (selectedItems.size() > 0)
+                                        ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+                                    else {
+                                        ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                                    }
+                                });
+
+                        dialogBuilder.setPositiveButton(
+                                getResources()
+                                        .getString(R.string.dialog_manage_certs_positivebutton),
+                                (dialog, which) -> {
+                                    int count = selectedItems.size();
+                                    if (count > 0) {
+                                        for (int i = 0; i < count; i++) {
+                                            try {
+                                                Integer item =
+                                                        Integer.valueOf(
+                                                                selectedItems.get(i).toString());
+                                                String alias = aliases.get(item);
+                                                mtm.deleteCertificate(alias);
+                                            } catch (KeyStoreException e) {
+                                                e.printStackTrace();
+                                                displayToast("Error: " + e.getLocalizedMessage());
+                                            }
+                                        }
+                                        if (xmppConnectionServiceBound) {
+                                            reconnectAccounts();
+                                        }
+                                        displayToast(
+                                                getResources()
+                                                        .getQuantityString(
+                                                                R.plurals.toast_delete_certificates,
+                                                                count,
+                                                                count));
+                                    }
+                                });
                         dialogBuilder.setNegativeButton(
                                 getResources()
                                         .getString(R.string.dialog_manage_certs_negativebutton),
                                 null);
                         AlertDialog removeCertsDialog = dialogBuilder.create();
-                removeCertsDialog.show();
-                removeCertsDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                return true;
-            });
+                        removeCertsDialog.show();
+                        removeCertsDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        return true;
+                    });
             updateTheme();
         }
 
@@ -747,9 +853,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             case "default_off":
                 omemoPreference.setSummary(R.string.pref_omemo_setting_summary_default_off);
                 break;
-                case "always_off":
-                    omemoPreference.setSummary(R.string.pref_omemo_setting_summary_always_off);
-                    break;
+            case "always_off":
+                omemoPreference.setSummary(R.string.pref_omemo_setting_summary_always_off);
+                break;
         }
     }
 
@@ -810,33 +916,33 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 checkedItems,
                 (dialog, which, isChecked) -> {
                     checkedItems[which] = isChecked;
-            final AlertDialog alertDialog = (AlertDialog) dialog;
-            for (boolean item : checkedItems) {
-                if (item) {
-                    alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
-                    return;
-                }
-            }
-            alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-        });
+                    final AlertDialog alertDialog = (AlertDialog) dialog;
+                    for (boolean item : checkedItems) {
+                        if (item) {
+                            alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+                            return;
+                        }
+                    }
+                    alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                });
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(
                 R.string.delete_selected_keys,
                 (dialog, which) -> {
                     for (int i = 0; i < checkedItems.length; ++i) {
-                if (checkedItems[i]) {
-                    try {
-                        Jid jid = Jid.of(accounts.get(i).toString());
-                        Account account = xmppConnectionService.findAccountByJid(jid);
-                        if (account != null) {
-                            account.getAxolotlService().regenerateKeys(true);
+                        if (checkedItems[i]) {
+                            try {
+                                Jid jid = Jid.of(accounts.get(i).toString());
+                                Account account = xmppConnectionService.findAccountByJid(jid);
+                                if (account != null) {
+                                    account.getAxolotlService().regenerateKeys(true);
+                                }
+                            } catch (IllegalArgumentException e) {
+                                //
+                            }
                         }
-                    } catch (IllegalArgumentException e) {
-                        //
                     }
-                }
-            }
-        });
+                });
         final AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
