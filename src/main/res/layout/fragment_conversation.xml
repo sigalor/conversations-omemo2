@@ -149,8 +149,8 @@
 
                     <RelativeLayout
                         android:id="@+id/thread_identicon_layout"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_centerVertical="true"
@@ -160,14 +160,14 @@
                         <com.lelloman.identicon.view.GithubIdenticonView
                             android:id="@+id/thread_identicon"
                             android:alpha="0"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
                             android:layout_centerVertical="true"
                             android:contentDescription="@string/thread_marker" />
                         <ImageView
                             android:id="@+id/thread_identicon_lock"
-                            android:layout_width="12dp"
-                            android:layout_height="12dp"
+                            android:layout_width="9dp"
+                            android:layout_height="9dp"
                             android:layout_alignTop="@+id/thread_identicon"
                             android:layout_toEndOf="@+id/thread_identicon"
                             android:layout_toRightOf="@+id/thread_identicon"
@@ -179,7 +179,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_toRightOf="@+id/thread_identicon_layout"
-    android:layout_toEndOf="@+id/thread_identicon_layout">
+    android:layout_toEndOf="@+id/thread_identicon_layout"
+    android:paddingRight="32dp">
                     <TextView
                         android:id="@+id/text_input_hint"
                         android:layout_width="wrap_content"
