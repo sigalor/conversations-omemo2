@@ -409,6 +409,7 @@
     <string name="image">Bild</string>
     <string name="pdf_document">PDF-Dokument</string>
     <string name="apk">Android App</string>
+    <string name="audiobook">Audiobuch</string>
     <string name="vcard">Kontakt</string>
     <string name="avatar_has_been_published">Profilbild wurde gespeichert</string>
     <string name="sending_x_file">%s wird gesendet</string>

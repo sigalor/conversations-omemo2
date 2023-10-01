@@ -392,6 +392,7 @@
     <string name="image">image</string>
     <string name="pdf_document">PDF document</string>
     <string name="apk">Android App</string>
+    <string name="audiobook">Audiobook</string>
     <string name="vcard">Contact</string>
     <string name="avatar_has_been_published">Avatar has been published!</string>
     <string name="sending_x_file">Sending %s</string>
@@ -1405,4 +1406,6 @@
     <string name="grey">Grey</string>
     <string name="blue">Blue</string>
     <string name="green_and_blue">Green and blue</string>
+    <string name="pref_send_link_previews">Send link previews</string>
+    <string name="pref_send_link_previews_summary">Attach metadata about links when sending a message</string>
 </resources>

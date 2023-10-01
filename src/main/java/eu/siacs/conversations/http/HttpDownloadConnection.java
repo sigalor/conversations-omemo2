@@ -232,7 +232,6 @@ public class HttpDownloadConnection implements Transferable {
             message.setDeleted(true);
         }
         message.setTransferable(null);
-        if (cb != null) cb.accept(file);
         mXmppConnectionService.updateMessage(message);
         mHttpConnectionManager.finishConnection(this);
         final boolean notifyAfterScan = notify;
@@ -419,6 +418,7 @@ public class HttpDownloadConnection implements Transferable {
                 decryptIfNeeded();
                 finish();
                 updateImageBounds();
+                if (cb != null) cb.accept(file);
             } catch (final SSLHandshakeException e) {
                 changeStatus(STATUS_OFFER);
             } catch (final Exception e) {

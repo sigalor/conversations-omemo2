@@ -15,6 +15,8 @@ import android.util.Log;
 import android.util.Base64;
 import android.util.Pair;
 import android.view.View;
+
+import eu.siacs.conversations.ui.util.MyLinkify;
 import eu.siacs.conversations.utils.Compatibility;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -918,7 +920,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             return false;
         } else {
             String body, otherBody;
-            if (this.hasFileOnRemoteHost()) {
+            if (this.hasFileOnRemoteHost() && (this.body == null || "".equals(this.body))) {
                 body = getFileParams().url;
                 otherBody = message.body == null ? null : message.body.trim();
             } else {
@@ -1201,6 +1203,19 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         } else {
             throw new IllegalStateException("Attempting to store unedited message");
         }
+    }
+
+    public List<URI> getLinks() {
+        SpannableStringBuilder text = new SpannableStringBuilder(
+                getBody().replaceAll("^>.*", "") // Remove quotes
+        );
+        return MyLinkify.extractLinks(text).stream().map((url) -> {
+            try {
+                return new URI(url);
+            } catch (final URISyntaxException e) {
+                return null;
+            }
+        }).filter(x -> x != null).collect(Collectors.toList());
     }
 
     public URI getOob() {
