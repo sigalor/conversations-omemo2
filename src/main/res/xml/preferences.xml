@@ -30,7 +30,8 @@
             android:title="@string/pref_theme_color_options" />
             <PreferenceScreen
                 android:key="custom_theme"
-                android:title="@string/custom_theme_options">
+                android:title="@string/custom_theme_options"
+                android:summary="@string/pref_custom_theme_color_options_summary">
                 <Preference
                     android:key="pref_static_field_key"
                     android:selectable="false"
@@ -71,13 +72,6 @@
                         android:value="custom_theme" />
                 </intent>
             </PreferenceScreen>
-        <ListPreference
-            android:defaultValue="@string/default_font_size"
-            android:entries="@array/font_size_entries"
-            android:entryValues="@array/font_size_entry_values"
-            android:key="font_size"
-            android:summary="@string/pref_font_size_summary"
-            android:title="@string/pref_font_size" />
         <CheckBoxPreference
             android:defaultValue="@bool/use_unicolored_chatbg"
             android:key="unicolored_chatbg"
@@ -87,6 +81,20 @@
             android:key="import_background"
             android:summary="@string/pref_chat_background_summary"
             android:title="@string/custom_background" />
+        <!--
+        <CheckBoxPreference
+            android:defaultValue="@bool/set_round_avatars"
+            android:key="avatar_shape"
+            android:summary="@string/pref_set_round_avatars_summary"
+            android:title="@string/pref_set_round_avatars" />
+            -->
+        <ListPreference
+            android:defaultValue="@string/default_font_size"
+            android:entries="@array/font_size_entries"
+            android:entryValues="@array/font_size_entry_values"
+            android:key="font_size"
+            android:summary="@string/pref_font_size_summary"
+            android:title="@string/pref_font_size" />
         <CheckBoxPreference
             android:defaultValue="@bool/use_colored_muc_names"
             android:key="colored_muc_names"

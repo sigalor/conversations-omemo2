@@ -1361,5 +1361,11 @@
     <string name="action_complete">Fertig</string>
     <string name="message_reaction">Reaktion senden</string>
     <string name="custom_background">Eigener Hintergrund</string>
-    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund. Das Bild wird in /Documents/monocles chat/pictures/bg.jpg kopiert.</string>
+    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund. Das Bild wird in /Documents/monocles chat/backgrounds/bg.jpg kopiert.</string>
+    <string name="custom_theme_options">Individuelles Design</string>
+    <string name="custom_theme_is_dark">Individuelles Design ist dunkel?</string>
+    <string name="custom_primary_color">Individuelle Primärfarbe</string>
+    <string name="custom_primary_dark_color">Individuelle dunkle Primärfarbe</string>
+    <string name="custom_accent_color">Individuelle Akzentfarbe</string>
+    <string name="pref_custom_theme_color_options_summary">Erstelle deine eigenen Designfarben</string>
 </resources>

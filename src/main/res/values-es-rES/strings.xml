@@ -1403,7 +1403,7 @@
     <string name="settings_restore_message_success">Ajustes restaurados con éxito</string>
     <string name="settings_restore_message_failure">Fallo al restaurar ajustes: %s</string>
     <string name="pref_import_database_or_settings">Importar base de datos o ajustes</string>
-    <string name="pref_import_database_or_settings_summary">Importar una copia de tu base de datos o de un fichero de ajustes</string>
+    <string name="pref_import_database_or_settings_summary">Importar una copia de seguridad de tu base de datos o de un archivo de la configuración</string>
     <string name="create_monocles_only_backup">¿Exportar los datos adicionales sólo de Monocles (entonces la copia de seguridad no se importará a otras aplicaciones)\?</string>
     <string name="menuitem_create_backup_action">Crear una copia de seguridad</string>
     <string name="pref_use_blue_readmarkers_title">Utilizar marcadores de lectura azules</string>

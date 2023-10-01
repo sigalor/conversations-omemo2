@@ -65,8 +65,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
-    implementation 'im.conversations.webrtc:webrtc-android:104.0.0'
-    //implementation 'org.snikket:webrtc-android:107.0.0'
+    implementation 'im.conversations.webrtc:webrtc-android:117.1.0'
     implementation 'org.jitsi:org.otr4j:0.23'
     implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
     implementation 'org.gnu.inet:libidn:1.15'
@@ -150,7 +149,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 32
 
-        //versionNameSuffix " GIT_(2023-09-27)" // " beta_(XXXX-XX-XX)" // activate for beta versions
+        //versionNameSuffix " beta_(2023-09-29)" // " beta_(XXXX-XX-XX)" // activate for beta versions
         versionCode 137
         versionName "1.7.5"
         //resConfigs "en"

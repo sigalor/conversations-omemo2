@@ -3,6 +3,7 @@ package de.monocles.chat;
 import android.app.Application;
 import android.graphics.Typeface;
 import android.text.Spanned;
+import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
@@ -16,10 +17,12 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
+import android.text.style.SuggestionSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
+import android.view.inputmethod.BaseInputConnection;
 
 import io.ipfs.cid.Cid;
 
@@ -27,8 +30,24 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.TextNode;
 
 public class SpannedToXHTML {
+    private static SpannableStringBuilder cleanSpans(Spanned text) {
+        SpannableStringBuilder newText = new SpannableStringBuilder(text);
+        SuggestionSpan[] spans = newText.getSpans(0, newText.length(), SuggestionSpan.class);
+        for (SuggestionSpan span : spans) {
+            newText.removeSpan(span);
+        }
+        BaseInputConnection.removeComposingSpans(newText);
+        return newText;
+    }
+
+    public static boolean isPlainText(Spanned text) {
+        SpannableStringBuilder cleanText = cleanSpans(text);
+        return cleanText.nextSpanTransition(0, cleanText.length(), CharacterStyle.class) >= cleanText.length();
+    }
+
     public static Element append(Element out, Spanned text) {
-        withinParagraph(out, text, 0, text.length());
+        SpannableStringBuilder newText = cleanSpans(text);
+        withinParagraph(out, newText, 0, newText.length());
         return out;
     }
 
@@ -61,11 +80,9 @@ public class SpannedToXHTML {
                 if (style[j] instanceof SubscriptSpan) {
                     out = out.addChild("sub");
                 }
-                // TextEdit underlines text in current word, which ends up getting sent...
-                // SPAN_COMPOSING ?
-				/*if (style[j] instanceof UnderlineSpan) {
-					out = out.addChild("u");
-				}*/
+                if (style[j] instanceof UnderlineSpan) {
+                    out = out.addChild("u");
+                }
                 if (style[j] instanceof StrikethroughSpan) {
                     out = out.addChild("span");
                     out.setAttribute("style", "text-decoration:line-through;");
