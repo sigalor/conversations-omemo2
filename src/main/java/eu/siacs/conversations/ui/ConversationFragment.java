@@ -1575,16 +1575,17 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    private void showRecordVoiceButton() {
+    public void showRecordVoiceButton() {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
         final boolean ShowRecordVoiceButton = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
         Log.d(Config.LOGTAG, "Recorder " + ShowRecordVoiceButton);
-        if (ShowRecordVoiceButton) {
-            binding.recordVoiceButton.setVisibility(View.VISIBLE);
-        } else {
+        if (ShowRecordVoiceButton || binding.textinput.getText().length() > 0) {
             binding.recordVoiceButton.setVisibility(View.GONE);
         }
-        binding.recordVoiceButton.setImageResource(activity.getThemeResource(R.attr.ic_send_voice_offline, R.drawable.ic_send_voice_offline));
+        if (!ShowRecordVoiceButton || binding.textinput.getText().length() < 1) {
+            binding.recordVoiceButton.setVisibility(View.VISIBLE);
+        }
+            binding.recordVoiceButton.setImageResource(activity.getThemeResource(R.attr.ic_send_voice_offline, R.drawable.ic_send_voice_offline));
     }
 
     private void quoteMedia(Message message, @Nullable String user) {
@@ -3945,6 +3946,7 @@ public class ConversationFragment extends XmppFragment
             params.width = identiconWidth;
         }
         binding.threadIdenticonLayout.setLayoutParams(params);
+        showRecordVoiceButton();
         updateSnackBar(conversation);
     }
 
