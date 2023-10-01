@@ -34,6 +34,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
+        <!-- TODO: SET THE BACKGROUND TO THIS VIEW???? -->
         <ListView
             android:id="@+id/messages_view"
             android:layout_width="match_parent"
@@ -86,11 +87,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="40dp"
-            android:paddingTop="8dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="14dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="4dp"
             android:orientation="horizontal"
-            android:background="@drawable/comment_bubble_light">
+            android:background="@drawable/comment_bubble_light"
+            android:alpha="0.88">
 
             <ImageView
                 android:src="?attr/icon_quote"
@@ -123,9 +127,16 @@
             android:id="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/input_bubble_light"
+            android:alpha="0.88">
 
             <RelativeLayout
                 android:id="@+id/textsend"
@@ -137,8 +148,7 @@
                 android:paddingStart="2dp"
                 android:paddingLeft="2dp"
                 android:paddingTop="2dp"
-                android:paddingBottom="2dp"
-                android:background="@drawable/comment_bubble_light">
+                android:paddingBottom="2dp">
 
                 <RelativeLayout
                     android:id="@+id/message_input_box"
