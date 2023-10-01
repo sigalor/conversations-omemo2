@@ -132,7 +132,7 @@
     <string name="send_presence_updates">Enviar atualizações de presença</string>
     <string name="receive_presence_updates">Receber atualizações de presença</string>
     <string name="ask_for_presence_updates">Pedir atualizações de presença</string>
-    <string name="attach_choose_picture">Escolher imagem</string>
+    <string name="attach_choose_picture">Selecionar imagem</string>
     <string name="preemptively_grant">Conceder pedido de subscrição antecipadamente</string>
     <string name="error_not_an_image_file">O arquivo selecionado não é uma imagem</string>
     <string name="error_compressing_image">Erro ao converter o ficheiro de imagem</string>
@@ -283,7 +283,7 @@
     <string name="pref_expert_options_other">Outros</string>
     <string name="pref_autojoin">Sincronizar com os favoritos</string>
     <string name="pref_autojoin_summary">Entre e saia dos grupos de acordo com a opção de adesão automática em seus favoritos</string>
-    <string name="toast_message_omemo_fingerprint">Impressão digital OMEMO copiada para a área de transferência!</string>
+    <string name="toast_message_omemo_fingerprint">Impressão digital OMEMO copiada!</string>
     <string name="conference_banned">Você foi banido deste grupo</string>
     <string name="conference_members_only">Este grupo é apenas para membros</string>
     <string name="conference_kicked">Você foi removido deste grupo</string>
@@ -297,7 +297,7 @@
     <string name="copy_original_url">Copiar a URL original</string>
     <string name="send_again">Enviar novamente</string>
     <string name="file_url">URL do arquivo</string>
-    <string name="url_copied_to_clipboard">URL copiada para a área de transferência</string>
+    <string name="url_copied_to_clipboard">URL copiada</string>
     <string name="scan_qr_code">Ler código QR</string>
     <string name="show_qr_code">Exibir código QR</string>
     <string name="show_block_list">Mostar lista de bloqueios</string>
@@ -320,7 +320,7 @@
     <string name="restoring_backup">Restaurando o backup</string>
     <string name="notification_restored_backup_title">O backup foi restaurado</string>
     <string name="notification_restored_backup_subtitle">Não se esqueça de habilitar a conta.</string>
-    <string name="choose_file">Escolher arquivo</string>
+    <string name="choose_file">Selecionar arquivo</string>
     <string name="receiving_file">Recebendo %1$s</string>
     <string name="download_x_file">Transferir %s</string>
     <string name="delete_x_file">Remover %s</string>
@@ -339,7 +339,7 @@
     <string name="no_conference_server_found">Nenhum grupo encontrado no servidor</string>
     <string name="conference_creation_failed">Falha ao criar o grupo!</string>
     <string name="account_image_description">Avatar da conta</string>
-    <string name="copy_omemo_clipboard_description">Copiar a impressão digital OMEMO para a área de transferência</string>
+    <string name="copy_omemo_clipboard_description">Copiar a impressão digital OMEMO</string>
     <string name="regenerate_omemo_key">Regenerar a chave OMEMO</string>
     <string name="clear_other_devices">Apagar dispositivos</string>
     <string name="clear_other_devices_desc">Tem certeza de que deseja limpar todos os outros dispositivos do anúncio OMEMO\? Na próxima vez que seus dispositivos se conectarem, eles se anunciarão novamente, mas podem não receber as mensagens enviadas nesse meio tempo.</string>
@@ -581,8 +581,8 @@
     <string name="pref_delete_omemo_identities_summary">Gerar novamente suas chaves OMEMO. Todos os seus contatos terão que verificar novamente a sua conta. Use isto apenas como último recurso</string>
     <string name="delete_selected_keys">Apagar chaves selecionadas</string>
     <string name="error_publish_avatar_offline">Você precisa estar conectado para publicar seu avatar.</string>
-    <string name="copy_to_clipboard">Copiar para a área de transferência</string>
-    <string name="message_copied_to_clipboard">Mensagem copiada para a área de transferência</string>
+    <string name="copy_to_clipboard">Copiar</string>
+    <string name="message_copied_to_clipboard">Mensagem copiada</string>
     <string name="message">Mensagem</string>
     <string name="quote">Citar</string>
     <string name="show_error_message">Exibir mensagem de erro</string>
@@ -856,7 +856,7 @@
     <string name="add_contact_or_create_or_join_group_chat">Adicionar contato, criar ou entrar em um grupo, ou buscar salas</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">A mensagem não pôde ser entregue</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">Algumas mensagens não puderam ser entregues</item>
     </plurals>
     <string name="failed_deliveries">Envios com falha</string>
@@ -916,7 +916,7 @@
     <string name="not_encrypted_for_this_device">A mensagem não foi criptografada para este dispositivo.</string>
     <string name="no_microphone_permission">monocles chat precisa de acesso ao microfone</string>
     <string name="view_conversation">Ver conversa</string>
-    <string name="jabber_id_copied_to_clipboard">JID copiado para a área de transferência</string>
+    <string name="jabber_id_copied_to_clipboard">JID copiado</string>
     <string name="host_does_not_support_group_chat_avatars">O host não oferece suporte a avatares em grupo</string>
     <string name="conference_technical_problems">Você saiu deste grupo por motivos técnicos</string>
     <string name="only_the_owner_can_change_group_chat_avatar">Somente o dono pode alterar o avatar</string>
@@ -1022,7 +1022,7 @@
     <string name="already_drafting_message">Você já está digitando uma mensagem.</string>
     <string name="bad_key_for_encryption">Chave inválida para criptografia.</string>
     <string name="device_does_not_support_unknown_source_op">Seu dispositivo não permite a instalação de aplicativos de fontes desconhecidas.</string>
-    <string name="error_message_copied_to_clipboard">Mensagem de erro copiada para a área de transferência</string>
+    <string name="error_message_copied_to_clipboard">Mensagem de erro copiada</string>
     <string name="pref_theme_White">Branco</string>
     <string name="rtp_state_content_add_video">Mudar para chamada de vídeo\?</string>
     <string name="rtp_state_retracted">Chamada retratada</string>
@@ -1070,13 +1070,13 @@
     <string name="send_otr_message">Enviar mensagem criptografada OTR</string>
     <string name="unknown_otr_fingerprint">Impressão digital OTR desconhecida</string>
     <string name="otr_fingerprint">Impressão digital OTR</string>
-    <string name="toast_message_otr_fingerprint">Impressão digital OTR copiada para a área de transferência!</string>
+    <string name="toast_message_otr_fingerprint">Impressão digital OTR copiada!</string>
     <string name="verify_otr">Verificar OTR</string>
     <string name="autojoin_group_chat">Entrar automaticamente neste grupo</string>
     <string name="no_market_app_installed">Nenhum aplicativo de vendas instalado.</string>
     <string name="pref_show_links_inside_summary">Mostrar prévia de links diretamente dentro da visualização da conversa, uma conexão com o servidor especificado no link será estabelecida</string>
     <string name="pref_play_gif_inside_summary">Reproduza arquivos GIF diretamente na visualização da conversa</string>
-    <string name="copy_otr_clipboard_description">Copie a impressão digital OTR para a área de transferência</string>
+    <string name="copy_otr_clipboard_description">Copiar a impressão digital OTR</string>
     <string name="otr_session_not_started">Envie uma mensagem para iniciar uma conversa criptografada</string>
     <string name="pref_enable_otr">Ativar criptografia OTR (BETA)</string>
     <string name="choose_account">Escolha a conta</string>
@@ -1383,4 +1383,36 @@
     <string name="you_may_sometimes_have_to">Às vezes, você pode ter que forçar o encerramento do aplicativo para que as alterações sejam aplicadas.</string>
     <string name="colors">Cores</string>
     <string name="create_monocles_only_backup">Exportar dados extras apenas para Monocles (o backup não será importado para outros aplicativos)\?</string>
+    <string name="pref_follow_thread_in_channel">Seguir tópico automaticamente em canais</string>
+    <string name="pref_use_blue_readmarkers_title">Use confirmações de leitura azuis</string>
+    <string name="pref_use_blue_readmarkers_summary">Use confirmações de leitura azuis em vez de preto e branco</string>
+    <string name="moderate_recent">Mensagens moderadas\?</string>
+    <string name="pref_import_database_or_settings_summary">Importe um backup do seu banco de dados ou de um arquivo de configurações</string>
+    <string name="pref_confirm_delete_attachment">Ignorar confirmação para exclusão de arquivos de conversas</string>
+    <string name="pref_import_database_or_settings">Importar banco de dados ou configurações</string>
+    <string name="show_more">"
+\n
+\n... mostrar mais"</string>
+    <string name="settings_restore_message_failure">Falha ao restaurar as configurações: %s</string>
+    <string name="related_chats">Conversas relacionadas</string>
+    <string name="collapse_message_signs_title">Recolher mensagens de texto longas</string>
+    <string name="pref_follow_thread_in_channel_summary">Defina o marcador do tópico para corresponder à mensagem que está sendo visualizada no momento</string>
+    <string name="action_complete">Ação concluída</string>
+    <string name="menuitem_create_backup_action">Criar backup</string>
+    <string name="collapse_message_signs_summary">Defina o número máximo de caracteres para recolher uma mensagem</string>
+    <string name="notify_only_when_highlighted_or_replied">Notificar para menções e respostas</string>
+    <string name="pref_chat_background_summary">Escolha um arquivo de imagem como papel de parede da conversa. O arquivo de imagem será copiado para /Documents/monocles chat/backgrounds/bg.jpg</string>
+    <string name="settings_restore_message_success">Configurações restauradas com sucesso</string>
+    <string name="message_reaction">Enviar reação</string>
+    <string name="please_be_patient">Por favor, seja paciente...</string>
+    <string name="show_less">"
+\n
+\n... mostrar menos"</string>
+    <string name="chat_background">Papel de parede</string>
+    <string name="restore_warning_continued">Não tente restaurar backups que você mesmo não criou!</string>
+    <string name="confirm_delete_attachment_summary">Deseja pular a confirmação se você excluir um arquivo local de conversa\?</string>
+    <string name="custom_background">Papel de parede personalizado</string>
+    <string name="pref_set_round_avatars_summary">Formato redondo nos avatares de usuário</string>
+    <string name="pref_custom_theme_color_options_summary">Defina suas próprias cores de tema</string>
+    <string name="pref_set_round_avatars">Avatares redondos</string>
 </resources>
