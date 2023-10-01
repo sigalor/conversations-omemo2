@@ -1583,7 +1583,12 @@ public class ConversationFragment extends XmppFragment
             binding.recordVoiceButton.setVisibility(View.GONE);
         }
         if (!ShowRecordVoiceButton || binding.textinput.getText().length() < 1) {
-            binding.recordVoiceButton.setVisibility(View.VISIBLE);
+            if (ShowRecordVoiceButton) {
+                binding.recordVoiceButton.setVisibility(View.VISIBLE);
+            } else {
+                binding.recordVoiceButton.setVisibility(View.GONE);
+
+            }
         }
             binding.recordVoiceButton.setImageResource(activity.getThemeResource(R.attr.ic_send_voice_offline, R.drawable.ic_send_voice_offline));
     }
