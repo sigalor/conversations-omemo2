@@ -100,7 +100,8 @@
                 android:src="?attr/icon_quote"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginLeft="13dp"
+                android:layout_marginStart="13dp"
                 android:contentDescription="@string/reply_to"
                 android:layout_gravity="center_vertical" />
 
@@ -110,6 +111,10 @@
                 app:trimMode="trimModeLength"
                 app:colorClickableText="?attr/colorAccent"
                 android:id="@+id/context_preview_text"
+                android:layout_marginLeft="13dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginRight="15dp"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_gravity="center_vertical"
@@ -117,11 +122,11 @@
 
             <ImageButton
                 android:id="@+id/context_preview_cancel"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:padding="0dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginEnd="13dp"
+                android:layout_marginRight="13dp"
                 android:contentDescription="@string/cancel"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/ic_action_cancel_launchersize_light" />
@@ -168,7 +173,8 @@
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginLeft="7dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginStart="4dp"
                         android:visibility="visible"
                         android:background="@drawable/thread_hint">
 
