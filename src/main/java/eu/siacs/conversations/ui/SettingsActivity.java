@@ -240,7 +240,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         InputStream is = null;
         OutputStream os = null;
         int IMAGE_QUALITY = 65;
-        int ImageSize = (int) (0.2 * 1024 * 1024);
+        int ImageSize = (int) (0.1 * 1024 * 1024);
         try {
             if (!f.exists() && !f.createNewFile()) {
                 throw new IOException(String.valueOf(R.string.error_unable_to_create_temporary_file));
