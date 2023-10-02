@@ -103,6 +103,7 @@
                 android:layout_marginLeft="13dp"
                 android:layout_marginStart="13dp"
                 android:contentDescription="@string/reply_to"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_gravity="center_vertical" />
 
             <de.monocles.chat.ReadMoreTextView
@@ -129,7 +130,8 @@
                 android:layout_marginRight="13dp"
                 android:contentDescription="@string/cancel"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_action_cancel_launchersize_light" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="?attr/icon_cancel" />
         </LinearLayout>
 
         <RelativeLayout
@@ -195,6 +197,7 @@
                             android:layout_toRightOf="@+id/thread_identicon"
                             android:visibility="gone"
                             android:src="?attr/icon_small_lock"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/thread_locked" />
                     </RelativeLayout>
                         <RelativeLayout
