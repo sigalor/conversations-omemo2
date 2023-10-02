@@ -42,7 +42,13 @@ class TrackWrapper<T extends MediaStreamTrack> {
         final RtpTransceiver transceiver =
                 peerConnection == null ? null : getTransceiver(peerConnection, trackWrapper);
         if (transceiver == null) {
-            Log.w(Config.LOGTAG, "unable to detect transceiver for " + trackWrapper.rtpSender.id());
+            final String id;
+            try {
+                id = trackWrapper.rtpSender.id();
+            } catch (final IllegalStateException e) {
+                return Optional.absent();
+            }
+            Log.w(Config.LOGTAG, "unable to detect transceiver for " + id);
             return Optional.of(trackWrapper.track);
         }
         final RtpTransceiver.RtpTransceiverDirection direction = transceiver.getDirection();
