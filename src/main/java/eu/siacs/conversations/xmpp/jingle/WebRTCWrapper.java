@@ -606,6 +606,7 @@ public class WebRTCWrapper {
     }
 
     synchronized ListenableFuture<SessionDescription> setLocalDescription() {
+        this.setIsReadyToReceiveIceCandidates(false);
         return Futures.transformAsync(
                 getPeerConnectionFuture(),
                 peerConnection -> {

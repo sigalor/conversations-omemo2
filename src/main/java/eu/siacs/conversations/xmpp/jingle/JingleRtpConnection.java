@@ -747,6 +747,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                             + ContentAddition.summary(contentAcceptMap));
             modifyLocalContentMap(rtpContentMap);
             sendContentAccept(contentAcceptMap);
+            this.webRTCWrapper.setIsReadyToReceiveIceCandidates(true);
         } catch (final Exception e) {
             Log.d(Config.LOGTAG, "unable to accept content add", Throwables.getRootCause(e));
             webRTCWrapper.close();
@@ -881,7 +882,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
         webRTCWrapper.setRemoteDescription(sdp).get();
         setRemoteContentMap(restartContentMap);
         if (isOffer) {
-            webRTCWrapper.setIsReadyToReceiveIceCandidates(false);
             final SessionDescription localSessionDescription = setLocalSessionDescription();
             setLocalContentMap(RtpContentMap.of(localSessionDescription, isInitiator()));
             // We need to respond OK before sending any candidates
@@ -2500,6 +2500,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         handleIqTimeoutResponse(response);
                     }
                 });
+        this.webRTCWrapper.setIsReadyToReceiveIceCandidates(true);
     }
 
 
