@@ -1327,4 +1327,5 @@
     <string name="pref_custom_theme_color_options_summary">Set your own theme colours</string>
     <string name="pref_set_round_avatars_summary">Shape the user avatars round</string>
     <string name="pref_set_round_avatars">Round avatars</string>
+    <string name="choose_emoji">Choose emoji</string>
 </resources>

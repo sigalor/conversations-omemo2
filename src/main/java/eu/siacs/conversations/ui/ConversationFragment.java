@@ -56,6 +56,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -562,6 +563,19 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             stopScrolling();
             setSelection(binding.messagesView.getCount() - 1, true);
+        }
+    };
+
+
+    private final OnClickListener memojiButtonListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            binding.textinput.requestFocus();
+            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputMethodManager != null) {
+                binding.textinput.setInputType(InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);
+                inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
+            }
         }
     };
 
@@ -1412,7 +1426,7 @@ public class ConversationFragment extends XmppFragment
         binding.textSendButton.setOnLongClickListener(this.mSendButtonLongListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
-
+        binding.emojiButton.setOnClickListener(this.memojiButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
         binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
         mediaPreviewAdapter = new MediaPreviewAdapter(this);

@@ -165,8 +165,8 @@
                     android:id="@+id/message_input_box"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toStartOf="@+id/textSendButton"
-                    android:layout_toLeftOf="@+id/textSendButton">
+                    android:layout_toStartOf="@+id/emojiButton"
+                    android:layout_toLeftOf="@+id/emojiButton">
 
                     <RelativeLayout
                         android:id="@+id/thread_identicon_layout"
@@ -252,12 +252,26 @@
 
                      </RelativeLayout>
 
+                <ImageButton
+                    android:id="@+id/emojiButton"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_toStartOf="@+id/recordVoiceButton"
+                    android:layout_toLeftOf="@+id/recordVoiceButton"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/choose_emoji"
+                    android:src="@drawable/ic_emoji_button"
+                    android:visibility="visible" />
+
                     <ImageButton
                         android:id="@+id/recordVoiceButton"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginEnd="8dp"
                         android:layout_toStartOf="@+id/textSendButton"
+                        android:layout_toLeftOf="@+id/textSendButton"
                         android:layout_centerVertical="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/attach_record_voice"
@@ -277,6 +291,11 @@
                         android:src="@drawable/ic_send_text_offline" />
                 </RelativeLayout>
         </RelativeLayout>
+        <androidx.emoji2.emojipicker.EmojiPickerView
+            android:id="@+id/emoji_picker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:emojiGridColumns="9" />
 
         <RelativeLayout
             android:id="@+id/snackbar"
