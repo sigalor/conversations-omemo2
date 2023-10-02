@@ -1421,4 +1421,7 @@
     <string name="message_reaction">Отправить реакцию</string>
     <string name="custom_background">Пользовательский фон</string>
     <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocles chat/backgrounds/bg.jpg</string>
+    <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
+    <string name="pref_set_round_avatars">Круглые аватары</string>
+    <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
 </resources>

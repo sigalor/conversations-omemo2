@@ -1397,6 +1397,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         id.account.getJid().asBareJid()
                                 + ": unable to transition to accept because already in state="
                                 + this.state);
+                Log.d(Config.LOGTAG, id.account.getJid() + ": received accept from " + from);
             }
         } else {
             Log.d(
@@ -1524,7 +1525,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
             }
             this.message.setTime(timestamp);
             startRinging();
-            sendJingleMessage("ringing");
+            if (xmppConnectionService.confirmMessages() && id.getContact().showInContactList()) {
+                sendJingleMessage("ringing");
+            }
         } else {
             Log.d(
                     Config.LOGTAG,
@@ -2673,7 +2676,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                                         // STUN URLs do not support a query section since M110
                                         final String uri;
                                         if (Arrays.asList("stun","stuns").contains(type)) {
-                                            uri = String.format("%s:%s%s", type, IP.wrapIPv6(host),port);
+                                            uri = String.format("%s:%s:%s", type, IP.wrapIPv6(host),port);
                                         } else {
                                             uri = String.format(
                                                     "%s:%s:%s?transport=%s",

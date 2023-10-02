@@ -34,6 +34,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
+        <!-- TODO: SET THE BACKGROUND TO THIS VIEW???? -->
         <ListView
             android:id="@+id/messages_view"
             android:layout_width="match_parent"
@@ -86,18 +87,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="40dp"
-            android:paddingTop="8dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="14dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="4dp"
             android:orientation="horizontal"
-            android:background="@drawable/comment_bubble_light">
+            android:background="@drawable/comment_bubble_light"
+            android:alpha="0.88">
 
             <ImageView
                 android:src="?attr/icon_quote"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_marginRight="8dp"
-                android:contentDescription="@string/reply_to" />
+                android:layout_marginLeft="13dp"
+                android:layout_marginStart="13dp"
+                android:contentDescription="@string/reply_to"
+                android:layout_gravity="center_vertical" />
 
             <de.monocles.chat.ReadMoreTextView
                 app:trimExpandedText="@string/show_less"
@@ -105,27 +111,41 @@
                 app:trimMode="trimModeLength"
                 app:colorClickableText="?attr/colorAccent"
                 android:id="@+id/context_preview_text"
+                android:layout_marginLeft="13dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginRight="15dp"
                 android:layout_weight="1"
                 android:layout_width="0dp"
+                android:layout_gravity="center_vertical"
                 android:layout_height="wrap_content" />
 
             <ImageButton
                 android:id="@+id/context_preview_cancel"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:padding="0dp"
-                android:layout_marginLeft="8dp"
-                android:contentDescription="Cancel"
-                android:src="@drawable/cancel_button" />
+                android:layout_marginEnd="13dp"
+                android:layout_marginRight="13dp"
+                android:contentDescription="@string/cancel"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_action_cancel_launchersize_light" />
         </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/input_bubble_light"
+            android:alpha="0.88">
 
             <RelativeLayout
                 android:id="@+id/textsend"
@@ -144,8 +164,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/textSendButton"
-                    android:layout_toLeftOf="@+id/textSendButton"
-                    android:background="@drawable/message_bubble_sent">
+                    android:layout_toLeftOf="@+id/textSendButton">
 
                     <RelativeLayout
                         android:id="@+id/thread_identicon_layout"
@@ -154,7 +173,8 @@
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginLeft="7dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginStart="4dp"
                         android:visibility="visible"
                         android:background="@drawable/thread_hint">
 
@@ -186,7 +206,7 @@
                                 android:id="@+id/text_input_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="-3dp"
                                 android:maxLines="1"
                                 android:paddingLeft="8dp"
                                 android:paddingRight="8dp"
@@ -233,7 +253,7 @@
                         android:id="@+id/recordVoiceButton"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_toStartOf="@+id/textSendButton"
                         android:layout_centerVertical="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
