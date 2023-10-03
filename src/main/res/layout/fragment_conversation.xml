@@ -259,7 +259,7 @@
                                 android:layout_centerVertical="true"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="@string/choose_emoji"
-                                android:src="@drawable/ic_emoji_button"
+                                android:src="?attr/ic_emoji_button"
                                 android:visibility="visible" />
 
                             <ImageButton
