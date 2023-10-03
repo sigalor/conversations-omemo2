@@ -129,6 +129,7 @@ dependencies {
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
     implementation "androidx.core:core-ktx:1.12.0"
     implementation 'com.github.bumptech.glide:glide:4.16.0'
+    implementation "androidx.emoji2:emoji2-emojipicker:1.4.0"
 }
 
 ext {
@@ -149,7 +150,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 32
 
-        //versionNameSuffix " beta_(2023-09-29)" // " beta_(XXXX-XX-XX)" // activate for beta versions
+        //versionNameSuffix " beta_(2023-10-03)" // " beta_(XXXX-XX-XX)" // activate for beta versions
         versionCode 137
         versionName "1.7.5"
         //resConfigs "en"
