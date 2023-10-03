@@ -576,12 +576,16 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener memojiButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            binding.emojiPicker.setVisibility(View.VISIBLE);
+            if (binding.emojiPicker.getVisibility() == VISIBLE) {
+                binding.emojiPicker.setVisibility(GONE);
 
-            EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
-            emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
-            binding.textinput.append(emojiViewItem.getEmoji());
-        });
+            } else {
+                binding.emojiPicker.setVisibility(View.VISIBLE);
+                EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+                    binding.textinput.append(emojiViewItem.getEmoji());
+                });
+            }
         }
     };
 
