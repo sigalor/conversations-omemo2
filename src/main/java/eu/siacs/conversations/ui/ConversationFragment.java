@@ -569,15 +569,16 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+
     private final OnClickListener memojiButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            binding.textinput.requestFocus();
-            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null) {
-                binding.textinput.setInputType(InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);
-                inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
-            }
+            binding.emojiPicker.setVisibility(View.VISIBLE);
+
+            EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+            emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+            binding.textinput.append(emojiViewItem.getEmoji());
+        });
         }
     };
 
