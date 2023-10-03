@@ -924,6 +924,7 @@ public class NotificationService {
         builder.setCategory(NotificationCompat.CATEGORY_CALL);
         builder.setContentIntent(createPendingRtpSession(id, Intent.ACTION_VIEW, 101));
         builder.setOngoing(true);
+        builder.setLocalOnly(true);
         return builder.build();
     }
 
