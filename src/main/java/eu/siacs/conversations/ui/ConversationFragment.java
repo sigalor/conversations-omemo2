@@ -577,7 +577,6 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(View.VISIBLE);
-
             EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
             emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
             binding.textinput.append(emojiViewItem.getEmoji());
@@ -1426,6 +1425,7 @@ public class ConversationFragment extends XmppFragment
                     }
             return false;
         });
+
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);

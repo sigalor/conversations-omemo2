@@ -286,15 +286,14 @@
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="@string/send_message"
                                 android:src="@drawable/ic_send_text_offline" />
-
                      </RelativeLayout>
-
                 <androidx.emoji2.emojipicker.EmojiPickerView
                     android:id="@+id/emoji_picker"
                     android:layout_below="@+id/message_input_box"
                     android:layout_width="match_parent"
-                    android:layout_height="230dp"
+                    android:layout_height="240dp"
                     app:emojiGridColumns="9"
+                    android:layout_marginBottom="4dp"
                     android:visibility="gone"/>
                 </RelativeLayout>
         </RelativeLayout>
