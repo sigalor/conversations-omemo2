@@ -43,9 +43,11 @@
         <item name="android:textSize">?TextSizeCaption</item>
     </style>
 
-    <style name="Widget.Conversations.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+    <style name="Widget.Conversations.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:textSize">?TextSizeInput</item>
-        <item name="android:textCursorDrawable">@drawable/white_cursor</item>
+        <item name="android:textCursorDrawable">@drawable/dark_cursor</item>
+        <item name="colorControlActivated">?attr/colorAccent</item>
+        <item name="colorControlNormal">?attr/colorAccent</item>
     </style>
 
     <style name="Widget.Conversations.TextInputLayout.OutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -59,7 +61,7 @@
         <item name="android:textColorHint">@color/white70</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:textCursorDrawable">@drawable/black_cursor</item>
+        <item name="android:textCursorDrawable">@drawable/white_cursor</item>
     </style>
 
     <style name="Widget.Conversations.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
