@@ -33,7 +33,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <!-- TODO: SET THE BACKGROUND TO THIS VIEW???? -->
         <ListView
             android:id="@+id/messages_view"
             android:layout_width="match_parent"
