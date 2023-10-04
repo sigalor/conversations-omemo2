@@ -43,11 +43,9 @@
         <item name="android:textSize">?TextSizeCaption</item>
     </style>
 
-    <style name="Widget.Conversations.EditText" parent="Widget.AppCompat.EditText">
+    <style name="Widget.Conversations.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox.Dense">
         <item name="android:textSize">?TextSizeInput</item>
         <item name="android:textCursorDrawable">@drawable/white_cursor</item>
-        <item name="colorControlActivated">?attr/colorAccent</item>
-        <item name="colorControlNormal">?attr/colorAccent</item>
     </style>
 
     <style name="Widget.Conversations.TextInputLayout.OutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
