@@ -1048,7 +1048,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 final View view = getLayoutInflater().inflate(R.layout.ab_title, null);
                 getSupportActionBar().setCustomView(view);
                 actionBar.setIcon(null);
-                actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.colorPrimary)));
+                actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.color_background_secondary)));
                 actionBar.setDisplayShowTitleEnabled(false);
                 actionBar.setDisplayShowCustomEnabled(true);
                 TextView abtitle = findViewById(android.R.id.text1);
@@ -1122,12 +1122,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 return;
             }
         }
-        actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowCustomEnabled(false);
         actionBar.setTitle(null);
-        actionBar.setIcon(R.drawable.logo_toolbar_white);
+        actionBar.setIcon(R.drawable.logo_800);
         //actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.header_background)));
-        actionBar.setSubtitle(null);
         actionBar.setDisplayHomeAsUpEnabled(false);
         ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar);
     }
