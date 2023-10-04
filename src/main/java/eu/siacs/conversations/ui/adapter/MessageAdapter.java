@@ -76,6 +76,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
@@ -1582,32 +1584,41 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
             @Override
             public void onClose(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
+                swipeLayout.clearAnimation();
                 //when the SurfaceView totally cover the BottomView.
             }
 
             @Override
             public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                swipeLayout.setClickToClose(true);
                 //you are swiping.
             }
 
             @Override
             public void onStartOpen(SwipeLayout layout) {
+                swipeLayout.setClickToClose(true);
+
             }
 
             @Override
             public void onOpen(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
                 //when the BottomView totally show.
                 MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
                 swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
             }
 
             @Override
             public void onStartClose(SwipeLayout layout) {
                 swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
             }
 
             @Override
             public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                swipeLayout.refreshDrawableState();
                 swipeLayout.close(true);
             }
         });
