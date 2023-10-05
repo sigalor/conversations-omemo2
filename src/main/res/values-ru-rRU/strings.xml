@@ -1009,14 +1009,14 @@
     <string name="send_message_to_x">Отправить сообщение %s</string>
     <string name="send_never">Больше не спрашивать</string>
     <string name="send_now">Отправить сейчас</string>
-    <string name="send_omemo_message">Отправить сообщение, зашифрованное OMEMO</string>
+    <string name="send_omemo_message">Сообщение…</string>
     <string name="send_omemo_x509_message">Отправить сообщение, зашифрованное v\\OMEMO</string>
-    <string name="send_pgp_message">Отправить сообщение, зашифрованное OpenPGP</string>
+    <string name="send_pgp_message">Сообщение…</string>
     <string name="send_presence_updates">Посылать обновления присутствия</string>
     <string name="send_private_message">Отправить личное сообщение</string>
     <string name="send_private_message_to">Отправить личное сообщение для %s</string>
     <string name="send_unencrypted">Отправить незашифрованным</string>
-    <string name="send_unencrypted_message">Отправить сообщение без шифрования</string>
+    <string name="send_unencrypted_message">Сообщение…</string>
     <string name="sending">отправка…</string>
     <string name="sending_x_file">Отправка %s</string>
     <string name="server_does_not_support_easy_onboarding_invites">Сервер не поддерживает создание приглашений</string>
@@ -1305,7 +1305,7 @@
     <string name="verify_otr">Подтвердить OTR</string>
     <string name="otr_session_not_started">Отправьте сообщение, чтобы начать зашифрованный чат</string>
     <string name="i_have_written">Я написал:</string>
-    <string name="send_otr_message">Отправить зашифрованное сообщение OTR</string>
+    <string name="send_otr_message">Сообщение…</string>
     <string name="unknown_otr_fingerprint">Неизвестный отпечаток OTR</string>
     <string name="grant">Грант</string>
     <string name="close">Закрыть</string>
@@ -1424,4 +1424,5 @@
     <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
     <string name="pref_set_round_avatars">Круглые аватары</string>
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
+    <string name="choose_emoji">Выберите смайл</string>
 </resources>
