@@ -99,6 +99,8 @@
         </item>
         <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline</item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button</item>
+        <item name="ic_keyboard_button" type="reference">@drawable/outline_keyboard_black_32</item>
+
 
         <item name="media_preview_document" type="reference">@drawable/ic_description_black_48dp
         </item>
@@ -297,6 +299,8 @@
         </item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button_white
         </item>
+        <item name="ic_keyboard_button" type="reference">@drawable/outline_keyboard_white_32</item>
+
 
 
         <item name="ic_attach_camera" type="reference">@drawable/ic_attach_camera_white</item>

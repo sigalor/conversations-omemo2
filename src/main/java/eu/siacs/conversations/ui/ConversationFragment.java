@@ -576,16 +576,31 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener memojiButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (binding.emojiPicker.getVisibility() == VISIBLE) {
-                binding.emojiPicker.setVisibility(GONE);
-                backPressedLeaveEmojiPicker.setEnabled(false);
-            } else {
-                binding.emojiPicker.setVisibility(View.VISIBLE);
+            if (binding.emojiButton.getVisibility() == VISIBLE) {
+                binding.emojiPicker.setVisibility(VISIBLE);
+                binding.emojiButton.setVisibility(GONE);
+                binding.keyboardButton.setVisibility(VISIBLE);
+                hideSoftKeyboard(activity);
                 EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 backPressedLeaveEmojiPicker.setEnabled(true);
                 emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
                     binding.textinput.append(emojiViewItem.getEmoji());
                 });
+            }
+        }
+    };
+
+    private final OnClickListener mkeyboardButtonListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (binding.keyboardButton.getVisibility() == VISIBLE) {
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiPicker.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (inputMethodManager != null) {
+                    inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
+                }
             }
         }
     };
@@ -1469,6 +1484,7 @@ public class ConversationFragment extends XmppFragment
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
         binding.emojiButton.setOnClickListener(this.memojiButtonListener);
+        binding.keyboardButton.setOnClickListener(this.mkeyboardButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
         binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
         mediaPreviewAdapter = new MediaPreviewAdapter(this);
