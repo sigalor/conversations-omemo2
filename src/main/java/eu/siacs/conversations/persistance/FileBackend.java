@@ -773,13 +773,17 @@ public class FileBackend {
         if ("ogg".equals(extension) && type != null && type.startsWith("audio/")) {
             extension = "oga";
         }
-
-        String filename = String.format("%s.%s", mXmppConnectionService.getFileBackend().getFile(message).getName(), extension);
-        setupRelativeFilePath(message, filename, mime);
-        copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
-        final String name = getDisplayNameFromUri(uri);
-        if (name != null) {
-            message.getFileParams().setName(name);
+        String filename = "Sent" + File.separator + fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
+        try {
+            setupRelativeFilePath(message, uri, extension);
+            copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
+            final String name = getDisplayNameFromUri(uri);
+            if (name != null) {
+                message.getFileParams().setName(name);
+            }
+        } catch (final XmppConnectionService.BlockedMediaException e) {
+            message.setRelativeFilePath(null);
+            message.setDeleted(true);
         }
     }
 
