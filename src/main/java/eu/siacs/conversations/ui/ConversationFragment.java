@@ -578,10 +578,11 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojiPicker.setVisibility(GONE);
-
+                backPressedLeaveEmojiPicker.setEnabled(false);
             } else {
                 binding.emojiPicker.setVisibility(View.VISIBLE);
                 EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                backPressedLeaveEmojiPicker.setEnabled(true);
                 emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
                     binding.textinput.append(emojiViewItem.getEmoji());
                 });
@@ -656,6 +657,18 @@ public class ConversationFragment extends XmppFragment
             updateThreadFromLastMessage();
         }
     };
+
+    private final OnBackPressedCallback backPressedLeaveEmojiPicker = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (binding.emojiPicker.getVisibility()==VISIBLE) {
+                binding.emojiPicker.setVisibility(GONE);
+            }
+            this.setEnabled(false);
+            refresh();
+        }
+    };
+
     private int completionIndex = 0;
     private int lastCompletionLength = 0;
     private String incomplete;
@@ -1328,6 +1341,7 @@ public class ConversationFragment extends XmppFragment
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
+        activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
     }
 
     @Override
@@ -1422,10 +1436,17 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
 
+        if (binding.emojiPicker.getVisibility()==VISIBLE) {
+            backPressedLeaveEmojiPicker.setEnabled(true);
+        } else {
+            backPressedLeaveEmojiPicker.setEnabled(false);
+        }
+
         binding.messagesView.setOnTouchListener((v, event) -> {
                     if (event.getAction() == MotionEvent.ACTION_UP) {
                         if (binding.emojiPicker.getVisibility() == VISIBLE) {
                             binding.emojiPicker.setVisibility(GONE);
+                            backPressedLeaveEmojiPicker.setEnabled(false);
                         }
                     }
             return false;
@@ -2168,6 +2189,10 @@ public class ConversationFragment extends XmppFragment
             conversation.setUserSelectedThread(false);
             refresh();
             updateThreadFromLastMessage();
+            return true;
+        }
+        if (binding.emojiPicker.getVisibility()==VISIBLE){
+            binding.emojiPicker.setVisibility(GONE);
             return true;
         }
         return false;
