@@ -3232,6 +3232,8 @@ public class ConversationFragment extends XmppFragment
         emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
             binding.textinput.append(emojiViewItem.getEmoji());
         });
+
+        //TODO: Show Cancel Button when empty message
         // TODO: Directly append emojis to message at messages position
     }
     
