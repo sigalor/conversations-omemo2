@@ -585,7 +585,8 @@ public class ConversationFragment extends XmppFragment
                 backPressedLeaveEmojiPicker.setEnabled(true);
                 binding.textinput.requestFocus();
                 emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
-                    binding.textinput.append(emojiViewItem.getEmoji());
+                    int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
+                    binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
                 });
             }
         }
