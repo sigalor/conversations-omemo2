@@ -583,6 +583,7 @@ public class ConversationFragment extends XmppFragment
                 hideSoftKeyboard(activity);
                 EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 backPressedLeaveEmojiPicker.setEnabled(true);
+                binding.textinput.requestFocus();
                 emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
                     binding.textinput.append(emojiViewItem.getEmoji());
                 });
@@ -597,8 +598,10 @@ public class ConversationFragment extends XmppFragment
                 binding.keyboardButton.setVisibility(GONE);
                 binding.emojiPicker.setVisibility(GONE);
                 binding.emojiButton.setVisibility(VISIBLE);
+
                 InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (inputMethodManager != null) {
+                    binding.textinput.requestFocus();
                     inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
                 }
             }
