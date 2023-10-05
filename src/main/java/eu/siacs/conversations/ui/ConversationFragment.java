@@ -3211,7 +3211,10 @@ public class ConversationFragment extends XmppFragment
             message = message.next();
         }
         setThread(message.getThread());
-        conversation.setUserSelectedThread(true);
+        conversation.setUserSelectedThread(false);
+
+        //pick chosen message
+        //this.conversation.setCorrectingMessage(null);
 
         //hide previous input text
         final Editable editable = binding.textinput.getText();
@@ -3229,7 +3232,7 @@ public class ConversationFragment extends XmppFragment
         emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
             binding.textinput.append(emojiViewItem.getEmoji());
         });
-        // TODO: Directly choose emojis from popup menu
+        // TODO: Directly append emojis to message at messages position
     }
     
 
