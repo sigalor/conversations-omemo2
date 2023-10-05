@@ -76,6 +76,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
@@ -697,6 +699,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setHighlightColor(darkBackground ? type == SENT ? StyledAttributes.getColor(activity, R.attr.colorAccent) : StyledAttributes.getColor(activity, R.attr.colorAccent) : StyledAttributes.getColor(activity, R.attr.colorAccent));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
         if (message.getBody() != null && !message.getBody().equals("")) {
+            viewHolder.messageBody.setTextIsSelectable(true);
             viewHolder.messageBody.setVisibility(View.VISIBLE);
             final SpannableString nick = UIHelper.getColoredUsername(activity.xmppConnectionService, message);
             Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
@@ -838,6 +841,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             viewHolder.messageBody.setText("");
             viewHolder.messageBody.setTextIsSelectable(false);
+            toggleWhisperInfo(viewHolder,  message, true, darkBackground);
         }
     }
 
@@ -1580,32 +1584,41 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
             @Override
             public void onClose(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
+                swipeLayout.clearAnimation();
                 //when the SurfaceView totally cover the BottomView.
             }
 
             @Override
             public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                swipeLayout.setClickToClose(true);
                 //you are swiping.
             }
 
             @Override
             public void onStartOpen(SwipeLayout layout) {
+                swipeLayout.setClickToClose(true);
+
             }
 
             @Override
             public void onOpen(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
                 //when the BottomView totally show.
                 MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
                 swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
             }
 
             @Override
             public void onStartClose(SwipeLayout layout) {
                 swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
             }
 
             @Override
             public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                swipeLayout.refreshDrawableState();
                 swipeLayout.close(true);
             }
         });
@@ -1973,6 +1986,39 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
             } else {
                 viewHolder.setBackgroundResource(R.drawable.message_bubble_sent);
+                activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), -1);
+            }
+        }
+    }
+
+    public void setInputBubbleBackgroundColor(final View viewHolder, final int type,
+                                         final boolean isPrivateMessage, final boolean isInValidSession) {
+        if (type == RECEIVED) {
+            if (isInValidSession) {
+                if (isPrivateMessage) {
+                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_light_private);
+                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_light), StyledAttributes.getColor(activity, R.attr.colorAccent));
+                } else {
+                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_light);
+                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_light), -1);
+                }
+            } else {
+                if (isPrivateMessage) {
+                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_warning_private);
+                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_warning), StyledAttributes.getColor(activity, R.attr.colorAccent));
+                } else {
+                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_warning);
+                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_warning), -1);
+                }
+            }
+        }
+
+        if (type == SENT) {
+            if (isPrivateMessage) {
+                viewHolder.setBackgroundResource(R.drawable.input_bubble_sent_private);
+                activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
+            } else {
+                viewHolder.setBackgroundResource(R.drawable.input_bubble_light);
                 activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), -1);
             }
         }

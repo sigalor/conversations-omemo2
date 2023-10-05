@@ -45,7 +45,7 @@
 
     <style name="Widget.Conversations.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:textSize">?TextSizeInput</item>
-        <item name="android:textCursorDrawable">@drawable/white_cursor</item>
+        <item name="android:textCursorDrawable">@drawable/dark_cursor</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
         <item name="colorControlNormal">?attr/colorAccent</item>
     </style>

@@ -541,14 +541,15 @@ public class XmppConnectionService extends Service {
             } else if (account.getStatus() != Account.State.CONNECTING && account.getStatus() != Account.State.NO_INTERNET) {
                 resetSendingToWaiting(account);
                 if (connection != null && account.getStatus().isAttemptReconnect()) {
-                    final int next = connection.getTimeToNextAttempt();
+                    final boolean aggressive = hasJingleRtpConnection(account);
+                    final int next = connection.getTimeToNextAttempt(aggressive);
                     final boolean lowPingTimeoutMode = isInLowPingTimeoutMode(account);
                     if (next <= 0) {
                         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. reconnecting now. lowPingTimeout=" + lowPingTimeoutMode);
                         reconnectAccount(account, true, false);
                     } else {
                         final int attempt = connection.getAttempt() + 1;
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. try again in " + next + "s for the " + attempt + " time. lowPingTimeout=" + lowPingTimeoutMode);
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. try again in " + next + "s for the " + attempt + " time. lowPingTimeout=" + lowPingTimeoutMode+", aggressive="+aggressive);
                         scheduleWakeUpCall(next, account.getUuid().hashCode());
                     }
                 }
@@ -1166,7 +1167,8 @@ public class XmppConnectionService extends Service {
                         scheduleWakeUpCall((int) Math.min(timeout, discoTimeout), account.getUuid().hashCode());
                     }
                 } else {
-                    if (account.getXmppConnection().getTimeToNextAttempt() <= 0) {
+                    final boolean aggressive = hasJingleRtpConnection(account);
+                    if (account.getXmppConnection().getTimeToNextAttempt(aggressive) <= 0) {
                         reconnectAccount(account, true, interactive);
                     }
                 }
@@ -1824,12 +1826,12 @@ public class XmppConnectionService extends Service {
             if (showOngoing) {
                 notification = this.mNotificationService.getOngoingCallNotification(ongoing);
                 id = NotificationService.ONGOING_CALL_NOTIFICATION_ID;
-                startForeground(id, notification);
+                startForegroundOrCatch(id, notification);
                 mNotificationService.cancel(NotificationService.FOREGROUND_NOTIFICATION_ID);
             } else {
                 notification = this.mNotificationService.createForegroundNotification();
                 id = NotificationService.FOREGROUND_NOTIFICATION_ID;
-                startForeground(id, notification);
+                startForegroundOrCatch(id, notification);
             }
 
             if (!mForceForegroundService.get()) {
@@ -1847,6 +1849,14 @@ public class XmppConnectionService extends Service {
             mNotificationService.cancel(NotificationService.ONGOING_CALL_NOTIFICATION_ID);
         }
         Log.d(Config.LOGTAG, "ForegroundService: " + (status ? "on" : "off"));
+    }
+
+    private void startForegroundOrCatch(final int id, final Notification notification) {
+        try {
+            startForeground(id, notification);
+        } catch (final IllegalStateException e) {
+            Log.e(Config.LOGTAG,"Could not start foreground service", e);
+        }
     }
 
     public boolean foregroundNotificationNeedsUpdatingWhenErrorStateChanges() {
@@ -5458,6 +5468,10 @@ public class XmppConnectionService extends Service {
 
     public JingleConnectionManager getJingleConnectionManager() {
         return this.mJingleConnectionManager;
+    }
+
+    private boolean hasJingleRtpConnection(final Account account) {
+        return this.mJingleConnectionManager.hasJingleRtpConnection(account);
     }
 
     public MessageArchiveService getMessageArchiveService() {

@@ -81,11 +81,11 @@
 \n<b>Achtung:</b> Dies löscht keine Nachrichten, die auf anderen Geräten oder Servern gespeichert sind.</string>
     <string name="also_end_conversation">Diese Unterhaltung danach beenden</string>
     <string name="choose_presence">Ressource des Kontakts auswählen</string>
-    <string name="send_unencrypted_message">Unverschlüsselt schreiben…</string>
+    <string name="send_unencrypted_message">Nachricht schreiben…</string>
     <string name="send_message_to_x">Nachricht an %s senden</string>
-    <string name="send_omemo_message">OMEMO-verschlüsselt schreiben…</string>
+    <string name="send_omemo_message">Nachricht schreiben…</string>
     <string name="send_omemo_x509_message">v\\OMEMO-verschlüsselte Nachricht senden</string>
-    <string name="send_pgp_message">OpenPGP-verschlüsselt schreiben…</string>
+    <string name="send_pgp_message">Nachricht schreiben…</string>
     <string name="your_nick_has_been_changed">Dein Nickname wurde geändert</string>
     <string name="send_unencrypted">Normal verschicken</string>
     <string name="decryption_failed">Entschlüsselung fehlgeschlagen. Vielleicht hast du nicht den richtigen privaten Schlüssel.</string>
@@ -1287,7 +1287,7 @@
     <string name="account_status_i2p_unavailable">I2P-Netzwerk nicht verfügbar</string>
     <string name="pref_use_i2p">Über I2P verbinden</string>
     <string name="pref_use_i2p_summary">Alle Verbindungen über das I2P-Netzwerk tunneln. Benötigt I2P Client</string>
-    <string name="send_otr_message">Sende OTR-verschlüsselte Nachricht</string>
+    <string name="send_otr_message">Schreibe Nachricht…</string>
     <string name="no_otr_session_found">Es wurde keine gültige OTR Sitzung gefunden!</string>
     <string name="otr_session_not_started">Schreibe eine Nachricht, um einen verschlüsselten Chat zu starten</string>
     <string name="otr_fingerprint">OTR Fingerabdruck</string>

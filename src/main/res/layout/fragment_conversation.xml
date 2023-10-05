@@ -7,7 +7,6 @@
         android:id="@+id/conversations_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_background_tertiary"
         android:clickable="false">
 
     <com.google.android.material.tabs.TabLayout
@@ -34,7 +33,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <!-- TODO: SET THE BACKGROUND TO THIS VIEW???? -->
         <ListView
             android:id="@+id/messages_view"
             android:layout_width="match_parent"
@@ -103,6 +101,7 @@
                 android:layout_marginLeft="13dp"
                 android:layout_marginStart="13dp"
                 android:contentDescription="@string/reply_to"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_gravity="center_vertical" />
 
             <de.monocles.chat.ReadMoreTextView
@@ -129,7 +128,8 @@
                 android:layout_marginRight="13dp"
                 android:contentDescription="@string/cancel"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_action_cancel_launchersize_light" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="?attr/icon_cancel" />
         </LinearLayout>
 
         <RelativeLayout
@@ -162,9 +162,7 @@
                 <RelativeLayout
                     android:id="@+id/message_input_box"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@+id/textSendButton"
-                    android:layout_toLeftOf="@+id/textSendButton">
+                    android:layout_height="wrap_content">
 
                     <RelativeLayout
                         android:id="@+id/thread_identicon_layout"
@@ -195,18 +193,21 @@
                             android:layout_toRightOf="@+id/thread_identicon"
                             android:visibility="gone"
                             android:src="?attr/icon_small_lock"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/thread_locked" />
                     </RelativeLayout>
                         <RelativeLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/thread_identicon_layout"
-                            android:layout_toEndOf="@+id/thread_identicon_layout">
+                            android:layout_toEndOf="@+id/thread_identicon_layout"
+                            android:layout_toStartOf="@+id/emojiButton"
+                            android:layout_toLeftOf="@+id/emojiButton">
                             <TextView
                                 android:id="@+id/text_input_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="-3dp"
+                                android:layout_marginTop="-4dp"
                                 android:maxLines="1"
                                 android:paddingLeft="8dp"
                                 android:paddingRight="8dp"
@@ -226,7 +227,7 @@
 
                             <eu.siacs.conversations.ui.widget.EditMessage
                                 android:id="@+id/textinput"
-                                style="@style/Widget.Conversations.EditText"
+                                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:ems="10"
@@ -242,38 +243,60 @@
                                 android:paddingRight="8dp"
                                 android:paddingBottom="12dp"
                                 android:singleLine="false"
+                                android:textSize="?TextSizeInput"
                                 android:textColor="?attr/text_Color_Main">
                                 <requestFocus />
                             </eu.siacs.conversations.ui.widget.EditMessage>
                         </RelativeLayout>
+                            <ImageButton
+                                android:id="@+id/emojiButton"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_toStartOf="@+id/recordVoiceButton"
+                                android:layout_toLeftOf="@+id/recordVoiceButton"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/choose_emoji"
+                                android:src="?attr/ic_emoji_button"
+                                android:visibility="visible" />
 
+                            <ImageButton
+                                android:id="@+id/recordVoiceButton"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_toStartOf="@+id/textSendButton"
+                                android:layout_toLeftOf="@+id/textSendButton"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/attach_record_voice"
+                                android:src="@drawable/ic_send_voice_offline"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/textSendButton"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentRight="true"
+                                android:layout_marginEnd="4dp"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/send_message"
+                                android:src="@drawable/ic_send_text_offline" />
                      </RelativeLayout>
-
-                    <ImageButton
-                        android:id="@+id/recordVoiceButton"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_toStartOf="@+id/textSendButton"
-                        android:layout_centerVertical="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/attach_record_voice"
-                        android:src="@drawable/ic_send_voice_offline"
-                        android:visibility="visible" />
-
-                    <ImageButton
-                        android:id="@+id/textSendButton"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginEnd="4dp"
-                        android:layout_centerVertical="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/send_message"
-                        android:src="@drawable/ic_send_text_offline" />
+                <androidx.emoji2.emojipicker.EmojiPickerView
+                    android:id="@+id/emoji_picker"
+                    android:layout_below="@+id/message_input_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    app:emojiGridColumns="9"
+                    android:layout_marginBottom="5dp"
+                    android:visibility="gone"/>
                 </RelativeLayout>
         </RelativeLayout>
+
 
         <RelativeLayout
             android:id="@+id/snackbar"

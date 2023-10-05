@@ -15,6 +15,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.FutureCallback;
@@ -237,6 +238,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
                 break;
             case CONTENT_REMOVE:
                 receiveContentRemove(jinglePacket);
+                break;
+            case CONTENT_MODIFY:
+                receiveContentModify(jinglePacket);
                 break;
             default:
                 respondOk(jinglePacket);
@@ -525,6 +529,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         + ContentAddition.summary(receivedContentAccept));
     }
 
+    private void receiveContentModify(final JinglePacket jinglePacket) {
+        final Map<String, Content.Senders> modification =
+                Maps.transformEntries(
+                        jinglePacket.getJingleContents(), (key, value) -> value.getSenders());
+        respondOk(jinglePacket);
+        Log.d(Config.LOGTAG, "receiveContentModification(" + modification + ")");
+    }
+
     private void receiveContentReject(final JinglePacket jinglePacket) {
         final RtpContentMap receivedContentReject;
         try {
@@ -747,6 +759,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                             + ContentAddition.summary(contentAcceptMap));
             modifyLocalContentMap(rtpContentMap);
             sendContentAccept(contentAcceptMap);
+            this.webRTCWrapper.setIsReadyToReceiveIceCandidates(true);
         } catch (final Exception e) {
             Log.d(Config.LOGTAG, "unable to accept content add", Throwables.getRootCause(e));
             webRTCWrapper.close();
@@ -881,7 +894,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
         webRTCWrapper.setRemoteDescription(sdp).get();
         setRemoteContentMap(restartContentMap);
         if (isOffer) {
-            webRTCWrapper.setIsReadyToReceiveIceCandidates(false);
             final SessionDescription localSessionDescription = setLocalSessionDescription();
             setLocalContentMap(RtpContentMap.of(localSessionDescription, isInitiator()));
             // We need to respond OK before sending any candidates
@@ -2376,7 +2388,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
     private void restartIce() {
         this.stateHistory.clear();
-        this.webRTCWrapper.restartIce();
+        this.webRTCWrapper.restartIceAsync();
     }
 
 
@@ -2500,6 +2512,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         handleIqTimeoutResponse(response);
                     }
                 });
+        this.webRTCWrapper.setIsReadyToReceiveIceCandidates(true);
     }
 
 

@@ -81,11 +81,11 @@
     <string name="clear_histor_msg">Are you sure you want to delete all messages within this conversation?\n\n<b>Warning:</b> This will not delete copies of those messages that are stored on other devices or servers.</string>
     <string name="also_end_conversation">End this conversation afterwards</string>
     <string name="choose_presence">Choose device</string>
-    <string name="send_unencrypted_message">Send unencrypted message</string>
+    <string name="send_unencrypted_message">Write message…</string>
     <string name="send_message_to_x">Send message to %s</string>
-    <string name="send_omemo_message">Send OMEMO encrypted message</string>
+    <string name="send_omemo_message">Write message…</string>
     <string name="send_omemo_x509_message">Send v\\OMEMO encrypted message</string>
-    <string name="send_pgp_message">Send OpenPGP encrypted message</string>
+    <string name="send_pgp_message">Write message…</string>
     <string name="your_nick_has_been_changed">Your nickname has been changed</string>
     <string name="send_unencrypted">Send unencrypted</string>
     <string name="decryption_failed">Decryption failed. Maybe you don’t have the proper private key.</string>
@@ -846,7 +846,7 @@
     <string name="pref_play_gif_inside">Play GIF files in chat</string>
     <string name="pref_play_gif_inside_summary">Play GIF files directly inside the chat view.</string>
     <string name="open_with">Open with…</string>
-    <string name="send_otr_message">Send OTR encrypted message</string>
+    <string name="send_otr_message">Write message…</string>
     <string name="unknown_otr_fingerprint">Unknown OTR fingerprint</string>
     <string name="otr_fingerprint">OTR fingerprint</string>
     <string name="otr_fingerprint_selected_message">OTR fingerprint of message</string>
@@ -1327,4 +1327,5 @@
     <string name="pref_custom_theme_color_options_summary">Set your own theme colours</string>
     <string name="pref_set_round_avatars_summary">Shape the user avatars round</string>
     <string name="pref_set_round_avatars">Round avatars</string>
+    <string name="choose_emoji">Choose emoji</string>
 </resources>

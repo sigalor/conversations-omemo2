@@ -75,7 +75,7 @@
         <item name="TextSizeBody2">14sp</item>
         <item name="TextSizeSubhead">16sp</item>
         <item name="TextSizeTitle">20sp</item>
-        <item name="TextSizeInput">16sp</item>
+        <item name="TextSizeInput">15sp</item>
         <item name="TextSeparation">5sp</item>
         <item name="IconSize">18sp</item>
         <item name="TextSizeInfo">12sp</item>
@@ -97,6 +97,8 @@
         <item name="ic_send_videocam_offline" type="reference">@drawable/ic_send_videocam_offline
         </item>
         <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline</item>
+        <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button</item>
+
         <item name="media_preview_document" type="reference">@drawable/ic_description_black_48dp
         </item>
         <item name="media_preview_recording" type="reference">@drawable/ic_mic_black_48dp</item>
@@ -262,7 +264,7 @@
         <item name="TextSizeBody2">14sp</item>
         <item name="TextSizeSubhead">16sp</item>
         <item name="TextSizeTitle">20sp</item>
-        <item name="TextSizeInput">16sp</item>
+        <item name="TextSizeInput">15sp</item>
         <item name="TextSeparation">5sp</item>
         <item name="IconSize">18sp</item>
         <item name="TextSizeInfo">12sp</item>
@@ -292,6 +294,9 @@
         </item>
         <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline_white
         </item>
+        <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button_white
+        </item>
+
 
         <item name="ic_attach_camera" type="reference">@drawable/ic_attach_camera_white</item>
         <item name="ic_attach_videocam" type="reference">@drawable/ic_attach_videocam_white</item>

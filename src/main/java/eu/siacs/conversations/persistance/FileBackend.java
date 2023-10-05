@@ -1852,7 +1852,7 @@ public class FileBackend {
         if (encrypted && !file.exists()) {
             Log.d(Config.LOGTAG, "skipping updateFileParams because file is encrypted");
             final DownloadableFile encryptedFile = getFile(message, false);
-            fileParams.size = file.getSize();
+            if (encryptedFile.canRead()) fileParams.size = encryptedFile.getSize();
         } else {
             Log.d(Config.LOGTAG, "running updateFileParams");
             final boolean ambiguous = MimeUtils.AMBIGUOUS_CONTAINER_FORMATS.contains(mime);
@@ -1861,6 +1861,7 @@ public class FileBackend {
             final boolean vcard = mime != null && mime.contains("vcard");
             final boolean apk = mime != null && mime.equals("application/vnd.android.package-archive");
             final boolean pdf = "application/pdf".equals(mime);
+            if (file.canRead()) fileParams.size = file.getSize();
             if (ambiguous) {
                 try {
                     final Dimensions dimensions = getVideoDimensions(file);
