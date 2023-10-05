@@ -10,7 +10,6 @@ import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Longs;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,11 +17,9 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import eu.siacs.conversations.services.AttachFileToConversationRunnable;
 import eu.siacs.conversations.utils.Consumer;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -108,11 +105,10 @@ public class HttpDownloadConnection implements Transferable {
                 ext = MimeUtils.guessExtensionFromMimeType(fileParams.getMediaType());
             }
             if (ext != null) {
-                String filename = getFilenameFromUrl(mUrl.encodedPath());
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
-                    message.setRelativeFilePath(filename);
+                    message.setRelativeFilePath(String.format("%s.%s", fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4), ext));
                 } else {
-                    message.setRelativeFilePath("Sent/" + filename);
+                    message.setRelativeFilePath("Sent/" + String.format("%s.%s", fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4), ext));
                 }
             } else if (Strings.isNullOrEmpty(message.getRelativeFilePath())) {
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
@@ -146,11 +142,6 @@ public class HttpDownloadConnection implements Transferable {
         } catch (final IllegalArgumentException e) {
             this.cancel();
         }
-    }
-
-    private String getFilenameFromUrl(String url) {
-        final int pos = url.lastIndexOf('/');
-        return url.substring(pos + 1).toLowerCase();
     }
 
     private void setupFile() {
@@ -190,33 +181,10 @@ public class HttpDownloadConnection implements Transferable {
     }
 
     private void decryptFile() throws IOException {
-        DownloadableFile outputFile = mXmppConnectionService.getFileBackend().getFile(message, true);
+        final DownloadableFile outputFile = mXmppConnectionService.getFileBackend().getFile(message, true);
 
         if (outputFile.getParentFile().mkdirs()) {
             Log.d(Config.LOGTAG, "created parent directories for " + outputFile.getAbsolutePath());
-        }
-
-        // Do not overwrite existing file! Instead append the four digit uuid part in front of the extension
-        if(outputFile.exists()){
-            String filename;
-            // find extension. If there is none, just append the 4byte uuid string
-            String[] tokens = outputFile.getName().toString().split(Pattern.quote("."));
-            // if not found, tokens contains the original file at index 0 and the length of tokens is 1
-            if(tokens.length == 1) {
-                // so... there is no extension and we append the uuid part directly
-                filename = String.format("%s_%s", tokens[0], message.getUuid().substring(0, 4));
-            } else {
-                if(tokens.length == 2 && tokens[0].length() == 0) {
-                    // well.. we have a .dot file! And we will remove the dot ;)
-                    filename = String.format("%s_%s", tokens[1], message.getUuid().substring(0, 4));
-                } else {
-                    filename = String.format("%s_%s.%s", tokens[0], message.getUuid().substring(0, 4), tokens[tokens.length-1]);
-                }
-            }
-
-            // now that we have a new filename we create a new outputFile object
-            String path = outputFile.getParent();
-            outputFile = new DownloadableFile(String.format("%s%s%s", path, File.separator, filename));
         }
 
         if (!outputFile.createNewFile()) {
@@ -246,7 +214,23 @@ public class HttpDownloadConnection implements Transferable {
         if (message.getEncryption() == Message.ENCRYPTION_PGP) {
             notify = message.getConversation().getAccount().getPgpDecryptionService().decrypt(message, notify);
         }
-        DownloadableFile file = mXmppConnectionService.getFileBackend().getFile(message);
+        DownloadableFile file;
+        final DownloadableFile tmp = mXmppConnectionService.getFileBackend().getFile(message);
+        final String extension = MimeUtils.extractRelevantExtension(tmp.getName());
+        try {
+            mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, new FileInputStream(tmp), extension);
+            file = mXmppConnectionService.getFileBackend().getFile(message);
+            boolean didRename = tmp.renameTo(file);
+            if (!didRename) throw new IOException("rename failed");
+        } catch (final IOException e) {
+            Log.w(Config.LOGTAG, "Failed to rename downloaded file: " + e);
+            file = tmp;
+            message.setRelativeFilePath(file.getAbsolutePath());
+        } catch (final XmppConnectionService.BlockedMediaException e) {
+            file = tmp;
+            tmp.delete();
+            message.setDeleted(true);
+        }
         message.setTransferable(null);
         if (cb != null) cb.accept(file);
         mXmppConnectionService.updateMessage(message);
