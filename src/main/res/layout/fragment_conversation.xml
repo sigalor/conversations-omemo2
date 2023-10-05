@@ -201,8 +201,8 @@
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/thread_identicon_layout"
                             android:layout_toEndOf="@+id/thread_identicon_layout"
-                            android:layout_toStartOf="@+id/emojiButton"
-                            android:layout_toLeftOf="@+id/emojiButton">
+                            android:layout_toStartOf="@+id/keyboardButton"
+                            android:layout_toLeftOf="@+id/keyboardButton">
                             <TextView
                                 android:id="@+id/text_input_hint"
                                 android:layout_width="wrap_content"
