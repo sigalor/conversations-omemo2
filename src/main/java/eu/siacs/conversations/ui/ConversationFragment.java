@@ -3212,6 +3212,12 @@ public class ConversationFragment extends XmppFragment
         }
         setThread(message.getThread());
         conversation.setUserSelectedThread(true);
+
+        //hide previous input text
+        final Editable editable = binding.textinput.getText();
+        this.conversation.setDraftMessage(editable.toString());
+        this.binding.textinput.setText("");
+
         //Open emoji picker
         binding.emojiPicker.setVisibility(VISIBLE);
         binding.emojiButton.setVisibility(GONE);
