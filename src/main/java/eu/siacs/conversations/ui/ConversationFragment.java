@@ -3211,10 +3211,18 @@ public class ConversationFragment extends XmppFragment
         }
         setThread(message.getThread());
         conversation.setUserSelectedThread(true);
-        //this.conversation.setCorrectingMessage(message);
-        //final Editable editable = binding.textinput.getText();
-        //this.conversation.setDraftMessage(editable.toString());
-        this.binding.textinput.setText(":");    // TODO: Directly choose emojis from popup menu
+        //Open emoji picker
+        binding.emojiPicker.setVisibility(VISIBLE);
+        binding.emojiButton.setVisibility(GONE);
+        binding.keyboardButton.setVisibility(VISIBLE);
+        hideSoftKeyboard(activity);
+        EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+        backPressedLeaveEmojiPicker.setEnabled(true);
+        binding.textinput.requestFocus();
+        emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+            binding.textinput.append(emojiViewItem.getEmoji());
+        });
+        // TODO: Directly choose emojis from popup menu
     }
     
 
