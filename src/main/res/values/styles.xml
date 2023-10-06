@@ -1,56 +1,54 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <style name="TextAppearance.Conversations.Display2.Monospace" parent="TextAppearance.Conversations.Display2">
-        <item name="android:fontFamily" >monospace</item>
-        <item name="android:typeface">monospace</item>
+
     </style>
 
     <style name="TextAppearance.Conversations.Title.Monospace" parent="TextAppearance.Conversations.Title">
-        <item name="android:fontFamily" >monospace</item>
-        <item name="android:typeface">monospace</item>
+
     </style>
 
-    <style name="TextAppearance.Conversations.Display2" parent="TextAppearance.AppCompat.Display2">
+    <style name="TextAppearance.Conversations.Display2" parent="TextAppearance.Material3.DisplayMedium">
         <item name="android:textSize">?TextSizeDisplay2</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Title" parent="TextAppearance.AppCompat.Title">
+    <style name="TextAppearance.Conversations.Title" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:textSize">?TextSizeTitle</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Subhead" parent="TextAppearance.AppCompat.Subhead">
+    <style name="TextAppearance.Conversations.Subhead" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="android:textSize">?TextSizeSubhead</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Body2" parent="TextAppearance.AppCompat.Body2">
+    <style name="TextAppearance.Conversations.Body2" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:textSize">?TextSizeBody2</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Body1" parent="TextAppearance.AppCompat.Body1">
+    <style name="TextAppearance.Conversations.Body1" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:textSize">?TextSizeBody1</item>
         <item name="android:textColorLink">?text_Color_Main</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Body1.Warning" parent="TextAppearance.AppCompat.Body1">
+    <style name="TextAppearance.Conversations.Body1.Warning" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:textColor">?color_warning</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Body1.Linkified" parent="TextAppearance.AppCompat.Body1">
+    <style name="TextAppearance.Conversations.Body1.Linkified" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:textSize">?TextSizeBody1</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.AppCompat.Caption">
+    <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textSize">?TextSizeCaption</item>
     </style>
 
-    <style name="Widget.Conversations.EditText" parent="Widget.AppCompat.EditText">
+    <style name="Widget.Conversations.EditText" parent="Widget.Material3.TextInputEditText.FilledBox">
         <item name="android:textSize">?TextSizeInput</item>
         <item name="android:textCursorDrawable">@drawable/dark_cursor</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
         <item name="colorControlNormal">?attr/colorAccent</item>
     </style>
 
-    <style name="Widget.Conversations.TextInputLayout.OutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <style name="Widget.Conversations.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/text_input_stroke_color</item>
         <item name="android:textColorHint">@color/text_input_stroke_color</item>
         <item name="hintTextColor">@color/text_input_stroke_color</item>
@@ -64,33 +62,33 @@
         <item name="android:textCursorDrawable">@drawable/white_cursor</item>
     </style>
 
-    <style name="Widget.Conversations.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+    <style name="Widget.Conversations.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
         <item name="android:textSize">?TextSizeBody1</item>
     </style>
 
-    <style name="Widget.Conversations.RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+    <style name="Widget.Conversations.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
         <item name="android:textSize">?TextSizeBody1</item>
     </style>
 
-    <style name="Widget.Conversations.Button.Borderless" parent="@style/Widget.MaterialComponents.Button.TextButton">
+    <style name="Widget.Conversations.Button.Borderless" parent="@style/Widget.Material3.Button.TextButton">
         <item name="android:textSize">?TextSizeBody2</item>
         <item name="android:textColor">@color/button_state_color</item>
     </style>
 
-    <style name="Widget.Conversations.Button.Outline" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
+    <style name="Widget.Conversations.Button.Outline" parent="@style/Widget.Material3.Button.OutlinedButton">
         <item name="android:textSize">?TextSizeBody2</item>
         <item name="strokeColor">?attr/colorAccent</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:textColor">@color/button_state_color</item>
     </style>
 
-    <style name="Widget.Conversations.Button" parent="@style/Widget.MaterialComponents.Button">
+    <style name="Widget.Conversations.Button" parent="@style/Widget.Material3.Button">
         <item name="android:textSize">?TextSizeBody2</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:textColor">@color/button_state_color</item>
     </style>
 
-    <style name="Widget.Conversations.Button.Dialog" parent="@style/Widget.MaterialComponents.Button.TextButton">
+    <style name="Widget.Conversations.Button.Dialog" parent="@style/Widget.Material3.Button.TextButton">
         <item name="android:textSize">?TextSizeBody2</item>
         <item name="android:textColor">@color/button_state_color</item>
     </style>
@@ -113,8 +111,7 @@
     </style>
 
     <style name="TextAppearance.Conversations.Fingerprint" parent="TextAppearance.Conversations.Body1">
-        <item name="android:fontFamily" >monospace</item>
-        <item name="android:typeface">monospace</item>
+
     </style>
 
     <style name="InputLabel" parent="TextAppearance.Conversations.Caption">
@@ -176,11 +173,11 @@
         <item name="android:textColor">@color/white70</item>
     </style>
 
-    <style name="Conversations.Dialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+    <style name="Conversations.Dialog" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="android:buttonStyle">@style/Widget.Conversations.Button.Borderless</item>
     </style>
 
-    <style name="Conversations.Dialog.Alert.Buttons" parent="Widget.AppCompat.Button.Borderless">
+    <style name="Conversations.Dialog.Alert.Buttons" parent="Widget.Material3.Button">
         <item name="android:textColor">?attr/colorAccent</item>
     </style>
 
