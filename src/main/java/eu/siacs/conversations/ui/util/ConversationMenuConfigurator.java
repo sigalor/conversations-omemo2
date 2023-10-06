@@ -130,7 +130,7 @@ public class ConversationMenuConfigurator {
         }
 
         if (conversation.getNextEncryption() != Message.ENCRYPTION_NONE) {
-            menuSecure.setIcon(R.drawable.ic_lock_black_24dp);
+            menuSecure.setIcon(R.drawable.ic_lock_black_24dp);  //TODO: Add white icon for dark mode too!!
         }
         otr.setVisible(Config.supportOtr() && activity.enableOTR());
         if (conversation.getMode() == Conversation.MODE_MULTI) {
