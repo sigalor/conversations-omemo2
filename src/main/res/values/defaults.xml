@@ -66,9 +66,9 @@
     <bool name="vibrate_in_chat">true</bool>
     <bool name="enable_otr">false</bool>
     <bool name="showtextformatting">false</bool>
-    <integer name="auto_accept_filesize_wifi">0</integer>
-    <integer name="auto_accept_filesize_mobile">0</integer>
-    <integer name="auto_accept_filesize_roaming">0</integer>
+    <integer name="auto_accept_filesize_wifi">5242880</integer>
+    <integer name="auto_accept_filesize_mobile">1048576</integer>
+    <integer name="auto_accept_filesize_roaming">1048576</integer>
     <integer name="automatic_message_deletion">0</integer>
     <integer name="automatic_attachment_deletion">0</integer>
     <integer name="grace_period">144</integer>
