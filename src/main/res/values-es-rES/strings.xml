@@ -84,11 +84,11 @@
 \n<b>Atención:</b> Esto no afectará a los mensajes guardados en otros dispositivos o servidores.</string>
     <string name="also_end_conversation">Además, terminar esta conversación</string>
     <string name="choose_presence">Seleccionar dispositivo</string>
-    <string name="send_unencrypted_message">Escribir mensaje...</string>
+    <string name="send_unencrypted_message">Escribe un mensaje…</string>
     <string name="send_message_to_x">Enviar mensaje a %s</string>
-    <string name="send_omemo_message">Escribir mensaje...</string>
+    <string name="send_omemo_message">Escribe un mensaje…</string>
     <string name="send_omemo_x509_message">Enviar mensaje cifrado v\\OMEMO</string>
-    <string name="send_pgp_message">Escribir mensaje...</string>
+    <string name="send_pgp_message">Escribe un mensaje…</string>
     <string name="your_nick_has_been_changed">Tu apodo se ha modificado</string>
     <string name="send_unencrypted">Enviar sin cifrar</string>
     <string name="decryption_failed">Falló el descifrado. Tal vez no tengas la clave privada apropiada.</string>
@@ -900,7 +900,7 @@
     <string name="pref_play_gif_inside">Reproducir archivos GIF en la conversación</string>
     <string name="pref_play_gif_inside_summary">Ejecutar archivos GIF dentro de la vista de chat.</string>
     <string name="open_with">Abrir con…</string>
-    <string name="send_otr_message">Escribir mensaje...</string>
+    <string name="send_otr_message">Escribe un mensaje…</string>
     <string name="unknown_otr_fingerprint">Huella OTR desconocida</string>
     <string name="otr_fingerprint">Huella OTR</string>
     <string name="otr_fingerprint_selected_message">Huella OTR del mensaje</string>
@@ -1415,5 +1415,5 @@
     <string name="pref_set_round_avatars_summary">Dale a los avatares de los usuarios una forma circular</string>
     <string name="pref_custom_theme_color_options_summary">Elige tus propios colores</string>
     <string name="pref_set_round_avatars">Avatares circulares</string>
-    <string name="choose_emoji">Elegir emoji</string>
+    <string name="choose_emoji">Elige un emoticono</string>
 </resources>
