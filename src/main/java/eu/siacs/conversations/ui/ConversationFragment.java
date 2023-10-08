@@ -46,7 +46,13 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -2581,19 +2587,8 @@ public class ConversationFragment extends XmppFragment
             } else {
                 File bgfileUri =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
                 if(bgfileUri.exists()) {
-                    Glide.with(this)
-                            .asBitmap()
-                            .load(bgfileUri)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)                //TODO: Maybe find another solution
-                            .into(new SimpleTarget<Bitmap>() {
-                                @Override
-                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                    Drawable dr = new BitmapDrawable(resource);
-                                    getActivity().getWindow().setBackgroundDrawable(dr);
-                                    // Possibly runOnUiThread()
-                                }
-                            });
+                    Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
+                    getActivity().getWindow().setBackgroundDrawable(custom_background);
                 } else {
                     getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                 }
