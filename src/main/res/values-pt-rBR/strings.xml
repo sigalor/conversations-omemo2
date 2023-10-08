@@ -82,11 +82,11 @@
 \n<b>Aviso:</b> Isto não irá influenciar mensagens salvas em outros dispositivos ou servidores.</string>
     <string name="also_end_conversation">Terminar esta conversa depois</string>
     <string name="choose_presence">Escolher dispositivo</string>
-    <string name="send_unencrypted_message">Enviar mensagem não criptografada</string>
+    <string name="send_unencrypted_message">Mensagem</string>
     <string name="send_message_to_x">Enviar mensagem para %s</string>
-    <string name="send_omemo_message">Enviar mensagem criptografada com OMEMO</string>
+    <string name="send_omemo_message">Mensagem</string>
     <string name="send_omemo_x509_message">Enviar mensagem criptografada com v\\OMEMO</string>
-    <string name="send_pgp_message">Enviar mensagem criptografada com OpenPGP</string>
+    <string name="send_pgp_message">Mensagem</string>
     <string name="your_nick_has_been_changed">O seu nome foi alterado</string>
     <string name="send_unencrypted">Enviar descriptografada</string>
     <string name="decryption_failed">A desencriptação falhou. Talvez você não tenha a chave privada correta.</string>
@@ -1067,7 +1067,7 @@
     <string name="title_undo_swipe_out_channel">Desfazer a remoção da sala</string>
     <string name="enter_your_name_instructions">Digite o seu nome que ficará visível para seus contatos.</string>
     <string name="pref_play_gif_inside">Reproduzir arquivos GIF na conversa</string>
-    <string name="send_otr_message">Enviar mensagem criptografada OTR</string>
+    <string name="send_otr_message">Mensagem</string>
     <string name="unknown_otr_fingerprint">Impressão digital OTR desconhecida</string>
     <string name="otr_fingerprint">Impressão digital OTR</string>
     <string name="toast_message_otr_fingerprint">Impressão digital OTR copiada!</string>
@@ -1415,4 +1415,5 @@
     <string name="pref_set_round_avatars_summary">Formato redondo nos avatares de usuário</string>
     <string name="pref_custom_theme_color_options_summary">Defina suas próprias cores de tema</string>
     <string name="pref_set_round_avatars">Avatares redondos</string>
+    <string name="choose_emoji">Selecionar emoji</string>
 </resources>
