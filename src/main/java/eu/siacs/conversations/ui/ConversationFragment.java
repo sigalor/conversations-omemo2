@@ -688,6 +688,8 @@ public class ConversationFragment extends XmppFragment
         public void handleOnBackPressed() {
             if (binding.emojiPicker.getVisibility()==VISIBLE) {
                 binding.emojiPicker.setVisibility(GONE);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
             }
             this.setEnabled(false);
             refresh();
