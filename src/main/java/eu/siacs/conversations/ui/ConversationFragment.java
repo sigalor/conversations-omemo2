@@ -2419,7 +2419,7 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         final Contact contact = conversation.getContact();
-        if (contact.getPresences().anySupport(Namespace.JINGLE_MESSAGE)) {
+        if (RtpCapability.jmiSupport(contact)) {
             triggerRtpSession(contact.getAccount(), contact.getJid().asBareJid(), action);
         } else {
             final RtpCapability.Capability capability;

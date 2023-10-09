@@ -153,20 +153,6 @@ public class Presences {
         return true;
     }
 
-    public boolean anySupport(final String namespace) {
-        synchronized (this.presences) {
-            if (this.presences.size() == 0) {
-                return true;
-            }
-            for (Presence presence : this.presences.values()) {
-                ServiceDiscoveryResult disco = presence.getServiceDiscoveryResult();
-                if (disco != null && disco.getFeatures().contains(namespace)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     public String firstWhichSupport(final String namespace) {
         for (Map.Entry<String, Presence> entry : this.presences.entrySet()) {
