@@ -101,7 +101,7 @@ public class ShareUtil {
         final int resId;
         if (message.isGeoUri()) {
             resId = R.string.location;
-            url = message.getBody();
+            url = message.getQuoteableBody();
         } else if (message.hasFileOnRemoteHost()) {
             resId = R.string.file_url;
             url = message.getFileParams().url;
@@ -111,7 +111,7 @@ public class ShareUtil {
             resId = R.string.file_url;
         }
         if (activity.copyTextToClipboard(url, resId)) {
-            ToastCompat.makeText(activity, R.string.url_copied_to_clipboard, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(activity, R.string.url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
         }
     }
 
