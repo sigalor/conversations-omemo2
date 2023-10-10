@@ -1356,8 +1356,8 @@
     <string name="menuitem_create_backup_action">Datensicherung erstellen</string>
     <string name="pref_use_blue_readmarkers_title">Benutze blaue Readmarker</string>
     <string name="pref_use_blue_readmarkers_summary">Benutze blaue Readmarker anstatt weiß oder schwarz</string>
-    <string name="pref_import_database_or_settings">Importiere Chatsicherung oder Einstellungen</string>
-    <string name="pref_import_database_or_settings_summary">Lade eine Sicherungsdatei oder ein Einstellungsdatei in monocles chat</string>
+    <string name="pref_import_database_or_settings">Importiere Chatsicherungen oder Einstellungen</string>
+    <string name="pref_import_database_or_settings_summary">Lade eine Sicherungsdatei oder eine Einstellungsdatei in monocles chat</string>
     <string name="action_complete">Fertig</string>
     <string name="message_reaction">Reaktion senden</string>
     <string name="custom_background">Eigener Hintergrund</string>
