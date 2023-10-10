@@ -1699,6 +1699,7 @@ public class ConversationFragment extends XmppFragment
 
 
     protected void newThreadTutorialToast(String s) {
+        if (activity == null) return;
         final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
         final int tutorialCount = p.getInt("thread_tutorial", 0);
         if (tutorialCount < 5) {
