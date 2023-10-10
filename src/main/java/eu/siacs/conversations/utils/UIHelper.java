@@ -309,7 +309,8 @@ public class UIHelper {
     @SuppressLint({"StringFormatMatches", "StringFormatInvalid"})
     public static Pair<CharSequence, Boolean> getMessagePreview(final Context context, final Message message, @ColorInt int textColor) {
         final Transferable d = message.getTransferable();
-        if (d != null) {
+        final boolean moderated = message.getModerated() != null;
+        if (d != null && !moderated) {
             switch (d.getStatus()) {
                 case Transferable.STATUS_WAITING:
                     return new Pair<>(context.getString(R.string.waiting_for_transfer), true);
