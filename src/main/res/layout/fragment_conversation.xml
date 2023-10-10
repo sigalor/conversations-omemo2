@@ -121,15 +121,15 @@
 
             <ImageButton
                 android:id="@+id/context_preview_cancel"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:padding="0dp"
                 android:layout_marginEnd="13dp"
                 android:layout_marginRight="13dp"
                 android:contentDescription="@string/cancel"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="?attr/icon_cancel" />
+                android:src="?attr/icon_cancel_comment" />
         </LinearLayout>
 
         <RelativeLayout
@@ -164,15 +164,39 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <RelativeLayout
-                        android:id="@+id/thread_identicon_layout"
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
+                    <ImageButton
+                        android:id="@+id/keyboardButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginStart="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/show_keyboard"
+                        android:src="?attr/ic_keyboard_button"
+                        android:visibility="gone" />
+                    <ImageButton
+                        android:id="@+id/emojiButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toEndOf="@+id/keyboardButton"
+                        android:layout_toRightOf="@+id/keyboardButton"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/choose_emoji"
+                        android:src="?attr/ic_emoji_button"
+                        android:visibility="visible" />
+
+                    <RelativeLayout
+                        android:id="@+id/thread_identicon_layout"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_toEndOf="@+id/emojiButton"
+                        android:layout_toRightOf="@+id/emojiButton"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="8dp"
                         android:visibility="visible"
                         android:background="@drawable/thread_hint">
 
@@ -197,12 +221,13 @@
                             android:contentDescription="@string/thread_locked" />
                     </RelativeLayout>
                         <RelativeLayout
+                            android:id="@+id/textinput_layout_new"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_toRightOf="@+id/thread_identicon_layout"
                             android:layout_toEndOf="@+id/thread_identicon_layout"
-                            android:layout_toStartOf="@+id/emojiButton"
-                            android:layout_toLeftOf="@+id/emojiButton">
+                            android:layout_toRightOf="@+id/thread_identicon_layout"
+                            android:layout_toStartOf="@+id/recordVoiceButton"
+                            android:layout_toLeftOf="@+id/recordVoiceButton">
                             <TextView
                                 android:id="@+id/text_input_hint"
                                 android:layout_width="wrap_content"
@@ -248,18 +273,6 @@
                                 <requestFocus />
                             </eu.siacs.conversations.ui.widget.EditMessage>
                         </RelativeLayout>
-                            <ImageButton
-                                android:id="@+id/emojiButton"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:layout_marginEnd="8dp"
-                                android:layout_toStartOf="@+id/recordVoiceButton"
-                                android:layout_toLeftOf="@+id/recordVoiceButton"
-                                android:layout_centerVertical="true"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/choose_emoji"
-                                android:src="?attr/ic_emoji_button"
-                                android:visibility="visible" />
 
                             <ImageButton
                                 android:id="@+id/recordVoiceButton"
@@ -290,7 +303,7 @@
                     android:id="@+id/emoji_picker"
                     android:layout_below="@+id/message_input_box"
                     android:layout_width="match_parent"
-                    android:layout_height="240dp"
+                    android:layout_height="300dp"
                     app:emojiGridColumns="9"
                     android:layout_marginBottom="5dp"
                     android:visibility="gone"/>

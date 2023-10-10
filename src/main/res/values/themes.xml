@@ -98,6 +98,8 @@
         </item>
         <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline</item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button</item>
+        <item name="ic_keyboard_button" type="reference">@drawable/outline_keyboard_black_32</item>
+
 
         <item name="media_preview_document" type="reference">@drawable/ic_description_black_48dp
         </item>
@@ -122,6 +124,7 @@
         <item name="icon_add_group" type="reference">@drawable/ic_group_add_white_24dp</item>
         <item name="icon_add_person" type="reference">@drawable/ic_person_add_white_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_black_24dp</item>
+        <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_black_24dp</item>
         <item name="icon_copy" type="reference">@drawable/ic_content_copy_grey600_24dp</item>
         <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
         <item name="icon_navigate" type="reference">@drawable/ic_navigation_white_24dp</item>
@@ -296,6 +299,8 @@
         </item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button_white
         </item>
+        <item name="ic_keyboard_button" type="reference">@drawable/outline_keyboard_white_32</item>
+
 
 
         <item name="ic_attach_camera" type="reference">@drawable/ic_attach_camera_white</item>
@@ -337,6 +342,7 @@
         <item name="icon_add_group" type="reference">@drawable/ic_group_add_white_24dp</item>
         <item name="icon_add_person" type="reference">@drawable/ic_person_add_white_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_white_24dp</item>
+        <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_white_24dp</item>
         <item name="icon_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
         <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
         <item name="icon_navigate" type="reference">@drawable/ic_navigation_white_24dp</item>
