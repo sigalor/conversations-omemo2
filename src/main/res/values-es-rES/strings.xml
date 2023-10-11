@@ -1411,9 +1411,10 @@
     <string name="message_reaction">Enviar reacción</string>
     <string name="chat_background">Fondo en chats</string>
     <string name="custom_background">Fondo personalizado</string>
-    <string name="pref_chat_background_summary">Elegir una imagen como fondo de chat. El fichero de imagen será copiado en /Documents/monocles chat/pictures/bg.jpg</string>
+    <string name="pref_chat_background_summary">Elegir una imagen como fondo de chat. El fichero de imagen será copiado en /Documents/monocles chat/pictures/bg.jpg. Si aparece algún problema, elimina el fichero de imagen con un administrador de archivos.</string>
     <string name="pref_set_round_avatars_summary">Dale a los avatares de los usuarios una forma circular</string>
     <string name="pref_custom_theme_color_options_summary">Elige tus propios colores</string>
     <string name="pref_set_round_avatars">Avatares circulares</string>
     <string name="choose_emoji">Elige un emoticono</string>
+    <string name="show_keyboard">Mostrar teclado</string>
 </resources>
