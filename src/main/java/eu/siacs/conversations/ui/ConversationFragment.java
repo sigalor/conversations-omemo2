@@ -4075,7 +4075,7 @@ public class ConversationFragment extends XmppFragment
     private void updateTextFormat(final boolean me) {
         KeyboardUtils.addKeyboardToggleListener(activity, isVisible -> {
             Log.d(Config.LOGTAG, "keyboard visible: " + isVisible);
-            if (isVisible) {
+            if (isVisible && activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.showTextFormatting()) {
                 showTextFormat(me);
             } else {
                 hideTextFormat();
@@ -4749,6 +4749,30 @@ public class ConversationFragment extends XmppFragment
     }
 
 
+
+    private void deleteMessageFile(final Message message) {
+        List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
+        if (thumbs != null && !thumbs.isEmpty()) {
+            for (Element thumb : thumbs) {
+                Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                if (uri.getScheme().equals("cid")) {
+                    Cid cid = BobTransfer.cid(uri);
+                    if (cid == null) continue;
+                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                    activity.xmppConnectionService.evictPreview(f);
+                    f.delete();
+                }
+            }
+        }
+        if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
+            message.setFileDeleted(true);
+            activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
+            activity.xmppConnectionService.updateMessage(message, false);
+            activity.onConversationsListItemUpdated();
+            refresh();
+        }
+    }
+
     private void showTextFormat(final boolean me) {
         this.binding.textformat.setVisibility(View.VISIBLE);
         this.binding.me.setEnabled(me);
@@ -4775,28 +4799,5 @@ public class ConversationFragment extends XmppFragment
 
     private void hideTextFormat() {
         this.binding.textformat.setVisibility(View.GONE);
-    }
-
-    private void deleteMessageFile(final Message message) {
-        List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
-        if (thumbs != null && !thumbs.isEmpty()) {
-            for (Element thumb : thumbs) {
-                Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                if (uri.getScheme().equals("cid")) {
-                    Cid cid = BobTransfer.cid(uri);
-                    if (cid == null) continue;
-                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                    activity.xmppConnectionService.evictPreview(f);
-                    f.delete();
-                }
-            }
-        }
-        if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
-            message.setFileDeleted(true);
-            activity.xmppConnectionService.evictPreview(activity.xmppConnectionService.getFileBackend().getFile(message));
-            activity.xmppConnectionService.updateMessage(message, false);
-            activity.onConversationsListItemUpdated();
-            refresh();
-        }
     }
 }
