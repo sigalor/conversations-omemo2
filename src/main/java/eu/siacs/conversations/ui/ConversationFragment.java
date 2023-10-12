@@ -447,7 +447,9 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             if (AbsListView.OnScrollListener.SCROLL_STATE_IDLE == scrollState) {
-                updateThreadFromLastMessage();
+                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    updateThreadFromLastMessage();
+                }
                 fireReadEvent();
             }
         }
@@ -765,7 +767,9 @@ public class ConversationFragment extends XmppFragment
             conversation.setUserSelectedThread(false);
             setThread(null);
             refresh();
-            updateThreadFromLastMessage();
+            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                updateThreadFromLastMessage();
+            }
         }
     };
 
@@ -1167,7 +1171,9 @@ public class ConversationFragment extends XmppFragment
                     }
                 }
             }
-            message.setThread(conversation.getThread());
+            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                message.setThread(conversation.getThread());
+            }
             if (attention) {
                 message.addPayload(new Element("attention", "urn:xmpp:attention:0"));
             }
@@ -1175,7 +1181,9 @@ public class ConversationFragment extends XmppFragment
         } else {
             message = conversation.getCorrectingMessage();
             message.setBody(body);
-            message.setThread(conversation.getThread());
+            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                message.setThread(conversation.getThread());
+            }
             message.putEdited(message.getUuid(), message.getServerMsgId(), message.getBody(), message.getTimeSent());
             message.setServerMsgId(null);
             message.setUuid(UUID.randomUUID().toString());
@@ -1549,6 +1557,13 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
 
+        //Setting hide thread icon
+        if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)){
+            binding.threadIdenticonLayout.setVisibility(GONE);
+        } else {
+            binding.threadIdenticonLayout.setVisibility(VISIBLE);
+        }
+
         if (binding.emojiPicker.getVisibility()==VISIBLE) {
             backPressedLeaveEmojiPicker.setEnabled(true);
         } else {
@@ -1598,12 +1613,12 @@ public class ConversationFragment extends XmppFragment
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.binding.textinput.setCustomInsertionActionModeCallback(new EditMessageActionModeCallback(this.binding.textinput));
         }
-
-        messageListAdapter.setOnMessageBoxClicked(message -> {
-            setThread(message.getThread());
-            conversation.setUserSelectedThread(true);
-        });
-
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            messageListAdapter.setOnMessageBoxClicked(message -> {
+                setThread(message.getThread());
+                conversation.setUserSelectedThread(true);
+            });
+        }
         messageListAdapter.setOnMessageBoxSwiped(message -> {
             quoteMessage(message, null);
         });
@@ -1616,7 +1631,9 @@ public class ConversationFragment extends XmppFragment
                 setThread(null);
                 conversation.setUserSelectedThread(false);
                 refresh();
-                updateThreadFromLastMessage();
+                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    updateThreadFromLastMessage();
+                }
             } else {
                 newThread();
                 conversation.setUserSelectedThread(true);
@@ -1822,7 +1839,9 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setThread(Element thread) {
-        this.conversation.setThread(thread);
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            this.conversation.setThread(thread);
+        }
         binding.threadIdenticon.setAlpha(0f);
         binding.threadIdenticonLock.setVisibility(this.conversation.getLockThread() ? View.VISIBLE : GONE);
         if (thread != null) {
@@ -2141,9 +2160,13 @@ public class ConversationFragment extends XmppFragment
             case R.id.only_this_thread:
                 conversation.setLockThread(true);
                 backPressedLeaveSingleThread.setEnabled(true);
-                setThread(selectedMessage.getThread());
+                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    setThread(selectedMessage.getThread());
+                }
                 refresh();
-                setThread(selectedMessage.getThread());
+                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    setThread(selectedMessage.getThread());
+                }
                 return true;
             case R.id.message_reaction:
                 if (conversation.getMode() == Conversation.MODE_MULTI) {
@@ -2303,7 +2326,9 @@ public class ConversationFragment extends XmppFragment
             setThread(null);
             conversation.setUserSelectedThread(false);
             refresh();
-            updateThreadFromLastMessage();
+            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                updateThreadFromLastMessage();
+            }
             return true;
         }
         if (binding.emojiPicker.getVisibility()==VISIBLE){
@@ -2955,13 +2980,17 @@ public class ConversationFragment extends XmppFragment
         Element thread = new Element("thread", "jabber:client");
         thread.setContent(UUID.randomUUID().toString());
         if (oldThread != null) thread.setAttribute("parent", oldThread.getContent());
-        setThread(thread);
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            setThread(thread);
+        }
     }
 
     private void newThread() {
         Element thread = new Element("thread", "jabber:client");
         thread.setContent(UUID.randomUUID().toString());
-        setThread(thread);
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            setThread(thread);
+        }
     }
 
     private void updateThreadFromLastMessage() {
@@ -2975,9 +3004,11 @@ public class ConversationFragment extends XmppFragment
                     if (message.getStatus() < Message.STATUS_SEND) {
                         if (!activity.xmppConnectionService.getBooleanPreference("follow_thread_in_channel", R.bool.follow_thread_in_channel)) return;
                     }
+                    if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) return;
                 }
-
-                setThread(message.getThread());
+                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    setThread(message.getThread());
+                }
             }
         }
     }
@@ -3281,7 +3312,9 @@ public class ConversationFragment extends XmppFragment
         while (message.mergeable(message.next())) {
             message = message.next();
         }
-        setThread(message.getThread());
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            setThread(message.getThread());
+        }
         conversation.setUserSelectedThread(true);
         this.conversation.setCorrectingMessage(message);
         final Editable editable = binding.textinput.getText();
@@ -3294,7 +3327,9 @@ public class ConversationFragment extends XmppFragment
         while (message.mergeable(message.next())) {
             message = message.next();
         }
-        setThread(message.getThread());
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            setThread(message.getThread());
+        }
         conversation.setUserSelectedThread(false);
 
         //pick chosen message
@@ -3500,9 +3535,9 @@ public class ConversationFragment extends XmppFragment
             activity.onConversationArchived(this.conversation);
             return false;
         }
-
-        setThread(conversation.getThread());
-
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            setThread(conversation.getThread());
+        }
         stopScrolling();
         Log.d(Config.LOGTAG, "reInit(hasExtras=" + Boolean.toString(hasExtras) + ")");
 
@@ -4703,7 +4738,9 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void onContactPictureClicked(Message message) {
-        setThread(message.getThread());
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            setThread(message.getThread());
+        }
         conversation.setUserSelectedThread(true);
 
         final boolean received = message.getStatus() <= Message.STATUS_RECEIVED;

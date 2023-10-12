@@ -1551,19 +1551,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
-
-        viewHolder.message_box.setOnClickListener(v -> {
-            if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                MessageAdapter.this.mOnMessageBoxClickedListener
-                        .onContactPictureClicked(message);
-            }
-        });
-        viewHolder.messageBody.setOnClickListener(v -> {
-            if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                MessageAdapter.this.mOnMessageBoxClickedListener
-                        .onContactPictureClicked(message);
-            }
-        });
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            viewHolder.message_box.setOnClickListener(v -> {
+                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                    MessageAdapter.this.mOnMessageBoxClickedListener
+                            .onContactPictureClicked(message);
+                }
+            });
+            viewHolder.messageBody.setOnClickListener(v -> {
+                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                    MessageAdapter.this.mOnMessageBoxClickedListener
+                            .onContactPictureClicked(message);
+                }
+            });
+        }
         viewHolder.contact_picture.setOnClickListener(v -> {
             if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
                 MessageAdapter.this.mOnContactPictureClickedListener.onContactPictureClicked(message);

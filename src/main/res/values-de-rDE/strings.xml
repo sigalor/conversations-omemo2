@@ -1370,4 +1370,6 @@
     <string name="pref_custom_theme_color_options_summary">Erstelle deine eigenen Designfarben</string>
     <string name="close_format_text">Möchten Sie die Symbolleiste zur Textformatierung wirklich schließen? Sie können die Symbolleiste in den Einstellungen wieder aktivieren.</string>
     <string name="help_format_text">Sie können einfache Formatierungsoptionen verwenden, um Ihren Text zu formatieren. Die Tasten zur Kennzeichnung des Beginns und des Endes einer Formatierung befinden sich genau am Anfang und am Ende des Wortes oder der Wortgruppe. Vor der Anfangstaste muss ein Leerzeichen stehen und nach der Endtaste ein Leerzeichen, sonst wird die Formatierung nicht erkannt.\n\nSie können die Werkzeuge direkt beim Schreiben verwenden, indem Sie ein Werkzeug drücken und die Taste an der Position des Cursors einfügen. Oder Sie können ein Wort oder eine Wortgruppe markieren und eine Formatierungstaste drücken.</string>
+    <string name="pref_show_thread_feature_summary">Zeige Thread Icon im Eingabefeld und erlaube das Erstellen und Folgen von Threads</string>
+    <string name="pref_show_thread_feature">Zeige Thread Icon</string>
 </resources>

@@ -6,4 +6,5 @@
     <bool name="use_default_chatbg">true</bool>
     <bool name="use_custom_chatbg">false</bool>
     <bool name="set_round_avatars" />
+    <bool name="show_thread_feature">false</bool>
 </resources>
