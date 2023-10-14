@@ -42,6 +42,17 @@
         app:strokeColor="@color/custom_theme_accent"
         app:riv_corner_radius="30dp" />
 
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/message_photo_square"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            app:strokeColor="@color/custom_theme_accent"
+            app:riv_corner_radius="5dp" />
+
     <LinearLayout
         android:id="@+id/message_box"
         android:layout_width="wrap_content"

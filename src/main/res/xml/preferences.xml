@@ -81,13 +81,11 @@
             android:key="import_background"
             android:summary="@string/pref_chat_background_summary"
             android:title="@string/custom_background" />
-        <!--
         <CheckBoxPreference
             android:defaultValue="@bool/set_round_avatars"
-            android:key="avatar_shape"
+            android:key="set_round_avatars"
             android:summary="@string/pref_set_round_avatars_summary"
             android:title="@string/pref_set_round_avatars" />
-            -->
         <ListPreference
             android:defaultValue="@string/default_font_size"
             android:entries="@array/font_size_entries"
@@ -173,11 +171,13 @@
             android:key="start_searching"
             android:summary="@string/pref_start_search_summary"
             android:title="@string/pref_start_search" />
+        <!--
         <CheckBoxPreference
             android:defaultValue="@bool/allowmergemessages"
             android:key="allowmergemessages"
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
+            -->
         <CheckBoxPreference
             android:defaultValue="@bool/showtextformatting"
             android:key="showtextformatting"

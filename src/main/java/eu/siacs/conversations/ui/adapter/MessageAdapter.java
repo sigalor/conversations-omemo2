@@ -1398,7 +1398,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case SENT:
                     view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                        viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
+                    }
                     viewHolder.username = view.findViewById(R.id.username);
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
@@ -1424,7 +1428,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case RECEIVED:
                     view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                        viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
+                    }
                     viewHolder.username = view.findViewById(R.id.username);
                     viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     viewHolder.download_button = view.findViewById(R.id.download_button);

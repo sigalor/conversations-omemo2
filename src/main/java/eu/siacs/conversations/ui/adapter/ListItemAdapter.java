@@ -31,7 +31,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
     private static final float INACTIVE_ALPHA = 0.4684f;
     private static final float ACTIVE_ALPHA = 1.0f;
-    protected XmppActivity activity;
+    protected static XmppActivity activity;
     private boolean showDynamicTags = false;
     private boolean showPresenceColoredNames = false;
     private OnTagClickedListener mOnTagClickedListener = null;
@@ -164,8 +164,12 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             viewHolder.name = binding.contactDisplayName;
             viewHolder.jid = binding.contactJid;
             viewHolder.account = binding.account;
-            viewHolder.avatar = binding.contactPhoto;
-            viewHolder.tags = binding.tags;
+            if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                viewHolder.avatar = binding.contactPhoto;
+            } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                viewHolder.avatar = binding.contactPhotoSquare;
+            }
+                viewHolder.tags = binding.tags;
             viewHolder.activeIndicator = binding.userActiveIndicator;
             viewHolder.inner = binding.inner;
             binding.getRoot().setTag(viewHolder);
