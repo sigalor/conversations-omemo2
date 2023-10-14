@@ -1374,4 +1374,6 @@
     <string name="pref_show_thread_feature">Zeige Thread Icon</string>
     <string name="pref_set_round_avatars_summary">Stelle die Avatare runde dar</string>
     <string name="pref_set_round_avatars">Runde Avatare</string>
+    <string name="you_may_sometimes_have_to">In manchen Fällen muss die App neugestartet werden, damit die Änderungen wirksam werden.</string>
+    <string name="create_monocles_only_backup">Eine Sicherung nur für monocles chat erstellen (Sicherung lässt sich nicht in andere Apps importieren)?</string>
 </resources>
