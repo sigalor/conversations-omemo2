@@ -158,8 +158,8 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected Toast mToast;
     protected Runnable onOpenPGPKeyPublished = () -> ToastCompat.makeText(XmppActivity.this, R.string.openpgp_has_been_published, ToastCompat.LENGTH_SHORT).show();
     protected ConferenceInvite mPendingConferenceInvite = null;
-    protected PriorityQueue<Pair<Integer, ValueCallback<Uri[]>>> activityCallbacks = new PriorityQueue<>((x, y) -> y.first.compareTo(x.first));
-
+    protected PriorityQueue<Pair<Integer, ValueCallback<Uri[]>>> activityCallbacks =
+            Build.VERSION.SDK_INT >= 24 ? new PriorityQueue<>((x, y) -> y.first.compareTo(x.first)) : new PriorityQueue<>();
     protected ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
