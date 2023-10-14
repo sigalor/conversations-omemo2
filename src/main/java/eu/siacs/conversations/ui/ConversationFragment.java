@@ -1560,7 +1560,7 @@ public class ConversationFragment extends XmppFragment
         //Setting hide thread icon
         if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)){
             binding.threadIdenticonLayout.setVisibility(GONE);
-        } else {
+        } else if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)){
             binding.threadIdenticonLayout.setVisibility(VISIBLE);
         }
 
