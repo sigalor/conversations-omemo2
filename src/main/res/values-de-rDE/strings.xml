@@ -1380,4 +1380,6 @@
     <string name="edit_sytemaccount">Telefon Kontakt</string>
     <string name="edit_chat_contact">Chatkontakt</string>
     <string name="enter_user_name">Gebe einen Namen ein</string>
+    <string name="account_color">Kontofarbe</string>
+    <string name="account_color_summary">Kontofarbe for die Chatliste, Kontakteliste und Benachrichtigungen.</string>
 </resources>
