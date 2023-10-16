@@ -130,7 +130,7 @@ public class ConversationMenuConfigurator {
         }
         boolean darkBackground = activity.isDarkTheme();
         if (conversation.getNextEncryption() != Message.ENCRYPTION_NONE) {
-            menuSecure.setIcon(darkBackground ? R.drawable.ic_lock_white_24dp : R.drawable.ic_lock_black_24dp);  //TODO: Add white icon for dark mode too!!
+            menuSecure.setIcon(darkBackground ? R.drawable.ic_lock_white_24dp : R.drawable.ic_lock_black_24dp);
         }
         otr.setVisible(Config.supportOtr() && activity.enableOTR());
         if (conversation.getMode() == Conversation.MODE_MULTI) {
