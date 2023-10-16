@@ -59,6 +59,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
@@ -77,6 +78,7 @@ import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 
 import java.io.File;
@@ -1046,11 +1048,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (conversation != null) {
                 actionBar.setDisplayHomeAsUpEnabled(true);
                 final View view = getLayoutInflater().inflate(R.layout.ab_title, null);
+                final View MUCview = getLayoutInflater().inflate(R.layout.activity_muc_details, null);
                 getSupportActionBar().setCustomView(view);
                 actionBar.setIcon(null);
                 actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.color_background_secondary)));
-                //actionBar.setDisplayShowTitleEnabled(false);
                 actionBar.setDisplayShowCustomEnabled(true);
+                ImageView Avatar = findViewById(R.id.details_muc_avatar);
                 TextView abtitle = findViewById(android.R.id.text1);
                 TextView absubtitle = findViewById(android.R.id.text2);
                 abtitle.setText(conversation.getName());
@@ -1080,6 +1083,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 } else {
                     ChatState state = ChatState.COMPOSING;
                     List<MucOptions.User> userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
+                    AvatarWorkerTask.loadAvatar(conversation, Avatar, R.dimen.muc_avatar_actionbar);
+                    Avatar.setVisibility(View.VISIBLE);
                     if (userWithChatStates.size() == 0) {
                         state = ChatState.PAUSED;
                         userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
@@ -1124,8 +1129,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
         actionBar.setDisplayShowCustomEnabled(false);
         actionBar.setTitle(R.string.app_title);
-        //actionBar.setIcon(R.drawable.logo_800);
-        //actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.header_background)));
         actionBar.setDisplayHomeAsUpEnabled(false);
         ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar);
     }
