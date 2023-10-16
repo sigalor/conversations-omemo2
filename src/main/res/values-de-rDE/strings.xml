@@ -1376,4 +1376,7 @@
     <string name="pref_set_round_avatars">Runde Avatare</string>
     <string name="you_may_sometimes_have_to">In manchen Fällen muss die App neugestartet werden, damit die Änderungen wirksam werden.</string>
     <string name="create_monocles_only_backup">Eine Sicherung nur für monocles chat erstellen (Sicherung lässt sich nicht in andere Apps importieren)?</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Bearbeite den Chatkontakt oder den Telefonkontakt?</string>
+    <string name="edit_sytemaccount">Telefon Kontakt</string>
+    <string name="edit_chat_contact">Chatkontakt</string>
 </resources>
