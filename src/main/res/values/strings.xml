@@ -1335,4 +1335,5 @@
     <string name="edit_sytemaccount_or_xmppaccount">Edit chat contact or phone contact?</string>
     <string name="edit_sytemaccount">Phone contact</string>
     <string name="edit_chat_contact">Chat contact</string>
+    <string name="enter_user_name">Enter a name</string>
 </resources>

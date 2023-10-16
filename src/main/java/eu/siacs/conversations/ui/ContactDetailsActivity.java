@@ -694,7 +694,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 ab.setDisplayShowCustomEnabled(true);
                 TextView abtitle = findViewById(android.R.id.text1);
                 TextView absubtitle = findViewById(android.R.id.text2);
-                abtitle.setText(contact.getServerName());
+                abtitle.setText(contact.getDisplayName());
                 abtitle.setSelected(true);
                 abtitle.setClickable(false);
                 absubtitle.setVisibility(View.GONE);
