@@ -1049,7 +1049,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 getSupportActionBar().setCustomView(view);
                 actionBar.setIcon(null);
                 actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.color_background_secondary)));
-                actionBar.setDisplayShowTitleEnabled(false);
+                //actionBar.setDisplayShowTitleEnabled(false);
                 actionBar.setDisplayShowCustomEnabled(true);
                 TextView abtitle = findViewById(android.R.id.text1);
                 TextView absubtitle = findViewById(android.R.id.text2);
