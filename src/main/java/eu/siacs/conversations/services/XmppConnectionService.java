@@ -5102,8 +5102,8 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean allowMergeMessages() {
-        //return false;
-        return getBooleanPreference("allowmergemessages", R.bool.allowmergemessages);
+        return false;
+        //return getBooleanPreference("allowmergemessages", R.bool.allowmergemessages);
     }
 
     public boolean showTextFormatting() {
