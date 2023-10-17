@@ -6,7 +6,7 @@
     android:focusable="true"
     android:gravity="center">
 
-    <EditText
+    <eu.siacs.conversations.ui.widget.TextInputEditText
         android:id="@+id/search_field"
         style="@style/Widget.Conversations.SearchView"
         android:layout_width="match_parent"
