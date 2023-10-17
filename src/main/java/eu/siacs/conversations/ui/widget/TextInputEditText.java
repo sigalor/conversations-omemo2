@@ -5,6 +5,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import androidx.annotation.StringRes;
+
 import java.lang.reflect.Field;
 
 /**
@@ -40,7 +42,7 @@ public class TextInputEditText extends com.google.android.material.textfield.Tex
     }
 
     private CharSequence getSuperHintHack() throws NoSuchFieldException, IllegalAccessException {
-        Field hintField = TextView.class.getDeclaredField("mHint");
+        Field hintField = TextView.class.getDeclaredField(getResources().getString(Integer.parseInt("mHint")));
         hintField.setAccessible(true);
         return (CharSequence) hintField.get(this);
     }
