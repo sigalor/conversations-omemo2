@@ -2647,11 +2647,13 @@ public class XmppConnectionService extends Service {
     }
 
     private void markChangedFiles(List<DatabaseBackend.FilePathInfo> infos) {
-        boolean changed = false;
+        final boolean[] changed = {false};
         for (Conversation conversation : getConversations()) {
-            changed |= conversation.markAsChanged(infos);
+            new Thread( new Runnable() { @Override public void run() {
+                changed[0] |= conversation.markAsChanged(infos);
+            } } ).start();
         }
-        if (changed) {
+        if (changed[0]) {
             updateConversationUi();
         }
     }
