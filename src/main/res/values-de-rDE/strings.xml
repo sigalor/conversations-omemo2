@@ -3,7 +3,7 @@
     <string name="action_settings">Einstellungen</string>
     <string name="action_add">Neue Unterhaltung</string>
     <string name="action_accounts">Konten verwalten</string>
-    <string name="action_end_conversation">Unterhaltung beenden</string>
+    <string name="action_end_conversation">Unterhaltung archivieren</string>
     <string name="action_contact_details">Kontaktdetails</string>
     <string name="action_secure">Verschlüsselte Unterhaltung</string>
     <string name="action_add_new_account">Neues Konto erstellen</string>
