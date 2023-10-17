@@ -687,20 +687,12 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             mNotifyStatusButton.setImageResource(ic_notifications);
             mNotifyStatusText.setText(R.string.notify_on_all_messages);
         }
-        if (getSupportActionBar() != null) {
-            final ActionBar ab = getSupportActionBar();
-            if (ab != null) {
-                ab.setCustomView(R.layout.ab_title);
-                ab.setDisplayShowCustomEnabled(true);
-                TextView abtitle = findViewById(android.R.id.text1);
-                TextView absubtitle = findViewById(android.R.id.text2);
-                abtitle.setText(contact.getDisplayName());
-                abtitle.setSelected(true);
-                abtitle.setClickable(false);
-                absubtitle.setVisibility(View.GONE);
-                absubtitle.setClickable(false);
-            }
-        }
+
+        TextView abtitle = binding.detailsContactName;
+        abtitle.setText(contact.getDisplayName());
+        abtitle.setSelected(true);
+        abtitle.setClickable(false);
+
         invalidateOptionsMenu();
         if (contact.showInRoster()) {
             binding.detailsSendPresence.setVisibility(View.VISIBLE);
