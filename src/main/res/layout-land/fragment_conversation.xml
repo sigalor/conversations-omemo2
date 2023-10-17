@@ -252,7 +252,7 @@
 
                             <eu.siacs.conversations.ui.widget.EditMessage
                                 android:id="@+id/textinput"
-                                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                                style="@style/Widget.Conversations.EditText"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:ems="10"
