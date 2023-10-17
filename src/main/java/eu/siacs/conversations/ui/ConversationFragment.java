@@ -2130,7 +2130,6 @@ public class ConversationFragment extends XmppFragment
                             File f = activity.xmppConnectionService.getFileBackend().getFile(selectedMessage);
                             activity.xmppConnectionService.blockMedia(f);
                             if (activity.xmppConnectionService.getFileBackend().deleteFile(selectedMessage)) {
-                                selectedMessage.setDeleted(true);
                                 activity.xmppConnectionService.evictPreview(f);
                                 activity.xmppConnectionService.updateMessage(selectedMessage, false);
                                 activity.onConversationsListItemUpdated();
