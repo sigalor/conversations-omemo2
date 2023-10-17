@@ -281,7 +281,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             this.attributes = new JSONObject();
         }
     }
-    @SuppressLint("Range")
+
     public static Conversation fromCursor(Cursor cursor) {
         return new Conversation(cursor.getString(cursor.getColumnIndex(UUID)),
                 cursor.getString(cursor.getColumnIndex(NAME)),
