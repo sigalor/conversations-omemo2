@@ -512,6 +512,7 @@
 \nDu wirst nun gefragt, ob du den Zugriff auf deine Kontakte erlauben möchtest.</string>
     <string name="notify_on_all_messages">Bei allen Nachrichten benachrichtigen</string>
     <string name="notify_only_when_highlighted">Nur benachrichtigen, wenn ich erwähnt werde</string>
+    <string name="notify_only_when_highlighted_or_replied">Benachrichtigen bei Erwähnungen und Antworten</string>
     <string name="notify_never">Benachrichtigungen deaktiviert</string>
     <string name="notify_paused">Benachrichtigungen pausiert</string>
     <string name="pref_picture_quality">Bildqualität</string>
