@@ -22,9 +22,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:clickable="true"
-        android:focusable="true"
-        android:drawableStart="@drawable/ic_edit_white_24dp">
-        <!--What you want to show-->
+        android:focusable="true">
     </RelativeLayout>
 
     <RelativeLayout
