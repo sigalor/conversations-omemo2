@@ -1582,7 +1582,9 @@ public class XmppConnectionService extends Service {
     public void onCreate() {
         org.jxmpp.stringprep.libidn.LibIdnXmppStringprep.setup();
         emojiSearch = new EmojiSearch(this);
-        updateNotificationChannels();
+        new Thread( new Runnable() { @Override public void run() {
+            updateNotificationChannels();
+        } } ).start();
         setTheme(ThemeHelper.find(this));
         ThemeHelper.applyCustomColors(this);
         if (Compatibility.runsTwentySix()) {
