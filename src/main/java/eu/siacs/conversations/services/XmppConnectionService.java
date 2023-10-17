@@ -1701,6 +1701,7 @@ public class XmppConnectionService extends Service {
             new Thread(mNotificationService::updateChannels).start();
         }
     }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void cleanOldNotificationChannels() {
         new Thread(() -> {
@@ -1937,7 +1938,7 @@ public class XmppConnectionService extends Service {
             } else {
                 pendingIntent =
                         PendingIntent.getBroadcast(
-                                this, requestCode, intent, 0);
+                                this, requestCode, intent, PendingIntent.FLAG_MUTABLE);     //TODO: Check whether mutable or immutable flag
             }
             alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
         } catch (RuntimeException e) {
@@ -5101,8 +5102,8 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean allowMergeMessages() {
-        return false;
-        //return getBooleanPreference("allowmergemessages", R.bool.allowmergemessages);
+        //return false;
+        return getBooleanPreference("allowmergemessages", R.bool.allowmergemessages);
     }
 
     public boolean showTextFormatting() {
