@@ -4168,7 +4168,7 @@ public class ConversationFragment extends XmppFragment
             params.width = identiconWidth;
         }
         binding.threadIdenticonLayout.setLayoutParams(params);
-        // showRecordVoiceButton(); //TODO: Disable it for now since it's causing lagging
+        showRecordVoiceButton(); //TODO: Disable it maybe since it could cause lagging
         updateSnackBar(conversation);
         new Thread( new Runnable() { @Override public void run() {
             updateTextFormat(canSendMeCommand());
