@@ -35,6 +35,7 @@
 
     <style name="TextAppearance.Conversations.Body1.Linkified" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:textSize">?TextSizeBody1</item>
+        <item name="android:textColorLink">?android:colorAccent</item>
     </style>
 
     <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.Material3.LabelLarge">
