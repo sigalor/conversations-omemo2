@@ -4166,7 +4166,7 @@ public class ConversationFragment extends XmppFragment
             params.width = identiconWidth;
         }
         binding.threadIdenticonLayout.setLayoutParams(params);
-        showRecordVoiceButton();
+        //showRecordVoiceButton();      //TODO: Check if disabling this is really safe
         updateSnackBar(conversation);
         updateTextFormat(canSendMeCommand());
     }
