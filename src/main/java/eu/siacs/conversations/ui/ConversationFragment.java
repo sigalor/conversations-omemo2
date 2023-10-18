@@ -3354,7 +3354,7 @@ public class ConversationFragment extends XmppFragment
         //TODO: Show Cancel Button when empty message
         // TODO: Directly append emojis to message at messages position
     }
-    
+
 
     private void highlightInConference(String nick) {
         final Editable editable = this.binding.textinput.getText();
@@ -4166,9 +4166,11 @@ public class ConversationFragment extends XmppFragment
             params.width = identiconWidth;
         }
         binding.threadIdenticonLayout.setLayoutParams(params);
-        //showRecordVoiceButton();      //TODO: Check if disabling this is really safe
+        // showRecordVoiceButton(); //TODO: Disable it for now since it's causing lagging
         updateSnackBar(conversation);
-        updateTextFormat(canSendMeCommand());
+        new Thread( new Runnable() { @Override public void run() {
+            updateTextFormat(canSendMeCommand());
+        } } ).start();
     }
 
     protected void updateStatusMessages() {
