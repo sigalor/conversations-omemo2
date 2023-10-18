@@ -2435,6 +2435,10 @@ public class ConversationFragment extends XmppFragment
             Toast.makeText(getActivity(), R.string.only_one_call_at_a_time, Toast.LENGTH_LONG).show();
             return;
         }
+        final Account account = conversation.getAccount();
+        if (account.setOption(Account.OPTION_SOFT_DISABLED, false)) {
+            activity.xmppConnectionService.updateAccount(account);
+        }
         final Contact contact = conversation.getContact();
         if (contact.getPresences().anySupport(Namespace.JINGLE_MESSAGE)) {
             triggerRtpSession(contact.getAccount(), contact.getJid().asBareJid(), action);
