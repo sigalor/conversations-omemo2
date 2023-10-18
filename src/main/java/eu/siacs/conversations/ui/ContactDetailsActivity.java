@@ -805,8 +805,19 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             account = contact.getAccount().getJid().asBareJid().toEscapedString();
         }
         binding.detailsAccount.setText(getString(R.string.using_account, account));
-        AvatarWorkerTask.loadAvatar(contact, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);
+        if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(contact, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);
+            binding.detailsContactBadge.setVisibility(View.VISIBLE);
+        } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(contact, binding.detailsContactBadgeSquare, R.dimen.avatar_on_details_screen_size);
+            binding.detailsContactBadgeSquare.setVisibility(View.VISIBLE);
+        }
         binding.detailsContactBadge.setOnClickListener(this::onBadgeClick);
+        binding.detailsContactBadgeSquare.setOnClickListener(this::onBadgeClick);
+        binding.detailsContactBadgeSquare.setOnLongClickListener(v -> {
+            ShowAvatarPopup(ContactDetailsActivity.this, contact);
+            return true;
+        });
         binding.detailsContactBadge.setOnLongClickListener(v -> {
             ShowAvatarPopup(ContactDetailsActivity.this, contact);
             return true;

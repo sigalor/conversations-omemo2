@@ -71,7 +71,7 @@
                                             android:layout_marginRight="@dimen/avatar_item_distance"
                                             android:padding="1dp"
                                             android:scaleType="centerCrop"
-                                            app:riv_corner_radius="@dimen/rounded_image_border" />
+                                            app:riv_corner_radius="80dp" />
 
                                         <LinearLayout
                                             android:layout_width="wrap_content"

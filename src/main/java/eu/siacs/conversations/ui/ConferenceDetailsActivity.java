@@ -292,6 +292,29 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
             return true;
         });
+        this.binding.detailsMucAvatarSquare.setOnClickListener(v -> {
+            try {
+                final MucOptions mucOptions = mConversation.getMucOptions();
+                if (!mucOptions.hasVCards()) {
+                    ToastCompat.makeText(this, R.string.host_does_not_support_group_chat_avatars, ToastCompat.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!mucOptions.getSelf().getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
+                    ToastCompat.makeText(this, R.string.only_the_owner_can_change_group_chat_avatar, ToastCompat.LENGTH_SHORT).show();
+                    return;
+                }
+                final Intent intent = new Intent(this, PublishGroupChatProfilePictureActivity.class);
+                intent.putExtra("uuid", mConversation.getUuid());
+                startActivity(intent);
+            } catch (Exception e) {
+                ToastCompat.makeText(this, R.string.unable_to_perform_this_action, ToastCompat.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        });
+        this.binding.detailsMucAvatarSquare.setOnLongClickListener(v -> {
+            ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
+            return true;
+        });
         this.mAdvancedMode = getPreferences().getBoolean("advanced_muc_mode", false);
         this.binding.mucInfoMore.setVisibility(this.mAdvancedMode ? View.VISIBLE : View.GONE);
         this.binding.notificationStatusButton.setOnClickListener(this.mNotifyStatusClickListener);
@@ -647,9 +670,17 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             this.binding.detailsAccount.setVisibility(View.GONE);
         }
         //todo add edit overlay to avatar and change layout
-        AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatar, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
-        AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhoto, R.dimen.avatar_on_details_screen_size);
-
+        if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatar, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
+            AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhoto, R.dimen.avatar_on_details_screen_size);
+            binding.detailsMucAvatar.setVisibility(View.VISIBLE);
+            binding.yourPhoto.setVisibility(View.VISIBLE);
+        } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatarSquare, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
+            AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhotoSquare, R.dimen.avatar_on_details_screen_size);
+            binding.detailsMucAvatarSquare.setVisibility(View.VISIBLE);
+            binding.yourPhotoSquare.setVisibility(View.VISIBLE);
+        }
         String roomName = mucOptions.getName();
         String subject = mucOptions.getSubject();
         final boolean hasTitle;

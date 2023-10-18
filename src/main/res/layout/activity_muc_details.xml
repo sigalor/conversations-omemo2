@@ -74,7 +74,19 @@
                                             android:layout_marginRight="@dimen/avatar_item_distance"
                                             android:padding="1dp"
                                             android:scaleType="centerCrop"
-                                            app:riv_corner_radius="80dp" />
+                                            app:riv_corner_radius="80dp"
+                                            android:visibility="gone" />
+
+                                        <com.makeramen.roundedimageview.RoundedImageView
+                                            android:id="@+id/details_muc_avatar_square"
+                                            android:layout_width="@dimen/avatar_on_details_screen_size"
+                                            android:layout_height="@dimen/avatar_on_details_screen_size"
+                                            android:layout_marginEnd="@dimen/avatar_item_distance"
+                                            android:layout_marginRight="@dimen/avatar_item_distance"
+                                            android:padding="1dp"
+                                            android:scaleType="centerCrop"
+                                            app:riv_corner_radius="5dp"
+                                            android:visibility="gone" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
@@ -374,7 +386,21 @@
                                     android:layout_alignParentRight="false"
                                     android:padding="1dp"
                                     app:strokeColor="@color/custom_theme_accent"
-                                    app:riv_corner_radius="30dp" />
+                                    app:riv_corner_radius="80dp"
+                                    android:visibility="gone" />
+
+                                <com.makeramen.roundedimageview.RoundedImageView
+                                    android:id="@+id/your_photo_square"
+                                    android:layout_width="@dimen/avatar_on_details_screen_size"
+                                    android:layout_height="@dimen/avatar_on_details_screen_size"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_alignParentEnd="false"
+                                    android:layout_alignParentRight="false"
+                                    android:padding="1dp"
+                                    app:strokeColor="@color/custom_theme_accent"
+                                    app:riv_corner_radius="5dp"
+                                    android:visibility="gone" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
