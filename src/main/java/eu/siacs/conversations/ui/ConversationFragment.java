@@ -1474,6 +1474,7 @@ public class ConversationFragment extends XmppFragment
         final MenuItem menuNeedHelp = menu.findItem(R.id.action_create_issue);
         final MenuItem menuSearchUpdates = menu.findItem(R.id.action_check_updates);
         final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive_chat);
+        final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
         final MenuItem menuGroupDetails = menu.findItem(R.id.action_group_details);
         final MenuItem menuParticipants = menu.findItem(R.id.action_participants);
         final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
@@ -1486,7 +1487,8 @@ public class ConversationFragment extends XmppFragment
         if (conversation != null) {
             if (conversation.getMode() == Conversation.MODE_MULTI || (activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection())) {
                 menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
-                menuArchiveChat.setTitle(R.string.action_end_conversation_muc);
+                menuArchiveChat.setVisible(false);
+                menuLeaveGroup.setVisible(true);
                 menuCall.setVisible(false);
                 menuOngoingCall.setVisible(false);
                 menuParticipants.setVisible(true);
@@ -1505,7 +1507,8 @@ public class ConversationFragment extends XmppFragment
                 }
                 menuParticipants.setVisible(false);
                 menuInviteContact.setVisible(false);
-                menuArchiveChat.setTitle(R.string.action_end_conversation);
+                menuArchiveChat.setVisible(true);
+                menuLeaveGroup.setVisible(false);
             }
             try {
                 Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
@@ -2240,19 +2243,18 @@ public class ConversationFragment extends XmppFragment
                 startSearch();
                 break;
             case R.id.action_archive_chat:
-                if (conversation.getMode() == Conversation.MODE_SINGLE) {
                     activity.xmppConnectionService.archiveConversation(conversation);
-                } else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                    builder.setTitle(activity.getString(R.string.action_end_conversation_muc));
-                    builder.setMessage(activity.getString(R.string.leave_conference_warning));
-                    builder.setNegativeButton(activity.getString(R.string.cancel), null);
-                    builder.setPositiveButton(activity.getString(R.string.action_end_conversation_muc),
-                            (dialog, which) -> {
-                                activity.xmppConnectionService.archiveConversation(conversation);
-                            });
-                    builder.create().show();
-                }
+                break;
+            case R.id.action_leave_group:
+                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle(activity.getString(R.string.action_end_conversation_muc));
+                builder.setMessage(activity.getString(R.string.leave_conference_warning));
+                builder.setNegativeButton(activity.getString(R.string.cancel), null);
+                builder.setPositiveButton(activity.getString(R.string.action_end_conversation_muc),
+                        (dialog, which) -> {
+                            activity.xmppConnectionService.archiveConversation(conversation);
+                        });
+                builder.create().show();
                 break;
             case R.id.action_invite:
                 startActivityForResult(ChooseContactActivity.create(activity, conversation), REQUEST_INVITE_TO_CONVERSATION);

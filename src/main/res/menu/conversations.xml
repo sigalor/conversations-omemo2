@@ -44,4 +44,11 @@
         android:orderInCategory="50"
         android:title="@string/action_end_conversation"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_leave_group"
+        android:orderInCategory="50"
+        android:title="@string/action_end_conversation_muc"
+        app:showAsAction="never"
+        android:visible="false" />
 </menu>

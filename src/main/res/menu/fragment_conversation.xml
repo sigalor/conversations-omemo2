@@ -131,6 +131,12 @@
         android:title="@string/action_end_conversation"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_leave_group"
+        android:orderInCategory="60"
+        android:title="@string/action_end_conversation_muc"
+        app:showAsAction="never"
+        android:visible="false" />
+    <item
         android:id="@+id/action_toggle_pinned"
         android:orderInCategory="72"
         android:title="@string/add_to_favorites"
