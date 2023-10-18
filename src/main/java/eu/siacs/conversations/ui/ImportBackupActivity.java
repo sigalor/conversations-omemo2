@@ -134,7 +134,7 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
                 backupFileAdapter.setFiles(files);
             } else {
                 this.binding.hint.setVisibility(View.VISIBLE);
-                if (Compatibility.runsThirty()) {
+                if (Compatibility.runsThirty() && !Compatibility.runsThirtyThree()) {
                     this.binding.hint.setText(getString(R.string.import_backup_description));
                 } else {
                     this.binding.hint.setText(getString(R.string.no_backup_available));
