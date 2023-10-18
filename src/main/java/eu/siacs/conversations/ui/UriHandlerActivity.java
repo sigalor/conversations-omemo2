@@ -155,7 +155,8 @@ public class UriHandlerActivity extends AppCompatActivity {
 
         if (uri.getScheme().equals("sgnl")) {
             stickers = Uri.parse("https://stickers.cheogram.com/signal/" + uri.getQueryParameter("pack_id") + "," + uri.getQueryParameter("pack_key"));
-            if (hasStoragePermission(1)) downloadStickers();
+            if (hasStoragePermission(1) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                downloadStickers();
             return false;
         }
 
@@ -164,7 +165,8 @@ public class UriHandlerActivity extends AppCompatActivity {
             q.setAllowUnregisteredParamaters(true);
             q.parseQuery(uri.getFragment());
             stickers = Uri.parse("https://stickers.cheogram.com/signal/" + q.getValue("pack_id") + "," + q.getValue("pack_key"));
-            if (hasStoragePermission(1)) downloadStickers();
+            if (hasStoragePermission(1) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                downloadStickers();
             return false;
         }
 

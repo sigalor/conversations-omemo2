@@ -388,7 +388,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         builder.setTitle("Download Stickers?");
         builder.setMessage("Would you like to download some default sticker packs?");
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-            if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
+            if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 downloadStickers();
             }
         });

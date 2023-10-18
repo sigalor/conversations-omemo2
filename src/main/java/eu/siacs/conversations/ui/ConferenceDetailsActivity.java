@@ -3,6 +3,8 @@ package eu.siacs.conversations.ui;
 import static eu.siacs.conversations.entities.Bookmark.printableValue;
 import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
 import static eu.siacs.conversations.utils.StringUtils.changed;
+
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -351,7 +353,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         if (this.mTheme != theme) {
             recreate();
         }
-        binding.mediaWrapper.setVisibility(Compatibility.hasStoragePermission(this) ? View.VISIBLE : View.GONE);
+        binding.mediaWrapper.setVisibility((Compatibility.hasStoragePermission(this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ? View.VISIBLE : View.GONE);
     }
 
     private boolean canChangeMUCAvatar() {
@@ -622,7 +624,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         if (uuid != null) {
             this.mConversation = xmppConnectionService.findConversationByUuid(uuid);
             if (this.mConversation != null) {
-                if (Compatibility.hasStoragePermission(this)) {
+                if (Compatibility.hasStoragePermission(this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     final int limit = GridManager.getCurrentColumnCount(this.binding.media);
                     xmppConnectionService.getAttachments(this.mConversation, limit, this);
                     this.binding.showMedia.setOnClickListener((v) -> MediaBrowserActivity.launch(this, mConversation));

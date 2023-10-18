@@ -237,7 +237,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 break;
             case R.id.action_import_backup:
-                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
+                if (hasStoragePermission(REQUEST_IMPORT_BACKUP) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     startActivity(new Intent(this, ImportBackupActivity.class));
                 }
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
@@ -246,7 +246,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 addAccountFromKey();
                 break;
             case R.id.action_create_backup:
-                if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
+                if (hasStoragePermission(REQUEST_CREATE_BACKUP) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     createBackup();
                 }
                 break;
@@ -284,8 +284,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0) {
-            if (allGranted(grantResults)) {
+        if (grantResults.length > 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (allGranted(grantResults) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 switch (requestCode) {
                     case REQUEST_MICROPHONE:
                         try {

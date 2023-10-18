@@ -1649,7 +1649,7 @@ public class XmppConnectionService extends Service {
         }
         FileBackend.switchStorage(usingInnerStorage());
         FILE_OBSERVER_EXECUTOR.execute(fileBackend::deleteHistoricAvatarPath);
-        if (Compatibility.hasStoragePermission(this)) {
+        if (Compatibility.hasStoragePermission(this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Log.d(Config.LOGTAG, "starting file observer");
             FILE_OBSERVER_EXECUTOR.execute(this.fileObserver::startWatching);
             FILE_OBSERVER_EXECUTOR.execute(this::checkForDeletedFiles);

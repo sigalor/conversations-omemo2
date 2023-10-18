@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -67,9 +68,9 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0)
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (requestCode == REQUEST_STORAGE_PERMISSION) {
+        if (grantResults.length > 0  || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (requestCode == REQUEST_STORAGE_PERMISSION || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (this.mPendingConversation != null) {
                         share(this.mPendingConversation);
                     } else {
@@ -180,7 +181,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
     }
 
     private void share(final Conversation conversation) {
-        if (share.uris.size() != 0 && !hasStoragePermission(REQUEST_STORAGE_PERMISSION)) {
+        if (share.uris.size() != 0 && !hasStoragePermission(REQUEST_STORAGE_PERMISSION) && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             mPendingConversation = conversation;
             return;
         }
