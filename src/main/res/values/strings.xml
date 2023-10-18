@@ -251,7 +251,7 @@
     <string name="sure_delete_fingerprint">Are you sure you would like to delete this fingerprint?</string>
     <string name="ignore">Ignore</string>
     <string name="without_mutual_presence_updates"><b>Warning:</b> Sending this without mutual presence updates could cause unexpected problems.\n\n<small>Go to contact details to verify your presence subscriptions.</small></string>
-    <string name="pref_security_settings">Security and data protection</string>
+    <string name="pref_security_settings">Security and Privacy</string>
     <string name="pref_allow_message_correction">Allow message correction</string>
     <string name="pref_allow_message_correction_summary">Allow your contacts to retroactively edit their messages</string>
     <string name="pref_allow_message_retraction">Allow message retraction</string>
