@@ -1071,7 +1071,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (conversation != null) {
                 actionBar.setDisplayHomeAsUpEnabled(true);
                 final View view = getLayoutInflater().inflate(R.layout.ab_title, null);
-                final View MUCview = getLayoutInflater().inflate(R.layout.activity_muc_details, null);
                 getSupportActionBar().setCustomView(view);
                 actionBar.setIcon(null);
                 actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.color_background_secondary)));
@@ -1105,13 +1104,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 } else {
                     ChatState state = ChatState.COMPOSING;
                     List<MucOptions.User> userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
-                    if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                        AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.details_muc_avatar), R.dimen.muc_avatar_actionbar);
-                        findViewById(R.id.details_muc_avatar).setVisibility(View.VISIBLE);
-                    } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                        AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.details_muc_avatar_square), R.dimen.muc_avatar_actionbar);
-                        findViewById(R.id.details_muc_avatar_square).setVisibility(View.VISIBLE);
-                    }
                     if (userWithChatStates.size() == 0) {
                         state = ChatState.PAUSED;
                         userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
@@ -1146,6 +1138,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         }
                     }
                     absubtitle.setSelected(true);
+                }
+                if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.toolbar_avatar), R.dimen.muc_avatar_actionbar);
+                    findViewById(R.id.details_muc_avatar).setVisibility(View.VISIBLE);
+                } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.toolbar_avatar_square), R.dimen.muc_avatar_actionbar);
+                    findViewById(R.id.details_muc_avatar_square).setVisibility(View.VISIBLE);
                 }
                 ActionBarUtil.setCustomActionBarOnClickListener(
                         binding.toolbar,

@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/details_muc_avatar"
+        android:id="@+id/toolbar_avatar"
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_marginEnd="8dp"
@@ -20,7 +20,7 @@
         android:visibility="gone"/>
 
     <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/details_muc_avatar_square"
+        android:id="@+id/toolbar_avatar_square"
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_marginEnd="8dp"
