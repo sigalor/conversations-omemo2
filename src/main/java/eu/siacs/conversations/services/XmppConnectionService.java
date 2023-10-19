@@ -27,6 +27,9 @@ import eu.siacs.conversations.utils.Consumer;
 
 import static eu.siacs.conversations.utils.Compatibility.s;
 import android.Manifest;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -1060,8 +1063,8 @@ public class XmppConnectionService extends Service {
             deleteWebpreviewCache();
         }
         // move files from /monocles chat/ --> /Android/data/ for Android >= 30
-        if (Compatibility.runsThirty() && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+        if ((Compatibility.runsThirty() && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) || Compatibility.runsThirtyThree()) {
             StorageHelper.migrateStorage(this);
         }
         return START_STICKY;
@@ -1649,7 +1652,7 @@ public class XmppConnectionService extends Service {
         }
         FileBackend.switchStorage(usingInnerStorage());
         FILE_OBSERVER_EXECUTOR.execute(fileBackend::deleteHistoricAvatarPath);
-        if (Compatibility.hasStoragePermission(this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Compatibility.hasStoragePermission(this) || Compatibility.runsThirtyThree()) {
             Log.d(Config.LOGTAG, "starting file observer");
             FILE_OBSERVER_EXECUTOR.execute(this.fileObserver::startWatching);
             FILE_OBSERVER_EXECUTOR.execute(this::checkForDeletedFiles);
@@ -1825,7 +1828,7 @@ public class XmppConnectionService extends Service {
         toggleForegroundService(false);
     }
 
-    private void toggleForegroundService(boolean force) {
+    public void toggleForegroundService(boolean force) {
         final boolean status;
         final OngoingCall ongoing = ongoingCall.get();
         final boolean showOngoing = ongoing != null && !diallerIntegrationActive.get();
@@ -1940,7 +1943,7 @@ public class XmppConnectionService extends Service {
             } else {
                 pendingIntent =
                         PendingIntent.getBroadcast(
-                                this, requestCode, intent, PendingIntent.FLAG_MUTABLE);     //TODO: Check whether mutable or immutable flag
+                                this, requestCode, intent, PendingIntent.FLAG_MUTABLE);     // TODO: Check whether mutable or immutable flag
             }
             alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
         } catch (RuntimeException e) {

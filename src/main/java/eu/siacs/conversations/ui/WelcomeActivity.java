@@ -8,6 +8,7 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,9 +19,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import java.util.Arrays;
@@ -97,6 +101,23 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             recreate();
         }
         new InstallReferrerUtils(this);
+
+        // SDK >= 33 Foreground service
+        if (Compatibility.runsThirtyThree()) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY) == PackageManager.PERMISSION_GRANTED)
+                return;
+            ActivityResultLauncher<String> launcher = registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(), isGranted -> {
+                        if (isGranted) {
+                            ToastCompat.makeText(this, R.string.notifications_enabled, ToastCompat.LENGTH_SHORT).show();
+                        } else {
+                            ToastCompat.makeText(this, R.string.notifications_disabled, ToastCompat.LENGTH_SHORT).show();
+                        }
+
+                    }
+            );
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
     }
 
     @Override
@@ -115,7 +136,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         if (getResources().getBoolean(R.bool.portrait_only)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
         super.onCreate(savedInstanceState);
         getPreferences().edit().putStringSet("pstn_gateways", new HashSet<>()).apply();
@@ -128,7 +149,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         }
         IntroHelper.showIntro(this, false);
         UpdateHelper.showPopup(this);
-        if (hasStoragePermission(REQUEST_IMPORT_BACKUP) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (hasStoragePermission(REQUEST_IMPORT_BACKUP) || Compatibility.runsThirtyThree()) {
             binding.importDatabase.setVisibility(View.VISIBLE);
             binding.importText.setVisibility(View.VISIBLE);
         }

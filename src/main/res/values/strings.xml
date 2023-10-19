@@ -1338,4 +1338,6 @@
     <string name="enter_user_name">Enter a name</string>
     <string name="account_color">Account Color</string>
     <string name="account_color_summary">Used on conversation and contact lists, and notifications</string>
+    <string name="notifications_enabled">Notifications enabled</string>
+    <string name="notifications_disabled">Notifications disabled. Please activate them in your android settings.</string>
 </resources>

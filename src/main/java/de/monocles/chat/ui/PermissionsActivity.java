@@ -82,7 +82,7 @@ public class PermissionsActivity extends AppCompatActivity
 
     public static String[] permissions() {
         String[] p;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Compatibility.runsThirtyThree()) {
             p = storage_permissions_33;
         } else {
             p = storage_permissions;

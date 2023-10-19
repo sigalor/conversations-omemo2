@@ -531,7 +531,7 @@ public class ConversationFragment extends XmppFragment
                     return false;
                 }
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU || hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (Compatibility.runsThirtyThree() || (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE))) {
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
             } else {
                 mPendingEditorContent = inputContentInfo.getContentUri();
@@ -1355,7 +1355,7 @@ public class ConversationFragment extends XmppFragment
 
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (!Compatibility.runsThirtyThree() && anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
@@ -2715,8 +2715,9 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void startDownloadable(Message message) {
-        if (!hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (!hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.READ_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
             this.mPendingDownloadableMessage = message;
+            ToastCompat.makeText(getActivity(), R.string.no_storage_permission, ToastCompat.LENGTH_SHORT).show();
             return;
         }
         Transferable transferable = message.getTransferable();
@@ -2822,7 +2823,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean hasPermissions(int requestCode, List<String> permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Compatibility.runsThirtyThree()) {
             final List<String> missingPermissions = new ArrayList<>();
             for (String permission : permissions) {
                 if (Config.ONLY_INTERNAL_STORAGE
@@ -2845,6 +2846,7 @@ public class ConversationFragment extends XmppFragment
             return true;
         }
     }
+
     private boolean hasPermissions(int requestCode, String... permissions) {
         return hasPermissions(requestCode, ImmutableList.copyOf(permissions));
     }
