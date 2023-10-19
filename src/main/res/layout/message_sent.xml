@@ -32,8 +32,8 @@
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/message_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
@@ -43,8 +43,8 @@
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/message_photo_square"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
