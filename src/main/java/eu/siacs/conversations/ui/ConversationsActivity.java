@@ -1141,10 +1141,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 }
                 if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                     AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.toolbar_avatar), R.dimen.muc_avatar_actionbar);
-                    findViewById(R.id.details_muc_avatar).setVisibility(View.VISIBLE);
+                    findViewById(R.id.toolbar_avatar).setVisibility(View.VISIBLE);
                 } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                     AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.toolbar_avatar_square), R.dimen.muc_avatar_actionbar);
-                    findViewById(R.id.details_muc_avatar_square).setVisibility(View.VISIBLE);
+                    findViewById(R.id.toolbar_avatar_square).setVisibility(View.VISIBLE);
                 }
                 ActionBarUtil.setCustomActionBarOnClickListener(
                         binding.toolbar,
