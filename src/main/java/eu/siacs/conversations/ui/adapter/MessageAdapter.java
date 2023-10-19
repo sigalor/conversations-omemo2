@@ -1423,7 +1423,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.transfer = view.findViewById(R.id.transfer);
                     viewHolder.progressBar = view.findViewById(R.id.progressBar);
                     viewHolder.cancel_transfer = view.findViewById(R.id.cancel_transfer);
-                    viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
+                    if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                        viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
+                    }
                     break;
                 case RECEIVED:
                     view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
@@ -1510,8 +1512,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (received) {
                 if (duration > 0) {
                     viewHolder.status_message.setText(activity.getString(R.string.incoming_call_duration_timestamp, TimeFrameUtils.resolve(activity, duration), UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
+                } else if (rtpSessionStatus.successful) {
+                    viewHolder.status_message.setText(R.string.incoming_call);
                 } else {
-                    viewHolder.status_message.setText(activity.getString(R.string.missed_call_timestamp, formattedTime));
+                    viewHolder.status_message.setText(activity.getString(R.string.missed_call_timestamp, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
                 }
             } else {
                 if (duration > 0) {
