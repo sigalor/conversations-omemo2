@@ -59,7 +59,7 @@
             android:src="?attr/icon_scroll_down"
             android:visibility="gone"
             app:backgroundTint="?attr/color_background_primary"
-            app:fabSize="mini"
+            app:fabCustomSize="48dp"
             app:useCompatPadding="true" />
 
         <eu.siacs.conversations.ui.widget.UnreadCountCustomView
