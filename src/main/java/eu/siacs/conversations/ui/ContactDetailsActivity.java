@@ -330,7 +330,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, getResources().getBoolean(R.bool.show_dynamic_tags));
             this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
         }
-        binding.mediaWrapper.setVisibility((Compatibility.hasStoragePermission(this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ? View.VISIBLE : View.GONE);
+        binding.mediaWrapper.setVisibility((Compatibility.hasStoragePermission(this) || Compatibility.runsThirtyThree()) ? View.VISIBLE : View.GONE);
         mMediaAdapter.setAttachments(Collections.emptyList());
     }
 
