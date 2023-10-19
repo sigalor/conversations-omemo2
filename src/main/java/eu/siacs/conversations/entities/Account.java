@@ -80,6 +80,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     public static final int OPTION_UNVERIFIED = 8;
     public static final int OPTION_FIXED_USERNAME = 9;
     public static final int OPTION_QUICKSTART_AVAILABLE = 10;
+    public static final int OPTION_SOFT_DISABLED = 11;
 
     private static final String KEY_PGP_SIGNATURE = "pgp_signature";
     private static final String KEY_PGP_ID = "pgp_id";
@@ -282,6 +283,10 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         return !isOptionSet(Account.OPTION_DISABLED);
     }
 
+    public boolean isConnectionEnabled() {
+        return !isOptionSet(Account.OPTION_DISABLED) && !isOptionSet(Account.OPTION_SOFT_DISABLED);
+    }
+
     public boolean isOptionSet(final int option) {
         return ((options & (1 << option)) != 0);
     }
@@ -364,6 +369,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     public State getStatus() {
         if (isOptionSet(OPTION_DISABLED)) {
             return State.DISABLED;
+        } else if (isOptionSet(OPTION_SOFT_DISABLED)) {
+            return State.LOGGED_OUT;
         } else {
             return this.status;
         }
@@ -850,6 +857,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     public enum State {
         DISABLED(false, false),
+        LOGGED_OUT(false,false),
         OFFLINE(false),
         CONNECTING(false),
         ONLINE(false),
@@ -909,6 +917,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
             switch (this) {
                 case DISABLED:
                     return R.string.account_status_disabled;
+                case LOGGED_OUT:
+                    return R.string.account_state_logged_out;
                 case ONLINE:
                     return R.string.account_status_online;
                 case CONNECTING:

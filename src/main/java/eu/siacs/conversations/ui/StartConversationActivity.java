@@ -1123,8 +1123,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         boolean foundSignal = false;
         boolean foundTelegram = false;
         boolean foundSMS = false;
-        for (Account account : accounts) {
-            if (account.getStatus() != Account.State.DISABLED) {
+        for (final Account account : accounts) {
+            if (account.isEnabled()) {
                 for (Contact contact : account.getRoster().getContacts()) {
                     Presence.Status s = contact.getShownStatus();
                     if (contact.showInContactList() && contact.match(this, needle)
@@ -1265,7 +1265,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     protected void filterConferences(String needle) {
         this.conferences.clear();
         for (final Account account : xmppConnectionService.getAccounts()) {
-            if (account.getStatus() != Account.State.DISABLED) {
+            if (account.isEnabled()) {
                 for (final Bookmark bookmark : account.getBookmarks()) {
                     if (bookmark.match(this, needle)) {
                         this.conferences.add(bookmark);

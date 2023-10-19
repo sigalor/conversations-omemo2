@@ -544,6 +544,7 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             final Account account = conversation == null ? null : conversation.getAccount();
             if (account != null) {
+                account.setOption(Account.OPTION_SOFT_DISABLED, false);
                 account.setOption(Account.OPTION_DISABLED, false);
                 activity.xmppConnectionService.updateAccount(account);
             }
@@ -3949,6 +3950,8 @@ public class ConversationFragment extends XmppFragment
         }
         if (account.getStatus() == Account.State.DISABLED) {
             showSnackbar(R.string.this_account_is_disabled, R.string.enable, this.mEnableAccountListener);
+        } else if (account.getStatus() == Account.State.LOGGED_OUT) {
+            showSnackbar(R.string.this_account_is_logged_out,R.string.log_in,this.mEnableAccountListener);
         } else if (conversation.isBlocked()) {
             showSnackbar(R.string.contact_blocked, R.string.unblock, this.mUnblockClickListener);
         } else if (contact != null && !contact.showInRoster() && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {

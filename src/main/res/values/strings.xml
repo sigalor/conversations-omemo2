@@ -134,6 +134,7 @@
     <string name="error_security_exception_during_image_copy">The app you used to select this image did not provide us with enough permissions to read the file.\n\n<small>Use a different file manager to choose an image</small></string>
     <string name="account_status_unknown">Unknown</string>
     <string name="account_status_disabled">Temporarily disabled</string>
+    <string name="account_state_logged_out">Logged out</string>
     <string name="account_status_online">Online</string>
     <string name="account_status_connecting">Connecting\u2026</string>
     <string name="account_status_offline">Offline</string>
@@ -514,6 +515,7 @@
     <string name="no_keys_just_confirm">You already trust this contact. By selecting ’done’ you are just confirming that %s is part of this room.</string>
     <string name="contacts_have_no_pgp_keys">monocles chat is unable to encrypt your messages because your contacts are not announcing their public keys.\n\n</string>
     <string name="this_account_is_disabled">You have disabled this account</string>
+    <string name="this_account_is_logged_out">You have logged out of this account</string>
     <string name="no_application_to_share_uri">No application found to share URI</string>
     <string name="share_uri_with">Share URI with…</string>
     <string name="mgmt_account_reconnect">Reconnect</string>
@@ -1346,4 +1348,7 @@
     <string name="no_media_permission">No media storage permission</string>
     <string name="pref_set_text_collapsable">Collapse long text</string>
     <string name="pref_set_text_collapsable_summary">Collapses text with more than 240 signs</string>
+    <string name="hide_notification">Hide notification</string>
+    <string name="log_out">Log out</string>
+    <string name="log_in">Log in</string>
 </resources>
