@@ -1383,4 +1383,6 @@
     <string name="enter_user_name">Gebe einen Namen ein</string>
     <string name="account_color">Kontofarbe</string>
     <string name="account_color_summary">Kontofarbe for die Chatliste, Kontakteliste und Benachrichtigungen.</string>
+    <string name="pref_show_less_avatars">Zeige weniger Profilbilder in Chats</string>
+    <string name="pref_show_less_avatars_summary">Zeigt nur noch notwendige Profilbilder in Unterhaltungen an</string>
 </resources>

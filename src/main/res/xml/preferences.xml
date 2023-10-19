@@ -86,6 +86,11 @@
             android:key="set_round_avatars"
             android:summary="@string/pref_set_round_avatars_summary"
             android:title="@string/pref_set_round_avatars" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/show_less_avatars"
+            android:key="show_less_avatars"
+            android:summary="@string/pref_show_less_avatars_summary"
+            android:title="@string/pref_show_less_avatars" />
         <ListPreference
             android:defaultValue="@string/default_font_size"
             android:entries="@array/font_size_entries"

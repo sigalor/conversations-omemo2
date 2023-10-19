@@ -1340,4 +1340,6 @@
     <string name="account_color_summary">Used on conversation and contact lists, and notifications</string>
     <string name="notifications_enabled">Notifications enabled</string>
     <string name="notifications_disabled">Notifications disabled. Please activate them in your android settings.</string>
+    <string name="pref_show_less_avatars">Show less avatars in chats</string>
+    <string name="pref_show_less_avatars_summary">Only necessary avatars in conversations will be shown</string>
 </resources>
