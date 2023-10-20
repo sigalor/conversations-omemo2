@@ -1770,16 +1770,10 @@ public class ConversationFragment extends XmppFragment
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
         final boolean ShowRecordVoiceButton = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
         Log.d(Config.LOGTAG, "Recorder " + ShowRecordVoiceButton);
-        if (ShowRecordVoiceButton || binding.textinput.getText().length() > 0) {
+        if (!ShowRecordVoiceButton || binding.textinput.getText().length() > 0) {
             binding.recordVoiceButton.setVisibility(GONE);
-        }
-        if (!ShowRecordVoiceButton || binding.textinput.getText().length() < 1) {
-            if (ShowRecordVoiceButton) {
-                binding.recordVoiceButton.setVisibility(View.VISIBLE);
-            } else {
-                binding.recordVoiceButton.setVisibility(GONE);
-
-            }
+        } else if (ShowRecordVoiceButton && binding.textinput.getText().length() < 1) {
+            binding.recordVoiceButton.setVisibility(View.VISIBLE);
         }
             binding.recordVoiceButton.setImageResource(activity.getThemeResource(R.attr.ic_send_voice_offline, R.drawable.ic_send_voice_offline));
     }
