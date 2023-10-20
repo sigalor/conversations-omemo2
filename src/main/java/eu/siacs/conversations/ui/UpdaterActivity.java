@@ -46,6 +46,7 @@ import eu.siacs.conversations.http.NoSSLv3SocketFactory;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.util.CustomTab;
+import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.WakeLockHelper;
 import me.drakeet.support.toast.ToastCompat;
 
@@ -99,7 +100,7 @@ public class UpdaterActivity extends XmppActivity {
         textView.setText(R.string.update_info);
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
-        if (getIntent() != null && getIntent().getStringExtra("update").equals("MonoclesMessenger_UpdateService")) {
+        if (getIntent() != null && getIntent().getStringExtra("update").equals("monocleschat_UpdateService")) {
             try {
                 appURI = getIntent().getStringExtra("url");
             } catch (Exception e) {
@@ -136,7 +137,7 @@ public class UpdaterActivity extends XmppActivity {
                     .setPositiveButton(R.string.update, (dialog, id) -> {
                         Log.d(Config.LOGTAG, "AppUpdater: downloading " + FileName + " from " + appURI);
                         //ask for permissions on devices >= SDK 23
-                        if ((isStoragePermissionGranted() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) && isNetworkAvailable(getApplicationContext())) {
+                        if ((isStoragePermissionGranted() || Compatibility.runsThirtyThree()) && isNetworkAvailable(getApplicationContext())) {
                             //start downloading the file using the download manager
                             if (store != null && store.equalsIgnoreCase(PlayStore) || BuildConfig.APPLICATION_ID.equals("de.monocles.chat")) {          //TODO: Check again which playstore ID
                                 ToastCompat.makeText(getApplicationContext(), getText(R.string.download_started), ToastCompat.LENGTH_LONG).show();
