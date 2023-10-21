@@ -109,7 +109,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             ActivityResultLauncher<String> launcher = registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(), isGranted -> {
                         if (isGranted) {
-                            ToastCompat.makeText(this, R.string.notifications_enabled, ToastCompat.LENGTH_SHORT).show();
+                            // ToastCompat.makeText(this, R.string.notifications_enabled, ToastCompat.LENGTH_SHORT).show(); // Don't always annoy the user
                         } else {
                             ToastCompat.makeText(this, R.string.notifications_disabled, ToastCompat.LENGTH_SHORT).show();
                         }
