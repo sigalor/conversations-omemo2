@@ -21,6 +21,8 @@ import android.content.pm.ServiceInfo;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.provider.DocumentsContract;
 import com.google.common.io.Files;
+
+import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.xmpp.OnGatewayResult;
@@ -181,6 +183,7 @@ import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
+import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ConversationsFileObserver;
 import eu.siacs.conversations.utils.CryptoHelper;
@@ -6283,4 +6286,18 @@ public class XmppConnectionService extends Service {
         }).start();
     }
     public static class BlockedMediaException extends Exception { }
+
+    public static void toggleForegroundService(final XmppConnectionService service) {
+        if (service == null) {
+            return;
+        }
+        service.toggleForegroundService();
+    }
+
+    public static void toggleForegroundService(final ConversationsActivity activity) {
+        if (activity == null) {
+            return;
+        }
+        toggleForegroundService(activity.xmppConnectionService);
+    }
 }
