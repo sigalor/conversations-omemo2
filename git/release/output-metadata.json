@@ -8,12 +8,64 @@
   "variantName": "gitRelease",
   "elements": [
     {
-      "type": "SINGLE",
+      "type": "UNIVERSAL",
       "filters": [],
       "attributes": [],
-      "versionCode": 121,
-      "versionName": "1.5.10",
-      "outputFile": "monocles chat-1.5.10null-git-release.apk"
+      "versionCode": 138,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-universal-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 13802,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-x86-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "armeabi-v7a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 13801,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-armeabi-v7a-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 13804,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-arm64-v8a-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86_64"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 13803,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-x86_64-release.apk"
     }
   ],
   "elementType": "File"
