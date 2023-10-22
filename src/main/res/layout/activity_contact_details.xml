@@ -243,13 +243,17 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/media_wrapper"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" >
+                    android:layout_height="wrap_content" >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/media"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="-2dp"
                             android:layout_marginEnd="-2dp"
                             android:orientation="horizontal"
@@ -277,6 +281,7 @@
                                 android:text="@string/view_media"
                                 android:textColor="?attr/colorAccent" />
                         </LinearLayout>
+                    </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <View
