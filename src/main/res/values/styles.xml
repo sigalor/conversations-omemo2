@@ -16,7 +16,7 @@
         <item name="android:textSize">?TextSizeTitle</item>
     </style>
 
-    <style name="TextAppearance.Conversations.Subhead" parent="TextAppearance.Material3.HeadlineSmall">
+    <style name="TextAppearance.Conversations.Subhead" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:textSize">?TextSizeSubhead</item>
     </style>
 
