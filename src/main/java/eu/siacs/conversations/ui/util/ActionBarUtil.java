@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 
 import java.lang.reflect.Field;
 
+import eu.siacs.conversations.R;
+
 public class ActionBarUtil {
 
     public static void resetActionBarOnClickListeners(@NonNull View view) {
@@ -48,11 +50,15 @@ public class ActionBarUtil {
                                                          @NonNull final View.OnClickListener onClickListener) {
         final View title = view.findViewById(android.R.id.text1);
         final View subtitle = view.findViewById(android.R.id.text2);
+        final View view_toolbar_avatar = view.findViewById(R.id.view_toolbar_avatar);
         if (title != null) {
             title.setOnClickListener(onClickListener);
         }
         if (subtitle != null) {
             subtitle.setOnClickListener(onClickListener);
+        }
+        if (view_toolbar_avatar != null) {
+            view_toolbar_avatar.setOnClickListener(onClickListener);
         }
     }
 

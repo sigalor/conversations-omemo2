@@ -81,6 +81,7 @@ import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
@@ -1077,6 +1078,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 actionBar.setDisplayShowCustomEnabled(true);
                 TextView abtitle = findViewById(android.R.id.text1);
                 TextView absubtitle = findViewById(android.R.id.text2);
+                final View avatartoolbarround = view.findViewById(R.id.toolbar_avatar);
+                final View avatartoolbarsquare = view.findViewById(R.id.toolbar_avatar_square);
                 abtitle.setText(conversation.getName());
                 abtitle.setSelected(true);
                 if (conversation.getMode() == Conversation.MODE_SINGLE) {
@@ -1140,10 +1143,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     absubtitle.setSelected(true);
                 }
                 if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                    AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.toolbar_avatar), R.dimen.muc_avatar_actionbar);
+                    AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarround, R.dimen.muc_avatar_actionbar);
                     findViewById(R.id.toolbar_avatar).setVisibility(View.VISIBLE);
                 } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                    AvatarWorkerTask.loadAvatar(conversation, findViewById(R.id.toolbar_avatar_square), R.dimen.muc_avatar_actionbar);
+                    AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarsquare, R.dimen.muc_avatar_actionbar);
                     findViewById(R.id.toolbar_avatar_square).setVisibility(View.VISIBLE);
                 }
                 ActionBarUtil.setCustomActionBarOnClickListener(

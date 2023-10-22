@@ -6,6 +6,14 @@
     android:gravity="start|center_vertical"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:id="@+id/view_toolbar_avatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="onClick"
+        android:layout_centerVertical="true">
+
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/toolbar_avatar"
         android:layout_width="38dp"
@@ -13,9 +21,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:padding="1dp"
-        android:clickable="true"
         android:scaleType="centerCrop"
-        android:layout_centerVertical="true"
         app:riv_corner_radius="30dp"
         android:visibility="gone"/>
 
@@ -26,22 +32,18 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:padding="1dp"
-        android:clickable="true"
-        android:layout_toRightOf="@+id/toolbar_avatar"
-        android:layout_toEndOf="@+id/toolbar_avatar"
         android:scaleType="centerCrop"
-        android:layout_centerVertical="true"
         app:riv_corner_radius="5dp"
         android:visibility="gone"/>
-
+    </RelativeLayout>
     <TextView
         android:id="@android:id/text1"
         style="@style/TextAppearance.Material3.ActionBar.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:layout_toRightOf="@+id/toolbar_avatar_square"
-        android:layout_toEndOf="@+id/toolbar_avatar_square"
+        android:layout_toRightOf="@+id/view_toolbar_avatar"
+        android:layout_toEndOf="@+id/view_toolbar_avatar"
         android:ellipsize="end"
         android:gravity="start|center_vertical"
         android:onClick="onClick"
@@ -55,8 +57,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@android:id/text1"
-        android:layout_toRightOf="@+id/toolbar_avatar_square"
-        android:layout_toEndOf="@+id/toolbar_avatar_square"
+        android:layout_toRightOf="@+id/view_toolbar_avatar"
+        android:layout_toEndOf="@+id/view_toolbar_avatar"
         android:clickable="true"
         android:ellipsize="end"
         android:gravity="start|center_vertical"
