@@ -1520,6 +1520,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else if (type == RTP_SESSION) {
             final boolean isDarkTheme = activity.isDarkTheme();
             final boolean received = message.getStatus() <= Message.STATUS_RECEIVED;
+            final String formattedTime = UIHelper.readableTimeDifferenceFull(activity, message.getMergedTimeSent());
             final RtpSessionStatus rtpSessionStatus = RtpSessionStatus.of(message.getBody());
             final long duration = rtpSessionStatus.duration;
             if (received) {

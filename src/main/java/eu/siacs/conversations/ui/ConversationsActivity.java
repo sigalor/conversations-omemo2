@@ -62,9 +62,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
 
 import de.monocles.chat.DownloadDefaultStickers;
@@ -83,7 +80,6 @@ import org.openintents.openpgp.util.OpenPgpApi;
 
 import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
-import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 
 import java.io.File;
@@ -702,25 +698,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             setIntent(createLauncherIntent(this));
         }
         UpdateHelper.showPopup(this);
-
-
-        // SDK >= 33 Foreground service
-        if (Compatibility.runsThirtyThree()) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY) == PackageManager.PERMISSION_GRANTED)
-                return;
-            ActivityResultLauncher<String> launcher = registerForActivityResult(
-                    new ActivityResultContracts.RequestPermission(), isGranted -> {
-                        if (isGranted) {
-                            Log.d("Notfications enabled", getString(R.string.notifications_enabled));
-                        } else {
-                            Log.d("Notfications disabled", getString(R.string.notifications_disabled));
-                            ToastCompat.makeText(this, R.string.notifications_disabled, ToastCompat.LENGTH_SHORT).show();
-                        }
-
-                    }
-            );
-            launcher.launch(Manifest.permission.POST_NOTIFICATIONS);
-        }
     }
 
     @Override

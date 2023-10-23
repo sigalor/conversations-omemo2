@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLHandshakeException;
 
 import eu.siacs.conversations.services.AttachFileToConversationRunnable;
-import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.Consumer;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -359,7 +358,7 @@ public class HttpDownloadConnection implements Transferable {
             mXmppConnectionService.databaseBackend.updateMessage(message, true);
             file.setExpectedSize(size);
             message.resetFileParams();
-            if ((mHttpConnectionManager.hasStoragePermission() || Compatibility.runsThirtyThree())
+            if ((mHttpConnectionManager.hasStoragePermission() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     && size <= mHttpConnectionManager.getAutoAcceptFileSize()
                     && mXmppConnectionService.isDataSaverDisabled()) {
                 HttpDownloadConnection.this.acceptedAutomatically = true;

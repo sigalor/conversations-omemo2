@@ -5,9 +5,6 @@ import static eu.siacs.conversations.ui.SettingsActivity.USE_INTERNAL_UPDATER;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.telephony.TelephonyManager;
 import eu.siacs.conversations.utils.Compatibility;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -287,7 +284,6 @@ public abstract class XmppActivity extends ActionBarActivity {
         this.mUsingEnterKey = usingEnterKey();
         this.mUseTor = useTor();
         this.mUseI2P = useI2P();
-
     }
 
     public void connectToBackend() {
@@ -966,7 +962,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     protected boolean hasStoragePermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Compatibility.runsThirtyThree()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
                 return false;
