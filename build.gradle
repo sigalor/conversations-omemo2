@@ -10,6 +10,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.0"
         classpath 'com.novoda:bintray-release:0.8.0'
+        //classpath 'com.google.gms:google-services:4.4.0'                  // TODO: activate for playstore release
     }
 }
 
@@ -163,7 +164,7 @@ android {
         // archivesBaseName += "$versionNameSuffix"  // activate for beta versions
         applicationId "de.monocles.chat"
         multiDexEnabled true
-        versionName grgit.describe(always: true)
+        //versionName grgit.describe(always: true)
         buildConfigField("String", "LOGTAG", '"monocles chat"')
         buildConfigField("String", "DOMAIN_LOCK", 'null')
         buildConfigField("String", "MAGIC_CREATE_DOMAIN", '"monocles.eu"')
@@ -204,6 +205,7 @@ android {
             applicationId "de.monocles.chat"
             buildConfigField("boolean", "SHOW_MIGRATION_INFO", 'false')
             resValue "string", "applicationId", applicationId
+            //apply plugin: 'com.google.gms.google-services'            // TODO: activate for playstore release
         }
         git {
             dimension "distribution"
@@ -229,7 +231,8 @@ android {
                 minifyEnabled true
                 shrinkResources true
                 runProguard true
-                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             }
 
             debug {
@@ -238,7 +241,8 @@ android {
                 minifyEnabled true
                 shrinkResources true
                 runProguard true
-                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             }
 
         }
@@ -271,7 +275,7 @@ android {
             if (baseAbiVersionCode != null) {
                 output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + baseAbiVersionCode
             } else {
-//                output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + grgit.log(includes: ["HEAD"], excludes: [tags.last()]).size()
+                output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + grgit.log(includes: ["HEAD"], excludes: [tags.last()]).size()
             }
         }
 
