@@ -521,7 +521,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts, String[] contentMimeTypes) {
             // try to get permission to read the image, if applicable
-            if ((flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && (flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
                 try {
                     inputContentInfo.requestPermission();
                 } catch (Exception e) {
@@ -531,7 +531,7 @@ public class ConversationFragment extends XmppFragment
                     return false;
                 }
             }
-            if ((Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT)) || (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE))) {
+            if (Compatibility.runsThirtyThree() || (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE))) {
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
             } else {
                 mPendingEditorContent = inputContentInfo.getContentUri();
@@ -1355,7 +1355,7 @@ public class ConversationFragment extends XmppFragment
 
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
-        if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE) && Compatibility.runsThirtyThree()) {
+        if (!Compatibility.runsThirtyThree() && anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
@@ -2542,12 +2542,13 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void attachFile(final int attachmentChoice, final boolean updateRecentlyUsed) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         if (attachmentChoice == ATTACHMENT_CHOICE_RECORD_VOICE) {
-            if ((!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO) && !Compatibility.runsThirtyThree()) || (!hasPermissions(attachmentChoice, Manifest.permission.RECORD_AUDIO) && Compatibility.runsThirtyThree())) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)) {
                 return;
             }
         } else if (attachmentChoice == ATTACHMENT_CHOICE_TAKE_PHOTO || attachmentChoice == ATTACHMENT_CHOICE_RECORD_VIDEO) {
-            if ((!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA) && !Compatibility.runsThirtyThree()) || (Compatibility.runsThirtyThree() && !hasPermissions(attachmentChoice, Manifest.permission.CAMERA))) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA)) {
                 return;
             }
         } else if (attachmentChoice == ATTACHMENT_CHOICE_LOCATION) {
@@ -2555,9 +2556,10 @@ public class ConversationFragment extends XmppFragment
                 return;
             }
         } else if (attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_FILE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_IMAGE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_VIDEO) {
-            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 return;
             }
+        }
         }
         if (updateRecentlyUsed) {
             storeRecentlyUsedQuickAction(attachmentChoice);
@@ -2568,33 +2570,33 @@ public class ConversationFragment extends XmppFragment
             if (activity.hasPgp()) {
                 if (mode == Conversation.MODE_SINGLE && conversation.getContact().getPgpKeyId() != 0) {
                     activity.xmppConnectionService.getPgpEngine().hasKey(
-                        conversation.getContact(),
-                        new UiCallback<Contact>() {
+                            conversation.getContact(),
+                            new UiCallback<Contact>() {
 
-                            @Override
-                            public void userInputRequired(PendingIntent pi, Contact contact) {
-                                startPendingIntent(pi, attachmentChoice);
-                            }
+                                @Override
+                                public void userInputRequired(PendingIntent pi, Contact contact) {
+                                    startPendingIntent(pi, attachmentChoice);
+                                }
 
-                            @Override
-                            public void progress(int progress) {
+                                @Override
+                                public void progress(int progress) {
 
-                            }
+                                }
 
-                            @Override
-                            public void success(Contact contact) {
-                                invokeAttachFileIntent(attachmentChoice);
-                            }
+                                @Override
+                                public void success(Contact contact) {
+                                    invokeAttachFileIntent(attachmentChoice);
+                                }
 
-                            @Override
-                            public void showToast() {
-                            }
+                                @Override
+                                public void showToast() {
+                                }
 
-                            @Override
-                            public void error(int error, Contact contact) {
-                                activity.replaceToast(getString(error));
-                            }
-                        });
+                                @Override
+                                public void error(int error, Contact contact) {
+                                    activity.replaceToast(getString(error));
+                                }
+                            });
                 } else if (mode == Conversation.MODE_MULTI && conversation.getMucOptions().pgpKeysInUse()) {
                     if (!conversation.getMucOptions().everybodyHasKeys()) {
                         getActivity().runOnUiThread(() -> {
@@ -2633,8 +2635,8 @@ public class ConversationFragment extends XmppFragment
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         final PermissionUtils.PermissionResult permissionResult =
                 PermissionUtils.removeBluetoothConnect(permissions, grantResults);
-        if (grantResults.length > 0) {
-            if (allGranted(permissionResult.grantResults)) {
+        if (grantResults.length > 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (allGranted(permissionResult.grantResults) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 Activity mXmppActivity = getActivity();
                 switch (requestCode) {
                     case REQUEST_START_DOWNLOAD:
@@ -2815,16 +2817,16 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean hasPermissions(int requestCode, List<String> permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            List<String> missingPermissions = new ArrayList<>();
-            if (!Compatibility.runsThirtyThree() && !Config.ONLY_INTERNAL_STORAGE && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                missingPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            }
-            if (activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                missingPermissions.add(Manifest.permission.CAMERA);
-            }
-            if (activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                missingPermissions.add(Manifest.permission.RECORD_AUDIO);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Compatibility.runsThirtyThree()) {
+            final List<String> missingPermissions = new ArrayList<>();
+            for (String permission : permissions) {
+                if (Config.ONLY_INTERNAL_STORAGE
+                        && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    continue;
+                }
+                if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                    missingPermissions.add(permission);
+                }
             }
             if (missingPermissions.size() == 0) {
                 return true;
@@ -3227,7 +3229,7 @@ public class ConversationFragment extends XmppFragment
                     });
                     return;
                 }
-            } else if (!Compatibility.hasStoragePermission(getActivity())) {
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !Compatibility.hasStoragePermission(getActivity())) {
                 ToastCompat.makeText(activity, R.string.no_storage_permission, ToastCompat.LENGTH_SHORT).show();
                 return;
             } else {
