@@ -680,7 +680,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         if (createBackupPreference != null) {
             createBackupPreference.setSummary(getString(R.string.pref_create_backup_summary, getBackupDirectory(null)));
             createBackupPreference.setOnPreferenceClickListener(preference -> {
-                if (hasStoragePermission(REQUEST_CREATE_BACKUP)  || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
                     createBackup();
                 }
                 return true;
@@ -691,7 +691,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         if (importSettingsPreference != null) {
             importSettingsPreference.setSummary(getString(R.string.pref_import_database_or_settings_summary));
             importSettingsPreference.setOnPreferenceClickListener(preference -> {
-                if (hasStoragePermission(REQUEST_IMPORT_SETTINGS) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (hasStoragePermission(REQUEST_IMPORT_SETTINGS)) {
                     Intent intent = new Intent(getApplicationContext(), ImportBackupActivity.class);
                     startActivity(intent);
                 }
@@ -704,7 +704,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         if (importBackgroundPreference != null) {
             importBackgroundPreference.setSummary(getString(R.string.pref_chat_background_summary));
             importBackgroundPreference.setOnPreferenceClickListener(preference -> {
-                if (hasStoragePermission(REQUEST_IMPORT_BACKGROUND) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (hasStoragePermission(REQUEST_IMPORT_BACKGROUND)) {
                     openFilePicker();
                 }
                 return true;
@@ -854,7 +854,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         if (downloadDefaultStickers != null) {
             downloadDefaultStickers.setOnPreferenceClickListener(
                     preference -> {
-                        if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
                             downloadStickers();
                         }
                         return true;
@@ -1095,7 +1095,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (requestCode == REQUEST_CREATE_BACKUP) {
                     createBackup();
                 }

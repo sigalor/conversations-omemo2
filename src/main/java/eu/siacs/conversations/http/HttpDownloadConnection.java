@@ -2,7 +2,6 @@ package eu.siacs.conversations.http;
 
 import static eu.siacs.conversations.http.HttpConnectionManager.FileTransferExecutor;
 
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -358,7 +357,7 @@ public class HttpDownloadConnection implements Transferable {
             mXmppConnectionService.databaseBackend.updateMessage(message, true);
             file.setExpectedSize(size);
             message.resetFileParams();
-            if ((mHttpConnectionManager.hasStoragePermission() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            if (mHttpConnectionManager.hasStoragePermission()
                     && size <= mHttpConnectionManager.getAutoAcceptFileSize()
                     && mXmppConnectionService.isDataSaverDisabled()) {
                 HttpDownloadConnection.this.acceptedAutomatically = true;

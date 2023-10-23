@@ -46,7 +46,6 @@ import eu.siacs.conversations.http.NoSSLv3SocketFactory;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.util.CustomTab;
-import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.WakeLockHelper;
 import me.drakeet.support.toast.ToastCompat;
 
@@ -100,7 +99,7 @@ public class UpdaterActivity extends XmppActivity {
         textView.setText(R.string.update_info);
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
-        if (getIntent() != null && getIntent().getStringExtra("update").equals("monocleschat_UpdateService")) {
+        if (getIntent() != null && getIntent().getStringExtra("update").equals("MonoclesMessenger_UpdateService")) {
             try {
                 appURI = getIntent().getStringExtra("url");
             } catch (Exception e) {
@@ -137,9 +136,9 @@ public class UpdaterActivity extends XmppActivity {
                     .setPositiveButton(R.string.update, (dialog, id) -> {
                         Log.d(Config.LOGTAG, "AppUpdater: downloading " + FileName + " from " + appURI);
                         //ask for permissions on devices >= SDK 23
-                        if ((isStoragePermissionGranted() || Compatibility.runsThirtyThree()) && isNetworkAvailable(getApplicationContext())) {
+                        if (isStoragePermissionGranted() && isNetworkAvailable(getApplicationContext())) {
                             //start downloading the file using the download manager
-                            if (store != null && store.equalsIgnoreCase(PlayStore) || BuildConfig.APPLICATION_ID.equals("de.monocles.chat")) {          //TODO: Check again which playstore ID
+                            if (store != null && store.equalsIgnoreCase(PlayStore) || BuildConfig.APPLICATION_ID.equals("im.blabber.messenger")) {
                                 ToastCompat.makeText(getApplicationContext(), getText(R.string.download_started), ToastCompat.LENGTH_LONG).show();
                                 downloadTask = new DownloadTask(UpdaterActivity.this);
                                 downloadTask.execute(appURI);
@@ -228,7 +227,7 @@ public class UpdaterActivity extends XmppActivity {
     }
 
     public boolean isStoragePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= 23  && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
@@ -243,7 +242,6 @@ public class UpdaterActivity extends XmppActivity {
     //show warning on back pressed
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         showCancelDialog();
     }
 

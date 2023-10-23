@@ -9,7 +9,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
@@ -128,7 +127,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         }
         IntroHelper.showIntro(this, false);
         UpdateHelper.showPopup(this);
-        if (hasStoragePermission(REQUEST_IMPORT_BACKUP) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
             binding.importDatabase.setVisibility(View.VISIBLE);
             binding.importText.setVisibility(View.VISIBLE);
         }

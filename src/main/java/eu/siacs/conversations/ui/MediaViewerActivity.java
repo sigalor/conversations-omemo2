@@ -162,13 +162,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(uri, mime);
         openIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
-            PackageManager manager = this.getPackageManager();
-            List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
-            if (info.size() == 0) {
-                openIntent.setDataAndType(uri, "*/*");
-            }
-        } else {
+        PackageManager manager = this.getPackageManager();
+        List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
+        if (info.size() == 0) {
             openIntent.setDataAndType(uri, "*/*");
         }
         if (player != null && isVideo) {

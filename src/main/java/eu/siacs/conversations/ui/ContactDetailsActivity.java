@@ -330,7 +330,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, getResources().getBoolean(R.bool.show_dynamic_tags));
             this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
         }
-        binding.mediaWrapper.setVisibility((Compatibility.hasStoragePermission(this) || Compatibility.runsThirtyThree()) ? View.VISIBLE : View.GONE);
+        binding.mediaWrapper.setVisibility(Compatibility.hasStoragePermission(this) ? View.VISIBLE : View.GONE);
         mMediaAdapter.setAttachments(Collections.emptyList());
     }
 
@@ -932,7 +932,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 processFingerprintVerification(mPendingFingerprintVerificationUri);
                 mPendingFingerprintVerificationUri = null;
             }
-            if (Compatibility.hasStoragePermission(this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Compatibility.hasStoragePermission(this)) {
                 final int limit = GridManager.getCurrentColumnCount(this.binding.media);
                 xmppConnectionService.getAttachments(account, contact.getJid().asBareJid(), limit, this);
                 this.binding.showMedia.setOnClickListener((v) -> MediaBrowserActivity.launch(this, contact));

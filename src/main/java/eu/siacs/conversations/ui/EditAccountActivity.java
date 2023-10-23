@@ -992,7 +992,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 deleteAccountAndReturnIfNecessary();
                 break;
             case R.id.action_import_backup:
-                if (hasStoragePermission(REQUEST_IMPORT_BACKUP) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
                     startActivity(new Intent(this, ImportBackupActivity.class));
                 }
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
@@ -1705,7 +1705,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0) {
-            if (allGranted(grantResults) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (allGranted(grantResults)) {
                 switch (requestCode) {
                     case REQUEST_IMPORT_BACKUP:
                         startActivity(new Intent(this, ImportBackupActivity.class));

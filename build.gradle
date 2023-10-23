@@ -163,7 +163,7 @@ android {
         // archivesBaseName += "$versionNameSuffix"  // activate for beta versions
         applicationId "de.monocles.chat"
         multiDexEnabled true
-        versionName grgit.describe(always: true)
+        //versionName grgit.describe(always: true)
         buildConfigField("String", "LOGTAG", '"monocles chat"')
         buildConfigField("String", "DOMAIN_LOCK", 'null')
         buildConfigField("String", "MAGIC_CREATE_DOMAIN", '"monocles.eu"')
@@ -271,7 +271,7 @@ android {
             if (baseAbiVersionCode != null) {
                 output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + baseAbiVersionCode
             } else {
-//                output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + grgit.log(includes: ["HEAD"], excludes: [tags.last()]).size()
+                output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + grgit.log(includes: ["HEAD"], excludes: [tags.last()]).size()
             }
         }
 

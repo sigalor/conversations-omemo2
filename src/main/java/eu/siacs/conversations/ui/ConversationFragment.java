@@ -521,7 +521,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts, String[] contentMimeTypes) {
             // try to get permission to read the image, if applicable
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && (flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+            if ((flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
                 try {
                     inputContentInfo.requestPermission();
                 } catch (Exception e) {
@@ -531,7 +531,7 @@ public class ConversationFragment extends XmppFragment
                     return false;
                 }
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU || hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
             } else {
                 mPendingEditorContent = inputContentInfo.getContentUri();
@@ -539,7 +539,6 @@ public class ConversationFragment extends XmppFragment
             return true;
         }
     };
-
     private Message selectedMessage;
     private final OnClickListener mEnableAccountListener = new OnClickListener() {
         @Override
@@ -1355,7 +1354,7 @@ public class ConversationFragment extends XmppFragment
 
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
@@ -2542,7 +2541,6 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void attachFile(final int attachmentChoice, final boolean updateRecentlyUsed) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         if (attachmentChoice == ATTACHMENT_CHOICE_RECORD_VOICE) {
             if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)) {
                 return;
@@ -2559,7 +2557,6 @@ public class ConversationFragment extends XmppFragment
             if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 return;
             }
-        }
         }
         if (updateRecentlyUsed) {
             storeRecentlyUsedQuickAction(attachmentChoice);
@@ -2635,8 +2632,8 @@ public class ConversationFragment extends XmppFragment
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         final PermissionUtils.PermissionResult permissionResult =
                 PermissionUtils.removeBluetoothConnect(permissions, grantResults);
-        if (grantResults.length > 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (allGranted(permissionResult.grantResults) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (grantResults.length > 0) {
+            if (allGranted(permissionResult.grantResults)) {
                 Activity mXmppActivity = getActivity();
                 switch (requestCode) {
                     case REQUEST_START_DOWNLOAD:
@@ -3227,7 +3224,7 @@ public class ConversationFragment extends XmppFragment
                     });
                     return;
                 }
-            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !Compatibility.hasStoragePermission(getActivity())) {
+            } else if (!Compatibility.hasStoragePermission(getActivity())) {
                 ToastCompat.makeText(activity, R.string.no_storage_permission, ToastCompat.LENGTH_SHORT).show();
                 return;
             } else {

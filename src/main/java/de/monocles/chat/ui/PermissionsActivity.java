@@ -30,7 +30,7 @@ public class PermissionsActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == STORAGE_PERMISSION) {
-            if (Compatibility.hasStoragePermission(PermissionsActivity.this) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Compatibility.hasStoragePermission(PermissionsActivity.this)) {
                 permissionCallbacks[STORAGE_PERMISSION].onPermissionGranted();
                 permissionCallbacks[STORAGE_PERMISSION] = null;
             } else {

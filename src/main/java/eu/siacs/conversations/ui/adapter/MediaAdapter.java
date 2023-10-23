@@ -13,7 +13,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -246,13 +245,9 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(uri, mime);
         openIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
-            PackageManager manager = this.activity.getPackageManager();
-            List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
-            if (info.size() == 0) {
-                openIntent.setDataAndType(uri, "*/*");
-            }
-        } else {
+        PackageManager manager = this.activity.getPackageManager();
+        List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
+        if (info.size() == 0) {
             openIntent.setDataAndType(uri, "*/*");
         }
         try {
