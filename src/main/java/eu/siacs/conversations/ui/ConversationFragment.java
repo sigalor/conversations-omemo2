@@ -2544,19 +2544,19 @@ public class ConversationFragment extends XmppFragment
     public void attachFile(final int attachmentChoice, final boolean updateRecentlyUsed) {
         if (attachmentChoice == ATTACHMENT_CHOICE_RECORD_VOICE) {
             if ((!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO) && !Compatibility.runsThirtyThree()) || (!hasPermissions(attachmentChoice, Manifest.permission.RECORD_AUDIO) && Compatibility.runsThirtyThree())) {
-                return;     // TODO: Request permissions directly here
+                return;
             }
         } else if (attachmentChoice == ATTACHMENT_CHOICE_TAKE_PHOTO || attachmentChoice == ATTACHMENT_CHOICE_RECORD_VIDEO) {
             if ((!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA) && !Compatibility.runsThirtyThree()) || (Compatibility.runsThirtyThree() && !hasPermissions(attachmentChoice, Manifest.permission.CAMERA))) {
-                return;     // TODO: Request permissions directly here
+                return;
             }
         } else if (attachmentChoice == ATTACHMENT_CHOICE_LOCATION) {
             if (!hasPermissions(attachmentChoice, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                return;     // TODO: Request permissions directly here
+                return;
             }
         } else if ((attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_FILE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_IMAGE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_VIDEO) && !Compatibility.runsThirtyThree()) {
             if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                return;     // TODO: Request permissions directly here
+                return;
             }
         }
         if (updateRecentlyUsed) {
