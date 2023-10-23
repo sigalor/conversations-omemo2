@@ -11,22 +11,9 @@
       "type": "UNIVERSAL",
       "filters": [],
       "attributes": [],
-      "versionCode": 16480,
-      "versionName": "1.7.6.1",
-      "outputFile": "monocles chat-1.7.6.1-git-universal-release.apk"
-    },
-    {
-      "type": "ONE_OF_MANY",
-      "filters": [
-        {
-          "filterType": "ABI",
-          "value": "arm64-v8a"
-        }
-      ],
-      "attributes": [],
-      "versionCode": 13904,
-      "versionName": "1.7.6.1",
-      "outputFile": "monocles chat-1.7.6.1-git-arm64-v8a-release.apk"
+      "versionCode": 138,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-universal-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -37,9 +24,9 @@
         }
       ],
       "attributes": [],
-      "versionCode": 13902,
-      "versionName": "1.7.6.1",
-      "outputFile": "monocles chat-1.7.6.1-git-x86-release.apk"
+      "versionCode": 13802,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-x86-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -50,9 +37,22 @@
         }
       ],
       "attributes": [],
-      "versionCode": 13901,
-      "versionName": "1.7.6.1",
-      "outputFile": "monocles chat-1.7.6.1-git-armeabi-v7a-release.apk"
+      "versionCode": 13801,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-armeabi-v7a-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 13804,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-arm64-v8a-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -63,9 +63,9 @@
         }
       ],
       "attributes": [],
-      "versionCode": 13903,
-      "versionName": "1.7.6.1",
-      "outputFile": "monocles chat-1.7.6.1-git-x86_64-release.apk"
+      "versionCode": 13803,
+      "versionName": "4135a60",
+      "outputFile": "monocles chat-1.7.6-git-x86_64-release.apk"
     }
   ],
   "elementType": "File"

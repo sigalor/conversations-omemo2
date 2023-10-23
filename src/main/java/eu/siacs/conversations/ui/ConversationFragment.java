@@ -531,7 +531,7 @@ public class ConversationFragment extends XmppFragment
                     return false;
                 }
             }
-            if ((Compatibility.runsThirtyThree()) || (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE))) {
+            if ((Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT)) || (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE))) {
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
             } else {
                 mPendingEditorContent = inputContentInfo.getContentUri();
@@ -1355,7 +1355,7 @@ public class ConversationFragment extends XmppFragment
 
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
-        if ((anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) && !Compatibility.runsThirtyThree()) {
+        if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE) && Compatibility.runsThirtyThree()) {
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
@@ -2554,8 +2554,8 @@ public class ConversationFragment extends XmppFragment
             if (!hasPermissions(attachmentChoice, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 return;
             }
-        } else if ((attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_FILE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_IMAGE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_VIDEO) && !Compatibility.runsThirtyThree()) {
-            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        } else if (attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_FILE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_IMAGE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_VIDEO) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
                 return;
             }
         }
