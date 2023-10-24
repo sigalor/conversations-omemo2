@@ -1356,14 +1356,10 @@ public class ConversationFragment extends XmppFragment
 
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
-        if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
-            return;
-        } else if (Compatibility.runsThirtyThree() && anyNeedsExternalStoragePermission(attachments) &&     // TODO: is anyNeedsExternalStoragePermission needed here?
-                !hasPermissions(REQUEST_COMMIT_ATTACHMENTS,
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_AUDIO,
-                Manifest.permission.READ_MEDIA_VIDEO)) {
-            return;
+        if (!Compatibility.runsThirtyThree()){
+            if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                return;
+            }
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
             return;
@@ -2709,8 +2705,16 @@ public class ConversationFragment extends XmppFragment
                 } else if (Manifest.permission.ACCESS_COARSE_LOCATION.equals(firstDenied)
                         || Manifest.permission.ACCESS_FINE_LOCATION.equals(firstDenied)) {
                     res = R.string.no_location_permission;
-                } else {
+                } else if (Manifest.permission.READ_MEDIA_IMAGES.equals(firstDenied)) {
+                    res = R.string.no_media_permission;
+                } else if (Manifest.permission.READ_MEDIA_AUDIO.equals(firstDenied)) {
+                res = R.string.no_media_permission;
+                } else if (Manifest.permission.READ_MEDIA_VIDEO.equals(firstDenied)) {
+                    res = R.string.no_media_permission;
+                } else if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(firstDenied) || Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(firstDenied)) {
                     res = R.string.no_storage_permission;
+                } else {
+                    res = R.string.error;
                 }
                 ToastCompat.makeText(getActivity(), res, ToastCompat.LENGTH_SHORT).show();
             }
@@ -2730,7 +2734,11 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundResource(0);
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
-                if (Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED || !Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (Compatibility.runsThirtyThree()
+                        && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+                        || !Compatibility.runsThirtyThree()
+                        && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     File bgfileUri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
                     if (bgfileUri.exists()) {
                         Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
