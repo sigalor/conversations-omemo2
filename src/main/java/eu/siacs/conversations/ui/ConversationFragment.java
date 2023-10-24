@@ -1360,6 +1360,10 @@ public class ConversationFragment extends XmppFragment
             if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 return;
             }
+        } else if (!hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.READ_MEDIA_IMAGES)
+                && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.READ_MEDIA_VIDEO)
+                && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.READ_MEDIA_AUDIO)) {
+            return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
             return;
@@ -2711,11 +2715,12 @@ public class ConversationFragment extends XmppFragment
                 res = R.string.no_media_permission;
                 } else if (Manifest.permission.READ_MEDIA_VIDEO.equals(firstDenied)) {
                     res = R.string.no_media_permission;
-                } else if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(firstDenied) || Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(firstDenied)) {
+                } else if (!Compatibility.runsThirtyThree() && Manifest.permission.READ_EXTERNAL_STORAGE.equals(firstDenied) || !Compatibility.runsThirtyThree() && Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(firstDenied)) {
                     res = R.string.no_storage_permission;
                 } else {
                     res = R.string.error;
                 }
+                if (!Compatibility.runsThirtyThree())       //TODO: Actually not needed, check this later again
                 ToastCompat.makeText(getActivity(), res, ToastCompat.LENGTH_SHORT).show();
             }
         }
