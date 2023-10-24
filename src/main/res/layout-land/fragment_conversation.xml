@@ -17,7 +17,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="@dimen/toolbar_elevation"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:tabGravity="fill"
+        app:tabGravity="start"
         app:tabIndicatorColor="@color/white87"
         app:tabMode="scrollable"
         app:tabSelectedTextColor="@color/white"
