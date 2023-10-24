@@ -1422,7 +1422,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.image = view.findViewById(R.id.message_image);
                     viewHolder.gifImage = view.findViewById(R.id.message_image_gif);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
-                    viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
+                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    }
                     viewHolder.user = view.findViewById(R.id.message_user);
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
@@ -1458,7 +1462,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.image = view.findViewById(R.id.message_image);
                     viewHolder.gifImage = view.findViewById(R.id.message_image_gif);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
-                    viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
+                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    }
                     viewHolder.user = view.findViewById(R.id.message_user);
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
