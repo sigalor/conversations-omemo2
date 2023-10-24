@@ -533,7 +533,7 @@ public class ConversationFragment extends XmppFragment
             }
             if (!Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
-            } else if (Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_IMAGES) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_AUDIO) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_VIDEO)){
+            } else if (Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_IMAGES) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_AUDIO) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_VIDEO)) {
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
             } else {
                 mPendingEditorContent = inputContentInfo.getContentUri();
@@ -1358,7 +1358,8 @@ public class ConversationFragment extends XmppFragment
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
         if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
             return;
-        } else if (Compatibility.runsThirtyThree() && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS,
+        } else if (Compatibility.runsThirtyThree() && anyNeedsExternalStoragePermission(attachments) &&     // TODO: is anyNeedsExternalStoragePermission needed here?
+                !hasPermissions(REQUEST_COMMIT_ATTACHMENTS,
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.READ_MEDIA_AUDIO,
                 Manifest.permission.READ_MEDIA_VIDEO)) {
