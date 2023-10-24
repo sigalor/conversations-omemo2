@@ -2730,10 +2730,14 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundResource(0);
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
-                File bgfileUri =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
-                if(bgfileUri.exists()) {    // TODO: Add storage permissions check!
-                    Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
-                    getActivity().getWindow().setBackgroundDrawable(custom_background);
+                if (Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED || !Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    File bgfileUri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
+                    if (bgfileUri.exists()) {
+                        Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
+                        getActivity().getWindow().setBackgroundDrawable(custom_background);
+                    } else {
+                        getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                    }
                 } else {
                     getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                 }
