@@ -42,17 +42,12 @@ public class Compatibility {
             Collections.singletonList("message_notification_settings");
 
     public static boolean hasStoragePermission(Context context) {
-        if (Compatibility.runsThirtyThree()) { return ContextCompat.checkSelfPermission(
-                context, Manifest.permission.READ_MEDIA_IMAGES)
-                == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                context, Manifest.permission.READ_MEDIA_AUDIO)
-                == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                context, Manifest.permission.READ_MEDIA_VIDEO)
-                == PackageManager.PERMISSION_GRANTED; } else { return
-            ContextCompat.checkSelfPermission(
-                    context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED;
-        }
+        return ((Compatibility.runsThirtyThree()
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED)
+                || (!Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED));
     }
 
     public static boolean s() {
