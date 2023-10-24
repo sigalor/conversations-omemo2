@@ -364,12 +364,14 @@
             android:key="camera_choice"
             android:summary="@string/pref_choose_camera_summary"
             android:title="@string/choose_camera_app" />
+        <!--                    TODO: Disable for now until it's really working
         <Preference
             android:title="@string/change_stickers_location"
             android:key="sticker_directory" />
         <Preference
             android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />
+        -->
         <Preference
             android:title="@string/clear_blocked_media"
             android:key="clear_blocked_media" />
