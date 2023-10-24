@@ -33,7 +33,10 @@ public class PermissionUtils {
 
     public static boolean readGranted(int[] grantResults, String[] permission) {
         for (int i = 0; i < grantResults.length; ++i) {
-            if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission[i])) {
+
+            if (!Compatibility.runsThirtyThree() && Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission[i])) {
+                return grantResults[i] == PackageManager.PERMISSION_GRANTED;
+            } else if (Compatibility.runsThirtyThree() && Manifest.permission.READ_MEDIA_IMAGES.equals(permission[i]) && Manifest.permission.READ_MEDIA_AUDIO.equals(permission[i]) && Manifest.permission.READ_MEDIA_VIDEO.equals(permission[i])) {
                 return grantResults[i] == PackageManager.PERMISSION_GRANTED;
             }
         }

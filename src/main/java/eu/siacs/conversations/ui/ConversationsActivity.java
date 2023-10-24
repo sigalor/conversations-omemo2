@@ -29,6 +29,7 @@
 
 package eu.siacs.conversations.ui;
 
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_MEMORY_WARNING;
 import static eu.siacs.conversations.ui.SettingsActivity.MIN_ANDROID_SDK21_SHOWN;
@@ -62,6 +63,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import de.monocles.chat.DownloadDefaultStickers;
@@ -80,6 +83,7 @@ import org.openintents.openpgp.util.OpenPgpApi;
 
 import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 
 import java.io.File;
@@ -698,6 +702,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             setIntent(createLauncherIntent(this));
         }
         UpdateHelper.showPopup(this);
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     @Override
@@ -941,6 +952,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
         super.onStart();
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     @Override

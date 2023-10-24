@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui.adapter;
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.Util;
 import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
+import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.xml.Element;
 import io.ipfs.cid.Cid;
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
@@ -1904,7 +1905,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public void openDownloadable(Message message) {
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+            ConversationFragment.registerPendingMessage(activity, message);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_VIDEO}, ConversationsActivity.REQUEST_OPEN_MESSAGE);
+            return;
+        } else if (!Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ConversationFragment.registerPendingMessage(activity, message);
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, ConversationsActivity.REQUEST_OPEN_MESSAGE);
             return;

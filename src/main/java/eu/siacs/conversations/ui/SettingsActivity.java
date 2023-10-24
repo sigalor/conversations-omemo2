@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
@@ -1101,6 +1102,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 }
                 if (requestCode == REQUEST_DOWNLOAD_STICKERS) {
                     downloadStickers();
+                }
+                if (requestCode == REQUEST_IMPORT_BACKGROUND) {
+                    openFilePicker();
                 }
             } else {
                 ToastCompat.makeText(

@@ -531,7 +531,9 @@ public class ConversationFragment extends XmppFragment
                     return false;
                 }
             }
-            if (hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (!Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.WRITE_EXTERNAL_STORAGE) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                attachEditorContentToConversation(inputContentInfo.getContentUri());
+            } else if (Compatibility.runsThirtyThree() && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_IMAGES) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_AUDIO) && hasPermissions(REQUEST_ADD_EDITOR_CONTENT, Manifest.permission.READ_MEDIA_VIDEO)){
                 attachEditorContentToConversation(inputContentInfo.getContentUri());
             } else {
                 mPendingEditorContent = inputContentInfo.getContentUri();
@@ -1354,7 +1356,12 @@ public class ConversationFragment extends XmppFragment
 
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
-        if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (anyNeedsExternalStoragePermission(attachments) && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
+            return;
+        } else if (Compatibility.runsThirtyThree() && !hasPermissions(REQUEST_COMMIT_ATTACHMENTS,
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_AUDIO,
+                Manifest.permission.READ_MEDIA_VIDEO)) {
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
@@ -2542,19 +2549,47 @@ public class ConversationFragment extends XmppFragment
 
     public void attachFile(final int attachmentChoice, final boolean updateRecentlyUsed) {
         if (attachmentChoice == ATTACHMENT_CHOICE_RECORD_VOICE) {
-            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO) && !Compatibility.runsThirtyThree()) {
+                return;
+            } else if (Compatibility.runsThirtyThree() && !hasPermissions(attachmentChoice,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO)) {
                 return;
             }
-        } else if (attachmentChoice == ATTACHMENT_CHOICE_TAKE_PHOTO || attachmentChoice == ATTACHMENT_CHOICE_RECORD_VIDEO) {
-            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA)) {
+        } else if (attachmentChoice == ATTACHMENT_CHOICE_TAKE_PHOTO) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA) && !Compatibility.runsThirtyThree()) {
+                return;
+            } else if (Compatibility.runsThirtyThree() && !hasPermissions(attachmentChoice,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO)) {
+                return;
+            }
+        } else if (attachmentChoice == ATTACHMENT_CHOICE_RECORD_VIDEO) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO) && !Compatibility.runsThirtyThree()) {
+                return;
+            } else if (Compatibility.runsThirtyThree() && !hasPermissions(attachmentChoice,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO)) {
                 return;
             }
         } else if (attachmentChoice == ATTACHMENT_CHOICE_LOCATION) {
             if (!hasPermissions(attachmentChoice, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 return;
             }
-        } else if (attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_FILE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_IMAGE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_VIDEO) {
-            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        } else if ((attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_FILE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_IMAGE || attachmentChoice == ATTACHMENT_CHOICE_CHOOSE_VIDEO) && !Compatibility.runsThirtyThree()) {
+            if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
+                return;
+            } else if (Compatibility.runsThirtyThree() && !hasPermissions(attachmentChoice,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO)) {
                 return;
             }
         }
@@ -2695,7 +2730,7 @@ public class ConversationFragment extends XmppFragment
                 binding.conversationsFragment.setBackgroundColor(StyledAttributes.getColor(activity, R.attr.color_background_tertiary));
             } else {
                 File bgfileUri =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
-                if(bgfileUri.exists()) {
+                if(bgfileUri.exists()) {    // TODO: Add storage permissions check!
                     Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
                     getActivity().getWindow().setBackgroundDrawable(custom_background);
                 } else {
@@ -2706,7 +2741,13 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void startDownloadable(Message message) {
-        if (!hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (!hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.WRITE_EXTERNAL_STORAGE) && !hasPermissions(REQUEST_START_DOWNLOAD, Manifest.permission.READ_EXTERNAL_STORAGE) && !Compatibility.runsThirtyThree()) {
+            this.mPendingDownloadableMessage = message;
+            return;
+        } else if (Compatibility.runsThirtyThree() && !hasPermissions(REQUEST_START_DOWNLOAD,
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_AUDIO,
+                Manifest.permission.READ_MEDIA_VIDEO)) {
             this.mPendingDownloadableMessage = message;
             return;
         }
@@ -2813,27 +2854,28 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean hasPermissions(int requestCode, List<String> permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            final List<String> missingPermissions = new ArrayList<>();
-            for (String permission : permissions) {
-                if (Config.ONLY_INTERNAL_STORAGE
-                        && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    continue;
-                }
-                if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                    missingPermissions.add(permission);
-                }
+        final List<String> missingPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            if (!Compatibility.runsThirtyThree() && Config.ONLY_INTERNAL_STORAGE
+                    && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                continue;
+            } else if (Compatibility.runsThirtyThree() && Config.ONLY_INTERNAL_STORAGE
+                    && permission.equals(Manifest.permission.READ_MEDIA_AUDIO)
+                    && permission.equals(Manifest.permission.READ_MEDIA_VIDEO)
+                    && permission.equals(Manifest.permission.READ_MEDIA_IMAGES)) {
+                continue;
             }
-            if (missingPermissions.size() == 0) {
-                return true;
-            } else {
-                requestPermissions(
-                        missingPermissions.toArray(new String[0]),
-                        requestCode);
-                return false;
+            if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                missingPermissions.add(permission);
             }
-        } else {
+        }
+        if (missingPermissions.size() == 0) {
             return true;
+        } else {
+            requestPermissions(
+                    missingPermissions.toArray(new String[0]),
+                    requestCode);
+            return false;
         }
     }
     private boolean hasPermissions(int requestCode, String... permissions) {

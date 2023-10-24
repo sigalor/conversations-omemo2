@@ -109,7 +109,7 @@ public class CallManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             final List<String> missingPermissions = new ArrayList<>();
             for (String permission : permissions) {
-                if (Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE) || Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.READ_MEDIA_IMAGES) && permission.equals(Manifest.permission.READ_MEDIA_AUDIO) && permission.equals(Manifest.permission.READ_MEDIA_VIDEO)) {
                     continue;
                 }
                 if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {

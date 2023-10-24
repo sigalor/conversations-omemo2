@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.SettingsActivity.USE_INTERNAL_UPDATER;
 
 import android.graphics.drawable.AnimatedImageDrawable;
@@ -63,6 +64,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
@@ -509,6 +511,13 @@ public abstract class XmppActivity extends ActionBarActivity {
         mColorDefaultButtonText = ContextCompat.getColor(this, R.color.realwhite);
         mColorWhite = ContextCompat.getColor(this, R.color.white70);
         this.mUsingEnterKey = usingEnterKey();
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     protected boolean isCameraFeatureAvailable() {
@@ -962,40 +971,31 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     protected boolean hasStoragePermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_IMAGES}, requestCode);
+            return false;
+        } else if (!Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
                 return false;
-            } else {
-                return true;
-            }
         } else {
             return true;
         }
     }
 
     public boolean hasMicPermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, requestCode);
-                return false;
-            } else {
-                return true;
-            }
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, requestCode);
+            return false;
         } else {
             return true;
         }
     }
 
     public boolean hasLocationPermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, requestCode);
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, requestCode);
-                return false;
-            } else {
-                return true;
-            }
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, requestCode);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, requestCode);
+            return false;
         } else {
             return true;
         }

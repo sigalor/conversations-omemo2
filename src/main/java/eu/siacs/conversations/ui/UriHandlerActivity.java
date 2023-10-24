@@ -34,6 +34,7 @@ import eu.siacs.conversations.databinding.ActivityUriHandlerBinding;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.QuickConversationsService;
+import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ProvisioningUtils;
 import eu.siacs.conversations.utils.SignupUtils;
 import eu.siacs.conversations.utils.XmppUri;
@@ -387,13 +388,12 @@ public class UriHandlerActivity extends AppCompatActivity {
     }
 
     protected boolean hasStoragePermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
-                return false;
-            } else {
-                return true;
-            }
+        if (!Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
+            return false;
+        } else if (Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_VIDEO}, requestCode);
+            return false;
         } else {
             return true;
         }

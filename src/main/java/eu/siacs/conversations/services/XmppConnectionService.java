@@ -1059,9 +1059,12 @@ public class XmppConnectionService extends Service {
             expireOldFiles();
             deleteWebpreviewCache();
         }
+
         // move files from /monocles chat/ --> /Android/data/ for Android >= 30
         if (Compatibility.runsThirty() && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) && !Compatibility.runsThirtyThree()) {
+            StorageHelper.migrateStorage(this);
+        } else if (Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED) {
             StorageHelper.migrateStorage(this);
         }
         return START_STICKY;

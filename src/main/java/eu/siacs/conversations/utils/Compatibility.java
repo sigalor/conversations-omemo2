@@ -2,6 +2,7 @@ package eu.siacs.conversations.utils;
 
 import static eu.siacs.conversations.services.EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -41,10 +42,17 @@ public class Compatibility {
             Collections.singletonList("message_notification_settings");
 
     public static boolean hasStoragePermission(Context context) {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                || ContextCompat.checkSelfPermission(
-                context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED;
+        if (Compatibility.runsThirtyThree()) { return ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_MEDIA_IMAGES)
+                == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_MEDIA_AUDIO)
+                == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_MEDIA_VIDEO)
+                == PackageManager.PERMISSION_GRANTED; } else { return
+            ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED;
+        }
     }
 
     public static boolean s() {
