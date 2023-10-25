@@ -284,7 +284,7 @@
                                 android:layout_centerVertical="true"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="@string/attach_record_voice"
-                                android:src="@drawable/ic_send_voice_offline"
+                                android:src="?attr/ic_send_voice_offline"
                                 android:visibility="visible" />
 
                             <ImageButton
