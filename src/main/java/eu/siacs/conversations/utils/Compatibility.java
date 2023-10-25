@@ -208,4 +208,8 @@ public class Compatibility {
     public static boolean runsThirtyThree() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
     }
+
+    public static boolean runsThirtyFour() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+    }
 }
