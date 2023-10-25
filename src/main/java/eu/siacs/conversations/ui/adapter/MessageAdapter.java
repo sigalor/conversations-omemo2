@@ -79,6 +79,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
