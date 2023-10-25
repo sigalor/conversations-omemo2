@@ -4217,7 +4217,7 @@ public class ConversationFragment extends XmppFragment
             params.width = identiconWidth;
         }
         binding.threadIdenticonLayout.setLayoutParams(params);
-        showRecordVoiceButton(); //TODO: Disable it maybe since it could cause lagging
+        showRecordVoiceButton();
         updateSnackBar(conversation);
         updateTextFormat(canSendMeCommand());
     }
