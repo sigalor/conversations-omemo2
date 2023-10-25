@@ -1778,7 +1778,6 @@ public class ConversationFragment extends XmppFragment
         } else if (ShowRecordVoiceButton && binding.textinput.getText().length() < 1) {
             binding.recordVoiceButton.setVisibility(View.VISIBLE);
         }
-            binding.recordVoiceButton.setImageResource(activity.getThemeResource(R.attr.ic_send_voice_offline, R.drawable.ic_send_voice_offline));
     }
 
     private void quoteMedia(Message message, @Nullable String user) {
@@ -4220,9 +4219,7 @@ public class ConversationFragment extends XmppFragment
         binding.threadIdenticonLayout.setLayoutParams(params);
         showRecordVoiceButton(); //TODO: Disable it maybe since it could cause lagging
         updateSnackBar(conversation);
-        new Thread( new Runnable() { @Override public void run() {
-            updateTextFormat(canSendMeCommand());
-        } } ).start();
+        updateTextFormat(canSendMeCommand());
     }
 
     protected void updateStatusMessages() {
