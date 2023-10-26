@@ -58,8 +58,6 @@ public class DownloadDefaultStickers extends Service {
     private File mStickerDir;
     private OkHttpClient http = null;
     private HashSet<Uri> pendingPacks = new HashSet<Uri>();
-    public static final String APP_DIRECTORY = "monocles chat";
-
 
     @Override
     public void onCreate() {
@@ -185,7 +183,7 @@ public class DownloadDefaultStickers extends Service {
             uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
             return new File(FileUtils.getPath(getBaseContext(), uri));
         } else {
-            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + dir);
+            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir);
         }
     }
 
