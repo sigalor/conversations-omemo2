@@ -316,7 +316,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             if (ExceptionHelper.checkForCrash(this)) return;
             if (offerToSetupDiallerIntegration()) return;
-            if (offerToDownloadStickers()) return;
+            // if (offerToDownloadStickers()) return;       // TODO: Disabled Cheogram Stickers until it's more useful
             openBatteryOptimizationDialogIfNeeded();
             xmppConnectionService.rescanStickers();
 
@@ -394,7 +394,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         builder.setMessage("Would you like to download some default sticker packs?");
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
-                downloadStickers();
+               // downloadStickers();       // TODO: Disabled Cheogram Stickers until it's more useful
             }
         });
         builder.setNegativeButton(R.string.no, (dialog, which) -> {
@@ -592,7 +592,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         startActivityForResult(intent, DIALLER_INTEGRATION);
                         break;
                     case REQUEST_DOWNLOAD_STICKERS:
-                        downloadStickers();
+                        // downloadStickers();    // TODO: Disabled Cheogram Stickers until it's more useful
                         break;
                 }
             } else {
