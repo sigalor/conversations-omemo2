@@ -1659,6 +1659,7 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
+        /*      //TODO: Disabled Cheogram emojisearch for now
         final Pattern lastColonPattern = Pattern.compile("(?<!\\w):");
         emojiSearchBinding = DataBindingUtil.inflate(inflater, R.layout.emoji_search, null, false);
         emojiSearchBinding.emoji.setOnItemClickListener((parent, view, position, id) -> {
@@ -1673,6 +1674,7 @@ public class ConversationFragment extends XmppFragment
             if (lastColon > 0) s.replace(lastColon - 1, s.length(), toInsert, 0, toInsert.length());
         });
         setupEmojiSearch();
+
         emojiPopup = new PopupWindow(emojiSearchBinding.getRoot(), WindowManager.LayoutParams.MATCH_PARENT, (int) (activity.getResources().getDisplayMetrics().density * 150));
         Handler emojiDebounce = new Handler(Looper.getMainLooper());
         final Pattern notEmojiSearch = Pattern.compile("[^\\w\\(\\)\\+'\\-]");
@@ -1707,7 +1709,7 @@ public class ConversationFragment extends XmppFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int count, int after) { }
         });
-
+         */
 
         return binding.getRoot();
     }
@@ -2715,8 +2717,10 @@ public class ConversationFragment extends XmppFragment
                 } else {
                     res = R.string.error;
                 }
-                if (!Compatibility.runsThirtyThree())       //TODO: Actually not needed, check this later again
-                ToastCompat.makeText(getActivity(), res, ToastCompat.LENGTH_SHORT).show();
+                if (Compatibility.runsThirtyThree()){          //TODO: Actually not needed, check this later again
+                } else {
+                    ToastCompat.makeText(getActivity(), res, ToastCompat.LENGTH_SHORT).show();
+                }
             }
         }
         if (readGranted(grantResults, permissions)) {
@@ -4627,7 +4631,7 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
-        setupEmojiSearch();
+        // setupEmojiSearch();      //TODO: Disabled Cheogram emojisearch for now
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
