@@ -1,4 +1,4 @@
-monocles chat is a fork of blabber.im and <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a> with some changes,
+monocles chat is a fork of blabber.im and <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a> with many changes,
 to improve usability and security.
 
 Connection security and the protection of personal data are very important for
@@ -23,4 +23,4 @@ Features:
 * Status messages
 * Daily backup of database to local storage
 
-You need help? Please join our support group chat <a href="https://interact.monocles.de/">support@conference.monocles.de</a>.
+You need help? Please join our support group chat <a href="xmpp:support@conference.monocles.de">support@conference.monocles.de</a>.
