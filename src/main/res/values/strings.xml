@@ -1081,7 +1081,7 @@
     <string name="outgoing_call_duration">%s · Outgoing call · %s</string>
     <string name="outgoing_call_time">%s · Outgoing call</string>
     <string name="outgoing_call">Outgoing call</string>
-    <string name="disable_tor_to_make_call">Disable Tor to make calls</string>
+    <string name="disable_tor_to_make_call">Disable Tor to make calls or use Tor in VPN mode</string>
     <string name="no_i2p_calls">Calls can’t be done via I2P</string>
     <string name="help">Help</string>
     <string name="switch_to_conversation">Switch to conversation</string>

@@ -1125,7 +1125,7 @@
     <string name="outgoing_call_duration">%s · Ausgehender Anruf · %s</string>
     <string name="outgoing_call_time">%s · Ausgehender Anruf</string>
     <string name="outgoing_call">Ausgehender Anruf</string>
-    <string name="disable_tor_to_make_call">Deaktiviere Tor, um Anrufe zu tätigen</string>
+    <string name="disable_tor_to_make_call">Deaktiviere Tor, um Anrufe zu tätigen oder nutze Tor im VPN-Modus</string>
     <string name="help">Hilfe</string>
     <string name="switch_to_conversation">Zur Unterhaltung wechseln</string>
     <string name="only_one_call_at_a_time">Nur ein zeitgleicher Anruf möglich.</string>
