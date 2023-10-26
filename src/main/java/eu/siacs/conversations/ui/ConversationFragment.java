@@ -1557,6 +1557,21 @@ public class ConversationFragment extends XmppFragment
         super.onCreateOptionsMenu(menu, menuInflater);
     }
 
+    //Setting hide thread icon
+    public void showThreadFeature() {
+        SharedPreferences t = PreferenceManager.getDefaultSharedPreferences(activity);
+        final boolean ShowThreadFeature = t.getBoolean("show_thread_feature", activity.getResources().getBoolean(R.bool.show_thread_feature));
+        Log.d(Config.LOGTAG, "Thread " + ShowThreadFeature);
+        if (!ShowThreadFeature) {
+            binding.threadIdenticonLayout.setVisibility(GONE);
+        } else if (ShowThreadFeature) {
+            binding.threadIdenticonLayout.setVisibility(VISIBLE);
+            messageListAdapter.setOnMessageBoxClicked(message -> {
+                setThread(message.getThread());
+                conversation.setUserSelectedThread(true);
+            });
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -1565,11 +1580,7 @@ public class ConversationFragment extends XmppFragment
         binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
 
         //Setting hide thread icon
-        if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)){
-            binding.threadIdenticonLayout.setVisibility(GONE);
-        } else if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)){
-            binding.threadIdenticonLayout.setVisibility(VISIBLE);
-        }
+        showThreadFeature();
 
         if (binding.emojiPicker.getVisibility()==VISIBLE) {
             backPressedLeaveEmojiPicker.setEnabled(true);
@@ -1617,15 +1628,8 @@ public class ConversationFragment extends XmppFragment
         registerForContextMenu(binding.messagesView);
         registerForContextMenu(binding.textSendButton);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            this.binding.textinput.setCustomInsertionActionModeCallback(new EditMessageActionModeCallback(this.binding.textinput));
-        }
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            messageListAdapter.setOnMessageBoxClicked(message -> {
-                setThread(message.getThread());
-                conversation.setUserSelectedThread(true);
-            });
-        }
+        this.binding.textinput.setCustomInsertionActionModeCallback(new EditMessageActionModeCallback(this.binding.textinput));
+
         messageListAdapter.setOnMessageBoxSwiped(message -> {
             quoteMessage(message, null);
         });
