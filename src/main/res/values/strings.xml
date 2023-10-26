@@ -9,7 +9,7 @@
     <string name="action_secure">Secure conversation</string>
     <string name="action_add_new_account">Add new account</string>
     <string name="action_add_phone_book">Add to address book</string>
-    <string name="action_delete_contact">Delete from roster</string>
+    <string name="action_delete_contact">Delete from contact list</string>
     <string name="action_block_contact">Block contact</string>
     <string name="action_unblock_contact">Unblock contact</string>
     <string name="action_block_domain">Block domain</string>
@@ -41,7 +41,7 @@
     <string name="moderator">Moderator</string>
     <string name="participant">Participant</string>
     <string name="visitor">Visitor</string>
-    <string name="remove_contact_text">Would you like to remove %s from your roster? The conversation associated with this contact will not be removed.</string>
+    <string name="remove_contact_text">Would you like to remove %s from your contact list? The conversation associated with this contact will not be removed.</string>
     <string name="block_contact_text">Would you like to block %s from sending you messages?</string>
     <string name="unblock_contact_text">Would you like to unblock %s and allow them to send you messages?</string>
     <string name="block_domain_text">Block all contacts from %s?</string>
@@ -72,7 +72,7 @@
     <string name="problem_connecting_to_accounts">Unable to connect to multiple accounts</string>
     <string name="touch_to_fix">Touch here to manage your accounts</string>
     <string name="attach_file">Attach file</string>
-    <string name="not_in_roster">The contact is not in your roster. Would you like to add it?</string>
+    <string name="not_in_roster">The contact is not in your contact list. Would you like to add it?</string>
     <string name="add_contact">Add contact</string>
     <string name="send_failed">delivery failed</string>
     <string name="preparing_image">Preparing image for transmission</string>
@@ -482,7 +482,7 @@
     <string name="load_more_messages">Load more messages</string>
     <string name="no_storage_permission">monocles chat needs access to external storage</string>
     <string name="sync_with_contacts">Synchronize with contacts</string>
-    <string name="sync_with_contacts_long">monocles chat wants to match your XMPP roster with your contacts to show their full names and avatars.\n\nmonocles chat will only read your contacts and match them locally without uploading them to your server.\n\nYou will now be asked to grant permission to access your contacts.</string>
+    <string name="sync_with_contacts_long">monocles chat wants to match your XMPP contact list with your phone contacts to show their full names and avatars.\n\nmonocles chat will only read your contacts and match them locally without uploading them to your server.\n\nYou will now be asked to grant permission to access your contacts.</string>
     <string name="notify_on_all_messages">Notify on all messages</string>
     <string name="notify_only_when_highlighted">Notify only when mentioned</string>
     <string name="notify_never">Notifications disabled</string>
