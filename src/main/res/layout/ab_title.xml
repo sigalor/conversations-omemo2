@@ -53,7 +53,7 @@
 
     <TextView
         android:id="@android:id/text2"
-        style="@style/TextAppearance.Material3.LabelMedium"
+        style="@style/TextAppearance.Material3.ActionBar.Subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@android:id/text1"
