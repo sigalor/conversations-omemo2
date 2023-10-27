@@ -2029,36 +2029,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
     }
 
-    public void setInputBubbleBackgroundColor(final View viewHolder, final int type,
-                                         final boolean isPrivateMessage, final boolean isInValidSession) {
-        if (type == RECEIVED) {
-            if (isInValidSession) {
-                if (isPrivateMessage) {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_light_private);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_light), StyledAttributes.getColor(activity, R.attr.colorAccent));
-                } else {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_light);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_light), -1);
-                }
-            } else {
-                if (isPrivateMessage) {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_warning_private);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_warning), StyledAttributes.getColor(activity, R.attr.colorAccent));
-                } else {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_warning);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_warning), -1);
-                }
-            }
-        }
-
-        if (type == SENT) {
-            if (isPrivateMessage) {
-                viewHolder.setBackgroundResource(R.drawable.input_bubble_sent_private);
-                activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
-            } else {
-                viewHolder.setBackgroundResource(R.drawable.input_bubble_light);
-                activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), -1);
-            }
+    public void setInputBubbleBackgroundColor(final View viewHolder,
+                                         final boolean isPrivateMessage) {
+        if (isPrivateMessage) {
+            viewHolder.setBackgroundResource(R.drawable.input_bubble_sent_private);
+            activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
+        } else {
+            viewHolder.setBackgroundResource(R.drawable.input_bubble_light);
+            activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), 0);
         }
     }
 
