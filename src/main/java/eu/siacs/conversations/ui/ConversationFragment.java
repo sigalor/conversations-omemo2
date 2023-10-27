@@ -1566,10 +1566,7 @@ public class ConversationFragment extends XmppFragment
             binding.threadIdenticonLayout.setVisibility(GONE);
         } else if (ShowThreadFeature) {
             binding.threadIdenticonLayout.setVisibility(VISIBLE);
-            messageListAdapter.setOnMessageBoxClicked(message -> {
-                setThread(message.getThread());
-                conversation.setUserSelectedThread(true);
-            });
+
         }
     }
 
@@ -1651,7 +1648,10 @@ public class ConversationFragment extends XmppFragment
                 newThreadTutorialToast("Switched to new thread");
             }
         });
-
+        messageListAdapter.setOnMessageBoxClicked(message -> {
+            setThread(message.getThread());
+            conversation.setUserSelectedThread(true);
+        });
         binding.threadIdenticonLayout.setOnLongClickListener(v -> {
             boolean wasLocked = conversation.getLockThread();
             conversation.setLockThread(false);
