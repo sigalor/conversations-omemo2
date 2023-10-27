@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="@color/green500" />
+    <solid android:color="@color/online" />
     <size
-        android:width="10dp"
-        android:height="10dp" />
+        android:width="20dp"
+        android:height="20dp" />
     <stroke
         android:width="2dp"
-        android:color="@color/online" />
+        android:color="?attr/color_background_secondary" />
 </shape>
