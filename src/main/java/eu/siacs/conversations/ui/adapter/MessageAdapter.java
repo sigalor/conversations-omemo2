@@ -2036,7 +2036,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
         } else {
             viewHolder.setBackgroundResource(R.drawable.input_bubble_light);
-            activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), 0);
+            activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), -1);
         }
     }
 

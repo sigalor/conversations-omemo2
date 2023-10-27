@@ -142,8 +142,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/input_bubble_light"
-            android:alpha="0.88">
+            android:alpha="0.88" >
 
             <RelativeLayout
                     android:id="@+id/message_input_box"
