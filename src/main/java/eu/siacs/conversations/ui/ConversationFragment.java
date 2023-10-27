@@ -1831,19 +1831,6 @@ public class ConversationFragment extends XmppFragment
         return false;
     }
 
-    private void setupReply(Message message, @Nullable String user) {
-        conversation.setReplyTo(message);
-        if (message == null) {
-            binding.contextPreview.setVisibility(GONE);
-            return;
-        }
-
-        SpannableStringBuilder body = message.getSpannableBody(null, null);
-        messageListAdapter.handleTextQuotes(body, activity.isDarkTheme());
-        binding.contextPreviewText.setText(body);
-        binding.contextPreview.setVisibility(View.VISIBLE);
-    }
-
     private void setThread(Element thread) {
         if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             this.conversation.setThread(thread);
