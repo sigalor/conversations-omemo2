@@ -391,9 +391,9 @@
                                 app:riv_corner_radius="90dp" />
                         </RelativeLayout>
 
-                        <CheckBox
+                        <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/account_register_new"
-                            style="@style/Widget.Conversations.CheckBox"
+                            style="@style/Widget.monocles.Switch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/jid_password_box"

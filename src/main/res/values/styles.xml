@@ -79,8 +79,13 @@
         <item name="fontFamily">@font/notosansregular</item>
     </style>
 
-    <style name="Widget.Conversations.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+    <style name="Widget.monocles.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="android:textSize">?TextSizeBody1</item>
+        <item name="fontFamily">@font/notosansregular</item>
+    </style>
+
+    <style name="Widget.monocles.SwitchPreference" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="android:textSize">?TextSizeBody</item>
         <item name="fontFamily">@font/notosansregular</item>
     </style>
 

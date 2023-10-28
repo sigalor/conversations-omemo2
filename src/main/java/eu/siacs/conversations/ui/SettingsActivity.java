@@ -26,12 +26,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.storage.StorageManager;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 import de.monocles.chat.DownloadDefaultStickers;
@@ -489,13 +489,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 .registerOnSharedPreferenceChangeListener(this);
         multiAccountPreference = mSettingsFragment.findPreference("enable_multi_accounts");
         if (multiAccountPreference != null) {
-            isMultiAccountChecked = ((CheckBoxPreference) multiAccountPreference).isChecked();
+            isMultiAccountChecked = ((SwitchPreference) multiAccountPreference).isChecked();
             //handleMultiAccountChanges();
         }
 
         BundledEmojiPreference = mSettingsFragment.findPreference("use_bundled_emoji");
         if (BundledEmojiPreference != null) {
-            isBundledEmojiChecked = ((CheckBoxPreference) BundledEmojiPreference).isChecked();
+            isBundledEmojiChecked = ((SwitchPreference) BundledEmojiPreference).isChecked();
         }
 
         QuickShareAttachmentChoicePreference = mSettingsFragment.findPreference("quick_share_attachment_choice");
@@ -504,7 +504,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 refreshUiReal();
                 return true;
             });
-            isQuickShareAttachmentChoiceChecked = ((CheckBoxPreference) QuickShareAttachmentChoicePreference).isChecked();
+            isQuickShareAttachmentChoiceChecked = ((SwitchPreference) QuickShareAttachmentChoicePreference).isChecked();
         }
 
         changeOmemoSettingSummary();
@@ -774,7 +774,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             Log.d(Config.LOGTAG, "Bundled Emoji checkbox checked: " + isBundledEmojiChecked);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (isBundledEmojiChecked) {
-                    ((CheckBoxPreference) BundledEmojiPreference).setChecked(false);
+                    ((SwitchPreference) BundledEmojiPreference).setChecked(false);
                     useBundledEmojis.setEnabled(false);
                 }
                 PreferenceCategory UICatergory = (PreferenceCategory) mSettingsFragment.findPreference("UI");

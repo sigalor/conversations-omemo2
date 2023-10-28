@@ -23,6 +23,7 @@ import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
 import static eu.siacs.conversations.utils.StorageHelper.getConversationsDirectory;
 import static eu.siacs.conversations.xmpp.Patches.ENCRYPTION_EXCEPTIONS;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.common.collect.ImmutableList;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
@@ -2815,7 +2816,7 @@ public class ConversationFragment extends XmppFragment
         final AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setTitle(getString(R.string.clear_conversation_history));
         final View dialogView = requireActivity().getLayoutInflater().inflate(R.layout.dialog_clear_history, null);
-        final CheckBox endConversationCheckBox = dialogView.findViewById(R.id.end_conversation_checkbox);
+        final MaterialSwitch endConversationCheckBox = dialogView.findViewById(R.id.end_conversation_checkbox);
         if (conversation.getMode() == Conversation.MODE_SINGLE) {
             endConversationCheckBox.setVisibility(View.VISIBLE);
             endConversationCheckBox.setChecked(true);

@@ -65,6 +65,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
@@ -1091,7 +1092,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.verify_omemo_keys);
         final View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
-        final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
+        final MaterialSwitch isTrustedSource = view.findViewById(R.id.trusted_source);
         final TextView warning = view.findViewById(R.id.warning);
         warning.setText(JidDialog.style(this, R.string.verifying_omemo_keys_trusted_source, contact.getJid().asBareJid().toEscapedString(), contact.getDisplayName()));
         builder.setView(view);

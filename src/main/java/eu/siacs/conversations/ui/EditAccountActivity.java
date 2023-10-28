@@ -29,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,6 +41,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.CharMatcher;
 
@@ -887,7 +887,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.verify_omemo_keys);
         View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
-        final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
+        final MaterialSwitch isTrustedSource = view.findViewById(R.id.trusted_source);
         TextView warning = view.findViewById(R.id.warning);
         warning.setText(R.string.verifying_omemo_keys_trusted_source_account);
         builder.setView(view);

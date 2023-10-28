@@ -61,8 +61,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/forbid_screenshots"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -93,8 +93,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/show_links"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -124,8 +124,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/show_mappreview"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -155,8 +155,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/chat_states"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -186,8 +186,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/confirm_messages"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -217,8 +217,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/last_seen"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -248,8 +248,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/invidious"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -278,8 +278,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/using_inner_storage"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
@@ -308,8 +308,8 @@
                                 android:padding="@dimen/image_button_padding"
                                 android:src="?attr/icon_help_black" />
 
-                            <CheckBox
-                                style="@style/Widget.Conversations.CheckBox"
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/Widget.monocles.Switch"
                                 android:id="@+id/easy_downloader"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
