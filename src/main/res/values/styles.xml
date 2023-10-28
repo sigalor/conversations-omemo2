@@ -51,9 +51,9 @@
 
     </style>
 
-    <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.Material3.LabelLarge">
+    <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.Material3.LabelMedium">
         <item name="android:textSize">?TextSizeCaption</item>
-        <item name="fontFamily">@font/notosansbold</item>
+        <item name="fontFamily">@font/notosanssemibold</item>
 
     </style>
 
@@ -80,7 +80,7 @@
     </style>
 
     <style name="Widget.monocles.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
-        <item name="android:textSize">?TextSizeBody1</item>
+        <item name="android:switchTextAppearance">?TextSizeBody</item>
         <item name="fontFamily">@font/notosansregular</item>
     </style>
 

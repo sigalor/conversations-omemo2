@@ -43,7 +43,7 @@
         <item name="colorControlNormal">@color/accent</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realblack</item>
-        <item name="colorOnPrimary">@color/realblack</item>
+        <item name="colorOnPrimary">@color/realwhite</item>
         <item name="button_text_color_disabled">@color/grey500</item>
         <item name="chat_bg">@drawable/bg_light_blue</item>
         <item name="icon_tint">@color/black54</item>
@@ -235,7 +235,7 @@
         <item name="colorControlNormal">@color/accent</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realwhite</item>
-        <item name="colorOnPrimary">@color/realwhite</item>
+        <item name="colorOnPrimary">@color/grey800</item>
         <item name="button_text_color_disabled">@color/grey500</item>
         <item name="android:navigationBarColor" >@color/black</item>
         <item name="chat_bg">@drawable/bg_dark_blue</item>
@@ -423,7 +423,7 @@
 
     <!-- blue theme - black -->
     <style name="ConversationsTheme.Black" parent="ConversationsTheme.Dark">
-        <item name="colorPrimary">@color/primary_black</item>
+        <item name="colorPrimary">@color/accent</item>
         <item name="colorPrimaryDark">@color/primary_dark_black</item>
         <item name="color_background_primary">@color/darkblack</item>
         <item name="color_background_secondary">@color/primary_black</item>
@@ -634,6 +634,7 @@
 
     <!-- monocles theme - black -->
     <style name="ConversationsTheme.Monocles.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_monocles</item>
         <item name="colorAccent">@color/accent_monocles</item>
         <item name="colorAccentLight">@color/accent_light_monocles</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled_monocles</item>
@@ -828,6 +829,7 @@
 
     <!-- orange theme - black -->
     <style name="ConversationsTheme.Orange.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_orange</item>
         <item name="colorAccent">@color/accent_orange</item>
         <item name="colorAccentLight">@color/accent_light_orange</item>
         <item name="colorAccentLightDisabled">@color/accent_light_orange_disabled</item>
@@ -1020,6 +1022,7 @@
 
     <!-- grey theme - black -->
     <style name="ConversationsTheme.Grey.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_grey</item>
         <item name="colorAccent">@color/accent_grey</item>
         <item name="colorAccentLight">@color/accent_light_grey</item>
         <item name="colorAccentLightDisabled">@color/accent_light_grey_disabled</item>
@@ -1212,6 +1215,7 @@
 
     <!-- pink theme - black -->
     <style name="ConversationsTheme.Pink.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_pink</item>
         <item name="colorAccent">@color/accent_pink</item>
         <item name="colorAccentLight">@color/accent_light_pink</item>
         <item name="colorAccentLightDisabled">@color/accent_light_pink_disabled</item>
@@ -1405,6 +1409,7 @@
 
     <!-- White theme - black -->
     <style name="ConversationsTheme.White.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_White</item>
         <item name="colorAccent">@color/accent_White</item>
         <item name="colorAccentLight">@color/accent_light_White</item>
         <item name="colorAccentLightDisabled">@color/accent_light_White_disabled</item>
