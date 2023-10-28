@@ -7,12 +7,12 @@
     <string name="accept">Принять</string>
     <string name="account_already_exists">Этот аккаунт уже существует</string>
     <string name="account_already_setup">Этот аккаунт уже настроен</string>
-    <string name="account_details">Детали учетной записи</string>
+    <string name="account_details">Детали аккаунта</string>
     <string name="account_image_description">Аватар</string>
     <string name="account_registrations_are_not_supported">Регистрация учетной записи не поддерживается</string>
     <string name="account_settings_example_jabber_id">username@monocles.eu</string>
     <string name="account_settings_hostname">Имя хоста</string>
-    <string name="account_settings_jabber_id">адрес чата</string>
+    <string name="account_settings_jabber_id">аккаунт</string>
     <string name="account_settings_port">Порт</string>
     <string name="account_status_bind_failure">Не удачная связка</string>
     <string name="account_status_connecting">Подключение…</string>
@@ -39,7 +39,7 @@
     <string name="account_status_unauthorized">Не авторизован</string>
     <string name="account_status_unknown">Неизвестно</string>
     <string name="action_account">Редактировать аккаунт</string>
-    <string name="action_accounts">Управление учетными записями</string>
+    <string name="action_accounts">Управление аккаунтами</string>
     <string name="action_add">Новая беседа</string>
     <string name="action_add_account_with_certificate">Добавить аккаунт с сертификатом</string>
     <string name="action_add_existing_account">Добавить существующий аккаунт</string>
@@ -133,7 +133,7 @@
     <string name="block_contact_text">Вы действительно хотите заблокировать отправку вам сообщений от %s\?</string>
     <string name="block_domain_text">Блокировать все контакты от %s\?</string>
     <string name="block_entire_domain">Заблокировать весь домен</string>
-    <string name="block_jabber_id">Заблокировать chat address</string>
+    <string name="block_jabber_id">Заблокировать аккаунт</string>
     <string name="block_stranger">Заблокировать незнакомца</string>
     <string name="blocked">Заблокирован</string>
     <string name="bookmarks">Конференции</string>
@@ -356,7 +356,7 @@
     <string name="event">Событие</string>
     <string name="everyone_has_read_up_to_this_point">Все прочитали до этого момента</string>
     <string name="exit">Выход</string>
-    <string name="failed">С ошибкой</string>
+    <string name="failed">Ошибка</string>
     <string name="failed_deliveries">Неудачные доставки</string>
     <string name="feature_not_implemented">Возможность пока недоступна</string>
     <string name="fetching_history_from_server">Запрос истории с сервера</string>
@@ -377,7 +377,7 @@
     <string name="format_text">Отформатировать текст</string>
     <string name="gif">GIF</string>
     <string name="go_online_to_delete">Вы должны активировать и/или быть в сети для учетной записи, которую хотите удалить с сервера.</string>
-    <string name="got_invitation_from" formatted="false">Вы были приглашены игроком %s в фракцию %s.</string>
+    <string name="got_invitation_from" formatted="false">%s пригласил вас в чат %s.</string>
     <string name="gp_disable">Выключить</string>
     <string name="gp_long">Длинный</string>
     <string name="gp_medium">Средний</string>
@@ -452,7 +452,7 @@
     <string name="intro_start_chatting">Начните чатиться</string>
     <string name="intro_whats_xmpp">Что такое XMPP / Jabber / monocles chat\?</string>
     <string name="invalid_barcode">Не верный QR-код</string>
-    <string name="invalid_jid">Недействительный адрес чата</string>
+    <string name="invalid_jid">Недействительный аккаунт</string>
     <string name="invalid_muc_nick">Не верное имя</string>
     <string name="invalid_username">Некорректное имя</string>
     <string name="invite">Пригласить</string>
@@ -536,7 +536,7 @@
 \nЕсли Вы удалите свою учетную запись с сервера, Вы не сможете больше входить в систему, пока не зарегистрируете новую учетную запись.</string>
     <string name="mgmt_account_password_forgotten">Не помню пароль</string>
     <string name="mgmt_account_publish_avatar">Опубликовать аватар</string>
-    <string name="mgmt_account_publish_pgp">Опубликовать публичный OpenPGP ключ</string>
+    <string name="mgmt_account_publish_pgp">Опубликовать PGP - ключ</string>
     <string name="mgmt_account_reconnect">Переподключить</string>
     <string name="microphone_unavailable">Ваш микрофон недоступен</string>
     <string name="minute_ago">1 мин. назад</string>
@@ -791,7 +791,7 @@
     <string name="pref_more_notification_settings_summary">Важность, звук, вибрация</string>
     <string name="pref_notification_grace_period">Период отсрочки</string>
     <string name="pref_notification_grace_period_summary">Время, в течение которого уведомления отключаются после обнаружения активности на одном из ваших других устройств.</string>
-    <string name="pref_notification_settings">Уведомление</string>
+    <string name="pref_notification_settings">Уведомления</string>
     <string name="pref_notification_sound">Звук уведомления</string>
     <string name="pref_notification_sound_summary">Звук уведомления для новых сообщений</string>
     <string name="pref_notifications_from_strangers">Уведомления от незнакомцев</string>
@@ -825,7 +825,7 @@
     <string name="pref_screen_security_summary">Запретить Вашим собеседникам делать скриншоты бесед.</string>
     <string name="pref_scroll_to_bottom">Прокрутка вниз</string>
     <string name="pref_scroll_to_bottom_summary">Прокручивать вниз после отправки сообщения</string>
-    <string name="pref_security_settings">Безопасность и защита данных</string>
+    <string name="pref_security_settings">Конфиденциальность</string>
     <string name="pref_send_crash">Отправлять отчеты о сбоях</string>
     <string name="pref_send_crash_summary">Отправляя трассировку стека, Вы помогаете разработке monocles chat</string>
     <string name="pref_show_connection_options">Расширенные настройки подключения</string>
@@ -863,7 +863,7 @@
     <string name="pref_theme_light">Светлая</string>
     <string name="pref_theme_monocles">monocles chat</string>
     <string name="pref_theme_options">Тема</string>
-    <string name="pref_theme_options_summary">Выберите цветовую схему</string>
+    <string name="pref_theme_options_summary">Выберите тему</string>
     <string name="pref_theme_orange">Оранжевый</string>
     <string name="pref_theme_pink">Розовый</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Устанавливать статус \"Не беспокоить\", когда устройство находится в режиме вибрации</string>
@@ -1110,7 +1110,7 @@
     <string name="title_activity_manage_accounts">Управление аккаунтами</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="title_activity_share_via_account">Поделиться через аккаунт</string>
-    <string name="title_activity_sharewith">Поделиться с разговором</string>
+    <string name="title_activity_sharewith">Выберите чат</string>
     <string name="title_activity_start_conversation">Начать беседу</string>
     <string name="title_activity_updater">Служба обновления</string>
     <string name="title_memory_management">Управление памятью</string>
@@ -1420,9 +1420,26 @@
     <string name="chat_background">Фон чатов</string>
     <string name="message_reaction">Отправить реакцию</string>
     <string name="custom_background">Пользовательский фон</string>
-    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocles chat/backgrounds/bg.jpg</string>
+    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocleschat/backgrounds/bg.jpg. В случае возникновения проблемы удалите файл изображения с помощью файлового менеджера.</string>
     <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
     <string name="pref_set_round_avatars">Круглые аватары</string>
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
     <string name="choose_emoji">Выберите смайл</string>
+    <string name="show_keyboard">Показать клавиатуру</string>
+    <string name="pref_show_thread_feature_summary">Показывать значок нитей в поле ввода и разрешать создавать и отслеживать нити</string>
+    <string name="pref_show_thread_feature">Показывать значок нитей</string>
+    <string name="app_title" formatted="true">monocles chat</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Изменить контакт в приложении или телефонный контакт?</string>
+    <string name="edit_sytemaccount">Контакт в телефоне</string>
+    <string name="edit_chat_contact">Контакт в приложении</string>
+    <string name="enter_user_name">Введите имя</string>
+    <string name="account_color">Цвет аккаунта</string>
+    <string name="account_color_summary">Используется в списках разговоров, контактов и уведомлениях.</string>
+    <string name="notifications_enabled">Уведомления включены</string>
+    <string name="notifications_disabled">Уведомления отключены. Пожалуйста, активируйте их в настройках телефона.</string>
+    <string name="pref_show_less_avatars">Не показывать свой аватар в чатах</string>
+    <string name="pref_show_less_avatars_summary">В чатах не будет виден личный аватар</string>
+    <string name="no_media_permission">Нет разрешения на хранение мультимедиа</string>
+    <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
+    <string name="pref_set_text_collapsable_summary">Будет свернут текст, содержащий более 240 знаков.</string>
 </resources>
