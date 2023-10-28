@@ -6,7 +6,6 @@ import static eu.siacs.conversations.ui.SettingsActivity.USE_INTERNAL_UPDATER;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.telephony.TelephonyManager;
 import eu.siacs.conversations.utils.Compatibility;
-import androidx.annotation.RequiresApi;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -73,13 +72,8 @@ import com.google.common.collect.Collections2;
 
 import java.util.HashMap;
 import java.io.File;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import eu.siacs.conversations.Config;
@@ -116,11 +110,19 @@ import me.drakeet.support.toast.ToastCompat;
 import pl.droidsonroids.gif.GifDrawable;
 import android.util.Pair;
 import net.java.otr4j.session.SessionID;
+import eu.siacs.conversations.ui.util.SettingsUtils;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import android.webkit.ValueCallback;
 import eu.siacs.conversations.utils.CryptoHelper;
+
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
+import eu.siacs.conversations.ui.SettingsActivity;
 import static eu.siacs.conversations.ui.SettingsActivity.ENABLE_OTR_ENCRYPTION;
 
 public abstract class XmppActivity extends ActionBarActivity {
@@ -759,9 +761,9 @@ public abstract class XmppActivity extends ActionBarActivity {
             xmppConnectionService.getPgpEngine().generateSignature(intent, account, status, new UiCallback<String>() {
 
                 @Override
-                public void userInputRequired(PendingIntent pi, String signature) {
+                public void userInputRequired(final PendingIntent pi, final String signature) {
                     try {
-                        startIntentSenderForResult(pi.getIntentSender(), REQUEST_ANNOUNCE_PGP, null, 0, 0, 0);
+                        startIntentSenderForResult(pi.getIntentSender(), REQUEST_ANNOUNCE_PGP, null, 0, 0, 0,Compatibility.pgpStartIntentSenderOptions());
                     } catch (final SendIntentException ignored) {
                     }
                 }
@@ -835,7 +837,7 @@ public abstract class XmppActivity extends ActionBarActivity {
             public void userInputRequired(PendingIntent pi, Account object) {
                 try {
                     startIntentSenderForResult(pi.getIntentSender(),
-                            REQUEST_CHOOSE_PGP_ID, null, 0, 0, 0);
+                            REQUEST_CHOOSE_PGP_ID, null, 0, 0, 0, Compatibility.pgpStartIntentSenderOptions());
                 } catch (final SendIntentException ignored) {
                 }
             }
@@ -1258,8 +1260,9 @@ public abstract class XmppActivity extends ActionBarActivity {
         try {
             startIntentSenderForResult(
                     pgp.getIntentForKey(keyId).getIntentSender(), 0, null, 0,
-                    0, 0);
-        } catch (Throwable e) {
+                    0, 0, Compatibility.pgpStartIntentSenderOptions());
+        } catch (final Throwable e) {
+            Log.d(Config.LOGTAG,"could not launch OpenKeyChain", e);
             ToastCompat.makeText(XmppActivity.this, R.string.openpgp_error, ToastCompat.LENGTH_SHORT).show();
         }
     }

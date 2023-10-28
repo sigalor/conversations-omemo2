@@ -637,7 +637,8 @@ public class ConversationFragment extends XmppFragment
                             null,
                             0,
                             0,
-                            0);
+                            0,
+                            Compatibility.pgpStartIntentSenderOptions());
                 } catch (SendIntentException e) {
                     ToastCompat.makeText(getActivity(), R.string.unable_to_connect_to_keychain, ToastCompat.LENGTH_SHORT).show();
                     conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
