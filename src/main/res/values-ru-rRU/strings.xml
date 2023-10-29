@@ -3,7 +3,7 @@
     <string name="InviteText">Здравствуйте!
 \n
 \nПользователь %s приглашает Вас в monocles chat. Просто перейдите по ссылке…</string>
-    <string name="a_user">пользователь</string>
+    <string name="a_user">Пользователь</string>
     <string name="accept">Принять</string>
     <string name="account_already_exists">Этот аккаунт уже существует</string>
     <string name="account_already_setup">Этот аккаунт уже настроен</string>
@@ -12,9 +12,9 @@
     <string name="account_registrations_are_not_supported">Регистрация учетной записи не поддерживается</string>
     <string name="account_settings_example_jabber_id">username@monocles.eu</string>
     <string name="account_settings_hostname">Имя хоста</string>
-    <string name="account_settings_jabber_id">аккаунт</string>
+    <string name="account_settings_jabber_id">Аккаунт</string>
     <string name="account_settings_port">Порт</string>
-    <string name="account_status_bind_failure">Не удачная связка</string>
+    <string name="account_status_bind_failure">Неудачная связка</string>
     <string name="account_status_connecting">Подключение…</string>
     <string name="account_status_disabled">Временно отключено</string>
     <string name="account_status_host_unknown">Сервер не отвечает за домен</string>
@@ -68,7 +68,7 @@
     <string name="action_unblock_contact">Разблокировать контакт</string>
     <string name="action_unblock_domain">Разблокировать домен</string>
     <string name="action_unblock_participant">Разблокировать участника</string>
-    <string name="action_unfix_from_location">Отменить фиксацию положения</string>
+    <string name="action_unfix_from_location">Отменить фиксацию местоположения</string>
     <string name="add">Добавить</string>
     <string name="add_anyway">Добавить в любом случае</string>
     <string name="add_back">Добавить в ответ</string>
@@ -84,14 +84,14 @@
     <string name="all_omemo_keys_have_been_verified">Все ключи OMEMO были подтверждены</string>
     <string name="allow">Разрешить</string>
     <string name="allow_participants_to_edit_subject">Разрешить всем изменять эту тему</string>
-    <string name="allow_participants_to_invite_others">Позволить всем приглашать других</string>
+    <string name="allow_participants_to_invite_others">Позволить всем приглашать других пользователей</string>
     <string name="already_drafting_message">Вы уже составляете текст послания.</string>
     <string name="also_end_conversation">Потом закончить этот разговор</string>
     <string name="always">Всегда</string>
     <string name="always_off">Всегда выключен</string>
     <string name="answer_call">Ответить</string>
     <string name="anyone_can_edit_subject">Все могут изменять эту тему.</string>
-    <string name="anyone_can_invite_others">Все могут приглашать других.</string>
+    <string name="anyone_can_invite_others">Все могут приглашать других пользователей.</string>
     <string name="apk">Приложение Android</string>
     <string name="app_update_channel_name">Обновление приложения</string>
     <string name="application_found_to_open_website">Не удалось найти подходящее приложение для открытия веб-сайта</string>
@@ -140,21 +140,21 @@
     <string name="cancel">Отменить</string>
     <string name="cancel_transmission">Закончить передачу</string>
     <string name="cancel_update">Отменить обновление\?</string>
-    <string name="cancelled">отменен</string>
+    <string name="cancelled">Отменен</string>
     <string name="captcha_hint">Введите текст с картинки выше</string>
     <string name="captcha_required">Требуется CAPTCHA</string>
     <string name="certificate_chain_is_not_trusted">Связь сертификата не является доверенной</string>
-    <string name="certificate_does_not_contain_jid">Сертификат не содержит chat address</string>
+    <string name="certificate_does_not_contain_jid">Сертификат не содержит JID</string>
     <string name="change_password">Изменить пароль</string>
     <string name="change_password_in_next_step">Вы можете изменить сгенерированный пароль на следующем шаге в соответствии с Вашими потребностями.</string>
     <string name="change_password_on_server">Изменить пароль на сервере</string>
     <string name="changelog">Изменения</string>
     <string name="channel_already_exists">Канал с таким именем уже существует</string>
-    <string name="channel_bare_jid_example">комната@конференция.example.com</string>
+    <string name="channel_bare_jid_example">room@conference.example.com</string>
     <string name="channel_details">Детали канала</string>
     <string name="channel_discover_opt_in_message">Обнаружение каналов использует стороннюю службу под названием &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Использование этой функции позволит передать ваш IP-адрес и условия поиска в эту службу. Смотрите их &lt;a href=https://search.jabber.network/privacy&gt;Политику конфиденциальности&lt;/a&gt; для получения дополнительной информации.</string>
     <string name="channel_discovery_opt_in_title">Уведомление о конфиденциальности</string>
-    <string name="channel_full_jid_example">комната@конференция.example.com/имя</string>
+    <string name="channel_full_jid_example">room@conference.example.com/name</string>
     <string name="channel_options">Конфигурация публичного канала</string>
     <string name="check_x_filesize">Проверить %s размер</string>
     <string name="check_x_filesize_on_host">Проверить %1$s размер по %2$s</string>
@@ -188,7 +188,7 @@
     <string name="connect">Подключение</string>
     <string name="connected_accounts">%1$d из %2$d аккаунтов подключены</string>
     <string name="contact">Контакт</string>
-    <string name="contact_added_you">Контакт добавил вас в список контактов</string>
+    <string name="contact_added_you">Пользователь добавил вас в список контактов</string>
     <string name="contact_already_exists">Контакт уже существует</string>
     <string name="contact_asks_for_presence_subscription">Контакт запрашивает подписку на присутствие</string>
     <string name="contact_blocked">Контакт заблокирован</string>
@@ -202,7 +202,7 @@
     <string name="contact_name">Имя контакта</string>
     <string name="contacts">Контакты</string>
     <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s и %2$d прочитали до этого момента</string>
-    <string name="contacts_are_typing">%s набирают сообщение...</string>
+    <string name="contacts_are_typing">%s набирают сообщение…</string>
     <string name="contacts_have_no_pgp_keys">monocles chat не может зашифровать Ваши сообщения, поскольку Ваши контакты не анонсировали свои открытые ключи.
 \n
 \n</string>
@@ -233,7 +233,7 @@
     <string name="create_private_group_chat">Создание приватной комнаты</string>
     <string name="create_public_channel">Создать публичный канал</string>
     <string name="create_shortcut">Создать ярлык</string>
-    <string name="creating_channel">Создание публичного канала...</string>
+    <string name="creating_channel">Создание публичного канала…</string>
     <string name="creating_conference">Создание комнаты…</string>
     <string name="crop_image_menu_crop">Обрезать</string>
     <string name="crop_image_menu_flip">Отразить</string>
@@ -253,7 +253,7 @@
     <string name="default_on">Включено по умолчанию</string>
     <string name="delete">Удалить</string>
     <string name="delete_bookmark">Удалить закладку</string>
-    <string name="delete_contact">Удалить Контакт</string>
+    <string name="delete_contact">Удалить контакт</string>
     <string name="delete_file_dialog">Удалить файл</string>
     <string name="delete_file_dialog_msg">Вы хотите удалить этот файл\?
 \n
@@ -270,7 +270,7 @@
     <string name="delete_recording_dialog_message">Вы действительно хотите отменить и удалить свою запись\?</string>
     <string name="delete_selected_keys">Удалить выбранные ключи</string>
     <string name="delete_x_file">Удалить %s</string>
-    <string name="delivery_failed_channel_name">Не удачные доставки</string>
+    <string name="delivery_failed_channel_name">Неудачные доставки</string>
     <string name="destroy_channel">Закрыть канал</string>
     <string name="destroy_channel_dialog">Вы хотите удалить групповой чат %s\? Это действие нельзя отменить.</string>
     <string name="destroy_channel_failed">Канал не может быть закрыт</string>
@@ -305,8 +305,8 @@
     <string name="download_started">Загрузка начата</string>
     <string name="download_x_file">Скачать %s</string>
     <string name="draft">Черновик:</string>
-    <string name="easy_invite_share_text">Присоединяйтесь к %1$s и чатьтесь со мной: %2$s</string>
-    <string name="ebook">электронная книга</string>
+    <string name="easy_invite_share_text">Присоединяйтесь к %1$s и начните общаться со мной: %2$s</string>
+    <string name="ebook">Электронная книга</string>
     <string name="edit">Изменить</string>
     <string name="edit_status_message_title">Редактировать статус</string>
     <string name="enable">Включить</string>
@@ -317,7 +317,7 @@
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_unencrypted">Не зашифровано</string>
-    <string name="enter_contact">Введите Контакт</string>
+    <string name="enter_contact">Введите контакт</string>
     <string name="enter_password">Введите пароль</string>
     <string name="enter_password_to_restore">Введите пароль от аккаунта %s для восстановления резервной копии.</string>
     <string name="enter_your_name">Введите Ваше имя</string>
@@ -332,7 +332,7 @@
     <string name="error_import_settings">При импорте настроек возникла ошибка.</string>
     <string name="error_io_exception">Общая ошибка. Возможно, у вас закончилось место на диске\?</string>
     <string name="error_message">Сообщение об ошибке</string>
-    <string name="error_message_copied_to_clipboard">Сообщение об ошибке скопировано в буфер</string>
+    <string name="error_message_copied_to_clipboard">Сообщение об ошибке скопировано в буфер обмена</string>
     <string name="error_moving_data">Произошла ошибка при переносе Ваших старых данных. Пожалуйста, перенесите их вручную.</string>
     <string name="error_no_keys_to_trust_presence">Для этого контакта нет доступных ключей.\nУбедитесь, что у вас есть подписка на взаимное присутствие.</string>
     <string name="error_no_keys_to_trust_server_error">Нет подходящих ключей для этого контакта. Запрос новых ключей с сервера закончился неудачей. Возможно, что-то не так с сервером вашего контакта.</string>
@@ -366,7 +366,7 @@
     <string name="file_copied_to">Файл скопирован в %s</string>
     <string name="file_deleted">Файл удален</string>
     <string name="file_too_large">Файл слишком большой</string>
-    <string name="file_transmission_cancelled">передача файла прервана</string>
+    <string name="file_transmission_cancelled">передача файла отменена</string>
     <string name="file_transmission_failed">передача файла прервана</string>
     <string name="file_url">URL файла</string>
     <string name="files">файлы</string>
@@ -389,7 +389,7 @@
     <string name="group_chat_avatar">Аватар комнаты</string>
     <string name="group_chat_members">Участники</string>
     <string name="group_chat_name">Название</string>
-    <string name="group_chat_will_make_your_jabber_id_public">Этот канал будет создан с помощью вашего публичного chat address</string>
+    <string name="group_chat_will_make_your_jabber_id_public">Этот канал будет создан с помощью вашего публичного Jabber ID</string>
     <string name="hang_up">Завершить разговор</string>
     <string name="help">Помощь</string>
     <string name="hide_inactive_devices">Скрыть не активных</string>
@@ -449,11 +449,11 @@
     <string name="intro_optional_permissions">Дополнительные разрешения</string>
     <string name="intro_privacy">Ваша конфиденциальность Ваш суверенитет</string>
     <string name="intro_required_permissions">Необходимые разрешения</string>
-    <string name="intro_start_chatting">Начните чатиться</string>
+    <string name="intro_start_chatting">Начните общаться</string>
     <string name="intro_whats_xmpp">Что такое XMPP / Jabber / monocles chat\?</string>
-    <string name="invalid_barcode">Не верный QR-код</string>
+    <string name="invalid_barcode">Неверный QR-код</string>
     <string name="invalid_jid">Недействительный аккаунт</string>
-    <string name="invalid_muc_nick">Не верное имя</string>
+    <string name="invalid_muc_nick">Неверное имя</string>
     <string name="invalid_username">Некорректное имя</string>
     <string name="invite">Пригласить</string>
     <string name="inviteUser_Subject">приглашает вас присоединиться через</string>
@@ -462,10 +462,10 @@
     <string name="invite_to_app">Пригласить в monocles chat</string>
     <string name="is_typing">печатает…</string>
     <string name="jabber_id_copied_to_clipboard">Скопировать JID в буфер обмена</string>
-    <string name="jabber_ids_are_visible_to_admins">chat address видим для админов.</string>
-    <string name="jabber_ids_are_visible_to_anyone">chat address видим для всех.</string>
+    <string name="jabber_ids_are_visible_to_admins">JID видим для админов.</string>
+    <string name="jabber_ids_are_visible_to_anyone">JID видим для всех.</string>
     <string name="jabber_network">jabber.сеть</string>
-    <string name="jid_does_not_match_certificate">chat address не соответствует сертификату</string>
+    <string name="jid_does_not_match_certificate">JID не соответствует сертификату</string>
     <string name="join">Присоединиться</string>
     <string name="join_public_channel">Присоединиться к публичному каналу</string>
     <string name="joined_an_existing_channel">Вы присоединились к существующему каналу</string>
@@ -614,7 +614,7 @@
     <string name="no_write_access_in_public_muc">В данный момент вы не участвуете в этой комнате и не имеете доступа для записи.
 \nПерейдите к сведениям о комнате, нажав <b>OK</b>, и отправьте личное сообщение модератору, администратору или владельцу, нажав и удерживая имя одного из участников в верхней/передней части списка, чтобы запросить доступ для записи.</string>
     <string name="no_xmpp_adddress_found">XMPP-адрес не найден</string>
-    <string name="non_anonymous">Сделать chat address видимыми для всех</string>
+    <string name="non_anonymous">Сделать JID видимыми для всех</string>
     <string name="none">Нет</string>
     <string name="not_a_backup_file">Выбранный Вами файл не является резервной копией monocles chat</string>
     <string name="not_a_valid_port">Не корректный номер порта</string>
@@ -623,8 +623,8 @@
     <string name="not_encrypted_for_this_device">Сообщение не было зашифровано для этого устройства.</string>
     <string name="not_fetching_history_retention_period">Не извлекает сообщения из-за локального периода хранения.</string>
     <string name="not_in_roster">Контакта нет в вашем списке. Хотите добавить его\?</string>
-    <string name="not_trusted">Не доверенный</string>
-    <string name="not_valid_hostname">Не корректное имя хоста</string>
+    <string name="not_trusted">Недоверенный</string>
+    <string name="not_valid_hostname">Некорректное имя хоста</string>
     <string name="notification_backup_created_subtitle">Резервная копия сохранена в %s</string>
     <string name="notification_backup_created_title">Резервная копия создана</string>
     <string name="notification_backup_failed_subtitle">Резервная копия не может быть сохранена в %s</string>
@@ -1165,7 +1165,7 @@
 \n
 \nВаша команда monocles chat</string>
     <string name="updated_to_monocles_google">Приносим извинения за то, что не смогли выполнить обновление до monocles chat. По ссылке Вы получите инструкции о том, как перенести все свои профили из Monocles Messenger в monocles chat. Нажимая на кнопку «Переместить данные», мы пытаемся переместить все отправленные и полученные файлы из Monocles Messenger в monocles chat. После успешной миграции не забудьте удалить Monocles Messenger со своего устройства.</string>
-    <string name="updating">Обновление...</string>
+    <string name="updating">Обновление…</string>
     <string name="url_copied_to_clipboard">URL скопирован в буфер обмена</string>
     <string name="use_camera_icon_to_scan_barcode">Используйте камеру для сканирования QR кода контактов</string>
     <string name="use_individual_notifications">Используйте индивидуальные уведомления</string>
@@ -1205,7 +1205,7 @@
     <string name="welcome_existing_account">У меня есть аккаунт</string>
     <string name="welcome_header">Добро пожаловать в monocles chat</string>
     <string name="welcome_server_info">Мы рекомендуем использовать сервер monocles chat.</string>
-    <string name="welcome_text">...это свободный и безопасный XMPP/Jabber клиент.</string>
+    <string name="welcome_text">…это свободный и безопасный XMPP/Jabber клиент.</string>
     <string name="without_mutual_presence_updates"><b>Предупреждение:</b> отправка без взаимного обновления присутствия может вызвать непредвиденные проблемы.
 \n
 \n<small>Перейдите к деталям контакта, чтобы подтвердить Ваши подписки присутствия.</small></string>
@@ -1217,16 +1217,16 @@
     <string name="your_account">Ваша учетная запись</string>
     <string name="your_avatar">Ваш аватар</string>
     <string name="your_fingerprint">Ваш отпечаток</string>
-    <string name="your_full_jid_will_be">Ваш chat address был: %s</string>
+    <string name="your_full_jid_will_be">Ваш JID был: %s</string>
     <string name="your_name">Ваше имя</string>
     <string name="your_nick_has_been_changed">Ваш ник был изменен</string>
     <string name="your_server">Ваш сервер</string>
     <string name="your_server_invitation">Ваше приглашение на сервер</string>
     <plurals name="view_users">
-        <item quantity="one">Просмотреть %1$d участник</item>
-        <item quantity="few"/>
-        <item quantity="many"/>
-        <item quantity="other"/>
+        <item quantity="one">Участники (%d)</item>
+        <item quantity="few">Участники (%d)</item>
+        <item quantity="many">Участники (%d)</item>
+        <item quantity="other">Участники (%d)</item>
     </plurals>
     <string name="your_status">Ваш статус</string>
     <plurals name="toast_delete_certificates">
@@ -1322,10 +1322,10 @@
     <string name="copy_file_to">Скопировать файл в %s</string>
     <string name="help_format_text">Вы можете использовать простые параметры стиля для форматирования текста. Ключи для определения начала и конца форматирования находятся точно в начале и конце слова или группы слов. Должен быть пробел перед начальным ключом и пробел после конечного ключа, иначе форматирование не будет распознано.
 \nВы можете использовать инструменты непосредственно во время письма, нажатие на инструмент вставит ключ в позицию курсора. Или вы можете отметить слово или группу слов и нажать кнопку форматирования.</string>
-    <string name="optimize_database">Оптимизация базы данных... Пожалуйста, подождите...</string>
+    <string name="optimize_database">Оптимизация базы данных… Пожалуйста, подождите…</string>
     <string name="verifying_omemo_keys_trusted_source_account">Вы собираетесь проверить ключи OMEMO своей учетной записи. Это безопасно только в том случае, если вы перешли по этой ссылке из надежного источника, где только вы могли опубликовать эту ссылку.</string>
     <string name="download_failed_invalid_file">Загрузка не удалась: неверный файл</string>
-    <string name="orbot_not_found">Орбот не найден</string>
+    <string name="orbot_not_found">Orbot не найден</string>
     <string name="account_status_temporary_auth_failure">Временная ошибка аутентификации</string>
     <string name="title_activity_about_x">О %s</string>
     <string name="x_has_written">%s написал:</string>
