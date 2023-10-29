@@ -101,7 +101,7 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xml.Element;
 
 
-public class NotificationService extends Activity {
+public class NotificationService {
 
     private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
     public static final Object CATCHUP_LOCK = new Object();
@@ -810,11 +810,6 @@ public class NotificationService extends Activity {
             this.currentlyPlayingRingtone.setLooping(true);
         }
         this.currentlyPlayingRingtone.play();
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-        super.onPointerCaptureChanged(hasCapture);
     }
 
     private class VibrationRunnable implements Runnable {
@@ -2164,13 +2159,6 @@ public class NotificationService extends Activity {
     private void notify(String tag, int id, Notification notification) {
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mXmppConnectionService);
         try {
-            // SDK >= 33 notification
-            if (Compatibility.runsThirtyThree()) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);  //TODO: Check if request code needs to be corrected
-                    return;
-                }
-            }
             notificationManager.notify(tag, id, notification);
         } catch (RuntimeException e) {
             Log.d(Config.LOGTAG, "unable to make notification", e);
@@ -2180,13 +2168,6 @@ public class NotificationService extends Activity {
     public void notify(int id, Notification notification) {
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mXmppConnectionService);
         try {
-            // SDK >= 33 notification
-            if (Compatibility.runsThirtyThree()) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);  //TODO: Check if request code needs to be corrected
-                    return;
-                }
-            }
             notificationManager.notify(id, notification);
         } catch (RuntimeException e) {
             Log.d(Config.LOGTAG, "unable to make notification", e);
