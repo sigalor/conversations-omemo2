@@ -10,7 +10,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_dialpad"
-        android:icon="@drawable/ic_dialpad_white_24dp"
+        android:icon="?attr/ic_dialpad_24dp"
         android:title="@string/action_dialpad"
         app:showAsAction="always" />
     <item

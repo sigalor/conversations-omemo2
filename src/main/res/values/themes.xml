@@ -189,6 +189,7 @@
         <item name="ic_attach_photo" type="reference">@drawable/ic_attach_photo</item>
         <item name="ic_attach_video" type="reference">@drawable/ic_attach_video</item>
         <item name="ic_attach_record" type="reference">@drawable/ic_attach_record</item>
+        <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_black_24dp</item>
 
         <item name="conversations_overview_background">@color/primary</item>
 
@@ -314,6 +315,7 @@
         <item name="ic_attach_location" type="reference">@drawable/ic_attach_location_white</item>
         <item name="ic_attach_photo" type="reference">@drawable/ic_attach_photo_white</item>
         <item name="ic_attach_record" type="reference">@drawable/ic_attach_record_white</item>
+        <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_white_24dp</item>
 
         <item name="conversations_overview_background">@color/primary_dark</item>
 
