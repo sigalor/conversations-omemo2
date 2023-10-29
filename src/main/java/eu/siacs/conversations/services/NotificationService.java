@@ -2167,7 +2167,7 @@ public class NotificationService extends Activity {
             // SDK >= 33 notification
             if (Compatibility.runsThirtyThree()) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 0);  //TODO: Check if request code needs to be corrected
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);  //TODO: Check if request code needs to be corrected
                     return;
                 }
             }
@@ -2183,7 +2183,7 @@ public class NotificationService extends Activity {
             // SDK >= 33 notification
             if (Compatibility.runsThirtyThree()) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 0);  //TODO: Check if request code needs to be corrected
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);  //TODO: Check if request code needs to be corrected
                     return;
                 }
             }
