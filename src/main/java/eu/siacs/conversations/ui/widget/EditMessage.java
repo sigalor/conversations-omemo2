@@ -115,23 +115,7 @@ public class EditMessage extends AppCompatEditText {
     @Override
     public boolean onTextContextMenuItem(int id) {
         if (id == android.R.id.paste) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return super.onTextContextMenuItem(android.R.id.pasteAsPlainText);
-            } else {
-                Editable editable = getEditableText();
-                InputFilter[] filters = editable.getFilters();
-                InputFilter[] tempFilters = new InputFilter[filters != null ? filters.length + 1 : 1];
-                if (filters != null) {
-                    System.arraycopy(filters, 0, tempFilters, 1, filters.length);
-                }
-                tempFilters[0] = SPAN_FILTER;
-                editable.setFilters(tempFilters);
-                try {
-                    return super.onTextContextMenuItem(id);
-                } finally {
-                    editable.setFilters(filters);
-                }
-            }
+            return super.onTextContextMenuItem(android.R.id.pasteAsPlainText);
         } else {
             return super.onTextContextMenuItem(id);
         }

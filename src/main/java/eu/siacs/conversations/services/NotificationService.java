@@ -1,9 +1,11 @@
 package eu.siacs.conversations.services;
 
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 import static eu.siacs.conversations.utils.Compatibility.s;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
@@ -37,7 +39,9 @@ import android.util.Log;
 import android.util.TypedValue;
 
 import com.google.common.base.Joiner;
+
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.BigPictureStyle;
 import androidx.core.app.NotificationCompat.Builder;
@@ -97,7 +101,7 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xml.Element;
 
 
-public class NotificationService {
+public class NotificationService extends Activity {
 
     private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
     public static final Object CATCHUP_LOCK = new Object();
@@ -706,7 +710,8 @@ public class NotificationService {
     private synchronized boolean tryRingingWithDialerUI(final AbstractJingleConnection.Id id, final Set<Media> media) {
         if (Build.VERSION.SDK_INT < 23) return false;
 
-        if (!mXmppConnectionService.getPreferences().getBoolean("dialler_integration_incoming", true)) return false;
+        if (!mXmppConnectionService.getPreferences().getBoolean("dialler_integration_incoming", true))
+            return false;
 
         if (mXmppConnectionService.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             // We cannot request audio permission in Dialer UI
@@ -769,7 +774,7 @@ public class NotificationService {
         showIncomingCallNotification(id, media, toString());
         final NotificationManager notificationManager = (NotificationManager) mXmppConnectionService.getSystemService(Context.NOTIFICATION_SERVICE);
         final int currentInterruptionFilter;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager != null) {
+        if (notificationManager != null) {
             currentInterruptionFilter = notificationManager.getCurrentInterruptionFilter();
         } else {
             currentInterruptionFilter = 1; //INTERRUPTION_FILTER_ALL
@@ -805,6 +810,11 @@ public class NotificationService {
             this.currentlyPlayingRingtone.setLooping(true);
         }
         this.currentlyPlayingRingtone.play();
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
     }
 
     private class VibrationRunnable implements Runnable {
@@ -1050,7 +1060,7 @@ public class NotificationService {
 
     public void clearMissedCall(final Message message) {
         synchronized (mMissedCalls) {
-            final Iterator<Map.Entry<Conversational,MissedCallsInfo>> iterator = mMissedCalls.entrySet().iterator();
+            final Iterator<Map.Entry<Conversational, MissedCallsInfo>> iterator = mMissedCalls.entrySet().iterator();
             while (iterator.hasNext()) {
                 final Map.Entry<Conversational, MissedCallsInfo> entry = iterator.next();
                 final Conversational conversational = entry.getKey();
@@ -1058,7 +1068,7 @@ public class NotificationService {
                 if (conversational.getUuid().equals(message.getConversation().getUuid())) {
                     if (missedCallsInfo.removeMissedCall()) {
                         cancel(conversational.getUuid(), MISSED_CALL_NOTIFICATION_ID);
-                        Log.d(Config.LOGTAG,conversational.getAccount().getJid().asBareJid()+": dismissed missed call because call was picked up on other device");
+                        Log.d(Config.LOGTAG, conversational.getAccount().getJid().asBareJid() + ": dismissed missed call because call was picked up on other device");
                         iterator.remove();
                     }
                 }
@@ -1387,30 +1397,30 @@ public class NotificationService {
                 continue;
             }
             conversation = (Conversation) messages.get(0).getConversation();
-                if (quietHours) {
-                    mBuilder = new Builder(mXmppConnectionService, QUIET_HOURS_CHANNEL_ID);
-                } else if (notify) {
-                    if (mXmppConnectionService.hasIndividualNotification(conversation)) {
-                        final String time = String.valueOf(mXmppConnectionService.getIndividualNotificationPreference(conversation));
-                        mBuilder = new Builder(mXmppConnectionService, INDIVIDUAL_NOTIFICATION_PREFIX + MESSAGES_CHANNEL_ID + "_" + conversation.getUuid() + "_" + time);
-                    } else {
-                        mBuilder = new Builder(mXmppConnectionService, MESSAGES_CHANNEL_ID + "_" + DEFAULT);
-                    }
+            if (quietHours) {
+                mBuilder = new Builder(mXmppConnectionService, QUIET_HOURS_CHANNEL_ID);
+            } else if (notify) {
+                if (mXmppConnectionService.hasIndividualNotification(conversation)) {
+                    final String time = String.valueOf(mXmppConnectionService.getIndividualNotificationPreference(conversation));
+                    mBuilder = new Builder(mXmppConnectionService, INDIVIDUAL_NOTIFICATION_PREFIX + MESSAGES_CHANNEL_ID + "_" + conversation.getUuid() + "_" + time);
                 } else {
-                    mBuilder = new Builder(mXmppConnectionService, SILENT_MESSAGES_CHANNEL_ID);
+                    mBuilder = new Builder(mXmppConnectionService, MESSAGES_CHANNEL_ID + "_" + DEFAULT);
                 }
-                final String name = conversation.getName().toString();
-                SpannableString styledString;
-                if (Config.HIDE_MESSAGE_TEXT_IN_NOTIFICATION) {
-                    int count = messages.size();
-                    styledString = new SpannableString(name + ": " + mXmppConnectionService.getResources().getQuantityString(R.plurals.x_messages, count, count));
-                    styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
-                    style.addLine(styledString);
-                } else {
-                    styledString = new SpannableString(name + ": " + UIHelper.getMessagePreview(mXmppConnectionService, messages.get(0)).first);
-                    styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
-                    style.addLine(styledString);
-                }
+            } else {
+                mBuilder = new Builder(mXmppConnectionService, SILENT_MESSAGES_CHANNEL_ID);
+            }
+            final String name = conversation.getName().toString();
+            SpannableString styledString;
+            if (Config.HIDE_MESSAGE_TEXT_IN_NOTIFICATION) {
+                int count = messages.size();
+                styledString = new SpannableString(name + ": " + mXmppConnectionService.getResources().getQuantityString(R.plurals.x_messages, count, count));
+                styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
+                style.addLine(styledString);
+            } else {
+                styledString = new SpannableString(name + ": " + UIHelper.getMessagePreview(mXmppConnectionService, messages.get(0)).first);
+                styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
+                style.addLine(styledString);
+            }
             names.add(name);
         }
         final String contentTitle = mXmppConnectionService.getResources().getQuantityString(R.plurals.x_unread_conversations, notifications.size(), notifications.size());
@@ -1840,16 +1850,16 @@ public class NotificationService {
                     generateRequestCode(conversation, 21),
                     intent,
                     s()
-                    ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-                    : PendingIntent.FLAG_UPDATE_CURRENT);
+                            ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                            : PendingIntent.FLAG_UPDATE_CURRENT);
         }
         return PendingIntent.getService(
                 mXmppConnectionService,
                 1,
                 intent,
                 s()
-                ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-                : PendingIntent.FLAG_UPDATE_CURRENT);
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                        : PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private PendingIntent createReplyIntent(final Conversation conversation, final String lastMessageUuid, final boolean dismissAfterReply) {
@@ -2154,6 +2164,13 @@ public class NotificationService {
     private void notify(String tag, int id, Notification notification) {
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mXmppConnectionService);
         try {
+            // SDK >= 33 notification
+            if (Compatibility.runsThirtyThree()) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 0);  //TODO: Check if request code needs to be corrected
+                    return;
+                }
+            }
             notificationManager.notify(tag, id, notification);
         } catch (RuntimeException e) {
             Log.d(Config.LOGTAG, "unable to make notification", e);
@@ -2163,6 +2180,13 @@ public class NotificationService {
     public void notify(int id, Notification notification) {
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mXmppConnectionService);
         try {
+            // SDK >= 33 notification
+            if (Compatibility.runsThirtyThree()) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 0);  //TODO: Check if request code needs to be corrected
+                    return;
+                }
+            }
             notificationManager.notify(id, notification);
         } catch (RuntimeException e) {
             Log.d(Config.LOGTAG, "unable to make notification", e);

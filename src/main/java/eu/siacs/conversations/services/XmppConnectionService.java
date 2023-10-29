@@ -999,9 +999,7 @@ public class XmppConnectionService extends Service {
                     }
                     break;
                 case ACTION_IDLE_PING:
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        scheduleNextIdlePing();
-                    }
+                    scheduleNextIdlePing();
                     break;
                 case ACTION_FCM_MESSAGE_RECEIVED:
                     pushedAccountHash = intent.getStringExtra("account");
@@ -1435,13 +1433,9 @@ public class XmppConnectionService extends Service {
 
     private boolean isPhoneSilenced() {
         final boolean notificationDnd;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            final NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
-            notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
-        } else {
-            notificationDnd = false;
-        }
+        final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
+        notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
         final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         final int ringerMode = audioManager == null ? AudioManager.RINGER_MODE_NORMAL : audioManager.getRingerMode();
         try {
@@ -1683,13 +1677,11 @@ public class XmppConnectionService extends Service {
         toggleScreenEventReceiver();
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(TorServiceUtils.ACTION_STATUS);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            scheduleNextIdlePing();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            }
-            intentFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+        scheduleNextIdlePing();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         }
+        intentFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
         registerReceiver(this.mInternalEventReceiver, intentFilter);
         mForceDuringOnCreate.set(false);
         toggleForegroundService();
@@ -1916,11 +1908,7 @@ public class XmppConnectionService extends Service {
             final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, s()
                     ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                     : PendingIntent.FLAG_UPDATE_CURRENT);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
-            } else {
-                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
-            }
+            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
         } catch (RuntimeException e) {
             Log.e(Config.LOGTAG, "unable to schedule alarm for post connectivity change", e);
         }
@@ -1936,15 +1924,9 @@ public class XmppConnectionService extends Service {
         intent.setAction("ping");
         try {
             final PendingIntent pendingIntent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                pendingIntent =
-                        PendingIntent.getBroadcast(
-                                this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
-            } else {
-                pendingIntent =
-                        PendingIntent.getBroadcast(
-                                this, requestCode, intent, PendingIntent.FLAG_MUTABLE);     //TODO: Check whether mutable or immutable flag
-            }
+            pendingIntent =
+                    PendingIntent.getBroadcast(
+                            this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
             alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
         } catch (RuntimeException e) {
             Log.e(Config.LOGTAG, "unable to schedule alarm for ping", e);

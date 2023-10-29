@@ -63,7 +63,7 @@ public class AndroidUsingLinkProperties extends AbstractDNSServerLookupMechanism
 
     @TargetApi(23)
     private static Network getActiveNetwork(ConnectivityManager cm) {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? cm.getActiveNetwork() : null;
+        return cm.getActiveNetwork();
     }
 
     private static List<String> getIPv4First(List<InetAddress> in) {

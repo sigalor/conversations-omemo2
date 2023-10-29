@@ -3363,9 +3363,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 if (status == null || (!status.equals("executing") && !action.equals("prev"))) return true;
 
                 if (actionToWebview != null && !action.equals("cancel") && Build.VERSION.SDK_INT >= 23) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        actionToWebview.postWebMessage(new WebMessage("xmpp_xep0050/" + action), Uri.parse("*"));
-                    }
+                    actionToWebview.postWebMessage(new WebMessage("xmpp_xep0050/" + action), Uri.parse("*"));
                     return false;
                 }
 

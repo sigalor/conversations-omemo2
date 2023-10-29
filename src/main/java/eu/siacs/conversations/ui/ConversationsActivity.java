@@ -212,14 +212,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         final Intent FirstStartIntent = getIntent();
         final Bundle extras = FirstStartIntent.getExtras();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (extras != null && extras.containsKey(PREF_FIRST_START)) {
-                FirstStartTime = extras.getLong(PREF_FIRST_START);
-                Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
-            }
-        } else {
-            FirstStartTime = System.currentTimeMillis();
-            Log.d(Config.LOGTAG, "Device is running Android < SDK 23, no restart required: " + FirstStartTime);
+        if (extras != null && extras.containsKey(PREF_FIRST_START)) {
+            FirstStartTime = extras.getLong(PREF_FIRST_START);
+            Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
         }
 
         final Intent intent = pendingViewIntent.pop();
