@@ -51,10 +51,9 @@
 
     </style>
 
-    <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.Material3.LabelMedium">
-        <item name="android:textSize">?TextSizeCaption</item>
-        <item name="fontFamily">@font/notosanssemibold</item>
-
+    <style name="TextAppearance.Conversations.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">11sp</item>
+        <item name="fontFamily">@font/notosansregular</item>
     </style>
 
     <style name="Widget.Conversations.EditText" parent="Widget.Material3.TextInputEditText.FilledBox">
