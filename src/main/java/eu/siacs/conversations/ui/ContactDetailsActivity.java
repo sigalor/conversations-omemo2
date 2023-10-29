@@ -162,13 +162,17 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     private void checkContactPermissionAndShowAddDialog() {
         if (hasContactsPermission()) {
             showAddToPhoneBookDialog();
-        } else {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
         }
     }
 
     private boolean hasContactsPermission() {
-        return checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return true;
+        }
     }
 
     private void showAddToPhoneBookDialog() {
@@ -1036,7 +1040,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (uri != null && uri.getScheme() != null) {
                 if (uri.getScheme().equals("xmpp")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getResources().getDrawable(R.drawable.intro_xmpp_icon), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getResources().getDrawable(R.drawable.xmpp_logo), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("tel")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
@@ -1052,6 +1056,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.command.setCompoundDrawablePadding(20);
                 } else {
                     binding.command.setText(uri.toString());
+                    binding.command.setPadding(0,0 ,0, 20);
                 }
             } else {
                 final String text = item.findChildContent("text", Namespace.VCARD4);

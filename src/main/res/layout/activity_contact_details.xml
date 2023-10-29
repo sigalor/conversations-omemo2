@@ -303,6 +303,7 @@
                         android:id="@+id/profile_items"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
+                        android:singleLine="false"
                         android:divider="@android:color/transparent"
                         android:dividerHeight="0dp" />
                 </androidx.cardview.widget.CardView>
