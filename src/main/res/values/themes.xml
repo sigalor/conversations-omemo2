@@ -128,7 +128,7 @@
         <item name="icon_add_person" type="reference">@drawable/ic_person_add_black_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_black_24dp</item>
         <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_black_24dp</item>
-        <item name="icon_copy" type="reference">@drawable/ic_content_copy_grey600_24dp</item>
+        <item name="icon_qr_code" type="reference">@drawable/ic_qr_code_black_24dp</item>
         <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_black_24dp</item>
         <item name="icon_navigate" type="reference">@drawable/ic_navigation_black_24dp</item>
         <item name="icon_show_qr_code" type="reference">@drawable/ic_qrcode_black_24dp</item>
@@ -349,7 +349,7 @@
         <item name="icon_add_person" type="reference">@drawable/ic_person_add_white_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_white_24dp</item>
         <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_white_24dp</item>
-        <item name="icon_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
+        <item name="icon_qr_code" type="reference">@drawable/ic_qr_code_white_24dp</item>
         <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
         <item name="icon_navigate" type="reference">@drawable/ic_navigation_white_24dp</item>
         <item name="icon_show_qr_code" type="reference">@drawable/ic_qrcode_white_24dp</item>
