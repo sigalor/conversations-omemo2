@@ -2,6 +2,7 @@ package eu.siacs.conversations.ui;
 
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
+import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -705,6 +706,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.saveButton.setOnClickListener(this.mSaveButtonClickListener);
         this.binding.cancelButton.setOnClickListener(this.mCancelButtonClickListener);
         this.binding.actionEditYourName.setOnClickListener(this::onEditYourNameClicked);
+        this.binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
         binding.accountColorBox.setOnClickListener((v) -> {
             showColorDialog();
         });
@@ -1479,12 +1481,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 this.binding.axolotlFingerprintBox.setVisibility(View.GONE);
             }
             boolean hasKeys = false;
+            boolean showUnverifiedWarning = false;
             binding.otherDeviceKeys.removeAllViews();
-            for (XmppAxolotlSession session : mAccount.getAxolotlService().findOwnSessions()) {
-                if (!session.getTrust().isCompromised()) {
+            for (final XmppAxolotlSession session : mAccount.getAxolotlService().findOwnSessions()) {
+                final FingerprintStatus trust = session.getTrust();
+                if (!trust.isCompromised()) {
                     boolean highlight = session.getFingerprint().equals(messageFingerprint);
                     addFingerprintRow(binding.otherDeviceKeys, session, highlight);
                     hasKeys = true;
+                }
+                if (trust.isUnverified()) {
+                    showUnverifiedWarning = true;
                 }
             }
             if (hasKeys && Config.supportOmemo()) { //TODO: either the button should be visible if we print an active device or the device list should be fed with reactived devices
@@ -1495,6 +1502,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 } else {
                     binding.clearDevices.setVisibility(View.VISIBLE);
                 }
+                binding.unverifiedWarning.setVisibility(showUnverifiedWarning ? View.VISIBLE : View.GONE);
+                binding.scanButton.setVisibility(showUnverifiedWarning ? View.VISIBLE : View.GONE);
             } else {
                 this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
             }
