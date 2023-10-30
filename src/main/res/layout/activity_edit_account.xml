@@ -389,6 +389,23 @@
                                 android:visibility="gone"
                                 app:strokeColor="@color/custom_theme_accent"
                                 app:riv_corner_radius="90dp" />
+
+                            <com.makeramen.roundedimageview.RoundedImageView
+                                android:id="@+id/avater_square"
+                                android:layout_width="@dimen/avatar_on_details_screen_size"
+                                android:layout_height="@dimen/avatar_on_details_screen_size"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerHorizontal="false"
+                                android:layout_margin="6dp"
+                                android:layout_marginBottom="@dimen/avatar_item_distance"
+                                android:adjustViewBounds="true"
+                                android:contentDescription="@string/account_image_description"
+                                android:maxWidth="@dimen/avatar_on_details_screen_size"
+                                android:maxHeight="@dimen/avatar_on_details_screen_size"
+                                android:visibility="gone"
+                                app:strokeColor="@color/custom_theme_accent"
+                                app:riv_corner_radius="90dp" />
                         </RelativeLayout>
 
                         <com.google.android.material.materialswitch.MaterialSwitch

@@ -54,7 +54,11 @@ public class AccountAdapter extends ArrayAdapter<Account> {
         } else {
             viewHolder.binding.accountJid.setText(account.getJid().asBareJid().toEscapedString());
         }
-        AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImage, R.dimen.avatar);
+        if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImage, R.dimen.avatar);
+        } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImageSquare, R.dimen.avatar);
+        }
         viewHolder.binding.accountStatus.setText(getContext().getString(account.getStatus().getReadableId()));
         switch (account.getStatus()) {
             case ONLINE:
