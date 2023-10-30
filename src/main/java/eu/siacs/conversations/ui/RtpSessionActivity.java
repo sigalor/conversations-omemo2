@@ -963,20 +963,30 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void updateIncomingCallScreen(final RtpEndUserState state, final Contact contact) {
-        final Account account = contact == null ? getWith().getAccount() : contact.getAccount();
-        binding.detailsAccount.setVisibility(View.VISIBLE);
-        binding.detailsAccount.setText(
-                getString(
-                        R.string.using_account,
-                        account.getJid().asBareJid().toEscapedString()));
-            binding.contactPhoto.setVisibility(View.VISIBLE);
-            if (contact == null) {
-                AvatarWorkerTask.loadAvatar(
-                        getWith(), binding.contactPhoto, R.dimen.publish_avatar_size);
+        if (state == RtpEndUserState.INCOMING_CALL || state == RtpEndUserState.ACCEPTING_CALL) {
+            final boolean show = getResources().getBoolean(R.bool.show_avatar_incoming_call);
+            if (show) {
+                binding.contactPhoto.setVisibility(View.VISIBLE);
+                if (contact == null) {
+                    AvatarWorkerTask.loadAvatar(
+                            getWith(), binding.contactPhoto, R.dimen.publish_avatar_size);
+                } else {
+                    AvatarWorkerTask.loadAvatar(
+                            contact, binding.contactPhoto, R.dimen.publish_avatar_size);
+                }
             } else {
-                AvatarWorkerTask.loadAvatar(
-                        contact, binding.contactPhoto, R.dimen.publish_avatar_size);
+                binding.contactPhoto.setVisibility(View.GONE);
             }
+            final Account account = contact == null ? getWith().getAccount() : contact.getAccount();
+            binding.detailsAccount.setVisibility(View.VISIBLE);
+            binding.detailsAccount.setText(
+                    getString(
+                            R.string.using_account,
+                            account.getJid().asBareJid().toEscapedString()));
+        } else {
+            binding.detailsAccount.setVisibility(View.GONE);
+            binding.contactPhoto.setVisibility(View.GONE);
+        }
     }
 
     private Set<Media> getMedia() {
