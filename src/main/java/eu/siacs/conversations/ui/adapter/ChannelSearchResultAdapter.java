@@ -83,9 +83,9 @@ public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchR
         } else {
             roomJID = null;
         }
-        if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
             AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatar, R.dimen.avatar);
-        } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        } else {
             AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatarSquare, R.dimen.avatar);
         }
         final View root = viewHolder.binding.getRoot();

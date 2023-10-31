@@ -106,7 +106,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         } else {
             viewHolder.jid.setVisibility(View.GONE);
         }
-        if (activity.xmppConnectionService.multipleAccounts() && activity.xmppConnectionService.showOwnAccounts()) {
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.multipleAccounts() && activity.xmppConnectionService.showOwnAccounts()) {
             viewHolder.account.setVisibility(View.VISIBLE);
             viewHolder.account.setText(item.getAccount().getJid().asBareJid());
         } else {
@@ -119,7 +119,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
                 color = tag.getColor();
             }
         }
-        if (offline || !activity.xmppConnectionService.hasInternetConnection()) {
+        if (offline || activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection()) {
             viewHolder.name.setTextColor(StyledAttributes.getColor(activity, R.attr.text_Color_Main));
             viewHolder.name.setAlpha(INACTIVE_ALPHA);
             viewHolder.jid.setAlpha(INACTIVE_ALPHA);
@@ -136,7 +136,9 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             viewHolder.avatar.setAlpha(ACTIVE_ALPHA);
             viewHolder.tags.setAlpha(ACTIVE_ALPHA);
         }
-        AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
+        if (activity.xmppConnectionService != null) {
+            AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
+        }
         if (item.getActive()) {
             viewHolder.activeIndicator.setVisibility(View.VISIBLE);
         } else {
@@ -171,9 +173,9 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             viewHolder.name = binding.contactDisplayName;
             viewHolder.jid = binding.contactJid;
             viewHolder.account = binding.account;
-            if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                 viewHolder.avatar = binding.contactPhoto;
-            } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            } else {
                 viewHolder.avatar = binding.contactPhotoSquare;
             }
                 viewHolder.tags = binding.tags;

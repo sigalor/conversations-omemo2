@@ -1317,7 +1317,9 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     public AvatarService avatarService() {
-        return xmppConnectionService.getAvatarService();
+        if (xmppConnectionService != null) {
+            return xmppConnectionService.getAvatarService();
+        } else return null;
     }
 
     public void loadGif(File file, ImageView imageView) {

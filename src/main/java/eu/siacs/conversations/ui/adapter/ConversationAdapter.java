@@ -376,12 +376,12 @@ public class ConversationAdapter
                 : View.GONE);
         viewHolder.binding.conversationLastupdate.setText(
                 UIHelper.readableTimeDifference(activity, timestamp));
-        if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
             AvatarWorkerTask.loadAvatar(
                 conversation,
                 viewHolder.binding.conversationImage,
                 R.dimen.avatar_on_conversation_overview);
-        } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        } else {
             AvatarWorkerTask.loadAvatar(
                     conversation,
                     viewHolder.binding.conversationImageSquare,

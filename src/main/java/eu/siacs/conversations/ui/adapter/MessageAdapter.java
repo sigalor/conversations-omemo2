@@ -1399,12 +1399,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case SENT:
                     view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    } else {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
                     }
-                    if (activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
+                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
                         view.findViewById(R.id.message_photo).setVisibility(GONE);
                         view.findViewById(R.id.message_photo_square).setVisibility(GONE);
                     }
@@ -1439,9 +1439,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 case RECEIVED:
                     view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    } else {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
                     }
                     if (message.getConversation().getMode() == Conversation.MODE_SINGLE && activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
@@ -1478,9 +1478,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     break;
                 case STATUS:
                     view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
-                    if (activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    } else {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
                     }
                     viewHolder.status_message = view.findViewById(R.id.status_message);

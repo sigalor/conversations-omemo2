@@ -674,12 +674,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             this.binding.detailsAccount.setVisibility(View.GONE);
         }
         //todo add edit overlay to avatar and change layout
-        if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
             AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatar, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
             AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhoto, R.dimen.avatar_on_details_screen_size);
             binding.detailsMucAvatar.setVisibility(View.VISIBLE);
             binding.yourPhoto.setVisibility(View.VISIBLE);
-        } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        } else {
             AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatarSquare, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
             AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhotoSquare, R.dimen.avatar_on_details_screen_size);
             binding.detailsMucAvatarSquare.setVisibility(View.VISIBLE);

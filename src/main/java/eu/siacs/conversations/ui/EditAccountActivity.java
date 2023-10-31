@@ -685,9 +685,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.accountJid.addTextChangedListener(this.mTextWatcher);
         this.binding.accountJid.setOnFocusChangeListener(this.mEditTextFocusListener);
         this.binding.accountPassword.addTextChangedListener(this.mTextWatcher);
-        if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
             this.binding.avater.setOnClickListener(this.mAvatarClickListener);
-        } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        } else {
             this.binding.avaterSquare.setOnClickListener(this.mAvatarClickListener);
         }
         this.binding.hostname.addTextChangedListener(mTextWatcher);
@@ -747,9 +747,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     }
 
     private void refreshAvatar() {
-        if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
             AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size, true);
-        } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        } else {
             AvatarWorkerTask.loadAvatar(mAccount, binding.avaterSquare, R.dimen.avatar_on_details_screen_size, true);
         }
     }
@@ -864,9 +864,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             } else {
                 this.binding.yourNameBox.setVisibility(View.GONE);
                 this.binding.yourStatusBox.setVisibility(View.GONE);
-                if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                     this.binding.avater.setVisibility(View.GONE);
-                } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                } else {
                     this.binding.avaterSquare.setVisibility(View.GONE);
                 }
                 configureActionBar(getSupportActionBar(), !(init && Config.MAGIC_CREATE_DOMAIN == null));
@@ -1328,17 +1328,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.accountPassword.setEnabled(editPassword);
 
         if (!mInitMode) {
-            if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                 binding.avater.setVisibility(View.VISIBLE);
-            } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            } else {
                 binding.avaterSquare.setVisibility(View.VISIBLE);
             }
             refreshAvatar();
             this.binding.accountJid.setEnabled(false);
         } else {
-            if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                 binding.avater.setVisibility(View.GONE);
-            } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            } else {
                 binding.avaterSquare.setVisibility(View.GONE);
             }
         }

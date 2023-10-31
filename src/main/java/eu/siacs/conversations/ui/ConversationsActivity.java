@@ -1132,10 +1132,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     }
                     absubtitle.setSelected(true);
                 }
-                if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                     AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarround, R.dimen.muc_avatar_actionbar);
                     findViewById(R.id.toolbar_avatar).setVisibility(View.VISIBLE);
-                } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                } else {
                     AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarsquare, R.dimen.muc_avatar_actionbar);
                     findViewById(R.id.toolbar_avatar_square).setVisibility(View.VISIBLE);
                 }

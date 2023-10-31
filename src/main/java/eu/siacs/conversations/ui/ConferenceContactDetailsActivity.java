@@ -86,13 +86,13 @@ public class ConferenceContactDetailsActivity extends XmppActivity {
         binding.jid.setText(IrregularUnicodeDetector.style(this, contactJid));
         String account = accountJid.asBareJid().toEscapedString();
         binding.detailsAccount.setText(getString(R.string.using_account, account));
-        if (xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
         AvatarWorkerTask.loadAvatar(user, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);
         binding.detailsContactBadge.setOnLongClickListener(v -> {
             ShowAvatarPopup(ConferenceContactDetailsActivity.this, user);
             return true;
         });
-        } else if (!xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+        } else {
             AvatarWorkerTask.loadAvatar(user, binding.detailsContactBadgeSquare, R.dimen.avatar_on_details_screen_size);
             binding.detailsContactBadgeSquare.setOnLongClickListener(v -> {
                 ShowAvatarPopup(ConferenceContactDetailsActivity.this, user);
