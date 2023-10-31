@@ -3,11 +3,11 @@
     <string name="action_settings">Axustes</string>
     <string name="action_add">Nova conversa</string>
     <string name="action_accounts">Xestionar contas</string>
-    <string name="action_end_conversation">Terminar conversa</string>
+    <string name="action_end_conversation">Rematar esta conversa</string>
     <string name="action_contact_details">Detalles do contacto</string>
     <string name="action_secure">Conversa segura</string>
     <string name="action_add_new_account">Engadir nova conta</string>
-    <string name="action_add_phone_book">Engadir a libreta de enderezos</string>
+    <string name="action_add_phone_book">Engadir á libreta de enderezos</string>
     <string name="action_delete_contact">Eliminar contacto da lista</string>
     <string name="action_block_contact">Bloquear contacto</string>
     <string name="action_unblock_contact">Desbloquear contacto</string>
@@ -15,42 +15,42 @@
     <string name="action_unblock_domain">Desbloquear dominio</string>
     <string name="title_activity_manage_accounts">Xestionar contas</string>
     <string name="title_activity_settings">Axustes</string>
-    <string name="conference_details">Opcións da conversa en grupo</string>
+    <string name="conference_details">Detalles da sala</string>
     <string name="contact_details">Detalles do contacto</string>
     <string name="title_activity_sharewith">Compartir na conversa</string>
-    <string name="title_activity_start_conversation">Comezar conversa</string>
+    <string name="title_activity_start_conversation">Iniciar conversa</string>
     <string name="title_activity_choose_contact">Escoller Contacto</string>
-    <string name="title_activity_choose_contacts">Elixir contactos</string>
+    <string name="title_activity_choose_contacts">Escoller contactos</string>
     <string name="title_activity_block_list">Lista de bloqueo</string>
     <string name="just_now">agora</string>
-    <string name="minute_ago">Hai 1 min</string>
-    <string name="minutes_ago">min</string>
+    <string name="minute_ago">Fai 1 min</string>
+    <string name="minutes_ago">fai %d min</string>
     <plurals name="x_unread_conversations">
         <item quantity="one">%d conversa sen ler</item>
         <item quantity="other">%d conversas sen leer</item>
     </plurals>
     <string name="sending">enviando…</string>
-    <string name="message_decrypting">Descifrando a mensaxe. Por favor agarde...</string>
-    <string name="pgp_message">Mensaxe cifrado con OpenPGP</string>
-    <string name="nick_in_use">O apodo xa está en uso</string>
-    <string name="admin">Administrador</string>
-    <string name="owner">Dono</string>
-    <string name="moderator">Moderador</string>
+    <string name="message_decrypting">Descifrando a mensaxe. Agarda…</string>
+    <string name="pgp_message">Mensaxe cifrada con OpenPGP</string>
+    <string name="nick_in_use">O alcume xa está en uso</string>
+    <string name="admin">Admin</string>
+    <string name="owner">Dona</string>
+    <string name="moderator">Moderadora</string>
     <string name="participant">Participante</string>
     <string name="visitor">Visitante</string>
     <string name="remove_contact_text">¿Queres eliminar a %s da túa lista\?. A conversa asociada a esta conta non se eliminará.</string>
-    <string name="block_contact_text">Desexa evitar que 1%s lle envíe mensaxes\?</string>
-    <string name="unblock_contact_text">Desexa desbloquear 1%s e permitirlles que lle envíen mensaxes\?</string>
-    <string name="block_domain_text">Bloquear todos os contactos desde 1%s\?</string>
-    <string name="unblock_domain_text">Desbloquear todos os contactos desde 1%s\?</string>
+    <string name="block_contact_text">Queres evitar que %s che envíe mensaxes\?</string>
+    <string name="unblock_contact_text">Queres desbloquear a %s e permitirlle que che envíe mensaxes\?</string>
+    <string name="block_domain_text">Bloquear todos os contactos desde %s\?</string>
+    <string name="unblock_domain_text">Desbloquear todos os contactos desde %s\?</string>
     <string name="contact_blocked">Contacto bloqueado</string>
     <string name="blocked">Bloquear</string>
-    <string name="remove_bookmark_text">Quere eliminar %s como marcador\? A conversa asociada a este marcador non será eliminada.</string>
+    <string name="remove_bookmark_text">Queres eliminar %s como marcador\? A conversa asociada a este marcador non será eliminada.</string>
     <string name="register_account">Rexistrar nova conta no servidor</string>
     <string name="change_password_on_server">Cambiar o contrasinal no servidor</string>
-    <string name="share_with">Compartir con</string>
-    <string name="start_conversation">Comezar conversa</string>
-    <string name="invite_contact">Invitar contacto</string>
+    <string name="share_with">Compartir con…</string>
+    <string name="start_conversation">Iniciar a Conversa</string>
+    <string name="invite_contact">Convidar contacto</string>
     <string name="contacts">Contactos</string>
     <string name="cancel">Cancelar</string>
     <string name="set">Establecer</string>
@@ -61,32 +61,32 @@
     <string name="unblock">Desbloquear</string>
     <string name="save">Gardar</string>
     <string name="ok">OK</string>
-    <string name="crash_report_title">monocles chat pechouse</string>
-    <string name="crash_report_message">Enviando volcados de pilas axudas ao desenrolo de monocles chat
-\n<b>Aviso:</b> Isto empregará a túa conta XMPP para enviar o volcado de pila ao desenrolador.</string>
+    <string name="crash_report_title">monocles chat fallou</string>
+    <string name="crash_report_message">Enviando trazas do sistema axudas ao desenvolvemento de monocles chat
+\n<b>Aviso:</b> Isto empregará a túa conta XMPP para enviar a información ao equipo de desenvolvemento.</string>
     <string name="send_now">Enviar agora</string>
     <string name="send_never">Non preguntar de novo</string>
     <string name="problem_connecting_to_account">Erro na conexión á conta</string>
     <string name="problem_connecting_to_accounts">Erro na conexión a múltiples contas</string>
-    <string name="touch_to_fix">Pulsa aquí para xestionar as túas contass</string>
+    <string name="touch_to_fix">Preme aquí para xestionar as túas contas</string>
     <string name="attach_file">Adxuntar</string>
-    <string name="not_in_roster">O contacto non está na túa lista. ¿Queres engadilo\?</string>
+    <string name="not_in_roster">O contacto non está na túa lista. Queres engadilo\?</string>
     <string name="add_contact">Engadir contacto</string>
-    <string name="send_failed">Erro ao enviar</string>
+    <string name="send_failed">fallou o envío</string>
     <string name="preparing_image">Preparando imaxe para enviar</string>
     <string name="action_clear_history">Limpar historial</string>
     <string name="clear_conversation_history">Limpar historial de conversa</string>
-    <string name="clear_histor_msg">¿Queres borrar todas as mensaxes desta conversa\?
+    <string name="clear_histor_msg">Queres borrar todas as mensaxes de esta conversa\?
 \n
-\n<b>Ollo:</b> Isto non afectará ás mensaxes gardadas noutros dispositivos ou servidores.</string>
-    <string name="also_end_conversation">Finalizar esta conversación tras o proceso</string>
+\n<b>Aviso:</b> Isto non eliminará as mensaxes gardadas noutros dispositivos ou servidores.</string>
+    <string name="also_end_conversation">Finalizar esta conversa após</string>
     <string name="choose_presence">Escoller dispositivo</string>
-    <string name="send_unencrypted_message">Enviar mensaxe non cifrada</string>
+    <string name="send_unencrypted_message">Escribir mensaxe…</string>
     <string name="send_message_to_x">Enviar mensaxe a 1%s</string>
-    <string name="send_omemo_message">Enviar mensaxe cifrada con OMEMO</string>
+    <string name="send_omemo_message">Escribir mensaxe…</string>
     <string name="send_omemo_x509_message">Enviar mensaxe cifrada v\\OMEMO</string>
-    <string name="send_pgp_message">Enviar mensaxe cifrado con OpenPGP</string>
-    <string name="your_nick_has_been_changed">Modificouse o teu apodo</string>
+    <string name="send_pgp_message">Escribir mensaxe…</string>
+    <string name="your_nick_has_been_changed">Modificouse o teu alcume</string>
     <string name="send_unencrypted">Enviar sen cifrar</string>
     <string name="decryption_failed">Fallou o descifrado. Quizábeis non teñas a clave privada apropiada.</string>
     <string name="openkeychain_required">OpenKeychain</string>
@@ -94,24 +94,24 @@
 \n
 \nOpenKeychain está publicado baixo licencia GPLv3 e disponible en F-Droid e Google Play.
 \n
-\n<small>(Por favor, reinicie %1$s despois.)</small></string>
+\n<small>(Por favor, reinicia %1$s após.)</small></string>
     <string name="restart">Reiniciar</string>
     <string name="install">Instalar</string>
     <string name="offering">ofrecendo…</string>
-    <string name="waiting">agardando...</string>
-    <string name="no_pgp_key">Clave OpenPGP non atopada</string>
+    <string name="waiting">agardando…</string>
+    <string name="no_pgp_key">Non se atopa a Chave OpenPGP</string>
     <string name="contact_has_no_pgp_key">monocles chat non foi quen de cifrar as túas mensaxes porque o teu contactos non está anunciando a súa clave pública.
 \n
 \n<small>Por favor, pídelle ao teu contacto que configure OpenPGP.</small></string>
     <string name="no_pgp_keys">Non se atoparon chaves OpenPGP</string>
     <string name="pref_general">Xeral</string>
     <string name="pref_accept_files_wifi">Aceptar arquivos con conexións WiFi</string>
-    <string name="pref_accept_files_summary_wifi">Cando se conecta ao wifi acepta automaticamente arquivos máis pequenos que…</string>
+    <string name="pref_accept_files_summary_wifi">Cando se conecta ao wifi acepta automaticamente arquivos máis pequenos de…</string>
     <string name="pref_accept_files_mobile">Aceptar arquivos con conexións de datos móbiles</string>
     <string name="pref_accept_files_summary_mobile">Cando se conecta aos datos móbiles acepta automaticamente arquivos máis pequenos que…</string>
     <string name="pref_accept_files_mobileroaming">Aceptar arquivos con conexións de datos móbiles en roaming</string>
     <string name="pref_accept_files_summary_mobileroaming">Cando se conecta aos datos móbiles en roaming acepta automaticamente arquivos máis pequenos que…</string>
-    <string name="pref_attachments">Engadidos</string>
+    <string name="pref_attachments">Adxuntos</string>
     <string name="pref_notification_settings">Notificación</string>
     <string name="pref_vibrate">Vibrar</string>
     <string name="pref_vibrate_summary">Vibra cando chega unha nova mensaxe</string>
@@ -120,11 +120,11 @@
     <string name="pref_sound">Ton de aviso</string>
     <string name="pref_sound_summary">Emitir son cando chegue unha nova mensaxe</string>
     <string name="pref_send_crash">Enviar reporte de erro</string>
-    <string name="pref_send_crash_summary">Enviando os stack traces estás a axudar ao desenvolvemento continuo de monocles chat</string>
+    <string name="pref_send_crash_summary">Enviando trazas do sistema estás a axudar ao desenvolvemento continuo de monocles chat</string>
     <string name="pref_confirm_messages">Confirmación de mensaxes</string>
-    <string name="pref_confirm_messages_summary">Permitir aos seus contactos saber si recibeu e leu as súas mensaxes</string>
+    <string name="pref_confirm_messages_summary">Permitir aos teus contactos saber si recibiches e liches as súas mensaxes</string>
     <string name="pref_ui_options">Interface</string>
-    <string name="openpgp_error">OpenKeychain reportou un erro</string>
+    <string name="openpgp_error">OpenKeychain informou de un erro</string>
     <string name="accept">Aceptar</string>
     <string name="error">Produciuse un erro</string>
     <string name="your_account">A túa conta</string>
@@ -132,17 +132,17 @@
     <string name="receive_presence_updates">Recibir actualizacións de presencia</string>
     <string name="ask_for_presence_updates">Solicitar actualizacións de presencia</string>
     <string name="attach_choose_picture">Seleccionar imaxe</string>
-    <string name="preemptively_grant">Por defecto otorgar peticiones de suscripción</string>
+    <string name="preemptively_grant">Outorgar por defecto as solicitudes de subscrición</string>
     <string name="error_not_an_image_file">O arquivo seleccionado non é unha imaxe</string>
     <string name="error_compressing_image">Erro convertindo o arquivo de imaxe</string>
     <string name="error_file_not_found">Arquivo non atopado</string>
-    <string name="error_io_exception">Erro xeral de I/O. ¿Quedaches sen espazo no disco\?</string>
-    <string name="error_security_exception_during_image_copy">A aplicación que usas para seleccionar imaxes non proporciona suficientes permisos para leer o arquivo.
+    <string name="error_io_exception">Erro xeral de I/O. Quedaches sen espazo na almacenaxe\?</string>
+    <string name="error_security_exception_during_image_copy">A aplicación que usas para seleccionar imaxes non proporciona suficientes permisos para ler o arquivo.
 \n
 \n<small>Utiliza un explorador de arquivos diferente para seleccionar a imaxe</small></string>
     <string name="account_status_unknown">Descoñecido</string>
-    <string name="account_status_disabled">Deshabilitado temporalmente</string>
-    <string name="account_status_online">Conectado</string>
+    <string name="account_status_disabled">Desactivado temporalmente</string>
+    <string name="account_status_online">En liña</string>
     <string name="account_status_connecting">Conectando…</string>
     <string name="account_status_offline">Desconectado</string>
     <string name="account_status_unauthorized">Non autorizado</string>
@@ -151,10 +151,10 @@
     <string name="account_status_regis_fail">Erro no rexistro</string>
     <string name="account_status_regis_conflict">O identificador xa está en uso</string>
     <string name="account_status_regis_success">Rexistro completado</string>
-    <string name="account_status_regis_not_sup">O servidor non soporta rexistros</string>
+    <string name="account_status_regis_not_sup">O servidor non admite rexistrarse</string>
     <string name="account_status_tls_error">Fallo a negociación TLS</string>
     <string name="account_status_tls_error_domain">Dominio non verificable</string>
-    <string name="account_status_policy_violation">Violación da política</string>
+    <string name="account_status_policy_violation">Violación das normas</string>
     <string name="account_status_incompatible_server">Servidor incompatible</string>
     <string name="account_status_stream_error">Erro de fluxo</string>
     <string name="encryption_choice_unencrypted">Non cifrado</string>
@@ -166,20 +166,20 @@
     <string name="mgmt_account_publish_avatar">Publicar avatar</string>
     <string name="mgmt_account_publish_pgp">Publicar chave pública OpenPGP</string>
     <string name="unpublish_pgp">Eliminar a chave pública OpenPGP</string>
-    <string name="unpublish_pgp_message">Está seguro de que quere eliminar a súa chave pública OpenPGP do seu anuncio de presencia\?
-\nOs seus contactos non poderán enviarlle mensaxes cifradas con OpenPGP.</string>
-    <string name="openpgp_has_been_published">Publicouse a chave pública OpenPGP</string>
-    <string name="mgmt_account_are_you_sure">Seguro\?</string>
-    <string name="mgmt_account_delete_confirm_message">Se borra a súa conta, todo o teu historial de conversacións locais perderase.
+    <string name="unpublish_pgp_message">Tes a certeza de querer eliminar a túa chave pública OpenPGP no teu anuncio de presencia\?
+\nOs teus contactos non poderán enviarche mensaxes cifradas con OpenPGP.</string>
+    <string name="openpgp_has_been_published">Publicouse a chave pública OpenPGP.</string>
+    <string name="mgmt_account_are_you_sure">Tes certeza\?</string>
+    <string name="mgmt_account_delete_confirm_message">Se eliminas a conta, todo o teu historial de conversas locais perderase.
 \n
-\n-Si borra a súa conta do servidor, toda a súa conta borrarase tamén do servidor, non poderá volver entrar ata que rexistre una nova conta.</string>
+\nSe borras a conta do servidor, toda a túa conta borrarase tamén do servidor, non poderás volver entrar ata que crees una nova conta.</string>
     <string name="attach_record_voice">Grabar audio</string>
-    <string name="account_settings_jabber_id">ID Jabber</string>
-    <string name="account_settings_example_jabber_id">nome_de_usuario@monocles.eu</string>
+    <string name="account_settings_jabber_id">conta</string>
+    <string name="account_settings_example_jabber_id">identificador@monocles.eu</string>
     <string name="password">Contrasinal</string>
-    <string name="invalid_jid">O identificador non é un identificador de Jabber válido</string>
+    <string name="invalid_jid">Esta non é unha conta válida</string>
     <string name="error_out_of_memory">Exceso de memoria. A imaxe é demasiado grande</string>
-    <string name="add_phone_book_text">Quere engadir a 1%s a súa libreta de enderezos\?</string>
+    <string name="add_phone_book_text">Quere engadir a %s á túa libreta de enderezos\?</string>
     <string name="server_info_show_more">Info do servidor</string>
     <string name="server_info_mam">XEP-0313: MAM</string>
     <string name="server_info_carbon_messages">XEP-0280: Copia de mensaxes</string>
@@ -187,36 +187,36 @@
     <string name="server_info_blocking">XEP-0191: Bloqueo de ordes</string>
     <string name="server_info_roster_version">XEP-0237: Versionado de listas</string>
     <string name="server_info_stream_management">XEP-0198: Xestión de fluxos</string>
-    <string name="server_info_pep">XEP-0163: PEP (Avatars / OMEMO)</string>
-    <string name="server_info_http_upload">XEP-0363: HTTP File Upload</string>
+    <string name="server_info_pep">XEP-0163: PEP (Avatares / OMEMO)</string>
+    <string name="server_info_http_upload">XEP-0363: Subida HTTP de ficheiros</string>
     <string name="server_info_push">XEP-0357: Push</string>
     <string name="server_info_available">si</string>
     <string name="server_info_unavailable">non</string>
     <string name="missing_public_keys">Anuncios de chave pública non notificados</string>
     <string name="last_seen_now">acaba de estar dispoñible</string>
-    <string name="last_seen_min">visto hai 1 minuto</string>
-    <string name="last_seen_mins">visto hai 1%d minutos</string>
-    <string name="last_seen_hour">visto hai 1 hora</string>
-    <string name="last_seen_hours">visto hai 1%d horas</string>
-    <string name="last_seen_day">última vez hai 1 día</string>
-    <string name="last_seen_days">última conexión hai 1%d días</string>
-    <string name="install_openkeychain">Mensaxe cifrada. Por favor instale OpenKeychain para descifrala.</string>
+    <string name="last_seen_min">fai 1 minuto</string>
+    <string name="last_seen_mins">fai %d minutos</string>
+    <string name="last_seen_hour">fai 1 hora</string>
+    <string name="last_seen_hours">fai %d horas</string>
+    <string name="last_seen_day">fai 1 día</string>
+    <string name="last_seen_days">fai %d días</string>
+    <string name="install_openkeychain">Mensaxe cifrada. Por favor instala OpenKeychain para descifrala.</string>
     <string name="openpgp_messages_found">Atopáronse mensaxes cifradas con OpenPGP</string>
-    <string name="your_fingerprint">A súa pegada</string>
+    <string name="your_fingerprint">A túa impresión dixital</string>
     <string name="openpgp_key_id">ID da chave OpenPGP</string>
-    <string name="omemo_fingerprint">Pegada OMEMO</string>
-    <string name="omemo_fingerprint_x509">v\\pegada OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Pegada dixital de OMEMO (mensaxe orixinal)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Pegada dixital de OMEMO (mensaxe orixinal)</string>
+    <string name="omemo_fingerprint">Impresión OMEMO</string>
+    <string name="omemo_fingerprint_x509">v\\impresión OMEMO</string>
+    <string name="omemo_fingerprint_selected_message">Impresión dixital de OMEMO (mensaxe orixinal)</string>
+    <string name="omemo_fingerprint_x509_selected_message">v\\Impresión dixital de OMEMO (mensaxe orixinal)</string>
     <string name="other_devices">Outros dispositivos</string>
-    <string name="trust_omemo_fingerprints">Confiar en pegadas OMEMO</string>
-    <string name="fetching_keys">Obtendo chaves...</string>
+    <string name="trust_omemo_fingerprints">Confiar en impresións OMEMO</string>
+    <string name="fetching_keys">Obtendo chaves…</string>
     <string name="done">Feito</string>
     <string name="verify">Verificar</string>
     <string name="decrypt">Descifrar</string>
-    <string name="bookmarks">Coversas multi-usuario</string>
+    <string name="bookmarks">Salas de conversa</string>
     <string name="search">Buscar</string>
-    <string name="enter_contact">Introducir contacto</string>
+    <string name="enter_contact">Engadir contacto</string>
     <string name="delete_contact">Eliminar contacto</string>
     <string name="view_contact_details">Ver os detalles do contacto</string>
     <string name="block_contact">Bloquear contacto</string>
@@ -230,18 +230,18 @@
     <string name="save_as_bookmark">Gardar como marcador</string>
     <string name="delete_bookmark">Eliminar marcador</string>
     <string name="topic">Tema</string>
-    <string name="joining_conference">Entrando na conversa en grupo</string>
+    <string name="joining_conference">Entrando na sala…</string>
     <string name="leave">Saír</string>
-    <string name="contact_added_you">Contacto engadido a súa lista de contactos</string>
+    <string name="contact_added_you">Contacto engadido a túa lista de contactos</string>
     <string name="add_back">Voltar a engadir</string>
     <string name="publish">Publicar</string>
-    <string name="touch_to_choose_picture">Toque no avatar para escoller imaxe desde a galería</string>
-    <string name="publishing">Publicando...</string>
-    <string name="error_publish_avatar_server_reject">O servidor rexeitou a súa publicación</string>
-    <string name="error_publish_avatar_converting">Algo fallou mentras se convertía a súa imaxe</string>
-    <string name="error_saving_avatar">Non se puido salvar o avatar no disco</string>
-    <string name="or_long_press_for_default">(ou pulsación longa para voltar ao valor por omisión)</string>
-    <string name="error_publish_avatar_no_server_support">O seu servidor non admite a publicación de avatares</string>
+    <string name="touch_to_choose_picture">Toca no avatar para escoller imaxe desde a galería</string>
+    <string name="publishing">Publicando…</string>
+    <string name="error_publish_avatar_server_reject">O servidor rexeitou a publicación</string>
+    <string name="error_publish_avatar_converting">Algo fallou ao converter a túa imaxe</string>
+    <string name="error_saving_avatar">Non se puido gardar o avatar</string>
+    <string name="or_long_press_for_default">(ou pulsación longa para voltar ao valor por defecto)</string>
+    <string name="error_publish_avatar_no_server_support">O teu servidor non admite a publicación de avatares</string>
     <string name="private_message">murmurado</string>
     <string name="private_message_to">a %s</string>
     <string name="send_private_message_to">Enviar mensaxe privada a %s</string>
@@ -249,26 +249,26 @@
     <string name="account_already_exists">Esta conta xa existe</string>
     <string name="next">Seguinte</string>
     <string name="server_info_session_established">Establecida a sesión actual</string>
-    <string name="skip">Saltar</string>
-    <string name="disable_notifications">Deshabilitar notificacións</string>
-    <string name="enable">Habilitar</string>
-    <string name="conference_requires_password">A conversa en grupo require contrasinal</string>
+    <string name="skip">Omitir</string>
+    <string name="disable_notifications">Desactivar notificacións</string>
+    <string name="enable">Activar</string>
+    <string name="conference_requires_password">A sala require un contrasinal</string>
     <string name="enter_password">Introducir contrasinal</string>
-    <string name="request_presence_updates">Por favor, primeiro solicite actualizacións de presencia ao seu contacto.
+    <string name="request_presence_updates">Por favor, primeiro solicita actualizacións de presencia ao teu contacto.
 \n
-\n <small> Esto utilizarase para determinar qué cliente(s) está a usar o seu contacto.</small></string>
+\n <small> Esto utilizarase para determinar que cliente(s) está a usar o teu contacto.</small></string>
     <string name="request_now">Solicitar agora</string>
-    <string name="delete_fingerprint">Eliminar pegada dixital</string>
-    <string name="sure_delete_fingerprint">Seguro que quere eliminar esta pegada dixital\?</string>
+    <string name="delete_fingerprint">Eliminar impresión dixital</string>
+    <string name="sure_delete_fingerprint">Seguro que quere eliminar esta impresión dixital\?</string>
     <string name="ignore">Ignorar</string>
-    <string name="without_mutual_presence_updates"><b>Aviso:</b> Enviando esto sen mutuas actualización de presenza podería causar problemas.
+    <string name="without_mutual_presence_updates"><b>Aviso:</b> Enviando isto sen actualización de presenza mutua poderíacausar problemas.
 \n
-\n<small> Vaia aos detalles do contacto para verificar as súas suscricións de presenza.</small></string>
-    <string name="pref_security_settings">Seguridade</string>
+\n<small> Vai aos detalles do contacto para verificar as suscricións de presenza.</small></string>
+    <string name="pref_security_settings">Seguridade e protección de datos</string>
     <string name="pref_allow_message_correction">Permitir a corrección de mensaxes</string>
-    <string name="pref_allow_message_correction_summary">Permitir aos seus contactos editar as súas mensaxes de xeito retroactivo</string>
-    <string name="pref_expert_options">Axustes de experto</string>
-    <string name="title_activity_about">Sobre o Conversations</string>
+    <string name="pref_allow_message_correction_summary">Permitir aos contactos editar as súas mensaxes de xeito retroactivo</string>
+    <string name="pref_expert_options">Axustes avanzados</string>
+    <string name="title_activity_about">Acerca de</string>
     <string name="pref_about_conversations_summary">Información da compilación e licenza</string>
     <string name="title_pref_quiet_hours">Non molestar</string>
     <string name="title_pref_quiet_hours_start_time">Hora de inicio</string>
@@ -277,50 +277,50 @@
     <string name="pref_quiet_hours_summary">As notificacións serán silenciadas durante estas horas</string>
     <string name="pref_use_send_button_to_indicate_status">O botón Enviar indica o estado</string>
     <string name="pref_use_colored_names_to_indicate_status">Os nomes coloreados indican o estado</string>
-    <string name="pref_use_indicate_received">Solicitar avisos de recepción</string>
-    <string name="pref_use_indicate_received_summary">As mensaxes recibidas aparecerán marcadas si son compatibles</string>
-    <string name="pref_use_send_button_to_indicate_status_summary">Boton de enviar de cor para indicar o estado do contacto</string>
-    <string name="pref_use_colored_names_to_indicate_status_summary">Boton de enviar de cor para indicar o estado do contacto</string>
+    <string name="pref_use_indicate_received">Solicitar confirmación da entrega</string>
+    <string name="pref_use_indicate_received_summary">Se o cliente o permite as mensaxes terán unha marca cando se reciban</string>
+    <string name="pref_use_send_button_to_indicate_status_summary">Botón de enviar de cor para indicar o estado do contacto</string>
+    <string name="pref_use_colored_names_to_indicate_status_summary">Os nomes de contacto con cor para indicar o estado</string>
     <string name="pref_expert_options_other">Outro</string>
-    <string name="pref_autojoin">Sincronice con todos os contactos</string>
-    <string name="pref_autojoin_summary">Únase e abandone os chats de grupo de acordo coa bandeira de auto-unión nos seus marcadores.</string>
-    <string name="toast_message_omemo_fingerprint">Copiouse a pegada dixital OMEMO ao portapapeis!</string>
-    <string name="conference_banned">Vostede non pode acceder a esta conversa en grupo</string>
-    <string name="conference_members_only">Esta conversa en grupo é so para membros</string>
-    <string name="conference_kicked">Xa foi expulsado de esta conversa en grupo</string>
-    <string name="conference_shutdown">A conversa en grupo foi apagada</string>
+    <string name="pref_autojoin">Sincronizar cos marcadores</string>
+    <string name="pref_autojoin_summary">Entrar e saír das salas en función da marca de automatización que teñas nos marcadores.</string>
+    <string name="toast_message_omemo_fingerprint">Copiouse a impresión dixital OMEMO ao portapapeis!</string>
+    <string name="conference_banned">Vetáronte nesta sala</string>
+    <string name="conference_members_only">Esta sala é só para membros</string>
+    <string name="conference_kicked">Expulsáronte desta sala</string>
+    <string name="conference_shutdown">Pechouse esta sala</string>
     <string name="using_account">utilizando a conta %s</string>
     <string name="checking_x">Comprobando %s no servidor HTTP</string>
-    <string name="not_connected_try_again">Non está conectada. Inténteo máis tarde</string>
+    <string name="not_connected_try_again">Non estás conectada. Inténtao máis tarde</string>
     <string name="check_x_filesize">Comprobando o tamaño de %s</string>
     <string name="check_x_filesize_on_host">Comporbar o tamaño de %1$s en %2$s</string>
     <string name="message_options">Opcións da mensaxe</string>
     <string name="copy_original_url">Copiar URL orixinal</string>
-    <string name="send_again">Enviar de novo</string>
+    <string name="send_again">Enviar outra vez</string>
     <string name="file_url">URL do ficheiro</string>
     <string name="url_copied_to_clipboard">URL copiado ao portapapeis</string>
     <string name="scan_qr_code">Escanear código QR</string>
     <string name="show_qr_code">Mostrar código QR</string>
     <string name="show_block_list">Mostrar lista de bloqueo</string>
     <string name="account_details">Detalles da conta</string>
-    <string name="remote_fingerprint">Pegada dixital remota</string>
-    <string name="shared_secret_hint">Consulta ou cuestión</string>
+    <string name="remote_fingerprint">Impresión dixital remota</string>
+    <string name="shared_secret_hint">Truco ou Pregunta</string>
     <string name="shared_secret_secret">Chave secreta compartida</string>
     <string name="confirm">Confirmar</string>
-    <string name="in_progress">En progreso</string>
+    <string name="in_progress">En proceso</string>
     <string name="respond">Responder</string>
     <string name="failed">Fallou</string>
     <string name="secrets_do_not_match">Non coinciden as chaves secretas</string>
-    <string name="try_again">Inténteo de novo</string>
+    <string name="try_again">Inténtao outra vez</string>
     <string name="finish">Rematar</string>
     <string name="verified">Comprobado!</string>
     <string name="smp_requested">O contacto solicitou a comprobación SMP</string>
-    <string name="pref_create_backup">Crear unha copia de seguridade</string>
-    <string name="pref_create_backup_summary">Escribir os arquivos de copia de seguridade en %s</string>
-    <string name="notification_create_backup_title">Creando copia de seguridade</string>
-    <string name="restoring_backup">Restaurar a copia de seguridade</string>
-    <string name="notification_restored_backup_title">A súa copia de seguridade foi restaurada</string>
-    <string name="notification_restored_backup_subtitle">Non esqueza habilitar a conta.</string>
+    <string name="pref_create_backup">Crear copia de apoio</string>
+    <string name="pref_create_backup_summary">Escribir os arquivos de copia en %s</string>
+    <string name="notification_create_backup_title">Creando copia de apoio</string>
+    <string name="restoring_backup">Restablecer a copia de apoio</string>
+    <string name="notification_restored_backup_title">Restableceuse a copia de apoio</string>
+    <string name="notification_restored_backup_subtitle">Non esquezas activar a conta.</string>
     <string name="choose_file">Escoller ficheiro</string>
     <string name="receiving_file">Recibindo: %1$s</string>
     <string name="download_x_file">Descargar %s</string>
@@ -332,34 +332,34 @@
     <string name="cancel_transmission">Cancelar a transmisión</string>
     <string name="file_transmission_failed">fallou a transmisión do ficheiro</string>
     <string name="file_deleted">Este ficheiro eliminouse</string>
-    <string name="no_application_found_to_open_file">Non se atopou un aplicativo para abrir o ficheiro</string>
-    <string name="could_not_verify_fingerprint">Non se puido comprobar a pegada dixital</string>
+    <string name="no_application_found_to_open_file">Non se atopou unha aplicación para abrir o ficheiro</string>
+    <string name="could_not_verify_fingerprint">Non se puido comprobar a impresión dixital</string>
     <string name="manually_verify">Verificación manual</string>
     <string name="pref_show_dynamic_tags">Mostrar etiquetas dinámicas</string>
-    <string name="pref_show_dynamic_tags_summary">Mostrar etiquetas de só lectura baixo os contactos</string>
-    <string name="no_conference_server_found">Non se atopou ningún servidor de conversa en grupo</string>
-    <string name="conference_creation_failed">Fallou a creación da conversa en grupo</string>
+    <string name="pref_show_dynamic_tags_summary">Permitir a organización con etiquetas</string>
+    <string name="no_conference_server_found">Non se atopou o servidor da sala</string>
+    <string name="conference_creation_failed">Fallou a creación da sala!</string>
     <string name="account_image_description">Avatar da conta</string>
-    <string name="copy_omemo_clipboard_description">Copiar pegada OMEMO ao portapapeis</string>
+    <string name="copy_omemo_clipboard_description">Copiar impresión OMEMO ao portapapeis</string>
     <string name="regenerate_omemo_key">Rexenerar a chave OMEMO</string>
-    <string name="clear_other_devices">Limplar dispositivos</string>
-    <string name="clear_other_devices_desc">Está segura de que quere eliminar todos os outros dispositivos da declaración OMEMO\? A próxima vez que se conecten os seus dispositivos estos voltarán a anunciarse pero non rebirán mensaxes enviados mentras tanto.</string>
+    <string name="clear_other_devices">Limpar dispositivos</string>
+    <string name="clear_other_devices_desc">Tes certeza de querer eliminar todos os outros dispositivos da declaración OMEMO\? A próxima vez que se conecten os teus dispositivos terán que volver a anunciarse pero non recibirán mensaxes enviados ata entón.</string>
     <string name="distrust_omemo_key">Retirar confianza a dispositivo</string>
-    <string name="distrust_omemo_key_text">Está segura de que quere retirar a verificación de este dispositivo\?
-\nEste dispositivo e as mensaxes que del proveñan serán marcadas como non confiables.</string>
+    <string name="distrust_omemo_key_text">Tes certeza de querer retirar a verificación de este dispositivo\?
+\nEste dispositivo e as mensaxes que del proveñan serán marcadas de non confianza.</string>
     <string name="error_no_keys_to_trust_server_error">Non hai chaves dispoñibles que se poidan usar con este contacto.
 \nNon se puideron obter novas chaves do servidor. Quizáis hai algún problema coas chaves do seu contacto.</string>
     <string name="error_trustkeys_title">Algo foi mal</string>
     <string name="fetching_history_from_server">Obtendo historial desde o servidor</string>
     <string name="no_more_history_on_server">Non hai máis historial no servidor</string>
-    <string name="updating">Actualizando....</string>
+    <string name="updating">Actualizando…</string>
     <string name="password_changed">Mudou o contrasinal!</string>
     <string name="could_not_change_password">Non puido mudar o contrasinal</string>
-    <string name="ask_question">Faga unha pregunta</string>
-    <string name="smp_explain_question">Se vostede e o seu contacto teñen un secreto en común que ninguén máis coñece (como unha broma privada da última comida xuntas) poden utilizar ese secreto para verificar as pegadas dixitais respectivas.
+    <string name="ask_question">Fai unha pregunta</string>
+    <string name="smp_explain_question">Se ti e o teu contacto tedes un secreto en común que ninguén máis coñece (como unha broma privada da última comida xuntas) podedes utilizar ese secreto para verificar as impresións dixitais respectivas.
 \n
-\nVostede proporciona o pé ou fai unha pregunta ao seu contacto que lle responderá con unha resposta diferenciando minúsculas e maiúsculas.</string>
-    <string name="smp_explain_answer">O seu contacto quererá verificar a pegada de vostede desafiandoo con un secreto compartido. O seu contacto daralle pé a unha resposta para ese secreto.</string>
+\nTi daslle pé ou fas unha pregunta ao teu contacto que che responderá con unha resposta diferenciando minúsculas e maiúsculas.</string>
+    <string name="smp_explain_answer">O teu contacto quererá verificar a túa pegada preguntándoche por un secreto compartido. O teu contacto vaiche dar pé a unha resposta para ese secreto.</string>
     <string name="shared_secret_hint_should_not_be_empty">A súa pregunta ou pé non pode estar baldeiro</string>
     <string name="shared_secret_can_not_be_empty">O seu secreto compartido non pode estar baldeiro</string>
     <string name="manual_verification_explanation">Comprobe coidadosamente a pegada dixital mostrada embaixo coa pegada dixital do seu contacto.
@@ -378,21 +378,21 @@
     <string name="remove_membership">Revogar os privilexios dos membros</string>
     <string name="grant_admin_privileges">Dar privilexios de administración</string>
     <string name="remove_admin_privileges">Revocar privilexios de administración</string>
-    <string name="kick_from_room">Expulsión do chat de grupo</string>
+    <string name="kick_from_room">Expulsar da sala</string>
     <string name="could_not_change_affiliation">Non se puido mudar a afiliación de %s</string>
-    <string name="ban_from_conference">Prohibición da conversa en grupo</string>
-    <string name="kick_from_conference">Expulsión do chat de grupo</string>
+    <string name="ban_from_conference">Vetar na sala</string>
+    <string name="kick_from_conference">Expulsar da sala</string>
     <string name="ban_from_public_conference_message">Está a tratar de prohibir a %s para sempre nunha canle pública.</string>
-    <string name="ban_from_conference_message">Está a tratar de prohibir a %s para sempre nun grupo público</string>
+    <string name="ban_from_conference_message">Vas vetar a %s para que non entre máis na sala</string>
     <string name="kicking_from_public_conference">Está a tentar botar a %s dunha canle pública.</string>
-    <string name="kicking_from_conference">Está a tentar botar a %s dun grupo público.</string>
+    <string name="kicking_from_conference">Vas expulsar a %s da sala.</string>
     <string name="ban_now">Rexeitar agora</string>
     <string name="kick_now">Expulsar agora</string>
     <string name="non_anonymous">Facer que os ID de Jabber sexan visibles para calquera</string>
     <string name="moderated">Facer que a canle sexa moderada</string>
     <string name="you_are_not_participating">Vostede non está a participar</string>
-    <string name="modified_conference_options">¡Opcións da conversa en grupo modificadas!</string>
-    <string name="could_not_modify_conference_options">Non se puideron modificar as opcións da conversa en grupo</string>
+    <string name="modified_conference_options">Modificáronse as opcións da sala!</string>
+    <string name="could_not_modify_conference_options">Non se puideron modificar as opcións da sala</string>
     <string name="never">Nunca</string>
     <string name="until_further_notice">Ate novo aviso</string>
     <string name="pref_input_options">Entrada</string>
@@ -406,11 +406,11 @@
     <string name="pdf_document">documento PDF</string>
     <string name="apk">App Android</string>
     <string name="vcard">Contacto</string>
-    <string name="avatar_has_been_published">Publicouse o avatar</string>
+    <string name="avatar_has_been_published">Publicouse o avatar!</string>
     <string name="sending_x_file">Enviando %s</string>
     <string name="offering_x_file">Ofrecendo %s</string>
     <string name="hide_offline">Ocultar fora de liña</string>
-    <string name="is_typing">está a escribir...</string>
+    <string name="is_typing">está a escribir…</string>
     <string name="pref_chat_states">Notificacións de escritura</string>
     <string name="pref_chat_states_summary">Permita aos seus contactos que sepan cando lles está a escribir</string>
     <string name="send_location">Enviar localización</string>
@@ -437,7 +437,7 @@
     <string name="search_bookmarks">Buscar chats multi-usuarios</string>
     <string name="choose_quick_action">Escolla a acción rápida</string>
     <string name="send_private_message">Enviar mensaxe privada</string>
-    <string name="user_has_left_conference">¡%1$s deixou a conversa en grupo!</string>
+    <string name="user_has_left_conference">%1$s saíu da sala!</string>
     <string name="username">Identificador</string>
     <string name="username_hint">Nome de usuaria</string>
     <string name="invalid_username">Este non é un identificador válido</string>
@@ -476,7 +476,7 @@
     <string name="authenticate_with_certificate">Deixar baldeiro autenticar con certificado</string>
     <string name="mam_prefs">Gardando axustes</string>
     <string name="server_side_mam_prefs">Axustes de gardado no servidor</string>
-    <string name="fetching_mam_prefs">Obtendo os axustes de gardado. Por favor agarde...</string>
+    <string name="fetching_mam_prefs">Obtendo os axustes de gardado. Agarda…</string>
     <string name="unable_to_fetch_mam_prefs">Non se obtiveron os axustes de gardado</string>
     <string name="captcha_required">Requírese Captcha</string>
     <string name="captcha_hint">Introduza o texto da imaxe superior</string>
@@ -538,18 +538,17 @@
     <string name="this_field_is_required">Este campo é requerido</string>
     <string name="correct_message">Correxir mensaxe</string>
     <string name="send_corrected_message">Enviar mensaxe correxida</string>
-    <string name="no_keys_just_confirm">Xa confia neste contacto. Ao seleccionar \'feito\' só está confirmando que %s é parte deste chat grupal.</string>
+    <string name="no_keys_just_confirm">Xa confías neste contacto. A seleccionar \'feito\' só estarás confirmando que %s é parte da conversa.</string>
     <string name="contacts_have_no_pgp_keys">monocles chatnon pode cifrar as túas mensaxes porque os teus contactos non anuncian as súas claves públicas.
 \n
 \n</string>
     <string name="this_account_is_disabled">Deshabilitou esta conta</string>
     <string name="no_application_to_share_uri">Non se atopou un aplicativo para compartir URI</string>
-    <string name="share_uri_with">Compartir URI con...</string>
+    <string name="share_uri_with">Compartir URI con…</string>
     <string name="mgmt_account_reconnect">Volverse a conectar</string>
-    <string name="welcome_text">XMPP é un protocolo independente do proveedor. Pode utilizar este cliente con calquer servidor XMPP que escolla.
-\nPara a súa conveniencia facilitamos a creación de unha conta en conversations.im; un proveedor especialmente adaptado ao uso con Conversations.</string>
+    <string name="welcome_text">...é un cliente seguro para chat e que respecta a túa privacidade.</string>
     <string name="your_full_jid_will_be">O seu ID Jabber será: %s</string>
-    <string name="create_account">Crear conta</string>
+    <string name="create_account">Crear nova conta</string>
     <string name="welcome_existing_account">Teño unha conta</string>
     <string name="pick_your_username">Escolla un identificador</string>
     <string name="pref_manually_change_presence">Xestionar a dispoñibilidade manualmente</string>
@@ -566,13 +565,13 @@
     <string name="share_location">Compartir a miña localización</string>
     <string name="location_sharing_disabled">O uso compartido da localización está desactivado na configuración</string>
     <string name="locating">Localizando…</string>
-    <string name="action_end_conversation_muc">Deixar a conversa en grupo</string>
-    <string name="leave_conference_warning">Realmente queres deixar esta conversa en grupo\? Xa non recibirás notificacións de novas mensaxes ata que volvas unirche a conversa de grupo.</string>
+    <string name="action_end_conversation_muc">Saír da sala</string>
+    <string name="leave_conference_warning">Tes a certeza de querer saír da sala\? Non recibirás notificación das novas mensaxes ata que volvas a unirte.</string>
     <string name="show_password">Mostar contrasinal</string>
     <string name="registration_please_wait">Fallo no rexistro: inténteo de novo</string>
     <string name="registration_password_too_weak">Fallo no rexistro: contrasinal moi feble</string>
     <string name="choose_participants">Escoller participantes</string>
-    <string name="creating_conference">Creando unha conversa en grupo...</string>
+    <string name="creating_conference">Creando a sala…</string>
     <string name="import_text">Se hai unha copia de seguridade dispoñible, pode importala pulsando o botón de abaixo.</string>
     <string name="import_database">Importar copia de seguridade</string>
     <string name="invite_again">Invitar de novo</string>
@@ -602,18 +601,18 @@
     <string name="create_issue">Informar dun problema</string>
     <string name="pref_delete_omemo_identities">Borrar identidades OMEMO</string>
     <string name="pref_delete_omemo_identities_summary">Rexenerar as súas chaves OMEMO. Todos os seus contactos deberán verificalo de novo. Utilice esto como último recurso.</string>
-    <string name="delete_selected_keys">Eliminar as chaves seleccionadas.</string>
+    <string name="delete_selected_keys">Eliminar as chaves seleccionadas</string>
     <string name="error_publish_avatar_offline">Precisa estar conectada para publicar o seu avatar.</string>
     <string name="copy_to_clipboard">Copiar ao portapapeis</string>
     <string name="message_copied_to_clipboard">Mensaxe copiada ao portapapeis</string>
     <string name="message">Mensaxe</string>
-    <string name="quote">Cita</string>
+    <string name="quote">Responder</string>
     <string name="show_error_message">Mostrar mensaxe do fallo</string>
     <string name="error_message">Mensaxe de erro</string>
     <string name="data_saver_enabled">Aforrador de datos habilitado</string>
-    <string name="data_saver_enabled_explained">O seu sistema operativo está restrinxindo a monocles chat para acceder a internet cando está en segundo plano. Para recibir notificacións de novas mensaxes debería permitir a blbber.im acceso non restrinxido cando o aforro de datos está acendido.
+    <string name="data_saver_enabled_explained">O seu sistema operativo está restrinxindo a monocles chat para acceder a internet cando está en segundo plano. Para recibir notificacións de novas mensaxes deberías permitir a monocles chat acceso sen restricións cando o Aforro de datos está acendido.
 \n
-\nmonocles chat fará todo o posible para aforrar consumo de datos.</string>
+\nmonocles chat fará todo o posible para aforrar datos.</string>
     <string name="device_does_not_support_data_saver">O seu dispositivo non admite deshabilitar o aforro de datos para monocles chat.</string>
     <string name="add_to_contact_list">Engadir a contactos</string>
     <string name="contact">Contacto</string>
@@ -674,14 +673,14 @@
     <string name="today">Hoxe</string>
     <string name="pref_use_max_brightness_summary">Cambiar ao brillo máximo mentres ven vídeos ou imaxes en pantalla completa.</string>
     <string name="pref_use_max_brightness">Máxima luminosidade</string>
-    <string name="block_jabber_id">Bloquear ID Jabber</string>
+    <string name="block_jabber_id">Bloquear conta</string>
     <string name="corresponding_conversations_closed">Conversas correpondentes pechadas.</string>
     <string name="contact_blocked_past_tense">Contacto bloqueado.</string>
     <string name="pref_notifications_from_strangers">Notificacións de estraños</string>
     <string name="pref_notifications_from_strangers_summary">Notifica as mensaxes recibidas por parte de estraños.</string>
     <string name="received_message_from_stranger">Mensaxe recibida de un estraño</string>
-    <string name="contacts_are_typing">%s están escribindo...</string>
-    <string name="contact_is_typing">%s está a escribir...</string>
+    <string name="contacts_are_typing">%s están escribindo…</string>
+    <string name="contact_is_typing">%s está a escribir…</string>
     <string name="one_participant">Un participante</string>
     <string name="more_participants">%d participantes</string>
     <string name="presence_offline">Desconectado</string>
@@ -690,7 +689,7 @@
     <string name="pref_use_auto_rotate_summary">Xirar as imaxes e os vídeos en pantalla completa para adaptalos ao tamaño da pantalla</string>
     <string name="pref_use_auto_rotate">Rotar medios en pantalla completa</string>
     <string name="pref_use_tor">Conectar vía Tor</string>
-    <string name="pref_use_tor_summary">Facer pasar todas as conexións a través da rede Tor. Require Orbot</string>
+    <string name="pref_use_tor_summary">Facer pasar todas as conexións a través da rede Tor.</string>
     <string name="pref_connection_options">Conexión</string>
     <string name="image_low">Baixa (720p)</string>
     <string name="image_mid">Media (1920p)</string>
@@ -735,13 +734,13 @@
     <string name="pref_use_bundled_emoji_summary">Utiliza a biblioteca de emojis integrados en lugar de utilizar os dos teus dispositivos. Os cambios estarán dispoñibles despois de reabrir a aplicación.</string>
     <string name="invalid_muc_nick">Alcume non válido</string>
     <string name="title_activity_share_via_account">Compartir coa conta</string>
-    <string name="destroy_room">Eliminar conversa en grupo</string>
-    <string name="conference_unknown_error">Xa non estás neste chat de grupo</string>
-    <string name="destroy_room_dialog">Queres destruír a conversa en grupo %s\? Isto eliminará esta conversa en grupo permanentemente.</string>
-    <string name="destroy_room_succeed">Conversa en grupo destruída con éxito</string>
-    <string name="destroy_room_failed">A conversa en grupo non puido ser destruída</string>
-    <string name="no_write_access_in_public_muc">Non está a participar neste chat de grupo e non ten acceso de escritura neste momento.
-\nPor favor, vaia aos detalles do chat de grupo pulsando <b>Aceptar</b> e envíe unha mensaxe privada a un moderador, administrador ou propietario facendo clic longo no nome dun dos membros na parte superior/frontal da lista para pedir acceso de escritura.</string>
+    <string name="destroy_room">Destruír a sala</string>
+    <string name="conference_unknown_error">Xa non estás nesta sala</string>
+    <string name="destroy_room_dialog">Queres destruír a sala %s\? Isto vai eliminar a sala de xeito definitivo.</string>
+    <string name="destroy_room_succeed">A sala foi eliminada correctamente</string>
+    <string name="destroy_room_failed">A sala non se pode eliminar</string>
+    <string name="no_write_access_in_public_muc">Non estás a participar nesta conversa e por agora non tes permiso para escribir.
+\n Vai aos detalles da sala premendo en <b>OK</b> e envía unha mensaxe privada á moderación, administración ou propietarias da sala mantendo premido un dos nomes na parte superior da lista para pedir permiso de escritura.</string>
     <string name="snooze">Suspender</string>
     <string name="huawei_protected_apps">Aplicacións protexidas</string>
     <string name="huawei_protected_apps_summary">Para seguir recibindo notificacións, mesmo cando a pantalla está apagada, tes que engadir monocles chat á lista de aplicacións protexidas.</string>
@@ -773,7 +772,7 @@
     <string name="disable_now">Desactivar agora</string>
     <string name="draft">Borrador:</string>
     <string name="pref_omemo_setting">Cifrado OMEMO</string>
-    <string name="pref_omemo_setting_summary_always">OMEMO utilizarase sempre para os chats individuais e de grupo privados.</string>
+    <string name="pref_omemo_setting_summary_always">Sempre se utilizará OMEMO para as conversas directas e as salas privadas.</string>
     <string name="pref_omemo_setting_summary_default_on">OMEMO utilizarase por defecto para as novas conversacións.</string>
     <string name="pref_omemo_setting_summary_default_off">OMEMO terá que ser activado explicitamente para as novas conversacións.</string>
     <string name="pref_omemo_setting_summary_always_off">OMEMO nunca se utilizará.</string>
@@ -782,8 +781,8 @@
     <string name="pref_theme_light">Claro</string>
     <string name="pref_theme_dark">Escuro</string>
     <string name="pref_theme_auto">Automático</string>
-    <string name="pref_theme_options_summary">Seleccionar o brillo do tema</string>
-    <string name="pref_theme_options">Tema</string>
+    <string name="pref_theme_options_summary">Seleccionar o brillo do decorado</string>
+    <string name="pref_theme_options">Decorado</string>
     <string name="chooce_account">Seleccionar conta</string>
     <string name="pref_font_size">Tamaño da fonte</string>
     <string name="pref_font_size_summary">O tamaño relativo da fonte utilizada na aplicación.</string>
@@ -808,18 +807,18 @@
     <string name="pref_start_search">Búsqueda Directa</string>
     <string name="pref_start_search_summary">Na pantalla \"Iniciar conversación\" abra o teclado e coloque o cursor no campo de procura</string>
     <string name="paste_as_quote">Pegar como cita</string>
-    <string name="group_chat_avatar">Avatar do grupo</string>
-    <string name="host_does_not_support_group_chat_avatars">O servidor non admite os avatares da conversa en grupo</string>
+    <string name="group_chat_avatar">Avatar da sala</string>
+    <string name="host_does_not_support_group_chat_avatars">O servidor non permite avatares para as salas</string>
     <string name="only_the_owner_can_change_group_chat_avatar">Só o propietario pode cambiar o avatar</string>
     <string name="contact_name">Nome do contacto</string>
-    <string name="nickname">Alcume para esta conversa en grupo</string>
+    <string name="nickname">Alcume nesta sala</string>
     <string name="group_chat_name">Nome</string>
     <string name="providing_a_name_is_optional">O nome é opcional</string>
-    <string name="create_dialog_group_chat_name">Nome da conversa en grupo</string>
+    <string name="create_dialog_group_chat_name">Nome da sala</string>
     <string name="everyone_has_read_up_to_this_point">Todo o mundo leu até este punto</string>
     <string name="conference_resource_constraint">Limitación de recursos</string>
     <string name="delete_message">Borrar mensaxe</string>
-    <string name="conference_destroyed">Este chat de grupo foi destruído</string>
+    <string name="conference_destroyed">A sala foi eliminada</string>
     <string name="no_application_found_to_view_contact">Non se atopou ningunha aplicación para ver este contacto</string>
     <string name="welcome_server_info">Recomendamos o uso de monocles chat como provedor.</string>
     <string name="no_location_permission">monocles chatnecesita acceso a los servicios de localización</string>
@@ -843,16 +842,16 @@
     <string name="video_compression_channel_name">Compresión de vídeo</string>
     <string name="backup_channel_name">Copia de seguridade &amp; Restaurar</string>
     <string name="app_update_channel_name">Actualización da app</string>
-    <string name="action_group_details">Detalles do grupo</string>
+    <string name="action_group_details">Detalles da sala</string>
     <string name="view_media">Ver medios</string>
     <string name="media_browser">Navegador de medios</string>
     <string name="account_status_stream_opening_error">Erro de apertura do fluxo</string>
     <string name="action_open">Abrir</string>
     <string name="security_violation_not_attaching_file">Arquivo omitido por violación de seguridade.</string>
     <string name="delete_file_dialog">Eliminar ficheiro</string>
-    <string name="delete_file_dialog_msg">Seguro que queres eliminar este arquivo\?
+    <string name="delete_file_dialog_msg">Tes a certeza de querer eliminar este arquivo\?
 \n
-\n-Atención:&lt;/b&gt; Isto non eliminará as copias deste arquivo que están almacenadas noutros dispositivos ou servidores.</string>
+\n<b>Aviso:</b> Isto non eliminará as copias deste arquivo que están almacenadas noutros dispositivos ou servidores.</string>
     <string name="cancelled">cancelado</string>
     <string name="remote_server_timeout">Tempo de espera do servidor remoto</string>
     <string name="already_drafting_message">Xa está a redactar unha mensaxe.</string>
@@ -874,7 +873,7 @@
     <string name="enter_your_name">Introduza o seu nome</string>
     <string name="enter_your_name_instructions">Por favor, introduza o seu alcume que será visible para os seus contactos.</string>
     <string name="no_name_set_instructions">Non se estableceu ningún alcume.</string>
-    <string name="autojoin_group_chat">Unirse automaticamente a esta conversa en grupo</string>
+    <string name="autojoin_group_chat">Unirse automaticamente a esta sala</string>
     <string name="pref_show_links_inside">Mostrar vistas previas de enlácelos web na conversa</string>
     <string name="pref_show_links_inside_summary">Mostrar vistas previas de enlaces web directamente dentro da vista da conversa, establecerase unha conexión co servidor especificado no enlace.</string>
     <string name="pref_play_gif_inside">Reproducir arquivos GIF na conversa</string>
@@ -883,13 +882,13 @@
     <string name="server_info_adhoc_invite">XEP-0050: Comandos Ad-Hoc: invitación ao usuario</string>
     <string name="choose_account">Seleccionar conta</string>
     <string name="set_profile_picture">Foto de perfil de monocles chat</string>
-    <string name="restore_backup">Restaurar a copia de seguridade</string>
+    <string name="restore_backup">Restablecer copia de apoio</string>
     <string name="restore">Restaurar</string>
     <string name="enter_password_to_restore">Introduza o contrasinal da conta %s para restaurar a copia de seguridade.</string>
     <string name="restore_warning">Non utilices a función de restauración baixo ningunha circunstancia, excepto no caso de migrar ou perder o teu dispositivo.</string>
     <string name="unable_to_restore_backup">Non se pode restaurar a copia de seguridade.</string>
     <string name="unable_to_decrypt_backup">Non se pode descifrar a copia de seguridade. O contrasinal é correcta\?</string>
-    <string name="pref_prefer_xmpp_avatar_summary">Preferir o avatar XMPP do usuario en lugar do do seu caderno de direccións</string>
+    <string name="pref_prefer_xmpp_avatar_summary">Preferir o avatar XMPP da usuaria e non o que tes no caderno de enderezos</string>
     <string name="pref_prefer_xmpp_avatar">Prefirir o avatar XMPP</string>
     <plurals name="view_users">
         <item quantity="one">Ver %1$d participante</item>
@@ -899,7 +898,7 @@
     <string name="message_deleted">Mensaxe borrado</string>
     <string name="channel_details">Detalles da canle</string>
     <string name="join_public_channel">Unirse á canle pública</string>
-    <string name="create_private_group_chat">Crear unha conversa en grupo privada</string>
+    <string name="create_private_group_chat">Crear sala privada</string>
     <string name="create_public_channel">Crear unha canle pública</string>
     <string name="create_dialog_channel_name">Nome da canle</string>
     <string name="xmpp_address">Dirección XMPP</string>
@@ -911,19 +910,19 @@
     <string name="joined_an_existing_channel">Uniuse a unha canle existente</string>
     <string name="unable_to_set_channel_configuration">Non se pode establecer a configuración da canle</string>
     <string name="back">Tornar</string>
-    <string name="conference_options">Configuración da conversa en grupo</string>
+    <string name="conference_options">Configuración da sala privada</string>
     <string name="channel_options">Configuración da canle pública</string>
     <string name="allow_participants_to_edit_subject">Permitir que calquera poida editar o tema</string>
     <string name="allow_participants_to_invite_others">Permitir que calquera convide a outros</string>
     <string name="anyone_can_edit_subject">Calquera pode editar o tema.</string>
-    <string name="owners_can_edit_subject">Os propietarios poden editar o tema.</string>
-    <string name="admins_can_edit_subject">Os administradores poden editar o tema.</string>
+    <string name="owners_can_edit_subject">As donas da sala poden editar o tema.</string>
+    <string name="admins_can_edit_subject">As administradoras poden editar o tema.</string>
     <string name="owners_can_invite_others">Os propietarios poden convidar a outros.</string>
     <string name="anyone_can_invite_others">Calquera pode convidar a outros.</string>
     <string name="jabber_ids_are_visible_to_admins">As ID de Jabber son visibles para os administradores.</string>
     <string name="jabber_ids_are_visible_to_anyone">As ID de Jabber son visibles para calquera.</string>
     <string name="no_users_hint_channel">Esta canle pública non ten participantes. Convida aos teus contactos ou utiliza o botón de compartir para distribuír a súa dirección XMPP.</string>
-    <string name="no_users_hint_group_chat">Este chat de grupo privado non ten participantes.</string>
+    <string name="no_users_hint_group_chat">Esta sala privada non ten participantes.</string>
     <string name="grant_owner_privileges">Conceder privilexios ao propietario</string>
     <string name="remove_owner_privileges">Revogar os privilexios ó propietario</string>
     <string name="remove_from_channel">Eliminar da canle</string>
@@ -987,7 +986,7 @@
     <string name="pref_use_invidious_summary">Invidious é unha alternativa a YouTube que respecta a privacidade</string>
     <string name="this_device">Este dispositivo</string>
     <string name="intro_desc_main">Saber máis…</string>
-    <string name="welcome_header">Benvido a
+    <string name="welcome_header">Benvida a
 \n monocles chat</string>
     <string name="intro_required_permissions">Permisos necesarios</string>
     <string name="intro_desc_required_permissions">Ao final da introdución pediráselle que conceda permisos de almacenamento (obrigatorio), si non os concedeu xa. Os permisos adicionais solicítanse segundo sexa necesario e son opcionais.</string>
@@ -999,7 +998,7 @@
     <string name="intro_chat_details">Detalles da conversa</string>
     <string name="intro_desc_chat_details">Quere abrir os detalles do chat\? Só ten que pulsar o nome do chat na barra de menú da parte superior.</string>
     <string name="intro_highlight_user">Mencionar usuario</string>
-    <string name="intro_desc_highlight_user">Si quere mencionar a un usuario nun chat de grupo, só ten que tocar o avatar do usuario no chat. Alternativamente, especialmente si o usuario non está no chat, cambie aos detalles do chat e busque ao usuario na lista de participantes. Un toque prolongado no avatar do usuario mostrará un menú emerxente no que pode mencionar ao usuario.</string>
+    <string name="intro_desc_highlight_user">Si queres mencionar a unha persoa nunha sala, só tes que tocar o avatar da persoa no chat. Alternativamente, especialmente se a usuaria non está no chat, vai aos detalles do chat e busca á persoa na lista de participantes. Un toque prolongado no avatar da usuaria mostrará un menú emerxente no que podes mencionar a esa persoa.</string>
     <string name="intro_desc_open_chat_details">Abriu os detalles do chat. Aquí pode ver os detalles do chat, cambiar o comportamento da notificación de novas mensaxes, engadir ou eliminar o chat da súa lista de contactos e moito máis.</string>
     <string name="pref_show_intro_summary">Mostrar de novo as pantallas de introdución</string>
     <string name="pref_show_intro">Mostrar a introdución de novo</string>
@@ -1015,9 +1014,9 @@
 \nPara compartir mensaxes de voz é necesario obter permiso de acceso ao seu micrófono.</string>
     <string name="intro_desc_account3">Ten a opción de importar una conta existente.
 \nSi hai arquivos de copia de seguridade dispoñibles, mostraranse.</string>
-    <string name="intro_desc_start_chatting2">Tamén pode engadir, crear ou unirse a conversas en grupo, os chamados MUC. Neles distínguese entre chats de grupo privados e chats de grupo públicos - as chamadas canles.</string>
-    <string name="intro_desc_start_chatting3">Felicidades!
-\nVeña, a divertirse...</string>
+    <string name="intro_desc_start_chatting2">Tamén podes engadir, crear ou unirte a conversas en grupo, as chamadas salas. E podemos diferencias entre salas privadas e salas públicas - as chamadas salas.</string>
+    <string name="intro_desc_start_chatting3">Parabéns!
+\nImos alá…</string>
     <string name="intro_privacy">A súa privacidade
 \nA súa soberanía</string>
     <string name="intro_desc_privacy">monocles chatnon venderá nin analizará os seus datos e vostede decide que permisos concede.</string>
@@ -1026,7 +1025,7 @@
     <string name="sharing_application_not_grant_permission">A aplicación de compartición non concedeu permiso para acceder a este arquivo.</string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Servidor local</string>
-    <string name="pref_channel_discovery_summary">A maioría dos usuarios deberían elixir \'jabber.network\' para obter mellores suxestións de todo o ecosistema público de XMPP.</string>
+    <string name="pref_channel_discovery_summary">A maioría das usuarias deberían elixir \'jabber.network\' para obter mellores suxestións de todo o ecosistema público de XMPP.</string>
     <string name="pref_channel_discovery">Método de descubrimento de canles</string>
     <string name="gp_disable">Desactivar</string>
     <string name="gp_short">Curto</string>
@@ -1041,8 +1040,8 @@
     <string name="pref_theme_grey">Gris</string>
     <string name="pref_theme_pink">Rosa</string>
     <string name="pref_theme_black">Negro (AMOLED)</string>
-    <string name="pref_theme_color_options_summary">Seleccione a paleta de cores do tema</string>
-    <string name="pref_theme_color_options">Cor do tema</string>
+    <string name="pref_theme_color_options_summary">Seleccione a paleta de cores do decorado</string>
+    <string name="pref_theme_color_options">Cor do decorado</string>
     <string name="magic_create_text_on_x">Foi convidado a %1$s. Guiarémoslle no proceso de creación dunha conta.
 \nAl elixir %1$s como provedor poderá comunicarche con usuarios doutros provedores dándolles a súa dirección XMPP completa.</string>
     <string name="account_status_regis_invalid_token">Token de rexistro inválido</string>
@@ -1053,7 +1052,7 @@
     <string name="pref_use_unicolored_chatbg">Utilizar un fondo unicolor</string>
     <string name="pref_alternative_voice_settings_summary">Si ten problemas durante a gravación de voz, utilice este axuste para cambiar o códec.</string>
     <string name="pref_alternative_voice_settings">Método alternativo de gravación de voz</string>
-    <string name="pref_use_colored_muc_names_summary">Colorear os alcumes nos chats de grupo ou nas canles como fondos de avatar por defecto.</string>
+    <string name="pref_use_colored_muc_names_summary">Colorear os alcumes nas salas ou usar as cores de fondo dos avatares.</string>
     <string name="pref_use_colored_muc_names">Colorear os alcumes</string>
     <string name="show_videos_images_only">Só imaxes/vídeos</string>
     <string name="show_avatar">Mostrar o avatar</string>
@@ -1120,7 +1119,7 @@
     <string name="encrypted_with_omemo">Cifrado con OMEMO</string>
     <string name="encrypted_with_openpgp">Cifrado con OpenGPG</string>
     <string name="not_encrypted">Non cfrado</string>
-    <string name="add_contact_or_create_or_join_group_chat">Engadir contacto, crear ou unirse a un chat de grupo, ou descubrir canles</string>
+    <string name="add_contact_or_create_or_join_group_chat">Engadir contacto, crear ou unirse a unha sala, ou descubrir salas</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">Non se puido entregar unha mensaxe</item>
         <item quantity="other">Algunhas mensaxes non puideron ser enviados</item>
@@ -1195,11 +1194,11 @@
     <string name="save_x_file">Gardar %s</string>
     <string name="file_copied_to">Arquivo copiado en %s</string>
     <string name="use_individual_notifications">Utilizar notificacións individuais</string>
-    <string name="pref_remove_all_individual_summary">Eliminar todas as notificacións individuais dos teus contactos e grupos.</string>
+    <string name="pref_remove_all_individual_summary">Eliminar todas as notificacións individuais dos teus contactos e salas.</string>
     <string name="pref_remove_all_individual_notifications_title">Eliminar todas as notificacións individuais</string>
     <string name="remove_individual_notifications">Eliminar as notificacións individuais</string>
     <string name="remove_individual_notifications_message">Realmente quere eliminar este conxunto de notificacións individuais para %s\?</string>
-    <string name="remove_all_individual_notifications_message">Realmente quere eliminar todas as notificacións individuais establecidas para os contactos e grupos\?</string>
+    <string name="remove_all_individual_notifications_message">Tes a certeza de querer eliminar todas as notificacións individuais dos contactos e salas\?</string>
     <string name="exit">Saír</string>
     <string name="record_voice_mail">Gravar unha mensaxe de voz</string>
     <string name="backup_started_message">A copia de seguridade iniciouse. Recibirá unha notificación unha vez que se completou.</string>
@@ -1213,4 +1212,195 @@
     <string name="pref_import_settings">Importar a configuración da aplicación</string>
     <string name="success_import_settings">Configuración importada con éxito.</string>
     <string name="error_import_settings">Erro ao importar a configuración.</string>
+    <string name="pref_allow_message_retraction">Permitir eliminar a mensaxe</string>
+    <string name="account_status_i2p_unavailable">Rede I2P non dispoñible</string>
+    <string name="pref_allow_message_retraction_summary">Permitir que os teus contactos poidan eliminar retroactivamente as súas mensaxes</string>
+    <string name="conference_technical_problems">Saíches desta sala por razóns técnicas</string>
+    <string name="sending_x_file_x">Enviando %1$s (%2$s %)</string>
+    <string name="magic_create_text">Isto inclúe:
+\n● un mes de almacenaxe temporal cifrado das conversas
+\n● correo electrónico con 1 GB de almacenaxe cifrada de extremo a extremo
+\n
+\n optativamente:
+\n● 4 GB de alamacenaxe na nube (nextcloud)
+\n● sincronización de calendario e contactos
+\n● ferramentas seguras para conferencias
+\n e máis en <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="action_dialpad">Marcador</string>
+    <string name="transcoding_video_x">Comprimindo vídeo (%s %)</string>
+    <string name="account_status_incompatible_client">Cliente incompatible</string>
+    <string name="pref_use_i2p">Acceder vía I2P</string>
+    <string name="receiving_file_x">Recibindo %1$s (%2$s %)</string>
+    <string name="enable_notifications">Activar notificacións</string>
+    <string name="pref_up_push_server_summary">Servidor Push escollido por ti para que che envíe as mensaxes push das apps do teu dispositivo.</string>
+    <string name="moderate_message">Moderar</string>
+    <string name="or_use_another">.. o elixe a outra embaixo</string>
+    <string name="pref_use_inner_storage_summary">As outras Apps non poderán ver o multimedia da almacenaxe interna</string>
+    <string name="block_media">Bloquear multimedia</string>
+    <string name="no_xmpp_adddress_found">Non se atopou un enderezo XMPP</string>
+    <string name="close">Pechar</string>
+    <string name="otr_session_not_started">Enviar unha mensaxe para comezar a conversa privada</string>
+    <string name="account_status_temporary_auth_failure">Fallo temporal coa autenticación</string>
+    <string name="import_backup_description">Desde Android 11 non podemos facer unha lista de ficheiros na almacenaxe. Podes intentar navegar pola ruta da copia de apoio, que normalmente está en Documents/monocles chat/Database.</string>
+    <string name="help_format_text">Podes usar as opcións de formato simple para o texto. Os elementos que identifican o inicio e o fin dun texto con formato están xusto ao inicio e fin da palabra ou grupo. Ten que haber un espazo antes do elemento inicial e un espazo despois do elemento final, se non é así o formato non será recoñecido como tal.
+\n
+\nPodes usar as ferramentas directamente ao escribir, premendo nunha ferramenta engades o elemento na posición do cursor. Ou podes seleccionar unha palabra ou texto e darlle formato co botón.</string>
+    <string name="toast_message_otr_fingerprint">Copiouse a impresión dixital OTR ao portapapeis!</string>
+    <string name="pref_theme_White">Branco</string>
+    <string name="copy_otr_clipboard_description">Copiar impresión dixital OTR ao portapapeis</string>
+    <string name="pref_enable_persistent_rooms_summary">Facer que as salas e canles públicas permanezan e non se eliminen do servidor despois de que a última usuaria deixe a conversa.</string>
+    <string name="pref_follow_thread_in_channel">Seguir automaticamente conversas nas canles</string>
+    <string name="user">Identificador</string>
+    <string name="otr_warning">O soporte da cifraxe OTR está en fase beta. Preme en ler máis para ter máis información. Abrirás unha ligazón nun navegador.</string>
+    <string name="pref_use_blue_readmarkers_title">Usar marcadores de lectura azuis</string>
+    <string name="pref_enable_persistent_rooms_title">Salas permanentes</string>
+    <string name="pref_use_blue_readmarkers_summary">Usar marcadores de lectura azul no lugar de branco ou negro</string>
+    <string name="orbot_not_found">Non atopamos Orbot</string>
+    <string name="pref_enable_otr_summary">Activar a cifraxe OTR para a cifrar mensaxes. OTR aínda é moi inestable, usaa só se sabes o que estás a facer.</string>
+    <string name="moderate_recent">Moderar mensaxes\?</string>
+    <string name="pref_showtextformatting_sum">Mostrar barra de ferramentas de formato do texto cando se mostra o teclado</string>
+    <string name="show_keyboard">Mostrar teclado</string>
+    <string name="reconnecting_video_call">Volvedo a conectar videochamada</string>
+    <string name="clear_blocked_media">Limpar multimedia bloqueado</string>
+    <string name="i_have_written">Escribín:</string>
+    <string name="format_text">Dar formato</string>
+    <string name="account_registrations_are_not_supported">Non ten soporte para rexistrar novas contas</string>
+    <string name="pref_resend_delay_title">Adiamento do reenvío (MillsSecond)</string>
+    <string name="monocles_account_introduction">Podes usar monocle chat con calquera conta XMPP moderna ou <b>obter unha conta de monocles segura e económica, e que funciona con enerxía renovable!</b></string>
+    <string name="custom_theme_is_dark">É escuro o decorado personalizado\?</string>
+    <string name="change_stickers_location">Cambiar localización dos adhesivos</string>
+    <string name="using_inner_storage">Usar Almacenaxe Interna</string>
+    <string name="retract_message">Editar mensaxe</string>
+    <string name="tags">Etiquetas</string>
+    <string name="grant">Conceder</string>
+    <string name="create_monocles_account">Crear conta</string>
+    <string name="reject_switch_to_video">Rexeitar a solicitude de cambiar a vídeo</string>
+    <string name="pref_import_database_or_settings_summary">Importar unha copia de apoio da base de datos ou dun ficheiro con axustes</string>
+    <string name="no_manage_storage_permission">Desde Android 11, as apps precisan un permiso especial para acceder a todo tipo de ficheiros na almacenaxe externa. monocles chat vaiche pedir permiso para proceder.</string>
+    <string name="new_contact">Novo contacto</string>
+    <string name="pref_max_resend_time_title">Tempo máximo para reenvío da Mensaxe</string>
+    <string name="pref_confirm_delete_attachment">Omitir Confirmación para a eliminación de ficheiros nas conversas</string>
+    <string name="pref_import_database_or_settings">Importar base de datos ou axustes</string>
+    <string name="pref_resend_delay_summary">Adiamento do reenvío (MilsSecond), o tempo que se adía o reenvío.</string>
+    <string name="title_activity_about_x">Acerca de %s</string>
+    <string name="close_format_text">Tes a certeza de querer pechar a barra de formato do texto\? Podes activar cando queiras a barra nos axustes.</string>
+    <string name="show_more">"
+\n
+\n... mostrar máis"</string>
+    <string name="settings_restore_message_failure">Fallou o restablecemento: %s</string>
+    <string name="otr_fingerprint_selected_message">Impresión dixital OTR da mensaxe</string>
+    <string name="pref_dialler_integration_incoming">Usar os Contactos do Teléfono para Chamadas Entrantes</string>
+    <string name="pref_show_date_in_quotes_summary">Mostrar data e hora nas mensaxes citadas.</string>
+    <string name="incoming_call_duration_timestamp">Está chamando (%s) - %s</string>
+    <string name="thread_marker">Marcador de Fíos</string>
+    <string name="save_as_sticker">Gardar como Adhesivo</string>
+    <string name="cleanup_conversations">Limpar conversas</string>
+    <string name="send_otr_message">Escribir mensaxe…</string>
+    <string name="pref_up_push_account_title">Conta</string>
+    <string name="i_am_snikket_user">Eu uso Snikket</string>
+    <string name="x_has_written">%s escribeu:</string>
+    <string name="refresh_feature_discovery">Actualizar a ferramenta Descubrir</string>
+    <string name="pref_set_round_avatars_summary">Redondear os avatares das usuarias</string>
+    <string name="no_otr_session_found">Atopouse unha sesión OTR non válida!</string>
+    <string name="related_chats">Conversas relacionadas</string>
+    <string name="new_contact_or_group">novo contacto ou sala</string>
+    <string name="receiving_x_file">Recibindo %1$s (%2$d%% completado)</string>
+    <string name="are_you_sure_verify_fingerprint">Tes a certeza de querer comprobar a impresión dixital OTR dos teus contactos\?</string>
+    <string name="verifying_omemo_keys_trusted_source_account">Vas verificar as chaves OMEMO da túa propia conta. Isto só é seguro se seguiches esta ligazón desde unha fonte de confianza onde só ti podías ter publicado esta ligazón.</string>
+    <string name="custom_primary_color">Cor primaria persoal</string>
+    <string name="no_account_deactivated">Ningún (desactivado)</string>
+    <string name="unable_to_moderate">Non se puido Moderar</string>
+    <string name="collapse_message_signs_title">Pregar mensaxes de texto moi longas</string>
+    <string name="participants">Participantes</string>
+    <string name="optimize_database">Optimizando base de datos.. Agarda...</string>
+    <string name="pref_show_date_in_quotes">Mostrar hora e data nas citas</string>
+    <string name="verify_otr">Verificar OTR</string>
+    <string name="reconnecting_call">Volvendo a conectar chamada</string>
+    <string name="pref_follow_thread_in_channel_summary">Establecer o marcador do fío coincidente coa mensaxe que estás a ver agora</string>
+    <string name="pref_showtextformatting">Mostrar barra de ferramentas de formato</string>
+    <string name="audio_video_disabled_tor">As chamadas están desactivadas ao usar Tor</string>
+    <string name="custom_primary_dark_color">Cor primaria escura personalizada</string>
+    <string name="outgoing_call_duration_timestamp">Chamando a (%s) - %s</string>
+    <string name="moderate_reason">Razón para moderar</string>
+    <string name="download_failed_invalid_file">Fallou a descarga: Ficheiro non válido</string>
+    <string name="action_complete">Completar acción</string>
+    <string name="multimedia_file">ficheiro multimedia</string>
+    <string name="add_to_home_screen">Engadir á pantalla de inicio</string>
+    <string name="choose_sticker_location">Escoller localización dos adhesivos</string>
+    <string name="thread_locked">Fío bloqueado</string>
+    <string name="continue_btn">Continuar</string>
+    <string name="title_undo_swipe_out_group_chat">Retrotraer a sala</string>
+    <string name="action_edit_contact">Editar contacto</string>
+    <string name="undo">Desfacer</string>
+    <string name="menuitem_create_backup_action">Crear copia de apoio</string>
+    <string name="collapse_message_signs_summary">Establecer o número máximo de marcas para pregar unha mensaxe</string>
+    <string name="vector_graphic">gráfico vectorial</string>
+    <string name="action_fix_to_location">Fixar posición</string>
+    <string name="pref_theme_custom">Personalizado</string>
+    <string name="choose_camera_app">Elixe a app de cámara</string>
+    <string name="action_execute">Ir</string>
+    <string name="notify_only_when_highlighted_or_replied">Notificar mencións e respostas</string>
+    <string name="pref_chat_background_summary">Elixe unha imaxe propia como fondo da conversa. O ficheiro da imaxe vaise copiar a /Documents/monocles chat/backgrounds/bg.jpg. Se tes problemas proba a borrar a imaxe cun xestor de ficheiros.</string>
+    <string name="pref_dialler_integration_incoming_summary">As chamadas entrantes de números de teléfono poderían mostrarse co marcador do sistema no lugar dos axustes de notificación desta app</string>
+    <string name="block_avatar">Bloquear avatar</string>
+    <string name="settings_restore_message_success">Axustes restablecidos correctamente</string>
+    <string name="message_reaction">Enviar reacción</string>
+    <string name="switch_to_video">Cambiar a vídeo</string>
+    <string name="only_this_thread">Mostrar só este fío</string>
+    <string name="custom_accent_color">Cor destacada personalizada</string>
+    <string name="rtp_state_reconnecting">Volvendo a conectar</string>
+    <string name="outgoing_call_timestamp">Estás chamando - %s</string>
+    <string name="please_be_patient">Agarda por favor...</string>
+    <string name="microphone_permission_for_call">Fai falta o acceso ao micrófono para facer a chamada</string>
+    <string name="pref_up_push_server_title">Servidor Push</string>
+    <string name="you_may_sometimes_have_to">Poderías ter que forzar o reinicio da app para que se apliquen os cambios.</string>
+    <string name="pref_use_inner_storage">Usar a almacenaxe interna para gardar Multimedia</string>
+    <string name="delete_avatar">Eliminar avatar propio</string>
+    <string name="custom_theme_options">Opcións personalizadas do decorado</string>
+    <string name="me_quote">Eu:</string>
+    <string name="monospace">monoespazada</string>
+    <string name="call">Chamar</string>
+    <string name="update_default_stickers">Actualizar adhesivos por defecto</string>
+    <string name="choose_emoji">Escoller emoji</string>
+    <string name="copy_file_to">Copiar ficheiro a %s</string>
+    <string name="pref_use_i2p_summary">Redirixir todas as conexións a través da rede I2P. Require un cliente I2P</string>
+    <string name="no_i2p_calls">Non se poden facer chamadas por I2P</string>
+    <string name="pref_enable_otr">Activar cifraxe OTR (BETA)</string>
+    <string name="pref_custom_theme_color_options_summary">Establecer combinación de cores propia</string>
+    <string name="delete_message_dialog_msg">Tes a certeza de querer eliminar esta mensaxe\?
+\n
+\n<b>Aviso:</b> Non hai garantía de que isto elimine as copias desta mensaxe que están gardados en outros servidores ou dispositivos.</string>
+    <string name="unified_push_distributor">Distribuidora UnifiedPush</string>
+    <string name="bold">remarcar</string>
+    <string name="rtp_state_content_add">Engadir pistas adicionais\?</string>
+    <string name="title_undo_swipe_out_channel">Desfacer a eliminación da canle</string>
+    <string name="title_undo_swipe_out_conversation">Desfacer a eliminación da conversa</string>
+    <string name="pref_up_push_account_summary">A conta a través da cal se recibirán as mensaxes tipo push.</string>
+    <string name="join_room">Unirse á sala</string>
+    <string name="show_less">"
+\n
+\n... mostrar menos"</string>
+    <string name="action_copy_location">Copiar localización</string>
+    <string name="note_to_self">Nota persoal</string>
+    <string name="show_edit_log">Historial de mensaxes</string>
+    <string name="pref_set_round_avatars">Avatares redondos</string>
+    <string name="strikethrough">riscada</string>
+    <string name="chat_background">Fondo das conversas</string>
+    <string name="reply_to">Responder a</string>
+    <string name="action_unfix_from_location">Soltar posición</string>
+    <string name="restore_warning_continued">Non intentes restablecer copias de apoio que ti non tiveses creado!</string>
+    <string name="otr_fingerprint">Impresión dixital OTR</string>
+    <string name="italic">cursiva</string>
+    <string name="pref_choose_camera_summary">Elixe a app de cámara que queiras usar</string>
+    <string name="rtp_state_content_add_video">Cambiar a chamada de vídeo\?</string>
+    <string name="confirm_delete_attachment_summary">Queres omitir a confirmación cando eliminas un ficheiro local nunha conversa\?</string>
+    <string name="pref_max_resend_time_summary">Tempo máixmo para reenvíar unha mensaxe simple que fallou. Cando a conta do reenvío sexa maior que a metade do tempo máximo a mensaxe será adiada por razóns de tráfico.</string>
+    <string name="pref_allowmergemessages">Unir mensaxes</string>
+    <string name="sticker_name">Nome do Adhesivo</string>
+    <string name="custom_background">Fondo personalizado</string>
+    <string name="colors">Cores</string>
+    <string name="pref_allowmergemessages_sum">Intentar xuntar as mensaxes se proceden do mesmo jid</string>
+    <string name="unknown_otr_fingerprint">Impresión dixital OTR descoñecida</string>
+    <string name="create_monocles_only_backup">Exportar os datos exclusivos de monocles (a copia de apoio non se poderá importar noutras apps)\?</string>
+    <string name="save_as_contact_bookmark">Gardar como contacto / marcar</string>
 </resources>

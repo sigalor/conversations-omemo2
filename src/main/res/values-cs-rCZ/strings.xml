@@ -31,7 +31,7 @@
         <item quantity="other">%d nepřečtených konverzací</item>
     </plurals>
     <string name="sending">odesílám…</string>
-    <string name="message_decrypting">Dešifrování zprávy. Chvíli strpení...</string>
+    <string name="message_decrypting">Dešifrování zprávy. Chvíli strpení…</string>
     <string name="pgp_message">OpenPGP šifrovaná zpráva</string>
     <string name="nick_in_use">Přezdívka se již používá</string>
     <string name="admin">Administrátor</string>
@@ -49,7 +49,7 @@
     <string name="remove_bookmark_text">Chcete odstranit %s ze záložek\? Konverzace spojené s touto záložkou nebudou odstraněny.</string>
     <string name="register_account">Registrovat nový účet na serveru</string>
     <string name="change_password_on_server">Změnit heslo na serveru</string>
-    <string name="share_with">Sdílet s...</string>
+    <string name="share_with">Sdílet s…</string>
     <string name="start_conversation">Začít konverzaci</string>
     <string name="invite_contact">Pozvat Kontakt</string>
     <string name="contacts">Kontakty</string>
@@ -91,11 +91,11 @@
     <string name="send_unencrypted">Poslat nešifrované</string>
     <string name="decryption_failed">Zašifrování se nezdařilo. Možná nemáte správný privátní klíč.</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">monocles chat využívá aplikaci třetí strany, <b>OpenKeychain</b>, k šifrování a dešifrování zpráv a ke správě veřejných klíčů.
+    <string name="openkeychain_required_long">%1$s využívá aplikaci třetí strany, <b>OpenKeychain</b>, k šifrování a dešifrování zpráv a ke správě veřejných klíčů.
 \n
 \nOpenKeychain je licencován pod GPLv3 a dostupný na F-Droid a Google Play.
 \n
-\n<small>(Po instalaci prosím restartujte tuto aplikaci.)</small></string>
+\n<small>(Po instalaci, prosím, restartujte %1$s.)</small></string>
     <string name="restart">Restartovat</string>
     <string name="install">Instalovat</string>
     <string name="offering">nabízí…</string>
@@ -211,7 +211,7 @@
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO fingerprint (původ zprávy)</string>
     <string name="other_devices">Ostatní přístroje</string>
     <string name="trust_omemo_fingerprints">Věřit OMEMO otiskům</string>
-    <string name="fetching_keys">Získávání klíčů...</string>
+    <string name="fetching_keys">Získávání klíčů…</string>
     <string name="done">Hotovo</string>
     <string name="verify">Ověřit</string>
     <string name="decrypt">Dešifrovat</string>
@@ -355,7 +355,7 @@
     <string name="error_trustkeys_title">Něco se pokazilo</string>
     <string name="fetching_history_from_server">Načíst historii ze serveru</string>
     <string name="no_more_history_on_server">Na serveru není žádná další historie</string>
-    <string name="updating">Aktualizuji...</string>
+    <string name="updating">Aktualizuji…</string>
     <string name="password_changed">Heslo změněno!</string>
     <string name="could_not_change_password">Nelze změnit heslo</string>
     <string name="ask_question">Položit otázku</string>
@@ -481,7 +481,7 @@
     <string name="authenticate_with_certificate">Nechat prázdné pro ověření s certifikátem</string>
     <string name="mam_prefs">Nastavení archivace</string>
     <string name="server_side_mam_prefs">Nastavení archivace na serveru</string>
-    <string name="fetching_mam_prefs">Získávání nastavení archivace. Chvíli strpení...</string>
+    <string name="fetching_mam_prefs">Získávání nastavení archivace. Chvíli strpení…</string>
     <string name="unable_to_fetch_mam_prefs">Nelze získat nastavení archivace</string>
     <string name="captcha_required">Captcha vyžadována</string>
     <string name="captcha_hint">Zadejte text z obrázku výše</string>
@@ -547,10 +547,10 @@
     <string name="no_keys_just_confirm">Tomuto kontaktu již věříte. Stiskem tlačítka hotovo pouze potvrzujete, že je %s členem této skupiny.</string>
     <string name="contacts_have_no_pgp_keys">Není možné zašifrovat zprávy v aplikaci monocles chat, protože kontakty neoznamují svůj veřejný klíč.
 \n
-\n<small>Požádejte své kontakty ať si nastaví OpenPGP.</small></string>
+\n</string>
     <string name="this_account_is_disabled">Tento účet byl vypnut</string>
     <string name="no_application_to_share_uri">Nebyla nalezena aplikace pro sdílení URI</string>
-    <string name="share_uri_with">Sdílet URI s...</string>
+    <string name="share_uri_with">Sdílet URI s…</string>
     <string name="mgmt_account_reconnect">Obnovit připojení</string>
     <string name="welcome_text">…je bezpečný XMPP/Jabber klient zdarma.</string>
     <string name="your_full_jid_will_be">Vaše celé Jabber ID bude: %s</string>
@@ -692,7 +692,7 @@
     <string name="pref_notifications_from_strangers_summary">Upozornit na zprávy od neznámých kontaktů.</string>
     <string name="received_message_from_stranger">Přijata zpráva od neznámého kontaktu</string>
     <string name="contacts_are_typing">%s píší…</string>
-    <string name="contact_is_typing">%s píše...</string>
+    <string name="contact_is_typing">%s píše…</string>
     <string name="one_participant">Jeden účastník</string>
     <string name="more_participants">%d účastníků</string>
     <string name="participants">Účastníci</string>
@@ -702,7 +702,7 @@
     <string name="pref_use_auto_rotate_summary">Automaticky otočit obrázky a videa v režimu celé obrazovky</string>
     <string name="pref_use_auto_rotate">Otočit média v režimu celé obrazovky</string>
     <string name="pref_use_tor">Připojit přes Tor</string>
-    <string name="pref_use_tor_summary">Vedení všech připojení po Tor síti vyžaduje aplikaci Orbot</string>
+    <string name="pref_use_tor_summary">Vedení všech připojení po Tor síti vyžaduje aplikaci Orbot.</string>
     <string name="pref_connection_options">Připojení</string>
     <string name="image_low">Nízká (720p)</string>
     <string name="image_mid">Střední (1920p)</string>
@@ -905,7 +905,7 @@
     <plurals name="view_users">
         <item quantity="one">Zobrazit %1$d účastníka</item>
         <item quantity="few">Zobrazit %1$d účastníky</item>
-        <item quantity="other">Zobrazit účastníky</item>
+        <item quantity="other">Zobrazit %1$d účastníky</item>
     </plurals>
     <string name="group_chat_members">Účastníci</string>
     <string name="message_deleted">Zpráva byla smazána</string>
