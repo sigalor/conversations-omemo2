@@ -3,6 +3,8 @@ package eu.siacs.conversations.ui;
 import static eu.siacs.conversations.entities.Bookmark.printableValue;
 import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
 import static eu.siacs.conversations.utils.StringUtils.changed;
+
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -33,7 +35,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 
 import java.util.Collections;
@@ -855,7 +859,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
                 tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundResource(R.drawable.rounded_tag);
                 binding.tags.addView(tv);
             }
         }

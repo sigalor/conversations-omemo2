@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.core.graphics.ColorUtils;
 
@@ -87,9 +90,13 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             for (ListItem.Tag tag : tags) {
                 TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.tags, false);
                 tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(activity, R.drawable.rounded_tag);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundResource(R.drawable.rounded_tag);
                 tv.setOnClickListener(this.onTagTvClick);
                 viewHolder.tags.addView(tv);
+
             }
         }
         final Jid jid = item.getJid();

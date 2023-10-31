@@ -37,8 +37,10 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.common.base.Optional;
@@ -899,7 +901,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
                 tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundResource(R.drawable.rounded_tag);
                 binding.tags.addView(tv);
             }
         }
