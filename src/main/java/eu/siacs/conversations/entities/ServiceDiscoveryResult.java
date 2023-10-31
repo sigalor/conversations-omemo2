@@ -216,21 +216,19 @@ public class ServiceDiscoveryResult {
                     .append("<");
         }
 
-        List<String> features = this.getFeatures();
+        final List<String> features = this.getFeatures();
         Collections.sort(features);
-
-        for (String feature : features) {
+        for (final String feature : features) {
             s.append(clean(feature)).append("<");
         }
 
         Collections.sort(forms, Comparator.comparing(Data::getFormType));
-
-        for (Data form : forms) {
+        for (final Data form : forms) {
             s.append(clean(form.getFormType())).append("<");
-            List<Field> fields = form.getFields();
+            final List<Field> fields = form.getFields();
             Collections.sort(
                     fields, Comparator.comparing(lhs -> Strings.nullToEmpty(lhs.getFieldName())));
-            for (Field field : fields) {
+            for (final Field field : fields) {
                 s.append(Strings.nullToEmpty(field.getFieldName())).append("<");
                 final List<String> values = field.getValues();
                 Collections.sort(values, Comparator.comparing(ServiceDiscoveryResult::blankNull));
