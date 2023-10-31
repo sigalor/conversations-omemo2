@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
-    <EditText
+    <eu.siacs.conversations.ui.widget.TextInputEditText
         android:id="@+id/field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

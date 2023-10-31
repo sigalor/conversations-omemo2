@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
@@ -18,18 +19,19 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.storage.StorageManager;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 import de.monocles.chat.DownloadDefaultStickers;
@@ -40,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
 
 import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.utils.CameraUtils;
@@ -240,7 +243,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         InputStream is = null;
         OutputStream os = null;
         int IMAGE_QUALITY = 65;
-        int ImageSize = (int) (0.1 * 1024 * 1024);
+        int ImageSize = (int) (0.08 * 1024 * 1024);
         try {
             if (!f.exists() && !f.createNewFile()) {
                 throw new IOException(String.valueOf(R.string.error_unable_to_create_temporary_file));
@@ -273,8 +276,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 size = resolution;
             }
             Bitmap scaledBitmap = resize(originalBitmap, size);
-            //final int rotation = getRotation(image);
-            //scaledBitmap = rotate(scaledBitmap, rotation);
+            final int rotation = getRotation(image);
+            scaledBitmap = rotate(scaledBitmap, rotation);
             boolean targetSizeReached = false;
             int quality = IMAGE_QUALITY;
             while (!targetSizeReached) {
@@ -308,6 +311,52 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             close(os);
             close(is);
         }
+    }
+
+    private int getRotation(final File f) {
+        try (final InputStream inputStream = new FileInputStream(f)) {
+            return getRotation(inputStream);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private int getRotation(final Uri image) {
+        try (final InputStream is = getContentResolver().openInputStream(image)) {
+            return is == null ? 0 : getRotation(is);
+        } catch (final Exception e) {
+            return 0;
+        }
+    }
+
+    public static int getRotation(final InputStream inputStream) throws IOException {
+        final ExifInterface exif = new ExifInterface(inputStream);
+        final int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return 180;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return 90;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return 270;
+            default:
+                return 0;
+        }
+    }
+
+    private static Bitmap rotate(final Bitmap bitmap, final int degree) {
+        if (degree == 0) {
+            return bitmap;
+        }
+        final int w = bitmap.getWidth();
+        final int h = bitmap.getHeight();
+        final Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        final Bitmap result = Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
+        if (!bitmap.isRecycled()) {
+            bitmap.recycle();
+        }
+        return result;
     }
 
     public static void close(final Closeable stream) {
@@ -440,13 +489,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 .registerOnSharedPreferenceChangeListener(this);
         multiAccountPreference = mSettingsFragment.findPreference("enable_multi_accounts");
         if (multiAccountPreference != null) {
-            isMultiAccountChecked = ((CheckBoxPreference) multiAccountPreference).isChecked();
+            isMultiAccountChecked = ((SwitchPreference) multiAccountPreference).isChecked();
             //handleMultiAccountChanges();
         }
 
         BundledEmojiPreference = mSettingsFragment.findPreference("use_bundled_emoji");
         if (BundledEmojiPreference != null) {
-            isBundledEmojiChecked = ((CheckBoxPreference) BundledEmojiPreference).isChecked();
+            isBundledEmojiChecked = ((SwitchPreference) BundledEmojiPreference).isChecked();
         }
 
         QuickShareAttachmentChoicePreference = mSettingsFragment.findPreference("quick_share_attachment_choice");
@@ -455,7 +504,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 refreshUiReal();
                 return true;
             });
-            isQuickShareAttachmentChoiceChecked = ((CheckBoxPreference) QuickShareAttachmentChoicePreference).isChecked();
+            isQuickShareAttachmentChoiceChecked = ((SwitchPreference) QuickShareAttachmentChoicePreference).isChecked();
         }
 
         changeOmemoSettingSummary();
@@ -725,7 +774,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             Log.d(Config.LOGTAG, "Bundled Emoji checkbox checked: " + isBundledEmojiChecked);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (isBundledEmojiChecked) {
-                    ((CheckBoxPreference) BundledEmojiPreference).setChecked(false);
+                    ((SwitchPreference) BundledEmojiPreference).setChecked(false);
                     useBundledEmojis.setEnabled(false);
                 }
                 PreferenceCategory UICatergory = (PreferenceCategory) mSettingsFragment.findPreference("UI");
@@ -1053,6 +1102,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 }
                 if (requestCode == REQUEST_DOWNLOAD_STICKERS) {
                     downloadStickers();
+                }
+                if (requestCode == REQUEST_IMPORT_BACKGROUND) {
+                    openFilePicker();
                 }
             } else {
                 ToastCompat.makeText(

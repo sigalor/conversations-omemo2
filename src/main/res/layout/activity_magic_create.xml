@@ -98,7 +98,7 @@
                         android:text="@string/pick_your_username"
                         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
-                    <EditText
+                    <eu.siacs.conversations.ui.widget.TextInputEditText
                         android:id="@+id/username"
                         style="@style/Widget.Conversations.EditText"
                         android:layout_width="match_parent"
@@ -127,7 +127,7 @@
                         android:spinnerMode="dialog"
                         android:minHeight="30dp"/>
 
-                    <EditText
+                    <eu.siacs.conversations.ui.widget.TextInputEditText
                         android:id="@+id/yourserver"
                         style="@style/Widget.Conversations.EditText"
                         android:layout_width="match_parent"
@@ -139,7 +139,7 @@
                         android:enabled="false"
                         android:visibility="gone"/>
 
-                    <CheckBox
+                    <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/use_own"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

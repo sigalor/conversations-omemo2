@@ -82,7 +82,7 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
         iceUdpTransportInfo.addChild(Fingerprint.of(setup, hash, fingerprint));
         iceUdpTransportInfo.setAttribute("ufrag", credentials.ufrag);
         iceUdpTransportInfo.setAttribute("pwd", credentials.password);
-        for(final String iceOption : iceOptions) {
+        for (final String iceOption : iceOptions) {
             iceUdpTransportInfo.addChild(new IceOption(iceOption));
         }
         return iceUdpTransportInfo;
@@ -110,8 +110,10 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
         return new Credentials(ufrag, password);
     }
 
-    public boolean emptyCredentials() {
-        return Strings.isNullOrEmpty(this.getAttribute("ufrag")) || Strings.isNullOrEmpty(this.getAttribute("pwd"));
+    public boolean isStub() {
+        return Strings.isNullOrEmpty(this.getAttribute("ufrag"))
+                && Strings.isNullOrEmpty(this.getAttribute("pwd"))
+                && this.children.isEmpty();
     }
 
     public List<Candidate> getCandidates() {
@@ -200,39 +202,44 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
         public static Candidate fromSdpAttribute(final String attribute, String currentUfrag) {
             final String[] pair = attribute.split(":", 2);
             if (pair.length == 2 && "candidate".equals(pair[0])) {
-                final String[] segments = pair[1].split(" ");
-                if (segments.length >= 6) {
-                    final String id = UUID.randomUUID().toString();
-                    final String foundation = segments[0];
-                    final String component = segments[1];
-                    final String transport = segments[2].toLowerCase(Locale.ROOT);
-                    final String priority = segments[3];
-                    final String connectionAddress = segments[4];
-                    final String port = segments[5];
-                    final HashMap<String, String> additional = new HashMap<>();
-                    for (int i = 6; i < segments.length - 1; i = i + 2) {
-                        additional.put(segments[i], segments[i + 1]);
-                    }
-                    final String ufrag = additional.get("ufrag");
-                    if (ufrag != null && !ufrag.equals(currentUfrag)) {
-                        return null;
-                    }
-                    final Candidate candidate = new Candidate();
-                    candidate.setAttribute("component", component);
-                    candidate.setAttribute("foundation", foundation);
-                    candidate.setAttribute("generation", additional.get("generation"));
-                    candidate.setAttribute("rel-addr", additional.get("raddr"));
-                    candidate.setAttribute("rel-port", additional.get("rport"));
-                    candidate.setAttribute("id", id);
-                    candidate.setAttribute("ip", connectionAddress);
-                    candidate.setAttribute("port", port);
-                    candidate.setAttribute("priority", priority);
-                    candidate.setAttribute("protocol", transport);
-                    candidate.setAttribute("type", additional.get("typ"));
-                    return candidate;
-                }
+                return fromSdpAttributeValue(pair[1], currentUfrag);
             }
             return null;
+        }
+
+        public static Candidate fromSdpAttributeValue(final String value, final String currentUfrag) {
+            final String[] segments = value.split(" ");
+            if (segments.length < 6) {
+                return null;
+            }
+            final String id = UUID.randomUUID().toString();
+            final String foundation = segments[0];
+            final String component = segments[1];
+            final String transport = segments[2].toLowerCase(Locale.ROOT);
+            final String priority = segments[3];
+            final String connectionAddress = segments[4];
+            final String port = segments[5];
+            final HashMap<String, String> additional = new HashMap<>();
+            for (int i = 6; i < segments.length - 1; i = i + 2) {
+                additional.put(segments[i], segments[i + 1]);
+            }
+            final String ufrag = additional.get("ufrag");
+            if (currentUfrag != null && ufrag != null && !ufrag.equals(currentUfrag)) {
+                return null;
+            }
+            final Candidate candidate = new Candidate();
+            candidate.setAttribute("component", component);
+            candidate.setAttribute("foundation", foundation);
+            candidate.setAttribute("generation", additional.get("generation"));
+            candidate.setAttribute("rel-addr", additional.get("raddr"));
+            candidate.setAttribute("rel-port", additional.get("rport"));
+            candidate.setAttribute("id", id);
+            candidate.setAttribute("ip", connectionAddress);
+            candidate.setAttribute("port", port);
+            candidate.setAttribute("priority", priority);
+            candidate.setAttribute("protocol", transport);
+            candidate.setAttribute("type", additional.get("typ"));
+            return candidate;
         }
 
         public int getComponent() {

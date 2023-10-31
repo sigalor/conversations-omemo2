@@ -17,7 +17,7 @@
             android:textAppearance="@style/TextAppearance.Conversations.Subhead"
             android:textColor="?attr/edit_text_color" />
 
-        <EditText
+        <eu.siacs.conversations.ui.widget.TextInputEditText
             android:id="@+id/search"
             style="@style/Widget.Conversations.EditText"
             android:layout_width="match_parent"

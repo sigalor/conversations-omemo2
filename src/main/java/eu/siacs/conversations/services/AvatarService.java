@@ -578,7 +578,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
         tilePaint.setColor(tileColor);
         textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(FG_COLOR);
-        textPaint.setTypeface(Typeface.create("sans-serif-light",
+        textPaint.setTypeface(Typeface.create("notosanslight",
                 Typeface.NORMAL));
         textPaint.setTextSize((float) ((right - left) * 0.8));
         Rect rect = new Rect();

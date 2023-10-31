@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.SettingsActivity.USE_INTERNAL_UPDATER;
 
 import android.graphics.drawable.AnimatedImageDrawable;
@@ -63,6 +64,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
@@ -155,8 +157,8 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected Toast mToast;
     protected Runnable onOpenPGPKeyPublished = () -> ToastCompat.makeText(XmppActivity.this, R.string.openpgp_has_been_published, ToastCompat.LENGTH_SHORT).show();
     protected ConferenceInvite mPendingConferenceInvite = null;
-    protected PriorityQueue<Pair<Integer, ValueCallback<Uri[]>>> activityCallbacks = new PriorityQueue<>((x, y) -> y.first.compareTo(x.first));
-
+    protected PriorityQueue<Pair<Integer, ValueCallback<Uri[]>>> activityCallbacks =
+            Build.VERSION.SDK_INT >= 24 ? new PriorityQueue<>((x, y) -> y.first.compareTo(x.first)) : new PriorityQueue<>();
     protected ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -509,6 +511,13 @@ public abstract class XmppActivity extends ActionBarActivity {
         mColorDefaultButtonText = ContextCompat.getColor(this, R.color.realwhite);
         mColorWhite = ContextCompat.getColor(this, R.color.white70);
         this.mUsingEnterKey = usingEnterKey();
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     protected boolean isCameraFeatureAvailable() {
@@ -553,12 +562,8 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     protected boolean isOptimizingBattery() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            final PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            return pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName());
-        } else {
-            return false;
-        }
+        final PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        return pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName());
     }
 
     protected boolean isAffectedByDataSaver() {
@@ -962,40 +967,31 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     protected boolean hasStoragePermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_IMAGES}, requestCode);
+            return false;
+        } else if (!Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
                 return false;
-            } else {
-                return true;
-            }
         } else {
             return true;
         }
     }
 
     public boolean hasMicPermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, requestCode);
-                return false;
-            } else {
-                return true;
-            }
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, requestCode);
+            return false;
         } else {
             return true;
         }
     }
 
     public boolean hasLocationPermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, requestCode);
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, requestCode);
-                return false;
-            } else {
-                return true;
-            }
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, requestCode);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, requestCode);
+            return false;
         } else {
             return true;
         }
@@ -1321,7 +1317,9 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     public AvatarService avatarService() {
-        return xmppConnectionService.getAvatarService();
+        if (xmppConnectionService != null) {
+            return xmppConnectionService.getAvatarService();
+        } else return null;
     }
 
     public void loadGif(File file, ImageView imageView) {

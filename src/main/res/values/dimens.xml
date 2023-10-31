@@ -8,7 +8,7 @@
     <dimen name="card_padding_list">8dp</dimen> <!-- card_padding_regular minus list_padding -->
     <dimen name="list_padding">8dp</dimen>
     <dimen name="image_button_padding">12dp</dimen>
-    <dimen name="key_action_width">48dp
+    <dimen name="key_action_width">56dp
     </dimen>  <!-- icon width (24dp) + 2 * image button padding -->
     <dimen name="fineprint_size">11sp</dimen>
     <dimen name="audio_player_width">224dp</dimen>
@@ -52,4 +52,5 @@
     <dimen name="small_margin">4dp</dimen>
     <dimen name="actionbar_text_size">20sp</dimen>
     <dimen name="material_input_text_to_prefix_suffix_padding">0dp</dimen>
+    <dimen name="muc_avatar_actionbar">38dp</dimen>
 </resources>

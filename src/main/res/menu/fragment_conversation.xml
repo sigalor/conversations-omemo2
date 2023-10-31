@@ -48,7 +48,7 @@
     </item>
     <item
         android:id="@+id/action_mediabrowser"
-        android:icon="@drawable/ic_image_white_24dp"
+        android:icon="?attr/ic_settings_ui"
         android:orderInCategory="25"
         android:title="@string/media_browser"
         app:showAsAction="ifRoom" />
@@ -119,7 +119,7 @@
         android:orderInCategory="48"
         android:title="@string/search_messages"
         android:visible="@bool/show_individual_search_options"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_clear_history"
         android:orderInCategory="50"
@@ -130,6 +130,12 @@
         android:orderInCategory="60"
         android:title="@string/action_end_conversation"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_leave_group"
+        android:orderInCategory="60"
+        android:title="@string/action_end_conversation_muc"
+        app:showAsAction="never"
+        android:visible="false" />
     <item
         android:id="@+id/action_toggle_pinned"
         android:orderInCategory="72"

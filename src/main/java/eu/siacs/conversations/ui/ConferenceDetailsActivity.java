@@ -3,6 +3,8 @@ package eu.siacs.conversations.ui;
 import static eu.siacs.conversations.entities.Bookmark.printableValue;
 import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
 import static eu.siacs.conversations.utils.StringUtils.changed;
+
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -33,7 +35,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 
 import java.util.Collections;
@@ -289,6 +293,29 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             }
         });
         this.binding.detailsMucAvatar.setOnLongClickListener(v -> {
+            ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
+            return true;
+        });
+        this.binding.detailsMucAvatarSquare.setOnClickListener(v -> {
+            try {
+                final MucOptions mucOptions = mConversation.getMucOptions();
+                if (!mucOptions.hasVCards()) {
+                    ToastCompat.makeText(this, R.string.host_does_not_support_group_chat_avatars, ToastCompat.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!mucOptions.getSelf().getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
+                    ToastCompat.makeText(this, R.string.only_the_owner_can_change_group_chat_avatar, ToastCompat.LENGTH_SHORT).show();
+                    return;
+                }
+                final Intent intent = new Intent(this, PublishGroupChatProfilePictureActivity.class);
+                intent.putExtra("uuid", mConversation.getUuid());
+                startActivity(intent);
+            } catch (Exception e) {
+                ToastCompat.makeText(this, R.string.unable_to_perform_this_action, ToastCompat.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        });
+        this.binding.detailsMucAvatarSquare.setOnLongClickListener(v -> {
             ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
             return true;
         });
@@ -647,9 +674,17 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             this.binding.detailsAccount.setVisibility(View.GONE);
         }
         //todo add edit overlay to avatar and change layout
-        AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatar, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
-        AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhoto, R.dimen.avatar_on_details_screen_size);
-
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatar, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
+            AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhoto, R.dimen.avatar_on_details_screen_size);
+            binding.detailsMucAvatar.setVisibility(View.VISIBLE);
+            binding.yourPhoto.setVisibility(View.VISIBLE);
+        } else {
+            AvatarWorkerTask.loadAvatar(mConversation, binding.detailsMucAvatarSquare, R.dimen.avatar_on_details_screen_size, canChangeMUCAvatar());
+            AvatarWorkerTask.loadAvatar(mConversation.getAccount(), binding.yourPhotoSquare, R.dimen.avatar_on_details_screen_size);
+            binding.detailsMucAvatarSquare.setVisibility(View.VISIBLE);
+            binding.yourPhotoSquare.setVisibility(View.VISIBLE);
+        }
         String roomName = mucOptions.getName();
         String subject = mucOptions.getSubject();
         final boolean hasTitle;
@@ -824,7 +859,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
                 tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundResource(R.drawable.rounded_tag);
                 binding.tags.addView(tv);
             }
         }

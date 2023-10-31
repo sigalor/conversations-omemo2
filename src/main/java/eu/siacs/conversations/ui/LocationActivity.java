@@ -88,7 +88,7 @@ public abstract class LocationActivity extends XmppActivity implements LocationL
         // Ask for location permissions if location services are enabled and we're
         // just starting the activity (we don't want to keep pestering them on every
         // screen rotation or if there's no point because it's disabled anyways).
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && savedInstanceState == null) {
+        if (savedInstanceState == null) {
             requestPermissions(REQUEST_CODE_CREATE);
         }
 

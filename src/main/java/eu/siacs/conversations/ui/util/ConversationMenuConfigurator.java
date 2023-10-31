@@ -128,9 +128,9 @@ public class ConversationMenuConfigurator {
         if (!visible) {
             return;
         }
-
+        boolean darkBackground = activity.isDarkTheme();
         if (conversation.getNextEncryption() != Message.ENCRYPTION_NONE) {
-            menuSecure.setIcon(R.drawable.ic_lock_white_24dp);
+            menuSecure.setIcon(darkBackground ? R.drawable.ic_lock_white_24dp : R.drawable.ic_lock_black_24dp);
         }
         otr.setVisible(Config.supportOtr() && activity.enableOTR());
         if (conversation.getMode() == Conversation.MODE_MULTI) {

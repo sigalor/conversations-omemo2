@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,14 +38,23 @@
                     android:layout_centerHorizontal="true"
                     android:orientation="vertical">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/name_layout"
+                        style="@style/Widget.Conversations.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/your_name"
+                        app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error"
+                        app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint">
+
+                    <eu.siacs.conversations.ui.widget.TextInputEditText
                         android:id="@+id/name"
                         style="@style/Widget.Conversations.EditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/your_name"
-                        android:imeOptions="flagNoExtractUi"
+                        android:imeOptions="actionNext|flagNoExtractUi"
                         android:longClickable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 

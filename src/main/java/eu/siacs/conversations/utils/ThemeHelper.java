@@ -596,7 +596,7 @@ public class ThemeHelper {
             case "blue":
                 return R.color.primary;
             case "monocles":
-                return R.color.primary_dark_monocles;
+                return R.color.primary_monocles;
             case "orange":
                 return R.color.primary_orange;
             case "grey":
@@ -606,7 +606,7 @@ public class ThemeHelper {
             case "pink":
                 return R.color.primary_pink;
             default:
-                return R.color.primary_dark_monocles;
+                return R.color.primary_monocles;
         }
     }
 

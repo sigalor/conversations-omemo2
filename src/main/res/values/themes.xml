@@ -11,7 +11,7 @@
     -->
 
     <!-- fullscreen -->
-    <style name="ConversationsTheme.FullScreen" parent="Theme.MaterialComponents.Light">
+    <style name="ConversationsTheme.FullScreen" parent="Theme.Material3.Light">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="android:windowNoTitle">true</item>
@@ -20,17 +20,20 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:navigationBarColor" >@color/black</item>
+        <item name="android:statusBarColor">@color/accent</item>
     </style>
+    <!-- Preference screen styling -->
+
 
     <!-- splash theme -->
-    <style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="SplashTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimaryDark">@android:color/transparent</item>
         <item name="android:windowBackground">@drawable/background</item>
     </style>
 
     <!-- 1. blue -->
     <!-- blue theme -->
-    <style name="ConversationsTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="ConversationsTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -40,7 +43,7 @@
         <item name="colorControlNormal">@color/accent</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realblack</item>
-        <item name="colorOnPrimary">@color/realblack</item>
+        <item name="colorOnPrimary">@color/realwhite</item>
         <item name="button_text_color_disabled">@color/grey500</item>
         <item name="chat_bg">@drawable/bg_light_blue</item>
         <item name="icon_tint">@color/black54</item>
@@ -64,7 +67,7 @@
         <item name="color_border">@color/grey500</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">@color/accent</item>
-        <item name="android:homeAsUpIndicator" type="reference">@drawable/ic_arrow_back_white_24dp
+        <item name="android:homeAsUpIndicator" type="reference">@drawable/ic_arrow_back_black_24dp
         </item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Conversations.Button.Dialog</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.Conversations.Button.Dialog</item>
@@ -98,7 +101,7 @@
         </item>
         <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline</item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button</item>
-        <item name="ic_keyboard_button" type="reference">@drawable/outline_keyboard_black_32</item>
+        <item name="ic_keyboard_button" type="reference">@drawable/round_keyboard_black_24</item>
 
 
         <item name="media_preview_document" type="reference">@drawable/ic_description_black_48dp
@@ -121,46 +124,46 @@
         <item name="icon_email" type="reference">@drawable/email_black</item>
         <item name="icon_org" type="reference">@drawable/business_black</item>
         <item name="icon_chat" type="reference">@drawable/ic_chat_black_24dp</item>
-        <item name="icon_add_group" type="reference">@drawable/ic_group_add_white_24dp</item>
-        <item name="icon_add_person" type="reference">@drawable/ic_person_add_white_24dp</item>
+        <item name="icon_add_group" type="reference">@drawable/ic_group_add_black_24dp</item>
+        <item name="icon_add_person" type="reference">@drawable/ic_person_add_black_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_black_24dp</item>
         <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_black_24dp</item>
         <item name="icon_copy" type="reference">@drawable/ic_content_copy_grey600_24dp</item>
-        <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
-        <item name="icon_navigate" type="reference">@drawable/ic_navigation_white_24dp</item>
-        <item name="icon_show_qr_code" type="reference">@drawable/ic_qrcode_grey600_24dp</item>
-        <item name="icon_discard" type="reference">@drawable/ic_delete_white_24dp</item>
-        <item name="icon_download" type="reference">@drawable/ic_file_download_white_24dp</item>
-        <item name="icon_edit" type="reference">@drawable/ic_edit_white_24dp</item>
+        <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_black_24dp</item>
+        <item name="icon_navigate" type="reference">@drawable/ic_navigation_black_24dp</item>
+        <item name="icon_show_qr_code" type="reference">@drawable/ic_qrcode_black_24dp</item>
+        <item name="icon_discard" type="reference">@drawable/ic_delete_black_24dp</item>
+        <item name="icon_download" type="reference">@drawable/ic_file_download_black_24dp</item>
+        <item name="icon_edit" type="reference">@drawable/ic_edit_black_24dp</item>
         <item name="icon_edit_body" type="reference">@drawable/ic_edit_black_24dp</item>
         <item name="icon_save" type="reference">@drawable/ic_save_black_24dp</item>
         <item name="icon_done" type="reference">@drawable/ic_done_black_24dp</item>
-        <item name="icon_group" type="reference">@drawable/ic_group_white_24dp</item>
-        <item name="icon_new" type="reference">@drawable/ic_contacts_white_24dp</item>
+        <item name="icon_group" type="reference">@drawable/ic_group_black_24dp</item>
+        <item name="icon_new" type="reference">@drawable/ic_contacts_black_24dp</item>
         <item name="icon_quote" type="reference">@drawable/ic_reply_black</item>
-        <item name="icon_new_attachment" type="reference">@drawable/ic_attach_file_white_24dp</item>
-        <item name="icon_not_secure" type="reference">@drawable/ic_lock_open_white_24dp</item>
+        <item name="icon_new_attachment" type="reference">@drawable/ic_attach_file_black_24dp</item>
+        <item name="icon_not_secure" type="reference">@drawable/ic_lock_open_black_24dp</item>
         <item name="ic_make_audio_call" type="reference">@drawable/ic_call_black54_24dp</item>
         <item name="ic_make_video_call" type="reference">@drawable/ic_videocam_black54_24dp</item>
-        <item name="icon_call" type="reference">@drawable/ic_call_white_24dp</item>
-        <item name="icon_ongoing_call" type="reference">@drawable/ic_phone_in_talk_white_24dp</item>
+        <item name="icon_call" type="reference">@drawable/ic_call_black_24dp</item>
+        <item name="icon_ongoing_call" type="reference">@drawable/ic_phone_in_talk_black_24dp</item>
         <item name="ic_ongoing_call_hint" type="reference">@drawable/ic_phone_in_talk_black_18dp
         </item>
         <item name="icon_refresh" type="reference">@drawable/ic_refresh_grey600_24dp</item>
         <item name="icon_remove" type="reference">@drawable/ic_delete_grey600_24dp</item>
-        <item name="icon_search" type="reference">@drawable/ic_search_white_24dp</item>
-        <item name="icon_help" type="reference">@drawable/ic_help_white_24dp</item>
+        <item name="icon_search" type="reference">@drawable/ic_search_black_24dp</item>
+        <item name="icon_help" type="reference">@drawable/ic_help_black_24dp</item>
         <item name="icon_help_black" type="reference">@drawable/ic_help_black_24dp</item>
-        <item name="icon_goto_chat" type="reference">@drawable/ic_question_answer_white_24dp</item>
-        <item name="icon_secure" type="reference">@drawable/ic_lock_open_white_24dp</item>
+        <item name="icon_goto_chat" type="reference">@drawable/ic_question_answer_black_24dp</item>
+        <item name="icon_secure" type="reference">@drawable/ic_lock_open_black_24dp</item>
         <item name="icon_small_lock" type="reference">@drawable/ic_lock_black_18dp</item>
         <item name="icon_settings" type="reference">@drawable/ic_settings_black_24dp</item>
         <item name="icon_delete" type="reference">@drawable/ic_delete_black_24dp</item>
         <item name="icon_share" type="reference">@drawable/ic_share_black_24dp</item>
-        <item name="icon_action_share" type="reference">@drawable/ic_share_white_24dp</item>
-        <item name="ic_cloud_download" type="reference">@drawable/ic_cloud_download_white_24dp
+        <item name="icon_action_share" type="reference">@drawable/ic_share_black_24dp</item>
+        <item name="ic_cloud_download" type="reference">@drawable/ic_cloud_download_black_24dp
         </item>
-        <item name="icon_scan_qr_code" type="reference">@drawable/ic_qrcode_scan_white_24dp</item>
+        <item name="icon_scan_qr_code" type="reference">@drawable/ic_qrcode_scan_black_24dp</item>
         <item name="icon_scroll_down" type="reference">@drawable/ic_scroll_to_end_black</item>
 
         <!-- settings-->
@@ -186,6 +189,7 @@
         <item name="ic_attach_photo" type="reference">@drawable/ic_attach_photo</item>
         <item name="ic_attach_video" type="reference">@drawable/ic_attach_video</item>
         <item name="ic_attach_record" type="reference">@drawable/ic_attach_record</item>
+        <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_black_24dp</item>
 
         <item name="conversations_overview_background">@color/primary</item>
 
@@ -218,10 +222,11 @@
         </item>
         <item name="icon_pinned_on_top" type="reference">@drawable/ic_star_black_24dp</item>
         <item name="ic_settings_about" type="reference">@drawable/ic_help_black_24dp</item>
+
     </style>
 
     <!-- blue theme - dark -->
-    <style name="ConversationsTheme.Dark" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="ConversationsTheme.Dark" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -231,9 +236,9 @@
         <item name="colorControlNormal">@color/accent</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realwhite</item>
-        <item name="colorOnPrimary">@color/realwhite</item>
+        <item name="colorOnPrimary">@color/grey800</item>
         <item name="button_text_color_disabled">@color/grey500</item>
-        <item name="android:navigationBarColor" tools:targetApi="21">@color/black</item>
+        <item name="android:navigationBarColor" >@color/black</item>
         <item name="chat_bg">@drawable/bg_dark_blue</item>
         <item name="icon_tint">@color/realwhite</item>
         <item name="color_background_primary">@color/grey700</item>
@@ -299,7 +304,7 @@
         </item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button_white
         </item>
-        <item name="ic_keyboard_button" type="reference">@drawable/outline_keyboard_white_32</item>
+        <item name="ic_keyboard_button" type="reference">@drawable/round_keyboard_24</item>
 
 
 
@@ -310,6 +315,7 @@
         <item name="ic_attach_location" type="reference">@drawable/ic_attach_location_white</item>
         <item name="ic_attach_photo" type="reference">@drawable/ic_attach_photo_white</item>
         <item name="ic_attach_record" type="reference">@drawable/ic_attach_record_white</item>
+        <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_white_24dp</item>
 
         <item name="conversations_overview_background">@color/primary_dark</item>
 
@@ -419,7 +425,7 @@
 
     <!-- blue theme - black -->
     <style name="ConversationsTheme.Black" parent="ConversationsTheme.Dark">
-        <item name="colorPrimary">@color/primary_black</item>
+        <item name="colorPrimary">@color/accent</item>
         <item name="colorPrimaryDark">@color/primary_dark_black</item>
         <item name="color_background_primary">@color/darkblack</item>
         <item name="color_background_secondary">@color/primary_black</item>
@@ -429,7 +435,7 @@
     </style>
 
     <!-- blue dialog -->
-    <style name="ConversationsTheme.Dialog" parent="Theme.AppCompat.Light.Dialog">
+    <style name="ConversationsTheme.Dialog" parent="Theme.Material3.Light.Dialog">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -445,7 +451,7 @@
     </style>
 
     <!-- blue dialog - dark -->
-    <style name="ConversationsTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
+    <style name="ConversationsTheme.Dark.Dialog" parent="Theme.Material3.Dark.Dialog">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -597,7 +603,7 @@
     <!-- monocles theme -->
     <style name="ConversationsTheme.Monocles" parent="ConversationsTheme">
         <item name="colorPrimary">@color/primary_monocles</item>
-        <item name="colorPrimaryDark">@color/primary_dark_monocles</item>
+        <item name="colorPrimaryDark">@color/primary_monocles</item>
         <item name="colorAccent">@color/accent_monocles</item>
         <item name="colorAccentLight">@color/accent_light_monocles</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled_monocles</item>
@@ -630,6 +636,7 @@
 
     <!-- monocles theme - black -->
     <style name="ConversationsTheme.Monocles.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_monocles</item>
         <item name="colorAccent">@color/accent_monocles</item>
         <item name="colorAccentLight">@color/accent_light_monocles</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled_monocles</item>
@@ -824,6 +831,7 @@
 
     <!-- orange theme - black -->
     <style name="ConversationsTheme.Orange.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_orange</item>
         <item name="colorAccent">@color/accent_orange</item>
         <item name="colorAccentLight">@color/accent_light_orange</item>
         <item name="colorAccentLightDisabled">@color/accent_light_orange_disabled</item>
@@ -1016,6 +1024,7 @@
 
     <!-- grey theme - black -->
     <style name="ConversationsTheme.Grey.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_grey</item>
         <item name="colorAccent">@color/accent_grey</item>
         <item name="colorAccentLight">@color/accent_light_grey</item>
         <item name="colorAccentLightDisabled">@color/accent_light_grey_disabled</item>
@@ -1208,6 +1217,7 @@
 
     <!-- pink theme - black -->
     <style name="ConversationsTheme.Pink.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_pink</item>
         <item name="colorAccent">@color/accent_pink</item>
         <item name="colorAccentLight">@color/accent_light_pink</item>
         <item name="colorAccentLightDisabled">@color/accent_light_pink_disabled</item>
@@ -1401,6 +1411,7 @@
 
     <!-- White theme - black -->
     <style name="ConversationsTheme.White.Black" parent="ConversationsTheme.Black">
+        <item name="colorPrimary">@color/accent_White</item>
         <item name="colorAccent">@color/accent_White</item>
         <item name="colorAccentLight">@color/accent_light_White</item>
         <item name="colorAccentLightDisabled">@color/accent_light_White_disabled</item>

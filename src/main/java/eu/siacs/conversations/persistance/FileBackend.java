@@ -282,6 +282,7 @@ public class FileBackend {
 
     public boolean deleteFile(Message message) {
         File file = getFile(message);
+        message.setDeleted(true);
         return deleteFile(file);
     }
 

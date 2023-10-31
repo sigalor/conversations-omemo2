@@ -106,24 +106,20 @@ public class CallManager {
     }
 
     private static boolean hasPermissions(int requestCode, XmppActivity activity, String... permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            final List<String> missingPermissions = new ArrayList<>();
-            for (String permission : permissions) {
-                if (Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    continue;
-                }
-                if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                    missingPermissions.add(permission);
-                }
+        final List<String> missingPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            if (Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE) || Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.READ_MEDIA_IMAGES) && permission.equals(Manifest.permission.READ_MEDIA_AUDIO) && permission.equals(Manifest.permission.READ_MEDIA_VIDEO)) {
+                continue;
             }
-            if (missingPermissions.size() == 0) {
-                return true;
-            } else {
-                activity.requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), requestCode);
-                return false;
+            if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                missingPermissions.add(permission);
             }
-        } else {
+        }
+        if (missingPermissions.size() == 0) {
             return true;
+        } else {
+            activity.requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), requestCode);
+            return false;
         }
     }
 }

@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />
 
-    <EditText
+    <eu.siacs.conversations.ui.widget.TextInputEditText
         android:id="@+id/input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,6 +20,6 @@
         android:inputType="textNoSuggestions">
 
         <requestFocus />
-    </EditText>
+    </eu.siacs.conversations.ui.widget.TextInputEditText>
 
 </LinearLayout>

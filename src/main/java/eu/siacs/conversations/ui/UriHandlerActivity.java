@@ -34,6 +34,7 @@ import eu.siacs.conversations.databinding.ActivityUriHandlerBinding;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.QuickConversationsService;
+import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ProvisioningUtils;
 import eu.siacs.conversations.utils.SignupUtils;
 import eu.siacs.conversations.utils.XmppUri;
@@ -63,7 +64,7 @@ public class UriHandlerActivity extends AppCompatActivity {
     }
 
     public static void scan(final Activity activity, final boolean provisioning) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             final Intent intent = new Intent(activity, UriHandlerActivity.class);
             intent.setAction(UriHandlerActivity.ACTION_SCAN_QR_CODE);
             if (provisioning) {
@@ -73,14 +74,17 @@ public class UriHandlerActivity extends AppCompatActivity {
             activity.startActivity(intent);
         } else {
             activity.requestPermissions(
-                    new String[]{Manifest.permission.CAMERA},
-                    provisioning ? REQUEST_CAMERA_PERMISSIONS_TO_SCAN_AND_PROVISION : REQUEST_CAMERA_PERMISSIONS_TO_SCAN
-            );
+                    new String[] {Manifest.permission.CAMERA},
+                    provisioning
+                            ? REQUEST_CAMERA_PERMISSIONS_TO_SCAN_AND_PROVISION
+                            : REQUEST_CAMERA_PERMISSIONS_TO_SCAN);
         }
     }
 
-    public static void onRequestPermissionResult(Activity activity, int requestCode, int[] grantResults) {
-        if (requestCode != REQUEST_CAMERA_PERMISSIONS_TO_SCAN && requestCode != REQUEST_CAMERA_PERMISSIONS_TO_SCAN_AND_PROVISION) {
+    public static void onRequestPermissionResult(
+            Activity activity, int requestCode, int[] grantResults) {
+        if (requestCode != REQUEST_CAMERA_PERMISSIONS_TO_SCAN
+                && requestCode != REQUEST_CAMERA_PERMISSIONS_TO_SCAN_AND_PROVISION) {
             return;
         }
         if (grantResults.length > 0) {
@@ -91,7 +95,11 @@ public class UriHandlerActivity extends AppCompatActivity {
                     scan(activity);
                 }
             } else {
-                ToastCompat.makeText(activity, R.string.qr_code_scanner_needs_access_to_camera, ToastCompat.LENGTH_SHORT).show();
+                Toast.makeText(
+                                activity,
+                                R.string.qr_code_scanner_needs_access_to_camera,
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     }
@@ -142,7 +150,7 @@ public class UriHandlerActivity extends AppCompatActivity {
     private boolean handleUri(final Uri uri, final boolean scanned) {
         final Intent intent;
         final XmppUri xmppUri = new XmppUri(uri);
-        final List<Jid> accounts = DatabaseBackend.getInstance(this).getAccountJids(true);
+        final List<Jid> accounts = DatabaseBackend.getInstance(this).getAccountJids(false);
 
         if (uri.getScheme().equals("sgnl")) {
             stickers = Uri.parse("https://stickers.cheogram.com/signal/" + uri.getQueryParameter("pack_id") + "," + uri.getQueryParameter("pack_key"));
@@ -171,7 +179,12 @@ public class UriHandlerActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             }
-            if (accounts.size() == 0 && xmppUri.isAction(XmppUri.ACTION_ROSTER) && "y".equals(xmppUri.getParameter(XmppUri.PARAMETER_IBR))) {
+            if (accounts.size() == 0
+                    && xmppUri.isAction(XmppUri.ACTION_ROSTER)
+                    && "y"
+                    .equalsIgnoreCase(
+                            Strings.nullToEmpty(xmppUri.getParameter(XmppUri.PARAMETER_IBR))
+                                    .trim())) {
                 intent = SignupUtils.getTokenRegistrationIntent(this, jid.getDomain(), preAuth);
                 intent.putExtra(StartConversationActivity.EXTRA_INVITE_URI, xmppUri.toString());
                 startActivity(intent);
@@ -234,29 +247,28 @@ public class UriHandlerActivity extends AppCompatActivity {
 
     private void checkForLinkHeader(final HttpUrl url) {
         Log.d(Config.LOGTAG, "checking for link header on " + url);
-        this.call = HttpConnectionManager.OK_HTTP_CLIENT.newCall(new Request.Builder()
-                .url(url)
-                .head()
-                .build());
-        this.call.enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Log.d(Config.LOGTAG, "unable to check HTTP url", e);
-                showError(R.string.no_xmpp_adddress_found);
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.isSuccessful()) {
-                    final String linkHeader = response.header("Link");
-                    if (linkHeader != null && processLinkHeader(linkHeader)) {
-                        return;
+        this.call =
+                HttpConnectionManager.OK_HTTP_CLIENT.newCall(
+                        new Request.Builder().url(url).head().build());
+        this.call.enqueue(
+                new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        Log.d(Config.LOGTAG, "unable to check HTTP url", e);
+                        showError(R.string.no_xmpp_adddress_found);
                     }
-                }
-                showError(R.string.no_xmpp_adddress_found);
-            }
-        });
 
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) {
+                        if (response.isSuccessful()) {
+                            final String linkHeader = response.header("Link");
+                            if (linkHeader != null && processLinkHeader(linkHeader)) {
+                                return;
+                            }
+                        }
+                        showError(R.string.no_xmpp_adddress_found);
+                    }
+                });
     }
 
     private boolean processLinkHeader(final String header) {
@@ -293,7 +305,8 @@ public class UriHandlerActivity extends AppCompatActivity {
         }
         switch (action) {
             case Intent.ACTION_MAIN:
-                binding.progress.setVisibility(call != null && !call.isCanceled() ? View.VISIBLE : View.INVISIBLE);
+                binding.progress.setVisibility(
+                        call != null && !call.isCanceled() ? View.VISIBLE : View.INVISIBLE);
                 break;
             case Intent.ACTION_VIEW:
             case Intent.ACTION_SENDTO:
@@ -316,7 +329,8 @@ public class UriHandlerActivity extends AppCompatActivity {
 
     private boolean allowProvisioning() {
         final Intent launchIntent = getIntent();
-        return launchIntent != null && launchIntent.getBooleanExtra(EXTRA_ALLOW_PROVISIONING, false);
+        return launchIntent != null
+                && launchIntent.getBooleanExtra(EXTRA_ALLOW_PROVISIONING, false);
     }
 
     @Override
@@ -339,13 +353,17 @@ public class UriHandlerActivity extends AppCompatActivity {
                     showError(R.string.no_xmpp_adddress_found);
                 }
                 return;
-            } else if (QuickConversationsService.isConversations() && looksLikeJsonObject(result) && allowProvisioning) {
+            } else if (QuickConversationsService.isConversations()
+                    && looksLikeJsonObject(result)
+                    && allowProvisioning) {
                 ProvisioningUtils.provision(this, result);
                 finish();
                 return;
             }
             final Uri uri = Uri.parse(result.trim());
-            if (allowProvisioning && "https".equalsIgnoreCase(uri.getScheme()) && !Config.INVITE_DOMAIN.equalsIgnoreCase(uri.getHost())) {
+            if (allowProvisioning
+                    && "https".equalsIgnoreCase(uri.getScheme())
+                    && !Config.INVITE_DOMAIN.equalsIgnoreCase(uri.getHost())) {
                 final HttpUrl httpUrl = HttpUrl.parse(uri.toString());
                 if (httpUrl != null) {
                     checkForLinkHeader(httpUrl);
@@ -368,13 +386,12 @@ public class UriHandlerActivity extends AppCompatActivity {
     }
 
     protected boolean hasStoragePermission(int requestCode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
-                return false;
-            } else {
-                return true;
-            }
+        if (!Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
+            return false;
+        } else if (Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_VIDEO}, requestCode);
+            return false;
         } else {
             return true;
         }

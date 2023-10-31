@@ -96,7 +96,7 @@
                     android:textStyle="bold"
                     android:visibility="gone" />
 
-                <EditText
+                <eu.siacs.conversations.ui.widget.TextInputEditText
                     android:id="@+id/shared_secret_hint_editable"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
                     android:textColorHint="?attr/colorAccent"
                     android:textSize="?attr/TextSizeBody" />
 
-                <EditText
+                <eu.siacs.conversations.ui.widget.TextInputEditText
                     android:id="@+id/shared_secret_secret"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

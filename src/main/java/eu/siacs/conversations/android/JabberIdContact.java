@@ -50,7 +50,7 @@ public class JabberIdContact extends AbstractPhoneContact {
     }
 
     public static Map<Jid, JabberIdContact> load(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+        if (context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             return Collections.emptyMap();
         }
         try (final Cursor cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, PROJECTION, SELECTION, SELECTION_ARGS, null)) {

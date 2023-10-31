@@ -29,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,6 +41,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.CharMatcher;
 
@@ -685,7 +685,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.accountJid.addTextChangedListener(this.mTextWatcher);
         this.binding.accountJid.setOnFocusChangeListener(this.mEditTextFocusListener);
         this.binding.accountPassword.addTextChangedListener(this.mTextWatcher);
-        this.binding.avater.setOnClickListener(this.mAvatarClickListener);
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            this.binding.avater.setOnClickListener(this.mAvatarClickListener);
+        } else {
+            this.binding.avaterSquare.setOnClickListener(this.mAvatarClickListener);
+        }
         this.binding.hostname.addTextChangedListener(mTextWatcher);
         this.binding.hostname.setOnFocusChangeListener(mEditTextFocusListener);
         this.binding.clearDevices.setOnClickListener(v -> showWipePepDialog());
@@ -743,7 +747,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     }
 
     private void refreshAvatar() {
-        AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size, true);
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size, true);
+        } else {
+            AvatarWorkerTask.loadAvatar(mAccount, binding.avaterSquare, R.dimen.avatar_on_details_screen_size, true);
+        }
     }
 
     @Override
@@ -856,7 +864,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             } else {
                 this.binding.yourNameBox.setVisibility(View.GONE);
                 this.binding.yourStatusBox.setVisibility(View.GONE);
-                this.binding.avater.setVisibility(View.GONE);
+                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    this.binding.avater.setVisibility(View.GONE);
+                } else {
+                    this.binding.avaterSquare.setVisibility(View.GONE);
+                }
                 configureActionBar(getSupportActionBar(), !(init && Config.MAGIC_CREATE_DOMAIN == null));
                 if (mForceRegister != null) {
                     if (mForceRegister) {
@@ -887,7 +899,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.verify_omemo_keys);
         View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
-        final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
+        final MaterialSwitch isTrustedSource = view.findViewById(R.id.trusted_source);
         TextView warning = view.findViewById(R.id.warning);
         warning.setText(R.string.verifying_omemo_keys_trusted_source_account);
         builder.setView(view);
@@ -1307,7 +1319,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         }
 
         final boolean togglePassword = mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY);
-        final boolean editPassword = !mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || (!mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY) && QuickConversationsService.isConversations()) || mAccount.getLastErrorStatus() == Account.State.UNAUTHORIZED;
+        final boolean neverLoggedIn = !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY) && QuickConversationsService.isConversations();
+        final boolean editPassword = mAccount.unauthorized() || neverLoggedIn;
         this.binding.accountPasswordLayout.setPasswordVisibilityToggleEnabled(togglePassword);
         this.binding.accountPassword.setFocusable(editPassword);
         this.binding.accountPassword.setFocusableInTouchMode(editPassword);
@@ -1315,11 +1328,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.accountPassword.setEnabled(editPassword);
 
         if (!mInitMode) {
-            binding.avater.setVisibility(View.VISIBLE);
+            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                binding.avater.setVisibility(View.VISIBLE);
+            } else {
+                binding.avaterSquare.setVisibility(View.VISIBLE);
+            }
             refreshAvatar();
             this.binding.accountJid.setEnabled(false);
         } else {
-            binding.avater.setVisibility(View.GONE);
+            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                binding.avater.setVisibility(View.GONE);
+            } else {
+                binding.avaterSquare.setVisibility(View.GONE);
+            }
         }
         this.binding.accountRegisterNew.setChecked(this.mAccount.isOptionSet(Account.OPTION_REGISTER));
         if (this.mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {

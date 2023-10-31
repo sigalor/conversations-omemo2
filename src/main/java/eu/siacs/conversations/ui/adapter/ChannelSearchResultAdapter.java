@@ -83,7 +83,11 @@ public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchR
         } else {
             roomJID = null;
         }
-        AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatar, R.dimen.avatar);
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+            AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatar, R.dimen.avatar);
+        } else {
+            AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatarSquare, R.dimen.avatar);
+        }
         final View root = viewHolder.binding.getRoot();
         root.setTag(searchResult);
         root.setOnClickListener(v -> listener.onChannelSearchResult(searchResult));

@@ -4,12 +4,12 @@
     <string name="action_dialpad">Dialpad</string>
     <string name="action_add">New conversation</string>
     <string name="action_accounts">Manage accounts</string>
-    <string name="action_end_conversation">End this conversation</string>
+    <string name="action_end_conversation">Archive this conversation</string>
     <string name="action_contact_details">Contact details</string>
     <string name="action_secure">Secure conversation</string>
     <string name="action_add_new_account">Add new account</string>
     <string name="action_add_phone_book">Add to address book</string>
-    <string name="action_delete_contact">Delete from roster</string>
+    <string name="action_delete_contact">Delete from contact list</string>
     <string name="action_block_contact">Block contact</string>
     <string name="action_unblock_contact">Unblock contact</string>
     <string name="action_block_domain">Block domain</string>
@@ -41,7 +41,7 @@
     <string name="moderator">Moderator</string>
     <string name="participant">Participant</string>
     <string name="visitor">Visitor</string>
-    <string name="remove_contact_text">Would you like to remove %s from your roster? The conversation associated with this contact will not be removed.</string>
+    <string name="remove_contact_text">Would you like to remove %s from your contact list? The conversation associated with this contact will not be removed.</string>
     <string name="block_contact_text">Would you like to block %s from sending you messages?</string>
     <string name="unblock_contact_text">Would you like to unblock %s and allow them to send you messages?</string>
     <string name="block_domain_text">Block all contacts from %s?</string>
@@ -72,7 +72,7 @@
     <string name="problem_connecting_to_accounts">Unable to connect to multiple accounts</string>
     <string name="touch_to_fix">Touch here to manage your accounts</string>
     <string name="attach_file">Attach file</string>
-    <string name="not_in_roster">The contact is not in your roster. Would you like to add it?</string>
+    <string name="not_in_roster">The contact is not in your contact list. Would you like to add it?</string>
     <string name="add_contact">Add contact</string>
     <string name="send_failed">delivery failed</string>
     <string name="preparing_image">Preparing image for transmission</string>
@@ -482,7 +482,7 @@
     <string name="load_more_messages">Load more messages</string>
     <string name="no_storage_permission">monocles chat needs access to external storage</string>
     <string name="sync_with_contacts">Synchronize with contacts</string>
-    <string name="sync_with_contacts_long">monocles chat wants to match your XMPP roster with your contacts to show their full names and avatars.\n\nmonocles chat will only read your contacts and match them locally without uploading them to your server.\n\nYou will now be asked to grant permission to access your contacts.</string>
+    <string name="sync_with_contacts_long">monocles chat wants to match your XMPP contact list with your phone contacts to show their full names and avatars.\n\nmonocles chat will only read your contacts and match them locally without uploading them to your server.\n\nYou will now be asked to grant permission to access your contacts.</string>
     <string name="notify_on_all_messages">Notify on all messages</string>
     <string name="notify_only_when_highlighted">Notify only when mentioned</string>
     <string name="notify_never">Notifications disabled</string>
@@ -1081,7 +1081,7 @@
     <string name="outgoing_call_duration">%s · Outgoing call · %s</string>
     <string name="outgoing_call_time">%s · Outgoing call</string>
     <string name="outgoing_call">Outgoing call</string>
-    <string name="disable_tor_to_make_call">Disable Tor to make calls</string>
+    <string name="disable_tor_to_make_call">Disable Tor to make calls or use Tor in VPN mode</string>
     <string name="no_i2p_calls">Calls can’t be done via I2P</string>
     <string name="help">Help</string>
     <string name="switch_to_conversation">Switch to conversation</string>
@@ -1298,7 +1298,7 @@
     <string name="choose_sticker_location">Choose sticker location</string>
     <string name="you_may_sometimes_have_to">You may sometimes have to force quit the app to get changes applied.</string>
     <string name="colors">Colors</string>
-    <string name="create_monocles_only_backup">Export extra monocles-only data (backup will not import into other apps then)?</string>
+    <string name="create_monocles_only_backup">Export extra monocles chat-only data (backup will not import into other apps then)?</string>
     <string name="please_be_patient">Please be patient...</string>
     <string name="notify_only_when_highlighted_or_replied">Notify for mentions and replies</string>
     <string name="restore_warning_continued">Do not attempt to restore backups that you have not created yourself!</string>
@@ -1329,4 +1329,20 @@
     <string name="pref_set_round_avatars">Round avatars</string>
     <string name="choose_emoji">Choose emoji</string>
     <string name="show_keyboard">Show keyboard</string>
+    <string name="pref_show_thread_feature_summary">Show thread icon in input field and allow creating and following threads</string>
+    <string name="pref_show_thread_feature">Show thread icon</string>
+    <string name="app_title" formatted="true">monocles chat</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Edit chat contact or phone contact?</string>
+    <string name="edit_sytemaccount">Phone contact</string>
+    <string name="edit_chat_contact">Chat contact</string>
+    <string name="enter_user_name">Enter a name</string>
+    <string name="account_color">Account Color</string>
+    <string name="account_color_summary">Used on conversation and contact lists, and notifications</string>
+    <string name="notifications_enabled">Notifications enabled</string>
+    <string name="notifications_disabled">Notifications disabled. Please activate them in your android settings.</string>
+    <string name="pref_show_less_avatars">Show less avatars in chats</string>
+    <string name="pref_show_less_avatars_summary">Only necessary avatars in conversations will be shown</string>
+    <string name="no_media_permission">No media storage permission</string>
+    <string name="pref_set_text_collapsable">Collapse long text</string>
+    <string name="pref_set_text_collapsable_summary">Collapses text with more than 240 signs</string>
 </resources>

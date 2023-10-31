@@ -17,7 +17,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="@dimen/toolbar_elevation"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:tabGravity="fill"
+        app:tabGravity="start"
         app:tabIndicatorColor="@color/white87"
         app:tabMode="scrollable"
         app:tabSelectedTextColor="@color/white"
@@ -59,7 +59,7 @@
             android:src="?attr/icon_scroll_down"
             android:visibility="gone"
             app:backgroundTint="?attr/color_background_primary"
-            app:fabSize="mini"
+            app:fabCustomSize="48dp"
             app:useCompatPadding="true" />
 
         <eu.siacs.conversations.ui.widget.UnreadCountCustomView
@@ -91,8 +91,8 @@
             android:layout_marginLeft="8dp"
             android:layout_marginBottom="4dp"
             android:orientation="horizontal"
-            android:background="@drawable/comment_bubble_light"
-            android:alpha="0.88">
+            android:background="@drawable/input_bubble_light"
+            android:alpha="0.88" >
 
             <ImageView
                 android:src="?attr/icon_quote"
@@ -145,21 +145,9 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:background="@drawable/input_bubble_light"
-            android:alpha="0.88">
+            android:alpha="0.88" >
 
             <RelativeLayout
-                android:id="@+id/textsend"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:clickable="true"
-                android:paddingStart="2dp"
-                android:paddingLeft="2dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp">
-
-                <RelativeLayout
                     android:id="@+id/message_input_box"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -220,7 +208,8 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/thread_locked" />
                     </RelativeLayout>
-                        <RelativeLayout
+
+                    <RelativeLayout
                             android:id="@+id/textinput_layout_new"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -228,16 +217,17 @@
                             android:layout_toRightOf="@+id/thread_identicon_layout"
                             android:layout_toStartOf="@+id/recordVoiceButton"
                             android:layout_toLeftOf="@+id/recordVoiceButton">
-                            <TextView
-                                android:id="@+id/text_input_hint"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="-4dp"
-                                android:maxLines="1"
-                                android:paddingLeft="8dp"
-                                android:paddingRight="8dp"
-                                android:textAppearance="@style/TextAppearance.Conversations.Caption.Highlight"
-                                android:visibility="gone" />
+
+                                <TextView
+                                    android:id="@+id/text_input_hint"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="-7dp"
+                                    android:maxLines="1"
+                                    android:paddingLeft="8dp"
+                                    android:paddingRight="8dp"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Caption.Highlight"
+                                    android:visibility="gone" />
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/media_preview"
@@ -252,7 +242,7 @@
 
                             <eu.siacs.conversations.ui.widget.EditMessage
                                 android:id="@+id/textinput"
-                                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                                style="@style/Widget.Conversations.EditText"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:ems="10"
@@ -263,10 +253,10 @@
                                 android:minLines="1"
                                 android:paddingStart="8dp"
                                 android:paddingLeft="8dp"
-                                android:paddingTop="12dp"
+                                android:paddingTop="8dp"
                                 android:paddingEnd="8dp"
                                 android:paddingRight="8dp"
-                                android:paddingBottom="12dp"
+                                android:paddingBottom="8dp"
                                 android:singleLine="false"
                                 android:textSize="?TextSizeInput"
                                 android:textColor="?attr/text_Color_Main">
@@ -284,7 +274,7 @@
                                 android:layout_centerVertical="true"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="@string/attach_record_voice"
-                                android:src="@drawable/ic_send_voice_offline"
+                                android:src="?attr/ic_send_voice_offline"
                                 android:visibility="visible" />
 
                             <ImageButton
@@ -298,7 +288,7 @@
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="@string/send_message"
                                 android:src="@drawable/ic_send_text_offline" />
-                     </RelativeLayout>
+            </RelativeLayout>
                 <androidx.emoji2.emojipicker.EmojiPickerView
                     android:id="@+id/emoji_picker"
                     android:layout_below="@+id/message_input_box"
@@ -307,17 +297,16 @@
                     app:emojiGridColumns="9"
                     android:layout_marginBottom="5dp"
                     android:visibility="gone"/>
-                </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/textformat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/textsend"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
+                android:layout_below="@+id/message_input_box"
+                android:paddingEnd="8dp"
+                android:paddingRight="8dp"
+                android:paddingStart="8dp"
+                android:paddingLeft="8dp"
                 android:layout_marginBottom="4dp"
                 android:orientation="horizontal"
                 android:background="@drawable/comment_bubble_light"
@@ -386,29 +375,9 @@
                         android:contentDescription="@string/strikethrough"
                         android:src="?attr/ic_strikethrough"
                         android:visibility="visible" />
-
-                    <ImageButton
-                        android:id="@+id/help"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/format_text"
-                        android:src="?attr/ic_help"
-                        android:visibility="visible" />
-
-                    <ImageButton
-                        android:id="@+id/close"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/close"
-                        android:src="?attr/ic_close"
-                        android:visibility="visible" />
                 </LinearLayout>
             </RelativeLayout>
-
         </RelativeLayout>
-
 
         <RelativeLayout
             android:id="@+id/snackbar"
