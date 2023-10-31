@@ -2029,7 +2029,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final JinglePacket jinglePacket =
                 new JinglePacket(JinglePacket.Action.SESSION_TERMINATE, id.sessionId);
         jinglePacket.setReason(reason, text);
-        Log.d(Config.LOGTAG, jinglePacket.toString());
         send(jinglePacket);
         finish();
     }
