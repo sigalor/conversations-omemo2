@@ -98,21 +98,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="40dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginBottom="4dp"
-                        android:orientation="horizontal"
-                        android:background="@drawable/comment_bubble_light"
-                        android:alpha="0.88" >
+                        android:orientation="horizontal" >
 
                         <ImageView
                             android:src="?attr/icon_quote"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:layout_marginLeft="13dp"
-                            android:layout_marginStart="13dp"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginStart="12dp"
                             android:contentDescription="@string/reply_to"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:layout_gravity="center_vertical" />
@@ -134,11 +127,11 @@
 
                         <ImageButton
                             android:id="@+id/context_preview_cancel"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:padding="0dp"
-                            android:layout_marginEnd="13dp"
-                            android:layout_marginRight="13dp"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginRight="12dp"
                             android:contentDescription="@string/cancel"
                             android:layout_gravity="center_vertical"
                             android:background="?attr/selectableItemBackgroundBorderless"
