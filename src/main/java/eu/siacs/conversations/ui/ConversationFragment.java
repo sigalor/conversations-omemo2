@@ -4176,7 +4176,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void updateSendButton() {
-        messageListAdapter.setInputBubbleBackgroundColor(binding.messageInputBox, isPrivateMessage());
+        messageListAdapter.setInputBubbleBackgroundColor(binding.input, isPrivateMessage());
         boolean hasAttachments = mediaPreviewAdapter != null && mediaPreviewAdapter.hasAttachments();
         boolean useSendButtonToIndicateStatus = activity != null && PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("send_button_status", getResources().getBoolean(R.bool.send_button_status));
         final Conversation c = this.conversation;
