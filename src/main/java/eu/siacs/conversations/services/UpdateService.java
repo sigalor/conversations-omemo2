@@ -133,7 +133,7 @@ public class UpdateService extends AsyncTask<String, Object, UpdateService.Wrapp
 
     private void showUpdateDialog(final String url, final String changelog) {
         Intent intent = new Intent(context, UpdaterActivity.class);
-        intent.putExtra("update", "MonoclesMessenger_UpdateService");
+        intent.putExtra("update", "monocleschat_UpdateService");
         intent.putExtra("url", url);
         intent.putExtra("changelog", changelog);
         intent.putExtra("store", store);
@@ -168,7 +168,7 @@ public class UpdateService extends AsyncTask<String, Object, UpdateService.Wrapp
 
     private void showNotification(String url, String changelog, String version, String filesize, String store) {
         Intent intent = new Intent(context, UpdaterActivity.class);
-        intent.putExtra("update", "MonoclesMessenger_UpdateService");
+        intent.putExtra("update", "monocleschat_UpdateService");
         intent.putExtra("url", url);
         intent.putExtra("changelog", changelog);
         intent.putExtra("store", store);

@@ -77,15 +77,28 @@ public class PermissionsActivity extends AppCompatActivity
     public static String[] storage_permissions_33 = {
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_AUDIO,
-            Manifest.permission.READ_MEDIA_VIDEO
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.POST_NOTIFICATIONS
+    };
+
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static String[] permissions_34 = {
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.FOREGROUND_SERVICE
     };
 
     public static String[] permissions() {
         String[] p;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Compatibility.runsThirtyThree()) {
             p = storage_permissions_33;
+        } else if (Compatibility.runsThirtyFour()){
+            p = permissions_34;
         } else {
             p = storage_permissions;
+
         }
         return p;
     }

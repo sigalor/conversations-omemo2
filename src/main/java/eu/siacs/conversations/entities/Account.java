@@ -49,8 +49,6 @@ import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import eu.siacs.conversations.crypto.sasl.ChannelBinding;
 import eu.siacs.conversations.crypto.sasl.SaslMechanism;
-import eu.siacs.conversations.crypto.sasl.ScramPlusMechanism;
-
 public class Account extends AbstractEntity implements AvatarService.Avatarable {
 
     public static final String TABLENAME = "accounts";
@@ -366,6 +364,10 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         } else {
             return this.status;
         }
+    }
+
+    public boolean unauthorized() {
+        return this.status == State.UNAUTHORIZED || this.lastErrorStatus == State.UNAUTHORIZED;
     }
 
     public State getLastErrorStatus() {

@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
-    <CheckBox
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/trusted_source"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.Config.DISALLOW_REGISTRATION_IN_UI;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
@@ -20,6 +21,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 
 import java.util.Arrays;
@@ -96,6 +98,13 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             recreate();
         }
         new InstallReferrerUtils(this);
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     @Override
@@ -171,6 +180,13 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             addInviteUri(intent);
             startActivity(intent);
         });
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     public void addInviteUri(Intent to) {
@@ -254,8 +270,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                        // startActivity(new Intent(this, ImportBackupActivity.class));
                         break;
                 }
-            } else if (Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else if (!Compatibility.runsThirtyThree() && Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 ToastCompat.makeText(this, R.string.no_storage_permission, ToastCompat.LENGTH_SHORT).show();
+            } else if (Compatibility.runsThirtyThree() && Arrays.asList(permissions).contains(Manifest.permission.READ_MEDIA_IMAGES) && Arrays.asList(permissions).contains(Manifest.permission.READ_MEDIA_VIDEO) && Arrays.asList(permissions).contains(Manifest.permission.READ_MEDIA_AUDIO)) {
+                ToastCompat.makeText(this, R.string.no_media_permission, ToastCompat.LENGTH_SHORT).show();
             }
         }
         if (readGranted(grantResults, permissions)) {

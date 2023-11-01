@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui.adapter;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.IntentSender;
+import android.graphics.drawable.Drawable;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -125,13 +128,19 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         for (MucOptions.Hat hat : getPseudoHats(viewHolder.binding.getRoot().getContext(), user)) {
             TextView tv = (TextView) LayoutInflater.from(viewHolder.binding.getRoot().getContext()).inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
             tv.setText(hat.toString());
-            tv.setBackgroundColor(hat.getColor());
+            Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
+            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+            DrawableCompat.setTint(wrappedDrawable, hat.getColor());
+            tv.setBackgroundResource(R.drawable.rounded_tag);
             viewHolder.binding.tags.addView(tv);
         }
         for (MucOptions.Hat hat : user.getHats()) {
             TextView tv = (TextView) LayoutInflater.from(viewHolder.binding.getRoot().getContext()).inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
             tv.setText(hat.toString());
-            tv.setBackgroundColor(hat.getColor());
+            Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
+            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+            DrawableCompat.setTint(wrappedDrawable, hat.getColor());
+            tv.setBackgroundResource(R.drawable.rounded_tag);
             viewHolder.binding.tags.addView(tv);
         }
 

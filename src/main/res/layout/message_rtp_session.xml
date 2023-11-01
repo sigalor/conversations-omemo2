@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="@string/incoming_call"
-            android:textAppearance="@style/TextAppearance.Conversations.Body1.Secondary" />
+            android:textAppearance="@style/TextAppearance.Conversations.Body1.Secondary.OnDark" />
     </LinearLayout>
 
 </RelativeLayout>

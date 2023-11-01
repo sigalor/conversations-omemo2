@@ -349,6 +349,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
         menu.setHeaderTitle(name);
         final MenuItem menuMucDetails = menu.findItem(R.id.action_group_details);
         final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
+        final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive_chat);
+        final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
         final MenuItem menuMute = menu.findItem(R.id.action_mute);
         final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
         final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
@@ -357,6 +359,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
         if (conversation != null) {
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 menuContactDetails.setVisible(false);
+                menuArchiveChat.setVisible(false);
+                menuLeaveGroup.setVisible(true);
                 menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.conference_details : R.string.channel_details);
                 menuOngoingCall.setVisible(false);
             } else {
@@ -369,6 +373,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
                 }
                 menuContactDetails.setVisible(!conversation.withSelf());
                 menuMucDetails.setVisible(false);
+                menuLeaveGroup.setVisible(false);
             }
             if (conversation.isMuted()) {
                 menuMute.setVisible(false);

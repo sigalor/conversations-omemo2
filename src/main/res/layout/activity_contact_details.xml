@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/tools"
-    app:ignore="NamespaceTypo">
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_background_tertiary"
+        android:background="?attr/color_background_secondary"
         android:orientation="vertical">
 
         <include
@@ -24,17 +22,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    card_view:cardBackgroundColor="?attr/color_background_secondary">
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -45,7 +32,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
-                            android:padding="@dimen/card_padding_regular">
+                            android:padding="8dp">
 
                             <RelativeLayout
                                 android:layout_width="match_parent"
@@ -53,7 +40,7 @@
 
                                 <LinearLayout
                                     android:id="@+id/details_display"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_alignParentStart="true"
                                     android:layout_alignParentLeft="true"
@@ -62,36 +49,62 @@
                                     <LinearLayout
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:orientation="horizontal">
+                                        android:orientation="horizontal"
+                                        android:layout_gravity="center_horizontal" >
 
                                         <com.makeramen.roundedimageview.RoundedImageView
                                             android:id="@+id/details_contact_badge"
-                                            android:layout_width="130dp"
-                                            android:layout_height="130dp"
-                                            android:layout_marginEnd="@dimen/avatar_item_distance"
-                                            android:layout_marginRight="@dimen/avatar_item_distance"
+                                            android:layout_width="80dp"
+                                            android:layout_height="80dp"
                                             android:adjustViewBounds="true"
-                                            android:background="?attr/color_border"
                                             android:padding="1dp"
-                                            app:riv_corner_radius="100dp"
-                                            android:scaleType="centerCrop" />
+                                            android:scaleType="centerCrop"
+                                            app:riv_corner_radius="50dp"
+                                            android:visibility="gone" />
+
+                                        <com.makeramen.roundedimageview.RoundedImageView
+                                            android:id="@+id/details_contact_badge_square"
+                                            android:layout_width="80dp"
+                                            android:layout_height="80dp"
+                                            android:adjustViewBounds="true"
+                                            android:padding="1dp"
+                                            android:scaleType="centerCrop"
+                                            app:riv_corner_radius="5dp"
+                                            android:visibility="gone" />
+
                                     </LinearLayout>
+
+                                    <TextView
+                                        android:id="@+id/details_contact_name"
+                                        style="@style/TextAppearance.Material3.ActionBar.Title"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:clickable="true"
+                                        android:ellipsize="end"
+                                        android:gravity="center_horizontal"
+                                        android:onClick="onClick"
+                                        android:paddingTop="1dp"
+                                        android:scrollHorizontally="true"
+                                        android:singleLine="true" />
 
                                     <TextView
                                         android:id="@+id/jid"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:paddingTop="3dp"
                                         android:text="@string/account_settings_example_jabber_id"
-                                        android:textAppearance="@style/TextAppearance.AppCompat" />
+                                        android:textAppearance="@style/TextAppearance.AppCompat"
+                                        android:layout_gravity="center_horizontal" />
 
                                     <com.wefika.flowlayout.FlowLayout
                                         android:id="@+id/tags"
-                                        android:layout_width="match_parent"
+                                        android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="-2dp"
                                         android:layout_marginLeft="-2dp"
                                         android:layout_marginTop="4dp"
-                                        android:layout_marginBottom="4dp"
+                                        android:layout_marginBottom="27dp"
+                                        android:layout_gravity="center_horizontal"
                                         android:orientation="horizontal" />
 
                                     <de.monocles.chat.TagEditorView
@@ -100,10 +113,14 @@
                                         android:hint="@string/tags"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginBottom="4dp"
+                                        android:layout_marginBottom="27dp"
                                         android:layout_marginLeft="-4dp"
                                         android:layout_marginTop="-4dp" />
 
+                                    <View
+                                        android:layout_width="fill_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="24dp" />
 
                                     <TextView
                                         android:id="@+id/details_lastseen"
@@ -143,23 +160,19 @@
                                     android:layout_marginTop="4dp"
                                     android:orientation="vertical">
 
-                                    <CheckBox
+                                    <com.google.android.material.materialswitch.MaterialSwitch
                                         android:id="@+id/details_send_presence"
-                                        style="@style/Widget.Conversations.CheckBox"
-                                        android:layout_width="wrap_content"
+                                        style="@style/Widget.monocles.Switch"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginStart="-6dp"
-                                        android:layout_marginLeft="-6dp"
                                         android:text="@string/send_presence_updates"
                                         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
-                                    <CheckBox
+                                    <com.google.android.material.materialswitch.MaterialSwitch
                                         android:id="@+id/details_receive_presence"
-                                        style="@style/Widget.Conversations.CheckBox"
-                                        android:layout_width="wrap_content"
+                                        style="@style/Widget.monocles.Switch"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginStart="-6dp"
-                                        android:layout_marginLeft="-6dp"
                                         android:text="@string/receive_presence_updates"
                                         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
                                 </LinearLayout>
@@ -167,7 +180,16 @@
                                 <RelativeLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_below="@+id/details_jidbox">
+                                    android:layout_below="@+id/details_jidbox" >
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:layout_alignParentLeft="true"
+                                        android:paddingTop="4dp"
+                                        android:text="@string/pref_notification_settings"
+                                        android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
                                     <TextView
                                         android:id="@+id/notification_status_text"
@@ -175,11 +197,11 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
                                         android:layout_alignParentLeft="true"
-                                        android:layout_centerVertical="true"
+                                        android:layout_alignParentBottom="true"
                                         android:layout_toStartOf="@+id/notification_status_button"
                                         android:layout_toLeftOf="@+id/notification_status_button"
                                         android:text="@string/notify_on_all_messages"
-                                        android:textSize="?attr/TextSizeBody" />
+                                        android:textAppearance="@style/TextAppearance.Conversations.Status" />
 
                                     <ImageButton
                                         android:id="@+id/notification_status_button"
@@ -190,7 +212,6 @@
                                         android:layout_alignParentRight="true"
                                         android:layout_centerVertical="true"
                                         android:layout_gravity="center_horizontal"
-                                        android:alpha="?attr/icon_alpha"
                                         android:background="?attr/selectableItemBackgroundBorderless"
                                         android:padding="@dimen/image_button_padding"
                                         android:src="@drawable/ic_notifications_black_24dp" />
@@ -198,64 +219,36 @@
                             </RelativeLayout>
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="@dimen/card_padding_list">
-
                             <Button
                                 android:id="@+id/add_contact_button"
                                 style="@style/Widget.Conversations.Button"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_horizontal"
-                                android:layout_marginTop="24dp"
+                                android:layout_marginTop="14dp"
                                 android:text="@string/add_to_contact_list" />
 
                             <TextView
                                 android:id="@+id/details_account"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="end"
-                                android:layout_marginTop="24dp"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginTop="14dp"
+                                android:layout_marginBottom="14dp"
                                 android:text="@string/using_account"
                                 android:textAppearance="@style/TextAppearance.Conversations.Caption"
                                 android:visibility="visible" />
-                        </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/profile"
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    card_view:cardBackgroundColor="?attr/color_background_secondary">
-
-                    <ListView
-                        android:id="@+id/profile_items"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
-
-                </androidx.cardview.widget.CardView>
+                    android:layout_height="0.1dp"
+                    android:background="?attr/text_Color_Main" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/media_wrapper"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    card_view:cardBackgroundColor="?attr/color_background_secondary">
+                    android:layout_height="wrap_content" >
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -265,7 +258,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/media"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="-2dp"
                             android:layout_marginEnd="-2dp"
                             android:orientation="horizontal"
@@ -296,17 +289,34 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.1dp"
+                    android:background="?attr/text_Color_Main" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ListView
+                        android:id="@+id/profile_items"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="false"
+                        android:divider="@android:color/transparent"
+                        android:dividerHeight="0dp" />
+                </androidx.cardview.widget.CardView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.1dp"
+                    android:background="?attr/text_Color_Main" />
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/keys_wrapper"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    card_view:cardBackgroundColor="?attr/color_background_secondary">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"

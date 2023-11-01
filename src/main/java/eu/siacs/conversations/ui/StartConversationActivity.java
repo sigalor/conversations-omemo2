@@ -65,6 +65,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
@@ -761,7 +762,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         String initialSearchValue = mInitialSearchValue.pop();
         if (initialSearchValue != null) {
             mMenuSearchView.expandActionView();
-            mSearchEditText.append(initialSearchValue);
+            try {
+                mSearchEditText.append(initialSearchValue);
+            } catch (final StringIndexOutOfBoundsException e) {
+                mSearchEditText.setText(initialSearchValue);
+            }
             filter(initialSearchValue);
         }
         updateSearchViewHint();
@@ -858,52 +863,50 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     }
 
     private void askForContactsPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                if (mRequestedContactsPermission.compareAndSet(false, true)) {
+        if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            if (mRequestedContactsPermission.compareAndSet(false, true)) {
 
-                         if (QuickConversationsService.isQuicksy() || shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        final AtomicBoolean requestPermission = new AtomicBoolean(false);
-                        builder.setTitle(R.string.sync_with_contacts);
-                        builder.setMessage(getString(R.string.sync_with_contacts_long));
-                        @StringRes int confirmButtonText;
-                        if (QuickConversationsService.isConversations()) {
-                            confirmButtonText = R.string.next;
-                        } else {
-                            confirmButtonText = R.string.confirm;
-                        }
-                        builder.setPositiveButton(confirmButtonText, (dialog, which) -> {
-                            if (requestPermission.compareAndSet(false, true)) {
-                                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
-                            }
-                        });
-                        builder.setOnDismissListener(dialog -> {
-                            if (QuickConversationsService.isConversations() && requestPermission.compareAndSet(false, true)) {
-                                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
-
-                            }
-                        });
-                             SharedPreferences pref = this.getSharedPreferences("PACKAGE.NAME",MODE_PRIVATE);
-                             Boolean firstTime = pref.getBoolean("firstTime",true);
-                             if(firstTime){
-                        builder.setCancelable(QuickConversationsService.isQuicksy());
-                        final AlertDialog dialog = builder.create();
-                        dialog.setCanceledOnTouchOutside(QuickConversationsService.isQuicksy());
-                        dialog.setOnShowListener(dialogInterface -> {
-                            final TextView tv = dialog.findViewById(android.R.id.message);
-                            if (tv != null) {
-                                tv.setMovementMethod(LinkMovementMethod.getInstance());
-                            }
-                        });
-                        dialog.show();
-                                 pref.edit().putBoolean("firstTime",false).apply();
-                             }
+                if (QuickConversationsService.isQuicksy() || shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    final AtomicBoolean requestPermission = new AtomicBoolean(false);
+                    builder.setTitle(R.string.sync_with_contacts);
+                    builder.setMessage(getString(R.string.sync_with_contacts_long));
+                    @StringRes int confirmButtonText;
+                    if (QuickConversationsService.isConversations()) {
+                        confirmButtonText = R.string.next;
                     } else {
-                              requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
-                            }
+                        confirmButtonText = R.string.confirm;
+                    }
+                    builder.setPositiveButton(confirmButtonText, (dialog, which) -> {
+                        if (requestPermission.compareAndSet(false, true)) {
+                            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
+                        }
+                    });
+                    builder.setOnDismissListener(dialog -> {
+                        if (QuickConversationsService.isConversations() && requestPermission.compareAndSet(false, true)) {
+                            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
 
+                        }
+                    });
+                    SharedPreferences pref = this.getSharedPreferences("PACKAGE.NAME", MODE_PRIVATE);
+                    Boolean firstTime = pref.getBoolean("firstTime", true);
+                    if (firstTime) {
+                    builder.setCancelable(QuickConversationsService.isQuicksy());
+                    final AlertDialog dialog = builder.create();
+                    dialog.setCanceledOnTouchOutside(QuickConversationsService.isQuicksy());
+                    dialog.setOnShowListener(dialogInterface -> {
+                        final TextView tv = dialog.findViewById(android.R.id.message);
+                        if (tv != null) {
+                            tv.setMovementMethod(LinkMovementMethod.getInstance());
+                        }
+                    });
+                    dialog.show();
+                        pref.edit().putBoolean("firstTime", false).apply();
+                    }
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
                 }
+
             }
         }
     }
@@ -1087,7 +1090,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.verify_omemo_keys);
         final View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
-        final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
+        final MaterialSwitch isTrustedSource = view.findViewById(R.id.trusted_source);
         final TextView warning = view.findViewById(R.id.warning);
         warning.setText(JidDialog.style(this, R.string.verifying_omemo_keys_trusted_source, contact.getJid().asBareJid().toEscapedString(), contact.getDisplayName()));
         builder.setView(view);

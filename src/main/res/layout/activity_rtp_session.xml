@@ -40,11 +40,10 @@
             android:layout_height="wrap_content"
             android:visibility="visible">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
                 app:popupTheme="?popupOverlayStyle" />
 
             <TextView
@@ -54,7 +53,7 @@
                 android:layout_below="@id/status"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:textColor="@color/white"
+                android:textColor="?attr/text_Color_Main"
                 android:textSize="50sp"
                 tools:text="Juliet Capulet" />
             <TextView
@@ -66,7 +65,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:textAppearance="@style/TextAppearance.Conversations.Body1"
-                android:textColor="@color/white"
+                android:textColor="?attr/text_Color_Main"
                 tools:text="jcapulet@example.com" />
 
             <View
@@ -103,8 +102,8 @@
                 android:layout_width="@dimen/publish_avatar_size"
                 android:layout_height="@dimen/publish_avatar_size"
                 android:layout_centerInParent="true"
-                app:strokeColor="@color/custom_theme_accent"
-                app:riv_corner_radius="@dimen/incoming_call_radius" />
+                app:riv_corner_radius="@dimen/incoming_call_radius"
+                app:strokeColor="@color/custom_theme_accent" />
 
             <TextView
                 android:id="@+id/details_account"
@@ -113,7 +112,10 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
-                android:layout_margin="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 android:gravity="bottom"
                 android:text="@string/using_account"
                 android:textAppearance="@style/TextAppearance.Conversations.Caption" />

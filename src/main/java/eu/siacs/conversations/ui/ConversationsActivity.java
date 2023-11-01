@@ -29,6 +29,7 @@
 
 package eu.siacs.conversations.ui;
 
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_MEMORY_WARNING;
 import static eu.siacs.conversations.ui.SettingsActivity.MIN_ANDROID_SDK21_SHOWN;
@@ -59,8 +60,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import de.monocles.chat.DownloadDefaultStickers;
@@ -77,6 +81,9 @@ import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import eu.siacs.conversations.services.AvatarService;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 
 import java.io.File;
@@ -205,14 +212,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         final Intent FirstStartIntent = getIntent();
         final Bundle extras = FirstStartIntent.getExtras();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (extras != null && extras.containsKey(PREF_FIRST_START)) {
-                FirstStartTime = extras.getLong(PREF_FIRST_START);
-                Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
-            }
-        } else {
-            FirstStartTime = System.currentTimeMillis();
-            Log.d(Config.LOGTAG, "Device is running Android < SDK 23, no restart required: " + FirstStartTime);
+        if (extras != null && extras.containsKey(PREF_FIRST_START)) {
+            FirstStartTime = extras.getLong(PREF_FIRST_START);
+            Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
         }
 
         final Intent intent = pendingViewIntent.pop();
@@ -309,7 +311,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             if (ExceptionHelper.checkForCrash(this)) return;
             if (offerToSetupDiallerIntegration()) return;
-            if (offerToDownloadStickers()) return;
+            // if (offerToDownloadStickers()) return;       // TODO: Disabled Cheogram Stickers until it's more useful
             openBatteryOptimizationDialogIfNeeded();
             xmppConnectionService.rescanStickers();
 
@@ -387,7 +389,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         builder.setMessage("Would you like to download some default sticker packs?");
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
-                downloadStickers();
+               // downloadStickers();       // TODO: Disabled Cheogram Stickers until it's more useful
             }
         });
         builder.setNegativeButton(R.string.no, (dialog, which) -> {
@@ -585,7 +587,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         startActivityForResult(intent, DIALLER_INTEGRATION);
                         break;
                     case REQUEST_DOWNLOAD_STICKERS:
-                        downloadStickers();
+                        // downloadStickers();    // TODO: Disabled Cheogram Stickers until it's more useful
                         break;
                 }
             } else {
@@ -695,6 +697,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             setIntent(createLauncherIntent(this));
         }
         UpdateHelper.showPopup(this);
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     @Override
@@ -938,6 +947,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
         super.onStart();
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     @Override
@@ -1048,11 +1064,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 final View view = getLayoutInflater().inflate(R.layout.ab_title, null);
                 getSupportActionBar().setCustomView(view);
                 actionBar.setIcon(null);
-                actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.colorPrimary)));
-                actionBar.setDisplayShowTitleEnabled(false);
+                actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.color_background_secondary)));
                 actionBar.setDisplayShowCustomEnabled(true);
                 TextView abtitle = findViewById(android.R.id.text1);
                 TextView absubtitle = findViewById(android.R.id.text2);
+                final View avatartoolbarround = view.findViewById(R.id.toolbar_avatar);
+                final View avatartoolbarsquare = view.findViewById(R.id.toolbar_avatar_square);
                 abtitle.setText(conversation.getName());
                 abtitle.setSelected(true);
                 if (conversation.getMode() == Conversation.MODE_SINGLE) {
@@ -1115,6 +1132,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     }
                     absubtitle.setSelected(true);
                 }
+                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                    AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarround, R.dimen.muc_avatar_actionbar);
+                    findViewById(R.id.toolbar_avatar).setVisibility(View.VISIBLE);
+                } else {
+                    AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarsquare, R.dimen.muc_avatar_actionbar);
+                    findViewById(R.id.toolbar_avatar_square).setVisibility(View.VISIBLE);
+                }
                 ActionBarUtil.setCustomActionBarOnClickListener(
                         binding.toolbar,
                         (v) -> openConversationDetails(conversation)
@@ -1122,12 +1146,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 return;
             }
         }
-        actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowCustomEnabled(false);
-        actionBar.setTitle(null);
-        actionBar.setIcon(R.drawable.logo_toolbar_white);
-        //actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.header_background)));
-        actionBar.setSubtitle(null);
+        actionBar.setTitle(R.string.app_title);
         actionBar.setDisplayHomeAsUpEnabled(false);
         ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar);
     }

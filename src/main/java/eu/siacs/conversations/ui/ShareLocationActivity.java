@@ -88,7 +88,7 @@ public class ShareLocationActivity extends LocationActivity implements LocationL
         this.snackBar.setAction(R.string.enable, view -> {
             if (isLocationEnabledAndAllowed()) {
                 updateUi();
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hasLocationPermissions()) {
+            } else if (!hasLocationPermissions()) {
                 requestPermissions(REQUEST_CODE_SNACKBAR_PRESSED);
             } else if (!isLocationEnabled()) {
                 startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -104,7 +104,7 @@ public class ShareLocationActivity extends LocationActivity implements LocationL
             if (!marker_fixed_to_loc) {
                 if (!isLocationEnabled()) {
                     startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                } else {
                     requestPermissions(REQUEST_CODE_FAB_PRESSED);
                 }
             }

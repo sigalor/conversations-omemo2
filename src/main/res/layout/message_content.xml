@@ -2,17 +2,26 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <de.monocles.chat.ReadMoreTextView
-        app:trimExpandedText="@string/show_less"
-        app:trimCollapsedText="@string/show_more"
-        app:trimMode="trimModeLength"
-        app:colorClickableText="?attr/colorAccent"
+    <TextView
         android:id="@+id/message_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:autoLink="web"
         android:longClickable="false"
         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
+
+    <de.monocles.chat.ReadMoreTextView
+        app:trimExpandedText="@string/show_less"
+        app:trimCollapsedText="@string/show_more"
+        app:trimMode="trimModeLength"
+        app:colorClickableText="?attr/colorAccent"
+        android:id="@+id/message_body_collapsable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:longClickable="false"
+        android:textAppearance="@style/TextAppearance.Conversations.Body1"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/message_user"
@@ -94,8 +103,16 @@
         android:id="@+id/audio_player"
         android:layout_width="@dimen/audio_player_width"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/play_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:alpha="?attr/icon_alpha"
+            android:background="?android:selectableItemBackground"
+            android:paddingTop="16dp" />
 
         <TextView
             android:id="@+id/runtime"
@@ -113,29 +130,16 @@
             android:textColor="@color/realwhite"
             android:textSize="12sp" />
 
-        <RelativeLayout
+        <SeekBar
+            android:id="@+id/progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/runtime"
-            android:layout_marginTop="-16dp">
-
-            <ImageButton
-                android:id="@+id/play_pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:alpha="?attr/icon_alpha"
-                android:padding="@dimen/image_button_padding"
-                android:background="?android:selectableItemBackground" />
-
-            <SeekBar
-                android:id="@+id/progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/play_pause"
-                android:progress="100" />
-        </RelativeLayout>
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/play_pause"
+            android:layout_toRightOf="@+id/play_pause"
+            android:paddingTop="16dp"
+            android:progress="100" />
     </RelativeLayout>
 
     <RelativeLayout

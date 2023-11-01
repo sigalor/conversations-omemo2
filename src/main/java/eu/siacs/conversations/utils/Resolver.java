@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import de.gultsch.minidns.AndroidDNSClient;
 import de.measite.minidns.AbstractDNSClient;
 import de.measite.minidns.DNSCache;
 import de.measite.minidns.DNSClient;
@@ -330,7 +331,9 @@ public class Resolver {
     private static <D extends Data> ResolverResult<D> resolveWithFallback(final DNSName dnsName, final Class<D> type, final boolean validateHostname) throws IOException {
         final Question question = new Question(dnsName, Record.TYPE.getType(type));
         if (!validateHostname) {
-            return ResolverApi.INSTANCE.resolve(question);
+            final AndroidDNSClient androidDNSClient = new AndroidDNSClient(SERVICE);
+            final ResolverApi resolverApi = new ResolverApi(androidDNSClient);
+            return resolverApi.resolve(question);
         }
         try {
             return DnssecResolverApi.INSTANCE.resolveDnssecReliable(question);

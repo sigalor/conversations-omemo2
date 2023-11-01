@@ -309,7 +309,8 @@ public class UIHelper {
     @SuppressLint({"StringFormatMatches", "StringFormatInvalid"})
     public static Pair<CharSequence, Boolean> getMessagePreview(final Context context, final Message message, @ColorInt int textColor) {
         final Transferable d = message.getTransferable();
-        if (d != null) {
+        final boolean moderated = message.getModerated() != null;
+        if (d != null && !moderated) {
             switch (d.getStatus()) {
                 case Transferable.STATUS_WAITING:
                     return new Pair<>(context.getString(R.string.waiting_for_transfer), true);
@@ -339,8 +340,6 @@ public class UIHelper {
                 default:
                     return new Pair<>("", false);
             }
-        } else if (message.isFileOrImage() && message.isFileDeleted()) {
-            return new Pair<>(context.getString(R.string.file_deleted), true);
         } else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
             return new Pair<>(context.getString(R.string.pgp_message), true);
         } else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {

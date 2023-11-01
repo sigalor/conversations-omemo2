@@ -6,8 +6,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include layout="@layout/toolbar" />
-
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -40,6 +38,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="20dp"
                         android:padding="50dp"
                         android:src="@drawable/logo_actionbar"
                         android:contentDescription="@string/app_name" />
@@ -54,9 +53,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:paddingLeft="20dp"
                         android:paddingRight="20dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="18dp"
                         android:text="@string/welcome_text"
                         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
@@ -64,6 +64,7 @@
                         android:id="@+id/import_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:paddingLeft="20dp"
                         android:paddingRight="20dp"
                         android:layout_marginTop="8dp"
@@ -99,9 +100,10 @@
 
                         <View
                             android:layout_width="250dp"
-                            android:layout_height="1.5dp"
-                            android:background="@color/primary_monocles"
-                            android:layout_margin="10dp"/>
+                            android:layout_height="0.5dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="20dp"
+                            android:background="@color/primary_monocles" />
 
                         <Button
                             android:id="@+id/create_account"

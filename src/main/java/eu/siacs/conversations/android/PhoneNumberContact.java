@@ -64,7 +64,7 @@ public class PhoneNumberContact extends AbstractPhoneContact {
     }
 
     public static ImmutableMap<String, PhoneNumberContact> load(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+        if (context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             return ImmutableMap.of();
         }
 

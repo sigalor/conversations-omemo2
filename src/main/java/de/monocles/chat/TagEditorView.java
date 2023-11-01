@@ -3,11 +3,15 @@ package de.monocles.chat;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.tokenautocomplete.TokenCompleteTextView;
 
@@ -35,7 +39,10 @@ public class TagEditorView extends TokenCompleteTextView<ListItem.Tag> {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, (ViewGroup) getParent(), false);
         tv.setText(tag.getName());
-        tv.setBackgroundColor(tag.getColor());
+        Drawable unwrappedDrawable = AppCompatResources.getDrawable(this.getContext(), R.drawable.rounded_tag);
+        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+        DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+        tv.setBackgroundResource(R.drawable.rounded_tag);
         return tv;
     }
 

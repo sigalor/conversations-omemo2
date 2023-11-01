@@ -64,7 +64,7 @@
     <string name="ok">OK</string>
     <string name="crash_report_title">Monocles Chat teve um problema e parou de funcionar</string>
     <string name="crash_report_message">Ao enviar os stack traces você ajudará o desenvolvimento do aplicativo
-\n<b>Atenção:</b> Isso usará a sua conta XMPP para enviar o stack trace para o desenvolvedor</string>
+\n<b>Atenção:</b> Isso usará a sua conta XMPP para enviar o stack trace para o desenvolvedor.</string>
     <string name="send_now">Enviar agora</string>
     <string name="send_never">Não perguntar novamente</string>
     <string name="problem_connecting_to_account">Não foi possível se conectar à conta</string>
@@ -82,11 +82,11 @@
 \n<b>Aviso:</b> Isto não irá influenciar mensagens salvas em outros dispositivos ou servidores.</string>
     <string name="also_end_conversation">Terminar esta conversa depois</string>
     <string name="choose_presence">Escolher dispositivo</string>
-    <string name="send_unencrypted_message">Mensagem</string>
+    <string name="send_unencrypted_message">Mensagem…</string>
     <string name="send_message_to_x">Enviar mensagem para %s</string>
-    <string name="send_omemo_message">Mensagem</string>
+    <string name="send_omemo_message">Mensagem…</string>
     <string name="send_omemo_x509_message">Enviar mensagem criptografada com v\\OMEMO</string>
-    <string name="send_pgp_message">Mensagem</string>
+    <string name="send_pgp_message">Mensagem…</string>
     <string name="your_nick_has_been_changed">O seu nome foi alterado</string>
     <string name="send_unencrypted">Enviar descriptografada</string>
     <string name="decryption_failed">A desencriptação falhou. Talvez você não tenha a chave privada correta.</string>
@@ -200,7 +200,7 @@
     <string name="last_seen_hours">visto %d horas atrás</string>
     <string name="last_seen_day">visto há 1 dia atrás</string>
     <string name="last_seen_days">visto %d dias atrás</string>
-    <string name="install_openkeychain">Mensagem criptografada. Por favor instale o OpenKeychain para desencriptar</string>
+    <string name="install_openkeychain">Mensagem criptografada. Por favor instale o OpenKeychain para desencriptar.</string>
     <string name="openpgp_messages_found">Mensagens criptografadas com OpenPGP encontradas</string>
     <string name="your_fingerprint">Sua impressão digital</string>
     <string name="openpgp_key_id">ID da chave OpenPGP</string>
@@ -282,7 +282,7 @@
     <string name="pref_use_colored_names_to_indicate_status_summary">Colorir os nomes de contato para indicar seus status</string>
     <string name="pref_expert_options_other">Outros</string>
     <string name="pref_autojoin">Sincronizar com os favoritos</string>
-    <string name="pref_autojoin_summary">Entre e saia dos grupos de acordo com a opção de adesão automática em seus favoritos</string>
+    <string name="pref_autojoin_summary">Entre e saia dos grupos de acordo com a opção de adesão automática em seus favoritos.</string>
     <string name="toast_message_omemo_fingerprint">Impressão digital OMEMO copiada!</string>
     <string name="conference_banned">Você foi banido deste grupo</string>
     <string name="conference_members_only">Este grupo é apenas para membros</string>
@@ -345,7 +345,7 @@
     <string name="clear_other_devices_desc">Tem certeza de que deseja limpar todos os outros dispositivos do anúncio OMEMO\? Na próxima vez que seus dispositivos se conectarem, eles se anunciarão novamente, mas podem não receber as mensagens enviadas nesse meio tempo.</string>
     <string name="distrust_omemo_key">Remover confiança do dispositivo</string>
     <string name="distrust_omemo_key_text">Tem certeza de que deseja remover a verificação deste dispositivo\?
-\nEste dispositivo e as mensagens provenientes deste dispositivo serão marcadas como não confiáveis</string>
+\nEste dispositivo e as mensagens provenientes deste dispositivo serão marcadas como não confiáveis.</string>
     <string name="error_no_keys_to_trust_server_error">Não há chaves utilizáveis disponíveis para este contato.
 \nA obtenção de novas chaves através do servidor não foi bem sucedida. Talvez haja algo errado com seu servidor de contatos.</string>
     <string name="error_trustkeys_title">Algo deu errado</string>
@@ -1274,14 +1274,13 @@
     <string name="delete_file_dialog_msg">Tem certeza de que deseja excluir este arquivo\?
 \n
 \n<b>Aviso:</b> isso não excluirá as cópias deste arquivo que estão armazenadas em outros dispositivos ou servidores.</string>
-    <string name="delete_message_dialog_msg">Você tem certeza que desejadeletar esta mensagem\?
+    <string name="delete_message_dialog_msg">Deseja realmente apagar esta mensagem\?
 \n
 \n<b>Aviso:</b> Não há garantia de que isso excluirá as cópias desta mensagem que estão armazenadas em outros dispositivos ou servidores.</string>
     <string name="pref_enable_persistent_rooms_summary">Torne grupos e salas públicas persistentes e não os exclua do servidor depois que o último usuário sair da conversa</string>
     <string name="pref_show_links_inside">Mostrar prévia de links na conversa</string>
     <string name="pref_enable_otr_summary">Ative a criptografia OTR para criptografia de mensagens. OTR ainda é altamente instável, por favor, use-o apenas se você souber o que está fazendo</string>
-    <string name="magic_create_text">
-\n Isso inclui:
+    <string name="magic_create_text">Isso inclui:
 \n● armazenamento de bate-papo temporário criptografado por dois meses
 \n● e-mail com 1 GB de armazenamento criptografado de ponta a ponta
 \n
@@ -1289,7 +1288,7 @@
 \n● 4 GB de armazenamento em nuvem (nextcloud)
 \n● calendário e sincronização de contatos
 \n● uma ferramenta de conferência segura
-\n● e mais em <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+\n e mais em <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="otr_warning">O suporte da criptografia OTR está no modo beta. Clique em leia mais para obter mais informações. Um link em um navegador será aberto.</string>
     <string name="please_enter_xmpp_address">Por favor, forneça um endereço XMPP</string>
     <string name="intro_desc_start_chatting">Se você concedeu permissões de contato, os contatos Jabber já existentes são exibidos automaticamente em sua lista de contatos. Caso contrário, basta adicionar os endereços.</string>

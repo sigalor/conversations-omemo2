@@ -107,15 +107,13 @@ public class ShortcutService {
                         .setShortLabel(mucOptions.getConversation().getName())
                         .setIntent(getShortcutIntent(mucOptions))
                         .setIsConversation();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            builder.setIcon(
-                    IconCompat.createFromIcon(
-                            xmppConnectionService,
-                            Icon.createWithBitmap(
-                                    xmppConnectionService
-                                            .getAvatarService()
-                                            .getRoundedShortcut(mucOptions))));
-        }
+        builder.setIcon(
+                IconCompat.createFromIcon(
+                        xmppConnectionService,
+                        Icon.createWithBitmap(
+                                xmppConnectionService
+                                        .getAvatarService()
+                                        .getRoundedShortcut(mucOptions))));
         return builder.build();
     }
 

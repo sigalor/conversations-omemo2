@@ -8,12 +8,6 @@
 -keep class com.soundcloud.android.crop.**
 -keep class com.google.android.gms.**
 -keep class org.openintents.openpgp.*
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public class * extends com.bumptech.glide.module.AppGlideModule
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
 -keep class com.squareup.okhttp.** { *; }
 -keep interface com.squareup.okhttp.** { *; }
 

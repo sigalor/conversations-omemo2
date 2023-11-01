@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.core.graphics.ColorUtils;
 
@@ -31,7 +34,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
     private static final float INACTIVE_ALPHA = 0.4684f;
     private static final float ACTIVE_ALPHA = 1.0f;
-    protected XmppActivity activity;
+    protected static XmppActivity activity;
     private boolean showDynamicTags = false;
     private boolean showPresenceColoredNames = false;
     private OnTagClickedListener mOnTagClickedListener = null;
@@ -87,9 +90,13 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             for (ListItem.Tag tag : tags) {
                 TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.tags, false);
                 tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(activity, R.drawable.rounded_tag);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundResource(R.drawable.rounded_tag);
                 tv.setOnClickListener(this.onTagTvClick);
                 viewHolder.tags.addView(tv);
+
             }
         }
         final Jid jid = item.getJid();
@@ -99,7 +106,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         } else {
             viewHolder.jid.setVisibility(View.GONE);
         }
-        if (activity.xmppConnectionService.multipleAccounts() && activity.xmppConnectionService.showOwnAccounts()) {
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.multipleAccounts() && activity.xmppConnectionService.showOwnAccounts()) {
             viewHolder.account.setVisibility(View.VISIBLE);
             viewHolder.account.setText(item.getAccount().getJid().asBareJid());
         } else {
@@ -112,7 +119,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
                 color = tag.getColor();
             }
         }
-        if (offline || !activity.xmppConnectionService.hasInternetConnection()) {
+        if (offline || activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection()) {
             viewHolder.name.setTextColor(StyledAttributes.getColor(activity, R.attr.text_Color_Main));
             viewHolder.name.setAlpha(INACTIVE_ALPHA);
             viewHolder.jid.setAlpha(INACTIVE_ALPHA);
@@ -129,7 +136,9 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             viewHolder.avatar.setAlpha(ACTIVE_ALPHA);
             viewHolder.tags.setAlpha(ACTIVE_ALPHA);
         }
-        AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
+        if (activity.xmppConnectionService != null) {
+            AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
+        }
         if (item.getActive()) {
             viewHolder.activeIndicator.setVisibility(View.VISIBLE);
         } else {
@@ -164,8 +173,12 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             viewHolder.name = binding.contactDisplayName;
             viewHolder.jid = binding.contactJid;
             viewHolder.account = binding.account;
-            viewHolder.avatar = binding.contactPhoto;
-            viewHolder.tags = binding.tags;
+            if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
+                viewHolder.avatar = binding.contactPhoto;
+            } else {
+                viewHolder.avatar = binding.contactPhotoSquare;
+            }
+                viewHolder.tags = binding.tags;
             viewHolder.activeIndicator = binding.userActiveIndicator;
             viewHolder.inner = binding.inner;
             binding.getRoot().setTag(viewHolder);

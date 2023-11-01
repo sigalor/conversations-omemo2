@@ -24,7 +24,8 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_chat_white_24dp"
             app:backgroundTint="?attr/colorAccent"
-            app:tint="@color/realwhite" />
+            app:tint="@color/realwhite"
+            android:contentDescription="@string/start_conversation" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

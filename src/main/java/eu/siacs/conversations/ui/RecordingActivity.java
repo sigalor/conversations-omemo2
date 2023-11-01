@@ -81,9 +81,7 @@ public class RecordingActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onStart() {
         super.onStart();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        }
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         Intent intent = getIntent();
         alternativeCodec = intent != null && intent.getBooleanExtra("ALTERNATIVE_CODEC", getResources().getBoolean(R.bool.alternative_voice_settings));
         if (!startRecording()) {
@@ -249,7 +247,10 @@ public class RecordingActivity extends AppCompatActivity implements View.OnClick
     public void onClick(final View view) {
         switch (view.getId()) {
             case R.id.cancel_button:
-                showCancelDialog();
+                mHandler.removeCallbacks(mTickExecutor);
+                stopRecording(false);
+                setResult(RESULT_CANCELED);
+                finish();
                 break;
             case R.id.share_button:
                 this.binding.shareButton.setEnabled(false);
@@ -258,23 +259,5 @@ public class RecordingActivity extends AppCompatActivity implements View.OnClick
                 mHandler.postDelayed(() -> stopRecording(true), 500);
                 break;
         }
-    }
-
-    private void showCancelDialog() {
-        stopRecording();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(RecordingActivity.this);
-        builder.setTitle(getString(R.string.cancel));
-        builder.setMessage(R.string.delete_recording_dialog_message);
-        builder.setPositiveButton(R.string.attach, (dialog, which) -> {
-            mHandler.removeCallbacks(mTickExecutor);
-            mHandler.postDelayed(() -> stopRecording(true), 500);
-        });
-        builder.setNegativeButton(R.string.delete, (dialog, which) -> {
-            mHandler.removeCallbacks(mTickExecutor);
-            stopRecording(false);
-            setResult(RESULT_CANCELED);
-            finish();
-        });
-        builder.create().show();
     }
 }

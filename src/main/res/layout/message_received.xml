@@ -22,9 +22,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:clickable="true"
-        android:focusable="true"
-        android:drawableStart="@drawable/ic_edit_white_24dp">
-        <!--What you want to show-->
+        android:focusable="true">
     </RelativeLayout>
 
     <RelativeLayout
@@ -33,14 +31,25 @@
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/message_photo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:scaleType="fitXY"
         app:strokeColor="@color/custom_theme_accent"
         app:riv_corner_radius="30dp" />
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/message_photo_square"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            app:strokeColor="@color/custom_theme_accent"
+            app:riv_corner_radius="5dp" />
 
     <LinearLayout
         android:id="@+id/message_box"
@@ -49,8 +58,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
         android:layout_toEndOf="@+id/message_photo"
         android:layout_toRightOf="@+id/message_photo"
         android:background="@drawable/message_bubble_received_light"
@@ -59,7 +68,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:padding="2dp">

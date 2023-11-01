@@ -116,15 +116,9 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
                         SignalMessage signalMessage = new SignalMessage(encryptedKey.key);
                         try {
                             plaintext = cipher.decrypt(signalMessage);
-                        } catch (InvalidMessageException e) {
+                        } catch (InvalidMessageException | NoSessionException e) {
                             if (iterator.hasNext()) {
-                                Log.w(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring crypto exception because possible keys left to try", e);
-                                continue;
-                            }
-                            throw new BrokenSessionException(this.remoteAddress, e);
-                        } catch (NoSessionException e) {
-                            if (iterator.hasNext()) {
-                                Log.w(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring crypto exception because possible keys left to try", e);
+                                Log.w(Config.LOGTAG,account.getJid().asBareJid()+": ignoring crypto exception because possible keys left to try",e);
                                 continue;
                             }
                             throw new BrokenSessionException(this.remoteAddress, e);
@@ -133,7 +127,7 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
                     }
                 } catch (InvalidVersionException | InvalidKeyException | LegacyMessageException | InvalidMessageException | DuplicateMessageException | InvalidKeyIdException | UntrustedIdentityException e) {
                     if (iterator.hasNext()) {
-                        Log.w(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring crypto exception because possible keys left to try", e);
+                        Log.w(Config.LOGTAG,account.getJid().asBareJid()+": ignoring crypto exception because possible keys left to try",e);
                         continue;
                     }
                     throw new CryptoFailedException("Error decrypting SignalMessage", e);
@@ -147,7 +141,7 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
                 //TODO: also (re)add to device list?
             }
         } else {
-            throw new CryptoFailedException("not encrypting omemo message from fingerprint " + getFingerprint() + " because it was marked as compromised");
+            throw new CryptoFailedException("not encrypting omemo message from fingerprint "+getFingerprint()+" because it was marked as compromised");
         }
         return plaintext;
     }
@@ -158,7 +152,7 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
         if (ignoreSessionTrust || status.isTrustedAndActive()) {
             try {
                 CiphertextMessage ciphertextMessage = cipher.encrypt(outgoingMessage);
-                return new AxolotlKey(getRemoteAddress().getDeviceId(), ciphertextMessage.serialize(), ciphertextMessage.getType() == CiphertextMessage.PREKEY_TYPE);
+                return new AxolotlKey(getRemoteAddress().getDeviceId(), ciphertextMessage.serialize(),ciphertextMessage.getType() == CiphertextMessage.PREKEY_TYPE);
             } catch (UntrustedIdentityException e) {
                 return null;
             }
