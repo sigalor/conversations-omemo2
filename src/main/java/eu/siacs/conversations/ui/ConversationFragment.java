@@ -4176,7 +4176,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void updateSendButton() {
-        messageListAdapter.setInputBubbleBackgroundColor(binding.input, isPrivateMessage());
+        messageListAdapter.setInputBubbleBackgroundColor(binding.inputArea, isPrivateMessage());
         boolean hasAttachments = mediaPreviewAdapter != null && mediaPreviewAdapter.hasAttachments();
         boolean useSendButtonToIndicateStatus = activity != null && PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("send_button_status", getResources().getBoolean(R.bool.send_button_status));
         final Conversation c = this.conversation;
@@ -4866,6 +4866,7 @@ public class ConversationFragment extends XmppFragment
         this.binding.italic.setOnClickListener(italicText);
         this.binding.monospace.setOnClickListener(monospaceText);
         this.binding.strikethrough.setOnClickListener(strikethroughText);
+        this.binding.close.setOnClickListener(close);
         if (Compatibility.runsTwentyEight()) {
             this.binding.me.setTooltipText(activity.getString(R.string.me));
             this.binding.quote.setTooltipText(activity.getString(R.string.quote));
@@ -4874,6 +4875,7 @@ public class ConversationFragment extends XmppFragment
             this.binding.monospace.setTooltipText(activity.getString(R.string.monospace));
             this.binding.monospace.setTooltipText(activity.getString(R.string.monospace));
             this.binding.strikethrough.setTooltipText(activity.getString(R.string.strikethrough));
+            this.binding.close.setTooltipText(activity.getString(R.string.close));
         }
     }
 

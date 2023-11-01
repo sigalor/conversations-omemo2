@@ -76,12 +76,20 @@
             android:visibility="gone"
             app:backgroundColor="?attr/colorAccent" />
 
+    <LinearLayout
+        android:id="@+id/input_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/input_bubble_light"
+        android:alpha="0.88" >
+
         <LinearLayout
             android:id="@+id/context_preview"
             android:visibility="gone"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_above="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="40dp"
@@ -91,7 +99,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginBottom="4dp"
             android:orientation="horizontal"
-            android:background="@drawable/input_bubble_light"
+            android:background="@drawable/comment_bubble_light"
             android:alpha="0.88" >
 
             <ImageView
@@ -140,12 +148,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/input_bubble_light"
-            android:alpha="0.88" >
+            android:layout_marginLeft="8dp" >
 
             <RelativeLayout
                     android:id="@+id/message_input_box"
@@ -298,6 +301,7 @@
                     android:layout_marginBottom="5dp"
                     android:visibility="gone"/>
 
+
             <RelativeLayout
                 android:id="@+id/textformat"
                 android:layout_width="match_parent"
@@ -320,8 +324,8 @@
 
                     <TextView
                         android:id="@+id/me"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/me"
                         android:gravity="center"
@@ -331,8 +335,8 @@
 
                     <TextView
                         android:id="@+id/quote"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/quote"
                         android:gravity="center"
@@ -342,8 +346,8 @@
 
                     <ImageButton
                         android:id="@+id/bold"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/bold"
                         android:src="?attr/ic_bold"
@@ -351,8 +355,8 @@
 
                     <ImageButton
                         android:id="@+id/italic"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/italic"
                         android:src="?attr/ic_italic"
@@ -360,8 +364,8 @@
 
                     <ImageButton
                         android:id="@+id/monospace"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/monospace"
                         android:src="?attr/ic_monospace"
@@ -369,21 +373,33 @@
 
                     <ImageButton
                         android:id="@+id/strikethrough"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/strikethrough"
                         android:src="?attr/ic_strikethrough"
                         android:visibility="visible" />
+
+                    <ImageButton
+                        android:id="@+id/close"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/close"
+                        android:src="?attr/ic_close"
+                        android:visibility="visible" />
                 </LinearLayout>
             </RelativeLayout>
+
         </RelativeLayout>
+
+    </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/snackbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/context_preview"
+            android:layout_above="@+id/input_area"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
