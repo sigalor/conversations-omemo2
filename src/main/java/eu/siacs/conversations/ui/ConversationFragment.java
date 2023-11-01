@@ -2053,7 +2053,7 @@ public class ConversationFragment extends XmppFragment
             case R.id.retract_message:
                 new AlertDialog.Builder(activity)
                         .setTitle(R.string.retract_message)
-                        .setMessage("Do you really want to retract this message?")
+                        .setMessage(R.string.retract_message_dialog_msg)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             Message message = selectedMessage;
                             while (message.mergeable(message.next())) {
