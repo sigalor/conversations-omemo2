@@ -77,313 +77,329 @@
                     app:backgroundColor="?attr/colorAccent" />
 
                 <LinearLayout
-                    android:id="@+id/context_preview"
-                    android:visibility="gone"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_above="@+id/input"
-                    android:layout_width="match_parent"
+                    android:id="@+id/input_area"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="40dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal"
-                    android:background="@drawable/input_bubble_light"
-                    android:alpha="0.88" >
-
-                    <ImageView
-                        android:src="?attr/icon_quote"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginLeft="13dp"
-                        android:layout_marginStart="13dp"
-                        android:contentDescription="@string/reply_to"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:layout_gravity="center_vertical" />
-
-                    <de.monocles.chat.ReadMoreTextView
-                        app:trimExpandedText="@string/show_less"
-                        app:trimCollapsedText="@string/show_more"
-                        app:trimMode="trimModeLength"
-                        app:colorClickableText="?attr/colorAccent"
-                        android:id="@+id/context_preview_text"
-                        android:layout_marginLeft="13dp"
-                        android:layout_marginStart="13dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content" />
-
-                    <ImageButton
-                        android:id="@+id/context_preview_cancel"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:padding="0dp"
-                        android:layout_marginEnd="13dp"
-                        android:layout_marginRight="13dp"
-                        android:contentDescription="@string/cancel"
-                        android:layout_gravity="center_vertical"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="?attr/icon_cancel_comment" />
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:id="@+id/input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
+                    android:orientation="vertical"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
                     android:background="@drawable/input_bubble_light"
                     android:alpha="0.88" >
 
-                    <RelativeLayout
-                        android:id="@+id/message_input_box"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageButton
-                            android:id="@+id/keyboardButton"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_centerVertical="true"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/show_keyboard"
-                            android:src="?attr/ic_keyboard_button"
-                            android:visibility="gone" />
-                        <ImageButton
-                            android:id="@+id/emojiButton"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_toEndOf="@+id/keyboardButton"
-                            android:layout_toRightOf="@+id/keyboardButton"
-                            android:layout_centerVertical="true"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/choose_emoji"
-                            android:src="?attr/ic_emoji_button"
-                            android:visibility="visible" />
-
-                        <RelativeLayout
-                            android:id="@+id/thread_identicon_layout"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_toEndOf="@+id/emojiButton"
-                            android:layout_toRightOf="@+id/emojiButton"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="8dp"
-                            android:visibility="visible"
-                            android:background="@drawable/thread_hint">
-
-                            <com.lelloman.identicon.view.GithubIdenticonView
-                                android:id="@+id/thread_identicon"
-                                android:alpha="0"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_centerVertical="true"
-                                android:contentDescription="@string/thread_marker" />
-                            <ImageView
-                                android:id="@+id/thread_identicon_lock"
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:layout_alignTop="@+id/thread_identicon"
-                                android:layout_alignBaseline="@+id/thread_identicon"
-                                android:layout_toEndOf="@+id/thread_identicon"
-                                android:layout_toRightOf="@+id/thread_identicon"
-                                android:visibility="gone"
-                                android:src="?attr/icon_small_lock"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/thread_locked" />
-                        </RelativeLayout>
-
-                        <RelativeLayout
-                            android:id="@+id/textinput_layout_new"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toEndOf="@+id/thread_identicon_layout"
-                            android:layout_toRightOf="@+id/thread_identicon_layout"
-                            android:layout_toStartOf="@+id/recordVoiceButton"
-                            android:layout_toLeftOf="@+id/recordVoiceButton">
-
-                            <TextView
-                                android:id="@+id/text_input_hint"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="-7dp"
-                                android:maxLines="1"
-                                android:paddingLeft="8dp"
-                                android:paddingRight="8dp"
-                                android:textAppearance="@style/TextAppearance.Conversations.Caption.Highlight"
-                                android:visibility="gone" />
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/media_preview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:paddingTop="8dp"
-                                android:requiresFadingEdge="horizontal"
-                                android:visibility="gone"
-                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                tools:listitem="@layout/media_preview" />
-
-                            <eu.siacs.conversations.ui.widget.EditMessage
-                                android:id="@+id/textinput"
-                                style="@style/Widget.Conversations.EditText"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ems="10"
-                                android:imeOptions="flagNoExtractUi|actionSend"
-                                android:inputType="textShortMessage|textMultiLine|textCapSentences"
-                                android:maxLines="6"
-                                android:minHeight="32dp"
-                                android:minLines="1"
-                                android:paddingStart="8dp"
-                                android:paddingLeft="8dp"
-                                android:paddingTop="8dp"
-                                android:paddingEnd="8dp"
-                                android:paddingRight="8dp"
-                                android:paddingBottom="8dp"
-                                android:singleLine="false"
-                                android:textSize="?TextSizeInput"
-                                android:textColor="?attr/text_Color_Main">
-                                <requestFocus />
-                            </eu.siacs.conversations.ui.widget.EditMessage>
-                        </RelativeLayout>
-
-                        <ImageButton
-                            android:id="@+id/recordVoiceButton"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_toStartOf="@+id/textSendButton"
-                            android:layout_toLeftOf="@+id/textSendButton"
-                            android:layout_centerVertical="true"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/attach_record_voice"
-                            android:src="?attr/ic_send_voice_offline"
-                            android:visibility="visible" />
-
-                        <ImageButton
-                            android:id="@+id/textSendButton"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginEnd="4dp"
-                            android:layout_centerVertical="true"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/send_message"
-                            android:src="@drawable/ic_send_text_offline" />
-                    </RelativeLayout>
-                    <androidx.emoji2.emojipicker.EmojiPickerView
-                        android:id="@+id/emoji_picker"
-                        android:layout_below="@+id/message_input_box"
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        app:emojiGridColumns="20"
-                        android:layout_marginBottom="5dp"
-                        android:visibility="gone"/>
-
-                    <RelativeLayout
-                        android:id="@+id/textformat"
+                    <LinearLayout
+                        android:id="@+id/context_preview"
+                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/message_input_box"
-                        android:paddingEnd="8dp"
-                        android:paddingRight="8dp"
-                        android:paddingStart="8dp"
-                        android:paddingLeft="8dp"
+                        android:minHeight="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
                         android:layout_marginBottom="4dp"
                         android:orientation="horizontal"
                         android:background="@drawable/comment_bubble_light"
-                        android:alpha="0.88">
+                        android:alpha="0.88" >
 
-                        <LinearLayout
+                        <ImageView
+                            android:src="?attr/icon_quote"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginLeft="13dp"
+                            android:layout_marginStart="13dp"
+                            android:contentDescription="@string/reply_to"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="center_vertical" />
+
+                        <de.monocles.chat.ReadMoreTextView
+                            app:trimExpandedText="@string/show_less"
+                            app:trimCollapsedText="@string/show_more"
+                            app:trimMode="trimModeLength"
+                            app:colorClickableText="?attr/colorAccent"
+                            android:id="@+id/context_preview_text"
+                            android:layout_marginLeft="13dp"
+                            android:layout_marginStart="13dp"
+                            android:layout_marginEnd="15dp"
+                            android:layout_marginRight="15dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_height="wrap_content" />
+
+                        <ImageButton
+                            android:id="@+id/context_preview_cancel"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:padding="0dp"
+                            android:layout_marginEnd="13dp"
+                            android:layout_marginRight="13dp"
+                            android:contentDescription="@string/cancel"
+                            android:layout_gravity="center_vertical"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="?attr/icon_cancel_comment" />
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <RelativeLayout
+                            android:id="@+id/message_input_box"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageButton
+                                android:id="@+id/keyboardButton"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/show_keyboard"
+                                android:src="?attr/ic_keyboard_button"
+                                android:visibility="gone" />
+                            <ImageButton
+                                android:id="@+id/emojiButton"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_toEndOf="@+id/keyboardButton"
+                                android:layout_toRightOf="@+id/keyboardButton"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/choose_emoji"
+                                android:src="?attr/ic_emoji_button"
+                                android:visibility="visible" />
+
+                            <RelativeLayout
+                                android:id="@+id/thread_identicon_layout"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_toEndOf="@+id/emojiButton"
+                                android:layout_toRightOf="@+id/emojiButton"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="8dp"
+                                android:visibility="visible"
+                                android:background="@drawable/thread_hint">
+
+                                <com.lelloman.identicon.view.GithubIdenticonView
+                                    android:id="@+id/thread_identicon"
+                                    android:alpha="0"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_centerVertical="true"
+                                    android:contentDescription="@string/thread_marker" />
+                                <ImageView
+                                    android:id="@+id/thread_identicon_lock"
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_alignTop="@+id/thread_identicon"
+                                    android:layout_alignBaseline="@+id/thread_identicon"
+                                    android:layout_toEndOf="@+id/thread_identicon"
+                                    android:layout_toRightOf="@+id/thread_identicon"
+                                    android:visibility="gone"
+                                    android:src="?attr/icon_small_lock"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/thread_locked" />
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:id="@+id/textinput_layout_new"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_toEndOf="@+id/thread_identicon_layout"
+                                android:layout_toRightOf="@+id/thread_identicon_layout"
+                                android:layout_toStartOf="@+id/recordVoiceButton"
+                                android:layout_toLeftOf="@+id/recordVoiceButton">
+
+                                <TextView
+                                    android:id="@+id/text_input_hint"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="-7dp"
+                                    android:maxLines="1"
+                                    android:paddingLeft="8dp"
+                                    android:paddingRight="8dp"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Caption.Highlight"
+                                    android:visibility="gone" />
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/media_preview"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:paddingTop="8dp"
+                                    android:requiresFadingEdge="horizontal"
+                                    android:visibility="gone"
+                                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                    tools:listitem="@layout/media_preview" />
+
+                                <eu.siacs.conversations.ui.widget.EditMessage
+                                    android:id="@+id/textinput"
+                                    style="@style/Widget.Conversations.EditText"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:ems="10"
+                                    android:imeOptions="flagNoExtractUi|actionSend"
+                                    android:inputType="textShortMessage|textMultiLine|textCapSentences"
+                                    android:maxLines="6"
+                                    android:minHeight="32dp"
+                                    android:minLines="1"
+                                    android:paddingStart="8dp"
+                                    android:paddingLeft="8dp"
+                                    android:paddingTop="8dp"
+                                    android:paddingEnd="8dp"
+                                    android:paddingRight="8dp"
+                                    android:paddingBottom="8dp"
+                                    android:singleLine="false"
+                                    android:textSize="?TextSizeInput"
+                                    android:textColor="?attr/text_Color_Main">
+                                    <requestFocus />
+                                </eu.siacs.conversations.ui.widget.EditMessage>
+                            </RelativeLayout>
+
+                            <ImageButton
+                                android:id="@+id/recordVoiceButton"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_toStartOf="@+id/textSendButton"
+                                android:layout_toLeftOf="@+id/textSendButton"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/attach_record_voice"
+                                android:src="?attr/ic_send_voice_offline"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/textSendButton"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentRight="true"
+                                android:layout_marginEnd="4dp"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/send_message"
+                                android:src="@drawable/ic_send_text_offline" />
+                        </RelativeLayout>
+                        <androidx.emoji2.emojipicker.EmojiPickerView
+                            android:id="@+id/emoji_picker"
+                            android:layout_below="@+id/message_input_box"
+                            android:layout_width="match_parent"
+                            android:layout_height="180dp"
+                            app:emojiGridColumns="20"
+                            android:layout_marginBottom="5dp"
+                            android:visibility="gone"/>
+
+
+                        <RelativeLayout
+                            android:id="@+id/textformat"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal">
+                            android:layout_below="@+id/message_input_box"
+                            android:paddingEnd="8dp"
+                            android:paddingRight="8dp"
+                            android:paddingStart="8dp"
+                            android:paddingLeft="8dp"
+                            android:layout_marginBottom="4dp"
+                            android:orientation="horizontal"
+                            android:background="@drawable/comment_bubble_light"
+                            android:alpha="0.88">
 
-                            <TextView
-                                android:id="@+id/me"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/me"
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
                                 android:gravity="center"
-                                android:text="/me"
-                                android:textSize="18sp"
-                                android:visibility="visible" />
+                                android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/quote"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/quote"
-                                android:gravity="center"
-                                android:text=">"
-                                android:textSize="18sp"
-                                android:visibility="visible" />
+                                <TextView
+                                    android:id="@+id/me"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/me"
+                                    android:gravity="center"
+                                    android:text="/me"
+                                    android:textSize="18sp"
+                                    android:visibility="visible" />
 
-                            <ImageButton
-                                android:id="@+id/bold"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/bold"
-                                android:src="?attr/ic_bold"
-                                android:visibility="visible" />
+                                <TextView
+                                    android:id="@+id/quote"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/quote"
+                                    android:gravity="center"
+                                    android:text=">"
+                                    android:textSize="18sp"
+                                    android:visibility="visible" />
 
-                            <ImageButton
-                                android:id="@+id/italic"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/italic"
-                                android:src="?attr/ic_italic"
-                                android:visibility="visible" />
+                                <ImageButton
+                                    android:id="@+id/bold"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/bold"
+                                    android:src="?attr/ic_bold"
+                                    android:visibility="visible" />
 
-                            <ImageButton
-                                android:id="@+id/monospace"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/monospace"
-                                android:src="?attr/ic_monospace"
-                                android:visibility="visible" />
+                                <ImageButton
+                                    android:id="@+id/italic"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/italic"
+                                    android:src="?attr/ic_italic"
+                                    android:visibility="visible" />
 
-                            <ImageButton
-                                android:id="@+id/strikethrough"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/strikethrough"
-                                android:src="?attr/ic_strikethrough"
-                                android:visibility="visible" />
-                        </LinearLayout>
+                                <ImageButton
+                                    android:id="@+id/monospace"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/monospace"
+                                    android:src="?attr/ic_monospace"
+                                    android:visibility="visible" />
+
+                                <ImageButton
+                                    android:id="@+id/strikethrough"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/strikethrough"
+                                    android:src="?attr/ic_strikethrough"
+                                    android:visibility="visible" />
+
+                                <ImageButton
+                                    android:id="@+id/close"
+                                    android:layout_width="42dp"
+                                    android:layout_height="42dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/close"
+                                    android:src="?attr/ic_close"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+                        </RelativeLayout>
+
                     </RelativeLayout>
-                </RelativeLayout>
+
+                </LinearLayout>
 
                 <RelativeLayout
                     android:id="@+id/snackbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_above="@+id/context_preview"
+                    android:layout_above="@+id/input_area"
                     android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginEnd="8dp"
