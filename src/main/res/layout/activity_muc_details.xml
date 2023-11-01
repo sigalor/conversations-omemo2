@@ -154,7 +154,7 @@
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:hint="@string/group_chat_name"
-                                            android:textAppearance="@style/Widget.Conversations.EditText" />
+                                            android:textAppearance="@style/Widget.Material3.TextInputEditText.FilledBox" />
                                     </com.google.android.material.textfield.TextInputLayout>
 
                                     <com.google.android.material.textfield.TextInputLayout
@@ -169,7 +169,7 @@
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:hint="@string/topic"
-                                            android:textAppearance="@style/Widget.Conversations.EditText" />
+                                            android:textAppearance="@style/Widget.Material3.TextInputEditText.FilledBox" />
                                     </com.google.android.material.textfield.TextInputLayout>
 
                                     <de.monocles.chat.TagEditorView

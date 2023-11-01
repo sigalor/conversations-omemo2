@@ -76,7 +76,8 @@
 
                                         <eu.siacs.conversations.ui.widget.TextInputEditText
                                             android:id="@+id/hostname"
-                                            style="@style/Widget.Conversations.EditText"
+                                            style="@style/Widget.Material3.TextInputEditText.FilledBox"
+android:fontFamily="notosansregular"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:inputType="textWebEmailAddress" />
@@ -100,7 +101,8 @@
 
                                         <eu.siacs.conversations.ui.widget.TextInputEditText
                                             android:id="@+id/port"
-                                            style="@style/Widget.Conversations.EditText"
+                                            style="@style/Widget.Material3.TextInputEditText.FilledBox"
+android:fontFamily="notosansregular"
                                             android:layout_width="match_parent"
                                             android:layout_height="match_parent"
                                             android:inputType="number"
@@ -120,7 +122,8 @@
 
                                 <AutoCompleteTextView
                                     android:id="@+id/account_jid"
-                                    style="@style/Widget.Conversations.EditText"
+                                    style="@style/Widget.Material3.TextInputEditText.FilledBox"
+android:fontFamily="notosansregular"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:imeOptions="actionNext"
@@ -142,7 +145,8 @@
 
                                 <eu.siacs.conversations.ui.widget.TextInputEditText
                                     android:id="@+id/account_password"
-                                    style="@style/Widget.Conversations.EditText"
+                                    style="@style/Widget.Material3.TextInputEditText.FilledBox"
+android:fontFamily="notosansregular"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:hint="@string/password"

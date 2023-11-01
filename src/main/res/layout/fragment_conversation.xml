@@ -238,7 +238,8 @@
 
                             <eu.siacs.conversations.ui.widget.EditMessage
                                 android:id="@+id/textinput"
-                                style="@style/Widget.Conversations.EditText"
+                                style="@style/Widget.Material3.TextInputEditText.FilledBox"
+                                android:fontFamily="notosansregular"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:ems="10"
