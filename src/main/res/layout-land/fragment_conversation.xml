@@ -150,9 +150,9 @@
 
                             <ImageButton
                                 android:id="@+id/keyboardButton"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:layout_marginEnd="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="4dp"
                                 android:layout_alignParentStart="true"
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
@@ -162,9 +162,9 @@
                                 android:visibility="gone" />
                             <ImageButton
                                 android:id="@+id/emojiButton"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:layout_marginEnd="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="4dp"
                                 android:layout_toEndOf="@+id/keyboardButton"
                                 android:layout_toRightOf="@+id/keyboardButton"
                                 android:layout_centerVertical="true"
@@ -175,8 +175,8 @@
 
                             <RelativeLayout
                                 android:id="@+id/thread_identicon_layout"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
                                 android:layout_toEndOf="@+id/emojiButton"
                                 android:layout_toRightOf="@+id/emojiButton"
                                 android:layout_centerVertical="true"
@@ -263,9 +263,9 @@
 
                             <ImageButton
                                 android:id="@+id/recordVoiceButton"
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:layout_marginEnd="8dp"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginEnd="4dp"
                                 android:layout_toStartOf="@+id/textSendButton"
                                 android:layout_toLeftOf="@+id/textSendButton"
                                 android:layout_centerVertical="true"
@@ -276,8 +276,8 @@
 
                             <ImageButton
                                 android:id="@+id/textSendButton"
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_alignParentRight="true"
                                 android:layout_marginEnd="4dp"
