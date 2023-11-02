@@ -1351,4 +1351,5 @@
     <string name="hide_notification">Hide notification</string>
     <string name="log_out">Log out</string>
     <string name="log_in">Log in</string>
+    <string name="unknown">Unknown</string>
 </resources>

@@ -17,8 +17,8 @@ public class CustomTab {
         tabBuilder.setShowTitle(true);
         tabBuilder.setUrlBarHidingEnabled(false);
         tabBuilder.setDefaultColorSchemeParams(new CustomTabColorSchemeParams.Builder()
-                .setToolbarColor(StyledAttributes.getColor(context, R.attr.colorPrimary))
-                .setSecondaryToolbarColor(StyledAttributes.getColor(context, R.attr.colorPrimaryDark))
+                .setToolbarColor(StyledAttributes.getColor(context, androidx.appcompat.R.attr.colorPrimary))
+                .setSecondaryToolbarColor(StyledAttributes.getColor(context, androidx.appcompat.R.attr.colorPrimaryDark))
                 .build());
         tabBuilder.setColorScheme(dark ? CustomTabsIntent.COLOR_SCHEME_DARK : CustomTabsIntent.COLOR_SCHEME_LIGHT);
         tabBuilder.setShareState(CustomTabsIntent.SHARE_STATE_ON);
