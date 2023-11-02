@@ -288,7 +288,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
                 }
 
                 final Contact self = new Contact(account.getSelfContact());
-                self.setSystemName("Note to Self");
+                self.setSystemName(getString(R.string.note_to_self));
                 if (self.match(this, needle)) {
                     getListItems().add(self);
                 }
