@@ -114,7 +114,7 @@ dependencies {
     implementation 'com.github.ipld:java-cid:v1.3.1'
     implementation 'com.github.woltapp:blurhash:master'
     implementation 'org.tomlj:tomlj:1.1.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     implementation 'io.michaelrocks:libphonenumber-android:8.13.17'
     implementation 'io.github.nishkarsh:android-permissions:2.1.6'
     implementation 'com.splitwise:tokenautocomplete:3.0.2'
