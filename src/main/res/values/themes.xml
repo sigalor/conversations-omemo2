@@ -21,6 +21,7 @@
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:navigationBarColor" >@color/black</item>
         <item name="android:statusBarColor">@color/accent</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
     </style>
     <!-- Preference screen styling -->
 
@@ -40,7 +41,7 @@
         <item name="colorAccentLight">@color/accent_light</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.MaterialComponents.Light</item>
-        <item name="colorControlNormal">@color/accent</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realblack</item>
         <item name="colorOnPrimary">@color/realwhite</item>
@@ -233,7 +234,7 @@
         <item name="colorAccentLight">@color/accent_light</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.MaterialComponents.Dark</item>
-        <item name="colorControlNormal">@color/accent</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realwhite</item>
         <item name="colorOnPrimary">@color/grey800</item>
@@ -609,7 +610,7 @@
         <item name="colorAccentLightDisabled">@color/accent_light_disabled_monocles</item>
         <item name="color_background_primary">#FFFFFF</item>
         <item name="color_background_tertiary">#FFFFFF</item>
-        <item name="colorControlNormal">@color/accent_monocles</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_monocles</item>
         <item name="color_bubble_light">@color/lightmonocles</item>
         <item name="color_bubble_dark">@color/lightmonocles2</item>
@@ -626,7 +627,7 @@
         <item name="colorAccent">@color/accent_monocles</item>
         <item name="colorAccentLight">@color/accent_light_monocles</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled_monocles</item>
-        <item name="colorControlNormal">@color/accent_monocles</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_monocles</item>
         <item name="color_bubble_light">@color/middlemonocles</item>
         <item name="color_bubble_dark">@color/darkmonocles</item>
@@ -640,7 +641,7 @@
         <item name="colorAccent">@color/accent_monocles</item>
         <item name="colorAccentLight">@color/accent_light_monocles</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled_monocles</item>
-        <item name="colorControlNormal">@color/accent_monocles</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_monocles</item>
         <item name="android:actionModeBackground">@color/accent_monocles</item>
     </style>
@@ -804,7 +805,7 @@
         <item name="colorAccent">@color/accent_orange</item>
         <item name="colorAccentLight">@color/accent_light_orange</item>
         <item name="colorAccentLightDisabled">@color/accent_light_orange_disabled</item>
-        <item name="colorControlNormal">@color/accent_orange</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_orange</item>
         <item name="color_bubble_light">@color/lightorange</item>
         <item name="color_bubble_dark">@color/lightorange2</item>
@@ -821,7 +822,7 @@
         <item name="colorAccent">@color/accent_orange</item>
         <item name="colorAccentLight">@color/accent_light_orange</item>
         <item name="colorAccentLightDisabled">@color/accent_light_orange_disabled</item>
-        <item name="colorControlNormal">@color/accent_orange</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_orange</item>
         <item name="color_bubble_light">@color/middleorange</item>
         <item name="color_bubble_dark">@color/darkorange</item>
@@ -835,7 +836,7 @@
         <item name="colorAccent">@color/accent_orange</item>
         <item name="colorAccentLight">@color/accent_light_orange</item>
         <item name="colorAccentLightDisabled">@color/accent_light_orange_disabled</item>
-        <item name="colorControlNormal">@color/accent_orange</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_orange</item>
         <item name="android:actionModeBackground">@color/accent_orange</item>
     </style>
@@ -999,7 +1000,7 @@
         <item name="colorAccent">@color/accent_grey</item>
         <item name="colorAccentLight">@color/accent_light_grey</item>
         <item name="colorAccentLightDisabled">@color/accent_light_grey_disabled</item>
-        <item name="colorControlNormal">@color/accent_grey</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_grey</item>
         <item name="color_bubble_light">@color/lightgrey</item>
         <item name="color_bubble_dark">@color/lightgrey2</item>
@@ -1014,7 +1015,7 @@
         <item name="colorAccent">@color/accent_grey</item>
         <item name="colorAccentLight">@color/accent_light_grey</item>
         <item name="colorAccentLightDisabled">@color/accent_light_grey_disabled</item>
-        <item name="colorControlNormal">@color/accent_grey</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_grey</item>
         <item name="color_bubble_light">@color/middlegrey</item>
         <item name="color_bubble_dark">@color/darkgrey</item>
@@ -1028,7 +1029,7 @@
         <item name="colorAccent">@color/accent_grey</item>
         <item name="colorAccentLight">@color/accent_light_grey</item>
         <item name="colorAccentLightDisabled">@color/accent_light_grey_disabled</item>
-        <item name="colorControlNormal">@color/accent_grey</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_grey</item>
         <item name="android:actionModeBackground">@color/accent_grey</item>
     </style>
@@ -1192,7 +1193,7 @@
         <item name="colorAccent">@color/accent_pink</item>
         <item name="colorAccentLight">@color/accent_light_pink</item>
         <item name="colorAccentLightDisabled">@color/accent_light_pink_disabled</item>
-        <item name="colorControlNormal">@color/accent_pink</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_pink</item>
         <item name="color_bubble_light">@color/lightpink</item>
         <item name="color_bubble_dark">@color/lightpink2</item>
@@ -1207,7 +1208,7 @@
         <item name="colorAccent">@color/accent_pink</item>
         <item name="colorAccentLight">@color/accent_light_pink</item>
         <item name="colorAccentLightDisabled">@color/accent_light_pink_disabled</item>
-        <item name="colorControlNormal">@color/accent_pink</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_pink</item>
         <item name="color_bubble_light">@color/middlepink</item>
         <item name="color_bubble_dark">@color/darkpink</item>
@@ -1221,7 +1222,7 @@
         <item name="colorAccent">@color/accent_pink</item>
         <item name="colorAccentLight">@color/accent_light_pink</item>
         <item name="colorAccentLightDisabled">@color/accent_light_pink_disabled</item>
-        <item name="colorControlNormal">@color/accent_pink</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_pink</item>
         <item name="android:actionModeBackground">@color/accent_pink</item>
     </style>
@@ -1386,7 +1387,7 @@
         <item name="colorAccent">@color/accent_White</item>
         <item name="colorAccentLight">@color/accent_light_White</item>
         <item name="colorAccentLightDisabled">@color/accent_light_White_disabled</item>
-        <item name="colorControlNormal">@color/accent_White</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_White</item>
         <item name="color_bubble_light">@color/lightWhite</item>
         <item name="color_bubble_dark">@color/lightWhite2</item>
@@ -1401,7 +1402,7 @@
         <item name="colorAccent">@color/accent_White</item>
         <item name="colorAccentLight">@color/accent_light_White</item>
         <item name="colorAccentLightDisabled">@color/accent_light_White_disabled</item>
-        <item name="colorControlNormal">@color/accent_White</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_White</item>
         <item name="color_bubble_light">@color/middleWhite</item>
         <item name="color_bubble_dark">@color/darkWhite</item>
@@ -1415,7 +1416,7 @@
         <item name="colorAccent">@color/accent_White</item>
         <item name="colorAccentLight">@color/accent_light_White</item>
         <item name="colorAccentLightDisabled">@color/accent_light_White_disabled</item>
-        <item name="colorControlNormal">@color/accent_White</item>
+        <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent_White</item>
         <item name="android:actionModeBackground">@color/accent_White</item>
     </style>
