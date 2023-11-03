@@ -1492,6 +1492,9 @@ public class ConversationFragment extends XmppFragment
         final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
         final MenuItem menuMediaBrowser = menu.findItem(R.id.action_mediabrowser);
         final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
+        final MenuItem menuManageAccounts = menu.findItem(R.id.action_accounts);
+        final MenuItem menuSettings = menu.findItem(R.id.action_settings);
+        final MenuItem menuInviteToChat = menu.findItem(R.id.action_invite_user);
 
         if (conversation != null) {
             if (conversation.getMode() == Conversation.MODE_MULTI || (activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection())) {
@@ -1501,6 +1504,9 @@ public class ConversationFragment extends XmppFragment
                 menuCall.setVisible(false);
                 menuOngoingCall.setVisible(false);
                 menuParticipants.setVisible(true);
+                menuManageAccounts.setVisible(false);
+                menuSettings.setVisible(false);
+                menuInviteToChat.setVisible(false);
             } else {
                 final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
                 final Optional<OngoingRtpSession> ongoingRtpSession = service == null ? Optional.absent() : service.getJingleConnectionManager().getOngoingRtpConnection(conversation.getContact());
@@ -1518,6 +1524,9 @@ public class ConversationFragment extends XmppFragment
                 menuInviteContact.setVisible(false);
                 menuArchiveChat.setVisible(true);
                 menuLeaveGroup.setVisible(false);
+                menuManageAccounts.setVisible(false);
+                menuSettings.setVisible(false);
+                menuInviteToChat.setVisible(false);
             }
             try {
                 Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
