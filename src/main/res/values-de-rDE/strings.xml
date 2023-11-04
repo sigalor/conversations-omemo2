@@ -206,8 +206,8 @@
     <string name="openpgp_messages_found">Verschlüsselte OpenPGP-Nachricht gefunden</string>
     <string name="your_fingerprint">Dein Fingerabdruck</string>
     <string name="openpgp_key_id">OpenPGP Schlüssel ID</string>
-    <string name="omemo_fingerprint">OMEMO-Fingerabdruck</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-Fingerabdruck</string>
+    <string name="omemo_fingerprint">OMEMO-Fingerabdruck&#160;-&#160;</string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO-Fingerabdruck&#160;-&#160;</string>
     <string name="omemo_fingerprint_selected_message">OMEMO-Fingerabdruck (Nachrichtenquelle)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-Fingerabdruck (Nachrichtenquelle)</string>
     <string name="other_devices">Andere Geräte</string>
@@ -1387,4 +1387,8 @@
     <string name="pref_show_less_avatars_summary">Zeigt nur noch notwendige Profilbilder in Unterhaltungen an</string>
     <string name="pref_set_text_collapsable">Kürze lange Nachrichten</string>
     <string name="pref_set_text_collapsable_summary">Verkürzt Nachrichten welche länger als 240 Zeichen sind.</string>
+    <string name="media">Medien</string>
+    <string name="security">Sicherheit</string>
+    <string name="verified_with_qr_code">verifiziert mit QR-Code</string>
+    <string name="key_automatically_accepted">Fingerabdruck nicht verifiziert</string>
 </resources>

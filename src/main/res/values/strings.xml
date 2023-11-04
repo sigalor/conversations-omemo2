@@ -195,8 +195,8 @@
     <string name="openpgp_messages_found">OpenPGP encrypted messages found</string>
     <string name="your_fingerprint">Your fingerprint</string>
     <string name="openpgp_key_id">OpenPGP Key ID</string>
-    <string name="omemo_fingerprint">OMEMO fingerprint</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO fingerprint</string>
+    <string name="omemo_fingerprint">OMEMO fingerprint&#160;-&#160;</string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO fingerprint&#160;-&#160;</string>
     <string name="omemo_fingerprint_selected_message">OMEMO fingerprint (message origin)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO fingerprint (message origin)</string>
     <string name="other_devices">Other devices</string>
