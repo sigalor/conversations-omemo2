@@ -55,6 +55,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -77,6 +81,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
@@ -1158,8 +1163,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 return;
             }
         }
+        Typeface font = ResourcesCompat.getFont(this, R.font.notosanssemibold);
+        SpannableStringBuilder app_title = new SpannableStringBuilder("monocles chat");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            app_title.setSpan (new TypefaceSpan(font), 0, 13, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        }
         actionBar.setDisplayShowCustomEnabled(false);
-        actionBar.setTitle(R.string.app_title);
+        actionBar.setTitle(app_title);
         actionBar.setDisplayHomeAsUpEnabled(false);
         ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar);
     }
