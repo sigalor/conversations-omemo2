@@ -332,6 +332,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         this.mUserPreviewAdapter = new UserPreviewAdapter();
         this.binding.media.setAdapter(mMediaAdapter);
         this.binding.users.setAdapter(mUserPreviewAdapter);
+        //TODO: Implement recyclerview for users list and media list
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
         GridManager.setupLayoutManager(this, this.binding.users, R.dimen.media_size);
         this.binding.invite.setOnClickListener(v -> inviteToConversation(mConversation));

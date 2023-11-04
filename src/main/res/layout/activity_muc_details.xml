@@ -24,10 +24,43 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                    <LinearLayout
+                <ImageButton
+                    android:id="@+id/edit_muc_name_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:paddingRight="@dimen/image_button_padding"
+                    android:src="?attr/icon_edit_body" />
+
+                <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/details_muc_avatar"
+                            android:layout_width="@dimen/avatar_on_details_screen_size"
+                            android:layout_height="@dimen/avatar_on_details_screen_size"
+                            android:layout_marginEnd="@dimen/avatar_item_distance"
+                            android:layout_marginRight="@dimen/avatar_item_distance"
+                            android:padding="1dp"
+                            android:layout_gravity="center"
+                            android:scaleType="centerCrop"
+                            app:riv_corner_radius="80dp"
+                            android:visibility="gone" />
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/details_muc_avatar_square"
+                            android:layout_width="@dimen/avatar_on_details_screen_size"
+                            android:layout_height="@dimen/avatar_on_details_screen_size"
+                            android:layout_marginEnd="@dimen/avatar_item_distance"
+                            android:layout_marginRight="@dimen/avatar_item_distance"
+                            android:padding="1dp"
+                            android:layout_gravity="center"
+                            android:scaleType="centerCrop"
+                            app:riv_corner_radius="5dp"
+                            android:visibility="gone" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -46,36 +79,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_alignParentStart="true"
                                     android:layout_alignParentLeft="true"
-                                    android:layout_toStartOf="@+id/edit_muc_name_button"
-                                    android:layout_toLeftOf="@+id/edit_muc_name_button"
                                     android:orientation="vertical">
-
-                                    <LinearLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:orientation="horizontal">
-
-                                        <com.makeramen.roundedimageview.RoundedImageView
-                                            android:id="@+id/details_muc_avatar"
-                                            android:layout_width="@dimen/avatar_on_details_screen_size"
-                                            android:layout_height="@dimen/avatar_on_details_screen_size"
-                                            android:layout_marginEnd="@dimen/avatar_item_distance"
-                                            android:layout_marginRight="@dimen/avatar_item_distance"
-                                            android:padding="1dp"
-                                            android:scaleType="centerCrop"
-                                            app:riv_corner_radius="80dp"
-                                            android:visibility="gone" />
-
-                                        <com.makeramen.roundedimageview.RoundedImageView
-                                            android:id="@+id/details_muc_avatar_square"
-                                            android:layout_width="@dimen/avatar_on_details_screen_size"
-                                            android:layout_height="@dimen/avatar_on_details_screen_size"
-                                            android:layout_marginEnd="@dimen/avatar_item_distance"
-                                            android:layout_marginRight="@dimen/avatar_item_distance"
-                                            android:padding="1dp"
-                                            android:scaleType="centerCrop"
-                                            app:riv_corner_radius="5dp"
-                                            android:visibility="gone" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
@@ -86,7 +90,28 @@
                                                 android:id="@+id/muc_title"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
+                                                android:layout_gravity="center"
                                                 android:textAppearance="@style/TextAppearance.Conversations.Title" />
+
+                                            <TextView
+                                                android:id="@+id/jid"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:text="@string/account_settings_example_jabber_id"
+                                                android:layout_gravity="center"
+                                                android:textAppearance="@style/TextAppearance.Conversations.Body1"
+                                                android:textIsSelectable="true"
+                                                android:visibility="gone" />
+
+                                            <com.wefika.flowlayout.FlowLayout
+                                                android:id="@+id/tags"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:layout_gravity="center"
+                                                android:layout_marginBottom="4dp"
+                                                android:layout_marginLeft="-16dp"
+                                                android:layout_marginTop="4dp"
+                                                android:orientation="horizontal" />
 
                                             <Button
                                                 android:id="@+id/relatedMucs"
@@ -95,21 +120,11 @@
                                                 android:layout_height="wrap_content"
                                                 android:layout_gravity="end"
                                                 android:minWidth="0dp"
-                                                android:layout_marginTop="32dp"
+                                                android:layout_marginBottom="4dp"
                                                 android:layout_marginRight="4dp"
                                                 android:text="@string/related_chats"
                                                 android:textColor="?attr/colorAccent" />
-
-                                            <TextView
-                                                android:id="@+id/jid"
-                                                android:layout_width="wrap_content"
-                                                android:layout_height="wrap_content"
-                                                android:text="@string/account_settings_example_jabber_id"
-                                                android:textAppearance="@style/TextAppearance.Conversations.Body1"
-                                                android:textIsSelectable="true"
-                                                android:visibility="gone" />
                                         </LinearLayout>
-                                    </LinearLayout>
 
                                     <TextView
                                         android:id="@+id/muc_subject"
@@ -119,16 +134,6 @@
                                         android:autoLink="web"
                                         android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
 
-                                    <com.wefika.flowlayout.FlowLayout
-                                        android:id="@+id/tags"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginBottom="4dp"
-                                        android:layout_marginLeft="-2dp"
-                                        android:layout_marginTop="4dp"
-                                        android:orientation="horizontal" />
-
-
                                 </LinearLayout>
 
                                 <LinearLayout
@@ -137,10 +142,15 @@
                                     android:layout_height="wrap_content"
                                     android:layout_alignParentStart="true"
                                     android:layout_alignParentLeft="true"
-                                    android:layout_toStartOf="@+id/edit_muc_name_button"
-                                    android:layout_toLeftOf="@+id/edit_muc_name_button"
                                     android:orientation="vertical"
                                     android:visibility="gone">
+
+                                    <de.monocles.chat.TagEditorView
+                                        android:id="@+id/edit_tags"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="@string/tags"
+                                        android:layout_marginBottom="4dp" />
 
                                     <com.google.android.material.textfield.TextInputLayout
                                         style="@style/Widget.Conversations.TextInputLayout.OutlinedBox"
@@ -174,26 +184,8 @@
                                             style="@style/Widget.Material3.TextInputEditText.FilledBox" />
                                     </com.google.android.material.textfield.TextInputLayout>
 
-                                    <de.monocles.chat.TagEditorView
-                                        android:id="@+id/edit_tags"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:hint="Tags"
-                                        android:layout_marginBottom="4dp" />
-
                                 </LinearLayout>
 
-                                <ImageButton
-                                    android:id="@+id/edit_muc_name_button"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentTop="true"
-                                    android:layout_alignParentEnd="true"
-                                    android:layout_alignParentRight="true"
-                                    android:alpha="?attr/icon_alpha"
-                                    android:background="?attr/selectableItemBackgroundBorderless"
-                                    android:padding="@dimen/image_button_padding"
-                                    android:src="?attr/icon_edit_body" />
                             </RelativeLayout>
 
                             <RelativeLayout
@@ -222,7 +214,6 @@
                                     android:layout_alignParentRight="true"
                                     android:layout_centerVertical="true"
                                     android:layout_gravity="center_horizontal"
-                                    android:alpha="?attr/icon_alpha"
                                     android:background="?attr/selectableItemBackgroundBorderless"
                                     android:padding="@dimen/image_button_padding"
                                     android:src="?attr/icon_settings" />
@@ -254,7 +245,6 @@
                                     android:layout_alignParentRight="true"
                                     android:layout_centerVertical="true"
                                     android:layout_gravity="center_horizontal"
-                                    android:alpha="?attr/icon_alpha"
                                     android:background="?attr/selectableItemBackgroundBorderless"
                                     android:padding="@dimen/image_button_padding"
                                     android:src="@drawable/ic_notifications_black_24dp" />
@@ -409,7 +399,6 @@
                                     android:layout_alignParentEnd="true"
                                     android:layout_alignParentRight="true"
                                     android:layout_centerVertical="true"
-                                    android:alpha="?attr/icon_alpha"
                                     android:background="?attr/selectableItemBackgroundBorderless"
                                     android:padding="@dimen/image_button_padding"
                                     android:src="?attr/icon_edit_body" />
@@ -471,10 +460,9 @@
                             android:paddingEnd="@dimen/card_padding_regular"
                             android:paddingBottom="@dimen/card_padding_list" />
 
-                        <LinearLayout
+                        <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
                             android:orientation="horizontal">
 
                             <Button
@@ -482,6 +470,8 @@
                                 style="@style/Widget.Conversations.Button.Borderless"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_alignParentStart="true"
                                 android:minWidth="0dp"
                                 android:paddingStart="16dp"
                                 android:paddingLeft="16dp"
@@ -495,6 +485,8 @@
                                 style="@style/Widget.Conversations.Button.Borderless"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:layout_alignParentEnd="true"
                                 android:minWidth="0dp"
                                 android:paddingStart="16dp"
                                 android:paddingLeft="16dp"
@@ -502,7 +494,7 @@
                                 android:paddingRight="16dp"
                                 android:textColor="?attr/colorAccent"
                                 tools:text="View n Participants" />
-                        </LinearLayout>
+                        </RelativeLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
