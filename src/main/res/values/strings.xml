@@ -1354,4 +1354,8 @@
     <string name="unknown">Unknown</string>
     <string name="contact_uses_unverified_keys">Your contact uses unverified devices. Scan their 2D barcode to perform verification and impede active MITM attacks.</string>
     <string name="unverified_devices">You are using unverified devices. Scan the 2D barcode on your other devices to perform verification and impede active MITM attacks.</string>
+    <string name="media">Media</string>
+    <string name="security">Security</string>
+    <string name="verified_with_qr_code">&#160;- verified with QR-code</string>
+    <string name="key_automatically_accepted">&#160;- key not verified</string>
 </resources>
