@@ -906,7 +906,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.tags.removeAllViewsInLayout();
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
-                tv.setText(tag.getName());
+                String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
+                tv.setText(upperString);
                 Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
                 Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, tag.getColor());

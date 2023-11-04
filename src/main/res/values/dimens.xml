@@ -19,7 +19,7 @@
     <dimen name="media_size">56dp</dimen> <!-- ideally not larger than avatar_on_details_screen -->
     <dimen name="browser_media_size">96dp</dimen>
     <dimen name="toolbar_elevation">4dp</dimen>
-
+    <dimen name="search_view_tags_space">8dp</dimen>
     <dimen name="publish_avatar_top_margin">8dp</dimen>
     <dimen name="publish_avatar_size">96dp</dimen>
     <dimen name="incoming_call_radius">48dp</dimen>

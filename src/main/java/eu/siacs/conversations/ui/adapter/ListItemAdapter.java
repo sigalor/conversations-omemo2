@@ -89,7 +89,8 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             viewHolder.tags.removeAllViewsInLayout();
             for (ListItem.Tag tag : tags) {
                 TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.tags, false);
-                tv.setText(tag.getName());
+                String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
+                tv.setText(upperString);
                 Drawable unwrappedDrawable = AppCompatResources.getDrawable(activity, R.drawable.rounded_tag);
                 Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, tag.getColor());

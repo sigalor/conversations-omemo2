@@ -38,7 +38,8 @@ public class TagEditorView extends TokenCompleteTextView<ListItem.Tag> {
     protected View getViewForObject(ListItem.Tag tag) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, (ViewGroup) getParent(), false);
-        tv.setText(tag.getName());
+        String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
+        tv.setText(upperString);
         Drawable unwrappedDrawable = AppCompatResources.getDrawable(this.getContext(), R.drawable.rounded_tag);
         Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
         DrawableCompat.setTint(wrappedDrawable, tag.getColor());
