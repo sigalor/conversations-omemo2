@@ -4,7 +4,7 @@
     <string name="action_dialpad">Teclado</string>
     <string name="action_add">Nueva conversación</string>
     <string name="action_accounts">Gestionar cuentas</string>
-    <string name="action_end_conversation">Terminar esta conversación</string>
+    <string name="action_end_conversation">Archivar esta conversación</string>
     <string name="action_contact_details">Detalles del contacto</string>
     <string name="action_secure">Conversación segura</string>
     <string name="action_add_new_account">Añadir nueva cuenta</string>
@@ -41,7 +41,7 @@
     <string name="moderator">Moderador</string>
     <string name="participant">Participante</string>
     <string name="visitor">Visitante</string>
-    <string name="remove_contact_text">¿Quieres eliminar a %s de tu lista\? La conversación asociada a esta cuenta no se eliminará.</string>
+    <string name="remove_contact_text">¿Quieres eliminar a %s de tu lista de contactos? La conversación asociada a esta cuenta no se eliminará.</string>
     <string name="block_contact_text">¿Quieres bloquear a %s para que no pueda enviarte mensajes\?</string>
     <string name="unblock_contact_text">¿Quieres desbloquear a %s y permitirle que te envíe mensajes\?</string>
     <string name="block_domain_text">¿Bloquear todos los contactos de %s\?</string>
@@ -73,7 +73,7 @@
     <string name="problem_connecting_to_accounts">No se ha podido conectar a múltiples cuentas</string>
     <string name="touch_to_fix">Pulsa aquí para gestionar tus cuentas</string>
     <string name="attach_file">Adjuntar</string>
-    <string name="not_in_roster">El contacto no está en tu lista. ¿Quieres añadirlo\?</string>
+    <string name="not_in_roster">El contacto no está en tu lista de contactos. ¿Quieres añadirlo\?</string>
     <string name="add_contact">Añadir un contacto</string>
     <string name="send_failed">Error al enviar</string>
     <string name="preparing_image">Preparando imagen para enviar</string>
@@ -126,7 +126,7 @@
     <string name="pref_send_crash_summary">Al enviar trazas de la pila, estás contribuyendo al desarrollo continuo de monocles chat</string>
     <string name="pref_confirm_messages">Confirmar mensajes</string>
     <string name="pref_confirm_messages_summary">Permitir a tus contactos saber cuando has recibido y leído sus mensajes</string>
-    <string name="pref_ui_options">Pantalla</string>
+    <string name="pref_ui_options">Interfaz de usuario</string>
     <string name="openpgp_error">OpenKeychain reportó un error</string>
     <string name="accept">Aceptar</string>
     <string name="error">Ha ocurrido un error</string>
@@ -208,8 +208,8 @@
     <string name="openpgp_messages_found">Encontrado mensaje cifrado con OpenPGP</string>
     <string name="your_fingerprint">Tu huella digital</string>
     <string name="openpgp_key_id">ID de clave de OpenPGP</string>
-    <string name="omemo_fingerprint">Huella digital OMEMO</string>
-    <string name="omemo_fingerprint_x509">Huella digital v\\OMEMO</string>
+    <string name="omemo_fingerprint">Huella digital OMEMO&#160;-&#160;</string>
+    <string name="omemo_fingerprint_x509">Huella digital v\\OMEMO&#160;-&#160;</string>
     <string name="omemo_fingerprint_selected_message">Huella OMEMO (origen del mensaje)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\Huella OMEMO (mensaje original)</string>
     <string name="other_devices">Otros dispositivos</string>
@@ -269,7 +269,7 @@
     <string name="without_mutual_presence_updates"><b>Aviso:</b> Si envías esto sin suscripción de presencia con tu contacto se podrían producir problemas inesperados.
 \n
 \n<small>Verifica la suscripción de presencia en detalles del contacto.</small></string>
-    <string name="pref_security_settings">Seguridad</string>
+    <string name="pref_security_settings">Seguridad y privacidad</string>
     <string name="pref_allow_message_correction">Corrección de mensaje</string>
     <string name="pref_allow_message_correction_summary">Permitir a tus contactos editar mensajes previamente enviados</string>
     <string name="pref_allow_message_retraction">Permitir retirada de mensajes</string>
@@ -1145,7 +1145,7 @@
     <string name="outgoing_call_duration">%s · Llamada en curso · %s</string>
     <string name="outgoing_call_time">%s · Llamada en curso</string>
     <string name="outgoing_call">Llamada en curso</string>
-    <string name="disable_tor_to_make_call">Deshabilita Tor para hacer llamadas</string>
+    <string name="disable_tor_to_make_call">Deshabilita Tor para hacer llamadas o usa Tor en modo VPN</string>
     <string name="no_i2p_calls">No se pueden hacer llamadas via I2P</string>
     <string name="help">Ayuda</string>
     <string name="switch_to_conversation">Cambiar a conversación</string>
@@ -1345,6 +1345,7 @@
     <string name="outgoing_call_timestamp">Llamada saliente · %s</string>
     <string name="note_to_self">Nota para mi</string>
     <string name="retract_message">Retractar mensaje</string>
+    <string name="retract_message_dialog_msg">¿Realmente quieres retractar este mensaje?</string>
     <string name="reply_to">Responder a</string>
     <string name="or_use_another">... o escoger otro a continación</string>
     <string name="monocles_account_introduction">¡Puedes usar monocles chat con cualquier cuenta de XMPP u <b>obtener una cuenta segura y asequible en monocles, alojada en el servidor de monocles alimentado con energía renovable!</b></string>
@@ -1404,7 +1405,7 @@
     <string name="settings_restore_message_failure">Fallo al restaurar ajustes: %s</string>
     <string name="pref_import_database_or_settings">Importar base de datos o ajustes</string>
     <string name="pref_import_database_or_settings_summary">Importar una copia de seguridad de tu base de datos o de un archivo de la configuración</string>
-    <string name="create_monocles_only_backup">¿Exportar los datos adicionales sólo de Monocles (entonces la copia de seguridad no se importará a otras aplicaciones)\?</string>
+    <string name="create_monocles_only_backup">¿Exportar los datos adicionales de Monocles solo de chat (entonces la copia de seguridad no se importará a otras aplicaciones)\?</string>
     <string name="menuitem_create_backup_action">Crear una copia de seguridad</string>
     <string name="pref_use_blue_readmarkers_title">Utilizar marcadores de lectura azules</string>
     <string name="pref_use_blue_readmarkers_summary">Utiliza marcadores de lectura azules en lugar de blancos o negros</string>
@@ -1417,4 +1418,27 @@
     <string name="pref_set_round_avatars">Avatares circulares</string>
     <string name="choose_emoji">Elige un emoticono</string>
     <string name="show_keyboard">Mostrar teclado</string>
+    <string name="pref_show_thread_feature_summary">Mostrar el icono del hilo en el campo de entrada y permitir crear y seguir hilos</string> 
+    <string name="pref_show_thread_feature">Mostrar icono del hilo</string> 
+    <string name="app_title" formatted="true">monocles chat</string>
+    <string name="edit_sytemaccount_or_xmppaccount">¿Editar contacto de chat o contacto de teléfono?</string> 
+    <string name="edit_sytemaccount">Contacto de teléfono</string> 
+    <string name="edit_chat_contact">contacto de chat</string>
+    <string name="enter_user_name">Entrar un nombre</string> 
+    <string name="account_color">Color de la cuenta</string> 
+    <string name="account_color_summary">Usado en conversaciones y listas de contactos, y notificaciones</string> 
+    <string name="notifications_enabled">Notificaciones habilitadas</string> 
+    <string name="notifications_disabled">Notificaciones deshabilitadas. Habilitarlas en los ajuste de android.</string> 
+    <string name="pref_show_less_avatars">Mostrar menos avatares en los chats</string> 
+    <string name="pref_show_less_avatars_summary">Solo se mostrarán los avatares necesarios en las conversaciones</string> 
+    <string name="no_media_permission">Sin permiso de almacenamiento de medios</string> 
+    <string name="pref_set_text_collapsable">Colapsar texto largo</string> 
+    <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 240 signos</string> 
+    <string name="unknown">Desconocido</string>
+    <string name="contact_uses_unverified_keys">Tus contactos usan dispositivos no verificados. Escanea sus códigos de barras 2D para realizar la verificación e impedir ataques MITM.</string>
+    <string name="unverified_devices">Estás usando dispositivos no verificados. Escanea el código de barras 2D en tus otros dispositivos para realizar la verificación e impedir ataques MITM.</string>
+    <string name="media">Medio</string>
+    <string name="security">Seguridad</string>
+    <string name="verified_with_qr_code">&#160;- verificado con código QR</string>
+    <string name="key_automatically_accepted">&#160;- clave no verificada</string>
 </resources>
