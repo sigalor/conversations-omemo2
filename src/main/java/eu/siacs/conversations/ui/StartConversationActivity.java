@@ -1714,6 +1714,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
                 Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundColor(tag.getColor());
                 tv.setBackgroundResource(R.drawable.rounded_tag);
             }
         }
