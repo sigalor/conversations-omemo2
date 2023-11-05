@@ -136,6 +136,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
             mSearchEditText.post(() -> {
+                mQrCodeScan.setVisible(false);
                 updateSearchViewHint();
                 mSearchEditText.requestFocus();
                 if (oneShotKeyboardSuppress.compareAndSet(true, false)) {
@@ -157,7 +158,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             SoftKeyboardUtils.hideSoftKeyboard(StartConversationActivity.this);
             mSearchEditText.setText("");
             filter(null);
-            navigateBack();
+            mQrCodeScan.setVisible(true);
             return true;
         }
     };
@@ -177,6 +178,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
     };
     private MenuItem mMenuSearchView;
+    private MenuItem mQrCodeScan;
+
     private final ListItemAdapter.OnTagClickedListener mOnTagClickedListener = new ListItemAdapter.OnTagClickedListener() {
         @Override
         public void onTagClicked(String tag) {
@@ -747,6 +750,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
         qrCodeScanMenuItem.setVisible(isCameraFeatureAvailable());
+        mQrCodeScan = menu.findItem(R.id.action_scan_qr_code);
         menuHideOffline.setVisible(true);
         menuHideOffline.setChecked(this.mHideOfflineContacts);
         mMenuSearchView = menu.findItem(R.id.action_search);
@@ -1321,8 +1325,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         if (binding.speedDial.isOpen()) {
             binding.speedDial.close();
             return;
+        } else {
+            navigateBack();
         }
-        navigateBack();
     }
 
     private void navigateBack() {

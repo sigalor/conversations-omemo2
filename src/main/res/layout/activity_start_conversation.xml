@@ -6,6 +6,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <com.leinardi.android.speeddial.SpeedDialOverlayLayout
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/color_background_overlay" />
+
         <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
@@ -31,13 +37,6 @@
             android:layout_height="match_parent"
             android:layout_below="@id/tab_layout"
             android:background="?attr/color_background_secondary" />
-
-        <com.leinardi.android.speeddial.SpeedDialOverlayLayout
-            android:id="@+id/overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/tab_layout"
-            android:background="?attr/color_background_overlay" />
 
         <com.leinardi.android.speeddial.SpeedDialView
             android:id="@+id/speed_dial"

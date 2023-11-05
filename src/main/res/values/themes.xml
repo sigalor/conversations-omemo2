@@ -51,7 +51,7 @@
         <item name="color_background_primary">@color/grey50</item>
         <item name="color_background_secondary">#FFFFFF</item>
         <item name="color_background_tertiary">@color/grey300</item>
-        <item name="color_background_overlay">@color/grey300_40</item>
+        <item name="color_background_overlay">@color/grey900_40</item>
         <item name="color_warning">@color/red700</item>
         <item name="color_warning_button_text">@color/warning_button_dark</item>
         <item name="TextColorOnline">@color/green500</item>
