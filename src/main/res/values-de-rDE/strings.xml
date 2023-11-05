@@ -1391,4 +1391,7 @@
     <string name="security">Sicherheit</string>
     <string name="verified_with_qr_code">verifiziert mit QR-Code</string>
     <string name="key_automatically_accepted">Fingerabdruck nicht verifiziert</string>
+    <string name="hide_notification">Verstecke Benachrichtigung</string>
+    <string name="log_out">Abmelden</string>
+    <string name="log_in">Anmelden</string>
 </resources>
