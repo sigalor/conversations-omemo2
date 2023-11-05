@@ -228,7 +228,7 @@
     <string name="enable">Увімкнути</string>
     <string name="conference_requires_password">Група вимагає пароль</string>
     <string name="enter_password">Уведіть пароль</string>
-    <string name="request_presence_updates">Будь ласка, спершу надішліть запит на оновлення присутності від Вашого контакта.
+    <string name="request_presence_updates">Будь ласка, спершу надішліть запит на оновлення присутності від Вашого контакту.
 \n
 \n<small>Оновлення буде використано, щоб визначити, яку програму-клієнт (які програми-клієнти) він використовує.</small></string>
     <string name="request_now">Надіслати запит зараз</string>
@@ -431,7 +431,7 @@
     <string name="update">Оновити</string>
     <string name="no_update_available">Оновлення відсутні</string>
     <string name="download_started">Звантаження розпочато</string>
-    <string name="account_status_tor_unavailable">Мережа Tor не доступна</string>
+    <string name="account_status_tor_unavailable">Мережа Tor недоступна</string>
     <string name="account_status_bind_failure">Прив\'язка не спрацювала</string>
     <string name="account_status_host_unknown">Сервер не відповідає за домен</string>
     <string name="server_info_broken">Поламано</string>
@@ -1031,11 +1031,11 @@
     <string name="outgoing_call_duration">%s · Вихідний виклик · %s</string>
     <string name="outgoing_call_time">%s · Вихідний виклик</string>
     <string name="outgoing_call">Вихідний виклик</string>
-    <string name="disable_tor_to_make_call">Вимкнути ToR для здійснення викликів</string>
+    <string name="disable_tor_to_make_call">Щоб здійснювати виклики, вимкніть Tor або використовуйте Tor у режимі VPN</string>
     <string name="help">Допомога</string>
     <string name="switch_to_conversation">Перейти до розмови</string>
     <string name="only_one_call_at_a_time">Водночас можливо здійснювати лише один виклик.</string>
-    <string name="missed_call">Пропущені виклики</string>
+    <string name="missed_call">Пропущений виклик</string>
     <string name="could_not_switch_camera">Неможливо перемкнути камеру</string>
     <string name="readmore">Дізнатися більше</string>
     <string name="add_to_favorites">До обраного</string>
@@ -1153,4 +1153,24 @@
     <string name="invite">Запросити</string>
     <string name="colors">Кольори</string>
     <string name="pref_allowmergemessages_sum">Намагатися об\'єднувати повідомлення, надіслані від одного JID</string>
+    <string name="missed_calls_channel_name">Пропущені виклики</string>
+    <string name="missed_call_timestamp">%s · Пропущений виклик</string>
+    <plurals name="n_missed_calls">
+        <item quantity="one">%d пропущений виклик</item>
+        <item quantity="few">%d пропущених виклики</item>
+        <item quantity="many">%d пропущених викликів</item>
+        <item quantity="other">%d пропущених викликів</item>
+    </plurals>
+    <plurals name="n_missed_calls_from_x">
+        <item quantity="one">%1$d пропущений виклик від %2$s</item>
+        <item quantity="few">%1$d пропущених виклики від %2$s</item>
+        <item quantity="many">%1$d пропущених викликів від %2$s</item>
+        <item quantity="other">%1$d пропущених викликів від %2$s</item>
+    </plurals>
+    <plurals name="n_missed_calls_from_m_contacts">
+        <item quantity="one">%1$d пропущених викликів від %2$d контакту</item>
+        <item quantity="few">%1$d пропущених викликів від %2$d контактів</item>
+        <item quantity="many">%1$d пропущених викликів від %2$d контактів</item>
+        <item quantity="other">%1$d пропущених викликів від %2$d контактів</item>
+    </plurals>
 </resources>
