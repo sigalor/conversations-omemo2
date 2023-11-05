@@ -137,6 +137,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         public boolean onMenuItemActionExpand(MenuItem item) {
             mSearchEditText.post(() -> {
                 mQrCodeScan.setVisible(false);
+                binding.speedDial.setVisibility(View.GONE);
                 updateSearchViewHint();
                 mSearchEditText.requestFocus();
                 if (oneShotKeyboardSuppress.compareAndSet(true, false)) {
@@ -159,6 +160,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             mSearchEditText.setText("");
             filter(null);
             mQrCodeScan.setVisible(true);
+            binding.speedDial.setVisibility(View.VISIBLE);
             return true;
         }
     };
