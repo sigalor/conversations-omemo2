@@ -134,6 +134,7 @@ public abstract class OmemoActivity extends XmppActivity {
             binding.key.setTextAppearance(this, R.style.TextAppearance_Conversations_Fingerprint);
             binding.keyType.setTextAppearance(this, R.style.TextAppearance_Conversations_Caption);
             if (status.isVerified()) {
+                binding.verifiedFingerprintText.setVisibility(View.VISIBLE);
                 binding.verifiedFingerprint.setVisibility(View.VISIBLE);
                 binding.verifiedFingerprint.setAlpha(1.0f);
                 binding.tglTrust.setVisibility(View.GONE);
@@ -142,6 +143,7 @@ public abstract class OmemoActivity extends XmppActivity {
             } else {
                 binding.verifiedFingerprint.setVisibility(View.GONE);
                 binding.tglTrust.setVisibility(View.VISIBLE);
+                binding.keyAutomaticallyAccepted.setVisibility(View.VISIBLE);
                 binding.tglTrust.setOnCheckedChangeListener(onCheckedChangeListener);
                 if (status.getTrust() == FingerprintStatus.Trust.UNDECIDED && undecidedNeedEnablement) {
                     binding.buttonEnableDevice.setVisibility(View.VISIBLE);
@@ -206,6 +208,7 @@ public abstract class OmemoActivity extends XmppActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
     }
 }

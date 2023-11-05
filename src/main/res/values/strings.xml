@@ -117,7 +117,7 @@
     <string name="pref_send_crash_summary">By sending stack traces you are helping the ongoing development of monocles chat</string>
     <string name="pref_confirm_messages">Confirm Messages</string>
     <string name="pref_confirm_messages_summary">Let your contacts know when you have received and read their messages</string>
-    <string name="pref_ui_options">UI</string>
+    <string name="pref_ui_options">User interface</string>
     <string name="openpgp_error">OpenKeychain reported an error</string>
     <string name="accept">Accept</string>
     <string name="error">An error has occurred</string>
@@ -134,6 +134,7 @@
     <string name="error_security_exception_during_image_copy">The app you used to select this image did not provide us with enough permissions to read the file.\n\n<small>Use a different file manager to choose an image</small></string>
     <string name="account_status_unknown">Unknown</string>
     <string name="account_status_disabled">Temporarily disabled</string>
+    <string name="account_state_logged_out">Logged out</string>
     <string name="account_status_online">Online</string>
     <string name="account_status_connecting">Connecting\u2026</string>
     <string name="account_status_offline">Offline</string>
@@ -194,8 +195,8 @@
     <string name="openpgp_messages_found">OpenPGP encrypted messages found</string>
     <string name="your_fingerprint">Your fingerprint</string>
     <string name="openpgp_key_id">OpenPGP Key ID</string>
-    <string name="omemo_fingerprint">OMEMO fingerprint</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO fingerprint</string>
+    <string name="omemo_fingerprint">OMEMO fingerprint&#160;-&#160;</string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO fingerprint&#160;-&#160;</string>
     <string name="omemo_fingerprint_selected_message">OMEMO fingerprint (message origin)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO fingerprint (message origin)</string>
     <string name="other_devices">Other devices</string>
@@ -251,7 +252,7 @@
     <string name="sure_delete_fingerprint">Are you sure you would like to delete this fingerprint?</string>
     <string name="ignore">Ignore</string>
     <string name="without_mutual_presence_updates"><b>Warning:</b> Sending this without mutual presence updates could cause unexpected problems.\n\n<small>Go to contact details to verify your presence subscriptions.</small></string>
-    <string name="pref_security_settings">Security and data protection</string>
+    <string name="pref_security_settings">Security and Privacy</string>
     <string name="pref_allow_message_correction">Allow message correction</string>
     <string name="pref_allow_message_correction_summary">Allow your contacts to retroactively edit their messages</string>
     <string name="pref_allow_message_retraction">Allow message retraction</string>
@@ -514,6 +515,7 @@
     <string name="no_keys_just_confirm">You already trust this contact. By selecting ’done’ you are just confirming that %s is part of this room.</string>
     <string name="contacts_have_no_pgp_keys">monocles chat is unable to encrypt your messages because your contacts are not announcing their public keys.\n\n</string>
     <string name="this_account_is_disabled">You have disabled this account</string>
+    <string name="this_account_is_logged_out">You have logged out of this account</string>
     <string name="no_application_to_share_uri">No application found to share URI</string>
     <string name="share_uri_with">Share URI with…</string>
     <string name="mgmt_account_reconnect">Reconnect</string>
@@ -1261,6 +1263,7 @@
     <string name="outgoing_call_timestamp">Outgoing call · %s</string>
     <string name="note_to_self">Note to self</string>
     <string name="retract_message">Retract message</string>
+    <string name="retract_message_dialog_msg">Do you really want to retract this message?</string>
     <string name="reply_to">Reply to</string>
     <string name="or_use_another">... or choose another one below</string>
     <string name="monocles_account_introduction">You can use monocles chat with every modern XMPP account or <b>get an affordable and secure monocles account, powered with regenerative energies!</b></string>
@@ -1345,4 +1348,14 @@
     <string name="no_media_permission">No media storage permission</string>
     <string name="pref_set_text_collapsable">Collapse long text</string>
     <string name="pref_set_text_collapsable_summary">Collapses text with more than 240 signs</string>
+    <string name="hide_notification">Hide notification</string>
+    <string name="log_out">Log out</string>
+    <string name="log_in">Log in</string>
+    <string name="unknown">Unknown</string>
+    <string name="contact_uses_unverified_keys">Your contact uses unverified devices. Scan their 2D barcode to perform verification and impede active MITM attacks.</string>
+    <string name="unverified_devices">You are using unverified devices. Scan the 2D barcode on your other devices to perform verification and impede active MITM attacks.</string>
+    <string name="media">Media</string>
+    <string name="security">Security</string>
+    <string name="verified_with_qr_code">&#160;- verified with QR-code</string>
+    <string name="key_automatically_accepted">&#160;- key not verified</string>
 </resources>

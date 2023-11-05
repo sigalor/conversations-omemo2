@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.2'
+        classpath 'com.android.tools.build:gradle:8.2.0-rc02'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.0"
         classpath 'com.novoda:bintray-release:0.8.0'
@@ -54,7 +54,7 @@ dependencies {
     implementation "androidx.core:core:1.12.0"
     implementation 'androidx.viewpager:viewpager:1.0.0'
 
-    playstoreImplementation('com.google.firebase:firebase-messaging:23.3.0') {
+    playstoreImplementation('com.google.firebase:firebase-messaging:23.3.1') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
@@ -65,7 +65,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
-    implementation 'im.conversations.webrtc:webrtc-android:117.1.0'
+    implementation 'im.conversations.webrtc:webrtc-android:119.0.0'
     implementation 'org.jitsi:org.otr4j:0.23'
     implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
     implementation 'org.gnu.inet:libidn:1.15'
@@ -105,7 +105,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:4.11.0"
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.google.guava:guava:31.1-android'
+    implementation 'com.google.guava:guava:32.1.3-android'
     implementation 'com.github.AppIntro:AppIntro:6.2.0'
     implementation 'androidx.browser:browser:1.6.0'
     implementation 'com.otaliastudios:transcoder:0.9.1' // 0.10.4 seems to be buggy
@@ -114,8 +114,8 @@ dependencies {
     implementation 'com.github.ipld:java-cid:v1.3.1'
     implementation 'com.github.woltapp:blurhash:master'
     implementation 'org.tomlj:tomlj:1.1.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
-    implementation 'io.michaelrocks:libphonenumber-android:8.12.49'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    implementation 'io.michaelrocks:libphonenumber-android:8.13.17'
     implementation 'io.github.nishkarsh:android-permissions:2.1.6'
     implementation 'com.splitwise:tokenautocomplete:3.0.2'
     implementation 'com.github.singpolyma:android-identicons:3361281bd4'
@@ -149,11 +149,11 @@ android {
 
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 33
+        targetSdkVersion 34
 
         // versionNameSuffix " -beta_(2023-10-26)" // " beta_(XXXX-XX-XX)" // activate for beta versions
-        versionCode 144
-        versionName "1.7.6.7"
+        versionCode 145
+        versionName "1.7.7"
         //resConfigs "en"
 
         archivesBaseName += "-$versionName"
@@ -174,6 +174,8 @@ android {
         abi {
             universalApk true
             enable true
+            reset()
+            include project.ext.abiCodes.keySet() as String[]
         }
     }
     dataBinding {
@@ -261,7 +263,9 @@ android {
         disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource', 'RestrictedApi'
         error 'StringFormatInvalid', 'StringFormatMatches'
     }
-
+    buildFeatures {
+        buildConfig true
+    }
     android.applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def baseAbiVersionCode = project.ext.abiCodes.get(output.getFilter(com.android.build.OutputFile.ABI))

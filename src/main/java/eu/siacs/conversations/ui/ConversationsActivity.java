@@ -55,6 +55,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -77,6 +81,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
@@ -91,6 +96,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -313,7 +319,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (offerToSetupDiallerIntegration()) return;
             // if (offerToDownloadStickers()) return;       // TODO: Disabled Cheogram Stickers until it's more useful
             openBatteryOptimizationDialogIfNeeded();
-            xmppConnectionService.rescanStickers();
+            //xmppConnectionService.rescanStickers();
 
             new showMemoryWarning(this).execute();
             showOutdatedVersionWarning();
@@ -625,11 +631,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
     }
 
-    private void handleActivityResult(ActivityResult activityResult) {
+    private void handleActivityResult(final ActivityResult activityResult) {
         if (activityResult.resultCode == Activity.RESULT_OK) {
             handlePositiveActivityResult(activityResult.requestCode, activityResult.data);
         } else {
             handleNegativeActivityResult(activityResult.requestCode);
+        }
+        if (activityResult.requestCode == REQUEST_BATTERY_OP) {
+            // the result code is always 0 even when battery permission were granted
+            requestNotificationPermissionIfNeeded();
+            XmppConnectionService.toggleForegroundService(xmppConnectionService);
+        }
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION);
         }
     }
 
@@ -1146,8 +1163,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 return;
             }
         }
+        Typeface font = ResourcesCompat.getFont(this, R.font.notosanssemibold);
+        SpannableStringBuilder app_title = new SpannableStringBuilder("monocles chat");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            app_title.setSpan (new TypefaceSpan(font), 0, 13, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        }
         actionBar.setDisplayShowCustomEnabled(false);
-        actionBar.setTitle(R.string.app_title);
+        actionBar.setTitle(app_title);
         actionBar.setDisplayHomeAsUpEnabled(false);
         ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar);
     }

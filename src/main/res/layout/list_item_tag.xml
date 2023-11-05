@@ -10,5 +10,5 @@
     android:paddingEnd="8dp"
     android:paddingRight="8dp"
     android:paddingBottom="1dp"
-    android:textAllCaps="false"
+    android:typeface="normal"
     android:textAppearance="@style/TextAppearance.Conversations.Tag" />

@@ -332,6 +332,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         this.mUserPreviewAdapter = new UserPreviewAdapter();
         this.binding.media.setAdapter(mMediaAdapter);
         this.binding.users.setAdapter(mUserPreviewAdapter);
+        //TODO: Implement recyclerview for users list and media list
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
         GridManager.setupLayoutManager(this, this.binding.users, R.dimen.media_size);
         this.binding.invite.setOnClickListener(v -> inviteToConversation(mConversation));
@@ -858,7 +859,8 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             binding.tags.removeAllViewsInLayout();
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
-                tv.setText(tag.getName());
+                String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
+                tv.setText(upperString);
                 Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
                 Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, tag.getColor());

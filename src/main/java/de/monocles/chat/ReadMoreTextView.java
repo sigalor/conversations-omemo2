@@ -76,7 +76,7 @@ public class ReadMoreTextView extends AppCompatTextView {
         this.trimExpandedText = getResources().getString(resourceIdTrimExpandedText);
         this.trimLines = typedArray.getInt(R.styleable.ReadMoreTextView_trimLines, DEFAULT_TRIM_LINES);
         this.colorClickableText = typedArray.getColor(R.styleable.ReadMoreTextView_colorClickableText,
-                ContextCompat.getColor(context, R.color.colorAccent));
+                ContextCompat.getColor(context, androidx.appcompat.R.color.abc_btn_colored_borderless_text_material));
         this.showTrimExpandedText =
                 typedArray.getBoolean(R.styleable.ReadMoreTextView_showTrimExpandedText, DEFAULT_SHOW_TRIM_EXPANDED_TEXT);
         this.readMore = typedArray.getBoolean(R.styleable.ReadMoreTextView_readMore, DEFAULT_READ_MORE);

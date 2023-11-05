@@ -278,7 +278,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
             return;
         }
         for (final Account account : xmppConnectionService.getAccounts()) {
-            if (account.getStatus() != Account.State.DISABLED) {
+            if (account.isEnabled()) {
                 for (final Contact contact : account.getRoster().getContacts()) {
                     if (contact.showInContactList() &&
                             !filterContacts.contains(contact.getJid().asBareJid().toString())
@@ -288,7 +288,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
                 }
 
                 final Contact self = new Contact(account.getSelfContact());
-                self.setSystemName("Note to Self");
+                self.setSystemName(getString(R.string.note_to_self));
                 if (self.match(this, needle)) {
                     getListItems().add(self);
                 }
@@ -382,7 +382,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         filterContacts();
         this.mActivatedAccounts.clear();
         for (Account account : xmppConnectionService.getAccounts()) {
-            if (account.getStatus() != Account.State.DISABLED) {
+            if (account.isEnabled()) {
                 if (Config.DOMAIN_LOCK != null) {
                     this.mActivatedAccounts.add(account.getJid().getEscapedLocal());
                 } else {

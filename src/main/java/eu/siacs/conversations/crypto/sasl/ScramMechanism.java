@@ -150,7 +150,7 @@ abstract class ScramMechanism extends SaslMechanism {
                 int iterationCount = -1;
                 String salt = "";
                 for (final String token : tokenizer) {
-                    if (token.charAt(1) == '=') {
+                    if (token.length() > 1 && token.charAt(1) == '=') {
                         switch (token.charAt(0)) {
                             case 'i':
                                 try {

@@ -18,6 +18,8 @@ import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
 import static eu.siacs.conversations.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
+import static eu.siacs.conversations.utils.PermissionUtils.audioGranted;
+import static eu.siacs.conversations.utils.PermissionUtils.cameraGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.getFirstDenied;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
 import static eu.siacs.conversations.utils.StorageHelper.getConversationsDirectory;
@@ -544,6 +546,7 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             final Account account = conversation == null ? null : conversation.getAccount();
             if (account != null) {
+                account.setOption(Account.OPTION_SOFT_DISABLED, false);
                 account.setOption(Account.OPTION_DISABLED, false);
                 activity.xmppConnectionService.updateAccount(account);
             }
@@ -634,7 +637,8 @@ public class ConversationFragment extends XmppFragment
                             null,
                             0,
                             0,
-                            0);
+                            0,
+                            Compatibility.pgpStartIntentSenderOptions());
                 } catch (SendIntentException e) {
                     ToastCompat.makeText(getActivity(), R.string.unable_to_connect_to_keychain, ToastCompat.LENGTH_SHORT).show();
                     conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
@@ -1488,6 +1492,9 @@ public class ConversationFragment extends XmppFragment
         final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
         final MenuItem menuMediaBrowser = menu.findItem(R.id.action_mediabrowser);
         final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
+        final MenuItem menuManageAccounts = menu.findItem(R.id.action_accounts);
+        final MenuItem menuSettings = menu.findItem(R.id.action_settings);
+        final MenuItem menuInviteToChat = menu.findItem(R.id.action_invite_user);
 
         if (conversation != null) {
             if (conversation.getMode() == Conversation.MODE_MULTI || (activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection())) {
@@ -1497,6 +1504,9 @@ public class ConversationFragment extends XmppFragment
                 menuCall.setVisible(false);
                 menuOngoingCall.setVisible(false);
                 menuParticipants.setVisible(true);
+                menuManageAccounts.setVisible(false);
+                menuSettings.setVisible(false);
+                menuInviteToChat.setVisible(false);
             } else {
                 final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
                 final Optional<OngoingRtpSession> ongoingRtpSession = service == null ? Optional.absent() : service.getJingleConnectionManager().getOngoingRtpConnection(conversation.getContact());
@@ -1514,6 +1524,9 @@ public class ConversationFragment extends XmppFragment
                 menuInviteContact.setVisible(false);
                 menuArchiveChat.setVisible(true);
                 menuLeaveGroup.setVisible(false);
+                menuManageAccounts.setVisible(false);
+                menuSettings.setVisible(false);
+                menuInviteToChat.setVisible(false);
             }
             try {
                 Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
@@ -2053,7 +2066,7 @@ public class ConversationFragment extends XmppFragment
             case R.id.retract_message:
                 new AlertDialog.Builder(activity)
                         .setTitle(R.string.retract_message)
-                        .setMessage("Do you really want to retract this message?")
+                        .setMessage(R.string.retract_message_dialog_msg)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             Message message = selectedMessage;
                             while (message.mergeable(message.next())) {
@@ -2435,6 +2448,10 @@ public class ConversationFragment extends XmppFragment
             Toast.makeText(getActivity(), R.string.only_one_call_at_a_time, Toast.LENGTH_LONG).show();
             return;
         }
+        final Account account = conversation.getAccount();
+        if (account.setOption(Account.OPTION_SOFT_DISABLED, false)) {
+            activity.xmppConnectionService.updateAccount(account);
+        }
         final Contact contact = conversation.getContact();
         if (contact.getPresences().anySupport(Namespace.JINGLE_MESSAGE)) {
             triggerRtpSession(contact.getAccount(), contact.getJid().asBareJid(), action);
@@ -2721,6 +2738,9 @@ public class ConversationFragment extends XmppFragment
                 activity.xmppConnectionService.restartFileObserver();
             }
             refresh();
+        }
+        if (cameraGranted(grantResults, permissions) || audioGranted(grantResults, permissions)) {
+            XmppConnectionService.toggleForegroundService(activity);
         }
     }
 
@@ -3945,6 +3965,8 @@ public class ConversationFragment extends XmppFragment
         }
         if (account.getStatus() == Account.State.DISABLED) {
             showSnackbar(R.string.this_account_is_disabled, R.string.enable, this.mEnableAccountListener);
+        } else if (account.getStatus() == Account.State.LOGGED_OUT) {
+            showSnackbar(R.string.this_account_is_logged_out,R.string.log_in,this.mEnableAccountListener);
         } else if (conversation.isBlocked()) {
             showSnackbar(R.string.contact_blocked, R.string.unblock, this.mUnblockClickListener);
         } else if (contact != null && !contact.showInRoster() && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {

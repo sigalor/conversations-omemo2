@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.os.Build;
@@ -37,6 +39,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.LayoutInflater;
+
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import java.util.Arrays;
@@ -757,6 +762,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             RecyclerView tags = mSearchView.findViewById(R.id.tags);
             tags.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             tags.setAdapter(mTagsAdapter);
+            int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.search_view_tags_space);
+            tags.addItemDecoration(new SpacesItemDecoration(spacingInPixels));
         }
 
         String initialSearchValue = mInitialSearchValue.pop();
@@ -772,6 +779,22 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         updateSearchViewHint();
         return super.onCreateOptionsMenu(menu);
     }
+
+    public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+        private int space;
+
+        public SpacesItemDecoration(int space) {
+            this.space = space;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view,
+                                   RecyclerView parent, RecyclerView.State state) {
+            outRect.right = space;
+
+        }
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1123,8 +1146,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         boolean foundSignal = false;
         boolean foundTelegram = false;
         boolean foundSMS = false;
-        for (Account account : accounts) {
-            if (account.getStatus() != Account.State.DISABLED) {
+        for (final Account account : accounts) {
+            if (account.isEnabled()) {
                 for (Contact contact : account.getRoster().getContacts()) {
                     Presence.Status s = contact.getShownStatus();
                     if (contact.showInContactList() && contact.match(this, needle)
@@ -1137,7 +1160,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 }
 
                 final Contact self = new Contact(account.getSelfContact());
-                self.setSystemName("Note to Self");
+                self.setSystemName(getString(R.string.note_to_self));
                 if (self.match(this, needle)) {
                     this.contacts.add(self);
                 }
@@ -1265,7 +1288,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     protected void filterConferences(String needle) {
         this.conferences.clear();
         for (final Account account : xmppConnectionService.getAccounts()) {
-            if (account.getStatus() != Account.State.DISABLED) {
+            if (account.isEnabled()) {
                 for (final Bookmark bookmark : account.getBookmarks()) {
                     if (bookmark.match(this, needle)) {
                         this.conferences.add(bookmark);
@@ -1680,8 +1703,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             }
 
             public void setTag(ListItem.Tag tag) {
-                tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
+                tv.setText(upperString);
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundResource(R.drawable.rounded_tag);
             }
         }
 

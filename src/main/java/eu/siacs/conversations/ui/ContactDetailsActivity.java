@@ -845,6 +845,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             }
             boolean skippedInactive = false;
             boolean showsInactive = false;
+            boolean showUnverifiedWarning = false;
             for (final XmppAxolotlSession session : sessions) {
                 final FingerprintStatus trust = session.getTrust();
                 hasKeys |= !trust.isCompromised();
@@ -860,7 +861,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     boolean highlight = session.getFingerprint().equals(messageFingerprint);
                     addFingerprintRow(binding.detailsContactKeys, session, highlight);
                 }
+                if (trust.isUnverified()) {
+                    showUnverifiedWarning = true;
+                }
             }
+            binding.unverifiedWarning.setVisibility(showUnverifiedWarning ? View.VISIBLE : View.GONE);
             if (showsInactive || skippedInactive) {
                 binding.showInactiveDevices.setText(showsInactive ? R.string.hide_inactive_devices : R.string.show_inactive_devices);
                 binding.showInactiveDevices.setVisibility(View.VISIBLE);
@@ -870,7 +875,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         } else {
             binding.showInactiveDevices.setVisibility(View.GONE);
         }
-        binding.scanButton.setVisibility(hasKeys && isCameraFeatureAvailable() ? View.VISIBLE : View.GONE);
+        final boolean isCameraFeatureAvailable = isCameraFeatureAvailable();
+        binding.scanButton.setVisibility(hasKeys && isCameraFeatureAvailable ? View.VISIBLE : View.GONE);
         if (hasKeys) {
             binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
         }
@@ -900,7 +906,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.tags.removeAllViewsInLayout();
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
-                tv.setText(tag.getName());
+                String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
+                tv.setText(upperString);
                 Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
                 Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, tag.getColor());
