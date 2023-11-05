@@ -1325,9 +1325,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         if (binding.speedDial.isOpen()) {
             binding.speedDial.close();
             return;
-        } else {
-            navigateBack();
         }
+        navigateBack();
     }
 
     private void navigateBack() {
