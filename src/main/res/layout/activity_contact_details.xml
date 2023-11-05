@@ -253,7 +253,7 @@
                     android:textStyle="bold"
                     style="@style/TextAppearance.Conversations.Subhead" />
 
-                <androidx.cardview.widget.CardView
+                <RelativeLayout
                     android:id="@+id/profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -265,7 +265,7 @@
                         android:singleLine="false"
                         android:divider="@android:color/transparent"
                         android:dividerHeight="0dp" />
-                </androidx.cardview.widget.CardView>
+                </RelativeLayout>
 
                 <View
                     android:layout_width="match_parent"
@@ -280,7 +280,7 @@
                     android:textStyle="bold"
                     style="@style/TextAppearance.Conversations.Subhead" />
 
-                <androidx.cardview.widget.CardView
+                <RelativeLayout
                     android:id="@+id/media_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
@@ -322,7 +322,7 @@
                                 android:textColor="?attr/colorAccent" />
                         </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </RelativeLayout>
 
                 <View
                     android:layout_width="match_parent"
@@ -337,7 +337,7 @@
                     android:textStyle="bold"
                     style="@style/TextAppearance.Conversations.Subhead" />
 
-                <androidx.cardview.widget.CardView
+                <RelativeLayout
                     android:id="@+id/keys_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -394,7 +394,7 @@
                                 android:paddingEnd="16dp"
                                 android:paddingRight="16dp"
                                 android:text="@string/scan_qr_code"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/realwhite" />
 
                             <Button
                                 android:id="@+id/show_inactive_devices"
@@ -411,7 +411,7 @@
                                 android:textColor="?attr/colorAccent" />
                         </RelativeLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </RelativeLayout>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

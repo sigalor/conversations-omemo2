@@ -706,7 +706,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             StylingHelper.format(spannable, this.binding.mucSubject.getCurrentTextColor(), true);
             MyLinkify.addLinks(spannable, false);
             this.binding.mucSubject.setText(spannable);
-            this.binding.mucSubject.setTextAppearance(this, subject.length() > (hasTitle ? 128 : 196) ? R.style.TextAppearance_Conversations_Body1_Linkified : R.style.TextAppearance_Conversations_Subhead);
+            this.binding.mucSubject.setTextAppearance(this, (hasTitle ? 128 : 196));
             this.binding.mucSubject.setAutoLinkMask(0);
             this.binding.mucSubject.setVisibility(View.VISIBLE);
             this.binding.mucSubject.setMovementMethod(LinkMovementMethod.getInstance());

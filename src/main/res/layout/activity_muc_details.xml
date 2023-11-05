@@ -132,7 +132,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="@dimen/list_padding"
                                         android:autoLink="web"
-                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
+                                        android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
                                 </LinearLayout>
 
@@ -225,16 +225,25 @@
                                 android:layout_marginTop="@dimen/list_padding">
 
                                 <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:paddingTop="4dp"
+                                    android:text="@string/pref_notification_settings"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
+
+                                <TextView
                                     android:id="@+id/notification_status_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_alignParentStart="true"
                                     android:layout_alignParentLeft="true"
-                                    android:layout_centerVertical="true"
+                                    android:layout_alignParentBottom="true"
                                     android:layout_toStartOf="@+id/notification_status_button"
                                     android:layout_toLeftOf="@+id/notification_status_button"
                                     android:text="@string/notify_on_all_messages"
-                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
+                                    android:textAppearance="@style/TextAppearance.Conversations.Status" />
 
                                 <ImageButton
                                     android:id="@+id/notification_status_button"
@@ -327,6 +336,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="0.1dp"
                     android:background="?attr/text_Color_Main" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="@string/me"
+                    android:textStyle="bold"
+                    style="@style/TextAppearance.Conversations.Subhead" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -426,8 +443,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="0.1dp"
                     android:background="?attr/text_Color_Main" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="@string/user"
+                    android:textStyle="bold"
+                    style="@style/TextAppearance.Conversations.Subhead" />
 
-                <androidx.cardview.widget.CardView
+                <RelativeLayout
                     android:id="@+id/users_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
@@ -496,14 +520,22 @@
                                 tools:text="View n Participants" />
                         </RelativeLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </RelativeLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.1dp"
                     android:background="?attr/text_Color_Main" />
 
-                <androidx.cardview.widget.CardView
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="@string/media"
+                    android:textStyle="bold"
+                    style="@style/TextAppearance.Conversations.Subhead" />
+
+                <RelativeLayout
                     android:id="@+id/media_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
@@ -545,7 +577,7 @@
                                 android:textColor="?attr/colorAccent" />
                         </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </RelativeLayout>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
