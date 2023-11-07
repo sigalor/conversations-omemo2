@@ -9,6 +9,13 @@
         android:layout_height="match_parent"
         android:clickable="false">
 
+        <ImageView
+            android:id="@+id/background_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop" />
+
     <com.google.android.material.tabs.TabLayout
         android:visibility="gone"
         android:id="@+id/tab_layout"

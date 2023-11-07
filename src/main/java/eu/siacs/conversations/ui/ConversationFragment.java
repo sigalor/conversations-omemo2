@@ -2783,13 +2783,13 @@ public class ConversationFragment extends XmppFragment
                         && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     File bgfileUri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
                     if (bgfileUri.exists()) {
-                        Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
-                        getActivity().getWindow().setBackgroundDrawable(custom_background);
+                        assert binding.backgroundImage != null;
+                        binding.backgroundImage.setImageURI(Uri.fromFile(bgfileUri));
                     } else {
-                        getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                        binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                     }
                 } else {
-                    getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                    binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                 }
             }
         }
