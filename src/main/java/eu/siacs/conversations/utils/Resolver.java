@@ -27,11 +27,11 @@ import java.util.concurrent.TimeUnit;
 import org.minidns.AbstractDnsClient;
 import org.minidns.DnsCache;
 import org.minidns.DnsClient;
-import org.minidns.dnsname.DnsName;
-import org.minidns.dnsmessage.Question;
-import org.minidns.record.Record;
 import org.minidns.cache.LruCache;
+import org.minidns.dnsmessage.Question;
+import org.minidns.dnsname.DnsName;
 import org.minidns.dnssec.DnssecResultNotAuthenticException;
+import org.minidns.dnssec.DnssecValidationFailedException;
 import org.minidns.dnsserverlookup.AndroidUsingExec;
 import org.minidns.hla.DnssecResolverApi;
 import org.minidns.hla.ResolverApi;
@@ -42,6 +42,7 @@ import org.minidns.record.AAAA;
 import org.minidns.record.CNAME;
 import org.minidns.record.Data;
 import org.minidns.record.InternetAddressRR;
+import org.minidns.record.Record;
 import org.minidns.record.SRV;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -255,7 +256,6 @@ public class Resolver {
         List<Result> results = new ArrayList<>();
         try {
             ResolverResult<A> aResult = resolveWithFallback(dnsName, A.class);
-            Log.d("WUTr", "" + aResult.isAuthenticData() + " " + aResult.getAnswersOrEmptySet());
             for (A a : aResult.getAnswersOrEmptySet()) {
                 Result r = Result.createDefault(dnsName, a.getInetAddress(), port);
                 r.authenticated = aResult.isAuthenticData();
@@ -288,7 +288,13 @@ public class Resolver {
     private static <D extends Data> ResolverResult<D> resolveWithFallback(DnsName dnsName, Class<D> type) throws IOException {
         final Question question = new Question(dnsName, Record.TYPE.getType(type));
         try {
-            return DnssecResolverApi.INSTANCE.resolve(question);
+            ResolverResult<D> result = DnssecResolverApi.INSTANCE.resolve(question);
+            if (!result.isAuthenticData()) {
+                Log.d(Config.LOGTAG, "DNSSEC validation failed: " + result.getUnverifiedReasons());
+            }
+            return result;
+        } catch (DnssecValidationFailedException e) {
+            Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", e);
         } catch (IOException e) {
             throw e;
         } catch (Throwable throwable) {
