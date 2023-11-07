@@ -9,6 +9,13 @@
         android:layout_height="match_parent"
         android:clickable="false">
 
+        <ImageView
+            android:id="@+id/background_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop" />
+
         <com.google.android.material.tabs.TabLayout
             android:visibility="gone"
             android:id="@+id/tab_layout"
@@ -288,15 +295,6 @@
                                 android:contentDescription="@string/send_message"
                                 android:src="@drawable/ic_send_text_offline" />
                         </RelativeLayout>
-                        <androidx.emoji2.emojipicker.EmojiPickerView
-                            android:id="@+id/emoji_picker"
-                            android:layout_below="@+id/message_input_box"
-                            android:layout_width="match_parent"
-                            android:layout_height="180dp"
-                            app:emojiGridColumns="20"
-                            android:layout_marginBottom="5dp"
-                            android:visibility="gone"/>
-
 
                         <RelativeLayout
                             android:id="@+id/textformat"
@@ -310,7 +308,8 @@
                             android:layout_marginBottom="4dp"
                             android:orientation="horizontal"
                             android:background="@drawable/comment_bubble_light"
-                            android:alpha="0.88">
+                            android:alpha="0.88"
+                            android:visibility="gone" >
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -386,6 +385,15 @@
                                     android:visibility="visible" />
                             </LinearLayout>
                         </RelativeLayout>
+
+                        <androidx.emoji2.emojipicker.EmojiPickerView
+                            android:id="@+id/emoji_picker"
+                            android:layout_below="@+id/textformat"
+                            android:layout_width="match_parent"
+                            android:layout_height="180dp"
+                            app:emojiGridColumns="20"
+                            android:layout_marginBottom="5dp"
+                            android:visibility="gone" />
 
                     </RelativeLayout>
 
