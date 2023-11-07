@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -23,31 +22,37 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import de.gultsch.minidns.AndroidDNSClient;
-import de.measite.minidns.AbstractDNSClient;
-import de.measite.minidns.DNSCache;
-import de.measite.minidns.DNSClient;
-import de.measite.minidns.DNSName;
-import de.measite.minidns.Question;
-import de.measite.minidns.Record;
-import de.measite.minidns.cache.LRUCache;
-import de.measite.minidns.dnssec.DNSSECResultNotAuthenticException;
-import de.measite.minidns.dnsserverlookup.AndroidUsingExec;
-import de.measite.minidns.hla.DnssecResolverApi;
-import de.measite.minidns.hla.ResolverApi;
-import de.measite.minidns.hla.ResolverResult;
-import de.measite.minidns.iterative.ReliableDNSClient;
-import de.measite.minidns.record.A;
-import de.measite.minidns.record.AAAA;
-import de.measite.minidns.record.CNAME;
-import de.measite.minidns.record.Data;
-import de.measite.minidns.record.InternetAddressRR;
-import de.measite.minidns.record.SRV;
+//import de.gultsch.minidns.AndroidDnsClient;
+import org.minidns.AbstractDnsClient;
+import org.minidns.DnsCache;
+import org.minidns.DnsClient;
+import org.minidns.DnsName.DnsName;
+import org.minidns.dnsmessage.Question;
+import org.minidns.dnsname.DnsName;
+import org.minidns.record.Record;
+import org.minidns.cache.LruCache;
+import org.minidns.dnsserverlookup.AndroidUsingExec;
+import org.minidns.hla.DnssecResolverApi;
+import org.minidns.hla.ResolverApi;
+import org.minidns.hla.ResolverResult;
+import org.minidns.iterative.ReliableDnsClient;
+import org.minidns.record.A;
+import org.minidns.record.AAAA;
+import org.minidns.record.CNAME;
+import org.minidns.record.Data;
+import org.minidns.record.InternetAddressRR;
+import org.minidns.record.SRV;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xmpp.Jid;
+
+import com.google.common.base.Throwables;
+import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Ints;
+import com.google.common.base.Strings;
+
 
 public class Resolver {
 
@@ -59,49 +64,33 @@ public class Resolver {
     private static XmppConnectionService SERVICE = null;
 
 
-    public static void init(final XmppConnectionService service) {
+    public static void init(XmppConnectionService service) {
         Resolver.SERVICE = service;
-        DNSClient.removeDNSServerLookupMechanism(AndroidUsingExec.INSTANCE);
-        DNSClient.addDnsServerLookupMechanism(AndroidUsingExecLowPriority.INSTANCE);
-        DNSClient.addDnsServerLookupMechanism(new AndroidUsingLinkProperties(service));
-        final AbstractDNSClient client = ResolverApi.INSTANCE.getClient();
-        if (client instanceof ReliableDNSClient) {
-            disableHardcodedDnsServers((ReliableDNSClient) client);
+        DnsClient.removeDNSServerLookupMechanism(AndroidUsingExec.INSTANCE);
+        DnsClient.addDnsServerLookupMechanism(AndroidUsingExecLowPriority.INSTANCE);
+        DnsClient.addDnsServerLookupMechanism(new AndroidUsingLinkProperties(service));
+        final AbstractDnsClient client = ResolverApi.INSTANCE.getClient();
+        if (client instanceof ReliableDnsClient) {
+            ((ReliableDnsClient) client).setUseHardcodedDnsServers(false);
         }
     }
 
-    private static void disableHardcodedDnsServers(final ReliableDNSClient reliableDNSClient) {
-        try {
-            final Field dnsClientField = ReliableDNSClient.class.getDeclaredField("dnsClient");
-            dnsClientField.setAccessible(true);
-            final DNSClient dnsClient = (DNSClient) dnsClientField.get(reliableDNSClient);
-            if (dnsClient != null) {
-                dnsClient.getDataSource().setTimeout(3000);
-            }
-            final Field useHardcodedDnsServers = DNSClient.class.getDeclaredField("useHardcodedDnsServers");
-            useHardcodedDnsServers.setAccessible(true);
-            useHardcodedDnsServers.setBoolean(dnsClient, false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(Config.LOGTAG, "Unable to disable hardcoded DNS servers", e);
-        }
-    }
-
-    public static Result fromHardCoded(final String hostname, final int port) {
-        final Result ipResult = fromIpAddress(hostname, port);
-        if (ipResult != null) {
-            ipResult.connect();
-            return ipResult;
-        }
-        return happyEyeball(resolveNoSrvRecords(DNSName.from(hostname), port, true));
+    public static List<Result> fromHardCoded(final String hostname, final int port) {
+        final Result result = new Result();
+        result.hostname = DnsName.from(hostname);
+        result.port = port;
+        result.directTls = useDirectTls(port);
+        result.authenticated = true;
+        return Collections.singletonList(result);
     }
 
     public static void checkDomain(final Jid jid) {
-        DNSName.from(jid.getDomain());
+        DnsName.from(jid.getDomain());
     }
 
     public static boolean invalidHostname(final String hostname) {
         try {
-            DNSName.from(hostname);
+            DnsName.from(hostname);
             return false;
         } catch (IllegalArgumentException e) {
             return true;
@@ -109,11 +98,11 @@ public class Resolver {
     }
 
     public static void clearCache() {
-        final AbstractDNSClient client = ResolverApi.INSTANCE.getClient();
-        final DNSCache dnsCache = client.getCache();
-        if (dnsCache instanceof LRUCache) {
+        final AbstractDnsClient client = ResolverApi.INSTANCE.getClient();
+        final DnsCache dnsCache = client.getCache();
+        if (dnsCache instanceof LruCache) {
             Log.d(Config.LOGTAG,"clearing DNS cache");
-            ((LRUCache) dnsCache).clear();
+            ((LruCache) dnsCache).clear();
         }
     }
 
@@ -122,11 +111,10 @@ public class Resolver {
         return port == 443 || port == 5223;
     }
 
-    public static Result resolve(final String domain) {
-        final Result ipResult = fromIpAddress(domain, DEFAULT_PORT_XMPP);
-        if (ipResult != null) {
-            ipResult.connect();
-            return ipResult;
+    public static List<Result> resolve(final String domain) {
+        final  List<Result> ipResults = (List<Result>) fromIpAddress(domain, DEFAULT_PORT_XMPP);
+        if (ipResults.size() > 0) {
+            return ipResults;
         }
         final List<Result> results = new ArrayList<>();
         final List<Result> fallbackResults = new ArrayList<>();
@@ -137,8 +125,10 @@ public class Resolver {
                 synchronized (results) {
                     results.addAll(list);
                 }
-            } catch (Throwable throwable) {
-                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving SRV record (direct TLS)", throwable);
+            } catch (final Throwable throwable) {
+                if (!(Throwables.getRootCause(throwable) instanceof InterruptedException)) {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving SRV record (direct TLS)", throwable);
+                }
             }
         });
         threads[1] = new Thread(() -> {
@@ -147,18 +137,16 @@ public class Resolver {
                 synchronized (results) {
                     results.addAll(list);
                 }
-            } catch (Throwable throwable) {
-                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving SRV record (STARTTLS)", throwable);
+            } catch (final Throwable throwable) {
+                if (!(Throwables.getRootCause(throwable) instanceof InterruptedException)) {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving SRV record (STARTTLS)", throwable);
+                }
             }
         });
         threads[2] = new Thread(() -> {
-            try {
-                final List<Result> list = resolveNoSrvRecords(DNSName.from(domain), DEFAULT_PORT_XMPP, true);
-                synchronized (fallbackResults) {
-                    fallbackResults.addAll(list);
-                }
-            } catch (Throwable throwable) {
-                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": resolving no SRV record (STARTTLS)", throwable);
+            List<Result> list = resolveNoSrvRecords(DnsName.from(domain), DEFAULT_PORT_XMPP, true);
+            synchronized (fallbackResults) {
+                fallbackResults.addAll(list);
             }
         });
         for (final Thread thread : threads) {
@@ -171,44 +159,43 @@ public class Resolver {
                 threads[2].interrupt();
                 synchronized (results) {
                     Collections.sort(results);
-                    return happyEyeball(results);
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": " + results.toString());
+                    return new ArrayList<>(results);
                 }
             } else {
                 threads[2].join();
                 synchronized (fallbackResults) {
                     Collections.sort(fallbackResults);
-                    return happyEyeball(fallbackResults);
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": " + fallbackResults.toString());
+                    return new ArrayList<>(fallbackResults);
                 }
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
             for (Thread thread : threads) {
                 thread.interrupt();
             }
-            return null;
+            return Collections.emptyList();
         }
     }
 
-    private static Result fromIpAddress(final String domain, final int port) {
+    private static List<Result> fromIpAddress(String domain, final int defaultPortXmpp) {
         if (!IP.matches(domain)) {
-            return null;
+            return Collections.emptyList();
         }
         try {
-            final Result result = new Result();
+            Result result = new Result();
             result.ip = InetAddress.getByName(domain);
-            result.hostname = DNSName.from(domain);
             result.port = port;
             result.authenticated = true;
-            return result;
+            return Collections.singletonList(result);
         } catch (UnknownHostException e) {
-            e.printStackTrace();
-            return null;
+            return Collections.emptyList();
         }
     }
 
     private static List<Result> resolveSrv(final String domain, final boolean directTls) throws IOException {
-        final DNSName dnsName = DNSName.from((directTls ? DIRECT_TLS_SERVICE : STARTTLS_SERVICE) + "._tcp." + domain);
-        final ResolverResult<SRV> result = resolveWithFallback(dnsName, SRV.class);
+        final DnsName DnsName = DnsName.from((directTls ? DIRECT_TLS_SERVICE : STARTTLS_SERVICE) + "._tcp." + domain);
+        final ResolverResult<SRV> result = resolveWithFallback(DnsName, SRV.class);
         final List<Result> results = new ArrayList<>();
         final List<Thread> threads = new ArrayList<>();
 
@@ -286,10 +273,10 @@ public class Resolver {
         return resolveIp(srv, srv.name, type, authenticated, directTls);
     }
 
-    private static <D extends InternetAddressRR> List<Result> resolveIp(final SRV srv, final DNSName hostname, final Class<D> type, final boolean authenticated, final boolean directTls) {
+    private static <D extends InternetAddressRR> List<Result> resolveIp(final SRV srv, final DnsName hostname, final Class<D> type, final boolean authenticated, final boolean directTls) {
         final List<Result> list = new ArrayList<>();
         try {
-            ResolverResult<D> results = resolveWithFallback(hostname, type, authenticated);
+            ResolverResult<D> results = resolveWithFallback(hostname, type);
             for (D record : results.getAnswersOrEmptySet()) {
                 boolean ipv4 = type == A.class;
                 Result resolverResult = Result.fromRecord(srv, directTls, ipv4);
@@ -303,42 +290,44 @@ public class Resolver {
         return list;
     }
 
-    private static List<Result> resolveNoSrvRecords(final DNSName dnsName, final int port, final boolean withCnames) {
-        final List<Result> results = new ArrayList<>();
+    private static List<Result> resolveNoSrvRecords(DnsName dnsName, boolean withCnames) {
+        List<Result> results = new ArrayList<>();
         try {
-            for (AAAA aaaa : resolveWithFallback(dnsName, AAAA.class, false).getAnswersOrEmptySet()) {
-                results.add(Result.createDefault(dnsName, aaaa.getInetAddress(), port));
+            ResolverResult<A> aResult = resolveWithFallback(dnsName, A.class);
+            Log.d("WUTr", "" + aResult.isAuthenticData() + " " + aResult.getAnswersOrEmptySet());
+            for (A a : aResult.getAnswersOrEmptySet()) {
+                Result r = Result.createDefault(dnsName, a.getInetAddress());
+                r.authenticated = aResult.isAuthenticData();
+                results.add(r);
             }
-            for (A a : resolveWithFallback(dnsName, A.class, false).getAnswersOrEmptySet()) {
-                results.add(Result.createDefault(dnsName, a.getInetAddress(), port));
+            ResolverResult<AAAA> aaaaResult = resolveWithFallback(dnsName, AAAA.class);
+            for (AAAA aaaa : aaaaResult.getAnswersOrEmptySet()) {
+                Result r = Result.createDefault(dnsName, aaaa.getInetAddress());
+                r.authenticated = aaaaResult.isAuthenticData();
+                results.add(r);
             }
             if (results.size() == 0 && withCnames) {
-                for (CNAME cname : resolveWithFallback(dnsName, CNAME.class, false).getAnswersOrEmptySet()) {
-                    results.addAll(resolveNoSrvRecords(cname.name, port, false));
+                ResolverResult<CNAME> cnameResult = resolveWithFallback(dnsName, CNAME.class);
+                for (CNAME cname : cnameResult.getAnswersOrEmptySet()) {
+                    for (Result r : resolveNoSrvRecords(cname.name, false)) {
+                        r.authenticated = r.authenticated && cnameResult.isAuthenticData();
+                        results.add(r);
+                    }
                 }
             }
-        } catch (Throwable throwable) {
-            Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + "error resolving fallback records", throwable);
+        } catch (final Throwable throwable) {
+            if (!(Throwables.getRootCause(throwable) instanceof InterruptedException)) {
+                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + "error resolving fallback records", throwable);
+            }
         }
-        results.add(Result.createDefault(dnsName, port));
+        results.add(Result.createDefault(dnsName));
         return results;
     }
 
-    private static <D extends Data> ResolverResult<D> resolveWithFallback(final DNSName dnsName, final Class<D> type) throws IOException {
-        return resolveWithFallback(dnsName, type, validateHostname());
-    }
-
-    private static <D extends Data> ResolverResult<D> resolveWithFallback(final DNSName dnsName, final Class<D> type, final boolean validateHostname) throws IOException {
+    private static <D extends Data> ResolverResult<D> resolveWithFallback(DnsName dnsName, Class<D> type) throws IOException {
         final Question question = new Question(dnsName, Record.TYPE.getType(type));
-        if (!validateHostname) {
-            final AndroidDNSClient androidDNSClient = new AndroidDNSClient(SERVICE);
-            final ResolverApi resolverApi = new ResolverApi(androidDNSClient);
-            return resolverApi.resolve(question);
-        }
         try {
-            return DnssecResolverApi.INSTANCE.resolveDnssecReliable(question);
-        } catch (DNSSECResultNotAuthenticException e) {
-            Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", e);
+            return DnssecResolverApi.INSTANCE.resolve(question);
         } catch (IOException e) {
             throw e;
         } catch (Throwable throwable) {
@@ -395,10 +384,6 @@ public class Resolver {
         }
     }
 
-    private static boolean validateHostname() {
-        return SERVICE != null && SERVICE.getBooleanPreference("validate_hostname", R.bool.validate_hostname);
-    }
-
     public static class Result implements Comparable<Result>, Callable<Result> {
         public static final String DOMAIN = "domain";
         public static final String IP = "ip";
@@ -410,7 +395,7 @@ public class Resolver {
         public static final String TIME_REQUESTED = "time_requested";
 
         private InetAddress ip;
-        private DNSName hostname;
+        private DnsName hostname;
         private int port = DEFAULT_PORT_XMPP;
         private boolean directTls = false;
         private boolean authenticated = false;
@@ -437,7 +422,7 @@ public class Resolver {
             return result;
         }
 
-        static Result createDefault(final DNSName hostname, final int port) {
+        static Result createDefault(final DnsName hostname, final int port) {
             InetAddress ip = null;
             try {
                 ip = InetAddress.getByName(hostname.toString());
@@ -447,7 +432,7 @@ public class Resolver {
             return createDefault(hostname, ip, port);
         }
 
-        static Result createDefault(final DNSName hostname, final InetAddress ip, final int port) {
+        static Result createDefault(final DnsName hostname, final InetAddress ip, final int port) {
             Result result = new Result();
             result.timeRequested = System.currentTimeMillis();
             result.port = port;
@@ -483,7 +468,7 @@ public class Resolver {
             return result;
         }
 
-        public DNSName getHostname() {
+        public DnsName getHostname() {
             return hostname;
         }
 
@@ -587,7 +572,7 @@ public class Resolver {
                 result.ip = null;
             }
             final String hostname = cursor.getString(cursor.getColumnIndex(HOSTNAME));
-            result.hostname = hostname == null ? null : DNSName.from(hostname);
+            result.hostname = hostname == null ? null : DnsName.from(hostname);
             result.port = cursor.getInt(cursor.getColumnIndex(PORT));
             result.directTls = cursor.getInt(cursor.getColumnIndex(DIRECT_TLS)) > 0;
             result.authenticated = cursor.getInt(cursor.getColumnIndex(AUTHENTICATED)) > 0;
@@ -606,6 +591,65 @@ public class Resolver {
             contentValues.put(AUTHENTICATED, authenticated ? 1 : 0);
             contentValues.put(TIME_REQUESTED, timeRequested);
             return contentValues;
+        }
+
+        public Result seeOtherHost(final String seeOtherHost) {
+            final String hostname = seeOtherHost.trim();
+            if (hostname.isEmpty()) {
+                return null;
+            }
+            final Result result = new Result();
+            result.directTls = this.directTls;
+            final int portSegmentStart = hostname.lastIndexOf(':');
+            if (hostname.charAt(hostname.length() - 1) != ']'
+                    && portSegmentStart >= 0
+                    && hostname.length() >= portSegmentStart + 1) {
+                final String hostPart = hostname.substring(0, portSegmentStart);
+                final String portPart = hostname.substring(portSegmentStart + 1);
+                final Integer port = Ints.tryParse(portPart);
+                if (port == null || Strings.isNullOrEmpty(hostPart)) {
+                    return null;
+                }
+                final String host = eu.siacs.conversations.utils.IP.unwrapIPv6(hostPart);
+                result.port = port;
+                if (InetAddresses.isInetAddress(host)) {
+                    final InetAddress inetAddress;
+                    try {
+                        inetAddress = InetAddresses.forString(host);
+                    } catch (final IllegalArgumentException e) {
+                        return null;
+                    }
+                    result.ip = inetAddress;
+                } else {
+                    if (hostPart.trim().isEmpty()) {
+                        return null;
+                    }
+                    try {
+                        result.hostname = DnsName.from(hostPart.trim());
+                    } catch (final Exception e) {
+                        return null;
+                    }
+                }
+            } else {
+                final String host = eu.siacs.conversations.utils.IP.unwrapIPv6(hostname);
+                if (InetAddresses.isInetAddress(host)) {
+                    final InetAddress inetAddress;
+                    try {
+                        inetAddress = InetAddresses.forString(host);
+                    } catch (final IllegalArgumentException e) {
+                        return null;
+                    }
+                    result.ip = inetAddress;
+                } else {
+                    try {
+                        result.hostname = DnsName.from(hostname);
+                    } catch (final Exception e) {
+                        return null;
+                    }
+                }
+                result.port = port;
+            }
+            return result;
         }
     }
 }
