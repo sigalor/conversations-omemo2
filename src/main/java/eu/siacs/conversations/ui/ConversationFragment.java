@@ -1623,17 +1623,6 @@ public class ConversationFragment extends XmppFragment
             backPressedLeaveEmojiPicker.setEnabled(false);
         }
 
-        binding.messagesView.setOnTouchListener((v, event) -> {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (binding.emojiPicker.getVisibility() == VISIBLE) {
-                            binding.emojiPicker.setVisibility(GONE);
-                            hideSoftKeyboard(activity);
-                            backPressedLeaveEmojiPicker.setEnabled(false);
-                        }
-                    }
-            return false;
-        });
-
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
