@@ -4207,11 +4207,11 @@ public class ConversationFragment extends XmppFragment
     private void updateInputField(final boolean me) {
         ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
             boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-            int keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            int keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom * 5/2;
             if (isKeyboardVisible && activity != null && activity.xmppConnectionService != null) {
                 EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                params.height = keyboardHeight - 80;
+                params.height = keyboardHeight;
                 emojipickerview.setLayoutParams(params);
                 binding.emojiPicker.setVisibility(VISIBLE);
             } else if (!isKeyboardVisible && binding.emojiButton.getVisibility()==VISIBLE) {
