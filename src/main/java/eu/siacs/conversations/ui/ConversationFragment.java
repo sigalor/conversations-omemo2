@@ -678,13 +678,15 @@ public class ConversationFragment extends XmppFragment
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            binding.emojiPicker.setVisibility(VISIBLE);
+            binding.emojiButton.setVisibility(VISIBLE);
+            binding.keyboardButton.setVisibility(GONE);
             binding.textinput.requestFocus();
             InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputMethodManager != null) {
                 binding.textinput.requestFocus();
                 inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
             }
+            binding.emojiPicker.setVisibility(VISIBLE);
             return false;
         }
 
@@ -4202,14 +4204,14 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
-    private void updateEmojiPicker(final boolean me) {
+    private void updateInputField(final boolean me) {
         ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
             boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
             int keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
             if (isKeyboardVisible && activity != null && activity.xmppConnectionService != null) {
                 EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                params.height = keyboardHeight - 100;
+                params.height = keyboardHeight - 80;
                 emojipickerview.setLayoutParams(params);
                 binding.emojiPicker.setVisibility(VISIBLE);
             } else if (!isKeyboardVisible && binding.emojiButton.getVisibility()==VISIBLE) {
@@ -4274,7 +4276,7 @@ public class ConversationFragment extends XmppFragment
         binding.threadIdenticonLayout.setLayoutParams(params);
         showRecordVoiceButton();
         updateSnackBar(conversation);
-        updateEmojiPicker(canSendMeCommand());
+        updateInputField(canSendMeCommand());
     }
 
     protected void updateStatusMessages() {
