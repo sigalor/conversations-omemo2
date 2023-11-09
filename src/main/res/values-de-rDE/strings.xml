@@ -1394,4 +1394,6 @@
     <string name="hide_notification">Verstecke Benachrichtigung</string>
     <string name="log_out">Abmelden</string>
     <string name="log_in">Anmelden</string>
+    <string name="contact_uses_unverified_keys">Dein Kontakt nutzt nicht verifizierte Geräte. Scanne seinen QR-Code, um ihn zu verifizieren und "MITM"-Angriffe aktiv zu verhindern.</string>
+    <string name="unverified_devices">Du benutzt nicht verifizierte Geräte. Scanne den QR-Code an deinen anderen Geräten um sie zu verifizieren und "MITM"-Angriffe aktiv zu verhindern.</string>
 </resources>
