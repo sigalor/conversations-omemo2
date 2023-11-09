@@ -4223,7 +4223,11 @@ public class ConversationFragment extends XmppFragment
             binding.emojiPicker.setVisibility(GONE);
         } else {
             action = SendButtonTool.getAction(getActivity(), c, text);
+        }
+        if (!hasAttachments && binding.keyboardButton.getVisibility()==GONE) {
             binding.emojiButton.setVisibility(VISIBLE);
+        } else if (!hasAttachments && binding.emojiPicker.getVisibility()==VISIBLE) {
+            binding.keyboardButton.setVisibility(VISIBLE);
         }
         if (useSendButtonToIndicateStatus && c.getAccount().getStatus() == Account.State.ONLINE) {
             if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getMessageArchiveService().isCatchingUp(c)) {
