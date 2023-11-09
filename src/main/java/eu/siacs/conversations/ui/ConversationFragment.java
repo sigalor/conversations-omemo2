@@ -83,6 +83,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -4176,39 +4177,12 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
-    public boolean hasSoftNavigationBar() {
-        Display display;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            display = activity.getDisplay();
-        } else {
-            display = activity.getWindowManager().getDefaultDisplay();
-        }
-        if (display == null) {
-            return true;
-        }
-        int displayWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        int displayHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        int realWidth;
-        int realHeight;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            realWidth = activity.getWindowManager().getCurrentWindowMetrics().getBounds().width();
-            realHeight = activity.getWindowManager().getCurrentWindowMetrics().getBounds().height();
-        } else {
-            DisplayMetrics realDisplayMetrics = new DisplayMetrics();
-            display.getRealMetrics(realDisplayMetrics);
-            realWidth = realDisplayMetrics.widthPixels;
-            realHeight = realDisplayMetrics.heightPixels;
-        }
-        return realWidth - displayWidth > 0 || realHeight - displayHeight > 0;
-    }
-
     private void updateInputField(final boolean me) {
         ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
             boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
             int keyboardHeight;
-            int orientation = getResources().getConfiguration().orientation;
-            if (hasSoftNavigationBar() && orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 77;
+            if (ViewConfiguration.get(activity).hasPermanentMenuKey()) {
+                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
             } else {
                 keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
             }
