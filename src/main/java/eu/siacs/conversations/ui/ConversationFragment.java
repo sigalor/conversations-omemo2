@@ -674,24 +674,6 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
-    private final View.OnTouchListener mTextInputListener = new View.OnTouchListener() {
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            binding.emojiButton.setVisibility(VISIBLE);
-            binding.keyboardButton.setVisibility(GONE);
-            binding.textinput.requestFocus();
-            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null) {
-                binding.textinput.requestFocus();
-                inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
-            }
-            binding.emojiPicker.setVisibility(VISIBLE);
-            return false;
-        }
-
-    };
-
     private final OnClickListener memojiButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -1638,7 +1620,6 @@ public class ConversationFragment extends XmppFragment
         });
         binding.textSendButton.setOnLongClickListener(this.mSendButtonLongListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
-        binding.textinput.setOnTouchListener(this.mTextInputListener);
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
         binding.emojiButton.setOnClickListener(this.memojiButtonListener);
         binding.keyboardButton.setOnClickListener(this.mkeyboardButtonListener);
@@ -4237,8 +4218,12 @@ public class ConversationFragment extends XmppFragment
         final SendButtonAction action;
         if (hasAttachments) {
             action = SendButtonAction.TEXT;
+            binding.emojiButton.setVisibility(GONE);
+            binding.keyboardButton.setVisibility(GONE);
+            binding.emojiPicker.setVisibility(GONE);
         } else {
             action = SendButtonTool.getAction(getActivity(), c, text);
+            binding.emojiButton.setVisibility(VISIBLE);
         }
         if (useSendButtonToIndicateStatus && c.getAccount().getStatus() == Account.State.ONLINE) {
             if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getMessageArchiveService().isCatchingUp(c)) {

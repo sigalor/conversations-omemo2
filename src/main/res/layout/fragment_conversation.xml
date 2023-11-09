@@ -7,7 +7,8 @@
         android:id="@+id/conversations_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="false">
+        android:clickable="false"
+        android:animateLayoutChanges="true" >
 
         <ImageView
             android:id="@+id/background_image"
@@ -97,7 +98,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:background="@drawable/input_bubble_light"
-        android:alpha="0.88" >
+        android:alpha="0.88"
+        android:animateLayoutChanges="true" >
 
         <LinearLayout
             android:id="@+id/context_preview"
@@ -150,12 +152,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp" >
+            android:layout_marginBottom="4dp"
+            android:animateLayoutChanges="true" >
 
             <RelativeLayout
                     android:id="@+id/message_input_box"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true" >
 
                     <ImageButton
                         android:id="@+id/keyboardButton"
@@ -169,6 +173,7 @@
                         android:contentDescription="@string/show_keyboard"
                         android:src="?attr/ic_keyboard_button"
                         android:visibility="gone" />
+
                     <ImageButton
                         android:id="@+id/emojiButton"
                         android:layout_width="32dp"
@@ -294,7 +299,7 @@
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="@string/send_message"
                                 android:src="@drawable/ic_send_text_offline" />
-            </RelativeLayout>
+                    </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/textformat"
@@ -388,7 +393,7 @@
 
             <androidx.emoji2.emojipicker.EmojiPickerView
                 android:id="@+id/emoji_picker"
-                android:layout_below="@+id/textformat"
+                android:layout_below="@+id/message_input_box"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:paddingTop="36dp"
@@ -396,7 +401,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="0dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:animateLayoutChanges="true" />
 
         </RelativeLayout>
 
@@ -415,7 +421,8 @@
             android:background="@drawable/snackbar"
             android:minHeight="48dp"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="visible"
+            android:animateLayoutChanges="true" >
 
             <TextView
                 android:id="@+id/snackbar_message"
@@ -428,7 +435,8 @@
                 android:layout_toLeftOf="@+id/snackbar_action"
                 android:paddingStart="24dp"
                 android:paddingLeft="24dp"
-                android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark" />
+                android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark"
+                android:animateLayoutChanges="true" />
 
             <TextView
                 android:id="@+id/snackbar_action"
@@ -445,7 +453,8 @@
                 android:paddingBottom="16dp"
                 android:textAllCaps="true"
                 android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:animateLayoutChanges="true" />
 
         </RelativeLayout>
 
