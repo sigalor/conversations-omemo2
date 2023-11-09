@@ -45,6 +45,7 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,6 +74,7 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -4174,10 +4176,42 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
+    public boolean hasSoftNavigationBar() {
+        Display display;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display = activity.getDisplay();
+        } else {
+            display = activity.getWindowManager().getDefaultDisplay();
+        }
+        if (display == null) {
+            return true;
+        }
+        int displayWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        int displayHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        int realWidth;
+        int realHeight;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            realWidth = activity.getWindowManager().getCurrentWindowMetrics().getBounds().width();
+            realHeight = activity.getWindowManager().getCurrentWindowMetrics().getBounds().height();
+        } else {
+            DisplayMetrics realDisplayMetrics = new DisplayMetrics();
+            display.getRealMetrics(realDisplayMetrics);
+            realWidth = realDisplayMetrics.widthPixels;
+            realHeight = realDisplayMetrics.heightPixels;
+        }
+        return realWidth - displayWidth > 0 || realHeight - displayHeight > 0;
+    }
+
     private void updateInputField(final boolean me) {
         ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
             boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-            int keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom + 77;
+            int keyboardHeight;
+            int orientation = getResources().getConfiguration().orientation;
+            if (hasSoftNavigationBar() && orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 77;
+            } else {
+                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
+            }
             if (isKeyboardVisible && activity != null && activity.xmppConnectionService != null) {
                 EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 binding.keyboardButton.setVisibility(GONE);

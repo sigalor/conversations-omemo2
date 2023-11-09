@@ -270,7 +270,7 @@
                                     android:paddingBottom="8dp"
                                     android:singleLine="false"
                                     android:textSize="?TextSizeInput"
-                                    android:textColor="?attr/text_Color_Main">
+                                    android:textColor="?attr/text_Color_Main" >
                                     <requestFocus />
                                 </eu.siacs.conversations.ui.widget.EditMessage>
                             </RelativeLayout>
@@ -310,7 +310,6 @@
                             android:paddingRight="8dp"
                             android:paddingStart="8dp"
                             android:paddingLeft="8dp"
-                            android:layout_marginBottom="4dp"
                             android:orientation="horizontal"
                             android:background="@drawable/comment_bubble_light"
                             android:alpha="0.88"
@@ -393,12 +392,10 @@
 
                         <androidx.emoji2.emojipicker.EmojiPickerView
                             android:id="@+id/emoji_picker"
-                            android:layout_below="@+id/message_input_box"
+                            android:layout_below="@+id/textformat"
                             android:layout_width="match_parent"
                             android:layout_height="180dp"
-                            android:paddingTop="36dp"
                             app:emojiGridColumns="20"
-                            android:layout_alignParentTop="true"
                             android:layout_marginBottom="5dp"
                             android:paddingBottom="0dp"
                             android:visibility="gone"
