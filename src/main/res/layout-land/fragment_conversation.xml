@@ -391,8 +391,11 @@
                             android:layout_below="@+id/textformat"
                             android:layout_width="match_parent"
                             android:layout_height="180dp"
+                            android:paddingTop="36dp"
                             app:emojiGridColumns="20"
+                            android:layout_alignParentTop="true"
                             android:layout_marginBottom="5dp"
+                            android:paddingBottom="0dp"
                             android:visibility="gone" />
 
                     </RelativeLayout>
