@@ -455,12 +455,10 @@ public class FileBackend {
                 !decrypted
                         && (message.getEncryption() == Message.ENCRYPTION_PGP
                         || message.getEncryption() == Message.ENCRYPTION_DECRYPTED);
-
         String path = message.getRelativeFilePath();
         if (path == null) {
             path = fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
         }
-
         final DownloadableFile file = getFileForPath(path, message.getMimeType());
         if (encrypted) {
             return new DownloadableFile(
@@ -777,31 +775,13 @@ public class FileBackend {
             extension = "oga";
         }
 
-        String fileName = getFileNameFromUri(uri, message, extension);
-        setupRelativeFilePath(message, fileName, mime);
+        String filename = String.format("%s.%s", mXmppConnectionService.getFileBackend().getFile(message).getName(), extension);
+        setupRelativeFilePath(message, filename, mime);
         copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
         final String name = getDisplayNameFromUri(uri);
         if (name != null) {
             message.getFileParams().setName(name);
         }
-    }
-
-    /***
-     * Return the filename from an URI object
-     * @param uri The URI object
-     * @param m The Message as a fallback
-     * @param ext The filextension as a fallback
-     * @return The complete filename (only the filename) with extension
-     */
-    private String getFileNameFromUri(Uri uri, Message m, String ext) {
-        Cursor cursor = mXmppConnectionService.getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        int i = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        String fileName = cursor.getString(i);
-        if(fileName == null || fileName.length() == 0) {
-            fileName = String.format("%s.%s", mXmppConnectionService.getFileBackend().getFile(m).getName(), ext);
-        }
-        return fileName;
     }
 
     private String getDisplayNameFromUri(final Uri uri) {
