@@ -4180,13 +4180,15 @@ public class ConversationFragment extends XmppFragment
     private void updateInputField(final boolean me) {
         ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
             boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-            int keyboardHeight;
-            if (ViewConfiguration.get(activity).hasPermanentMenuKey()) {
+            int keyboardHeight = 350;
+            if (activity != null && activity.xmppConnectionService != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
                 keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
-            } else {
+            } else if (activity != null && activity.xmppConnectionService != null) {
                 keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
+            } else if (activity != null) {
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
-            if (isKeyboardVisible && activity != null && activity.xmppConnectionService != null) {
+            if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible) {
                 EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 binding.keyboardButton.setVisibility(GONE);
                 binding.emojiButton.setVisibility(VISIBLE);
@@ -4194,10 +4196,11 @@ public class ConversationFragment extends XmppFragment
                 params.height = keyboardHeight;
                 emojipickerview.setLayoutParams(params);
                 binding.emojiPicker.setVisibility(VISIBLE);
-            } else if (!isKeyboardVisible && binding.emojiButton.getVisibility()==VISIBLE) {
+            } else if (activity != null && activity.xmppConnectionService != null && binding.emojiButton.getVisibility()==VISIBLE) {
                 binding.emojiPicker.setVisibility(GONE);
+                binding.keyboardButton.setVisibility(GONE);
             }
-            if (isKeyboardVisible && activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.showTextFormatting()) {
+            if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
                 showTextFormat(me);
             } else {
                 hideTextFormat();
