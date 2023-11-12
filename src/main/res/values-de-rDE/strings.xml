@@ -1452,4 +1452,6 @@
     <string name="grey">Grau</string>
     <string name="blue">Blau</string>
     <string name="green_and_blue">Grün und blau</string>
+    <string name="report_spam">Melde Spam</string>
+    <string name="report_spam_and_block">Melde Spam und blockiere Spammer</string>
 </resources>

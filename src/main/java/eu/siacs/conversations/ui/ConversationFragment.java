@@ -2043,6 +2043,7 @@ public class ConversationFragment extends XmppFragment
                     || m.getEncryption() == Message.ENCRYPTION_PGP;
             final boolean receiving = m.getStatus() == Message.STATUS_RECEIVED && (t instanceof JingleFileTransferConnection || t instanceof HttpDownloadConnection);
             activity.getMenuInflater().inflate(R.menu.message_context, menu);
+            final MenuItem reportAndBlock = menu.findItem(R.id.action_report_and_block);
             MenuItem openWith = menu.findItem(R.id.open_with);
             MenuItem copyMessage = menu.findItem(R.id.copy_message);
             MenuItem quoteMessage = menu.findItem(R.id.quote_message);
@@ -2067,6 +2068,17 @@ public class ConversationFragment extends XmppFragment
             onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
             final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError = m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null && !Message.ERROR_MESSAGE_CANCELLED.equals(m.getErrorMessage());
+            final Conversational conversational = m.getConversation();
+            if (m.getStatus() == Message.STATUS_RECEIVED && conversational instanceof Conversation c) {
+                final XmppConnection connection = c.getAccount().getXmppConnection();
+                if (c.isWithStranger()
+                        && m.getServerMsgId() != null
+                        && !c.isBlocked()
+                        && connection != null
+                        && connection.getFeatures().spamReporting()) {
+                    reportAndBlock.setVisible(true);
+                }
+            }
             final boolean messageDeleted = m.isMessageDeleted();
             deleteMessage.setVisible(true);
             if (!encrypted && !m.getBody().equals("")) {
@@ -2267,6 +2279,9 @@ public class ConversationFragment extends XmppFragment
                 return true;
             case R.id.show_error_message:
                 showErrorMessage(selectedMessage);
+                return true;
+            case R.id.action_report_and_block:
+                reportMessage(selectedMessage);
                 return true;
             case R.id.open_with:
                 openWith(selectedMessage);
@@ -3449,6 +3464,10 @@ public class ConversationFragment extends XmppFragment
             final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
             ViewUtil.view(activity, file);
         }
+    }
+
+    private void reportMessage(final Message message) {
+        BlockContactDialog.show(activity, conversation.getContact(), message.getServerMsgId());
     }
 
     private void showErrorMessage(final Message message) {

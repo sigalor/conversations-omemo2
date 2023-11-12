@@ -318,7 +318,7 @@ public final class MucDetailsContextMenuHelper {
                 return true;
             case R.id.context_muc_contact_block_unblock:
                 try {
-                    activity.xmppConnectionService.sendBlockRequest(new RawBlockable(account, user.getFullJid()), false);
+                    activity.xmppConnectionService.sendBlockRequest(new RawBlockable(account, user.getFullJid()), false,null);
                     activity.xmppConnectionService.leaveMuc(conversation);
                     activity.xmppConnectionService.joinMuc(conversation);
                 } catch (Exception e) {
