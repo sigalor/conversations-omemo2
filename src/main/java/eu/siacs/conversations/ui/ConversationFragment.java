@@ -4183,15 +4183,27 @@ public class ConversationFragment extends XmppFragment
     private void updateInputField(final boolean me) {
         ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
             boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-            int keyboardHeight = 350;
-            if (activity != null && activity.xmppConnectionService != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
+            int keyboardHeight;
+            if (activity != null && activity.xmppConnectionService != null && ViewConfiguration.get(activity).hasPermanentMenuKey() && isKeyboardVisible) {
                 keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
-            } else if (activity != null && activity.xmppConnectionService != null) {
+                EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                params.height = keyboardHeight;
+                emojipickerview.setLayoutParams(params);
+                binding.emojiPicker.setVisibility(VISIBLE);
+            } else if (activity != null && activity.xmppConnectionService != null && !ViewConfiguration.get(activity).hasPermanentMenuKey() && isKeyboardVisible) {
                 keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
-            } else if (activity != null) {
-                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-            }
-            if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible) {
+                EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                params.height = keyboardHeight;
+                emojipickerview.setLayoutParams(params);
+                binding.emojiPicker.setVisibility(VISIBLE);
+            } else if (activity != null && isKeyboardVisible) {
+                keyboardHeight = 350;
                 EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
                 binding.keyboardButton.setVisibility(GONE);
                 binding.emojiButton.setVisibility(VISIBLE);
