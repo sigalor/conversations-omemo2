@@ -2159,20 +2159,6 @@ public class NotificationService {
         notify(ERROR_NOTIFICATION_ID, mBuilder.build());
     }
 
-    void updateFileAddingNotification(int current, Message message) {
-        Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
-        mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.transcoding_video));
-        mBuilder.setProgress(100, current, false);
-        mBuilder.setSmallIcon(R.drawable.ic_hourglass_empty_white_24dp);
-        mBuilder.setContentIntent(createContentIntent(message.getConversation()));
-        mBuilder.setOngoing(true);
-        if (Compatibility.runsTwentySix()) {
-            mBuilder.setChannelId(VIDEOCOMPRESSION_CHANNEL_ID);
-        }
-        Notification notification = mBuilder.build();
-        notify(FOREGROUND_NOTIFICATION_ID, notification);
-    }
-
     Notification AppUpdateNotification(PendingIntent intent, String version, String filesize) {
         Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
         mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.app_name));

@@ -3,12 +3,12 @@
     <string name="action_settings">Axustes</string>
     <string name="action_add">Nova conversa</string>
     <string name="action_accounts">Xestionar contas</string>
-    <string name="action_end_conversation">Rematar esta conversa</string>
+    <string name="action_end_conversation">Arquivar esta conversa</string>
     <string name="action_contact_details">Detalles do contacto</string>
     <string name="action_secure">Conversa segura</string>
     <string name="action_add_new_account">Engadir nova conta</string>
     <string name="action_add_phone_book">Engadir á libreta de enderezos</string>
-    <string name="action_delete_contact">Eliminar contacto da lista</string>
+    <string name="action_delete_contact">Eliminar da lista de contactos</string>
     <string name="action_block_contact">Bloquear contacto</string>
     <string name="action_unblock_contact">Desbloquear contacto</string>
     <string name="action_block_domain">Bloquear dominio</string>
@@ -38,7 +38,7 @@
     <string name="moderator">Moderadora</string>
     <string name="participant">Participante</string>
     <string name="visitor">Visitante</string>
-    <string name="remove_contact_text">¿Queres eliminar a %s da túa lista\?. A conversa asociada a esta conta non se eliminará.</string>
+    <string name="remove_contact_text">¿Queres eliminar a %s da túa lista de contactos\?. A conversa asociada a esta conta non se eliminará.</string>
     <string name="block_contact_text">Queres evitar que %s che envíe mensaxes\?</string>
     <string name="unblock_contact_text">Queres desbloquear a %s e permitirlle que che envíe mensaxes\?</string>
     <string name="block_domain_text">Bloquear todos os contactos desde %s\?</string>
@@ -70,7 +70,7 @@
     <string name="problem_connecting_to_accounts">Erro na conexión a múltiples contas</string>
     <string name="touch_to_fix">Preme aquí para xestionar as túas contas</string>
     <string name="attach_file">Adxuntar</string>
-    <string name="not_in_roster">O contacto non está na túa lista. Queres engadilo\?</string>
+    <string name="not_in_roster">O contacto non está na túa lista de contactos. Queres engadilo\?</string>
     <string name="add_contact">Engadir contacto</string>
     <string name="send_failed">fallou o envío</string>
     <string name="preparing_image">Preparando imaxe para enviar</string>
@@ -174,10 +174,10 @@
 \n
 \nSe borras a conta do servidor, toda a túa conta borrarase tamén do servidor, non poderás volver entrar ata que crees una nova conta.</string>
     <string name="attach_record_voice">Grabar audio</string>
-    <string name="account_settings_jabber_id">conta</string>
+    <string name="account_settings_jabber_id">enderezo da conversa</string>
     <string name="account_settings_example_jabber_id">identificador@monocles.eu</string>
     <string name="password">Contrasinal</string>
-    <string name="invalid_jid">Esta non é unha conta válida</string>
+    <string name="invalid_jid">Este non é un enderezo de conversa válido</string>
     <string name="error_out_of_memory">Exceso de memoria. A imaxe é demasiado grande</string>
     <string name="add_phone_book_text">Quere engadir a %s á túa libreta de enderezos\?</string>
     <string name="server_info_show_more">Info do servidor</string>
@@ -500,11 +500,11 @@
     <string name="load_more_messages">Cargar máis mensaxes</string>
     <string name="no_storage_permission">monocles chatnecesita acceso ao almacenamento externo</string>
     <string name="sync_with_contacts">Sincronice con todos os contactos</string>
-    <string name="sync_with_contacts_long">monocles chatquere comparar a súa lista XMPP cos seus contactos para mostrar os seus nomes completos e avatares.
+    <string name="sync_with_contacts_long">monocles chat quere comparar a túa lista de contactos XMPP cos contactos do móbil para mostrar os seus nomes completos e avatares.
 \n
 \nmonocles chat só fará esta comprobación de xeito local sen subilos ao servidor.
 \n
-\nAgora pediráselle conceder permiso para acceder aos seus contactos.</string>
+\nAgora ímosche pedir permiso para acceder aos teus contactos.</string>
     <string name="notify_on_all_messages">Notificar todas as mensaxes</string>
     <string name="notify_only_when_highlighted">Notificar só cando é mencionada</string>
     <string name="notify_never">Notificacións deshabilitadas</string>
@@ -673,7 +673,7 @@
     <string name="today">Hoxe</string>
     <string name="pref_use_max_brightness_summary">Cambiar ao brillo máximo mentres ven vídeos ou imaxes en pantalla completa.</string>
     <string name="pref_use_max_brightness">Máxima luminosidade</string>
-    <string name="block_jabber_id">Bloquear conta</string>
+    <string name="block_jabber_id">Bloquear enderzo da conversa</string>
     <string name="corresponding_conversations_closed">Conversas correpondentes pechadas.</string>
     <string name="contact_blocked_past_tense">Contacto bloqueado.</string>
     <string name="pref_notifications_from_strangers">Notificacións de estraños</string>
@@ -1100,7 +1100,7 @@
     <string name="outgoing_call_duration">%s · Chamada saínte · %s</string>
     <string name="outgoing_call_time">%s · Chamada saínte</string>
     <string name="outgoing_call">Chamada saínte</string>
-    <string name="disable_tor_to_make_call">Desactivar Tor para facer chamadas</string>
+    <string name="disable_tor_to_make_call">Desactivar Tor para facer chamadas ou usar Tor en modo VPN</string>
     <string name="help">Axuda</string>
     <string name="switch_to_conversation">Cambiar á conversa</string>
     <string name="only_one_call_at_a_time">Só se pode facer una chamada á vez.</string>
@@ -1401,6 +1401,22 @@
     <string name="colors">Cores</string>
     <string name="pref_allowmergemessages_sum">Intentar xuntar as mensaxes se proceden do mesmo jid</string>
     <string name="unknown_otr_fingerprint">Impresión dixital OTR descoñecida</string>
-    <string name="create_monocles_only_backup">Exportar os datos exclusivos de monocles (a copia de apoio non se poderá importar noutras apps)\?</string>
+    <string name="create_monocles_only_backup">Exportar os datos exclusivos de monocles chat (a copia de apoio non se poderá importar noutras apps)\?</string>
     <string name="save_as_contact_bookmark">Gardar como contacto / marcar</string>
+    <string name="account_color">Cor da conta</string>
+    <string name="app_title" formatted="true">monocles chat</string>
+    <string name="pref_set_text_collapsable">Pregar textos longos</string>
+    <string name="notifications_disabled">Notificacións desactivadas. Actívaas nos axustes do teu android.</string>
+    <string name="no_media_permission">Sen permiso de almacenaxe multimedia</string>
+    <string name="edit_sytemaccount">Contácto do teléfono</string>
+    <string name="edit_chat_contact">Contacto de chat</string>
+    <string name="pref_show_less_avatars">Mostar menos avatares nos chats</string>
+    <string name="pref_show_thread_feature">Mostrar icona de fío</string>
+    <string name="account_color_summary">Usado na conversa, listas de contactos e notificacións</string>
+    <string name="enter_user_name">Escribe o nome</string>
+    <string name="notifications_enabled">Notificacións activadas</string>
+    <string name="pref_set_text_collapsable_summary">Prega os textos de máis de 240 caracteres</string>
+    <string name="pref_show_thread_feature_summary">Mostrar icona de fío no campo de entrada para permitir a creación e seguimento de fíos</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Editar o contacto do chat ou do teléfono\?</string>
+    <string name="pref_show_less_avatars_summary">Só se mostrarán os avatares necesarios nas conversas</string>
 </resources>

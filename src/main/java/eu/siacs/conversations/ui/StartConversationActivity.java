@@ -136,6 +136,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
             mSearchEditText.post(() -> {
+                mQrCodeScan.setVisible(false);
+                binding.speedDial.setVisibility(View.GONE);
                 updateSearchViewHint();
                 mSearchEditText.requestFocus();
                 if (oneShotKeyboardSuppress.compareAndSet(true, false)) {
@@ -157,7 +159,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             SoftKeyboardUtils.hideSoftKeyboard(StartConversationActivity.this);
             mSearchEditText.setText("");
             filter(null);
-            navigateBack();
+            mQrCodeScan.setVisible(true);
+            binding.speedDial.setVisibility(View.VISIBLE);
             return true;
         }
     };
@@ -177,6 +180,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
     };
     private MenuItem mMenuSearchView;
+    private MenuItem mQrCodeScan;
+
     private final ListItemAdapter.OnTagClickedListener mOnTagClickedListener = new ListItemAdapter.OnTagClickedListener() {
         @Override
         public void onTagClicked(String tag) {
@@ -747,6 +752,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
         qrCodeScanMenuItem.setVisible(isCameraFeatureAvailable());
+        mQrCodeScan = menu.findItem(R.id.action_scan_qr_code);
         menuHideOffline.setVisible(true);
         menuHideOffline.setChecked(this.mHideOfflineContacts);
         mMenuSearchView = menu.findItem(R.id.action_search);
@@ -1708,6 +1714,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
                 Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, tag.getColor());
+                tv.setBackgroundColor(tag.getColor());
                 tv.setBackgroundResource(R.drawable.rounded_tag);
             }
         }

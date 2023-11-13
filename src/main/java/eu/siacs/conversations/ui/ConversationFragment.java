@@ -45,6 +45,7 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,6 +74,7 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -81,6 +83,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -100,6 +103,10 @@ import de.monocles.chat.EmojiSearch;
 import java.net.URISyntaxException;
 import android.os.Environment;
 import android.os.storage.StorageManager;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
@@ -650,6 +657,7 @@ public class ConversationFragment extends XmppFragment
     private final AtomicBoolean mSendingPgpMessage = new AtomicBoolean(false);
     private final OnEditorActionListener mEditorActionListener = (v, actionId, event) -> {
         if (actionId == EditorInfo.IME_ACTION_SEND) {
+            binding.emojiPicker.setVisibility(VISIBLE);
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null && imm.isFullscreenMode()) {
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -668,7 +676,6 @@ public class ConversationFragment extends XmppFragment
             setSelection(binding.messagesView.getCount() - 1, true);
         }
     };
-
 
     private final OnClickListener memojiButtonListener = new OnClickListener() {
         @Override
@@ -694,7 +701,7 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             if (binding.keyboardButton.getVisibility() == VISIBLE) {
                 binding.keyboardButton.setVisibility(GONE);
-                binding.emojiPicker.setVisibility(GONE);
+                binding.emojiPicker.setVisibility(VISIBLE);
                 binding.emojiButton.setVisibility(VISIBLE);
 
                 InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -781,6 +788,7 @@ public class ConversationFragment extends XmppFragment
         public void handleOnBackPressed() {
             if (binding.emojiPicker.getVisibility()==VISIBLE) {
                 binding.emojiPicker.setVisibility(GONE);
+                hideSoftKeyboard(activity);
                 binding.keyboardButton.setVisibility(GONE);
                 binding.emojiButton.setVisibility(VISIBLE);
             }
@@ -1472,6 +1480,7 @@ public class ConversationFragment extends XmppFragment
         setHasOptionsMenu(true);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
+
     }
 
     @Override
@@ -1598,16 +1607,6 @@ public class ConversationFragment extends XmppFragment
         } else {
             backPressedLeaveEmojiPicker.setEnabled(false);
         }
-
-        binding.messagesView.setOnTouchListener((v, event) -> {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (binding.emojiPicker.getVisibility() == VISIBLE) {
-                            binding.emojiPicker.setVisibility(GONE);
-                            backPressedLeaveEmojiPicker.setEnabled(false);
-                        }
-                    }
-            return false;
-        });
 
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
@@ -1782,6 +1781,7 @@ public class ConversationFragment extends XmppFragment
             }
             binding.textinput.insertAsQuote(username + text);
             binding.textinput.requestFocus();
+            binding.emojiPicker.setVisibility(VISIBLE);
             InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputMethodManager != null) {
                 inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
@@ -2338,6 +2338,7 @@ public class ConversationFragment extends XmppFragment
         }
         if (binding.emojiPicker.getVisibility()==VISIBLE){
             binding.emojiPicker.setVisibility(GONE);
+            hideSoftKeyboard(activity);
             return true;
         }
         return false;
@@ -2757,13 +2758,13 @@ public class ConversationFragment extends XmppFragment
                         && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     File bgfileUri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
                     if (bgfileUri.exists()) {
-                        Drawable custom_background = new BitmapDrawable(String.valueOf(bgfileUri));
-                        getActivity().getWindow().setBackgroundDrawable(custom_background);
+                        assert binding.backgroundImage != null;
+                        binding.backgroundImage.setImageURI(Uri.fromFile(bgfileUri));
                     } else {
-                        getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                        binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                     }
                 } else {
-                    getActivity().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                    binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
                 }
             }
         }
@@ -3859,8 +3860,11 @@ public class ConversationFragment extends XmppFragment
             });
             return;
         }
-        final Message message = downloadUuid == null ? null : conversation.findMessageWithFileAndUuid(downloadUuid);
+        Message message = downloadUuid == null ? null : conversation.findMessageWithFileAndUuid(downloadUuid);
         if ("webxdc".equals(postInitAction)) {
+            if (message == null) {
+                message = activity.xmppConnectionService.getMessage(conversation, downloadUuid);
+            }
             if (message == null) return;
 
             Cid webxdcCid = message.getFileParams().getCids().get(0);
@@ -4176,14 +4180,47 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
-    private void updateTextFormat(final boolean me) {
-        KeyboardUtils.addKeyboardToggleListener(activity, isVisible -> {
-            Log.d(Config.LOGTAG, "keyboard visible: " + isVisible);
-            if (isVisible && activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.showTextFormatting()) {
+    private void updateInputField(final boolean me) {
+        ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
+            boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+            int keyboardHeight;
+            if (activity != null && activity.xmppConnectionService != null && ViewConfiguration.get(activity).hasPermanentMenuKey() && isKeyboardVisible) {
+                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
+                EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                params.height = keyboardHeight;
+                emojipickerview.setLayoutParams(params);
+                binding.emojiPicker.setVisibility(VISIBLE);
+            } else if (activity != null && activity.xmppConnectionService != null && !ViewConfiguration.get(activity).hasPermanentMenuKey() && isKeyboardVisible) {
+                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
+                EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                params.height = keyboardHeight;
+                emojipickerview.setLayoutParams(params);
+                binding.emojiPicker.setVisibility(VISIBLE);
+            } else if (activity != null && isKeyboardVisible) {
+                keyboardHeight = 350;
+                EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                params.height = keyboardHeight;
+                emojipickerview.setLayoutParams(params);
+                binding.emojiPicker.setVisibility(VISIBLE);
+            } else if (activity != null && activity.xmppConnectionService != null && binding.emojiButton.getVisibility()==VISIBLE) {
+                binding.emojiPicker.setVisibility(GONE);
+                binding.keyboardButton.setVisibility(GONE);
+            }
+            if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
                 showTextFormat(me);
             } else {
                 hideTextFormat();
             }
+            return ViewCompat.onApplyWindowInsets(v, insets);
         });
     }
 
@@ -4207,8 +4244,16 @@ public class ConversationFragment extends XmppFragment
         final SendButtonAction action;
         if (hasAttachments) {
             action = SendButtonAction.TEXT;
+            binding.emojiButton.setVisibility(GONE);
+            binding.keyboardButton.setVisibility(GONE);
+            binding.emojiPicker.setVisibility(GONE);
         } else {
             action = SendButtonTool.getAction(getActivity(), c, text);
+        }
+        if (!hasAttachments && binding.keyboardButton.getVisibility()==GONE) {
+            binding.emojiButton.setVisibility(VISIBLE);
+        } else if (!hasAttachments && binding.emojiPicker.getVisibility()==VISIBLE) {
+            binding.keyboardButton.setVisibility(VISIBLE);
         }
         if (useSendButtonToIndicateStatus && c.getAccount().getStatus() == Account.State.ONLINE) {
             if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getMessageArchiveService().isCatchingUp(c)) {
@@ -4237,7 +4282,7 @@ public class ConversationFragment extends XmppFragment
         binding.threadIdenticonLayout.setLayoutParams(params);
         showRecordVoiceButton();
         updateSnackBar(conversation);
-        updateTextFormat(canSendMeCommand());
+        updateInputField(canSendMeCommand());
     }
 
     protected void updateStatusMessages() {

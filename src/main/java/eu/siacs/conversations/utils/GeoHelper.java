@@ -107,7 +107,7 @@ public class GeoHelper {
         final ArrayList<Intent> intents = new ArrayList<>();
         final GeoPoint geoPoint;
         try {
-            geoPoint = parseGeoPoint(message.getQuoteableBody());
+            geoPoint = parseGeoPoint(message.getBody());
         } catch (IllegalArgumentException e) {
             return intents;
         }
