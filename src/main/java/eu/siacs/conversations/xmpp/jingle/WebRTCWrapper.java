@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
@@ -481,11 +482,6 @@ public class WebRTCWrapper {
                 "setIsReadyToReceiveCandidates(" + ready + ") was=" + was + " is=" + is);
     }
 
-    public void resetPendingCandidates() {
-        this.readyToReceivedIceCandidates.set(true);
-        this.iceCandidates.clear();
-    }
-
     synchronized void close() {
         final PeerConnection peerConnection = this.peerConnection;
         final PeerConnectionFactory peerConnectionFactory = this.peerConnectionFactory;
@@ -615,8 +611,8 @@ public class WebRTCWrapper {
         }
         throw new IllegalStateException("Local video track does not exist");
     }
-
-    synchronized ListenableFuture<SessionDescription> setLocalDescription(final boolean waitForCandidates) {
+    synchronized ListenableFuture<SessionDescription> setLocalDescription(
+            final boolean waitForCandidates) {
         this.setIsReadyToReceiveIceCandidates(false);
         return Futures.transformAsync(
                 getPeerConnectionFuture(),
@@ -630,16 +626,20 @@ public class WebRTCWrapper {
                             new SetSdpObserver() {
                                 @Override
                                 public void onSetSuccess() {
-                                    final var delay =
-                                            waitForCandidates
-                                                    ? Futures.catching(Futures.withTimeout(iceGatheringComplete, 2, TimeUnit.SECONDS, JingleConnectionManager.SCHEDULED_EXECUTOR_SERVICE), Exception.class, (Exception e) -> { return null; }, MoreExecutors.directExecutor())
-                                                    : Futures.immediateVoidFuture();
-                                    final var delayedSessionDescription =
-                                            Futures.transformAsync(
-                                                    delay,
-                                                    v -> getLocalDescriptionFuture(),
-                                                    MoreExecutors.directExecutor());
-                                    future.setFuture(delayedSessionDescription);
+                                    if (waitForCandidates) {
+                                        final var delay = getIceGatheringCompleteOrTimeout();
+                                        final var delayedSessionDescription =
+                                                Futures.transformAsync(
+                                                        delay,
+                                                        v -> {
+                                                            iceCandidates.clear();
+                                                            return getLocalDescriptionFuture();
+                                                        },
+                                                        MoreExecutors.directExecutor());
+                                        future.setFuture(delayedSessionDescription);
+                                    } else {
+                                        future.setFuture(getLocalDescriptionFuture());
+                                    }
                                 }
 
                                 @Override
@@ -652,6 +652,24 @@ public class WebRTCWrapper {
                 },
                 MoreExecutors.directExecutor());
     }
+
+    private ListenableFuture<Void> getIceGatheringCompleteOrTimeout() {
+        return Futures.catching(
+                Futures.withTimeout(
+                        iceGatheringComplete,
+                        2,
+                        TimeUnit.SECONDS,
+                        JingleConnectionManager.SCHEDULED_EXECUTOR_SERVICE),
+                TimeoutException.class,
+                ex -> {
+                    Log.d(
+                            EXTENDED_LOGGING_TAG,
+                            "timeout while waiting for ICE gathering to complete");
+                    return null;
+                },
+                MoreExecutors.directExecutor());
+    }
+
 
     private ListenableFuture<SessionDescription> getLocalDescriptionFuture() {
         return Futures.submit(
