@@ -44,6 +44,7 @@ import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.ui.adapter.AccountAdapter;
 import eu.siacs.conversations.utils.MenuDoubleTabUtil;
 import eu.siacs.conversations.xmpp.Jid;
+import eu.siacs.conversations.utils.Resolver;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import me.drakeet.support.toast.ToastCompat;
 
@@ -412,6 +413,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     private void disableAccount(Account account) {
+        Resolver.clearCache();
         account.setOption(Account.OPTION_DISABLED, true);
         if (!xmppConnectionService.updateAccount(account)) {
             ToastCompat.makeText(this, R.string.unable_to_update_account, ToastCompat.LENGTH_SHORT).show();
