@@ -540,7 +540,7 @@
     <string name="this_field_is_required">Este campo es requerido</string>
     <string name="correct_message">Corregir mensaje</string>
     <string name="send_corrected_message">Enviar mensaje corregido</string>
-    <string name="no_keys_just_confirm">Ya confías en este contacto. Seleccionando \'hecho\', estás confirmando que %s es parte de esta sala.</string>
+    <string name="no_keys_just_confirm">Ya confías en la huella de esta persona. Seleccionando "Hecho", estás confirmando que %s es parte de esta sala.</string>
     <string name="contacts_have_no_pgp_keys">monocles chat no ha podido cifrar tus mensajes porque tus contactos no están anunciando sus claves públicas.\n\n</string>
     <string name="this_account_is_disabled">Has deshabilitado esta cuenta</string>
     <string name="no_application_to_share_uri">No se ha encontrado ninguna aplicación para compartir la URI</string>
