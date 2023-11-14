@@ -2,6 +2,7 @@ package eu.siacs.conversations.ui;
 
 import java.util.Map;
 
+import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.ui.adapter.CommandAdapter;
 import eu.siacs.conversations.xml.Element;
@@ -95,6 +96,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import eu.siacs.conversations.utils.Emoticons;
@@ -376,6 +378,7 @@ public class ConversationFragment extends XmppFragment
                 (dialog, which) -> {
                     final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
                     preferences.edit().putBoolean("showtextformatting", false).apply();
+                    binding.textformat.setVisibility(GONE);
                     updateSendButton();
                 });
         builder.setNegativeButton(getString(R.string.cancel), null);
@@ -2247,7 +2250,7 @@ public class ConversationFragment extends XmppFragment
                 startSearch();
                 break;
             case R.id.action_archive_chat:
-                    activity.xmppConnectionService.archiveConversation(conversation);
+                activity.xmppConnectionService.archiveConversation(conversation);
                 break;
             case R.id.action_leave_group:
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -2719,7 +2722,7 @@ public class ConversationFragment extends XmppFragment
                 } else if (Manifest.permission.READ_MEDIA_IMAGES.equals(firstDenied)) {
                     res = R.string.no_media_permission;
                 } else if (Manifest.permission.READ_MEDIA_AUDIO.equals(firstDenied)) {
-                res = R.string.no_media_permission;
+                    res = R.string.no_media_permission;
                 } else if (Manifest.permission.READ_MEDIA_VIDEO.equals(firstDenied)) {
                     res = R.string.no_media_permission;
                 } else if (!Compatibility.runsThirtyThree() && Manifest.permission.READ_EXTERNAL_STORAGE.equals(firstDenied) || !Compatibility.runsThirtyThree() && Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(firstDenied)) {
@@ -4180,39 +4183,6 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
-    private void updateInputField(final boolean me) {
-        ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
-            boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-            int keyboardHeight = 350;
-            if (activity != null && activity.xmppConnectionService != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
-                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
-            } else if (activity != null && activity.xmppConnectionService != null) {
-                keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
-            } else if (activity != null) {
-                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-            }
-            if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible) {
-                EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
-                binding.keyboardButton.setVisibility(GONE);
-                binding.emojiButton.setVisibility(VISIBLE);
-                ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                params.height = keyboardHeight;
-                emojipickerview.setLayoutParams(params);
-                binding.emojiPicker.setVisibility(VISIBLE);
-            } else if (activity != null && activity.xmppConnectionService != null && binding.emojiButton.getVisibility()==VISIBLE) {
-                binding.emojiPicker.setVisibility(GONE);
-                binding.keyboardButton.setVisibility(GONE);
-            }
-            if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
-                showTextFormat(me);
-            } else {
-                hideTextFormat();
-            }
-            return ViewCompat.onApplyWindowInsets(v, insets);
-        });
-    }
-
-
     private void updateEditablity() {
         boolean canWrite = this.conversation.getMode() == Conversation.MODE_SINGLE || this.conversation.getMucOptions().participating() || this.conversation.getNextCounterpart() != null;
         this.binding.textinput.setFocusable(canWrite);
@@ -4270,7 +4240,76 @@ public class ConversationFragment extends XmppFragment
         binding.threadIdenticonLayout.setLayoutParams(params);
         showRecordVoiceButton();
         updateSnackBar(conversation);
-        updateInputField(canSendMeCommand());
+        updateinputfield(canSendMeCommand());
+
+    }
+
+    public void updateinputfield(final boolean me) {
+        if (Build.VERSION.SDK_INT > 29) {
+            ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
+                boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+                int keyboardHeight = 350;
+                if (activity != null && activity.xmppConnectionService != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
+                } else if (activity != null && activity.xmppConnectionService != null) {
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
+                } else if (activity != null) {
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                }
+                if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible) {
+                    EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                    binding.keyboardButton.setVisibility(GONE);
+                    binding.emojiButton.setVisibility(VISIBLE);
+                    ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                    params.height = keyboardHeight;
+                    emojipickerview.setLayoutParams(params);
+                    binding.emojiPicker.setVisibility(VISIBLE);
+                } else if (activity != null && activity.xmppConnectionService != null && !isKeyboardVisible && binding.emojiButton.getVisibility()==VISIBLE) {
+                    binding.emojiPicker.setVisibility(GONE);
+                    binding.keyboardButton.setVisibility(GONE);
+                }
+                if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
+                    showTextFormat(me);
+                } else {
+                    hideTextFormat();
+                }
+                return ViewCompat.onApplyWindowInsets(v, insets);
+            });
+        } else {
+            RelativeLayout llRoot = binding.conversationsFragment; //The root layout (Linear, Relative, Contraint, etc...)
+            new KeyboardHeightProvider(this.activity, activity.getWindowManager(), llRoot, new KeyboardHeightProvider.KeyboardHeightListener() {
+                @Override
+                public void onKeyboardHeightChanged(int keyboardHeight, boolean keyboardOpen, boolean isLandscape) {
+                    Log.i("keyboard listener", "keyboardHeight: " + keyboardHeight + " keyboardOpen: " + keyboardOpen + " isLandscape: " + isLandscape);
+                    if (activity != null && activity.xmppConnectionService != null && keyboardOpen && !isLandscape) {
+                        EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                        binding.keyboardButton.setVisibility(GONE);
+                        binding.emojiButton.setVisibility(VISIBLE);
+                        ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                        params.height = keyboardHeight - 24;
+                        emojipickerview.setLayoutParams(params);
+                        binding.emojiPicker.setVisibility(VISIBLE);
+                    } else if (activity != null && activity.xmppConnectionService != null && keyboardOpen && isLandscape) {
+                        EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                        binding.keyboardButton.setVisibility(GONE);
+                        binding.emojiButton.setVisibility(VISIBLE);
+                        ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+                        params.height = keyboardHeight - 24;
+                        emojipickerview.setLayoutParams(params);
+                        binding.emojiPicker.setVisibility(VISIBLE);
+                    }
+                    if (activity != null && activity.xmppConnectionService != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
+                        binding.emojiPicker.setVisibility(GONE);
+                        binding.keyboardButton.setVisibility(GONE);
+                    }
+                    if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
+                        showTextFormat(me);
+                    } else {
+                        hideTextFormat();
+                    }
+                }
+            });
+        }
     }
 
     protected void updateStatusMessages() {

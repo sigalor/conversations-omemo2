@@ -400,9 +400,7 @@
                 android:paddingBottom="0dp"
                 android:visibility="gone"
                 android:animateLayoutChanges="true" />
-
         </RelativeLayout>
-
     </LinearLayout>
 
         <RelativeLayout
