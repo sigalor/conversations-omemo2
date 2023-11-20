@@ -1679,7 +1679,6 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
-        /*      //TODO: Disabled Cheogram emojisearch for now
         final Pattern lastColonPattern = Pattern.compile("(?<!\\w):");
         emojiSearchBinding = DataBindingUtil.inflate(inflater, R.layout.emoji_search, null, false);
         emojiSearchBinding.emoji.setOnItemClickListener((parent, view, position, id) -> {
@@ -1729,7 +1728,6 @@ public class ConversationFragment extends XmppFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int count, int after) { }
         });
-         */
 
         return binding.getRoot();
     }
@@ -4717,7 +4715,7 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
-        // setupEmojiSearch();      //TODO: Disabled Cheogram emojisearch for now
+        setupEmojiSearch();
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
