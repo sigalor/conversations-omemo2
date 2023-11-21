@@ -42,6 +42,10 @@ public class Tag {
         return name;
     }
 
+    public String identifier() {
+        return String.format("%s#%s", name, this.attributes.get("xmlns"));
+    }
+
     public String getAttribute(String attrName) {
         return this.attributes.get(attrName);
     }
