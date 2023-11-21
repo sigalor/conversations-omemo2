@@ -1562,7 +1562,7 @@ public class XmppConnection implements Runnable {
         this.saslMechanism = validate(saslMechanism, mechanisms);
         final boolean quickStartAvailable;
         final String firstMessage = this.saslMechanism.getClientFirstMessage(sslSocketOrNull(this.socket));
-        final boolean usingFast = SaslMechanism.hashedToken(this.saslMechanism);
+        final boolean usingFast = SaslMechanism.hashedToken(saslMechanism);
         final Element authenticate;
         if (version == SaslMechanism.Version.SASL) {
             authenticate = new Element("auth", Namespace.SASL);
