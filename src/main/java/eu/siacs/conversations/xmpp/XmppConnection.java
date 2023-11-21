@@ -12,13 +12,15 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
-import com.google.common.base.Optional;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 import org.xmlpull.v1.XmlPullParserException;
 import eu.siacs.conversations.crypto.sasl.HashedToken;
@@ -205,7 +207,7 @@ public class XmppConnection implements Runnable {
     private OnStatusChanged statusListener = null;
     private OnBindListener bindListener = null;
     private OnMessageAcknowledged acknowledgedListener = null;
-    private SaslMechanism saslMechanism;
+    private LoginInfo loginInfo;
     private HashedToken.Mechanism hashTokenRequest;
     private HttpUrl redirectionUrl = null;
     private String verifiedHostname = null;
@@ -684,7 +686,7 @@ public class XmppConnection implements Runnable {
                 // two step sasl2 - we don’t support this yet
                 throw new StateChangingException(Account.State.INCOMPATIBLE_CLIENT);
             } else if (nextTag.isStart("challenge")) {
-                if (isSecure() && this.saslMechanism != null) {
+                if (isSecure() && this.loginInfo != null) {
                     final Element challenge = tagReader.readElement(nextTag);
                     processChallenge(challenge);
                 } else {
@@ -794,7 +796,7 @@ public class XmppConnection implements Runnable {
             throw new AssertionError("Missing implementation for " + version);
         }
         try {
-            response.setContent(saslMechanism.getResponse(challenge.getContent(), sslSocketOrNull(socket)));
+            response.setContent(this.loginInfo.saslMechanism.getResponse(challenge.getContent(), sslSocketOrNull(socket)));
         } catch (final SaslMechanism.AuthenticationException e) {
             // TODO: Send auth abort tag.
             Log.e(Config.LOGTAG, e.toString());
@@ -811,8 +813,9 @@ public class XmppConnection implements Runnable {
         } catch (final IllegalArgumentException e) {
             throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
         }
-        final SaslMechanism currentSaslMechanism = this.saslMechanism;
-        if (currentSaslMechanism == null) {
+        final LoginInfo currentLoginInfo = this.loginInfo;
+        final SaslMechanism currentSaslMechanism = LoginInfo.mechanism(currentLoginInfo);
+        if (currentLoginInfo == null || currentSaslMechanism == null) {
             throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
         }
         final String challenge;
@@ -911,13 +914,25 @@ public class XmppConnection implements Runnable {
                     //if we did not enable stream management in bind do it now
                     waitForDisco = enableStreamManagement();
                 }
+                final boolean negotiatedCarbons;
                 if (carbonsEnabled != null) {
+                    negotiatedCarbons = true;
                     Log.d(
                             Config.LOGTAG,
-                            account.getJid().asBareJid() + ": successfully enabled carbons");
+                            account.getJid().asBareJid()
+                                    + ": successfully enabled carbons (via Bind 2.0)");
                     features.carbonsEnabled = true;
+                } else if (loginInfo.inlineBindFeatures.contains(Namespace.CARBONS)) {
+                    negotiatedCarbons = true;
+                    Log.d(
+                            Config.LOGTAG,
+                            account.getJid().asBareJid()
+                                    + ": successfully enabled carbons (via Bind 2.0/implicit)");
+                    features.carbonsEnabled = true;
+                } else {
+                    negotiatedCarbons = false;
                 }
-                sendPostBindInitialization(waitForDisco, carbonsEnabled != null);
+                sendPostBindInitialization(waitForDisco, negotiatedCarbons);
             }
             final HashedToken.Mechanism tokenMechanism;
             if (SaslMechanism.hashedToken(currentSaslMechanism)) {
@@ -1021,7 +1036,7 @@ public class XmppConnection implements Runnable {
         }
         Log.d(Config.LOGTAG, failure.toString());
         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": login failure " + version);
-        if (SaslMechanism.hashedToken(this.saslMechanism)) {
+        if (SaslMechanism.hashedToken(LoginInfo.mechanism(this.loginInfo))) {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": resetting token");
             account.resetFastToken();
             mXmppConnectionService.databaseBackend.updateAccount(account);
@@ -1047,7 +1062,7 @@ public class XmppConnection implements Runnable {
                 }
             }
         }
-        if (SaslMechanism.hashedToken(this.saslMechanism)) {
+        if (SaslMechanism.hashedToken(LoginInfo.mechanism(this.loginInfo))) {
             Log.d(
                     Config.LOGTAG,
                     account.getJid().asBareJid()
@@ -1456,7 +1471,7 @@ public class XmppConnection implements Runnable {
                         account.getJid().asBareJid()
                                 + ": quick start in progress. ignoring features: "
                                 + XmlHelper.printElementNames(this.streamFeatures));
-                if (SaslMechanism.hashedToken(this.saslMechanism)) {
+                if (SaslMechanism.hashedToken(LoginInfo.mechanism(this.loginInfo))) {
                     return;
                 }
                 if (isFastTokenAvailable(
@@ -1567,10 +1582,10 @@ public class XmppConnection implements Runnable {
         final Collection<ChannelBinding> channelBindings = ChannelBinding.of(cbElement);
         final SaslMechanism.Factory factory = new SaslMechanism.Factory(account);
         final SaslMechanism saslMechanism = factory.of(mechanisms, channelBindings, version, SSLSockets.version(this.socket));
-        this.saslMechanism = validate(saslMechanism, mechanisms);
+        this.validate(saslMechanism, mechanisms);
         final boolean quickStartAvailable;
-        final String firstMessage = this.saslMechanism.getClientFirstMessage(sslSocketOrNull(this.socket));
-        final boolean usingFast = SaslMechanism.hashedToken(saslMechanism);
+        final String firstMessage = saslMechanism.getClientFirstMessage(sslSocketOrNull(this.socket));
+        final boolean usingFast = SaslMechanism.hashedToken(LoginInfo.mechanism(this.loginInfo));
         final Element authenticate;
         if (version == SaslMechanism.Version.SASL) {
             authenticate = new Element("auth", Namespace.SASL);
@@ -1578,6 +1593,7 @@ public class XmppConnection implements Runnable {
                 authenticate.setContent(firstMessage);
             }
             quickStartAvailable = false;
+            this.loginInfo = new LoginInfo(saslMechanism,version,Collections.emptyList());
         } else if (version == SaslMechanism.Version.SASL_2) {
             final Element inline = authElement.findChild("inline", Namespace.SASL_2);
             final boolean sm = inline != null && inline.hasChild("sm", Namespace.STREAM_MANAGEMENT);
@@ -1606,6 +1622,7 @@ public class XmppConnection implements Runnable {
                     return;
                 }
             }
+            this.loginInfo = new LoginInfo(saslMechanism,version,bindFeatures);
             this.hashTokenRequest = hashTokenRequest;
             authenticate = generateAuthenticationRequest(firstMessage, usingFast, hashTokenRequest, bindFeatures, sm);
         } else {
@@ -1622,8 +1639,8 @@ public class XmppConnection implements Runnable {
                         + ": Authenticating with "
                         + version
                         + "/"
-                        + this.saslMechanism.getMechanism());
-        authenticate.setAttribute("mechanism", this.saslMechanism.getMechanism());
+                        + LoginInfo.mechanism(this.loginInfo).getMechanism());
+        authenticate.setAttribute("mechanism", LoginInfo.mechanism(this.loginInfo).getMechanism());
 
         synchronized (this.mStanzaQueue) {
             this.stanzasSentBeforeAuthentication = this.stanzasSent;
@@ -1636,8 +1653,7 @@ public class XmppConnection implements Runnable {
         return inline != null && inline.hasChild("fast", Namespace.FAST);
     }
 
-    @NonNull
-    private SaslMechanism validate(final @Nullable SaslMechanism saslMechanism, Collection<String> mechanisms) throws StateChangingException {
+    private void validate(final @Nullable SaslMechanism saslMechanism, Collection<String> mechanisms) throws StateChangingException {
         if (saslMechanism == null) {
             Log.d(
                     Config.LOGTAG,
@@ -1647,7 +1663,7 @@ public class XmppConnection implements Runnable {
             throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
         }
         if (SaslMechanism.hashedToken(saslMechanism)) {
-            return saslMechanism;
+            return;
         }
         final int pinnedMechanism = account.getPinnedMechanismPriority();
         if (pinnedMechanism > saslMechanism.getPriority()) {
@@ -1662,7 +1678,6 @@ public class XmppConnection implements Runnable {
                             + "). Possible downgrade attack?");
             throw new StateChangingException(Account.State.DOWNGRADE_ATTACK);
         }
-        return saslMechanism;
     }
 
     private Element generateAuthenticationRequest(final String firstMessage, final boolean usingFast) {
@@ -1689,7 +1704,8 @@ public class XmppConnection implements Runnable {
                     .addChild("device")
                     .setContent(String.format("%s %s", Build.MANUFACTURER, Build.MODEL));
         }
-        // do not include bind if 'inlinestreamManagment' is missing and we have a streamId
+        // do not include bind if 'inlineStreamManagement' is missing and we have a streamId
+        // (because we would rather just do a normal SM/resume)
         final boolean mayAttemptBind = streamId == null || inlineStreamManagement;
         if (bind != null && mayAttemptBind) {
             authenticate.addChild(generateBindRequest(bind));
@@ -1883,7 +1899,7 @@ public class XmppConnection implements Runnable {
         synchronized (this.commands) {
             this.commands.clear();
         }
-        this.saslMechanism = null;
+        this.loginInfo = null;
     }
 
     private void sendBindRequest() {
@@ -2458,7 +2474,7 @@ public class XmppConnection implements Runnable {
                 && quickStartMechanism != null
                 && account.isOptionSet(Account.OPTION_QUICKSTART_AVAILABLE)) {
             mXmppConnectionService.restoredFromDatabaseLatch.await();
-            this.saslMechanism = quickStartMechanism;
+            this.loginInfo = new LoginInfo(quickStartMechanism, SaslMechanism.Version.SASL_2, Bind2.QUICKSTART_FEATURES);
             final boolean usingFast = quickStartMechanism instanceof HashedToken;
             final Element authenticate =
                     generateAuthenticationRequest(quickStartMechanism.getClientFirstMessage(sslSocketOrNull(this.socket)), usingFast);
@@ -2866,6 +2882,30 @@ public class XmppConnection implements Runnable {
             } catch (Exception e) {
                 return null;
             }
+        }
+    }
+
+    private static class LoginInfo {
+        public final SaslMechanism saslMechanism;
+        public final SaslMechanism.Version saslVersion;
+        public final List<String> inlineBindFeatures;
+
+        private LoginInfo(
+                final SaslMechanism saslMechanism,
+                final SaslMechanism.Version saslVersion,
+                final Collection<String> inlineBindFeatures) {
+            Preconditions.checkNotNull(saslMechanism, "SASL Mechanism must not be null");
+            Preconditions.checkNotNull(saslVersion, "SASL version must not be null");
+            this.saslMechanism = saslMechanism;
+            this.saslVersion = saslVersion;
+            this.inlineBindFeatures =
+                    inlineBindFeatures == null
+                            ? Collections.emptyList()
+                            : ImmutableList.copyOf(inlineBindFeatures);
+        }
+
+        public static SaslMechanism mechanism(final LoginInfo loginInfo) {
+            return loginInfo == null ? null : loginInfo.saslMechanism;
         }
     }
 
