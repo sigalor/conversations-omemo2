@@ -319,7 +319,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (offerToSetupDiallerIntegration()) return;
             // if (offerToDownloadStickers()) return;       // TODO: Disabled Cheogram Stickers until it's more useful
             openBatteryOptimizationDialogIfNeeded();
-            //xmppConnectionService.rescanStickers();
+            xmppConnectionService.rescanStickers();
 
             new showMemoryWarning(this).execute();
             showOutdatedVersionWarning();
