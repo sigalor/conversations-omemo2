@@ -1716,7 +1716,7 @@ public class ConversationFragment extends XmppFragment
                         EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
                         if (adapter != null) {
                             adapter.search(q);
-                            emojiPopup.showAsDropDown(binding.textinput);
+                            emojiPopup.showAtLocation(binding.textinput, Gravity.START, 0, -77 );
                         }
                     }
                 }, 400L);
