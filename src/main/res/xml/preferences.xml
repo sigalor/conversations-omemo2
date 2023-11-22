@@ -369,9 +369,11 @@
             android:key="camera_choice"
             android:summary="@string/pref_choose_camera_summary"
             android:title="@string/choose_camera_app" />
+        <!-- TODO: Not reliable working at moment
         <Preference
             android:title="@string/change_stickers_location"
             android:key="sticker_directory" />
+            -->
         <Preference
             android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />
