@@ -52,6 +52,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -4233,11 +4234,20 @@ public class ConversationFragment extends XmppFragment
         binding.threadIdenticonLayout.setLayoutParams(params);
         showRecordVoiceButton();
         updateSnackBar(conversation);
-        updateinputfield(canSendMeCommand());
+        updateinputfield(canSendMeCommand(), null);
 
     }
 
-    public void updateinputfield(final boolean me) {
+
+    public Point getDisplayDimensions(Context context) {
+        Point size = new Point();
+        WindowManager w = ((Activity) context).getWindowManager();
+        w.getDefaultDisplay().getSize(size);
+        return size;
+    }
+
+
+    public void updateinputfield(final boolean me, Context context) {
         if (Build.VERSION.SDK_INT > 29) {
             ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
                 boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
@@ -4269,8 +4279,12 @@ public class ConversationFragment extends XmppFragment
                 return ViewCompat.onApplyWindowInsets(v, insets);
             });
         } else {
+            Point size = new Point();
+            WindowManager w = ((Activity) context).getWindowManager();
+            w.getDefaultDisplay().getSize(size);
+
             RelativeLayout llRoot = binding.conversationsFragment; //The root layout (Linear, Relative, Contraint, etc...)
-            new KeyboardHeightProvider(this.activity, activity.getWindowManager(), llRoot, new KeyboardHeightProvider.KeyboardHeightListener() {
+            new KeyboardHeightProvider(context, activity.getWindowManager(), llRoot, new KeyboardHeightProvider.KeyboardHeightListener() {
                 @Override
                 public void onKeyboardHeightChanged(int keyboardHeight, boolean keyboardOpen, boolean isLandscape) {
                     Log.i("keyboard listener", "keyboardHeight: " + keyboardHeight + " keyboardOpen: " + keyboardOpen + " isLandscape: " + isLandscape);
