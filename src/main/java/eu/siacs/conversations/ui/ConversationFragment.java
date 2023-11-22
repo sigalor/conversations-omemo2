@@ -177,7 +177,6 @@ import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Edit;
-import eu.siacs.conversations.databinding.EmojiSearchBinding;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.MucOptions.User;
@@ -303,8 +302,6 @@ public class ConversationFragment extends XmppFragment
     private int identiconWidth = -1;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
-    private EmojiSearchBinding emojiSearchBinding = null;
-    private PopupWindow emojiPopup = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
     private final OnClickListener clickToMuc = new OnClickListener() {
 
@@ -1680,9 +1677,8 @@ public class ConversationFragment extends XmppFragment
         });
 
         final Pattern lastColonPattern = Pattern.compile("(?<!\\w):");
-        emojiSearchBinding = DataBindingUtil.inflate(inflater, R.layout.emoji_search, null, false);
-        emojiSearchBinding.emoji.setOnItemClickListener((parent, view, position, id) -> {
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
+        binding.emoji.setOnItemClickListener((parent, view, position, id) -> {
+            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.emoji.getAdapter());
             Editable toInsert = adapter.getItem(position).toInsert();
             toInsert.append(" ");
             Editable s = binding.textinput.getText();
@@ -1694,7 +1690,6 @@ public class ConversationFragment extends XmppFragment
         });
         setupEmojiSearch();
 
-        emojiPopup = new PopupWindow(emojiSearchBinding.getRoot(), WindowManager.LayoutParams.MATCH_PARENT, (int) (activity.getResources().getDisplayMetrics().density * 150));
         Handler emojiDebounce = new Handler(Looper.getMainLooper());
         final Pattern notEmojiSearch = Pattern.compile("[^\\w\\(\\)\\+'\\-]");
         binding.textinput.addTextChangedListener(new TextWatcher() {
@@ -1706,17 +1701,17 @@ public class ConversationFragment extends XmppFragment
                     int lastColon = -1;
                     while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
                     if (lastColon < 0) {
-                        emojiPopup.dismiss();
+                        binding.emoji.setVisibility(GONE);
                         return;
                     }
                     final String q = s.toString().substring(lastColon);
                     if (notEmojiSearch.matcher(q).find()) {
-                        emojiPopup.dismiss();
+                        binding.emoji.setVisibility(GONE);
                     } else {
-                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
+                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.emoji.getAdapter());
                         if (adapter != null) {
                             adapter.search(q);
-                            emojiPopup.showAtLocation(binding.textinput, Gravity.START, 0, -77 );
+                            binding.emoji.setVisibility(VISIBLE);
                         }
                     }
                 }, 400L);
@@ -1736,9 +1731,9 @@ public class ConversationFragment extends XmppFragment
         if (emojiSearch == null && activity != null && activity.xmppConnectionService != null) {
             emojiSearch = activity.xmppConnectionService.emojiSearch();
         }
-        if (emojiSearch == null || emojiSearchBinding == null) return;
+        if (emojiSearch == null || binding.emoji == null) return;
 
-        emojiSearchBinding.emoji.setAdapter(emojiSearch.makeAdapter(activity));
+        binding.emoji.setAdapter(emojiSearch.makeAdapter(activity));
     }
 
 
@@ -3540,7 +3535,7 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
-        if (emojiPopup != null) emojiPopup.dismiss();
+        if (binding.emoji != null) binding.emoji.setVisibility(GONE);;
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {
