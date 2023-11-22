@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="false"
-        android:animateLayoutChanges="true" >
+         >
 
         <ImageView
             android:id="@+id/background_image"
@@ -99,7 +99,7 @@
         android:layout_marginLeft="8dp"
         android:background="@drawable/input_bubble_light"
         android:alpha="0.88"
-        android:animateLayoutChanges="true" >
+         >
 
         <ListView
             android:id="@+id/emoji"
@@ -164,13 +164,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
-            android:animateLayoutChanges="true" >
+             >
 
             <RelativeLayout
                     android:id="@+id/message_input_box"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true" >
+                     >
 
                     <ImageButton
                         android:id="@+id/keyboardButton"
@@ -410,7 +410,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="0dp"
                 android:visibility="gone"
-                android:animateLayoutChanges="true" />
+                 />
         </RelativeLayout>
     </LinearLayout>
 
@@ -428,7 +428,7 @@
             android:minHeight="48dp"
             android:orientation="horizontal"
             android:visibility="visible"
-            android:animateLayoutChanges="true" >
+             >
 
             <TextView
                 android:id="@+id/snackbar_message"
@@ -442,7 +442,7 @@
                 android:paddingStart="24dp"
                 android:paddingLeft="24dp"
                 android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark"
-                android:animateLayoutChanges="true" />
+                 />
 
             <TextView
                 android:id="@+id/snackbar_action"
@@ -460,7 +460,7 @@
                 android:textAllCaps="true"
                 android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark"
                 android:textStyle="bold"
-                android:animateLayoutChanges="true" />
+                 />
 
         </RelativeLayout>
 
