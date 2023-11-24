@@ -110,54 +110,21 @@
 
 
     <string-array name="domains">
+        <item>monocles.eu</item>
         <item>conversations.im</item>
-        <item>chalec.org</item>
-        <item>jabbers.one</item>
-        <item>macaw.me</item>
-        <item>magicbroccoli.de</item>
-        <item>nixnet.services</item>
-        <item>sure.im</item>
-        <item>trashserver.net</item>
-        <item>hookipa.net</item>
-        <item>jabber-germany.de</item>
-        <item>jix.im</item>
-        <item>pimux.de</item>
-        <item>404.city</item>
-        <item>5222.de</item>
-        <item>anoxinon.me</item>
-        <item>jabber.fr</item>
-        <item>jabber.hot-chilli.net</item>
-        <item>lightwitch.org</item>
-        <item>movim.eu</item>
-        <item>yax.im</item>
-        <item>disroot.org</item>
     </string-array>
 
 
     <string-array name="support_domains">
         <item>monocles.eu</item>
         <item>monocles.de</item>
-        <item>jabber.de</item>
-        <item>draugr.de</item>
         <item>conversations.im</item>
-        <item>jabber.at</item>
-        <item>jabber-germany.de</item>
-        <item>jabjab.de</item>
-        <item>jabber.fr</item>
-        <item>anoxinon.me</item>
     </string-array>
 
     <string-array name="support_site">
         <item>https://monocles.wiki</item>
         <item>https://monocles.wiki</item>
-        <item>https://www.jabber.de/support/</item>
-        <item>https://www.draugr.de/kontakt/</item>
         <item>https://conversations.im/#support</item>
-        <item>https://jabber.at/account/password/reset/</item>
-        <item>https://jabber-germany.de/impressum.html</item>
-        <item>https://jabjab.de/kontakt.php</item>
-        <item>https://jabberfr.org/contact/</item>
-        <item>https://anoxinon.de/kontakt/</item>
     </string-array>
 </resources>
 
