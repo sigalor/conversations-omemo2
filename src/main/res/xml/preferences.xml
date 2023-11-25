@@ -501,12 +501,14 @@
             android:key="show_maps_inside"
             android:summary="@string/pref_show_mappreview_inside_summary"
             android:title="@string/pref_show_mappreview_inside" />
+        <!--
         <EditTextPreference
             android:defaultValue="@string/mappreview_url"
             android:dependency="show_maps_inside"
             android:key="mappreview_host"
             android:summary="@string/pref_mappreview_host_summary"
             android:title="@string/pref_mappreview_host" />
+            -->
         <SwitchPreference
             android:defaultValue="@bool/warn_unencrypted_chat"
             android:key="warn_unencrypted_chat"
