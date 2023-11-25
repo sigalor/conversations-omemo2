@@ -209,33 +209,25 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     }
 
     //this gets executed when the user picks a file
-    @SuppressLint("StaticFieldLeak")        //TODO: Don't suppress lint
     public void onPickFile(Uri uri) {
         if (uri != null && Build.VERSION.SDK_INT >= 26) {
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
-                    if (!folder.exists()) {
-                        folder.mkdirs();
+            File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+                try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"))) {
+                    // Transfer bytes from in to out
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = inputStream.read(buf)) > 0) {
+                        out.write(buf, 0, len);
                     }
-                    try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
-                        try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"))) {
-                            // Transfer bytes from in to out
-                            byte[] buf = new byte[1024];
-                            int len;
-                            while ((len = inputStream.read(buf)) > 0) {
-                                out.write(buf, 0, len);
-                            }
-                        }
-                        compressImage(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"), uri, 0);
-
-                    } catch (IOException exception) {
-                    }
-                    return null;
                 }
+                compressImage(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"), uri, 0);
 
-            }.execute();
+            } catch (IOException exception) {
+            }
         }
     }
 
