@@ -243,7 +243,7 @@
             android:launchMode="singleTask"
             android:minWidth="336dp"
             android:minHeight="480dp"
-            android:windowSoftInputMode="adjustNothing" />
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.ScanActivity"
             android:screenOrientation="portrait"
