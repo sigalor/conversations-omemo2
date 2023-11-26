@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -22,15 +23,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-//import de.gultsch.minidns.AndroidDnsClient;
+//import de.gultsch.minidns.AndroidDNSClient;
 import org.minidns.AbstractDnsClient;
 import org.minidns.DnsCache;
 import org.minidns.DnsClient;
-import org.minidns.DnsName.DnsName;
-import org.minidns.dnsmessage.Question;
 import org.minidns.dnsname.DnsName;
+import org.minidns.dnsmessage.Question;
 import org.minidns.record.Record;
 import org.minidns.cache.LruCache;
+import org.minidns.dnssec.DnssecResultNotAuthenticException;
 import org.minidns.dnsserverlookup.AndroidUsingExec;
 import org.minidns.hla.DnssecResolverApi;
 import org.minidns.hla.ResolverApi;
@@ -112,7 +113,7 @@ public class Resolver {
     }
 
     public static List<Result> resolve(final String domain) {
-        final  List<Result> ipResults = (List<Result>) fromIpAddress(domain, DEFAULT_PORT_XMPP);
+        final  List<Result> ipResults = fromIpAddress(domain, DEFAULT_PORT_XMPP);
         if (ipResults.size() > 0) {
             return ipResults;
         }
@@ -178,7 +179,7 @@ public class Resolver {
         }
     }
 
-    private static List<Result> fromIpAddress(String domain, final int defaultPortXmpp) {
+    private static List<Result> fromIpAddress(String domain, int port) {
         if (!IP.matches(domain)) {
             return Collections.emptyList();
         }
@@ -193,52 +194,31 @@ public class Resolver {
         }
     }
 
-    private static List<Result> resolveSrv(final String domain, final boolean directTls) throws IOException {
-        final DnsName DnsName = DnsName.from((directTls ? DIRECT_TLS_SERVICE : STARTTLS_SERVICE) + "._tcp." + domain);
-        final ResolverResult<SRV> result = resolveWithFallback(DnsName, SRV.class);
+    private static List<Result> resolveSrv(String domain, final boolean directTls) throws IOException {
+        DnsName dnsName = DnsName.from((directTls ? DIRECT_TLS_SERVICE : STARTTLS_SERVICE) + "._tcp." + domain);
+        ResolverResult<SRV> result = resolveWithFallback(dnsName, SRV.class);
         final List<Result> results = new ArrayList<>();
         final List<Thread> threads = new ArrayList<>();
-
-        final List<Result> fallbackResults = new ArrayList<>();
-        final List<Thread> fallbackThreads = new ArrayList<>();
-
         for (SRV record : result.getAnswersOrEmptySet()) {
             if (record.name.length() == 0 && record.priority == 0) {
                 continue;
             }
             threads.add(new Thread(() -> {
-                final List<Result> ipv6s = resolveIp(record, AAAA.class, result.isAuthenticData(), directTls);
-                synchronized (results) {
-                    results.addAll(ipv6s);
-                }
-            }));
-            threads.add(new Thread(() -> {
                 final List<Result> ipv4s = resolveIp(record, A.class, result.isAuthenticData(), directTls);
                 if (ipv4s.size() == 0) {
-                    Result resolverResult = Result.fromRecord(record, directTls, true);
+                    Result resolverResult = Result.fromRecord(record, directTls);
                     resolverResult.authenticated = result.isAuthenticData();
                     ipv4s.add(resolverResult);
                 }
                 synchronized (results) {
                     results.addAll(ipv4s);
                 }
+
             }));
-            fallbackThreads.add(new Thread(() -> {
-                try {
-                    ResolverResult<CNAME> cnames = resolveWithFallback(record.name, CNAME.class, result.isAuthenticData());
-                    for (CNAME cname : cnames.getAnswersOrEmptySet()) {
-                        final List<Result> ipv6s = resolveIp(record, cname.name, AAAA.class, cnames.isAuthenticData(), directTls);
-                        synchronized (fallbackResults) {
-                            fallbackResults.addAll(ipv6s);
-                        }
-                        final List<Result> ipv4s = resolveIp(record, cname.name, A.class, cnames.isAuthenticData(), directTls);
-                        synchronized (fallbackResults) {
-                            fallbackResults.addAll(ipv4s);
-                        }
-                    }
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + " cname in srv (against RFC2782) - run slow fallback");
-                } catch (Throwable throwable) {
-                    Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + " error resolving srv cname-fallback records", throwable);
+            threads.add(new Thread(() -> {
+                final List<Result> ipv6s = resolveIp(record, AAAA.class, result.isAuthenticData(), directTls);
+                synchronized (results) {
+                    results.addAll(ipv6s);
                 }
             }));
         }
@@ -249,37 +229,18 @@ public class Resolver {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 return Collections.emptyList();
             }
         }
-        if (results.size() > 0) {
-            return results;
-        }
-        for (Thread thread : fallbackThreads) {
-            thread.start();
-        }
-        for (Thread thread : fallbackThreads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                return Collections.emptyList();
-            }
-        }
-        return fallbackResults;
+        return results;
     }
 
-    private static <D extends InternetAddressRR> List<Result> resolveIp(final SRV srv, final Class<D> type, final boolean authenticated, final boolean directTls) {
-        return resolveIp(srv, srv.name, type, authenticated, directTls);
-    }
-
-    private static <D extends InternetAddressRR> List<Result> resolveIp(final SRV srv, final DnsName hostname, final Class<D> type, final boolean authenticated, final boolean directTls) {
-        final List<Result> list = new ArrayList<>();
+    private static <D extends InternetAddressRR> List<Result> resolveIp(SRV srv, Class<D> type, boolean authenticated, boolean directTls) {
+        List<Result> list = new ArrayList<>();
         try {
-            ResolverResult<D> results = resolveWithFallback(hostname, type);
+            ResolverResult<D> results = resolveWithFallback(srv.name, type);
             for (D record : results.getAnswersOrEmptySet()) {
-                boolean ipv4 = type == A.class;
-                Result resolverResult = Result.fromRecord(srv, directTls, ipv4);
+                Result resolverResult = Result.fromRecord(srv, directTls);
                 resolverResult.authenticated = results.isAuthenticData() && authenticated;
                 resolverResult.ip = record.getInetAddress();
                 list.add(resolverResult);
@@ -290,26 +251,26 @@ public class Resolver {
         return list;
     }
 
-    private static List<Result> resolveNoSrvRecords(DnsName dnsName, boolean withCnames) {
+    private static List<Result> resolveNoSrvRecords(DnsName dnsName, int port, boolean withCnames) {
         List<Result> results = new ArrayList<>();
         try {
             ResolverResult<A> aResult = resolveWithFallback(dnsName, A.class);
             Log.d("WUTr", "" + aResult.isAuthenticData() + " " + aResult.getAnswersOrEmptySet());
             for (A a : aResult.getAnswersOrEmptySet()) {
-                Result r = Result.createDefault(dnsName, a.getInetAddress());
+                Result r = Result.createDefault(dnsName, a.getInetAddress(), port);
                 r.authenticated = aResult.isAuthenticData();
                 results.add(r);
             }
             ResolverResult<AAAA> aaaaResult = resolveWithFallback(dnsName, AAAA.class);
             for (AAAA aaaa : aaaaResult.getAnswersOrEmptySet()) {
-                Result r = Result.createDefault(dnsName, aaaa.getInetAddress());
+                Result r = Result.createDefault(dnsName, aaaa.getInetAddress(), port);
                 r.authenticated = aaaaResult.isAuthenticData();
                 results.add(r);
             }
             if (results.size() == 0 && withCnames) {
                 ResolverResult<CNAME> cnameResult = resolveWithFallback(dnsName, CNAME.class);
                 for (CNAME cname : cnameResult.getAnswersOrEmptySet()) {
-                    for (Result r : resolveNoSrvRecords(cname.name, false)) {
+                    for (Result r : resolveNoSrvRecords(cname.name, port, false)) {
                         r.authenticated = r.authenticated && cnameResult.isAuthenticData();
                         results.add(r);
                     }
@@ -320,7 +281,7 @@ public class Resolver {
                 Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + "error resolving fallback records", throwable);
             }
         }
-        results.add(Result.createDefault(dnsName));
+        results.add(Result.createDefault(dnsName, port));
         return results;
     }
 
@@ -336,55 +297,7 @@ public class Resolver {
         return ResolverApi.INSTANCE.resolve(question);
     }
 
-    private static Result happyEyeball(final List<Result> r) {
-        final String logID = Long.toHexString(Double.doubleToLongBits(Math.random()));
-        Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") with " + r.toString());
-        if (r.size() == 0) return null;
-
-        Result result;
-        if (r.size() == 1 && r.get(0).ip != null) {
-            result = r.get(0);
-            result.setLogID(logID);
-            result.connect();
-            return result;
-        }
-
-        for (Result res : r) {
-            res.setLogID(logID);
-        }
-
-        final ExecutorService executor = Executors.newFixedThreadPool(4);
-
-        try {
-            result = executor.invokeAny(r);
-            executor.shutdown();
-            Thread disconnector = new Thread(() -> {
-                while (true) {
-                    try {
-                        if (executor.awaitTermination(5, TimeUnit.SECONDS)) break;
-                        Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") wait for cleanup ...");
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") cleanup");
-                for (Result re : r) {
-                    if (!re.equals(result)) re.disconnect();
-                }
-            });
-            disconnector.start();
-            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") used: " + result.toString());
-            return result;
-        } catch (InterruptedException e) {
-            Log.e(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") failed: ", e);
-            return null;
-        } catch (ExecutionException e) {
-            Log.i(Config.LOGTAG, Resolver.class.getSimpleName() + ": happy eyeball (" + logID + ") unable to connect to one address");
-            return null;
-        }
-    }
-
-    public static class Result implements Comparable<Result>, Callable<Result> {
+    public static class Result implements Comparable<Result> {
         public static final String DOMAIN = "domain";
         public static final String IP = "ip";
         public static final String HOSTNAME = "hostname";
@@ -405,41 +318,27 @@ public class Resolver {
 
         private String logID = "";
 
-        static Result fromRecord(final SRV srv, final boolean directTls, final boolean ipv4) {
+        static Result fromRecord(SRV srv, boolean directTls) {
             Result result = new Result();
-            result.timeRequested = System.currentTimeMillis();
             result.port = srv.port;
             result.hostname = srv.name;
-            if (ipv4) {
-                try {
-                    result.ip = InetAddress.getByName(result.hostname.toString());
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-            }
             result.directTls = directTls;
             result.priority = srv.priority;
             return result;
         }
 
-        static Result createDefault(final DnsName hostname, final int port) {
-            InetAddress ip = null;
-            try {
-                ip = InetAddress.getByName(hostname.toString());
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-            return createDefault(hostname, ip, port);
-        }
-
-        static Result createDefault(final DnsName hostname, final InetAddress ip, final int port) {
+        static Result createDefault(DnsName hostname, InetAddress ip, int port) {
             Result result = new Result();
             result.timeRequested = System.currentTimeMillis();
             result.port = port;
-            result.directTls = useDirectTls(port);
             result.hostname = hostname;
             result.ip = ip;
+            result.directTls = useDirectTls(port);
             return result;
+        }
+
+        static Result createDefault(DnsName hostname, int port) {
+            return createDefault(hostname, null, port);
         }
 
         @Override
@@ -466,6 +365,14 @@ public class Resolver {
             result = 31 * result + (authenticated ? 1 : 0);
             result = 31 * result + priority;
             return result;
+        }
+
+        public InetAddress getIp() {
+            return ip;
+        }
+
+        public int getPort() {
+            return port;
         }
 
         public DnsName getHostname() {
@@ -501,52 +408,21 @@ public class Resolver {
                     '}';
         }
 
-        public void connect() {
-            if (this.socket != null) {
-                this.disconnect();
-            }
-            if (this.ip == null || this.port == 0) {
-                Log.d(Config.LOGTAG, "Resolver did not get IP:port (" + this.ip + ":" + this.port + ")");
-                return;
-            }
-            final InetSocketAddress addr = new InetSocketAddress(this.ip, this.port);
-            this.socket = new Socket();
-            try {
-                long time = System.currentTimeMillis();
-                this.socket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
-                time = System.currentTimeMillis() - time;
-                if (this.logID != null && !this.logID.isEmpty()) {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") connect: " + toString() + " after: " + time + " ms");
-                } else {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result connect: " + toString() + " after: " + time + " ms");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                this.disconnect();
-            }
-        }
-
-        public void disconnect() {
-            if (this.socket != null) {
-                FileBackend.close(this.socket);
-                this.socket = null;
-                if (this.logID != null && !this.logID.isEmpty()) {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") disconnect: " + toString());
-                } else {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result disconnect: " + toString());
-                }
-            }
-        }
-
-        public void setLogID(final String logID) {
-            this.logID = logID;
-        }
-
         @Override
-        public int compareTo(@NonNull final Result result) {
+        public int compareTo(@NonNull Result result) {
             if (result.priority == priority) {
                 if (directTls == result.directTls) {
-                    return 0;
+                    if (ip == null && result.ip == null) {
+                        return 0;
+                    } else if (ip != null && result.ip != null) {
+                        if (ip instanceof Inet4Address && result.ip instanceof Inet4Address) {
+                            return 0;
+                        } else {
+                            return ip instanceof Inet4Address ? -1 : 1;
+                        }
+                    } else {
+                        return ip != null ? -1 : 1;
+                    }
                 } else {
                     return directTls ? -1 : 1;
                 }
@@ -555,14 +431,6 @@ public class Resolver {
             }
         }
 
-        @Override
-        public Result call() throws Exception {
-            this.connect();
-            if (this.socket != null && this.socket.isConnected()) {
-                return this;
-            }
-            throw new Exception("Resolver.Result was not possible to connect - should be catched by executor");
-        }
 
         public static Result fromCursor(Cursor cursor) {
             final Result result = new Result();

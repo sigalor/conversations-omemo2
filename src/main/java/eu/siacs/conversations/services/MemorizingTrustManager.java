@@ -40,16 +40,18 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Consumer;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import org.minidns.dane.DaneVerifier;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,8 +83,6 @@ import javax.net.ssl.X509TrustManager;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.crypto.BundledTrustManager;
-import eu.siacs.conversations.crypto.CombiningTrustManager;
 import eu.siacs.conversations.crypto.XmppDomainVerifier;
 import eu.siacs.conversations.entities.MTMDecision;
 import eu.siacs.conversations.http.HttpConnectionManager;
@@ -117,15 +117,16 @@ public class MemorizingTrustManager {
     static String KEYSTORE_DIR = "KeyStore";
     static String KEYSTORE_FILE = "KeyStore.bks";
     private static int decisionId = 0;
-    private static SparseArray<MTMDecision> openDecisions = new SparseArray<MTMDecision>();
+    private static final SparseArray<MTMDecision> openDecisions = new SparseArray<MTMDecision>();
     Context master;
     AppCompatActivity foregroundAct;
     NotificationManager notificationManager;
     Handler masterHandler;
     private File keyStoreFile;
     private KeyStore appKeyStore;
-    private X509TrustManager defaultTrustManager;
+    private final X509TrustManager defaultTrustManager;
     private X509TrustManager appTrustManager;
+    private final DaneVerifier daneVerifier;
     private String poshCacheDir;
 
     /**
@@ -139,13 +140,14 @@ public class MemorizingTrustManager {
      * The context is used for file management, to display the dialog /
      * notification and for obtaining translated strings.
      *
-     * @param context                   Context for the application.
+     * @param m                   Context for the application.
      * @param defaultTrustManager Delegate trust management to this TM. If null, the user must accept every certificate.
      */
-    public MemorizingTrustManager(final Context context, final X509TrustManager defaultTrustManager) {
-        init(context);
+    public MemorizingTrustManager(Context m, X509TrustManager defaultTrustManager) {
+        init(m);
         this.appTrustManager = getTrustManager(appKeyStore);
         this.defaultTrustManager = defaultTrustManager;
+        this.daneVerifier = new DaneVerifier();
     }
 
     /**
@@ -159,23 +161,13 @@ public class MemorizingTrustManager {
      * The context is used for file management, to display the dialog /
      * notification and for obtaining translated strings.
      *
-     * @param context Context for the application.
+     * @param m Context for the application.
      */
-    public MemorizingTrustManager(final Context context) {
-        init(context);
+    public MemorizingTrustManager(Context m) {
+        init(m);
         this.appTrustManager = getTrustManager(appKeyStore);
-        try {
-            final BundledTrustManager bundleTrustManager =
-                    BundledTrustManager.builder()
-                            .loadKeyStore(
-                                    context.getResources()
-                                            .openRawResource(R.raw.letsencrypt_with_intermediates),
-                                    "letsencrypt")
-                            .build();
-            this.defaultTrustManager = CombiningTrustManager.combineWithDefault(bundleTrustManager);
-        } catch (final NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.defaultTrustManager = getTrustManager(null);
+        this.daneVerifier = new DaneVerifier();
     }
 
     private static boolean isIp(final String server) {
@@ -234,18 +226,18 @@ public class MemorizingTrustManager {
         }
     }
 
-    void init(final Context context) {
-        master = context;
-        masterHandler = new Handler(context.getMainLooper());
+    void init(final Context m) {
+        master = m;
+        masterHandler = new Handler(m.getMainLooper());
         notificationManager = (NotificationManager) master.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Application app;
-        if (context instanceof Application) {
-            app = (Application) context;
-        } else if (context instanceof Service) {
-            app = ((Service) context).getApplication();
-        } else if (context instanceof AppCompatActivity) {
-            app = ((AppCompatActivity) context).getApplication();
+        if (m instanceof Application) {
+            app = (Application) m;
+        } else if (m instanceof Service) {
+            app = ((Service) m).getApplication();
+        } else if (m instanceof AppCompatActivity) {
+            app = ((AppCompatActivity) m).getApplication();
         } else
             throw new ClassCastException("MemorizingTrustManager context must be either Activity or Service!");
 
@@ -289,21 +281,20 @@ public class MemorizingTrustManager {
         keyStoreUpdated();
     }
 
-    private X509TrustManager getTrustManager(final KeyStore keyStore) {
-        Preconditions.checkNotNull(keyStore);
+    X509TrustManager getTrustManager(KeyStore ks) {
         try {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-            tmf.init(keyStore);
+            tmf.init(ks);
             for (TrustManager t : tmf.getTrustManagers()) {
                 if (t instanceof X509TrustManager) {
                     return (X509TrustManager) t;
                 }
             }
-        } catch (final Exception e) {
+        } catch (Exception e) {
             // Here, we are covering up errors. It might be more useful
             // however to throw them out of the constructor so the
             // embedding app knows something went wrong.
-            LOGGER.log(Level.SEVERE, "getTrustManager(" + keyStore + ")", e);
+            LOGGER.log(Level.SEVERE, "getTrustManager(" + ks + ")", e);
         }
         return null;
     }
@@ -377,14 +368,20 @@ public class MemorizingTrustManager {
     }
 
 
-    private void checkCertTrusted(X509Certificate[] chain, String authType, String domain, boolean isServer, boolean interactive)
+    private void checkCertTrusted(X509Certificate[] chain, String authType, String domain, boolean isServer, boolean interactive, String verifiedHostname, int port, Consumer<Boolean> daneCb)
             throws CertificateException {
         LOGGER.log(Level.FINE, "checkCertTrusted(" + chain + ", " + authType + ", " + isServer + ")");
         try {
             LOGGER.log(Level.FINE, "checkCertTrusted: trying appTrustManager");
-            if (isServer)
+            if (isServer) {
+                if (verifiedHostname != null) {
+                    if (daneVerifier.verifyCertificateChain(chain, verifiedHostname, port)) {
+                        if (daneCb != null) daneCb.accept(true);
+                        return;
+                    }
+                }
                 appTrustManager.checkServerTrusted(chain, authType);
-            else
+            } else
                 appTrustManager.checkClientTrusted(chain, authType);
         } catch (final CertificateException ae) {
             LOGGER.log(Level.FINER, "checkCertTrusted: appTrustManager failed", ae);
@@ -403,7 +400,7 @@ public class MemorizingTrustManager {
             } catch (final CertificateException e) {
                 final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(master);
                 final boolean trustSystemCAs = !preferences.getBoolean("dont_trust_system_cas", false);
-                if (domain != null && isServer && trustSystemCAs && !isIp(domain) && !domain.endsWith(".onion") && !domain.endsWith(".i2p")) {
+                if (domain != null && isServer && trustSystemCAs && !isIp(domain) && !domain.endsWith(".onion")) {
                     final String hash = getBase64Hash(chain[0], "SHA-256");
                     final List<String> fingerprints = getPoshFingerprints(domain);
                     if (hash != null && fingerprints.size() > 0) {
@@ -448,7 +445,7 @@ public class MemorizingTrustManager {
         try {
             final List<String> results = new ArrayList<>();
             final InputStream inputStream = HttpConnectionManager.open(url, useTor, useI2P);
-            final String body = CharStreams.toString(new InputStreamReader(ByteStreams.limit(inputStream, 10_000), Charsets.UTF_8));
+            final String body = CharStreams.toString(new InputStreamReader(ByteStreams.limit(inputStream,10_000), Charsets.UTF_8));
             final JSONObject jsonObject = new JSONObject(body);
             int expires = jsonObject.getInt("expires");
             if (expires <= 0) {
@@ -652,39 +649,45 @@ public class MemorizingTrustManager {
         }
     }
 
-    public X509TrustManager getNonInteractive(String domain) {
-        return new NonInteractiveMemorizingTrustManager(domain);
+    public X509TrustManager getNonInteractive(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
+        return new NonInteractiveMemorizingTrustManager(domain, verifiedHostname, port, daneCb);
     }
 
-    public X509TrustManager getInteractive(String domain) {
-        return new InteractiveMemorizingTrustManager(domain);
+    public X509TrustManager getInteractive(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
+        return new InteractiveMemorizingTrustManager(domain, verifiedHostname, port, daneCb);
     }
 
     public X509TrustManager getNonInteractive() {
-        return new NonInteractiveMemorizingTrustManager(null);
+        return new NonInteractiveMemorizingTrustManager(null, null, 0, null);
     }
 
     public X509TrustManager getInteractive() {
-        return new InteractiveMemorizingTrustManager(null);
+        return new InteractiveMemorizingTrustManager(null, null, 0, null);
     }
 
     private class NonInteractiveMemorizingTrustManager implements X509TrustManager {
 
         private final String domain;
+        private final String verifiedHostname;
+        private final int port;
+        private final Consumer<Boolean> daneCb;
 
-        public NonInteractiveMemorizingTrustManager(String domain) {
+        public NonInteractiveMemorizingTrustManager(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
             this.domain = domain;
+            this.verifiedHostname = verifiedHostname;
+            this.port = port;
+            this.daneCb = daneCb;
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, false);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, false, verifiedHostname, port, daneCb);
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType)
                 throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, false);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, false, verifiedHostname, port, daneCb);
         }
 
         @Override
@@ -696,20 +699,26 @@ public class MemorizingTrustManager {
 
     private class InteractiveMemorizingTrustManager implements X509TrustManager {
         private final String domain;
+        private final String verifiedHostname;
+        private final int port;
+        private final Consumer<Boolean> daneCb;
 
-        public InteractiveMemorizingTrustManager(String domain) {
+        public InteractiveMemorizingTrustManager(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
             this.domain = domain;
+            this.verifiedHostname = verifiedHostname;
+            this.port = port;
+            this.daneCb = daneCb;
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, true);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, true, verifiedHostname, port, daneCb);
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType)
                 throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, true);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, true, verifiedHostname, port, daneCb);
         }
 
         @Override

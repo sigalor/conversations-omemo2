@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 
 import com.google.common.base.Strings;
 
@@ -34,6 +35,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +61,7 @@ import java.util.regex.Matcher;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509KeyManager;
@@ -211,6 +214,7 @@ public class XmppConnection implements Runnable {
     private volatile Thread mThread;
     private CountDownLatch mStreamCountDownLatch;
     private static ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
+    private boolean dane = false;
 
     public XmppConnection(final Account account, final XmppConnectionService service) {
         this.account = account;
@@ -245,6 +249,9 @@ public class XmppConnection implements Runnable {
         }
     }
 
+    public boolean daneVerified() {
+        return dane;
+    }
 
     public boolean resolverAuthenticated() {
         if (currentResolverResult == null) return false;
@@ -316,6 +323,7 @@ public class XmppConnection implements Runnable {
         this.isBound = false;
         this.attempt++;
         this.verifiedHostname = null; // will be set if user entered hostname is being used or hostname was verified
+        this.dane = false;
         // with dnssec
         try {
             Socket localSocket;
@@ -417,7 +425,7 @@ public class XmppConnection implements Runnable {
                 }
             } else {
                 final String domain = account.getServer();
-                final List<Resolver.Result> results;
+                List<Resolver.Result> results;
                 final boolean hardcoded = extended && !account.getHostname().isEmpty();
                 if (hardcoded) {
                     results = Resolver.fromHardCoded(account.getHostname(), account.getPort());
@@ -458,7 +466,7 @@ public class XmppConnection implements Runnable {
                      iterator.hasNext(); ) {
                 final Resolver.Result result = iterator.next();
 
-                if (results == null || results.getSocket() == null) {
+                if (results == null || result.getSocket() == null) {
                     results = Resolver.resolve(domain);
                 }
                 if (results == null) {
@@ -472,12 +480,12 @@ public class XmppConnection implements Runnable {
                 }
                 try {
                     // if tls is true, encryption is implied and must not be started
-                    features.encryptionEnabled = results.isDirectTls();
-                    verifiedHostname = results.isAuthenticated() ? results.getHostname().toString() : null;
+                    features.encryptionEnabled = result.isDirectTls();
+                    verifiedHostname = result.isAuthenticated() ? result.getHostname().toString() : null;
                     Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
                             + ": using values from resolver " + results.toString());
 
-                    localSocket = results.getSocket();
+                    localSocket = result.getSocket();
 
                     if (features.encryptionEnabled) {
                         localSocket = upgradeSocketToTls(localSocket);
@@ -488,13 +496,13 @@ public class XmppConnection implements Runnable {
                         localSocket.setSoTimeout(
                                 0); // reset to 0; once the connection is established we don’t
                         // want this
-                        if (!hardcoded && !results.equals(storedBackupResult)) {
+                        if (!hardcoded && !result.equals(storedBackupResult)) {
                             mXmppConnectionService.databaseBackend.saveResolverResult(
-                                    domain, results);
+                                    domain, result);
                         }
                         this.currentResolverResult = result;
                         this.seeOtherHostResolverResult = null;
-                        // successfully connected to server that speaks xmpp
+                        break; // successfully connected to server that speaks xmpp
                     } else {
                         FileBackend.close(localSocket);
                         throw new StateChangingException(Account.State.STREAM_OPENING_ERROR);
@@ -592,7 +600,7 @@ public class XmppConnection implements Runnable {
         return success;
     }
 
-    private SSLSocketFactory getSSLSocketFactory()
+    private SSLSocketFactory getSSLSocketFactory(int port, Consumer<Boolean> daneCb)
             throws NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sc = SSLSockets.getSSLContext();
         final MemorizingTrustManager trustManager =
@@ -608,8 +616,8 @@ public class XmppConnection implements Runnable {
                 keyManager,
                 new X509TrustManager[] {
                         mInteractive
-                                ? trustManager.getInteractive(domain)
-                                : trustManager.getNonInteractive(domain)
+                                ? trustManager.getInteractive(domain, verifiedHostname, port, daneCb)
+                                : trustManager.getNonInteractive(domain, verifiedHostname, port, daneCb)
                 },
                 SECURE_RANDOM);
         return sc.getSocketFactory();
@@ -1358,29 +1366,35 @@ public class XmppConnection implements Runnable {
         sslSocket.close();
     }
 
+    private X509Certificate[] certificates(final SSLSession session) throws SSLPeerUnverifiedException {
+        List<X509Certificate> certs = new ArrayList<>();
+        for (Certificate certificate : session.getPeerCertificates()) {
+            if (certificate instanceof X509Certificate) {
+                certs.add((X509Certificate) certificate);
+            }
+        }
+        return certs.toArray(new X509Certificate[certs.size()]);
+    }
+
     private SSLSocket upgradeSocketToTls(final Socket socket) throws IOException {
+        this.dane = false;
         final SSLSocketFactory sslSocketFactory;
         try {
-            sslSocketFactory = getSSLSocketFactory();
+            sslSocketFactory = getSSLSocketFactory(socket.getPort(), (d) -> this.dane = d);
         } catch (final NoSuchAlgorithmException | KeyManagementException e) {
             throw new StateChangingException(Account.State.TLS_ERROR);
         }
         final InetAddress address = socket.getInetAddress();
-        final SSLSocket sslSocket;
-        try {
-            sslSocket =
-                    (SSLSocket)
-                            sslSocketFactory.createSocket(
-                                    socket, address.getHostAddress(), socket.getPort(), true);
-        } catch (Exception e) {
-            throw new StateChangingException(Account.State.TLS_ERROR);
-        }
+        final SSLSocket sslSocket =
+                (SSLSocket)
+                        sslSocketFactory.createSocket(
+                                socket, address.getHostAddress(), socket.getPort(), true);
         SSLSockets.setSecurity(sslSocket);
         SSLSockets.setHostname(sslSocket, IDN.toASCII(account.getServer()));
         SSLSockets.setApplicationProtocol(sslSocket, "xmpp-client");
         final XmppDomainVerifier xmppDomainVerifier = new XmppDomainVerifier();
         try {
-            if (!xmppDomainVerifier.verify(
+            if (!dane && !xmppDomainVerifier.verify(
                     account.getServer(), this.verifiedHostname, sslSocket.getSession())) {
                 Log.d(
                         Config.LOGTAG,
