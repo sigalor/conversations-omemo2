@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-//import de.gultsch.minidns.AndroidDNSClient;
 import org.minidns.AbstractDnsClient;
 import org.minidns.DnsCache;
 import org.minidns.DnsClient;
@@ -421,6 +420,43 @@ public class Resolver {
                     '}';
         }
 
+        public void connect() {
+            if (this.socket != null) {
+                this.disconnect();
+            }
+            if (this.ip == null || this.port == 0) {
+                Log.d(Config.LOGTAG, "Resolver did not get IP:port (" + this.ip + ":" + this.port + ")");
+                return;
+            }
+            final InetSocketAddress addr = new InetSocketAddress(this.ip, this.port);
+            this.socket = new Socket();
+            try {
+                long time = System.currentTimeMillis();
+                this.socket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
+                time = System.currentTimeMillis() - time;
+                if (this.logID != null && !this.logID.isEmpty()) {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") connect: " + toString() + " after: " + time + " ms");
+                } else {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result connect: " + toString() + " after: " + time + " ms");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                this.disconnect();
+            }
+        }
+
+        public void disconnect() {
+            if (this.socket != null) {
+                FileBackend.close(this.socket);
+                this.socket = null;
+                if (this.logID != null && !this.logID.isEmpty()) {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") disconnect: " + toString());
+                } else {
+                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result disconnect: " + toString());
+                }
+            }
+        }
+
         @Override
         public int compareTo(@NonNull Result result) {
             if (result.priority == priority) {
@@ -444,6 +480,13 @@ public class Resolver {
             }
         }
 
+        public Result call() throws Exception {
+            this.connect();
+            if (this.socket != null && this.socket.isConnected()) {
+                return this;
+            }
+            throw new Exception("Resolver.Result was not possible to connect - should be catched by executor");
+        }
 
         public static Result fromCursor(Cursor cursor) {
             final Result result = new Result();
