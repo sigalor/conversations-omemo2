@@ -39,7 +39,7 @@
     <bool name="auto_rotate">false</bool>
     <bool name="send_crashreport">false</bool>
     <bool name="use_invidious">false</bool>
-    <bool name="use_inner_storage">true</bool>
+    <bool name="use_inner_storage">false</bool>
     <string name="invidious_host">monocles.live</string>
     <bool name="plain_text_logs">false</bool>
     <bool name="show_foreground_service">true</bool>
