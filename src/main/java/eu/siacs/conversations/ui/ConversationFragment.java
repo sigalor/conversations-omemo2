@@ -3540,25 +3540,30 @@ public class ConversationFragment extends XmppFragment
         activity.xmppConnectionService
                 .getNotificationService()
                 .setOpenConversation(this.conversation);
+if (activity!=null  && activity.xmppConnectionService.getBooleanPreference("show_commands_view", R.bool.show_commands_view)) {
+    if (commandAdapter != null && conversation != originalConversation) {
+        commandAdapter.clear();
+        conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), originalConversation);
+        refreshCommands(false);
+    }
+    if (commandAdapter == null && conversation != null) {
+        conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), null);
+        commandAdapter = new CommandAdapter((XmppActivity) getActivity());
+        binding.commandsView.setAdapter(commandAdapter);
+        binding.commandsView.setOnItemClickListener((parent, view, position, id) -> {
+            if (activity == null) return;
 
-        if (commandAdapter != null && conversation != originalConversation) {
-            commandAdapter.clear();
-            conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), originalConversation);
-            refreshCommands(false);
-        }
-        if (commandAdapter == null && conversation != null) {
-            conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), null);
-            commandAdapter = new CommandAdapter((XmppActivity) getActivity());
-            binding.commandsView.setAdapter(commandAdapter);
-            binding.commandsView.setOnItemClickListener((parent, view, position, id) -> {
-                if (activity == null) return;
-
-                final Element command = commandAdapter.getItem(position);
-                activity.startCommand(ConversationFragment.this.conversation.getAccount(), command.getAttributeAsJid("jid"), command.getAttribute("node"));
-            });
-            refreshCommands(false);
-        }
-
+            final Element command = commandAdapter.getItem(position);
+            activity.startCommand(ConversationFragment.this.conversation.getAccount(), command.getAttributeAsJid("jid"), command.getAttribute("node"));
+        });
+        refreshCommands(false);
+    }
+} else {
+        binding.commandsViewProgressbar.setVisibility(GONE);
+        conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, false, null);
+        binding.commandsView.setAdapter(null);
+        refreshCommands(false);
+}
         return true;
     }
 

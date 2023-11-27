@@ -633,6 +633,11 @@
                 android:key="show_dynamic_tags"
                 android:summary="@string/pref_show_dynamic_tags_summary"
                 android:title="@string/pref_show_dynamic_tags" />
+            <SwitchPreference
+                android:defaultValue="@bool/show_commands_view"
+                android:key="show_commands_view"
+                android:summary="@string/pref_show_commands_view_summary"
+                android:title="@string/pref_show_commands_view" />
             <!-- TODO: add it later again?
             <SwitchPreference
                 android:defaultValue="@bool/show_date_in_quotes"

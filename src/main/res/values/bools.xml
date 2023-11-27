@@ -4,6 +4,7 @@
     <bool name="confirm_delete_attachment">true</bool>
     <bool name="use_blue_readmarkers">true</bool>
     <bool name="set_round_avatars">true</bool>
+    <bool name="show_commands_view">false</bool>
     <bool name="show_thread_feature">false</bool>
     <bool name="show_less_avatars">true</bool>
     <bool name="set_text_collapsable">false</bool>
