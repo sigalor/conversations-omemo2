@@ -3559,12 +3559,12 @@ if (activity!=null  && activity.xmppConnectionService.getBooleanPreference("show
         refreshCommands(false);
     }
 } else {
-    if (commandAdapter != null && conversation != originalConversation && activity!= null) {
+    if (commandAdapter != null && conversation != originalConversation) {
         commandAdapter = null;
         conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, false, originalConversation);
         refreshCommands(false);
     }
-    if (commandAdapter == null && conversation != null && activity!= null) {
+    if (commandAdapter == null && conversation != null) {
         commandAdapter = null;
         conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, false, null);
         binding.commandsView.setAdapter(null);
