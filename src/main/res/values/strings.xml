@@ -1363,6 +1363,4 @@
     <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
     <string name="dnssec_verified">DNSSEC verified</string>
     <string name="manage_phone_accounts">Manage phone accounts</string>
-    <string name="pref_show_commands_view_summary">Show a list of commands in an extra tab inside the chat</string>
-    <string name="pref_show_commands_view">Show commands</string>
 </resources>
