@@ -1,5 +1,6 @@
 package eu.siacs.conversations.services;
 
+import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.persistance.FileBackend.AUDIOS;
 import static eu.siacs.conversations.persistance.FileBackend.FILES;
 import static eu.siacs.conversations.persistance.FileBackend.IMAGES;
@@ -777,7 +778,7 @@ public class XmppConnectionService extends Service {
     }
 
     private File stickerDir() {
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + "Stickers");
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
     }
 
     public void rescanStickers() {

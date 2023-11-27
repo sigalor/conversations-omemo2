@@ -1,5 +1,7 @@
 package de.monocles.chat;
 
+import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -114,6 +116,15 @@ public class DownloadDefaultStickers extends Service {
             mDatabaseBackend.saveCid(cid, file, sticker.getString("url"));
         }
 
+        File nomediastickers = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/" + ".nomedia");
+        File nomediastickersfolder = new File(mStickerDir.getAbsolutePath() + "/" + ".nomedia");
+        try {
+            nomediastickers.createNewFile();
+            nomediastickersfolder.createNewFile();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+
         if (file != null) {
             MediaScannerConnection.scanFile(
                     getBaseContext(),
@@ -180,7 +191,7 @@ public class DownloadDefaultStickers extends Service {
     }
 
     private File stickerDir() {
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + "Stickers");
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
     }
 
     @Override
