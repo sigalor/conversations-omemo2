@@ -474,7 +474,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Segna la tua risorsa come \"Non disturbare\" quando il dispositivo è in modalità silenziosa</string>
     <string name="pref_treat_vibrate_as_silent">Tratta vibrazione come modalità silenziosa</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Segna la tua risorsa come \"Non disturbare\" quando il dispositivo ha solo la vibrazione</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Aggiungi account con certificato</string>
     <string name="unable_to_parse_certificate">Impossibile analizzare il certificato</string>
     <string name="authenticate_with_certificate">Lasciare vuoto per autenticarsi con certificato</string>

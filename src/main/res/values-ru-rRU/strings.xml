@@ -398,7 +398,7 @@
     <string name="hide_warning">Скрыть предупреждение</string>
     <string name="highlight_in_muc">Отметить пользователя</string>
     <string name="host_does_not_support_group_chat_avatars">Хост не поддерживает аватары конференции</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="hostname_or_onion">Имя хоста или onion-адрес</string>
     <string name="huawei_protected_apps">Защищенные приложения</string>
     <string name="huawei_protected_apps_summary">Чтобы получать уведомления при выключенном экране, Вам необходимо добавить monocles chat в список защищенных приложений.</string>

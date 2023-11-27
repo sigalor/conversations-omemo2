@@ -51,7 +51,7 @@ There are also English and German speaking XMPP-room focusing on support and dev
 
 If you are interested in the development of the chat, here is a MUC for you (English and German speaking):
 
-Development-Chat:  [development@conference.monocles.de](https://monocles.social/)     
+Development-Chat:  [development@conference.monocles.de](https://monocles.chat/)     
 
 
 There also is an Support-MUC where you can ask questions and get help with issues you may encounter, see further below for details.
@@ -65,7 +65,7 @@ You can create merge request and add new languages as locales and add and edit t
 ## Help! I've encountered issues!
 The easiest way to get some help is to join our support-MUC (both English and German).  
 
-Support-Chat invite link: [support@conference.monocles.de](https://monocles.social/)     
+Support-Chat invite link: [support@conference.monocles.de](https://monocles.chat/)     
 
 If we can't fix your problem there, you can open an issue [here](https://codeberg.org/Arne/monocles_chat/issues), detailing your problem, how to reproduce it and provide logs. See instructions below on how to create log files.
 

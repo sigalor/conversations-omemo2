@@ -453,7 +453,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Marks your resource as \"Do not disturb\" when device is in silent mode</string>
     <string name="pref_treat_vibrate_as_silent">Treat vibrate as silent mode</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Marks your resource as \"Do not disturb\" when device is on vibrate</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Add account with certificate</string>
     <string name="unable_to_parse_certificate">Unable to parse certificate</string>
     <string name="authenticate_with_certificate">Leave empty to authenticate w/ certificate</string>

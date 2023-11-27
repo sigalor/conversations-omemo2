@@ -473,7 +473,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Votre statut est « Ne pas déranger » lorsque votre appareil est en mode silencieux.</string>
     <string name="pref_treat_vibrate_as_silent">Mode vibreur idem silencieux</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Votre statut est « Ne pas déranger » lorsque votre appareil est en mode vibreur.</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Ajouter un compte avec certificat</string>
     <string name="unable_to_parse_certificate">Impossible d’analyser le certificat</string>
     <string name="authenticate_with_certificate">Laisser vide pour s’authentifier avec un certificat</string>

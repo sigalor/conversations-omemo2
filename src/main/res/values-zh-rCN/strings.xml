@@ -1268,7 +1268,7 @@
     <string name="download_failed_invalid_file">下载失败：无效文件</string>
     <string name="avatar_for_x">%s 的头像</string>
     <string name="no_application_found">未找到应用程序</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_complete">操作完成</string>
     <string name="multimedia_file">多媒体文件</string>
     <string name="add_to_home_screen">添加到主屏幕</string>

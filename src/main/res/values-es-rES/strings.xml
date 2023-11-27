@@ -480,7 +480,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Cambia tu estado a \"no molestar\" cuando el dispositivo está en modo silencio</string>
     <string name="pref_treat_vibrate_as_silent">Modo vibración como modo silencio</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Cambia tu estado a \"no molestar\" cuando el dispositivo está en modo vibración</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Añadir cuenta con certificado</string>
     <string name="unable_to_parse_certificate">No se ha podido leer el certificado</string>
     <string name="authenticate_with_certificate">Dejar vacío para autenticar certificado w/</string>

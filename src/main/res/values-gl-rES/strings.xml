@@ -470,7 +470,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Marca o seu recurso como \"Non molestar\" cando o dispositivo está en modo silencioso</string>
     <string name="pref_treat_vibrate_as_silent">Trata a vibración como modo silencioso</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Marca o seu recurso como \"Non molestar\" cando o dispositivo está en modo vibración</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Engadir conta con certificado</string>
     <string name="unable_to_parse_certificate">Non se puido procesar o certificado</string>
     <string name="authenticate_with_certificate">Deixar baldeiro autenticar con certificado</string>
