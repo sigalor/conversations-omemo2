@@ -132,9 +132,6 @@ import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.emoji2.emojipicker.EmojiPickerView;
-import androidx.emoji2.emojipicker.RecentEmojiAsyncProvider;
-import androidx.emoji2.emojipicker.RecentEmojiProviderAdapter;
 
 import android.text.SpannableStringBuilder;
 
