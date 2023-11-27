@@ -902,13 +902,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.download_button.setOnClickListener(v -> ConversationFragment.downloadFile(activity, message));
     }
 
-
     private void displayWebxdcMessage(ViewHolder viewHolder, final Message message, final boolean darkBackground, final int type) {
         Cid webxdcCid = message.getFileParams().getCids().get(0);
         WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message, activity.xmppConnectionService);
         displayTextMessage(viewHolder, message, darkBackground, type);
-        viewHolder.image.setVisibility(GONE);
-        viewHolder.audioPlayer.setVisibility(GONE);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
         viewHolder.download_button.setText("Open " + webxdc.getName());
         viewHolder.download_button.setOnClickListener(v -> {
@@ -1706,7 +1705,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayMediaPreviewMessage(viewHolder, message, darkBackground, type);
             } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
                 displayAudioMessage(viewHolder, message, darkBackground, type);
-            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty()) {
+            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty()) {
                 displayWebxdcMessage(viewHolder, message, darkBackground, type);
             } else {
                 displayOpenableMessage(viewHolder, message, darkBackground, type);
