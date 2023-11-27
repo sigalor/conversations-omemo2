@@ -1736,7 +1736,7 @@ public class XmppConnectionService extends Service {
         toggleForegroundService();
         setupPhoneStateListener();
         internalPingExecutor.scheduleAtFixedRate(this::manageAccountConnectionStatesInternal,10,10,TimeUnit.SECONDS);
-        //rescanStickers();
+        rescanStickers();
         //start export log service every day at given time
         ScheduleAutomaticExport();
         // cancel scheduled exporter

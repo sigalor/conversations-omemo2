@@ -50,6 +50,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityPublishProfilePictureBinding;
 import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.ui.util.PendingItem;
 import me.drakeet.support.toast.ToastCompat;
@@ -147,7 +148,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
         if (Build.VERSION.SDK_INT >= 28) {
             this.uri = uri;
             reloadAvatar();
-            if (this.binding.accountImage.getDrawable() instanceof AnimatedImageDrawable) {
+            if (this.binding.accountImage.getDrawable() instanceof AnimatedImageDrawable || this.binding.accountImage.getDrawable() instanceof FileBackend.SVGDrawable) {
                 return;
             }
         }

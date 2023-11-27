@@ -20,13 +20,13 @@
       "filters": [
         {
           "filterType": "ABI",
-          "value": "armeabi-v7a"
+          "value": "x86_64"
         }
       ],
       "attributes": [],
-      "versionCode": 15001,
+      "versionCode": 15003,
       "versionName": "1.7.7.5",
-      "outputFile": "monocles chat-1.7.7.5-git-armeabi-v7a-release.apk"
+      "outputFile": "monocles chat-1.7.7.5-git-x86_64-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -59,13 +59,13 @@
       "filters": [
         {
           "filterType": "ABI",
-          "value": "x86_64"
+          "value": "armeabi-v7a"
         }
       ],
       "attributes": [],
-      "versionCode": 15003,
+      "versionCode": 15001,
       "versionName": "1.7.7.5",
-      "outputFile": "monocles chat-1.7.7.5-git-x86_64-release.apk"
+      "outputFile": "monocles chat-1.7.7.5-git-armeabi-v7a-release.apk"
     }
   ],
   "elementType": "File"

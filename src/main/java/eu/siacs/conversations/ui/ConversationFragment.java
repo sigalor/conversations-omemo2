@@ -976,12 +976,8 @@ public class ConversationFragment extends XmppFragment
         if (conversation == null) {
             return;
         }
-
-        if (type == "application/xdc+zip")
-            newSubThread();
-
+        if (type == "application/xdc+zip") newSubThread();
         final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_file), ToastCompat.LENGTH_SHORT);
-
         activity.delegateUriPermissionsToService(uri);
         activity.xmppConnectionService.attachFileToConversation(conversation, uri, type, new UiInformableCallback<Message>() {
             @Override
@@ -2969,9 +2965,7 @@ public class ConversationFragment extends XmppFragment
         Element thread = new Element("thread", "jabber:client");
         thread.setContent(UUID.randomUUID().toString());
         if (oldThread != null) thread.setAttribute("parent", oldThread.getContent());
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            setThread(thread);
-        }
+        setThread(thread);
     }
 
     private void newThread() {
@@ -3545,7 +3539,10 @@ public class ConversationFragment extends XmppFragment
 
         this.binding.messagesView.post(this::fireReadEvent);
         //TODO if we only do this when this fragment is running on main it won't *bing* in tablet layout which might be unnecessary since we can *see* it
-        activity.xmppConnectionService.getNotificationService().setOpenConversation(this.conversation);
+        // layout which might be unnecessary since we can *see* it
+        activity.xmppConnectionService
+                .getNotificationService()
+                .setOpenConversation(this.conversation);
 
         if (commandAdapter != null && conversation != originalConversation) {
             commandAdapter.clear();
