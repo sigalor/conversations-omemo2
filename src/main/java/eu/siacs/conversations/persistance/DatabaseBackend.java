@@ -1061,7 +1061,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Cursor cursor;
         cursor = db.rawQuery(
             "SELECT * FROM " + Message.TABLENAME + " " +
-            "LEFT JOIN monocles." + Message.TABLENAME +
+            "LEFT JOIN cheogram." + Message.TABLENAME +
             "  USING (" + Message.UUID + ")" +
             "WHERE " + Message.UUID + "=?",
             new String[]{uuid}
