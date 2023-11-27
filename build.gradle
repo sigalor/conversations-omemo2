@@ -73,7 +73,6 @@ dependencies {
     implementation 'org.minidns:minidns-hla:1.0.4'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-android:2.6.2'
-    implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'jetty:javax.servlet:5.1.12'
     implementation 'com.google.code.gson:gson:2.10'
     implementation 'androidx.multidex:multidex:2.0.1'

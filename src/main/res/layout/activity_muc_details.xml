@@ -32,24 +32,24 @@
                     android:paddingRight="@dimen/image_button_padding"
                     android:src="?attr/icon_edit_body" />
 
-                <com.makeramen.roundedimageview.RoundedImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/details_muc_avatar"
                     android:layout_width="@dimen/avatar_on_details_screen_size"
                     android:layout_height="@dimen/avatar_on_details_screen_size"
                     android:padding="1dp"
                     android:layout_gravity="center"
                     android:scaleType="centerCrop"
-                    app:riv_corner_radius="80dp"
+                    app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRoundBig"
                     android:visibility="gone" />
 
-                <com.makeramen.roundedimageview.RoundedImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/details_muc_avatar_square"
                     android:layout_width="@dimen/avatar_on_details_screen_size"
                     android:layout_height="@dimen/avatar_on_details_screen_size"
                     android:padding="1dp"
                     android:layout_gravity="center"
                     android:scaleType="centerCrop"
-                    app:riv_corner_radius="5dp"
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
                     android:visibility="gone" />
 
                     <LinearLayout
@@ -330,7 +330,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
 
-                                <com.makeramen.roundedimageview.RoundedImageView
+                                <com.google.android.material.imageview.ShapeableImageView
                                     android:id="@+id/your_photo"
                                     android:layout_width="@dimen/avatar_on_details_screen_size"
                                     android:layout_height="@dimen/avatar_on_details_screen_size"
@@ -340,10 +340,10 @@
                                     android:layout_alignParentRight="false"
                                     android:padding="1dp"
                                     app:strokeColor="@color/custom_theme_accent"
-                                    app:riv_corner_radius="80dp"
+                                    app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRoundBig"
                                     android:visibility="gone" />
 
-                                <com.makeramen.roundedimageview.RoundedImageView
+                                <com.google.android.material.imageview.ShapeableImageView
                                     android:id="@+id/your_photo_square"
                                     android:layout_width="@dimen/avatar_on_details_screen_size"
                                     android:layout_height="@dimen/avatar_on_details_screen_size"
@@ -351,7 +351,7 @@
                                     android:layout_toRightOf="@+id/your_photo"
                                     android:padding="1dp"
                                     app:strokeColor="@color/custom_theme_accent"
-                                    app:riv_corner_radius="5dp"
+                                    app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
                                     android:visibility="gone" />
 
                                 <LinearLayout

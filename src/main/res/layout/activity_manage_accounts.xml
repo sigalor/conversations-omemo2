@@ -25,7 +25,7 @@
         android:paddingBottom="8dp"
         android:paddingTop="8dp">
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/phone_accounts_image"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -33,7 +33,7 @@
             android:src="@drawable/ic_call_white_48dp"
             android:background="@color/accent_monocles"
             app:strokeColor="@color/custom_theme_accent"
-            app:riv_corner_radius="2dp" />
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:scrollHorizontally="false"
                 android:singleLine="true"
-                android:text="Manage Phone Accounts"
+                android:text="@string/manage_phone_accounts"
                 android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
 
             <TextView
@@ -58,7 +58,7 @@
                 android:textAppearance="@style/TextAppearance.Conversations.Body2" />
         </LinearLayout>
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/phone_accounts_settings"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -67,7 +67,7 @@
             android:paddingRight="16dp"
             android:src="?attr/icon_settings"
             app:strokeColor="@null"
-            app:riv_corner_radius="2dp" />
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
     </RelativeLayout>
 
 </LinearLayout>

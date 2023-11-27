@@ -1362,4 +1362,5 @@
     <string name="not_dnssec_verified">Not DNSSEC verified</string>
     <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
     <string name="dnssec_verified">DNSSEC verified</string>
+    <string name="manage_phone_accounts">Manage phone accounts</string>
 </resources>

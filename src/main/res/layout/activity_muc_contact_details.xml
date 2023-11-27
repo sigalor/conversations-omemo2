@@ -63,7 +63,7 @@
                                         android:layout_height="wrap_content"
                                         android:orientation="horizontal">
 
-                                        <com.makeramen.roundedimageview.RoundedImageView
+                                        <com.google.android.material.imageview.ShapeableImageView
                                             android:id="@+id/details_contact_badge"
                                             android:layout_width="@dimen/avatar_on_details_screen_size"
                                             android:layout_height="@dimen/avatar_on_details_screen_size"
@@ -71,9 +71,9 @@
                                             android:layout_marginRight="@dimen/avatar_item_distance"
                                             android:padding="1dp"
                                             android:scaleType="centerCrop"
-                                            app:riv_corner_radius="80dp" />
+                                            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRoundBig" />
 
-                                        <com.makeramen.roundedimageview.RoundedImageView
+                                        <com.google.android.material.imageview.ShapeableImageView
                                             android:id="@+id/details_contact_badge_square"
                                             android:layout_width="@dimen/avatar_on_details_screen_size"
                                             android:layout_height="@dimen/avatar_on_details_screen_size"
@@ -81,7 +81,7 @@
                                             android:layout_marginRight="@dimen/avatar_item_distance"
                                             android:padding="1dp"
                                             android:scaleType="centerCrop"
-                                            app:riv_corner_radius="5dp" />
+                                    app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
                                         <LinearLayout
                                             android:layout_width="wrap_content"

@@ -7,12 +7,12 @@
         android:background="?selectableItemBackground"
         android:padding="2dp">
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/black54"
-            app:riv_corner_radius="30dp"
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRound"
             android:scaleType="fitXY" />
     </eu.siacs.conversations.ui.widget.SquareFrameLayout>
 </layout>
