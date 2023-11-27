@@ -174,8 +174,8 @@
 
                     <RelativeLayout
                         android:id="@+id/thread_identicon_layout"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_centerVertical="true"
