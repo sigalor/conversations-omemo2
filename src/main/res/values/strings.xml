@@ -1363,4 +1363,6 @@
     <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
     <string name="dnssec_verified">DNSSEC verified</string>
     <string name="manage_phone_accounts">Manage phone accounts</string>
+    <string name="create_background_failed">Failed to create background. Please delete bg.jpg and try again.</string>
+    <string name="custom_background_set">Custom background set</string>
 </resources>

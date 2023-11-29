@@ -1,14 +1,13 @@
 package eu.siacs.conversations.ui;
 
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
+import static eu.siacs.conversations.persistance.FileBackend.updateMediaScanner;
 import static eu.siacs.conversations.utils.StorageHelper.getBackupDirectory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -20,8 +19,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,6 +33,7 @@ import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
+
 import de.monocles.chat.DownloadDefaultStickers;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -41,13 +41,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 
-import eu.siacs.conversations.BuildConfig;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CameraUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,25 +53,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyStoreException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import android.provider.MediaStore;
@@ -94,9 +81,6 @@ import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.xmpp.Jid;
 import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.services.UnifiedPushDistributor;
-import eu.siacs.conversations.utils.ThemeHelper;
-import eu.siacs.conversations.xmpp.InvalidJid;
-import eu.siacs.conversations.ui.ImportBackupActivity;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener {
 
@@ -208,25 +192,38 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         filePicker.launch(mimeType);
     }
 
+    File bgfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
+    File bgfile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
+
     //this gets executed when the user picks a file
     public void onPickFile(Uri uri) {
-        if (uri != null && Build.VERSION.SDK_INT >= 26) {
-            File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
-                try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"))) {
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[1024];
-                    int len;
-                    while ((len = inputStream.read(buf)) > 0) {
-                        out.write(buf, 0, len);
-                    }
+        if (uri != null) {
+            InputStream in;
+            OutputStream out;
+            try {
+                //create output directory if it doesn't exist
+                if (!bgfolder.exists()) {
+                    bgfolder.mkdirs();
                 }
-                compressImage(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"), uri, 0);
 
+                in = getContentResolver().openInputStream(uri);
+                out = new FileOutputStream(bgfile);
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                in = null;
+                // write the output file
+                out.flush();
+                out.close();
+                out = null;
+                compressImage(bgfile, uri, 0);
+                Toast.makeText(this,R.string.custom_background_set,Toast.LENGTH_LONG).show();
             } catch (IOException exception) {
+                Toast.makeText(this,R.string.create_background_failed,Toast.LENGTH_LONG).show();
+                Log.d(Config.LOGTAG, "Could not create background" + exception);
             }
         }
     }
