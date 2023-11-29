@@ -2671,7 +2671,7 @@ public class ConversationFragment extends XmppFragment
                         || !Compatibility.runsThirtyThree()
                         && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    File bgfileUri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
+                    File bgfileUri = new File(activity.getFilesDir() + File.separator + "backgrounds" + File.separator + "bg.jpg");
                     if (bgfileUri.exists()) {
                         assert binding.backgroundImage != null;
                         binding.backgroundImage.setImageURI(Uri.fromFile(bgfileUri));

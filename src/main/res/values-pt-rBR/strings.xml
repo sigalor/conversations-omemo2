@@ -1400,7 +1400,7 @@
     <string name="menuitem_create_backup_action">Criar backup</string>
     <string name="collapse_message_signs_summary">Defina o número máximo de caracteres para recolher uma mensagem</string>
     <string name="notify_only_when_highlighted_or_replied">Notificar para menções e respostas</string>
-    <string name="pref_chat_background_summary">Escolha um arquivo de imagem como papel de parede da conversa. O arquivo de imagem será copiado para /Documents/monocles chat/backgrounds/bg.jpg. Caso surja algum problema, exclua o arquivo de imagem com um gerenciador de arquivos.</string>
+    <string name="pref_chat_background_summary">Escolha um arquivo de imagem como papel de parede da conversa.</string>
     <string name="settings_restore_message_success">Configurações restauradas com sucesso</string>
     <string name="message_reaction">Enviar reação</string>
     <string name="please_be_patient">Por favor, seja paciente...</string>

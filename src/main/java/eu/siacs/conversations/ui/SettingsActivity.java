@@ -192,8 +192,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         filePicker.launch(mimeType);
     }
 
-    File bgfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
-    File bgfile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
+
 
     //this gets executed when the user picks a file
     public void onPickFile(Uri uri) {
@@ -201,6 +200,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             InputStream in;
             OutputStream out;
             try {
+                File bgfolder = new File(this.getFilesDir() + File.separator + "backgrounds");
+                File bgfile = new File(this.getFilesDir() + File.separator + "backgrounds" + File.separator + "bg.jpg");
                 //create output directory if it doesn't exist
                 if (!bgfolder.exists()) {
                     bgfolder.mkdirs();

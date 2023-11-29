@@ -1340,7 +1340,7 @@
     <string name="choose_camera_app">Elixe a app de cámara</string>
     <string name="action_execute">Ir</string>
     <string name="notify_only_when_highlighted_or_replied">Notificar mencións e respostas</string>
-    <string name="pref_chat_background_summary">Elixe unha imaxe propia como fondo da conversa. O ficheiro da imaxe vaise copiar a /Documents/monocles chat/backgrounds/bg.jpg. Se tes problemas proba a borrar a imaxe cun xestor de ficheiros.</string>
+    <string name="pref_chat_background_summary">Elixe unha imaxe propia como fondo da conversa.</string>
     <string name="pref_dialler_integration_incoming_summary">As chamadas entrantes de números de teléfono poderían mostrarse co marcador do sistema no lugar dos axustes de notificación desta app</string>
     <string name="block_avatar">Bloquear avatar</string>
     <string name="settings_restore_message_success">Axustes restablecidos correctamente</string>

@@ -1327,7 +1327,7 @@
     <string name="chat_background">Chats background</string>
     <string name="message_reaction">Send reaction</string>
     <string name="custom_background">Custom background</string>
-    <string name="pref_chat_background_summary">Choose an own image file as chat background. The image file will be copied to /Documents/monocles chat/backgrounds/bg.jpg. Should a problem appear please delete the image file with a file manager.</string>
+    <string name="pref_chat_background_summary">Choose an own image file as chat background.</string>
     <string name="pref_custom_theme_color_options_summary">Set your own theme colours</string>
     <string name="pref_set_round_avatars_summary">Shape the user avatars round</string>
     <string name="pref_set_round_avatars">Round avatars</string>
@@ -1363,6 +1363,6 @@
     <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
     <string name="dnssec_verified">DNSSEC verified</string>
     <string name="manage_phone_accounts">Manage phone accounts</string>
-    <string name="create_background_failed">Failed to create background. Please delete bg.jpg and try again.</string>
-    <string name="custom_background_set">Custom background set</string>
+    <string name="create_background_failed">Failed to create background.</string>
+    <string name="custom_background_set">Custom background set.</string>
 </resources>
