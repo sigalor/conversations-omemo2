@@ -1407,4 +1407,7 @@
     <string name="pref_delete_background_summary">Entferne dein eigenes Hintergrundbild im Chat</string>
     <string name="no_background_set">Kein Hintergrundbild vorhanden</string>
     <string name="input_field">Eingabefeld</string>
+    <string name="thanks">Schön, das du monocles chat nutzt! Bitte erwäge die Entwicklung mit einer kleinen Spende zu unterstützen.</string>
+    <string name="donation_link">https://monocles.eu/more/de.html#donation-section</string>
+    <string name="donate">Donate</string>
 </resources>
