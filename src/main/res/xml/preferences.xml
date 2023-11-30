@@ -73,11 +73,6 @@
                             android:value="custom_theme" />
                     </intent>
                 </PreferenceScreen>
-            <SwitchPreference
-                android:defaultValue="@bool/use_unicolored_chatbg"
-                android:key="unicolored_chatbg"
-                android:summary="@string/pref_use_unicolored_chatbg_summary"
-                android:title="@string/pref_use_unicolored_chatbg" />
             <Preference
                 android:key="import_background"
                 android:summary="@string/pref_chat_background_summary"
@@ -86,6 +81,11 @@
                 android:key="delete_background"
                 android:summary="@string/pref_delete_background_summary"
                 android:title="@string/delete_background" />
+            <SwitchPreference
+                android:defaultValue="@bool/use_unicolored_chatbg"
+                android:key="unicolored_chatbg"
+                android:summary="@string/pref_use_unicolored_chatbg_summary"
+                android:title="@string/pref_use_unicolored_chatbg" />
         </PreferenceCategory>
         <PreferenceCategory android:title="@string/input_field">
             <SwitchPreference

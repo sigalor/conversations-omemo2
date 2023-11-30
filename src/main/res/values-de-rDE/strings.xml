@@ -841,7 +841,7 @@
     <string name="no_location_permission">monocles chat benötigt Zugriff auf die Standortdienste</string>
     <string name="pref_show_record_voice_btn_summary">Zeige Sprachaufnahme-Taste als Schnell-Taste in den Chats</string>
     <string name="pref_show_record_voice_btn">Zeige Sprachaufnahme-Taste</string>
-    <string name="pref_use_quick_share_attachment_choice_summary">Ersetze Absende-Knopf durch Anlagen-Auswahl, wenn keine Nachricht eingetippt wurde. Andernfalls zeige Schnell-Tasten, welche in der folgenden Einstellung konfiguriert werden können.</string>
+    <string name="pref_use_quick_share_attachment_choice_summary">Ersetze Absende-Knopf durch Anlagen-Auswahl, wenn keine Nachricht eingetippt wurde. Andernfalls zeige Schnell-Tasten, welche in der folgenden Einstellung konfiguriert werden können</string>
     <string name="pref_quick_share_attachment_choice">Anlagen-Auswahl</string>
     <string name="unable_to_save_recording">Aufnahme kann nicht gespeichert werden</string>
     <string name="foreground_service_channel_name">Vordergrunddienst</string>
@@ -1072,7 +1072,7 @@
     <string name="magic_create_text_fixed">Du wurdest zu %1$s eingeladen. Ein Nutzername wurde für dich bereits voreingestellt. Wir erstellen nun mit dir gemeinsam ein Konto.
 \nDu kannst mit Kontakten auf diesem und anderen Servern in Kontakt treten, indem du ihnen deine Chatadresse mitteilst.</string>
     <string name="your_server_invitation">Deine Server-Einladung</string>
-    <string name="pref_use_unicolored_chatbg_summary">Nutze einfarbigen Hintergrund in Chats.</string>
+    <string name="pref_use_unicolored_chatbg_summary">Nutze einfarbigen Hintergrund in Chats</string>
     <string name="pref_use_unicolored_chatbg">Nutze einfarbigen Hintergrund</string>
     <string name="pref_alternative_voice_settings_summary">Falls du bei der Sprachaufnahme Probleme hast, nutze einen alternativen Codec.</string>
     <string name="pref_alternative_voice_settings">Alternative Methode zur Sprachaufnahme</string>
@@ -1362,7 +1362,7 @@
     <string name="action_complete">Fertig</string>
     <string name="message_reaction">Reaktion senden</string>
     <string name="custom_background">Eigenes Hintergrundbild</string>
-    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund.</string>
+    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund</string>
     <string name="custom_theme_options">Individuelles Design</string>
     <string name="custom_theme_is_dark">Individuelles Design ist dunkel?</string>
     <string name="custom_primary_color">Individuelle Primärfarbe</string>
