@@ -1371,4 +1371,6 @@
     <string name="pref_delete_background_summary">Remove your custom background image from the chat</string>
     <string name="no_background_set">No custom background set</string>
     <string name="input_field">Input field</string>
+    <string name="import_own_stickers">Import stickers</string>
+    <string name="import_own_stickers_summary">Import your own stickers in PNG format with coherent names</string>
 </resources>

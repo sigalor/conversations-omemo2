@@ -130,12 +130,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final String PERSISTENT_ROOM = "enable_persistent_rooms";
     public static final String MAX_RESEND_TIME = "max_resend_time";
     public static final String RESEND_DELAY = "resend_delay";
+    public static final String STICKER_DIR = "Stickers";
 
     public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
-
     public static final int REQUEST_IMPORT_SETTINGS = 0xbf8703;
     public static final int REQUEST_IMPORT_BACKGROUND = 0xbf8704;
+    public static final int REQUEST_IMPORT_STICKERS = 0xbf8705;
 
     Preference multiAccountPreference;
     Preference autoMessageExpiryPreference;
@@ -170,10 +171,91 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        /*
         if (data == null || data.getData() == null) return;
-
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
         p.edit().putString("sticker_directory", data.getData().toString()).commit();
+        */
+        if(requestCode == REQUEST_IMPORT_STICKERS) {
+            if(resultCode == RESULT_OK) {
+                if(data.getClipData() != null) {
+                    int count = data.getClipData().getItemCount();
+                    int currentItem = 0;
+                    while(currentItem < count) {
+                        Uri imageUri = data.getClipData().getItemAt(currentItem).getUri();
+                        //do something with the image (save it to some directory or whatever you need to do with it here)
+                        if (imageUri != null) {
+                            InputStream in;
+                            OutputStream out;
+                            try {
+                                File stickerfolder = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom");
+                                //create output directory if it doesn't exist
+                                if (!stickerfolder.exists()) {
+                                    stickerfolder.mkdirs();
+                                }
+                                String filename = imageUri.getLastPathSegment(); //TODO: Get filename does maybe not work
+                                File newsticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
+
+                                in = getContentResolver().openInputStream(imageUri);
+                                out = new FileOutputStream(newsticker);
+                                byte[] buffer = new byte[4096];
+                                int read;
+                                while ((read = in.read(buffer)) != -1) {
+                                    out.write(buffer, 0, read);
+                                }
+                                in.close();
+                                in = null;
+                                // write the output file
+                                out.flush();
+                                out.close();
+                                out = null;
+                                Toast.makeText(this,R.string.custom_background_set,Toast.LENGTH_LONG).show();
+                            } catch (IOException exception) {
+                                Toast.makeText(this,R.string.create_background_failed,Toast.LENGTH_LONG).show();
+                                Log.d(Config.LOGTAG, "Could not create background" + exception);
+                            }
+                        }
+
+                        currentItem = currentItem + 1;
+                    }
+                } else if(data.getData() != null) {
+                    Uri imageUri = data.getData();
+                    //do something with the image (save it to some directory or whatever you need to do with it here)
+                    if (imageUri != null) {
+                        InputStream in;
+                        OutputStream out;
+                        try {
+                            File stickerfolder = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom");
+                            //create output directory if it doesn't exist
+                            if (!stickerfolder.exists()) {
+                                stickerfolder.mkdirs();
+                            }
+                            String filename = imageUri.getLastPathSegment();    //TODO: Get filename does maybe not work
+                            File newsticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
+
+                            in = getContentResolver().openInputStream(imageUri);
+                            out = new FileOutputStream(newsticker);
+                            byte[] buffer = new byte[4096];
+                            int read;
+                            while ((read = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, read);
+                            }
+                            in.close();
+                            in = null;
+                            // write the output file
+                            out.flush();
+                            out.close();
+                            out = null;
+                            Toast.makeText(this,R.string.custom_background_set,Toast.LENGTH_LONG).show();
+                        } catch (IOException exception) {
+                            Toast.makeText(this,R.string.create_background_failed,Toast.LENGTH_LONG).show();
+                            Log.d(Config.LOGTAG, "Could not create background" + exception);
+                        }
+                    }
+                }
+            }
+            xmppConnectionService.rescanStickers();
+        }
     }
 
     private ActivityResultLauncher<String> filePicker;
@@ -192,7 +274,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         filePicker.launch(mimeType);
     }
 
-
+    //execute this to launch the picker
+    public void openStickerPicker() {
+        String mimeType = "image/png";
+        filePicker.launch(mimeType);
+    }
 
     //this gets executed when the user picks a file
     public void onPickFile(Uri uri) {
@@ -848,28 +934,29 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
             updateTheme();
         }
-        final Preference stickerDir = mSettingsFragment.findPreference("sticker_directory");
-        if (stickerDir != null) {
-            if (Build.VERSION.SDK_INT >= 29) {
-                stickerDir.setOnPreferenceClickListener((p) -> {
-                    Intent intent = ((StorageManager) getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-                    startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_sticker_location)), 0);
-                    return true;
-                });
-            } else {
-                return;
-            }
-        }
 
         final Preference downloadDefaultStickers = mSettingsFragment.findPreference("download_default_stickers");
         if (downloadDefaultStickers != null) {
             downloadDefaultStickers.setOnPreferenceClickListener(
-                    preference -> {
-                        if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
-                            downloadStickers();
-                        }
-                        return true;
-                    });
+                preference -> {
+                    if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
+                        downloadStickers();
+                    }
+                    return true;
+                }
+            );
+        }
+
+        final Preference importOwnStickers = mSettingsFragment.findPreference("import_own_stickers");
+        if (importOwnStickers != null) {
+            importOwnStickers.setOnPreferenceClickListener(
+                preference -> {
+                    if (hasStoragePermission(REQUEST_IMPORT_STICKERS)) {
+                        importStickers();
+                    }
+                    return true;
+                }
+            );
         }
 
         final Preference clearBlockedMedia = mSettingsFragment.findPreference("clear_blocked_media");
@@ -886,6 +973,14 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             final Preference customTheme = mSettingsFragment.findPreference("custom_theme");
             if (customTheme != null) uiScreen.removePreference(customTheme);
         }
+    }
+
+    private void importStickers() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/png"); //allows any image file type. Change * to specific extension to limit it
+//**These following line is the important one!
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select PNG images"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
     }
 
     private void updateTheme() {

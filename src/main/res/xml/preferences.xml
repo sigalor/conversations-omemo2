@@ -379,11 +379,12 @@
             android:key="camera_choice"
             android:summary="@string/pref_choose_camera_summary"
             android:title="@string/choose_camera_app" />
-        <!-- TODO: Not reliable working at moment
+        <!-- TODO: Add option to import own stickers with loading in database etc
         <Preference
-            android:title="@string/change_stickers_location"
-            android:key="sticker_directory" />
-            -->
+            android:title="@string/import_own_stickers"
+            android:summary="@string/import_own_stickers_summary"
+            android:key="import_own_stickers" />
+                        -->
         <Preference
             android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />
