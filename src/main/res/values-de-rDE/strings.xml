@@ -1361,7 +1361,7 @@
     <string name="pref_import_database_or_settings_summary">Lade eine Sicherungsdatei oder eine Einstellungsdatei in monocles chat</string>
     <string name="action_complete">Fertig</string>
     <string name="message_reaction">Reaktion senden</string>
-    <string name="custom_background">Eigener Hintergrund</string>
+    <string name="custom_background">Eigenes Hintergrundbild</string>
     <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund.</string>
     <string name="custom_theme_options">Individuelles Design</string>
     <string name="custom_theme_is_dark">Individuelles Design ist dunkel?</string>
@@ -1399,4 +1399,11 @@
     <string name="not_dnssec_verified">Nicht DNSSEC verifiziert</string>
     <string name="dnssec_dane_verified">DNSSEC + DANE verifiziert</string>
     <string name="dnssec_verified">DNSSEC verifiziert</string>
+    <string name="create_background_failed">Konnte Hintergrundbild nicht laden</string>
+    <string name="custom_background_set">Eigenes Hintergrundbild geladen</string>
+    <string name="delete_background_failed">Konnte Hintergrundbild nicht entfernen</string>
+    <string name="delete_background_success">Hintergrundbild entfernt</string>
+    <string name="delete_background">Hintergrundbild entfernen</string>
+    <string name="pref_delete_background_summary">Entferne dein eigenes Hintergrundbild im Chat</string>
+    <string name="no_background_set">Kein Hintergrundbild vorhanden</string>
 </resources>

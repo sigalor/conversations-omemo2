@@ -702,6 +702,26 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
+        final Preference deleteBackgroundPreference = mSettingsFragment.findPreference("delete_background");
+        if (deleteBackgroundPreference != null) {
+            deleteBackgroundPreference.setSummary(getString(R.string.pref_delete_background_summary));
+            deleteBackgroundPreference.setOnPreferenceClickListener(preference -> {
+                try {
+                    File bgfile = new File(this.getFilesDir() + File.separator + "backgrounds" + File.separator + "bg.jpg");
+                    if (bgfile.exists()) {
+                        bgfile.delete();
+                        Toast.makeText(this,R.string.delete_background_success,Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this,R.string.no_background_set,Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this,R.string.delete_background_failed,Toast.LENGTH_LONG).show();
+                    throw new RuntimeException(e);
+                }
+                return true;
+            });
+        }
+
         final Preference prefereXmppAvatarPreference = mSettingsFragment.findPreference(PREFER_XMPP_AVATAR);
         if (prefereXmppAvatarPreference != null) {
             prefereXmppAvatarPreference.setOnPreferenceClickListener(preference -> {

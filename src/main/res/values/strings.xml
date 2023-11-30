@@ -1363,6 +1363,11 @@
     <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
     <string name="dnssec_verified">DNSSEC verified</string>
     <string name="manage_phone_accounts">Manage phone accounts</string>
-    <string name="create_background_failed">Failed to create background.</string>
-    <string name="custom_background_set">Custom background set.</string>
+    <string name="create_background_failed">Failed to create background</string>
+    <string name="custom_background_set">Custom background set</string>
+    <string name="delete_background_failed">Couldn\'t remove background image</string>
+    <string name="delete_background_success">Background image removed</string>
+    <string name="delete_background">Remove chat background</string>
+    <string name="pref_delete_background_summary">Remove your custom background image from the chat</string>
+    <string name="no_background_set">No custom background set</string>
 </resources>
