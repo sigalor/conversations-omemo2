@@ -1373,4 +1373,7 @@
     <string name="input_field">Input field</string>
     <string name="import_own_stickers">Import stickers</string>
     <string name="import_own_stickers_summary">Import your own stickers in PNG format with coherent names</string>
+    <string name="thanks">Thanks for using monocles chat! Please consider supporting the development with a little donation.</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">Donate</string>
 </resources>
