@@ -1132,7 +1132,7 @@ public class XmppConnection implements Runnable {
             if (daneVerified()) {
                 changeStatusToOnline();
             } else {
-                changeStatus(Account.State.OFFLINE);
+                changeStatus(Account.State.DANE_FAILED);
             }
         } else {
             changeStatusToOnline();
@@ -2223,7 +2223,7 @@ public class XmppConnection implements Runnable {
             if (daneVerified()) {
                 changeStatusToOnline();
             } else {
-                changeStatus(Account.State.OFFLINE);
+                changeStatus(Account.State.DANE_FAILED);
             }
         } else {
             changeStatusToOnline();

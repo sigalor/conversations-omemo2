@@ -1378,4 +1378,5 @@
     <string name="donate">Donate</string>
     <string name="pref_enforce_dane_summary">Only connect an account when successfully verified DANE</string>
     <string name="pref_enforce_dane">Enforce DANE</string>
+    <string name="dane_failed">DANE failed</string>
 </resources>
