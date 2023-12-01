@@ -1940,7 +1940,7 @@ public class ConversationFragment extends XmppFragment
                 final String path = m.getRelativeFilePath();
                 Log.d(Config.LOGTAG, "Path = " + path);
                 if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
-                    saveAsSticker.setVisible(true);
+                    //saveAsSticker.setVisible(true);   TODO: Enable it again with better storage handling
                     blockMedia.setVisible(true);
                     deleteFile.setVisible(true);
                     deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
