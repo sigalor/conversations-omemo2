@@ -393,12 +393,11 @@
     <string name="hang_up">Завершить разговор</string>
     <string name="help">Помощь</string>
     <string name="hide_inactive_devices">Скрыть не активных</string>
-    <string name="hide_notification">Скрыть уведомление</string>
     <string name="hide_offline">Скрыть \"не в сети\"</string>
     <string name="hide_warning">Скрыть предупреждение</string>
     <string name="highlight_in_muc">Отметить пользователя</string>
     <string name="host_does_not_support_group_chat_avatars">Хост не поддерживает аватары конференции</string>
-    <string name="hostname_example">monocles.eu</string>
+    <string name="hostname_example">monocles.de</string>
     <string name="hostname_or_onion">Имя хоста или onion-адрес</string>
     <string name="huawei_protected_apps">Защищенные приложения</string>
     <string name="huawei_protected_apps_summary">Чтобы получать уведомления при выключенном экране, Вам необходимо добавить monocles chat в список защищенных приложений.</string>
@@ -489,8 +488,6 @@
     <string name="leave">Покинуть</string>
     <string name="leave_conference_warning">Вы действительно хотите покинуть эту конференцию\? Вы не будете получать уведомления о новых сообщениях до тех пор, пока не вступите в конференцию снова.</string>
     <string name="link">Ссылка</string>
-    <string name="log_out">Выйти</string>
-    <string name="log_in">Войти</string>
     <string name="load_more_messages">Загрузить больше сообщений</string>
     <string name="local_server">Локальный сервер</string>
     <string name="locating">Определение местоположения...</string>
@@ -649,9 +646,9 @@
     <string name="oldAndroidVersion">Старая версия Android</string>
     <string name="oldAndroidVersionMessage">Вы используете старую версию Android, которая больше не будет поддерживаться в будущих обновлениях. Начиная с monocles chat версии 1.0 поддерживаются только устройства с Android 5 и выше. Пожалуйста, обновите прошивку Вашего устройства.</string>
     <string name="omemo_decryption_failed">Ошибка расшифровки OMEMO-сообщения.</string>
-    <string name="omemo_fingerprint">OMEMO отпечаток</string>
+    <string name="omemo_fingerprint">OMEMO отпечаток </string>
     <string name="omemo_fingerprint_selected_message">OMEMO отпечаток (оригинальное сообщение)</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO отпечаток</string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO отпечаток </string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO отпечаток (оригинальное сообщение)</string>
     <string name="once">Один раз</string>
     <string name="one_participant">Один участник</string>
@@ -872,7 +869,7 @@
     <string name="pref_theme_pink">Розовый</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Устанавливать статус \"Не беспокоить\", когда устройство находится в режиме вибрации</string>
     <string name="pref_treat_vibrate_as_silent">Считать режим вибрации беззвучным режимом</string>
-    <string name="pref_ui_options">Интерфейс</string>
+    <string name="pref_ui_options">Интерфейс пользователя</string>
     <string name="pref_up_push_account_summary">Учетная запись, через которую будут приниматься push-сообщения.</string>
     <string name="pref_up_push_server_summary">Выбранный пользователем push-сервер для передачи push-сообщений приложениям на вашем устройстве.</string>
     <string name="pref_use_auto_rotate">Поворот в полноэкранном режиме</string>
@@ -1003,7 +1000,6 @@
     <string name="secrets_do_not_match">Секреты не совпадают</string>
     <string name="secure_password_generated">Сгенерирован надежный пароль</string>
     <string name="security_violation_not_attaching_file">Файл пропущен из-за проблем с безопасностью.</string>
-    <string name="security">Безопасность</string>
     <string name="select">Выбрать</string>
     <string name="send_again">Отправить снова</string>
     <string name="send_corrected_message">Отправить измененное сообщение</string>
@@ -1101,7 +1097,6 @@
 \nСейчас Вам будет предложено предоставить разрешение на доступ к Вашим контактам.</string>
     <string name="tap_share_button_send_invite">Нажмите кнопку \"Поделиться\", чтобы отправить контакту приглашение на %1$s.</string>
     <string name="this_account_is_disabled">Вы отключили данный аккаунт</string>
-    <string name="this_account_is_logged_out">Вы вышли из этой учетной записи</string>
     <string name="this_device">Это устройство</string>
     <string name="this_device_has_been_verified">Устройство было проверено</string>
     <string name="this_device_is_no_longer_in_use">Устройство больше не используется</string>
@@ -1427,7 +1422,7 @@
     <string name="chat_background">Фон чатов</string>
     <string name="message_reaction">Отправить реакцию</string>
     <string name="custom_background">Пользовательский фон</string>
-    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата.</string>
+    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocleschat/backgrounds/bg.jpg. В случае возникновения проблемы удалите файл изображения с помощью файлового менеджера.</string>
     <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
     <string name="pref_set_round_avatars">Круглые аватары</string>
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
@@ -1449,4 +1444,15 @@
     <string name="no_media_permission">Нет разрешения на хранение мультимедиа</string>
     <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
     <string name="pref_set_text_collapsable_summary">Будет свернут текст, содержащий более 240 знаков.</string>
+    <string name="log_out">Выйти</string>
+    <string name="log_in">Авторизоваться</string>
+    <string name="unknown">Неизвестный</string>
+    <string name="security">Безопасность</string>
+    <string name="verified_with_qr_code"> - подтверждено QR-кодом</string>
+    <string name="key_automatically_accepted"> - ключ не проверен</string>
+    <string name="this_account_is_logged_out">Вы вышли из этой учетной записи</string>
+    <string name="account_state_logged_out">Вышли из</string>
+    <string name="contact_uses_unverified_keys">Ваш контакт использует непроверенные устройства. Сканируйте их 2D-штрих-код, чтобы выполнить проверку и предотвратить активные атаки MITM.</string>
+    <string name="hide_notification">Скрыть уведомление</string>
+    <string name="unverified_devices">Вы используете непроверенные устройства. Сканируйте 2D-штрих-код на других ваших устройствах, чтобы выполнить проверку и предотвратить активные атаки MITM.</string>
 </resources>
