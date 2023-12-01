@@ -165,14 +165,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         getWindow().getDecorView().setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_secondary));
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
-        registerFilePicker();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /*
         if (data == null || data.getData() == null) return;
+        /*
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
         p.edit().putString("sticker_directory", data.getData().toString()).commit();
         */
@@ -256,29 +255,25 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             }
             xmppConnectionService.rescanStickers();
         }
+
+        if(requestCode == REQUEST_IMPORT_BACKGROUND) {
+            if (resultCode == RESULT_OK) {
+                Uri bguri = data.getData();
+                onPickFile(bguri);
+            }
+        }
     }
 
-    private ActivityResultLauncher<String> filePicker;
-
-    //execute this in your AppCompatActivity onCreate
-    public void registerFilePicker() {
-        filePicker = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> onPickFile(uri)
-        );
-    }
 
     //execute this to launch the picker
     public void openFilePicker() {
-        String mimeType = "image/*";
-        filePicker.launch(mimeType);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
+        //**These following line is the important one!
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        startActivityForResult(Intent.createChooser(intent, "Select image"), REQUEST_IMPORT_BACKGROUND); //REQUEST_IMPORT_BACKGROUND is simply a global int used to check the calling intent in onActivityResult
     }
 
-    //execute this to launch the picker
-    public void openStickerPicker() {
-        String mimeType = "image/png";
-        filePicker.launch(mimeType);
-    }
 
     //this gets executed when the user picks a file
     public void onPickFile(Uri uri) {
@@ -978,7 +973,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     private void importStickers() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/png"); //allows any image file type. Change * to specific extension to limit it
-//**These following line is the important one!
+        //**These following line is the important one!
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(Intent.createChooser(intent, "Select PNG images"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
     }
