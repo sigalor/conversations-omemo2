@@ -525,6 +525,11 @@
             android:key="warn_unencrypted_chat"
             android:summary="@string/pref_warn_unencrypted_chat_summary"
             android:title="@string/pref_warn_unencrypted_chat" />
+        <SwitchPreference
+            android:defaultValue="@bool/enforce_dane"
+            android:key="enforce_dane"
+            android:summary="@string/pref_enforce_dane_summary"
+            android:title="@string/pref_enforce_dane" />
         <ListPreference
             android:defaultValue="@string/omemo_setting_default"
             android:entries="@array/omemo_setting_entries"
@@ -677,13 +682,6 @@
                 android:key="dont_trust_system_cas"
                 android:summary="@string/pref_dont_trust_system_cas_summary"
                 android:title="@string/pref_dont_trust_system_cas_title" />
-            <!-- TODO: Actually not needed anymore since it is automatically validated now
-            <SwitchPreference
-                android:defaultValue="@bool/validate_hostname"
-                android:key="validate_hostname"
-                android:summary="@string/pref_validate_hostname_summary"
-                android:title="@string/pref_validate_hostname" />
-            -->
             <Preference
                 android:key="remove_trusted_certificates"
                 android:summary="@string/pref_remove_trusted_certificates_summary"

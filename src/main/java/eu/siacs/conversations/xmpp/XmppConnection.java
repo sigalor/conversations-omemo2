@@ -1127,7 +1127,16 @@ public class XmppConnection implements Runnable {
             }
             sendPacket(packet);
         }
-        changeStatusToOnline();
+
+        if (mXmppConnectionService.getBooleanPreference("enforce_dane",R.bool.enforce_dane)) {
+            if (daneVerified()) {
+                changeStatusToOnline();
+            } else {
+                changeStatus(Account.State.OFFLINE);
+            }
+        } else {
+            changeStatusToOnline();
+        }
     }
 
     private void changeStatusToOnline() {
@@ -2210,7 +2219,15 @@ public class XmppConnection implements Runnable {
         if (bindListener != null) {
             bindListener.onBind(account);
         }
-        changeStatusToOnline();
+        if (mXmppConnectionService.getBooleanPreference("enforce_dane",R.bool.enforce_dane)) {
+            if (daneVerified()) {
+                changeStatusToOnline();
+            } else {
+                changeStatus(Account.State.OFFLINE);
+            }
+        } else {
+            changeStatusToOnline();
+        }
     }
 
     private void enableAdvancedStreamFeatures() {

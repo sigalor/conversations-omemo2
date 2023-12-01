@@ -7,4 +7,5 @@
     <bool name="show_thread_feature">false</bool>
     <bool name="show_less_avatars">true</bool>
     <bool name="set_text_collapsable">false</bool>
+    <bool name="enforce_dane">false</bool>
 </resources>
