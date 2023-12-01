@@ -1410,6 +1410,6 @@
     <string name="thanks">Schön, das du monocles chat nutzt! Bitte erwäge die Entwicklung mit einer kleinen Spende zu unterstützen.</string>
     <string name="donation_link">https://monocles.eu/more/de.html#donation-section</string>
     <string name="donate">Spenden</string>
-    <string name="pref_enforce_dane_summary">Erlaube Verbindungen nur bei erfolgreicher DANE verifizierung</string>
-    <string name="pref_enforce_dane">DANE erwzingen</string>
+    <string name="pref_enforce_dane_summary">Erlaube Verbindungen nur bei erfolgreicher DANE-Verifizierung</string>
+    <string name="pref_enforce_dane">DANE erzwingen</string>
 </resources>
