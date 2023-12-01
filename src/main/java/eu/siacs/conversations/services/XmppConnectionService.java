@@ -188,6 +188,7 @@ import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.ui.SettingsActivity;
 import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
+import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
 import eu.siacs.conversations.ui.ConversationsActivity;
@@ -263,6 +264,7 @@ public class XmppConnectionService extends Service {
     public static final String ACTION_PROVISION_ACCOUNT = "provision_account";
     private static final String ACTION_POST_CONNECTIVITY_CHANGE = "eu.siacs.conversations.POST_CONNECTIVITY_CHANGE";
     public static final String ACTION_RENEW_UNIFIED_PUSH_ENDPOINTS = "eu.siacs.conversations.UNIFIED_PUSH_RENEW";
+    public static final String ACTION_QUICK_LOG = "eu.siacs.conversations.QUICK_LOG";
     public static final String FDroid = "org.fdroid.fdroid";
     public static final String PlayStore = "com.android.vending";
     private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
@@ -1074,6 +1076,12 @@ public class XmppConnectionService extends Service {
             case ACTION_FCM_MESSAGE_RECEIVED:
                 Log.d(Config.LOGTAG, "push message arrived in service. account");
                 break;
+            case ACTION_QUICK_LOG:
+                final String message = intent == null ? null : intent.getStringExtra("message");
+                if (message != null && Config.QUICK_LOG) {
+                    quickLog(message);
+                }
+                break;
             case Intent.ACTION_SEND:
                 final Uri uri = intent == null ? null : intent.getData();
                 if (uri != null) {
@@ -1101,6 +1109,23 @@ public class XmppConnectionService extends Service {
             StorageHelper.migrateStorage(this);
         }
         return START_STICKY;
+    }
+
+    private void quickLog(final String message) {
+        if (Strings.isNullOrEmpty(message)) {
+            return;
+        }
+        final Account account = AccountUtils.getFirstEnabled(this);
+        if (account == null) {
+            return;
+        }
+        final Conversation conversation =
+                findOrCreateConversation(account, Config.BUG_REPORTS, false, true);
+        final Message report = new Message(conversation, message, Message.ENCRYPTION_NONE);
+        report.setStatus(Message.STATUS_RECEIVED);
+        conversation.add(report);
+        databaseBackend.createMessage(report);
+        updateConversationUi();
     }
 
     private void manageAccountConnectionStatesInternal() {
