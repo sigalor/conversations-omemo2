@@ -1541,7 +1541,6 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
 
-        hasWriteAccessInMUC();
         //Setting hide thread icon
         showThreadFeature();
 
@@ -1608,6 +1607,7 @@ public class ConversationFragment extends XmppFragment
             conversation.setUserSelectedThread(true);
             if (wasLocked) refresh();
             newThreadTutorialToast("Cleared thread");
+            hasWriteAccessInMUC();
             return true;
         });
 
