@@ -47,7 +47,7 @@ public class CallManager {
             ToastCompat.makeText(activity, R.string.disable_tor_to_make_call, ToastCompat.LENGTH_SHORT).show();
             return;
         }
-        if (hasPermissions(REQUEST_START_VIDEO_CALL, activity, Manifest.permission.CAMERA)) {
+        if (hasPermissions(REQUEST_START_VIDEO_CALL, activity, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)) {
             triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL, activity, conversation);
         }
     }
