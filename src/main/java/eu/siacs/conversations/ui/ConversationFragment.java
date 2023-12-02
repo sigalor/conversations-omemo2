@@ -3562,7 +3562,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void hasWriteAccessInMUC() {
-        if ((conversation.getMode() == Conversation.MODE_MULTI && !conversation.getMucOptions().participating()) && !activity.xmppConnectionService.hideYouAreNotParticipating()) {
+        if ((conversation != null && conversation.getMode() == Conversation.MODE_MULTI && !conversation.getMucOptions().participating()) && !activity.xmppConnectionService.hideYouAreNotParticipating()) {
             activity.runOnUiThread(() -> {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getString(R.string.you_are_not_participating));
