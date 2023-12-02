@@ -1544,8 +1544,6 @@ public class ConversationFragment extends XmppFragment
         //Setting hide thread icon
         showThreadFeature();
 
-        hasWriteAccessInMUC();
-
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
@@ -1579,37 +1577,39 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnMessageBoxSwiped(message -> {
             quoteMessage(message, null);
         });
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            binding.threadIdenticonLayout.setOnClickListener(v -> {
-                boolean wasLocked = conversation.getLockThread();
-                conversation.setLockThread(false);
-                backPressedLeaveSingleThread.setEnabled(false);
-                if (wasLocked) {
-                    setThread(null);
-                    conversation.setUserSelectedThread(false);
-                    refresh();
-                    updateThreadFromLastMessage();
-                } else {
-                    newThread();
-                    conversation.setUserSelectedThread(true);
-                    newThreadTutorialToast("Switched to new thread");
-                }
-            });
-            messageListAdapter.setOnMessageBoxClicked(message -> {
-                setThread(message.getThread());
-                conversation.setUserSelectedThread(true);
-            });
-            binding.threadIdenticonLayout.setOnLongClickListener(v -> {
-                boolean wasLocked = conversation.getLockThread();
-                conversation.setLockThread(false);
-                backPressedLeaveSingleThread.setEnabled(false);
+
+        binding.threadIdenticonLayout.setOnClickListener(v -> {
+            boolean wasLocked = conversation.getLockThread();
+            conversation.setLockThread(false);
+            backPressedLeaveSingleThread.setEnabled(false);
+            if (wasLocked) {
                 setThread(null);
+                conversation.setUserSelectedThread(false);
+                refresh();
+                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    updateThreadFromLastMessage();
+                }
+            } else {
+                newThread();
                 conversation.setUserSelectedThread(true);
-                if (wasLocked) refresh();
-                newThreadTutorialToast("Cleared thread");
-                return true;
-            });
-        }
+                newThreadTutorialToast("Switched to new thread");
+            }
+        });
+        messageListAdapter.setOnMessageBoxClicked(message -> {
+            setThread(message.getThread());
+            conversation.setUserSelectedThread(true);
+        });
+        binding.threadIdenticonLayout.setOnLongClickListener(v -> {
+            boolean wasLocked = conversation.getLockThread();
+            conversation.setLockThread(false);
+            backPressedLeaveSingleThread.setEnabled(false);
+            setThread(null);
+            conversation.setUserSelectedThread(true);
+            if (wasLocked) refresh();
+            newThreadTutorialToast("Cleared thread");
+            return true;
+        });
+
         final Pattern lastColonPattern = Pattern.compile("(?<!\\w):");
         binding.emoji.setOnItemClickListener((parent, view, position, id) -> {
             EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.emoji.getAdapter());
@@ -1657,6 +1657,7 @@ public class ConversationFragment extends XmppFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int count, int after) { }
         });
+        hasWriteAccessInMUC();
         return binding.getRoot();
     }
 
