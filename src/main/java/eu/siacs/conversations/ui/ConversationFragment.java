@@ -1607,7 +1607,6 @@ public class ConversationFragment extends XmppFragment
             conversation.setUserSelectedThread(true);
             if (wasLocked) refresh();
             newThreadTutorialToast("Cleared thread");
-            hasWriteAccessInMUC();
             return true;
         });
 
@@ -1658,7 +1657,7 @@ public class ConversationFragment extends XmppFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int count, int after) { }
         });
-
+        hasWriteAccessInMUC();
         return binding.getRoot();
     }
 
