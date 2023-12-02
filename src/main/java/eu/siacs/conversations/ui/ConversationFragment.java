@@ -354,16 +354,7 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener italicText = v -> insertFormatting("italic");
     private final OnClickListener monospaceText = v -> insertFormatting("monospace");
     private final OnClickListener strikethroughText = v -> insertFormatting("strikethrough");
-    private final OnClickListener help = v -> openHelp();
     private final OnClickListener close = v -> closeFormatting();
-
-    private void openHelp() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(R.string.format_text);
-        builder.setMessage(R.string.help_format_text);
-        builder.setNeutralButton(getString(R.string.ok), null);
-        builder.create().show();
-    }
 
     private void closeFormatting() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
