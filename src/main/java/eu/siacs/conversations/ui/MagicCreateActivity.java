@@ -28,9 +28,11 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMagicCreateBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.ui.util.CustomTab;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.InstallReferrerUtils;
 import eu.siacs.conversations.xmpp.Jid;
+import me.drakeet.support.toast.ToastCompat;
 
 public class MagicCreateActivity extends XmppActivity implements TextWatcher, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
 
@@ -194,17 +196,19 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         binding.username.addTextChangedListener(this);
         setupHyperlink();
 
-        Button Button = (Button) findViewById(R.id.activity_main_link);
-        Button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+        Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
+        final Uri uri = Uri.parse("https://ocean.monocles.eu/apps/registration/");
+        SignUpButton.setOnClickListener(view -> {
+            try {
+                CustomTab.openTab(this, uri, isDarkTheme());
+            } catch (Exception e) {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://ocean.monocles.eu/apps/registration/"));
+                intent.setData(uri);
                 startActivity(intent);
             }
         });
-
     }
 
     private String updateDomain() {

@@ -1282,7 +1282,7 @@
     <string name="pref_enable_otr_summary">Ative a criptografia OTR para criptografia de mensagens. OTR ainda é altamente instável, por favor, use-o apenas se você souber o que está fazendo</string>
     <string name="magic_create_text">Isso inclui:
 \n● armazenamento de bate-papo temporário criptografado por dois meses
-\n● e-mail com 1 GB de armazenamento criptografado de ponta a ponta
+\n● e-mail com 2 GB de armazenamento criptografado
 \n
 \n opcionalmente:
 \n● 4 GB de armazenamento em nuvem (nextcloud)
