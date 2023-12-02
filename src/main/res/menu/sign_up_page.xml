@@ -6,6 +6,6 @@
         android:id="@+id/login_in_now"
         android:icon="?attr/icon_done"
         android:title="@string/log_in"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
 </menu>
