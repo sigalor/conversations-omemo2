@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import de.monocles.chat.SignUpPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMagicCreateBinding;
@@ -197,17 +198,9 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         setupHyperlink();
 
         Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
-        final Uri uri = Uri.parse("https://ocean.monocles.eu/apps/registration/");
         SignUpButton.setOnClickListener(view -> {
-            try {
-                CustomTab.openTab(this, uri, isDarkTheme());
-            } catch (Exception e) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(uri);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(this, SignUpPage.class);
+            startActivity(intent);
         });
     }
 
