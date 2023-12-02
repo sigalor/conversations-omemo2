@@ -1,5 +1,7 @@
 package de.monocles.chat;
 
+import static eu.siacs.conversations.ui.StartConversationActivity.addInviteUri;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
@@ -9,6 +11,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -17,8 +21,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.List;
+
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.ui.EditAccountActivity;
 import eu.siacs.conversations.ui.MagicCreateActivity;
+import eu.siacs.conversations.ui.ManageAccountActivity;
+import eu.siacs.conversations.ui.WelcomeActivity;
 
 public class SignUpPage extends MagicCreateActivity {
     final String url = "https://ocean.monocles.eu/apps/registration/";
@@ -69,4 +79,36 @@ public class SignUpPage extends MagicCreateActivity {
         NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.sign_up_page, menu);
+        final MenuItem logInNow = menu.findItem(R.id.login_in_now);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.login_in_now:
+                final List<Account> accounts = xmppConnectionService.getAccounts();
+                Intent intent = new Intent(this, EditAccountActivity.class);
+                if (accounts.size() == 1) {
+                    intent.putExtra("jid", accounts.get(0).getJid().asBareJid().toString());
+                    intent.putExtra("init", true);
+                } else if (accounts.size() >= 1) {
+                    intent = new Intent(this, ManageAccountActivity.class);
+                }
+                intent.putExtra("existing", true);
+                //addInviteUri(intent);
+                startActivity(intent);
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                finish();
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }
