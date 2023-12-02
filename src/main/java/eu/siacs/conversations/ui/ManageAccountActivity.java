@@ -196,12 +196,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manageaccounts, menu);
         MenuItem addAccount = menu.findItem(R.id.action_add_account);
-        MenuItem addAccountWithCertificate = menu.findItem(R.id.action_add_account_with_cert);
 
-        if (Config.X509_VERIFICATION) {
-            addAccount.setVisible(false);
-            addAccountWithCertificate.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
+
 
         return true;
     }
@@ -242,9 +238,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                     startActivity(new Intent(this, ImportBackupActivity.class));
                 }
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                break;
-            case R.id.action_add_account_with_cert:
-                addAccountFromKey();
                 break;
             case R.id.action_create_backup:
                 if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
