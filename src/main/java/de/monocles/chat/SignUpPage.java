@@ -48,11 +48,10 @@ public class SignUpPage extends MagicCreateActivity {
                      } else {
                          webView.getSettings().setJavaScriptEnabled(true);
                          webView.getSettings().setPluginState(WebSettings.PluginState.ON);
-                         webView.getSettings().setBuiltInZoomControls(true);
                          webView.getSettings().setSupportZoom(true);
 
                          webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-                         webView.setScrollbarFadingEnabled(false);
+                         webView.setScrollbarFadingEnabled(true);
 
                          view.loadUrl(url);
                      }
