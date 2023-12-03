@@ -714,13 +714,11 @@ public class ConversationFragment extends XmppFragment
     private View.OnLongClickListener mSendButtonLongListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            final String body = binding.textinput.getText().toString();
-            if (body.length() == 0) {
-                binding.textinput.getText().insert(0, Message.ME_COMMAND + " ");
-            }
+            attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
             return true;
         }
     };
+
     private OnBackPressedCallback backPressedLeaveSingleThread = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
