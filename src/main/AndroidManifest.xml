@@ -330,6 +330,10 @@
             android:label="@string/create_account"
             android:launchMode="singleTask" />
         <activity
+            android:name="de.monocles.chat.RegisterMonoclesActivity"
+            android:label="@string/create_account"
+            android:launchMode="singleTask" />
+        <activity
             android:name=".ui.EasyOnboardingInviteActivity"
             android:label="@string/invite_to_app"
             android:launchMode="singleTask" />

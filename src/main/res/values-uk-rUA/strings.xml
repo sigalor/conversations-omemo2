@@ -1187,7 +1187,7 @@
     <string name="contact_uses_unverified_keys">Ваш контакт використовує неперевірені пристрої. Відскануйте їх QR-код, щоб виконати перевірку та запобігти активним атакам MITM.</string>
     <string name="reconnecting_video_call">Повторний відеовиклик</string>
     <string name="unknown">Невідомо</string>
-    <string name="magic_create_text">Це включає в себе:
+    <string name="monocles_account_details">Це включає в себе:
 \n● 1 місяць користування зашифрованим тимчасовим сховищем чату
 \n● електронну пошту з 2 ГБ зашифрованого сховища, захищеного наскрізним шифруванням
 \n

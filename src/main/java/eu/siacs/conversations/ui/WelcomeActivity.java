@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
 
+import de.monocles.chat.RegisterMonoclesActivity;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.WelcomeBinding;
@@ -142,7 +143,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         }
         binding.importDatabase.setOnClickListener(v -> startActivity(new Intent(this, ImportBackupActivity.class)));
         binding.createAccount.setOnClickListener(v -> {
-            final Intent intent = new Intent(WelcomeActivity.this, MagicCreateActivity.class);
+            final Intent intent = new Intent(WelcomeActivity.this, RegisterMonoclesActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             addInviteUri(intent);
             startActivity(intent);

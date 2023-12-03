@@ -50,11 +50,6 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
     private String username;
     private String preAuth;
 
-    private void setupHyperlink() {
-        TextView link2TextView = findViewById(R.id.instructions);
-        link2TextView.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
     @Override
     protected void refreshUiReal() {
 
@@ -96,7 +91,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         final List<String> domains = Arrays.asList(getResources().getStringArray(R.array.domains));
         Collections.sort(domains, String::compareToIgnoreCase);
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, domains);
-        int defaultServer = adapter.getPosition("monocles.eu");
+        int defaultServer = adapter.getPosition("conversations.im");
         if (registerFromUri && !useOwnProvider && (this.preAuth != null || domain != null)) {
             binding.server.setEnabled(false);
             binding.server.setVisibility(View.GONE);
@@ -195,13 +190,6 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             }
         });
         binding.username.addTextChangedListener(this);
-        setupHyperlink();
-
-        Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
-        SignUpButton.setOnClickListener(view -> {
-            Intent intent = new Intent(this, SignUpPage.class);
-            startActivity(intent);
-        });
     }
 
     private String updateDomain() {

@@ -30,7 +30,7 @@ import eu.siacs.conversations.ui.MagicCreateActivity;
 import eu.siacs.conversations.ui.ManageAccountActivity;
 import eu.siacs.conversations.ui.WelcomeActivity;
 
-public class SignUpPage extends MagicCreateActivity {
+public class SignUpPage extends RegisterMonoclesActivity {
     final String url = "https://ocean.monocles.eu/apps/registration/";
     private WebView webView;
     @Override

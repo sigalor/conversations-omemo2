@@ -493,7 +493,7 @@
     <string name="locating">Определение местоположения...</string>
     <string name="location">Местоположение</string>
     <string name="location_sharing_disabled">Возможность делиться местоположением отключена в настройках</string>
-    <string name="magic_create_text">Это включает в себя:
+    <string name="monocles_account_details">Это включает в себя:
 \n● зашифрованное временное хранилище чата на два месяца
 \n● электронная почта со сквозным шифрованием объемом 2 ГБ
 \n

@@ -1280,7 +1280,7 @@
     <string name="pref_enable_persistent_rooms_summary">Torne grupos e salas públicas persistentes e não os exclua do servidor depois que o último usuário sair da conversa</string>
     <string name="pref_show_links_inside">Mostrar prévia de links na conversa</string>
     <string name="pref_enable_otr_summary">Ative a criptografia OTR para criptografia de mensagens. OTR ainda é altamente instável, por favor, use-o apenas se você souber o que está fazendo</string>
-    <string name="magic_create_text">Isso inclui:
+    <string name="monocles_account_details">Isso inclui:
 \n● armazenamento de bate-papo temporário criptografado por dois meses
 \n● e-mail com 2 GB de armazenamento criptografado
 \n

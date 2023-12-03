@@ -1217,7 +1217,7 @@
     <string name="pref_allow_message_retraction_summary">Permitir que os teus contactos poidan eliminar retroactivamente as súas mensaxes</string>
     <string name="conference_technical_problems">Saíches desta sala por razóns técnicas</string>
     <string name="sending_x_file_x">Enviando %1$s (%2$s %)</string>
-    <string name="magic_create_text">Isto inclúe:
+    <string name="monocles_account_details">Isto inclúe:
 \n● un mes de almacenaxe temporal cifrado das conversas
 \n● correo electrónico con 2 GB de almacenaxe cifrada
 \n

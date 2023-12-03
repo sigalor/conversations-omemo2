@@ -1190,7 +1190,7 @@
     <string name="pref_import_database_or_settings_summary">导入您的数据库或设置文件的备份</string>
     <string name="no_manage_storage_permission">从 Android 11 开始，应用需要特殊权限才能访问外部存储空间上的所有文件类型。</string>
     <string name="new_contact">新联系人</string>
-    <string name="magic_create_text">其中包括：
+    <string name="monocles_account_details">其中包括：
 \n● 一个月的加密临时聊天存储空间
 \n● 带有 2 GB 端到端加密存储空间的电子邮件
 \n
