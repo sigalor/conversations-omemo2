@@ -53,7 +53,7 @@ public class CallManager {
     }
 
     public static void triggerRtpSession(final String action, XmppActivity activity, Conversation conversation) {
-        if (activity.xmppConnectionService.getJingleConnectionManager().isBusy()) {
+        if (activity.xmppConnectionService.getJingleConnectionManager().isBusy() != null) {
             ToastCompat.makeText(activity, R.string.only_one_call_at_a_time, ToastCompat.LENGTH_LONG).show();
             return;
         }

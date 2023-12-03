@@ -24,6 +24,7 @@ import eu.siacs.conversations.xmpp.jingle.stanzas.OmemoVerifiedIceUdpTransportIn
 import eu.siacs.conversations.xmpp.jingle.stanzas.RtpDescription;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
