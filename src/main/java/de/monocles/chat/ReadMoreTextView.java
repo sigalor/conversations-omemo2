@@ -38,7 +38,7 @@ public class ReadMoreTextView extends AppCompatTextView {
 
     private static final int TRIM_MODE_LINES = 0;
     private static final int TRIM_MODE_LENGTH = 1;
-    private static final int DEFAULT_TRIM_LENGTH = 240;
+    private static final int DEFAULT_TRIM_LENGTH = 230;
     private static final int DEFAULT_TRIM_LINES = 2;
     private static final int INVALID_END_INDEX = -1;
     private static final boolean DEFAULT_SHOW_TRIM_EXPANDED_TEXT = true;

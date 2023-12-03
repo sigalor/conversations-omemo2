@@ -553,6 +553,7 @@
     <string name="share_uri_with">Teile URI mit…</string>
     <string name="mgmt_account_reconnect">Neu verbinden</string>
     <string name="welcome_text">…ist ein privatsphäre respektierender und sicherer Chat Client.</string>
+    <string name="magic_create_text">Wir erstellen nun mit dir gemeinsam ein Profil mit einem zufällig generierten Kennwort, welches du benutzen oder auf der nächsten Seite ändern kannst\nDanach kannst du mit Kontakten auf diesem und anderen Servern in Kontakt treten, indem du ihnen deine XMPP-Adresse mitteilst.</string>
     <string name="monocles_account_details">
 \n Dies beinhaltet:
 \n ● zwei Monate verschlüsselte Chat-Speicher
@@ -1027,7 +1028,7 @@
     <string name="pref_show_intro">Hilfen erneut anzeigen</string>
     <string name="show_intro_again">Hilfen werden erneut angezeigt</string>
     <string name="show_intro_again_failed">Zurücksetzen der Hilfen fehlgeschlagen. Versuche es erneut…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, auch Jabber genannt, ist ein dezentrales Kommunikationsnetzwerk und funktioniert wie E-Mail. Du brauchst eine Chatadresse (auch Jabber-ID genannt), ein Kennwort und eine Messenger-Software, z. B. monocles chat. Mehr dazu später.</string>
+    <string name="intro_desc_whats_xmpp">XMPP, auch Jabber genannt, ist ein dezentrales Kommunikationsnetzwerk und funktioniert wie E-Mail. Du brauchst eine Chatadresse (auch XMPP-Adresse genannt), ein Kennwort und eine Messenger-Software, z. B. monocles chat. Mehr dazu später.</string>
     <string name="intro_whats_xmpp">Was ist XMPP / Jabber / monocles chat\?</string>
     <string name="intro_desc_optional_permissions">Berechtigungen zum Zugriff deines Adressbuchs sind zum Lesen von Chatadressen (falls vorhanden) erforderlich. Kontakte werden niemals geteilt, hochgeladen oder kopiert.</string>
     <string name="intro_desc_account2">Du kannst ein neues Konto auf monocles chat nur durch Eingabe eines Nicknamens erstellen.</string>
@@ -1412,4 +1413,5 @@
     <string name="donate">Spenden</string>
     <string name="pref_enforce_dane_summary">Erlaube Verbindungen nur bei erfolgreicher DANE-Verifizierung</string>
     <string name="pref_enforce_dane">DANE erzwingen</string>
+    <string name="use_monocles">Ich bevorzuge monocles</string>
 </resources>

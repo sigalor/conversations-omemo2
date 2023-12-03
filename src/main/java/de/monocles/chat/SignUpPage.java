@@ -13,10 +13,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -41,6 +43,7 @@ public class SignUpPage extends RegisterMonoclesActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         webView = (WebView) findViewById(R.id.sign_up_view);
+        ProgressBar progressBar = findViewById(R.id.progressbar);
 
         if(isNetworkAvailable()) {
             webView.getSettings().setJavaScriptEnabled(true);
@@ -67,6 +70,12 @@ public class SignUpPage extends RegisterMonoclesActivity {
                      }
                      return true;
                  }
+                // ProgressBar will disappear once page is loaded
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    progressBar.setVisibility(View.GONE);
+                }
             });
         } else {
             Toast.makeText(this, R.string.account_status_no_internet, Toast.LENGTH_LONG).show();

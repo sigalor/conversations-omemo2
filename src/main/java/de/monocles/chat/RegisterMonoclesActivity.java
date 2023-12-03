@@ -24,6 +24,7 @@ public class RegisterMonoclesActivity extends MagicCreateActivity {
         Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
         SignUpButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, SignUpPage.class);
+
             startActivity(intent);
         });
 

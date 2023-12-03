@@ -190,6 +190,13 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             }
         });
         binding.username.addTextChangedListener(this);
+
+        Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
+        SignUpButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, SignUpPage.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+        });
     }
 
     private String updateDomain() {

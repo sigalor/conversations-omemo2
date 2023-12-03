@@ -119,6 +119,16 @@
                         android:text="@string/next"
                         android:textColor="?attr/colorAccent" />
 
+                    <Button
+                        android:id="@+id/activity_main_link"
+                        style="@style/Widget.Conversations.Button.Borderless"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:text="@string/use_monocles"
+                        android:textColor="?attr/colorAccent"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
 
                 <RelativeLayout
