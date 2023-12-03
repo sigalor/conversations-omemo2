@@ -43,6 +43,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 
+import de.monocles.chat.SignUpPage;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CameraUtils;
 
@@ -771,7 +772,6 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
-
         final Preference importBackgroundPreference = mSettingsFragment.findPreference("import_background");
         if (importBackgroundPreference != null) {
             importBackgroundPreference.setSummary(getString(R.string.pref_chat_background_summary));
@@ -799,6 +799,23 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                     Toast.makeText(this,R.string.delete_background_failed,Toast.LENGTH_LONG).show();
                     throw new RuntimeException(e);
                 }
+                return true;
+            });
+        }
+
+        final Preference createIssuePreference = mSettingsFragment.findPreference("create_issue");
+        if (createIssuePreference != null) {
+            createIssuePreference.setOnPreferenceClickListener(preference -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                    intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "support@monocles.de" });
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "monocles chat - Issue report");
+                    intent.putExtra(Intent.EXTRA_TEXT, R.string.describe_issue);
+                    startActivity(Intent.createChooser(intent, ""));
+                } catch (android.content.ActivityNotFoundException ex) {
+                Toast.makeText(this, R.string.no_application_found, Toast.LENGTH_LONG).show();
+            }
                 return true;
             });
         }

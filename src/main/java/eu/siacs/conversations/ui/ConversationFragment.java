@@ -1422,7 +1422,6 @@ public class ConversationFragment extends XmppFragment
         boolean hasAttachments = mediaPreviewAdapter != null && mediaPreviewAdapter.hasAttachments();
         menuInflater.inflate(R.menu.fragment_conversation, menu);
         final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
-        final MenuItem menuNeedHelp = menu.findItem(R.id.action_create_issue);
         final MenuItem menuSearchUpdates = menu.findItem(R.id.action_check_updates);
         final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive_chat);
         final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
@@ -1494,7 +1493,6 @@ public class ConversationFragment extends XmppFragment
                 menuSearchUpdates.setVisible(false);
             }
             menuMediaBrowser.setVisible(true);
-            menuNeedHelp.setVisible(false);
             ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, activity.getAttachmentChoicePreference(), hasAttachments);
             ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu, activity);
             if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, false)) {
@@ -1503,7 +1501,6 @@ public class ConversationFragment extends XmppFragment
                 menuTogglePinned.setTitle(R.string.add_to_favorites);
             }
         } else {
-            menuNeedHelp.setVisible(true);
             menuSearchUpdates.setVisible(true);
             menuInviteContact.setVisible(false);
             menuGroupDetails.setVisible(false);

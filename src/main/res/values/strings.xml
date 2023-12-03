@@ -1381,4 +1381,5 @@
     <string name="dane_failed">DANE failed</string>
     <string name="magic_create_text">We will guide you through the process of creating an account with a random password, which you can use or change to your own password on the next page. \\nThen you will be able to communicate with users of this and other providers by giving them your full XMPP-address.</string>
     <string name="use_monocles">I prefer monocles</string>
+    <string name="describe_issue">Please describe your issue in detail. Thanks.</string>
 </resources>
