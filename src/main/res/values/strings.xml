@@ -1348,7 +1348,7 @@
     <string name="pref_show_less_avatars_summary">Only necessary avatars in conversations will be shown</string>
     <string name="no_media_permission">No media storage permission</string>
     <string name="pref_set_text_collapsable">Collapse long text</string>
-    <string name="pref_set_text_collapsable_summary">Collapses text with more than 240 signs</string>
+    <string name="pref_set_text_collapsable_summary">Collapses text with more than 230 signs</string>
     <string name="hide_notification">Hide notification</string>
     <string name="log_out">Log out</string>
     <string name="log_in">Log in</string>

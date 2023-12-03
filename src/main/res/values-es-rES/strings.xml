@@ -1437,7 +1437,7 @@
     <string name="pref_show_less_avatars_summary">Solo se mostrarán los avatares necesarios en las conversaciones</string>
     <string name="no_media_permission">Sin permiso de almacenamiento de medios</string>
     <string name="pref_set_text_collapsable">Colapsar texto largo</string>
-    <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 240 signos</string>
+    <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 230 signos</string>
     <string name="unknown">Desconocido</string>
     <string name="contact_uses_unverified_keys">Tus contactos usan dispositivos no verificados. Escanea sus códigos de barras 2D para realizar la verificación e impedir ataques MITM.</string>
     <string name="unverified_devices">Estás usando dispositivos no verificados. Escanea el código de barras 2D en tus otros dispositivos para realizar la verificación e impedir ataques MITM.</string>

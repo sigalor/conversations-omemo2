@@ -1387,7 +1387,7 @@
     <string name="pref_show_less_avatars">Zeige weniger Profilbilder in Chats</string>
     <string name="pref_show_less_avatars_summary">Zeigt nur noch notwendige Profilbilder in Unterhaltungen an</string>
     <string name="pref_set_text_collapsable">Kürze lange Nachrichten</string>
-    <string name="pref_set_text_collapsable_summary">Verkürzt Nachrichten welche länger als 240 Zeichen sind.</string>
+    <string name="pref_set_text_collapsable_summary">Verkürzt Nachrichten welche länger als 230 Zeichen sind.</string>
     <string name="media">Medien</string>
     <string name="security">Sicherheit</string>
     <string name="verified_with_qr_code">verifiziert mit QR-Code</string>
