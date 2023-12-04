@@ -174,15 +174,12 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null || data.getData() == null) return;
 
         if(requestCode == REQUEST_IMPORT_STICKERS) {
             if(resultCode == RESULT_OK) {
                 if(data.getClipData() != null) {
-                    int count = data.getClipData().getItemCount();
-                    int currentItem = 0;
-                    while(currentItem < count) {
-                        Uri imageUri = data.getClipData().getItemAt(currentItem).getUri();
+                    for(int i = 0; i < data.getClipData().getItemCount(); i++) {
+                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
                         //do something with the image (save it to some directory or whatever you need to do with it here)
                         if (imageUri != null) {
                             InputStream in;
@@ -212,15 +209,14 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 if (!filename.endsWith(".webp") && !filename.endsWith(".svg")) {
                                     compressImageToSticker(newSticker, imageUri, 0);
                                 }
-                                Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                                xmppConnectionService.forceRescanStickers();
                             } catch (IOException exception) {
                                 Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
                                 Log.d(Config.LOGTAG, "Could not import sticker" + exception);
                             }
                         }
-                        currentItem = currentItem + 1;
                     }
+                    Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                    xmppConnectionService.forceRescanStickers();
                 } else if(data.getData() != null) {
                     Uri imageUri = data.getData();
                     //do something with the image (save it to some directory or whatever you need to do with it here)
@@ -1092,7 +1088,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
         //**These following line is the important one!
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);    //TODO: Change this to true as soon as it works
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);    //TODO: Change this to true as soon as it works
         startActivityForResult(Intent.createChooser(intent, "Select an image"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
     }
 
