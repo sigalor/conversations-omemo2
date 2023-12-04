@@ -67,6 +67,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import android.provider.MediaStore;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import eu.siacs.conversations.Config;
@@ -246,7 +247,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                             out.flush();
                             out.close();
                             out = null;
-                            compressImageToSticker(newSticker, imageUri,0);
+                            if (!filename.endsWith(".webp")) {
+                                compressImageToSticker(newSticker, imageUri, 0);
+                            }
                             Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
                             xmppConnectionService.forceRescanStickers();
                         } catch (IOException exception) {
