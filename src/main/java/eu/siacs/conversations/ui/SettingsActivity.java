@@ -209,6 +209,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 out.flush();
                                 out.close();
                                 out = null;
+                                if (!filename.endsWith(".webp") && !filename.endsWith(".svg")) {
+                                    compressImageToSticker(newSticker, imageUri, 0);
+                                }
                                 Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
                                 xmppConnectionService.forceRescanStickers();
                             } catch (IOException exception) {
@@ -216,7 +219,6 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 Log.d(Config.LOGTAG, "Could not import sticker" + exception);
                             }
                         }
-
                         currentItem = currentItem + 1;
                     }
                 } else if(data.getData() != null) {
@@ -247,7 +249,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                             out.flush();
                             out.close();
                             out = null;
-                            if (!filename.endsWith(".webp")) {
+                            if (!filename.endsWith(".webp") && !filename.endsWith(".svg")) {
                                 compressImageToSticker(newSticker, imageUri, 0);
                             }
                             Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
