@@ -59,7 +59,7 @@ public class SetSettingsActivity extends XmppActivity implements XmppConnectionS
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_set_settings);
-        setSupportActionBar((Toolbar) this.binding.toolbar);
+        setSupportActionBar((Toolbar) this.binding.toolbar.getRoot());
         this.binding.next.setOnClickListener(this::next);
         createInfoMenu();
         getDefaults();

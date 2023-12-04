@@ -55,7 +55,7 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_import_backup);
-        setSupportActionBar((Toolbar) binding.toolbar);
+        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         setLoadingState(savedInstanceState != null && savedInstanceState.getBoolean("loading_state", false));
         this.backupFileAdapter = new BackupFileAdapter();
         this.binding.list.setAdapter(this.backupFileAdapter);

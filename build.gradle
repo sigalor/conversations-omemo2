@@ -263,6 +263,7 @@ android {
     }
     buildFeatures {
         buildConfig true
+        viewBinding true
     }
     android.applicationVariants.all { variant ->
         variant.outputs.each { output ->

@@ -255,7 +255,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         this.binding.destroy.setOnClickListener(destroyListener);
         this.binding.leaveMuc.setVisibility(View.GONE);
         this.binding.addContactButton.setVisibility(View.GONE);
-        setSupportActionBar((Toolbar) binding.toolbar);
+        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar());
         this.binding.editNickButton.setOnClickListener(v -> {
             try {

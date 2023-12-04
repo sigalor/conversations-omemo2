@@ -109,7 +109,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         binding.server.setSelection(defaultServer);
         binding.server.setOnItemSelectedListener(this);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        setSupportActionBar((Toolbar) this.binding.toolbar);
+        setSupportActionBar((Toolbar) this.binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar(), this.domain == null);
         if (username != null && domain != null) {
             binding.title.setText(R.string.your_server_invitation);
