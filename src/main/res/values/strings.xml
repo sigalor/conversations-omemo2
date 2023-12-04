@@ -1372,7 +1372,7 @@
     <string name="no_background_set">No custom background set</string>
     <string name="input_field">Input field</string>
     <string name="import_own_stickers">Import stickers</string>
-    <string name="import_own_stickers_summary">Import your own stickers in PNG format with coherent names</string>
+    <string name="import_own_stickers_summary">Import your own stickers. Use them with the original filename.</string>
     <string name="thanks">Thanks for using monocles chat! Please consider supporting the development with a little donation.</string>
     <string name="donation_link">https://monocles.eu/more/#donation-section</string>
     <string name="donate">Donate</string>
@@ -1382,4 +1382,9 @@
     <string name="magic_create_text">We will guide you through the process of creating an account with a random password, which you can use or change to your own password on the next page. \\nThen you will be able to communicate with users of this and other providers by giving them your full XMPP-address.</string>
     <string name="use_monocles">I prefer monocles</string>
     <string name="describe_issue">Please describe your issue in detail. Thanks.</string>
+    <string name="sticker_saved">Sticker saved</string>
+    <string name="sticker_imported">Sticker imported</string>
+    <string name="import_sticker_failed">Failed to import sticker</string>
+    <string name="download_sticker">Download stickers?</string>
+    <string name="download_sticker_summary">Would you like to download some default sticker packs?</string>
 </resources>

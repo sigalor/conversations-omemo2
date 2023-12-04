@@ -1287,7 +1287,7 @@
     <string name="action_execute">去</string>
     <string name="server_does_not_support_easy_onboarding_invites">服务器不支持生成邀请</string>
     <string name="notify_only_when_highlighted_or_replied">通知提及和回复</string>
-    <string name="pref_chat_background_summary">选择一个自己的图片文件作为聊天背景。图片文件将复制到 /Documents/monocles chat/backgrounds/bg.jpg。如果出现问题，请使用文件管理器删除图片文件。</string>
+    <string name="pref_chat_background_summary">选择一个自己的图片文件作为聊天背景。</string>
     <string name="pref_dialler_integration_incoming_summary">来自电话号码的来电可能会通过系统拨号器响铃，而不是通过本应用的通知设置</string>
     <string name="block_avatar">屏蔽头像</string>
     <plurals name="n_missed_calls">

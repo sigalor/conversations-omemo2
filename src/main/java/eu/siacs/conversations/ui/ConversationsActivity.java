@@ -391,8 +391,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         getPreferences().edit().putInt("default_stickers_offered", 1).apply();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Download Stickers?");
-        builder.setMessage("Would you like to download some default sticker packs?");
+        builder.setTitle(R.string.download_sticker);
+        builder.setMessage(R.string.download_sticker_summary);
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
                 downloadStickers();

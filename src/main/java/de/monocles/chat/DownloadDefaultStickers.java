@@ -22,6 +22,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.common.io.ByteStreams;
 
+import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
@@ -60,6 +62,8 @@ public class DownloadDefaultStickers extends Service {
     private File mStickerDir;
     private OkHttpClient http = null;
     private HashSet<Uri> pendingPacks = new HashSet<Uri>();
+    public final XmppConnectionService xmppConnectionService = new XmppConnectionService();
+
 
     @Override
     public void onCreate() {
@@ -91,6 +95,7 @@ public class DownloadDefaultStickers extends Service {
         } else {
             Log.d(Config.LOGTAG, "DownloadDefaultStickers. ignoring start command because already running");
         }
+        xmppConnectionService.forceRescanStickers();
         return START_NOT_STICKY;
     }
 
@@ -142,6 +147,7 @@ public class DownloadDefaultStickers extends Service {
             w.write('\n');
             w.close();
         } catch (final Exception e) { }
+        xmppConnectionService.forceRescanStickers();
     }
 
     private void download() throws Exception {

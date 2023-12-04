@@ -1422,7 +1422,7 @@
     <string name="chat_background">Фон чатов</string>
     <string name="message_reaction">Отправить реакцию</string>
     <string name="custom_background">Пользовательский фон</string>
-    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocleschat/backgrounds/bg.jpg. В случае возникновения проблемы удалите файл изображения с помощью файлового менеджера.</string>
+    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата.</string>
     <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
     <string name="pref_set_round_avatars">Круглые аватары</string>
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>

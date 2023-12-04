@@ -8,6 +8,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -31,6 +32,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 
@@ -172,10 +174,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data == null || data.getData() == null) return;
-        /*
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
-        p.edit().putString("sticker_directory", data.getData().toString()).commit();
-        */
+
         if(requestCode == REQUEST_IMPORT_STICKERS) {
             if(resultCode == RESULT_OK) {
                 if(data.getClipData() != null) {
@@ -193,11 +192,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 if (!stickerfolder.exists()) {
                                     stickerfolder.mkdirs();
                                 }
-                                String filename = imageUri.getLastPathSegment(); //TODO: Get filename does maybe not work
-                                File newsticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
+                                String filename = getFileName(imageUri);
+                                File newSticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
 
                                 in = getContentResolver().openInputStream(imageUri);
-                                out = new FileOutputStream(newsticker);
+                                out = new FileOutputStream(newSticker);
                                 byte[] buffer = new byte[4096];
                                 int read;
                                 while ((read = in.read(buffer)) != -1) {
@@ -209,10 +208,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 out.flush();
                                 out.close();
                                 out = null;
-                                Toast.makeText(this,R.string.custom_background_set,Toast.LENGTH_LONG).show();
+                                Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                                xmppConnectionService.forceRescanStickers();
                             } catch (IOException exception) {
-                                Toast.makeText(this,R.string.create_background_failed,Toast.LENGTH_LONG).show();
-                                Log.d(Config.LOGTAG, "Could not create background" + exception);
+                                Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
+                                Log.d(Config.LOGTAG, "Could not import sticker" + exception);
                             }
                         }
 
@@ -230,11 +230,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                             if (!stickerfolder.exists()) {
                                 stickerfolder.mkdirs();
                             }
-                            String filename = imageUri.getLastPathSegment();    //TODO: Get filename does maybe not work
-                            File newsticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
+                            String filename = getFileName(imageUri);
+                            File newSticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
 
                             in = getContentResolver().openInputStream(imageUri);
-                            out = new FileOutputStream(newsticker);
+                            out = new FileOutputStream(newSticker);
                             byte[] buffer = new byte[4096];
                             int read;
                             while ((read = in.read(buffer)) != -1) {
@@ -246,15 +246,15 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                             out.flush();
                             out.close();
                             out = null;
-                            Toast.makeText(this,R.string.custom_background_set,Toast.LENGTH_LONG).show();
+                            Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                            xmppConnectionService.forceRescanStickers();
                         } catch (IOException exception) {
-                            Toast.makeText(this,R.string.create_background_failed,Toast.LENGTH_LONG).show();
-                            Log.d(Config.LOGTAG, "Could not create background" + exception);
+                            Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
+                            Log.d(Config.LOGTAG, "Could not import sticker" + exception);
                         }
                     }
                 }
             }
-            xmppConnectionService.rescanStickers();
         }
 
         if(requestCode == REQUEST_IMPORT_BACKGROUND) {
@@ -265,9 +265,30 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         }
     }
 
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
 
     //execute this to launch the picker
-    public void openFilePicker() {
+    public void openBGPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
         //**These following line is the important one!
@@ -777,7 +798,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             importBackgroundPreference.setSummary(getString(R.string.pref_chat_background_summary));
             importBackgroundPreference.setOnPreferenceClickListener(preference -> {
                 if (hasStoragePermission(REQUEST_IMPORT_BACKGROUND)) {
-                    openFilePicker();
+                    openBGPicker();
                 }
                 return true;
             });
@@ -989,10 +1010,10 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 
     private void importStickers() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/png"); //allows any image file type. Change * to specific extension to limit it
+        intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
         //**These following line is the important one!
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(Intent.createChooser(intent, "Select PNG images"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);    //TODO: Change this to true as soon as it works
+        startActivityForResult(Intent.createChooser(intent, "Select an image"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
     }
 
     private void updateTheme() {
@@ -1223,7 +1244,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                     downloadStickers();
                 }
                 if (requestCode == REQUEST_IMPORT_BACKGROUND) {
-                    openFilePicker();
+                    openBGPicker();
                 }
             } else {
                 ToastCompat.makeText(
