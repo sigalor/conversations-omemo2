@@ -972,7 +972,7 @@
     <string name="pref_use_invidious_summary">Invidious is a privacy friendly alternative to YouTube</string>
     <string name="pref_use_inner_storage_summary">Other App won\'t be able to read the media from inner storage</string>
     <string name="this_device">This device</string>
-    <string name="intro_desc_main">Learn more…</string>
+    <string name="intro_desc_main">Here you are the one who takes the center stage and makes the decision. monocles chat is not just another messenger… monocles chat uses an official IETF standard. You can switch apps at any time and still stay in touch with your friends.</string>
     <string name="welcome_header">Welcome to\nmonocles chat</string>
     <string name="intro_required_permissions">Required permissions</string>
     <string name="intro_desc_required_permissions">At the end of the intro you will be asked to grant storage permissions (mandatory), if you have not already given them. Addition permissions are requested as needed and are optional.</string>
@@ -990,7 +990,7 @@
     <string name="pref_show_intro">Show intro again</string>
     <string name="show_intro_again">Intro screens will be shown again</string>
     <string name="show_intro_again_failed">Resetting intro screens failed. Try again…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, also called jabber, is a decentralized communication network and works like e-mail. You need a chat address (also called Jabber-ID), a password and a messenger. More about this later.</string>
+    <string name="intro_desc_whats_xmpp">XMPP is the Internet standard for instant messaging. As with e-mail, you have an address that you use for messaging. More on this later.</string>
     <string name="intro_whats_xmpp">What is XMPP / Jabber / monocles chat?</string>
     <string name="intro_desc_optional_permissions">Permissions to read your address book are required to read chat addresses (if any) from your contacts. Contacts are never shared, uploaded or copied.</string>
     <string name="intro_desc_account2">You can create a new account on monocles chat just by entering a nickname.</string>
@@ -1001,7 +1001,7 @@
     <string name="intro_desc_start_chatting2">You can also add, create or join multi user chats - so-called rooms. They where distinguished  between private rooms and public rooms - so called rooms.</string>
     <string name="intro_desc_start_chatting3">Congratulations!\nHere we go and have fun…</string>
     <string name="intro_privacy">Your privacy\nYour sovereignty</string>
-    <string name="intro_desc_privacy">monocles will neither sell nor analyze your data and you decide which permissions you grant.</string>
+    <string name="intro_desc_privacy">We at monocles will not sell or analyze your data and you decide which permissions you grant.</string>
     <string name="no_results">No results</string>
     <string name="file_transmission_cancelled">file transmission cancelled</string>
     <string name="sharing_application_not_grant_permission">The sharing application did not grant permission to access this file.</string>
