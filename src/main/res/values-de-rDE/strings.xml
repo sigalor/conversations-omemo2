@@ -1043,7 +1043,7 @@
 \nJetzt geht\'s los und viel Spaß…</string>
     <string name="intro_privacy">Deine Privatsphäre
 \nDeine Souveränität</string>
-    <string name="intro_desc_privacy">Wir bei monocles werden deine Datenn weder verkaufen noch analysieren und du entscheidest, welche Berechtigungen du erteilst.</string>
+    <string name="intro_desc_privacy">Wir bei monocles werden deine Daten weder verkaufen noch analysieren und du entscheidest, welche Berechtigungen du erteilst.</string>
     <string name="no_results">Keine Ergebnisse</string>
     <string name="file_transmission_cancelled">Übertragung abgebrochen</string>
     <string name="sharing_application_not_grant_permission">Die teilende App erteilte keine Berechtigung für den Zugriff auf diese Datei.</string>
