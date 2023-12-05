@@ -17,6 +17,7 @@ import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -29,6 +30,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
+import de.monocles.chat.SignUpPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityShowLocationBinding;
@@ -179,14 +181,18 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
 
     private void startNavigation() {
         final Intent intent = getStartNavigationIntent();
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this, R.string.no_application_found, Toast.LENGTH_LONG).show();
+        }
     }
 
     private Intent getStartNavigationIntent() {
         return new Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse(
-                        "google.navigation:q="
+                        "geo:0,0?q="
                                 + this.loc.getLatitude()
                                 + ","
                                 + this.loc.getLongitude()));
@@ -196,7 +202,7 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
     protected void updateUi() {
         final Intent intent = getStartNavigationIntent();
         final ActivityInfo activityInfo = intent.resolveActivityInfo(getPackageManager(), 0);
-        this.binding.fab.setVisibility(activityInfo == null ? View.GONE : View.VISIBLE);
+        //this.binding.fab.setVisibility(activityInfo == null ? View.GONE : View.VISIBLE);
     }
 
     @Override
