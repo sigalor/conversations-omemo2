@@ -49,7 +49,7 @@
             android:layout_alignParentTop="true"
             android:scaleType="fitXY"
             app:strokeColor="@color/custom_theme_accent"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
+    app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
     <LinearLayout
         android:id="@+id/message_box"
