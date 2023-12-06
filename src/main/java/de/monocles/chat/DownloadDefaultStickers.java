@@ -147,7 +147,6 @@ public class DownloadDefaultStickers extends Service {
             w.write('\n');
             w.close();
         } catch (final Exception e) { }
-        xmppConnectionService.forceRescanStickers();
     }
 
     private void download() throws Exception {
