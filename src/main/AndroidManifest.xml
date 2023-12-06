@@ -286,9 +286,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="https" />
-                <data android:host="monocles.eu" />
-                <data android:pathPrefix="/i/" />
-                <data android:pathPrefix="/j/" />
+                <data android:host="monocles.chat" />
+                <data android:pathPrefix="/" />
+                <data android:pathPrefix="/chat/" />
             </intent-filter>
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
