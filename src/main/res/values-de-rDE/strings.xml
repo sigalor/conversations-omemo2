@@ -1009,7 +1009,7 @@
     <string name="pref_use_invidious_summary">Invidious ist eine datenschutzfreundliche Alternative zu YouTube</string>
     <string name="pref_use_inner_storage_summary">Andere Apps können die Medien aus dem versteckten Speicher nicht lesen</string>
     <string name="this_device">Dieses Gerät</string>
-    <string name="intro_desc_main">Hier stehst du im Mittelpunkt und triffst die Entscheidung. monocles chat ist nicht einfach nur ein weiterer Messenger… monocles chat verwendet einen offiziellen Standard der IETF. Du kannst jederzeit die App wechseln und trotzdem mit deinen Freunden in Kontakt bleiben.</string>
+    <string name="intro_desc_main">monocles chat ist nicht einfach nur ein weiterer Messenger… monocles chat verwendet einen offiziellen Standard der IETF. Du kannst jederzeit die App wechseln und trotzdem mit deinen Freunden in Kontakt bleiben. \nHier stehst du im Mittelpunkt und triffst die Entscheidung.</string>
     <string name="welcome_header">Willkommen bei
 \nmonocles chat</string>
     <string name="intro_required_permissions">Erforderliche Berechtigungen</string>
