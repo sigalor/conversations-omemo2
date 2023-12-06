@@ -150,7 +150,7 @@ android {
         targetSdkVersion 34
 
         // versionNameSuffix " -beta_(2023-10-26)" // " beta_(XXXX-XX-XX)" // activate for beta versions
-        versionCode 150
+        versionCode 151
         versionName "1.7.8"
         //resConfigs "en"
 
