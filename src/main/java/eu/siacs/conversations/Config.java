@@ -66,7 +66,7 @@ public final class Config {
     public static final Jid BUG_REPORTS = Jid.of("support@monocles.de");
     public static final Uri HELP = Uri.parse("https://monocles.wiki");
 
-    public static final String inviteUserURL = monocles() + "/?chat/";
+    public static final String inviteUserURL = monocles() + "/chat/";
     public static final String inviteMUCURL = monocles() + "/j/";
     public static final String inviteHostURL = monocles(); // without http(s)
     public static final String INVITE_DOMAIN = monocles();
