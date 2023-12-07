@@ -96,7 +96,7 @@
     <string name="app_update_channel_name">Обновление приложения</string>
     <string name="application_found_to_open_website">Не удалось найти подходящее приложение для открытия веб-сайта</string>
     <string name="ask_for_presence_updates">Запрашивать обновления присутствия</string>
-    <string name="ask_for_writeaccess">Пожалуйста, попросите разрешения на запись</string>
+    <string name="ask_for_writeaccess">Обратитесь к администрации</string>
     <string name="ask_question">Задать вопрос</string>
     <string name="attach">Прикрепить</string>
     <string name="attach_choose_picture">Выбрать изображение</string>
@@ -393,11 +393,12 @@
     <string name="hang_up">Завершить разговор</string>
     <string name="help">Помощь</string>
     <string name="hide_inactive_devices">Скрыть не активных</string>
+    <string name="hide_notification">Скрыть уведомление</string>
     <string name="hide_offline">Скрыть \"не в сети\"</string>
     <string name="hide_warning">Скрыть предупреждение</string>
     <string name="highlight_in_muc">Отметить пользователя</string>
     <string name="host_does_not_support_group_chat_avatars">Хост не поддерживает аватары конференции</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="hostname_or_onion">Имя хоста или onion-адрес</string>
     <string name="huawei_protected_apps">Защищенные приложения</string>
     <string name="huawei_protected_apps_summary">Чтобы получать уведомления при выключенном экране, Вам необходимо добавить monocles chat в список защищенных приложений.</string>
@@ -488,20 +489,13 @@
     <string name="leave">Покинуть</string>
     <string name="leave_conference_warning">Вы действительно хотите покинуть эту конференцию\? Вы не будете получать уведомления о новых сообщениях до тех пор, пока не вступите в конференцию снова.</string>
     <string name="link">Ссылка</string>
+    <string name="log_out">Выйти</string>
+    <string name="log_in">Войти</string>
     <string name="load_more_messages">Загрузить больше сообщений</string>
     <string name="local_server">Локальный сервер</string>
     <string name="locating">Определение местоположения...</string>
     <string name="location">Местоположение</string>
     <string name="location_sharing_disabled">Возможность делиться местоположением отключена в настройках</string>
-    <string name="monocles_account_details">Это включает в себя:
-\n● зашифрованное временное хранилище чата на два месяца
-\n● электронная почта со сквозным шифрованием объемом 2 ГБ
-\n
-\n необязательно:
-\n● 4 ГБ облачного хранилища (nextcloud)
-\n● синхронизация календаря и контактов
-\n● безопасный инструмент для проведения конференций
-\n● и многое другое на https://monocles.eu/more/</string>
     <string name="magic_create_text_fixed">Вас пригласили в %1$s. Имя пользователя уже выбрано для Вас. Мы поможем Вам создать учетную запись. Вы сможете общаться с пользователями других серверов, сообщив им свой полный XMPP-адрес.</string>
     <string name="magic_create_text_on_x">Вас пригласили в %1$s. Мы поможем Вам создать учетную запись. Выбрав %1$s в качестве сервера, Вы сможете общаться с пользователями других серверов, сообщив им свой полный XMPP-адрес.</string>
     <string name="make_call">Звонить</string>
@@ -646,9 +640,9 @@
     <string name="oldAndroidVersion">Старая версия Android</string>
     <string name="oldAndroidVersionMessage">Вы используете старую версию Android, которая больше не будет поддерживаться в будущих обновлениях. Начиная с monocles chat версии 1.0 поддерживаются только устройства с Android 5 и выше. Пожалуйста, обновите прошивку Вашего устройства.</string>
     <string name="omemo_decryption_failed">Ошибка расшифровки OMEMO-сообщения.</string>
-    <string name="omemo_fingerprint">OMEMO отпечаток </string>
+    <string name="omemo_fingerprint">OMEMO отпечаток</string>
     <string name="omemo_fingerprint_selected_message">OMEMO отпечаток (оригинальное сообщение)</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO отпечаток </string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO отпечаток</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO отпечаток (оригинальное сообщение)</string>
     <string name="once">Один раз</string>
     <string name="one_participant">Один участник</string>
@@ -869,7 +863,7 @@
     <string name="pref_theme_pink">Розовый</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Устанавливать статус \"Не беспокоить\", когда устройство находится в режиме вибрации</string>
     <string name="pref_treat_vibrate_as_silent">Считать режим вибрации беззвучным режимом</string>
-    <string name="pref_ui_options">Интерфейс пользователя</string>
+    <string name="pref_ui_options">Интерфейс</string>
     <string name="pref_up_push_account_summary">Учетная запись, через которую будут приниматься push-сообщения.</string>
     <string name="pref_up_push_server_summary">Выбранный пользователем push-сервер для передачи push-сообщений приложениям на вашем устройстве.</string>
     <string name="pref_use_auto_rotate">Поворот в полноэкранном режиме</string>
@@ -892,7 +886,7 @@
     <string name="pref_use_invidious_summary">Invidious - это приватный способ просмотра YouTube</string>
     <string name="pref_use_max_brightness">Максимальная яркость</string>
     <string name="pref_use_max_brightness_summary">Установить максимальную яркость при полноэкранном просмотре видео и изображений.</string>
-    <string name="pref_use_quick_share_attachment_choice_summary">Заменять кнопку отправки на кнопку вложений, если не печатается сообщение. Иначе показывать быстрые действия, которые могут быть настроены в следующих пунктах.</string>
+    <string name="pref_use_quick_share_attachment_choice_summary">Заменять кнопку отправки на кнопку вложений, если не печатается сообщение.</string>
     <string name="pref_use_send_button_to_indicate_status">Кнопка отправки показывает статус</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Раскрасить кнопку отправки сообщений для индикации статуса контакта</string>
     <string name="pref_use_tor">Подключиться через Tor</string>
@@ -1000,6 +994,7 @@
     <string name="secrets_do_not_match">Секреты не совпадают</string>
     <string name="secure_password_generated">Сгенерирован надежный пароль</string>
     <string name="security_violation_not_attaching_file">Файл пропущен из-за проблем с безопасностью.</string>
+    <string name="security">Безопасность</string>
     <string name="select">Выбрать</string>
     <string name="send_again">Отправить снова</string>
     <string name="send_corrected_message">Отправить измененное сообщение</string>
@@ -1097,6 +1092,7 @@
 \nСейчас Вам будет предложено предоставить разрешение на доступ к Вашим контактам.</string>
     <string name="tap_share_button_send_invite">Нажмите кнопку \"Поделиться\", чтобы отправить контакту приглашение на %1$s.</string>
     <string name="this_account_is_disabled">Вы отключили данный аккаунт</string>
+    <string name="this_account_is_logged_out">Вы вышли из этой учетной записи</string>
     <string name="this_device">Это устройство</string>
     <string name="this_device_has_been_verified">Устройство было проверено</string>
     <string name="this_device_is_no_longer_in_use">Устройство больше не используется</string>
@@ -1422,7 +1418,7 @@
     <string name="chat_background">Фон чатов</string>
     <string name="message_reaction">Отправить реакцию</string>
     <string name="custom_background">Пользовательский фон</string>
-    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата.</string>
+    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocleschat/backgrounds/bg.jpg. В случае возникновения проблемы удалите файл изображения с помощью файлового менеджера.</string>
     <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
     <string name="pref_set_round_avatars">Круглые аватары</string>
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
@@ -1444,15 +1440,34 @@
     <string name="no_media_permission">Нет разрешения на хранение мультимедиа</string>
     <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
     <string name="pref_set_text_collapsable_summary">Будет свернут текст, содержащий более 240 знаков.</string>
-    <string name="log_out">Выйти</string>
-    <string name="log_in">Авторизоваться</string>
-    <string name="unknown">Неизвестный</string>
-    <string name="security">Безопасность</string>
-    <string name="verified_with_qr_code"> - подтверждено QR-кодом</string>
-    <string name="key_automatically_accepted"> - ключ не проверен</string>
-    <string name="this_account_is_logged_out">Вы вышли из этой учетной записи</string>
-    <string name="account_state_logged_out">Вышли из</string>
-    <string name="contact_uses_unverified_keys">Ваш контакт использует непроверенные устройства. Сканируйте их 2D-штрих-код, чтобы выполнить проверку и предотвратить активные атаки MITM.</string>
-    <string name="hide_notification">Скрыть уведомление</string>
-    <string name="unverified_devices">Вы используете непроверенные устройства. Сканируйте 2D-штрих-код на других ваших устройствах, чтобы выполнить проверку и предотвратить активные атаки MITM.</string>
+    <string name="unverified_devices">Вы используете непроверенные устройства. Отсканируйте 2D-штрихкод на других устройствах, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>
+    <string name="contact_uses_unverified_keys">Ваш собеседник использует непроверенные устройства. Отсканируйте их 2D-штрихкод, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>
+    <string name="not_dnssec_verified">DNSSEC не подтвержден</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE подтверждено</string>
+    <string name="dnssec_verified">DNSSEC подтвержден</string>
+    <string name="manage_phone_accounts">Управление учетными записями телефона</string>
+    <string name="create_background_failed">Не удалось создать фон</string>
+    <string name="custom_background_set">Пользовательский набор фона</string>
+    <string name="delete_background_failed">Не удалось удалить фоновое изображение</string>
+    <string name="delete_background_success">Фоновое изображение удалено</string>
+    <string name="delete_background">Удалить фон чата</string>
+    <string name="pref_delete_background_summary">Удалите собственное фоновое изображение из чата</string>
+    <string name="no_background_set">Нет пользовательского набора фона</string>
+    <string name="input_field">Поле ввода</string>
+    <string name="import_own_stickers">Импорт стикеров</string>
+    <string name="import_own_stickers_summary">Импортируйте свои собственные стикеры. Используйте их с исходным именем файла.</string>
+    <string name="thanks">Спасибо за использование чата монокли! Пожалуйста, рассмотрите возможность поддержать разработку небольшим пожертвованием.</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">Пожертвовать</string>
+    <string name="pref_enforce_dane_summary">Подключайте учетную запись только после успешной проверки DANE</string>
+    <string name="pref_enforce_dane">Подтвердить DANE</string>
+    <string name="dane_failed">DANE не удалось</string>
+    <string name="magic_create_text">Мы проведем вас через процесс создания учетной записи со случайным паролем, который вы можете использовать или изменить на свой собственный пароль на следующей странице. Тогда вы сможете общаться с пользователями этого и других провайдеров, сообщив им свой полный XMPP-адрес.</string>
+    <string name="use_monocles">Я предпочитаю monocles</string>
+    <string name="describe_issue">Пожалуйста, опишите вашу проблему подробно. Спасибо.</string>
+    <string name="sticker_saved">Стикер сохранен</string>
+    <string name="sticker_imported">Стикер импортирован</string>
+    <string name="import_sticker_failed">Ошибка импортирования стикера</string>
+    <string name="download_sticker">Скачать стикеры?</string>
+    <string name="download_sticker_summary">Хотите загрузить несколько наборов наклеек по умолчанию?</string>
 </resources>
