@@ -3531,19 +3531,11 @@ public class ConversationFragment extends XmppFragment
 
         if (commandAdapter != null && conversation != originalConversation) {
             commandAdapter.clear();
-            conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), originalConversation);
+            conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), null);
             refreshCommands(false);
         }
         if (commandAdapter == null && conversation != null) {
             conversation.setupViewPager(binding.conversationViewPager, binding.tabLayout, activity.xmppConnectionService.isOnboarding(), null);
-            commandAdapter = new CommandAdapter((XmppActivity) getActivity());
-            binding.commandsView.setAdapter(commandAdapter);
-            binding.commandsView.setOnItemClickListener((parent, view, position, id) -> {
-                if (activity == null) return;
-
-                final Element command = commandAdapter.getItem(position);
-                activity.startCommand(ConversationFragment.this.conversation.getAccount(), command.getAttributeAsJid("jid"), command.getAttribute("node"));
-            });
             refreshCommands(false);
         }
 
