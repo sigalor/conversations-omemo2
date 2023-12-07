@@ -1422,4 +1422,5 @@
     <string name="import_sticker_failed">Konnte Sticker nicht importieren</string>
     <string name="download_sticker">Sticker herunterladen?</string>
     <string name="download_sticker_summary">Möchtest du gerne einige standard Sticker herunterladen?</string>
+    <string name="retract_message_dialog_msg">Möchtest du die Nachricht wirklich zurückziehen?</string>
 </resources>
