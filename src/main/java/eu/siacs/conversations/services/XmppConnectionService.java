@@ -1233,7 +1233,7 @@ public class XmppConnectionService extends Service {
                     scheduleWakeUpCall((int) Math.min(timeout, discoTimeout), account.getUuid().hashCode());
                 }
             } else {
-                final boolean aggressive = hasJingleRtpConnection(account);
+                final boolean aggressive = account.getStatus() == Account.State.SEE_OTHER_HOST || hasJingleRtpConnection(account);
                 if (account.getXmppConnection().getTimeToNextAttempt(aggressive) <= 0) {
                     reconnectAccount(account, true, interactive);
                 }
