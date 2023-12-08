@@ -2984,7 +2984,7 @@ public class ConversationFragment extends XmppFragment
                     }
                     if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) return;
                 }
-                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(message.getThread());
                 }
             }
