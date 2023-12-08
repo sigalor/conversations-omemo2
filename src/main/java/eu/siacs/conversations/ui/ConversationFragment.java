@@ -628,16 +628,25 @@ public class ConversationFragment extends XmppFragment
             PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
             if (pendingIntent != null) {
                 try {
-                    getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
-                            REQUEST_DECRYPT_PGP,
-                            null,
-                            0,
-                            0,
-                            0,
-                            Compatibility.pgpStartIntentSenderOptions());
+                    getActivity()
+                            .startIntentSenderForResult(
+                                    pendingIntent.getIntentSender(),
+                                    REQUEST_DECRYPT_PGP,
+                                    null,
+                                    0,
+                                    0,
+                                    0,
+                                    Compatibility.pgpStartIntentSenderOptions());
                 } catch (SendIntentException e) {
-                    ToastCompat.makeText(getActivity(), R.string.unable_to_connect_to_keychain, ToastCompat.LENGTH_SHORT).show();
-                    conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
+                    Toast.makeText(
+                                    getActivity(),
+                                    R.string.unable_to_connect_to_keychain,
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                    conversation
+                            .getAccount()
+                            .getPgpDecryptionService()
+                            .continueDecryption(true);
                 }
             }
             updateSnackBar(conversation);
@@ -4501,12 +4510,14 @@ public class ConversationFragment extends XmppFragment
         return m != null && m.getMergedBody().toString().toLowerCase().contains(q.toLowerCase());
     }
 
-    private void startPendingIntent(PendingIntent pendingIntent, int requestCode) {
-        try {
-            getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(), requestCode, null, 0, 0, 0);
-        } catch (final SendIntentException ignored) {
+        private void startPendingIntent(PendingIntent pendingIntent, int requestCode) {
+            try {
+                getActivity()
+                        .startIntentSenderForResult(
+                                pendingIntent.getIntentSender(), requestCode, null, 0, 0, 0, Compatibility.pgpStartIntentSenderOptions());
+            } catch (final SendIntentException ignored) {
+            }
         }
-    }
 
     @Override
     public void onBackendConnected() {

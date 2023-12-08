@@ -1261,7 +1261,7 @@ public abstract class XmppActivity extends ActionBarActivity {
                     0, 0, Compatibility.pgpStartIntentSenderOptions());
         } catch (final Throwable e) {
             Log.d(Config.LOGTAG,"could not launch OpenKeyChain", e);
-            ToastCompat.makeText(XmppActivity.this, R.string.openpgp_error, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(XmppActivity.this, R.string.openpgp_error, Toast.LENGTH_SHORT).show();
         }
     }
 
