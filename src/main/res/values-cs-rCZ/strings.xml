@@ -1259,5 +1259,17 @@
 	<string name="custom_accent_color">Vlastní akcentní barva</string>
     <string name="custom_background">Vlastní pozadí</string>
     <string name="pref_chat_background_summary">Jako pozadí chatu můžete zvolit vlastní soubor s obrázkem. Obrázkový soubor se zkopíruje do složky /Documents/monocles chat/backgrounds/bg.jpg. Pokud se objeví problém, smažte prosím soubor s obrázkem pomocí správce souborů.</string>
-    
+    <string name="pref_dialler_integration_incoming">Použít telefonní účty pro příchozí hovory</string>
+    <string name="pref_show_thread_feature">Zobrazit ikonu vlákna</string>
+    <string name="pref_show_thread_feature_summary">Zobrazení ikony vlákna ve vstupním poli a umožnění vytváření a sledování vláken</string>
+    <string name="pref_set_round_avatars">Zakulatit avatary</string>
+    <string name="pref_set_round_avatars_summary">Zakulatit avatary uživatelů</string>
+    <string name="pref_show_less_avatars">V chatu zobrazit méně avatarů</string>
+	<string name="pref_show_less_avatars_summary">V konverzacích se zobrazí pouze nezbytní avataři</string>
+    <string name="pref_set_text_collapsable">Sbalit dlouhý text</string>
+	<string name="pref_set_text_collapsable_summary">Sbalí text s více než 240 znaky</string>
+    <string name="pref_follow_thread_in_channel">Automatické sledování vláken v kanálech</string>
+	<string name="pref_follow_thread_in_channel_summary">Nastavení značky vlákna tak, aby odpovídala právě prohlížené zprávě</string>
+ 	<string name="pref_use_blue_readmarkers_title">Použít modré čtecí značky</string>
+	<string name="pref_use_blue_readmarkers_summary">Použití modrých čtecích značek namísto bílých nebo černých</string>
 </resources>
