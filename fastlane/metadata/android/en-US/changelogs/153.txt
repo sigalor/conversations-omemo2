@@ -1,0 +1,5 @@
+* Updated translations
+* Fix cutted voice message
+* Auto play video files
+* Move universal backup to settings
+* Further fixes
