@@ -1387,4 +1387,6 @@
     <string name="import_sticker_failed">Failed to import sticker</string>
     <string name="download_sticker">Download stickers?</string>
     <string name="download_sticker_summary">Would you like to download some default sticker packs?</string>
+    <string name="pref_create_compatible_backup">Create universal backup</string>
+    <string name="pref_create_compatible_backup_summary">Write universal backup files to %s</string>
 </resources>

@@ -564,6 +564,10 @@
                 android:key="create_backup"
                 android:summary="@string/pref_create_backup_summary"
                 android:title="@string/pref_create_backup" />
+            <Preference
+                android:key="create_compatible_backup"
+                android:summary="@string/pref_create_compatible_backup_summary"
+                android:title="@string/pref_create_compatible_backup" />
             <SwitchPreference
                 android:defaultValue="@bool/plain_text_logs"
                 android:key="export_plain_text_logs"

@@ -1424,4 +1424,6 @@
     <string name="download_sticker_summary">Möchtest du gerne einige standard Sticker herunterladen?</string>
     <string name="retract_message_dialog_msg">Möchtest du die Nachricht wirklich zurückziehen?</string>
     <string name="dane_failed">DANE fehlgeschlagen</string>
+    <string name="pref_create_compatible_backup">Universelle Sicherung erstellen</string>
+    <string name="pref_create_compatible_backup_summary">Universelle Sicherungsdateien schreiben nach %s</string>
 </resources>

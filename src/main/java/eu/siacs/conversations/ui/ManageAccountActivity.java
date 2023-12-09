@@ -508,15 +508,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     private void createBackup() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.pref_create_backup))
-                .setMessage(getString(R.string.create_monocles_only_backup))
-                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                    createBackup(true, true);
-                })
-                .setNegativeButton(R.string.no, (dialog, whichButton) -> {
-                    createBackup(false, false);
-                }).show();
+        createBackup(true, true);
     }
 
     private void createBackup(boolean notify, boolean withmonoclesDb) {

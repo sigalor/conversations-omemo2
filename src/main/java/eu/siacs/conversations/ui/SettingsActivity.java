@@ -857,6 +857,17 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
+        final Preference createCompatibleBackupPreference = mSettingsFragment.findPreference("create_compatible_backup");
+        if (createCompatibleBackupPreference != null) {
+            createCompatibleBackupPreference.setSummary(getString(R.string.pref_create_compatible_backup_summary, getBackupDirectory(null)));
+            createCompatibleBackupPreference.setOnPreferenceClickListener(preference -> {
+                if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
+                    createCompatibleBackup();
+                }
+                return true;
+            });
+        }
+
         final Preference importSettingsPreference = mSettingsFragment.findPreference("import_database");
         if (importSettingsPreference != null) {
             importSettingsPreference.setSummary(getString(R.string.pref_import_database_or_settings_summary));
@@ -1316,6 +1327,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 if (requestCode == REQUEST_CREATE_BACKUP) {
                     createBackup();
                 }
+                if (requestCode == REQUEST_CREATE_BACKUP) {
+                    createCompatibleBackup();
+                }
                 if (requestCode == REQUEST_DOWNLOAD_STICKERS) {
                     downloadStickers();
                 }
@@ -1333,15 +1347,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     }
 
     private void createBackup() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.pref_create_backup))
-                .setMessage(getString(R.string.create_monocles_only_backup))
-                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                    createBackup(true, true);
-                })
-                .setNegativeButton(R.string.no, (dialog, whichButton) -> {
-                    createBackup(false, false);
-                }).show();
+        createBackup(true, true);
+    }
+
+    private void createCompatibleBackup() {
+        createBackup(true, false);
     }
 
     private void createBackup(boolean notify, boolean withmonoclesDb) {
