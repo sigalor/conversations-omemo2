@@ -465,7 +465,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
 
     private void pausePlayer() {
         if (player != null && isVideo && isPlaying()) {
-            player.setPlayWhenReady(true);
+            player.setPlayWhenReady(false);
             player.getPlaybackState();
             if (Compatibility.runsTwentyFour() && isInPictureInPictureMode()) {
                 hideFAB();
@@ -524,6 +524,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
             showFAB();
         } else {
             hideFAB();
+        }
+        if (!isPlaying()) {
+            startPlayer();
         }
         super.onResume();
     }
