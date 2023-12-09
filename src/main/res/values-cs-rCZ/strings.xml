@@ -1246,4 +1246,18 @@
     <string name="btc_address_copied_to_clipboard">Adresa BTC zkopírována do schránky</string>
     <string name="choose_camera_app">Zvolit aplikaci fotoaparátu</string>
     <string name="pref_choose_camera_summary">Zvolte, kterou aplikaci fotoaparátu použít</string>
+    <string name="add_to_home_screen">Připnout na obrazovku</string>
+    <string name="hide_notification">Skrýt oznámení</string>
+	<string name="log_out">Odhlásit se</string>
+	<string name="log_in">Přihlásit se</string>
+    <string name="menuitem_create_backup_action">Vytvořit zálohu</string>
+    <string name="custom_theme_options">Vlastní možnosti motivu</string>
+    <string name="pref_custom_theme_color_options_summary">Nastavení vlastních barev motivu</string>
+    <string name="custom_theme_is_dark">Vlastní téma je tmavé?</string>
+	<string name="custom_primary_color">Vlastní primární barva</string>
+	<string name="custom_primary_dark_color">Vlastní primární tmavá barva</string>
+	<string name="custom_accent_color">Vlastní akcentní barva</string>
+    <string name="custom_background">Vlastní pozadí</string>
+    <string name="pref_chat_background_summary">Jako pozadí chatu můžete zvolit vlastní soubor s obrázkem. Obrázkový soubor se zkopíruje do složky /Documents/monocles chat/backgrounds/bg.jpg. Pokud se objeví problém, smažte prosím soubor s obrázkem pomocí správce souborů.</string>
+    
 </resources>
