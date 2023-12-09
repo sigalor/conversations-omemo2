@@ -172,7 +172,6 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
         try {
             this.startActivity(openIntent);
-            finish();
         } catch (ActivityNotFoundException e) {
             ToastCompat.makeText(this, R.string.no_application_found_to_open_file, ToastCompat.LENGTH_SHORT).show();
         }
