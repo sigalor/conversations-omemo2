@@ -1,10 +1,15 @@
 package eu.siacs.conversations.ui;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.ui.adapter.CommandAdapter;
+import eu.siacs.conversations.utils.Random;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 
@@ -3139,32 +3144,41 @@ public class ConversationFragment extends XmppFragment
 
     private void saveAsSticker(final File file, final String name) {
         savingAsSticker = file;
+        Uri imageUri = Uri.fromFile(file);
+        //do something with the image (save it to some directory or whatever you need to do with it here)
+        if (imageUri != null) {
+            InputStream in;
+            OutputStream out;
+            try {
+                File stickerfolder = new File(activity.getFilesDir() + File.separator + "Stickers" + File.separator + "User");
+                //create output directory if it doesn't exist
+                if (!stickerfolder.exists()) {
+                    stickerfolder.mkdirs();
+                }
 
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
-        intent.putExtra(Intent.EXTRA_TITLE, name);
+                String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
+                File newSticker = new File(activity.getFilesDir() + File.separator + "Stickers" + File.separator + "User" + File.separator + filename);
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        final String dir = p.getString("sticker_directory", "Stickers");
-        if (dir.startsWith("content://")) {
-            intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
-        } else {
-            new File(activity.getFilesDir() + File.separator + dir + "/User Pack").mkdirs();
-            Uri uri;
-            if (Build.VERSION.SDK_INT >= 29) {
-                Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-                uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
-                uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3APictures%2F" + dir);
-            } else {
-                uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3APictures%2F" + dir);
+                in = activity.getContentResolver().openInputStream(imageUri);
+                out = new FileOutputStream(newSticker);
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                in = null;
+                // write the output file
+                out.flush();
+                out.close();
+                out = null;
+                Toast.makeText(activity,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                activity.xmppConnectionService.forceRescanStickers();
+            } catch (IOException exception) {
+                Toast.makeText(activity,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
+                Log.d(Config.LOGTAG, "Could not import sticker" + exception);
             }
-            intent.putExtra("android.provider.extra.INITIAL_URI", uri);
-            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
         }
-
-        Toast.makeText(activity, "Choose a sticker pack to add this sticker to", Toast.LENGTH_SHORT).show();
-        startActivityForResult(Intent.createChooser(intent, "Choose sticker pack"), REQUEST_SAVE_STICKER);
     }
 
     private void deleteFile(final Message message) {
