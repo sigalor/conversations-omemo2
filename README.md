@@ -23,9 +23,9 @@ Du kannst einen Merge Request erstellen in dem du Verbesserungen oder neue Sprac
 #### Ich habe Probleme, was soll ich tun?
 Am einfachsten ist es, wenn du unserer Support-Gruppe beitrittst, dort werden deine Probleme mit Sicherheit schnell gelöst. 
 
-Support-Chat: [support@conference.monocles.de](https://interact.monocles.de)     
+Support-Chat: [support@conference.monocles.de](https://monocles.chat)     
 
-Development-Chat:  [development@conference.monocles.de](https://interact.monocles.de)     
+Development-Chat:  [development@conference.monocles.de](https://monocles.chat)     
 
 
 Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/monocles_chat/issues) ein Issue erstellen, in welchem du dein Problem genau beschreibst und welche Schritte erforderlich sind, um zu dem Problem zu gelangen. 

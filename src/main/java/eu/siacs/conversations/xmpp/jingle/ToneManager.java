@@ -135,7 +135,8 @@ class ToneManager {
 
     private void scheduleEnding() {
         this.currentTone = JingleConnectionManager.SCHEDULED_EXECUTOR_SERVICE.schedule(() -> {
-            startTone(ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
+            ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 45); //45 is volume
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_PROMPT, 200); //200 is length
         }, 0, TimeUnit.SECONDS);
         this.currentResetFuture = JingleConnectionManager.SCHEDULED_EXECUTOR_SERVICE.schedule(this::resetAudioManager, 375, TimeUnit.MILLISECONDS);
     }

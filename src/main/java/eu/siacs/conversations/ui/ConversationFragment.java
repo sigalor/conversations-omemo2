@@ -1,10 +1,15 @@
 package eu.siacs.conversations.ui;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.ui.adapter.CommandAdapter;
+import eu.siacs.conversations.utils.Random;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 
@@ -52,6 +57,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -131,9 +137,6 @@ import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.emoji2.emojipicker.EmojiPickerView;
-import androidx.emoji2.emojipicker.RecentEmojiAsyncProvider;
-import androidx.emoji2.emojipicker.RecentEmojiProviderAdapter;
 
 import android.text.SpannableStringBuilder;
 
@@ -177,7 +180,6 @@ import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Edit;
-import eu.siacs.conversations.databinding.EmojiSearchBinding;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.MucOptions.User;
@@ -303,8 +305,6 @@ public class ConversationFragment extends XmppFragment
     private int identiconWidth = -1;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
-    private EmojiSearchBinding emojiSearchBinding = null;
-    private PopupWindow emojiPopup = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
     private final OnClickListener clickToMuc = new OnClickListener() {
 
@@ -359,16 +359,7 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener italicText = v -> insertFormatting("italic");
     private final OnClickListener monospaceText = v -> insertFormatting("monospace");
     private final OnClickListener strikethroughText = v -> insertFormatting("strikethrough");
-    private final OnClickListener help = v -> openHelp();
     private final OnClickListener close = v -> closeFormatting();
-
-    private void openHelp() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(R.string.format_text);
-        builder.setMessage(R.string.help_format_text);
-        builder.setNeutralButton(getString(R.string.ok), null);
-        builder.create().show();
-    }
 
     private void closeFormatting() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -642,16 +633,25 @@ public class ConversationFragment extends XmppFragment
             PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
             if (pendingIntent != null) {
                 try {
-                    getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
-                            REQUEST_DECRYPT_PGP,
-                            null,
-                            0,
-                            0,
-                            0,
-                            Compatibility.pgpStartIntentSenderOptions());
+                    getActivity()
+                            .startIntentSenderForResult(
+                                    pendingIntent.getIntentSender(),
+                                    REQUEST_DECRYPT_PGP,
+                                    null,
+                                    0,
+                                    0,
+                                    0,
+                                    Compatibility.pgpStartIntentSenderOptions());
                 } catch (SendIntentException e) {
-                    ToastCompat.makeText(getActivity(), R.string.unable_to_connect_to_keychain, ToastCompat.LENGTH_SHORT).show();
-                    conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
+                    Toast.makeText(
+                                    getActivity(),
+                                    R.string.unable_to_connect_to_keychain,
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                    conversation
+                            .getAccount()
+                            .getPgpDecryptionService()
+                            .continueDecryption(true);
                 }
             }
             updateSnackBar(conversation);
@@ -978,12 +978,8 @@ public class ConversationFragment extends XmppFragment
         if (conversation == null) {
             return;
         }
-
-        if (type == "application/xdc+zip")
-            newSubThread();
-
+        if (type == "application/xdc+zip") newSubThread();
         final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_file), ToastCompat.LENGTH_SHORT);
-
         activity.delegateUriPermissionsToService(uri);
         activity.xmppConnectionService.attachFileToConversation(conversation, uri, type, new UiInformableCallback<Message>() {
             @Override
@@ -1440,7 +1436,6 @@ public class ConversationFragment extends XmppFragment
         boolean hasAttachments = mediaPreviewAdapter != null && mediaPreviewAdapter.hasAttachments();
         menuInflater.inflate(R.menu.fragment_conversation, menu);
         final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
-        final MenuItem menuNeedHelp = menu.findItem(R.id.action_create_issue);
         final MenuItem menuSearchUpdates = menu.findItem(R.id.action_check_updates);
         final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive_chat);
         final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
@@ -1512,7 +1507,6 @@ public class ConversationFragment extends XmppFragment
                 menuSearchUpdates.setVisible(false);
             }
             menuMediaBrowser.setVisible(true);
-            menuNeedHelp.setVisible(false);
             ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, activity.getAttachmentChoicePreference(), hasAttachments);
             ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu, activity);
             if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, false)) {
@@ -1521,7 +1515,6 @@ public class ConversationFragment extends XmppFragment
                 menuTogglePinned.setTitle(R.string.add_to_favorites);
             }
         } else {
-            menuNeedHelp.setVisible(true);
             menuSearchUpdates.setVisible(true);
             menuInviteContact.setVisible(false);
             menuGroupDetails.setVisible(false);
@@ -1552,7 +1545,6 @@ public class ConversationFragment extends XmppFragment
 
         //Setting hide thread icon
         showThreadFeature();
-
 
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
@@ -1620,11 +1612,9 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
-        /*      //TODO: Disabled Cheogram emojisearch for now
         final Pattern lastColonPattern = Pattern.compile("(?<!\\w):");
-        emojiSearchBinding = DataBindingUtil.inflate(inflater, R.layout.emoji_search, null, false);
-        emojiSearchBinding.emoji.setOnItemClickListener((parent, view, position, id) -> {
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
+        binding.emoji.setOnItemClickListener((parent, view, position, id) -> {
+            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.emoji.getAdapter());
             Editable toInsert = adapter.getItem(position).toInsert();
             toInsert.append(" ");
             Editable s = binding.textinput.getText();
@@ -1636,7 +1626,6 @@ public class ConversationFragment extends XmppFragment
         });
         setupEmojiSearch();
 
-        emojiPopup = new PopupWindow(emojiSearchBinding.getRoot(), WindowManager.LayoutParams.MATCH_PARENT, (int) (activity.getResources().getDisplayMetrics().density * 150));
         Handler emojiDebounce = new Handler(Looper.getMainLooper());
         final Pattern notEmojiSearch = Pattern.compile("[^\\w\\(\\)\\+'\\-]");
         binding.textinput.addTextChangedListener(new TextWatcher() {
@@ -1648,17 +1637,17 @@ public class ConversationFragment extends XmppFragment
                     int lastColon = -1;
                     while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
                     if (lastColon < 0) {
-                        emojiPopup.dismiss();
+                        binding.emoji.setVisibility(GONE);
                         return;
                     }
                     final String q = s.toString().substring(lastColon);
                     if (notEmojiSearch.matcher(q).find()) {
-                        emojiPopup.dismiss();
+                        binding.emoji.setVisibility(GONE);
                     } else {
-                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
+                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.emoji.getAdapter());
                         if (adapter != null) {
                             adapter.search(q);
-                            emojiPopup.showAsDropDown(binding.textinput);
+                            binding.emoji.setVisibility(VISIBLE);
                         }
                     }
                 }, 400L);
@@ -1670,8 +1659,7 @@ public class ConversationFragment extends XmppFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int count, int after) { }
         });
-         */
-
+        hasWriteAccessInMUC();
         return binding.getRoot();
     }
 
@@ -1679,9 +1667,9 @@ public class ConversationFragment extends XmppFragment
         if (emojiSearch == null && activity != null && activity.xmppConnectionService != null) {
             emojiSearch = activity.xmppConnectionService.emojiSearch();
         }
-        if (emojiSearch == null || emojiSearchBinding == null) return;
+        if (emojiSearch == null || binding.emoji == null) return;
 
-        emojiSearchBinding.emoji.setAdapter(emojiSearch.makeAdapter(activity));
+        binding.emoji.setAdapter(emojiSearch.makeAdapter(activity));
     }
 
 
@@ -1953,7 +1941,7 @@ public class ConversationFragment extends XmppFragment
                 final String path = m.getRelativeFilePath();
                 Log.d(Config.LOGTAG, "Path = " + path);
                 if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
-                    saveAsSticker.setVisible(true);
+                    //saveAsSticker.setVisible(true);   TODO: Enable it again with better storage handling
                     blockMedia.setVisible(true);
                     deleteFile.setVisible(true);
                     deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
@@ -2374,8 +2362,9 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void triggerRtpSession(final String action) {
-        if (activity.xmppConnectionService.getJingleConnectionManager().isBusy()) {
-            Toast.makeText(getActivity(), R.string.only_one_call_at_a_time, Toast.LENGTH_LONG).show();
+        if (activity.xmppConnectionService.getJingleConnectionManager().isBusy() != null) {
+            Toast.makeText(getActivity(), R.string.only_one_call_at_a_time, Toast.LENGTH_LONG)
+                    .show();
             return;
         }
         final Account account = conversation.getAccount();
@@ -2685,7 +2674,7 @@ public class ConversationFragment extends XmppFragment
                         || !Compatibility.runsThirtyThree()
                         && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    File bgfileUri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg");
+                    File bgfileUri = new File(activity.getFilesDir() + File.separator + "backgrounds" + File.separator + "bg.jpg");
                     if (bgfileUri.exists()) {
                         assert binding.backgroundImage != null;
                         binding.backgroundImage.setImageURI(Uri.fromFile(bgfileUri));
@@ -2976,9 +2965,7 @@ public class ConversationFragment extends XmppFragment
         Element thread = new Element("thread", "jabber:client");
         thread.setContent(UUID.randomUUID().toString());
         if (oldThread != null) thread.setAttribute("parent", oldThread.getContent());
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            setThread(thread);
-        }
+        setThread(thread);
     }
 
     private void newThread() {
@@ -3002,7 +2989,7 @@ public class ConversationFragment extends XmppFragment
                     }
                     if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) return;
                 }
-                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(message.getThread());
                 }
             }
@@ -3157,32 +3144,41 @@ public class ConversationFragment extends XmppFragment
 
     private void saveAsSticker(final File file, final String name) {
         savingAsSticker = file;
+        Uri imageUri = Uri.fromFile(file);
+        //do something with the image (save it to some directory or whatever you need to do with it here)
+        if (imageUri != null) {
+            InputStream in;
+            OutputStream out;
+            try {
+                File stickerfolder = new File(activity.getFilesDir() + File.separator + "Stickers" + File.separator + "User");
+                //create output directory if it doesn't exist
+                if (!stickerfolder.exists()) {
+                    stickerfolder.mkdirs();
+                }
 
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
-        intent.putExtra(Intent.EXTRA_TITLE, name);
+                String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
+                File newSticker = new File(activity.getFilesDir() + File.separator + "Stickers" + File.separator + "User" + File.separator + filename);
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        final String dir = p.getString("sticker_directory", "Stickers");
-        if (dir.startsWith("content://")) {
-            intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
-        } else {
-            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir + "/User Pack").mkdirs();
-            Uri uri;
-            if (Build.VERSION.SDK_INT >= 29) {
-                Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-                uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
-                uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3APictures%2F" + dir);
-            } else {
-                uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3APictures%2F" + dir);
+                in = activity.getContentResolver().openInputStream(imageUri);
+                out = new FileOutputStream(newSticker);
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                in = null;
+                // write the output file
+                out.flush();
+                out.close();
+                out = null;
+                Toast.makeText(activity,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                activity.xmppConnectionService.forceRescanStickers();
+            } catch (IOException exception) {
+                Toast.makeText(activity,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
+                Log.d(Config.LOGTAG, "Could not import sticker" + exception);
             }
-            intent.putExtra("android.provider.extra.INITIAL_URI", uri);
-            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
         }
-
-        Toast.makeText(activity, "Choose a sticker pack to add this sticker to", Toast.LENGTH_SHORT).show();
-        startActivityForResult(Intent.createChooser(intent, "Choose sticker pack"), REQUEST_SAVE_STICKER);
     }
 
     private void deleteFile(final Message message) {
@@ -3319,7 +3315,6 @@ public class ConversationFragment extends XmppFragment
         this.binding.textinput.append(message.getBody());
     }
 
-
     private void highlightInConference(String nick) {
         final Editable editable = this.binding.textinput.getText();
         String oldString = editable.toString().trim();
@@ -3435,7 +3430,7 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
-        if (emojiPopup != null) emojiPopup.dismiss();
+        if (binding.emoji != null) binding.emoji.setVisibility(GONE);;
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {
@@ -3528,7 +3523,6 @@ public class ConversationFragment extends XmppFragment
         refresh(false);
         activity.invalidateOptionsMenu();
         this.conversation.messagesLoaded.set(true);
-        hasWriteAccessInMUC();
         Log.d(Config.LOGTAG, "scrolledToBottomAndNoPending=" + Boolean.toString(scrolledToBottomAndNoPending));
 
         if (hasExtras || scrolledToBottomAndNoPending) {
@@ -3553,7 +3547,10 @@ public class ConversationFragment extends XmppFragment
 
         this.binding.messagesView.post(this::fireReadEvent);
         //TODO if we only do this when this fragment is running on main it won't *bing* in tablet layout which might be unnecessary since we can *see* it
-        activity.xmppConnectionService.getNotificationService().setOpenConversation(this.conversation);
+        // layout which might be unnecessary since we can *see* it
+        activity.xmppConnectionService
+                .getNotificationService()
+                .setOpenConversation(this.conversation);
 
         if (commandAdapter != null && conversation != originalConversation) {
             commandAdapter.clear();
@@ -3577,7 +3574,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void hasWriteAccessInMUC() {
-        if ((conversation.getMode() == Conversation.MODE_MULTI && !conversation.getMucOptions().participating()) && !activity.xmppConnectionService.hideYouAreNotParticipating()) {
+        if ((conversation != null && conversation.getMode() == Conversation.MODE_MULTI && !conversation.getMucOptions().participating()) && !activity.xmppConnectionService.hideYouAreNotParticipating()) {
             activity.runOnUiThread(() -> {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getString(R.string.you_are_not_participating));
@@ -4126,6 +4123,7 @@ public class ConversationFragment extends XmppFragment
         showRecordVoiceButton();
         updateSnackBar(conversation);
         updateTextFormat(canSendMeCommand());
+
     }
 
     private void updateTextFormat(final boolean me) {
@@ -4534,17 +4532,19 @@ public class ConversationFragment extends XmppFragment
         return m != null && m.getMergedBody().toString().toLowerCase().contains(q.toLowerCase());
     }
 
-    private void startPendingIntent(PendingIntent pendingIntent, int requestCode) {
-        try {
-            getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(), requestCode, null, 0, 0, 0);
-        } catch (final SendIntentException ignored) {
+        private void startPendingIntent(PendingIntent pendingIntent, int requestCode) {
+            try {
+                getActivity()
+                        .startIntentSenderForResult(
+                                pendingIntent.getIntentSender(), requestCode, null, 0, 0, 0, Compatibility.pgpStartIntentSenderOptions());
+            } catch (final SendIntentException ignored) {
+            }
         }
-    }
 
     @Override
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
-        // setupEmojiSearch();      //TODO: Disabled Cheogram emojisearch for now
+        setupEmojiSearch();
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {

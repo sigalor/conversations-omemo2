@@ -473,7 +473,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Votre statut est « Ne pas déranger » lorsque votre appareil est en mode silencieux.</string>
     <string name="pref_treat_vibrate_as_silent">Mode vibreur idem silencieux</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Votre statut est « Ne pas déranger » lorsque votre appareil est en mode vibreur.</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Ajouter un compte avec certificat</string>
     <string name="unable_to_parse_certificate">Impossible d’analyser le certificat</string>
     <string name="authenticate_with_certificate">Laisser vide pour s’authentifier avec un certificat</string>
@@ -1264,7 +1264,6 @@
     <string name="custom_primary_dark_color">Personnaliser la couleur primaire sombre</string>
     <string name="custom_accent_color">Personnaliser la couleur accentuée</string>
     <string name="custom_background">Personnaliser l\'arrière plan</string>
-    <string name="pref_chat_background_summary">Choose an own image file as chat background. The image file will be copied to /Documents/monocles chat/backgrounds/bg.jpg. Should a problem appear please delete the image file with a file manager.</string>
     <string name="pref_follow_thread_in_channel">Suivez automatiquement le thread dans les canaux</string>
     <string name="pref_follow_thread_in_channel_summary">Définissez le marqueur de fil pour correspondre au message séléctionné</string>
     <string name="pref_use_blue_readmarkers_title">Utiliser des marques de lecture bleus</string>

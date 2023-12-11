@@ -204,8 +204,8 @@
     <string name="openpgp_messages_found">Atopáronse mensaxes cifradas con OpenPGP</string>
     <string name="your_fingerprint">A túa impresión dixital</string>
     <string name="openpgp_key_id">ID da chave OpenPGP</string>
-    <string name="omemo_fingerprint">Impresión OMEMO</string>
-    <string name="omemo_fingerprint_x509">v\\impresión OMEMO</string>
+    <string name="omemo_fingerprint">Impresión OMEMO - </string>
+    <string name="omemo_fingerprint_x509">v\\impresión OMEMO - </string>
     <string name="omemo_fingerprint_selected_message">Impresión dixital de OMEMO (mensaxe orixinal)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\Impresión dixital de OMEMO (mensaxe orixinal)</string>
     <string name="other_devices">Outros dispositivos</string>
@@ -264,7 +264,7 @@
     <string name="without_mutual_presence_updates"><b>Aviso:</b> Enviando isto sen actualización de presenza mutua poderíacausar problemas.
 \n
 \n<small> Vai aos detalles do contacto para verificar as suscricións de presenza.</small></string>
-    <string name="pref_security_settings">Seguridade e protección de datos</string>
+    <string name="pref_security_settings">Seguridade e Privacidade</string>
     <string name="pref_allow_message_correction">Permitir a corrección de mensaxes</string>
     <string name="pref_allow_message_correction_summary">Permitir aos contactos editar as súas mensaxes de xeito retroactivo</string>
     <string name="pref_expert_options">Axustes avanzados</string>
@@ -538,7 +538,7 @@
     <string name="this_field_is_required">Este campo é requerido</string>
     <string name="correct_message">Correxir mensaxe</string>
     <string name="send_corrected_message">Enviar mensaxe correxida</string>
-    <string name="no_keys_just_confirm">Xa confías neste contacto. A seleccionar \'feito\' só estarás confirmando que %s é parte da conversa.</string>
+    <string name="no_keys_just_confirm">Xa confías na impresión dixital desta persoa. A seleccionar “Feito” só estarás confirmando que %s é parte da conversa en grupo.</string>
     <string name="contacts_have_no_pgp_keys">monocles chatnon pode cifrar as túas mensaxes porque os teus contactos non anuncian as súas claves públicas.
 \n
 \n</string>
@@ -580,7 +580,7 @@
 \n
 \no usuario %s convidouche a monocles chat. Só tes que facer clic no seguinte enlace…</string>
     <string name="pref_broadcast_last_activity">Emitir a última interacción coa usuaria</string>
-    <string name="pref_broadcast_last_activity_summary">Avisar a todo-los teus contactos cando use monocles chat</string>
+    <string name="pref_broadcast_last_activity_summary">Permitir que os contactos saiban cando usas monocles chat</string>
     <string name="request_permissions_message">monocles chatpedirache que permitas algúns permisos. É importante que permitas todos estes permisos para utilizar todas as funcións deste mensaxeiro. Se denegas algún destes permisos, a aplicación pecharase soa.</string>
     <string name="request_permissions_message_again">Denegou algúns ou todos os permisos necesarios para monocles chat. Quere ir á configuración e permitir estes permisos\? Se denega algún destes permisos, a aplicación pecharase soa.</string>
     <string name="unable_to_connect_to_keychain">Non se puido conectar con OpenKeychain</string>
@@ -621,11 +621,11 @@
     <string name="this_device_has_been_verified">Este dispositivo foi verificado</string>
     <string name="copy_fingerprint">Copiar pegada dixital</string>
     <string name="all_omemo_keys_have_been_verified">Todas as chaves OMEMO foron verificadas</string>
-    <string name="barcode_does_not_contain_fingerprints_for_this_conversation">O código de barras non contén pegadas para esta conversa.</string>
+    <string name="barcode_does_not_contain_fingerprints_for_this_conversation">Os códigos QR non conteñen impresións dixitais para esta conversa.</string>
     <string name="verified_fingerprints">Pegadas dixitais verificadas</string>
-    <string name="use_camera_icon_to_scan_barcode">Utilice a cámara para escanear o código de barras do contacto</string>
+    <string name="use_camera_icon_to_scan_barcode">Usa a cámara para escanear os códigos QR dos contactos</string>
     <string name="please_wait_for_keys_to_be_fetched">Por favor agarde mentras se obteñen as chaves</string>
-    <string name="share_as_barcode">Compartir usando un código QR</string>
+    <string name="share_as_barcode">Compartir como código QR</string>
     <string name="share_as_uri">Compartir como URI XMPP</string>
     <string name="share_as_http">Compartir como ligazón HTTP</string>
     <string name="blindly_trusted_omemo_keys">Chaves OMEMO con confianza cega</string>
@@ -1217,9 +1217,9 @@
     <string name="pref_allow_message_retraction_summary">Permitir que os teus contactos poidan eliminar retroactivamente as súas mensaxes</string>
     <string name="conference_technical_problems">Saíches desta sala por razóns técnicas</string>
     <string name="sending_x_file_x">Enviando %1$s (%2$s %)</string>
-    <string name="magic_create_text">Isto inclúe:
+    <string name="monocles_account_details">Isto inclúe:
 \n● un mes de almacenaxe temporal cifrado das conversas
-\n● correo electrónico con 1 GB de almacenaxe cifrada de extremo a extremo
+\n● correo electrónico con 2 GB de almacenaxe cifrada
 \n
 \n optativamente:
 \n● 4 GB de alamacenaxe na nube (nextcloud)
@@ -1340,7 +1340,7 @@
     <string name="choose_camera_app">Elixe a app de cámara</string>
     <string name="action_execute">Ir</string>
     <string name="notify_only_when_highlighted_or_replied">Notificar mencións e respostas</string>
-    <string name="pref_chat_background_summary">Elixe unha imaxe propia como fondo da conversa. O ficheiro da imaxe vaise copiar a /Documents/monocles chat/backgrounds/bg.jpg. Se tes problemas proba a borrar a imaxe cun xestor de ficheiros.</string>
+    <string name="pref_chat_background_summary">Elixe unha imaxe propia como fondo da conversa.</string>
     <string name="pref_dialler_integration_incoming_summary">As chamadas entrantes de números de teléfono poderían mostrarse co marcador do sistema no lugar dos axustes de notificación desta app</string>
     <string name="block_avatar">Bloquear avatar</string>
     <string name="settings_restore_message_success">Axustes restablecidos correctamente</string>
@@ -1419,4 +1419,17 @@
     <string name="pref_show_thread_feature_summary">Mostrar icona de fío no campo de entrada para permitir a creación e seguimento de fíos</string>
     <string name="edit_sytemaccount_or_xmppaccount">Editar o contacto do chat ou do teléfono\?</string>
     <string name="pref_show_less_avatars_summary">Só se mostrarán os avatares necesarios nas conversas</string>
+    <string name="account_state_logged_out">Sesión pechada</string>
+    <string name="hide_notification">Agochar notificación</string>
+    <string name="log_out">Fechar sesión</string>
+    <string name="log_in">Acceder</string>
+    <string name="unknown">Descoñecido</string>
+    <string name="contact_uses_unverified_keys">Os teus contactos están usando dispositivos sen verificar. Escanea o seu código de barras 2D para verficalos e evitar ataques MITM.</string>
+    <string name="unverified_devices">Estás usando dispositivos sen verificar. Escanea o código de barras 2D nos teus outros dispositivos para verificalos e evitar ataques MITM.</string>
+    <string name="media">Multimedia</string>
+    <string name="security">Seguridade</string>
+    <string name="key_automatically_accepted"> - chave non verificada</string>
+    <string name="retract_message_dialog_msg">Tes a certeza de querer eliminar esta mensaxe\?</string>
+    <string name="verified_with_qr_code"> - verificada con código QR</string>
+    <string name="this_account_is_logged_out">Fechouse a sesión desta conta</string>
 </resources>

@@ -44,7 +44,7 @@
                         android:layout_marginTop="@dimen/publish_avatar_top_margin"
                         android:layout_marginBottom="8dp">
 
-                        <com.makeramen.roundedimageview.RoundedImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/account_image"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                             android:maxHeight="384dp"
                             android:padding="1dp"
                             android:scaleType="centerCrop"
-                            app:riv_corner_radius="@dimen/rounded_image_border" />
+                            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
                         <!-- TODO: Add round account image too -->
 
                     </FrameLayout>

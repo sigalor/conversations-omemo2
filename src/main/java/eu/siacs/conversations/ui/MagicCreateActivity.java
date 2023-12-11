@@ -24,13 +24,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import de.monocles.chat.SignUpPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMagicCreateBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.ui.util.CustomTab;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.InstallReferrerUtils;
 import eu.siacs.conversations.xmpp.Jid;
+import me.drakeet.support.toast.ToastCompat;
 
 public class MagicCreateActivity extends XmppActivity implements TextWatcher, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
 
@@ -46,11 +49,6 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
     private String domain;
     private String username;
     private String preAuth;
-
-    private void setupHyperlink() {
-        TextView link2TextView = findViewById(R.id.instructions);
-        link2TextView.setMovementMethod(LinkMovementMethod.getInstance());
-    }
 
     @Override
     protected void refreshUiReal() {
@@ -93,7 +91,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         final List<String> domains = Arrays.asList(getResources().getStringArray(R.array.domains));
         Collections.sort(domains, String::compareToIgnoreCase);
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, domains);
-        int defaultServer = adapter.getPosition("monocles.eu");
+        int defaultServer = adapter.getPosition("conversations.im");
         if (registerFromUri && !useOwnProvider && (this.preAuth != null || domain != null)) {
             binding.server.setEnabled(false);
             binding.server.setVisibility(View.GONE);
@@ -111,7 +109,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         binding.server.setSelection(defaultServer);
         binding.server.setOnItemSelectedListener(this);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        setSupportActionBar((Toolbar) this.binding.toolbar);
+        setSupportActionBar((Toolbar) this.binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar(), this.domain == null);
         if (username != null && domain != null) {
             binding.title.setText(R.string.your_server_invitation);
@@ -192,19 +190,13 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             }
         });
         binding.username.addTextChangedListener(this);
-        setupHyperlink();
 
-        Button Button = (Button) findViewById(R.id.activity_main_link);
-        Button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://ocean.monocles.eu/apps/registration/"));
-                startActivity(intent);
-            }
+        Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
+        SignUpButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, SignUpPage.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
         });
-
     }
 
     private String updateDomain() {

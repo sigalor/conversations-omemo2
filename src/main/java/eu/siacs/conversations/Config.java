@@ -66,8 +66,8 @@ public final class Config {
     public static final Jid BUG_REPORTS = Jid.of("support@monocles.de");
     public static final Uri HELP = Uri.parse("https://monocles.wiki");
 
-    public static final String inviteUserURL = monocles() + "/?chat/";
-    public static final String inviteMUCURL = monocles() + "/j/";
+    public static final String inviteUserURL = monocles() + "/chat/";
+    public static final String inviteMUCURL = monocles() + "/chat/";
     public static final String inviteHostURL = monocles(); // without http(s)
     public static final String INVITE_DOMAIN = monocles();
     public static final String termsOfUseURL = "https://monocles.eu/legal-privacy/";
@@ -122,12 +122,12 @@ public final class Config {
 
     public static final int VIDEO_FAST_UPLOAD_SIZE = 10 * 1024 * 1024;
 
-    public static final int AVATAR_SIZE = 720;
+    public static final int AVATAR_SIZE = 480;
     public static final Bitmap.CompressFormat AVATAR_FORMAT = Bitmap.CompressFormat.JPEG;
     public static final int AVATAR_CHAR_LIMIT = 9400;
 
     public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.JPEG;
-    public static final int IMAGE_QUALITY = 65;
+    public static final int IMAGE_QUALITY = 75;
 
     public static final int MESSAGE_MERGE_WINDOW = 20;
 

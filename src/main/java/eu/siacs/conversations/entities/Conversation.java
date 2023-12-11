@@ -11,6 +11,7 @@ import android.content.Context;
 import android.annotation.SuppressLint;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
+import android.graphics.drawable.AnimatedImageDrawable;
 import android.net.Uri;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -47,6 +48,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -66,7 +68,6 @@ import de.monocles.chat.ConversationPage;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
 
-import eu.siacs.conversations.utils.Consumer;
 import eu.siacs.conversations.xmpp.forms.Field;
 
 import io.ipfs.cid.Cid;
@@ -325,9 +326,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return messagesLeftOnServer;
     }
 
-    public boolean switchToSession(final String node) {
-        return pagerAdapter.switchToSession(node);
-    }
 
     public void setHasMessagesLeftOnServer(boolean value) {
         this.messagesLeftOnServer = value;
@@ -1180,6 +1178,18 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return getContact().getOtrFingerprints().contains(getOtrFingerprint());
     }
 
+    public class Smp {
+        public static final int STATUS_NONE = 0;
+        public static final int STATUS_CONTACT_REQUESTED = 1;
+        public static final int STATUS_WE_REQUESTED = 2;
+        public static final int STATUS_FAILED = 3;
+        public static final int STATUS_VERIFIED = 4;
+
+        public String secret = null;
+        public String hint = null;
+        public int status = 0;
+    }
+
     /**
      * short for is Private and Non-anonymous
      */
@@ -1307,6 +1317,25 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
     public boolean hasDuplicateMessage(Message message) {
         return findDuplicateMessage(message) != null;
+    }
+
+    public Message findDuplicateMessage(Message message) {
+        return findDuplicateMessage(message, false);
+    }
+
+    public boolean hasDuplicateMessage(Message message, boolean withremoteid) {
+        return findDuplicateMessage(message, withremoteid) != null;
+    }
+
+    public Message findMessageWithUuidOrRemoteId(final String id) {
+        synchronized (this.messages) {
+            for (final Message message : this.messages) {
+                if (message.getRemoteMsgId() != null && message.getRemoteMsgId().equals(id) || message.getUuid().equals(id)) {
+                    return message;
+                }
+            }
+        }
+        return null;
     }
 
     public Message findSentMessageWithBody(String body) {
@@ -1671,6 +1700,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         pagerAdapter.startCommand(command, xmppConnectionService);
     }
 
+    public boolean switchToSession(final String node) {
+        return pagerAdapter.switchToSession(node);
+    }
+
     public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
         pagerAdapter.setupViewPager(pager, tabs, onboarding, oldConversation);
     }
@@ -1703,18 +1736,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         public String getMessage() {
             return message;
         }
-    }
-
-    public class Smp {
-        public static final int STATUS_NONE = 0;
-        public static final int STATUS_CONTACT_REQUESTED = 1;
-        public static final int STATUS_WE_REQUESTED = 2;
-        public static final int STATUS_FAILED = 3;
-        public static final int STATUS_VERIFIED = 4;
-
-        public String secret = null;
-        public String hint = null;
-        public int status = 0;
     }
 
     public class ConversationPagerAdapter extends PagerAdapter {
@@ -1830,8 +1851,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             };
 
             if (command.getAttribute("node").equals("jabber:iq:register") && packet.getTo().asBareJid().equals(Jid.of("cheogram.com"))) {
-
-                    task.run();
+                task.run();
             }
 
             sessions.add(session);
@@ -2110,24 +2130,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             if (mimeType == null || uriS == null) continue;
                             Uri uri = Uri.parse(uriS);
                             if (mimeType.startsWith("image/") && "https".equals(uri.getScheme())) {
-                                final Drawable d = cache.get(uri.toString());
-                                if (d == null) {
-                                    synchronized (CommandSession.this) {
-                                        waitingForRefresh = true;
-                                    }
-                                    int size = (int)(xmppConnectionService.getResources().getDisplayMetrics().density * 288);
-                                    Message dummy = new Message(Conversation.this, uri.toString(), Message.ENCRYPTION_NONE);
-                                    dummy.setFileParams(new Message.FileParams(uri.toString()));
-                                    httpManager.createNewDownloadConnection(dummy, true, (file) -> {
-                                        if (file == null) {
-                                            dummy.getTransferable().start();
-                                        } else {
-                                            try {
-                                                xmppConnectionService.getFileBackend().getThumbnail(file, xmppConnectionService.getResources(), size, false, uri.toString());
-                                            } catch (final Exception e) { }
-                                        }
-                                    });
-                                } else {
+                                final Drawable d = getDrawableForUrl(uri.toString());
+                                if (d != null) {
                                     binding.mediaImage.setImageDrawable(d);
                                     binding.mediaImage.setVisibility(View.VISIBLE);
                                 }
@@ -2464,6 +2468,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 public ButtonGridFieldViewHolder(CommandButtonGridFieldBinding binding) {
                     super(binding);
                     options = new ArrayAdapter<Option>(binding.getRoot().getContext(), R.layout.button_grid_item) {
+                        protected int height = 0;
+
                         @Override
                         public View getView(int position, View convertView, ViewGroup parent) {
                             Button v = (Button) super.getView(position, convertView, parent);
@@ -2475,14 +2481,22 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                             final SVG icon = getItem(position).getIcon();
                             if (icon != null) {
-                                v.post(() -> {
-                                    if (v.getHeight() == 0) return;
-                                    icon.setDocumentPreserveAspectRatio(com.caverock.androidsvg.PreserveAspectRatio.TOP);
-                                    Bitmap bitmap = Bitmap.createBitmap(v.getHeight(), v.getHeight(), Bitmap.Config.ARGB_8888);
-                                    Canvas bmcanvas = new Canvas(bitmap);
-                                    icon.renderToCanvas(bmcanvas);
-                                    v.setCompoundDrawablesRelativeWithIntrinsicBounds(new BitmapDrawable(bitmap), null, null, null);
-                                });
+                                final Element iconEl = getItem(position).getIconEl();
+                                if (height < 1) {
+                                    v.measure(0, 0);
+                                    height = v.getMeasuredHeight();
+                                }
+                                if (height < 1) return v;
+                                if (mediaSelector) {
+                                    final Drawable d = getDrawableForSVG(icon, iconEl, height * 4);
+                                    if (d != null) {
+                                        final int boundsHeight = 35 + (int)((height * 4) / xmppConnectionService.getResources().getDisplayMetrics().density);
+                                        d.setBounds(0, 0, d.getIntrinsicWidth(), boundsHeight);
+                                    }
+                                    v.setCompoundDrawables(null, d, null, null);
+                                } else {
+                                    v.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawableForSVG(icon, iconEl, height), null, null, null);
+                                }
                             }
 
                             return v;
@@ -2492,6 +2506,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 protected Element mValue = null;
                 protected ArrayAdapter<Option> options;
                 protected Option defaultOption = null;
+                protected boolean mediaSelector = false;
 
                 @Override
                 public void bind(Item item) {
@@ -2508,6 +2523,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     }
 
                     mValue = field.getValue();
+                    mediaSelector = field.el.findChild("media-selector", "https://ns.cheogram.com/") != null;
 
                     Element validate = field.el.findChild("validate", "http://jabber.org/protocol/xdata-validate");
                     binding.openButton.setVisibility((validate != null && validate.findChild("open", "http://jabber.org/protocol/xdata-validate") != null) ? View.VISIBLE : View.GONE);
@@ -2566,13 +2582,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                         final SVG defaultIcon = defaultOption.getIcon();
                         if (defaultIcon != null) {
-                            defaultIcon.setDocumentPreserveAspectRatio(com.caverock.androidsvg.PreserveAspectRatio.TOP);
                             DisplayMetrics display = mPager.getContext().getResources().getDisplayMetrics();
-                            Bitmap bitmap = Bitmap.createBitmap((int)(display.heightPixels*display.density/4), (int)(display.heightPixels*display.density/4), Bitmap.Config.ARGB_8888);
-                            bitmap.setDensity(display.densityDpi);
-                            Canvas bmcanvas = new Canvas(bitmap);
-                            defaultIcon.renderToCanvas(bmcanvas);
-                            binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, new BitmapDrawable(bitmap), null, null);
+                            int height = (int)(display.heightPixels*display.density/4);
+                            binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, getDrawableForSVG(defaultIcon, defaultOption.getIconEl(), height), null, null);
                         }
 
                         binding.defaultButton.setText(defaultOption.toString());
@@ -2812,10 +2824,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             }
                         } else if (fieldType.equals("list-single")) {
                             Element validate = el.findChild("validate", "http://jabber.org/protocol/xdata-validate");
-                            if (Option.forField(el).size() > 9) {
-                                viewType = TYPE_SEARCH_LIST_FIELD;
-                            } else if (fillableFieldCount == 1 && actionsAdapter.countExceptCancel() < 1) {
+                            if (fillableFieldCount == 1 && actionsAdapter.countExceptCancel() < 1) {
                                 viewType = TYPE_BUTTON_GRID_FIELD;
+                            } else if (Option.forField(el).size() > 9) {
+                                viewType = TYPE_SEARCH_LIST_FIELD;
                             } else if (el.findChild("value", "jabber:x:data") == null || (validate != null && validate.findChild("open", "http://jabber.org/protocol/xdata-validate") != null)) {
                                 viewType = TYPE_RADIO_EDIT_FIELD;
                             } else {
@@ -3534,6 +3546,39 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 }
             }
 
+            private Drawable getDrawableForSVG(SVG svg, Element svgElement, int size) {
+                if (svgElement != null && svgElement.getChildren().size() == 1 && svgElement.getChildren().get(0).getName().equals("image"))  {
+                    return getDrawableForUrl(svgElement.getChildren().get(0).getAttribute("href"));
+                } else {
+                    return xmppConnectionService.getFileBackend().drawSVG(svg, size);
+                }
+            }
+
+            private Drawable getDrawableForUrl(final String url) {
+                final LruCache<String, Drawable> cache = xmppConnectionService.getDrawableCache();
+                final HttpConnectionManager httpManager = xmppConnectionService.getHttpConnectionManager();
+                final Drawable d = cache.get(url);
+                if (Build.VERSION.SDK_INT >= 28 && d instanceof AnimatedImageDrawable) ((AnimatedImageDrawable) d).start();
+                if (d == null) {
+                    synchronized (CommandSession.this) {
+                        waitingForRefresh = true;
+                    }
+                    int size = (int)(xmppConnectionService.getResources().getDisplayMetrics().density * 288);
+                    Message dummy = new Message(Conversation.this, url, Message.ENCRYPTION_NONE);
+                    dummy.setFileParams(new Message.FileParams(url));
+                    httpManager.createNewDownloadConnection(dummy, true, (file) -> {
+                        if (file == null) {
+                            dummy.getTransferable().start();
+                        } else {
+                            try {
+                                xmppConnectionService.getFileBackend().getThumbnail(file, xmppConnectionService.getResources(), size, false, url);
+                            } catch (final Exception e) { }
+                        }
+                    });
+                }
+                return d;
+            }
+
             public View inflateUi(Context context, Consumer<ConversationPage> remover) {
                 CommandPageBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.command_page, null, false);
                 setBinding(binding);
@@ -3562,24 +3607,5 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 return null;
             }
         }
-    }
-
-    public Message findDuplicateMessage(Message message) {
-        return findDuplicateMessage(message, false);
-    }
-
-    public boolean hasDuplicateMessage(Message message, boolean withremoteid) {
-        return findDuplicateMessage(message, withremoteid) != null;
-    }
-
-    public Message findMessageWithUuidOrRemoteId(final String id) {
-        synchronized (this.messages) {
-            for (final Message message : this.messages) {
-                if (message.getRemoteMsgId() != null && message.getRemoteMsgId().equals(id) || message.getUuid().equals(id)) {
-                    return message;
-                }
-            }
-        }
-        return null;
     }
 }

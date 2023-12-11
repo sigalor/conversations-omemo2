@@ -1,5 +1,6 @@
 package eu.siacs.conversations.services;
 
+import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.persistance.FileBackend.AUDIOS;
 import static eu.siacs.conversations.persistance.FileBackend.FILES;
 import static eu.siacs.conversations.persistance.FileBackend.IMAGES;
@@ -249,6 +250,7 @@ public class XmppConnectionService extends Service {
     public static final String ACTION_FCM_MESSAGE_RECEIVED = "fcm_message_received";
     public static final String ACTION_DISMISS_CALL = "dismiss_call";
     public static final String ACTION_END_CALL = "end_call";
+    public static final String ACTION_STARTING_CALL = "starting_call";
     public static final String ACTION_PROVISION_ACCOUNT = "provision_account";
     private static final String ACTION_POST_CONNECTIVITY_CHANGE = "eu.siacs.conversations.POST_CONNECTIVITY_CHANGE";
     public static final String ACTION_RENEW_UNIFIED_PUSH_ENDPOINTS = "eu.siacs.conversations.UNIFIED_PUSH_RENEW";
@@ -550,7 +552,8 @@ public class XmppConnectionService extends Service {
             } else if (account.getStatus() != Account.State.CONNECTING && account.getStatus() != Account.State.NO_INTERNET) {
                 resetSendingToWaiting(account);
                 if (connection != null && account.getStatus().isAttemptReconnect()) {
-                    final boolean aggressive = hasJingleRtpConnection(account);
+                    final boolean aggressive = account.getStatus() == Account.State.SEE_OTHER_HOST
+                            || hasJingleRtpConnection(account);
                     final int next = connection.getTimeToNextAttempt(aggressive);
                     final boolean lowPingTimeoutMode = isInLowPingTimeoutMode(account);
                     if (next <= 0) {
@@ -560,6 +563,13 @@ public class XmppConnectionService extends Service {
                         final int attempt = connection.getAttempt() + 1;
                         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": error connecting account. try again in " + next + "s for the " + attempt + " time. lowPingTimeout=" + lowPingTimeoutMode+", aggressive="+aggressive);
                         scheduleWakeUpCall(next, account.getUuid().hashCode());
+                        if (aggressive) {
+                            internalPingExecutor.schedule(
+                                    XmppConnectionService.this::manageAccountConnectionStatesInternal,
+                                    (next * 1000L) + 50,
+                                    TimeUnit.MILLISECONDS
+                            );
+                        }
                     }
                 }
             }
@@ -769,15 +779,7 @@ public class XmppConnectionService extends Service {
     }
 
     private File stickerDir() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final String dir = p.getString("sticker_directory", "Stickers");
-        if (dir.startsWith("content://")) {
-            Uri uri = Uri.parse(dir);
-            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-            return new File(FileUtils.getPath(getBaseContext(), uri));
-        } else {
-            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir);
-        }
+        return new File(this.getFilesDir() + File.separator + "Stickers");
     }
 
     public void rescanStickers() {
@@ -785,6 +787,36 @@ public class XmppConnectionService extends Service {
         if (msToRescan > 0) return;
 
         mLastStickerRescan = SystemClock.elapsedRealtime();
+        mStickerScanExecutor.execute(() -> {
+            try {
+                for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
+                    try {
+                        if (file.isFile() && file.canRead()) {
+                            DownloadableFile df = new DownloadableFile(file.getAbsolutePath());
+                            Drawable icon = fileBackend.getThumbnail(df, getResources(), (int) (getResources().getDisplayMetrics().density * 288), false);
+                            if (Build.VERSION.SDK_INT >= 28 && icon instanceof AnimatedImageDrawable) {
+                                // Animated drawable not working in spans for me yet
+                                // https://stackoverflow.com/questions/76870075/using-animatedimagedrawable-inside-imagespan-renders-wrong-size
+                                continue;
+                            }
+                            final String filename = Files.getNameWithoutExtension(df.getName());
+                            Cid[] cids = fileBackend.calculateCids(new FileInputStream(df));
+                            for (Cid cid : cids) {
+                                saveCid(cid, file);
+                            }
+                            emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
+                        }
+                    } catch (final Exception e) {
+                        Log.w(Config.LOGTAG, "rescanStickers: " + e);
+                    }
+                }
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "rescanStickers: " + e);
+            }
+        });
+    }
+
+    public void forceRescanStickers() {
         mStickerScanExecutor.execute(() -> {
             try {
                 for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
@@ -842,7 +874,7 @@ public class XmppConnectionService extends Service {
         final boolean needsForegroundService = intent != null && intent.getBooleanExtra(EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
         if (needsForegroundService) {
             Log.d(Config.LOGTAG, "toggle forced foreground service after receiving event (action=" + action + ")");
-            toggleForegroundService(true);
+            toggleForegroundService(true, action.equals(ACTION_STARTING_CALL));
         }
         final String uuid = intent == null ? null : intent.getStringExtra("uuid");
         switch (action) {
@@ -1201,7 +1233,7 @@ public class XmppConnectionService extends Service {
                     scheduleWakeUpCall((int) Math.min(timeout, discoTimeout), account.getUuid().hashCode());
                 }
             } else {
-                final boolean aggressive = hasJingleRtpConnection(account);
+                final boolean aggressive = account.getStatus() == Account.State.SEE_OTHER_HOST || hasJingleRtpConnection(account);
                 if (account.getXmppConnection().getTimeToNextAttempt(aggressive) <= 0) {
                     reconnectAccount(account, true, interactive);
                 }
@@ -1615,9 +1647,7 @@ public class XmppConnectionService extends Service {
     public void onCreate() {
         org.jxmpp.stringprep.libidn.LibIdnXmppStringprep.setup();
         emojiSearch = new EmojiSearch(this);
-        new Thread( new Runnable() { @Override public void run() {
-            updateNotificationChannels();
-        } } ).start();
+        updateNotificationChannels();
         setTheme(ThemeHelper.find(this));
         ThemeHelper.applyCustomColors(this);
         if (Compatibility.runsTwentySix()) {
@@ -1736,7 +1766,7 @@ public class XmppConnectionService extends Service {
         toggleForegroundService();
         setupPhoneStateListener();
         internalPingExecutor.scheduleAtFixedRate(this::manageAccountConnectionStatesInternal,10,10,TimeUnit.SECONDS);
-        //rescanStickers();
+        rescanStickers();
         //start export log service every day at given time
         ScheduleAutomaticExport();
         // cancel scheduled exporter
@@ -1859,20 +1889,20 @@ public class XmppConnectionService extends Service {
     }
 
     public void toggleForegroundService() {
-        toggleForegroundService(false);
+        toggleForegroundService(false, false);
     }
 
     public void setOngoingCall(AbstractJingleConnection.Id id, Set<Media> media, final boolean reconnecting) {
         ongoingCall.set(new OngoingCall(id, media, reconnecting));
-        toggleForegroundService(false);
+        toggleForegroundService(false, true);
     }
 
     public void removeOngoingCall() {
         ongoingCall.set(null);
-        toggleForegroundService(false);
+        toggleForegroundService(false, false);
     }
 
-    private void toggleForegroundService(boolean force) {
+    private void toggleForegroundService(boolean force, boolean needMic) {
         final boolean status;
         final OngoingCall ongoing = ongoingCall.get();
         final boolean showOngoing = ongoing != null && !diallerIntegrationActive.get();
@@ -1882,12 +1912,12 @@ public class XmppConnectionService extends Service {
             if (showOngoing) {
                 notification = this.mNotificationService.getOngoingCallNotification(ongoing);
                 id = NotificationService.ONGOING_CALL_NOTIFICATION_ID;
-                startForegroundOrCatch(id, notification);
+                startForegroundOrCatch(id, notification, true);
                 mNotificationService.cancel(NotificationService.FOREGROUND_NOTIFICATION_ID);
             } else {
                 notification = this.mNotificationService.createForegroundNotification();
                 id = NotificationService.FOREGROUND_NOTIFICATION_ID;
-                startForegroundOrCatch(id, notification);
+                startForegroundOrCatch(id, notification, needMic);
             }
 
             if (!mForceForegroundService.get()) {
@@ -1907,10 +1937,10 @@ public class XmppConnectionService extends Service {
         Log.d(Config.LOGTAG, "ForegroundService: " + (status ? "on" : "off"));
     }
 
-    private void startForegroundOrCatch(final int id, final Notification notification) {
+    private void startForegroundOrCatch(final int id, final Notification notification, boolean needMic) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                final int foregroundServiceType;
+                int foregroundServiceType;
                 if (getSystemService(PowerManager.class)
                         .isIgnoringBatteryOptimizations(getPackageName())) {
                     foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED;
@@ -1924,6 +1954,12 @@ public class XmppConnectionService extends Service {
                     foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
                     Log.w(Config.LOGTAG,"falling back to special use foreground service type");
                 }
+
+                if (needMic && ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+                 }
+
                 startForeground(id, notification, foregroundServiceType);
             } else {
                 startForeground(id, notification);
@@ -3100,7 +3136,7 @@ public class XmppConnectionService extends Service {
                     callback.onAccountCreated(account);
                     if (Config.X509_VERIFICATION) {
                         try {
-                            getMemorizingTrustManager().getNonInteractive(account.getServer()).checkClientTrusted(chain, "RSA");
+                            getMemorizingTrustManager().getNonInteractive(account.getServer(), null, 0, null).checkClientTrusted(chain, "RSA");
                         } catch (CertificateException e) {
                             callback.informUser(R.string.certificate_chain_is_not_trusted);
                         }

@@ -34,7 +34,9 @@ import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -95,6 +97,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
     private XmppActivity activity;
     private float mSwipeEscapeVelocity = 0f;
     private final PendingActionHelper pendingActionHelper = new PendingActionHelper();
+    private long mLastDonationSnackbar = 0;
 
     private final ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, 0) {
         @Override
@@ -314,6 +317,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
         this.binding.list.setAdapter(this.conversationsAdapter);
         this.binding.list.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         registerForContextMenu(this.binding.list);
+        askForDonationSnackbar();
         return binding.getRoot();
     }
 
@@ -528,5 +532,23 @@ public class ConversationsOverviewFragment extends XmppFragment {
             LinearLayoutManager layoutManager = (LinearLayoutManager) binding.list.getLayoutManager();
             layoutManager.scrollToPositionWithOffset(scrollPosition.position, scrollPosition.offset);
         }
+    }
+
+    public void askForDonationSnackbar() {
+        long msToShow = (mLastDonationSnackbar + 2629746000L) - SystemClock.elapsedRealtime();
+        if (msToShow > 0) return;
+
+        mLastDonationSnackbar = SystemClock.elapsedRealtime();
+
+        Snackbar.make(binding.list, R.string.thanks, Snackbar.LENGTH_INDEFINITE).setBackgroundTint(getResources().getColor(R.color.realblack)).setTextColor(getResources().getColor(R.color.realwhite))
+                .setAction(R.string.donate, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent browserIntent = new
+                                Intent(Intent.ACTION_VIEW,
+                                Uri.parse(getString(R.string.donation_link)));
+                        startActivity(browserIntent);
+                    }
+                }).setTextMaxLines(7).setActionTextColor(getResources().getColor(R.color.accent_monocles)).show();
     }
 }

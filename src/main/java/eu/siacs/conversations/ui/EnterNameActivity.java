@@ -26,7 +26,7 @@ public class EnterNameActivity extends XmppActivity implements XmppConnectionSer
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_enter_name);
-        setSupportActionBar((Toolbar) this.binding.toolbar);
+        setSupportActionBar((Toolbar) this.binding.toolbar.getRoot());
         this.binding.next.setOnClickListener(this::next);
         this.binding.skip.setOnClickListener(this::skip);
         updateNextButton();

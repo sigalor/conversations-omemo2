@@ -46,7 +46,7 @@ public class ConferenceContactDetailsActivity extends XmppActivity {
             }
         }
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_muc_contact_details);
-        setSupportActionBar((Toolbar) binding.toolbar);
+        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar());
     }
 

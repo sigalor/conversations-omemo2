@@ -21,7 +21,7 @@
         android:visibility="gone"
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:background="?attr/colorPrimary"
         android:elevation="@dimen/toolbar_elevation"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -101,6 +101,17 @@
         android:alpha="0.88"
         android:animateLayoutChanges="true" >
 
+        <ListView
+            android:id="@+id/emoji"
+            android:layout_width="fill_parent"
+            android:layout_height="150dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/context_preview"
             android:visibility="gone"
@@ -163,8 +174,8 @@
 
                     <RelativeLayout
                         android:id="@+id/thread_identicon_layout"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_centerVertical="true"

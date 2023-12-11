@@ -107,11 +107,15 @@ public class RecordingActivity extends AppCompatActivity implements View.OnClick
     private boolean startRecording() {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        if (alternativeCodec) {
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        final int outputFormat;
+        if (alternativeCodec && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            outputFormat = MediaRecorder.OutputFormat.OGG;
+            mRecorder.setOutputFormat(outputFormat);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
+            mRecorder.setAudioEncodingBitRate(32000);
         } else {
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            outputFormat = MediaRecorder.OutputFormat.MPEG_4;
+            mRecorder.setOutputFormat(outputFormat);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             mRecorder.setAudioEncodingBitRate(96000);
             mRecorder.setAudioSamplingRate(22050);

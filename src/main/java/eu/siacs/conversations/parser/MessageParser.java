@@ -448,7 +448,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 }
                 if (id.startsWith(JingleRtpConnection.JINGLE_MESSAGE_PROCEED_ID_PREFIX)) {
                     final String sessionId = id.substring(JingleRtpConnection.JINGLE_MESSAGE_PROCEED_ID_PREFIX.length());
-                    mXmppConnectionService.getJingleConnectionManager().failProceed(account, from, sessionId);
+                    mXmppConnectionService.getJingleConnectionManager().failProceed(account, from, sessionId, extractErrorMessage(packet)); //TODO: Test it and check this changes again!
                     return true;
                 }
                 mXmppConnectionService.markMessage(account,

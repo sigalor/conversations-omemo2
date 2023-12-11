@@ -687,7 +687,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             this.mSavedInstanceInit = savedInstanceState.getBoolean("initMode", false);
         }
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_account);
-        setSupportActionBar((Toolbar) binding.toolbar);
+        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar());
         this.binding.accountJid.addTextChangedListener(this.mTextWatcher);
         this.binding.accountJid.setOnFocusChangeListener(this.mEditTextFocusListener);
@@ -772,6 +772,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
         final MenuItem showPassword = menu.findItem(R.id.action_show_password);
         final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
+        final MenuItem addAccountWithCert = menu.findItem(R.id.action_add_account_with_cert);
+        final MenuItem useSnikketServer = menu.findItem(R.id.use_snikket_server);
         final MenuItem mamPrefs = menu.findItem(R.id.action_mam_prefs);
         final MenuItem actionShare = menu.findItem(R.id.action_share);
         final MenuItem shareBarcode = menu.findItem(R.id.action_share_barcode);
@@ -780,6 +782,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         final MenuItem forgotPassword = menu.findItem(R.id.mgmt_account_password_forgotten);
         renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
 
+        if (Config.X509_VERIFICATION) {
+            addAccountWithCert.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
         if (mAccount != null && mAccount.isOnlineAndConnected()) {
             if (!mAccount.getXmppConnection().getFeatures().blocking()) {
                 showBlocklist.setVisible(false);
@@ -808,6 +813,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             showPassword.setVisible(mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)
                     && !mAccount.isOptionSet(Account.OPTION_REGISTER));
         } else {
+            useSnikketServer.setVisible(true);
+            addAccountWithCert.setVisible(true);
             showPassword.setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
@@ -1017,6 +1024,23 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 }
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 break;
+            case R.id.action_add_account_with_cert:
+                addAccountFromKey();
+                break;
+            case R.id.use_snikket_server:
+                final List<Account> accounts = xmppConnectionService.getAccounts();
+                Intent intent = new Intent(this, EditAccountActivity.class);
+                intent.putExtra(EditAccountActivity.EXTRA_FORCE_REGISTER, false);
+                intent.putExtra("snikket", true);
+                if (accounts.size() == 1) {
+                    intent.putExtra("jid", accounts.get(0).getJid().asBareJid().toString());
+                    intent.putExtra("init", true);
+                } else if (accounts.size() >= 1) {
+                    intent = new Intent(this, ManageAccountActivity.class);
+                }
+                //addInviteUri(intent);
+                startActivity(intent);
+                break;
             case R.id.mgmt_account_reconnect:
                 XmppConnection connection = mAccount.getXmppConnection();
                 if (connection != null) {
@@ -1073,6 +1097,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 builder.create().show();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addAccountFromKey() {
+        try {
+            KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
+        } catch (ActivityNotFoundException e) {
+            ToastCompat.makeText(this, R.string.device_does_not_support_certificates, ToastCompat.LENGTH_LONG).show();
+        }
     }
 
     private String getSupportSite(String domain) {
@@ -1507,6 +1539,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             } else {
                 this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
             }
+            this.binding.verificationBox.setVisibility(View.VISIBLE);
+            if (mAccount.getXmppConnection() != null && mAccount.getXmppConnection().resolverAuthenticated()) {
+                if (mAccount.getXmppConnection().daneVerified()) {
+                    this.binding.verificationMessage.setText(R.string.dnssec_dane_verified);
+                    this.binding.verificationIndicator.setImageResource(R.drawable.shield_verified);
+                } else {
+                    this.binding.verificationMessage.setText(R.string.dnssec_verified);
+                    this.binding.verificationIndicator.setImageResource(R.drawable.shield);
+                }
+            } else {
+                this.binding.verificationMessage.setText(R.string.not_dnssec_verified);
+                this.binding.verificationIndicator.setImageResource(R.drawable.shield_question);
+            }
         } else {
             final TextInputLayout errorLayout;
             if (this.mAccount.errorStatus()) {
@@ -1529,6 +1574,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             removeErrorsOnAllBut(errorLayout);
             this.binding.stats.setVisibility(View.GONE);
             this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
+            this.binding.verificationBox.setVisibility(View.GONE);
         }
     }
 
