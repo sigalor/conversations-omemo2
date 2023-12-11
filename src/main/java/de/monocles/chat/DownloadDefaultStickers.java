@@ -1,5 +1,7 @@
 package de.monocles.chat;
 
+import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -20,6 +22,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.common.io.ByteStreams;
 
+import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
@@ -58,6 +62,8 @@ public class DownloadDefaultStickers extends Service {
     private File mStickerDir;
     private OkHttpClient http = null;
     private HashSet<Uri> pendingPacks = new HashSet<Uri>();
+    public final XmppConnectionService xmppConnectionService = new XmppConnectionService();
+
 
     @Override
     public void onCreate() {
@@ -89,6 +95,7 @@ public class DownloadDefaultStickers extends Service {
         } else {
             Log.d(Config.LOGTAG, "DownloadDefaultStickers. ignoring start command because already running");
         }
+        xmppConnectionService.forceRescanStickers();
         return START_NOT_STICKY;
     }
 
@@ -99,7 +106,9 @@ public class DownloadDefaultStickers extends Service {
             file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
             file.getParentFile().mkdirs();
             OutputStream os = new FileOutputStream(file);
-            ByteStreams.copy(r.body().byteStream(), os);
+            if (r.body() != null) {
+                ByteStreams.copy(r.body().byteStream(), os);
+            }
             os.close();
         } catch (final Exception e) {
             file = null;
@@ -112,18 +121,20 @@ public class DownloadDefaultStickers extends Service {
             mDatabaseBackend.saveCid(cid, file, sticker.getString("url"));
         }
 
-        MediaScannerConnection.scanFile(
-                getBaseContext(),
-                new String[] { file.getAbsolutePath() },
-                null,
-                new MediaScannerConnection.MediaScannerConnectionClient() {
-                    @Override
-                    public void onMediaScannerConnected() {}
+        if (file != null) {
+            MediaScannerConnection.scanFile(
+                    getBaseContext(),
+                    new String[] { file.getAbsolutePath() },
+                    null,
+                    new MediaScannerConnection.MediaScannerConnectionClient() {
+                        @Override
+                        public void onMediaScannerConnected() {}
 
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {}
-                }
-        );
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {}
+                    }
+            );
+        }
 
         try {
             File copyright = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/copyright.txt");
@@ -176,15 +187,7 @@ public class DownloadDefaultStickers extends Service {
     }
 
     private File stickerDir() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final String dir = p.getString("sticker_directory", "Stickers");
-        if (dir.startsWith("content://")) {
-            Uri uri = Uri.parse(dir);
-            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-            return new File(FileUtils.getPath(getBaseContext(), uri));
-        } else {
-            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir);
-        }
+        return new File(this.getFilesDir() + File.separator + "Stickers");
     }
 
     @Override

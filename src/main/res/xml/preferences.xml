@@ -14,73 +14,115 @@
                 android:name="page"
                 android:value="userinterface" />
         </intent>
-        <ListPreference
-            android:defaultValue="@string/theme"
-            android:entries="@array/themes"
-            android:entryValues="@array/themes_values"
-            android:key="theme"
-            android:summary="@string/pref_theme_options_summary"
-            android:title="@string/pref_theme_options" />
-        <ListPreference
-            android:defaultValue="@string/theme_color"
-            android:entries="@array/themecolors"
-            android:entryValues="@array/themecolor_values"
-            android:key="theme_color"
-            android:summary="@string/pref_theme_color_options_summary"
-            android:title="@string/pref_theme_color_options" />
-            <PreferenceScreen
-                android:key="custom_theme"
-                android:title="@string/custom_theme_options"
-                android:summary="@string/pref_custom_theme_color_options_summary">
-                <Preference
-                    android:key="pref_static_field_key"
-                    android:selectable="false"
-                    android:persistent="false"
-                    android:summary="@string/you_may_sometimes_have_to"/>
+        <PreferenceCategory android:title="@string/pref_theme_options">
+            <ListPreference
+                android:defaultValue="@string/theme"
+                android:entries="@array/themes"
+                android:entryValues="@array/themes_values"
+                android:key="theme"
+                android:summary="@string/pref_theme_options_summary"
+                android:title="@string/pref_theme_options" />
+            <ListPreference
+                android:defaultValue="@string/theme_color"
+                android:entries="@array/themecolors"
+                android:entryValues="@array/themecolor_values"
+                android:key="theme_color"
+                android:summary="@string/pref_theme_color_options_summary"
+                android:title="@string/pref_theme_color_options" />
+                <PreferenceScreen
+                    android:key="custom_theme"
+                    android:title="@string/custom_theme_options"
+                    android:summary="@string/pref_custom_theme_color_options_summary">
+                    <Preference
+                        android:key="pref_static_field_key"
+                        android:selectable="false"
+                        android:persistent="false"
+                        android:summary="@string/you_may_sometimes_have_to"/>
 
-                <PreferenceCategory
-                    android:key="custom_theme_colors"
-                    android:title="@string/colors">
+                    <PreferenceCategory
+                        android:key="custom_theme_colors"
+                        android:title="@string/colors">
 
-                    <SwitchPreference
-                        android:defaultValue="false"
-                        android:key="custom_theme_dark"
-                        android:title="@string/custom_theme_is_dark" />
-                    <com.rarepebble.colorpicker.ColorPreference
-                        android:key="custom_theme_primary"
-                        android:title="@string/custom_primary_color"
-                        android:defaultValue="@color/perpy"
-                        app:colorpicker_showAlpha="false" />
-                    <com.rarepebble.colorpicker.ColorPreference
-                        android:key="custom_theme_primary_dark"
-                        android:title="@string/custom_primary_dark_color"
-                        android:defaultValue="@color/black_perpy"
-                        app:colorpicker_showAlpha="false" />
-                    <com.rarepebble.colorpicker.ColorPreference
-                        android:key="custom_theme_accent"
-                        android:title="@string/custom_accent_color"
-                        android:defaultValue="@color/black_perpy"
-                        app:colorpicker_showAlpha="false" />
-                </PreferenceCategory>
+                        <SwitchPreference
+                            android:defaultValue="false"
+                            android:key="custom_theme_dark"
+                            android:title="@string/custom_theme_is_dark" />
+                        <com.rarepebble.colorpicker.ColorPreference
+                            android:key="custom_theme_primary"
+                            android:title="@string/custom_primary_color"
+                            android:defaultValue="@color/perpy"
+                            app:colorpicker_showAlpha="false" />
+                        <com.rarepebble.colorpicker.ColorPreference
+                            android:key="custom_theme_primary_dark"
+                            android:title="@string/custom_primary_dark_color"
+                            android:defaultValue="@color/black_perpy"
+                            app:colorpicker_showAlpha="false" />
+                        <com.rarepebble.colorpicker.ColorPreference
+                            android:key="custom_theme_accent"
+                            android:title="@string/custom_accent_color"
+                            android:defaultValue="@color/black_perpy"
+                            app:colorpicker_showAlpha="false" />
+                    </PreferenceCategory>
 
-                <intent
-                    android:action="android.intent.action.VIEW"
-                    android:targetClass="eu.siacs.conversations.ui.SettingsActivity"
-                    android:targetPackage="de.monocles.chat">
-                    <extra
-                        android:name="page"
-                        android:value="custom_theme" />
-                </intent>
-            </PreferenceScreen>
-        <SwitchPreference
-            android:defaultValue="@bool/use_unicolored_chatbg"
-            android:key="unicolored_chatbg"
-            android:summary="@string/pref_use_unicolored_chatbg_summary"
-            android:title="@string/pref_use_unicolored_chatbg" />
-        <Preference
-            android:key="import_background"
-            android:summary="@string/pref_chat_background_summary"
-            android:title="@string/custom_background" />
+                    <intent
+                        android:action="android.intent.action.VIEW"
+                        android:targetClass="eu.siacs.conversations.ui.SettingsActivity"
+                        android:targetPackage="de.monocles.chat">
+                        <extra
+                            android:name="page"
+                            android:value="custom_theme" />
+                    </intent>
+                </PreferenceScreen>
+            <Preference
+                android:key="import_background"
+                android:summary="@string/pref_chat_background_summary"
+                android:title="@string/custom_background" />
+            <Preference
+                android:key="delete_background"
+                android:summary="@string/pref_delete_background_summary"
+                android:title="@string/delete_background" />
+            <SwitchPreference
+                android:defaultValue="@bool/use_unicolored_chatbg"
+                android:key="unicolored_chatbg"
+                android:summary="@string/pref_use_unicolored_chatbg_summary"
+                android:title="@string/pref_use_unicolored_chatbg" />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="@string/input_field">
+            <SwitchPreference
+                android:defaultValue="@bool/send_button_status"
+                android:key="send_button_status"
+                android:summary="@string/pref_use_send_button_to_indicate_status_summary"
+                android:title="@string/pref_use_send_button_to_indicate_status" />
+            <SwitchPreference
+                android:defaultValue="@bool/quick_share_attachment_choice"
+                android:key="quick_share_attachment_choice"
+                android:summary="@string/pref_use_quick_share_attachment_choice_summary"
+                android:title="@string/pref_quick_share_attachment_choice" />
+            <ListPreference
+                android:defaultValue="@string/quick_action"
+                android:dialogTitle="@string/choose_quick_action"
+                android:entries="@array/quick_actions"
+                android:entryValues="@array/quick_action_values"
+                android:key="quick_action"
+                android:summary="@string/pref_quick_action_summary"
+                android:title="@string/pref_quick_action" />
+            <SwitchPreference
+                android:defaultValue="@bool/show_record_voice_btn"
+                android:key="show_record_voice_btn"
+                android:summary="@string/pref_show_record_voice_btn_summary"
+                android:title="@string/pref_show_record_voice_btn" />
+            <SwitchPreference
+                android:defaultValue="@bool/show_thread_feature"
+                android:key="show_thread_feature"
+                android:summary="@string/pref_show_thread_feature_summary"
+                android:title="@string/pref_show_thread_feature" />
+            <SwitchPreference
+                android:defaultValue="@bool/showtextformatting"
+                android:key="showtextformatting"
+                android:summary="@string/pref_showtextformatting_sum"
+                android:title="@string/pref_showtextformatting" />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="@string/pref_expert_options_other">
         <SwitchPreference
             android:defaultValue="@bool/set_round_avatars"
             android:key="set_round_avatars"
@@ -109,33 +151,10 @@
             android:summary="@string/pref_use_colored_muc_names_summary"
             android:title="@string/pref_use_colored_muc_names" />
         <SwitchPreference
-            android:defaultValue="@bool/send_button_status"
-            android:key="send_button_status"
-            android:summary="@string/pref_use_send_button_to_indicate_status_summary"
-            android:title="@string/pref_use_send_button_to_indicate_status" />
-        <SwitchPreference
             android:defaultValue="@bool/presence_colored_names"
             android:key="presence_colored_names"
             android:summary="@string/pref_use_colored_names_to_indicate_status_summary"
             android:title="@string/pref_use_colored_names_to_indicate_status" />
-        <SwitchPreference
-            android:defaultValue="@bool/quick_share_attachment_choice"
-            android:key="quick_share_attachment_choice"
-            android:summary="@string/pref_use_quick_share_attachment_choice_summary"
-            android:title="@string/pref_quick_share_attachment_choice" />
-        <ListPreference
-            android:defaultValue="@string/quick_action"
-            android:dialogTitle="@string/choose_quick_action"
-            android:entries="@array/quick_actions"
-            android:entryValues="@array/quick_action_values"
-            android:key="quick_action"
-            android:summary="@string/pref_quick_action_summary"
-            android:title="@string/pref_quick_action" />
-        <SwitchPreference
-            android:defaultValue="@bool/show_record_voice_btn"
-            android:key="show_record_voice_btn"
-            android:summary="@string/pref_show_record_voice_btn_summary"
-            android:title="@string/pref_show_record_voice_btn" />
         <SwitchPreference
             android:defaultValue="@bool/use_max_brightness"
             android:key="use_max_brightness"
@@ -172,11 +191,6 @@
             android:summary="@string/pref_follow_thread_in_channel_summary"
             android:title="@string/pref_follow_thread_in_channel" />
         <SwitchPreference
-            android:defaultValue="@bool/show_thread_feature"
-            android:key="show_thread_feature"
-            android:summary="@string/pref_show_thread_feature_summary"
-            android:title="@string/pref_show_thread_feature" />
-        <SwitchPreference
             android:defaultValue="@bool/start_searching"
             android:key="start_searching"
             android:summary="@string/pref_start_search_summary"
@@ -188,11 +202,6 @@
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
             -->
-        <SwitchPreference
-            android:defaultValue="@bool/showtextformatting"
-            android:key="showtextformatting"
-            android:summary="@string/pref_showtextformatting_sum"
-            android:title="@string/pref_showtextformatting" />
         <SwitchPreference
             android:defaultValue="@bool/use_blue_readmarkers"
             android:key="use_blue_readmarkers"
@@ -210,6 +219,7 @@
             android:key="show_intro"
             android:summary="@string/pref_show_intro_summary"
             android:title="@string/pref_show_intro" />
+        </PreferenceCategory>
     </PreferenceScreen>
     <!--Notifications-->
     <PreferenceScreen
@@ -369,14 +379,14 @@
             android:key="camera_choice"
             android:summary="@string/pref_choose_camera_summary"
             android:title="@string/choose_camera_app" />
-        <!--                    TODO: Disable for now until it's really working
+        <!-- TODO: Add option to import own stickers with loading in database etc -->
         <Preference
-            android:title="@string/change_stickers_location"
-            android:key="sticker_directory" />
+            android:title="@string/import_own_stickers"
+            android:summary="@string/import_own_stickers_summary"
+            android:key="import_own_stickers" />
         <Preference
             android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />
-        -->
         <Preference
             android:title="@string/clear_blocked_media"
             android:key="clear_blocked_media" />
@@ -501,17 +511,24 @@
             android:key="show_maps_inside"
             android:summary="@string/pref_show_mappreview_inside_summary"
             android:title="@string/pref_show_mappreview_inside" />
+        <!--
         <EditTextPreference
             android:defaultValue="@string/mappreview_url"
             android:dependency="show_maps_inside"
             android:key="mappreview_host"
             android:summary="@string/pref_mappreview_host_summary"
             android:title="@string/pref_mappreview_host" />
+            -->
         <SwitchPreference
             android:defaultValue="@bool/warn_unencrypted_chat"
             android:key="warn_unencrypted_chat"
             android:summary="@string/pref_warn_unencrypted_chat_summary"
             android:title="@string/pref_warn_unencrypted_chat" />
+        <SwitchPreference
+            android:defaultValue="@bool/enforce_dane"
+            android:key="enforce_dane"
+            android:summary="@string/pref_enforce_dane_summary"
+            android:title="@string/pref_enforce_dane" />
         <ListPreference
             android:defaultValue="@string/omemo_setting_default"
             android:entries="@array/omemo_setting_entries"
@@ -547,6 +564,10 @@
                 android:key="create_backup"
                 android:summary="@string/pref_create_backup_summary"
                 android:title="@string/pref_create_backup" />
+            <Preference
+                android:key="create_compatible_backup"
+                android:summary="@string/pref_create_compatible_backup_summary"
+                android:title="@string/pref_create_compatible_backup" />
             <SwitchPreference
                 android:defaultValue="@bool/plain_text_logs"
                 android:key="export_plain_text_logs"
@@ -664,11 +685,6 @@
                 android:key="dont_trust_system_cas"
                 android:summary="@string/pref_dont_trust_system_cas_summary"
                 android:title="@string/pref_dont_trust_system_cas_title" />
-            <SwitchPreference
-                android:defaultValue="@bool/validate_hostname"
-                android:key="validate_hostname"
-                android:summary="@string/pref_validate_hostname_summary"
-                android:title="@string/pref_validate_hostname" />
             <Preference
                 android:key="remove_trusted_certificates"
                 android:summary="@string/pref_remove_trusted_certificates_summary"
@@ -723,6 +739,10 @@
                 android:title="@string/pref_enable_persistent_rooms_title" />
         </PreferenceCategory>
     </PreferenceScreen>
+    <!-- Report issue -->
+    <Preference
+        android:key="create_issue"
+        android:title="@string/create_issue" />
     <!--About-->
     <eu.siacs.conversations.ui.AboutPreference
         android:summary="@string/pref_about_conversations_summary"

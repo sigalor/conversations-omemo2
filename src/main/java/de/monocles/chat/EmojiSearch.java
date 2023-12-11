@@ -41,6 +41,7 @@ public class EmojiSearch {
     protected final Set<Emoji> emoji = new TreeSet<>();
 
     public EmojiSearch(Context context) {
+        /*      TODO: No emoji search needed since there already is an emoji keyboard
         try {
             final JSONArray data = new JSONArray(CharStreams.toString(new InputStreamReader(context.getResources().openRawResource(R.raw.emoji), "UTF-8")));
             for (int i = 0; i < data.length(); i++) {
@@ -49,6 +50,7 @@ public class EmojiSearch {
         } catch (final JSONException | IOException e) {
             throw new IllegalStateException("emoji.json invalid: " + e);
         }
+         */
     }
 
     public synchronized void addEmoji(final Emoji one) {

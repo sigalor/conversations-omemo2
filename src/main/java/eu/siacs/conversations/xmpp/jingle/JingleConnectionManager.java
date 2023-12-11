@@ -36,8 +36,8 @@ import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
 import eu.siacs.conversations.services.AbstractConnectionManager;
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnIqPacketReceived;
 import eu.siacs.conversations.xmpp.XmppConnection;
@@ -100,7 +100,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                         this.terminatedSessions.asMap().containsKey(PersistableSessionId.of(id));
                 final boolean stranger =
                         isWithStrangerAndStrangerNotificationsAreOff(account, id.with);
-                final boolean busy = isBusy();
+                final boolean busy = isBusy() != null;
                 if (busy || sessionEnded || stranger) {
                     Log.d(
                             Config.LOGTAG,
@@ -145,26 +145,26 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     }
 
     private boolean isUsingClearNet(final Account account) {
-        return !account.isOnion() && !mXmppConnectionService.useTorToConnect() && !account.isI2P() && !mXmppConnectionService.useI2PToConnect();
+        return !account.isOnion() && !mXmppConnectionService.useTorToConnect();
     }
 
-    public boolean isBusy() {
+    public String isBusy() {
         if (mXmppConnectionService.isPhoneInCall()) {
-            return true;
+            return "isPhoneInCall";
         }
         for (AbstractJingleConnection connection : this.connections.values()) {
             if (connection instanceof JingleRtpConnection) {
                 if (((JingleRtpConnection) connection).isTerminated()) {
                     continue;
                 }
-                return true;
+                return "connection !isTerminated";
             }
         }
         synchronized (this.rtpSessionProposals) {
-            return this.rtpSessionProposals.containsValue(DeviceDiscoveryState.DISCOVERED)
-                    || this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING)
-                    || this.rtpSessionProposals.containsValue(
-                    DeviceDiscoveryState.SEARCHING_ACKNOWLEDGED);
+            if (this.rtpSessionProposals.containsValue(DeviceDiscoveryState.DISCOVERED)) return "discovered";
+            if (this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING)) return "searching";
+            if (this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING_ACKNOWLEDGED)) return "searching_acknolwedged";
+            return null;
         }
     }
 
@@ -395,18 +395,20 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                         this.connections.put(id, rtpConnection);
                         rtpConnection.setProposedMedia(ImmutableSet.copyOf(media));
                         rtpConnection.deliveryMessage(from, message, serverMsgId, timestamp);
+                        // TODO actually do the automatic accept?!
                     } else {
                         Log.d(
                                 Config.LOGTAG,
                                 account.getJid().asBareJid()
                                         + ": our session won tie break. waiting for other party to accept. winningSession="
                                         + ourSessionId);
+                        // TODO reject their session with <tie-break/>?
                     }
                     return;
                 }
                 final boolean stranger =
                         isWithStrangerAndStrangerNotificationsAreOff(account, id.with);
-                if (isBusy() || stranger) {
+                if (isBusy() != null || stranger) {
                     writeLogMissedIncoming(
                             account,
                             id.with.asBareJid(),
@@ -786,19 +788,23 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                         final RtpEndUserState endUserState = preexistingState.toEndUserState();
                         toneManager.transition(endUserState, media);
                         mXmppConnectionService.notifyJingleRtpConnectionUpdate(
-                                account, with, proposal.sessionId, endUserState);
+                                account,
+                                with,
+                                proposal.sessionId,
+                                endUserState
+                        );
                         return proposal.sessionId;
                     }
                 }
             }
-            if (isBusy()) {
+            String busyCode = isBusy();
+            if (busyCode != null) {
                 String sessionId = hasMatchingRtpSession(account, with, media);
                 if (sessionId != null) {
                     Log.d(Config.LOGTAG, "ignoring request to propose jingle session because the other party already created one for us: " + sessionId);
                     return sessionId;
                 }
-                throw new IllegalStateException(
-                        "There is already a running RTP session. This should have been caught by the UI");
+                throw new IllegalStateException("There is already a running RTP session: " + busyCode);
             }
             final RtpSessionProposal proposal =
                     RtpSessionProposal.of(account, with.asBareJid(), media);
@@ -964,12 +970,12 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         }
     }
 
-    public void failProceed(Account account, final Jid with, String sessionId) {
+    public void failProceed(Account account, final Jid with, final String sessionId, final String message) {
         final AbstractJingleConnection.Id id =
                 AbstractJingleConnection.Id.of(account, with, sessionId);
         final AbstractJingleConnection existingJingleConnection = connections.get(id);
         if (existingJingleConnection instanceof JingleRtpConnection) {
-            ((JingleRtpConnection) existingJingleConnection).deliverFailedProceed();
+            ((JingleRtpConnection) existingJingleConnection).deliverFailedProceed(message);
         }
     }
 

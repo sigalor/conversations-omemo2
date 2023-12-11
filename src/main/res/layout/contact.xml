@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/list_padding">
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/contact_photo"
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -21,9 +21,9 @@
             android:layout_alignParentLeft="true"
             android:scaleType="centerCrop"
             app:strokeColor="@color/custom_theme_accent"
-            app:riv_corner_radius="30dp" />
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRound" />
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/contact_photo_square"
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -31,7 +31,7 @@
             android:layout_alignParentLeft="true"
             android:scaleType="centerCrop"
             app:strokeColor="@color/custom_theme_accent"
-            app:riv_corner_radius="5dp" />
+    app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <ImageView
             android:id="@+id/user_active_indicator"

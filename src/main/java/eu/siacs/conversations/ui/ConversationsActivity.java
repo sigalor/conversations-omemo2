@@ -317,9 +317,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             if (ExceptionHelper.checkForCrash(this)) return;
             if (offerToSetupDiallerIntegration()) return;
-            // if (offerToDownloadStickers()) return;       // TODO: Disabled Cheogram Stickers until it's more useful
+            if (offerToDownloadStickers()) return;
             openBatteryOptimizationDialogIfNeeded();
-            //xmppConnectionService.rescanStickers();
+            xmppConnectionService.rescanStickers();
 
             new showMemoryWarning(this).execute();
             showOutdatedVersionWarning();
@@ -391,11 +391,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         getPreferences().edit().putInt("default_stickers_offered", 1).apply();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Download Stickers?");
-        builder.setMessage("Would you like to download some default sticker packs?");
+        builder.setTitle(R.string.download_sticker);
+        builder.setMessage(R.string.download_sticker_summary);
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
-               // downloadStickers();       // TODO: Disabled Cheogram Stickers until it's more useful
+                downloadStickers();
             }
         });
         builder.setNegativeButton(R.string.no, (dialog, which) -> {
@@ -593,7 +593,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         startActivityForResult(intent, DIALLER_INTEGRATION);
                         break;
                     case REQUEST_DOWNLOAD_STICKERS:
-                        // downloadStickers();    // TODO: Disabled Cheogram Stickers until it's more useful
+                        downloadStickers();
                         break;
                 }
             } else {
@@ -697,7 +697,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         ConversationMenuConfigurator.reloadFeatures(this);
         OmemoSetting.load(this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
-        setSupportActionBar((Toolbar) binding.toolbar);
+        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar());
         this.getFragmentManager().addOnBackStackChangedListener(this::invalidateActionBarTitle);
         this.getFragmentManager().addOnBackStackChangedListener(this::showDialogsIfMainIsOverview);
@@ -1157,7 +1157,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     findViewById(R.id.toolbar_avatar_square).setVisibility(View.VISIBLE);
                 }
                 ActionBarUtil.setCustomActionBarOnClickListener(
-                        binding.toolbar,
+                        binding.toolbar.getRoot(),
                         (v) -> openConversationDetails(conversation)
                 );
                 return;
@@ -1171,7 +1171,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         actionBar.setDisplayShowCustomEnabled(false);
         actionBar.setTitle(app_title);
         actionBar.setDisplayHomeAsUpEnabled(false);
-        ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar);
+        ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar.getRoot());
     }
 
     private void openConversationDetails(final Conversation conversation) {

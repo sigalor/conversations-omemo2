@@ -1,1 +1,1 @@
-ist ein Open Source XMPP-Chat-Client für Android
+ist ein sicherer XMPP-Chat-Client für Android

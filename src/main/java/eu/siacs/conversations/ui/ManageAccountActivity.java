@@ -44,6 +44,7 @@ import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.ui.adapter.AccountAdapter;
 import eu.siacs.conversations.utils.MenuDoubleTabUtil;
 import eu.siacs.conversations.xmpp.Jid;
+import eu.siacs.conversations.utils.Resolver;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import me.drakeet.support.toast.ToastCompat;
 
@@ -195,12 +196,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manageaccounts, menu);
         MenuItem addAccount = menu.findItem(R.id.action_add_account);
-        MenuItem addAccountWithCertificate = menu.findItem(R.id.action_add_account_with_cert);
 
-        if (Config.X509_VERIFICATION) {
-            addAccount.setVisible(false);
-            addAccountWithCertificate.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
+
 
         return true;
     }
@@ -241,9 +238,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                     startActivity(new Intent(this, ImportBackupActivity.class));
                 }
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                break;
-            case R.id.action_add_account_with_cert:
-                addAccountFromKey();
                 break;
             case R.id.action_create_backup:
                 if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
@@ -412,6 +406,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     private void disableAccount(Account account) {
+        Resolver.clearCache();
         account.setOption(Account.OPTION_DISABLED, true);
         if (!xmppConnectionService.updateAccount(account)) {
             ToastCompat.makeText(this, R.string.unable_to_update_account, ToastCompat.LENGTH_SHORT).show();
@@ -513,15 +508,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     private void createBackup() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.pref_create_backup))
-                .setMessage(getString(R.string.create_monocles_only_backup))
-                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                    createBackup(true, true);
-                })
-                .setNegativeButton(R.string.no, (dialog, whichButton) -> {
-                    createBackup(false, false);
-                }).show();
+        createBackup(true, true);
     }
 
     private void createBackup(boolean notify, boolean withmonoclesDb) {

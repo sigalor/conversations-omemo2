@@ -52,24 +52,24 @@
                                         android:orientation="horizontal"
                                         android:layout_gravity="center_horizontal" >
 
-                                        <com.makeramen.roundedimageview.RoundedImageView
+                                        <com.google.android.material.imageview.ShapeableImageView
                                             android:id="@+id/details_contact_badge"
                                             android:layout_width="80dp"
                                             android:layout_height="80dp"
                                             android:adjustViewBounds="true"
                                             android:padding="1dp"
                                             android:scaleType="centerCrop"
-                                            app:riv_corner_radius="50dp"
+                                            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRoundBig"
                                             android:visibility="gone" />
 
-                                        <com.makeramen.roundedimageview.RoundedImageView
+                                        <com.google.android.material.imageview.ShapeableImageView
                                             android:id="@+id/details_contact_badge_square"
                                             android:layout_width="80dp"
                                             android:layout_height="80dp"
                                             android:adjustViewBounds="true"
                                             android:padding="1dp"
                                             android:scaleType="centerCrop"
-                                            app:riv_corner_radius="5dp"
+                                            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
                                             android:visibility="gone" />
 
                                     </LinearLayout>

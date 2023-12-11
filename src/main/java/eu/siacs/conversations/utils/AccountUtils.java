@@ -3,6 +3,10 @@ package eu.siacs.conversations.utils;
 import android.app.Activity;
 import android.content.Intent;
 
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
+
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,19 +43,21 @@ public class AccountUtils {
         } catch (final IllegalArgumentException e) {
             return account.getUuid();
         }
-        final UUID publicDeviceId = getUuid(uuid.getLeastSignificantBits(), uuid.getLeastSignificantBits());
-        return publicDeviceId.toString();
-    }
-
-    protected static UUID getUuid(final long msb, final long lsb) {
-        final long msb0 = (msb & 0xffffffffffff0fffL) | 4; // set version
-        final long lsb0 = (lsb & 0x3fffffffffffffffL) | 0x8000000000000000L; // set variant
-        return new UUID(msb0, lsb0);
+        final byte[] bytes =
+                Bytes.concat(
+                        Longs.toByteArray(uuid.getLeastSignificantBits()),
+                        Longs.toByteArray(uuid.getLeastSignificantBits()));
+        bytes[6] &= 0x0f; /* clear version        */
+        bytes[6] |= 0x40; /* set to version 4     */
+        bytes[8] &= 0x3f; /* clear variant        */
+        bytes[8] |= 0x80; /* set to IETF variant  */
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return new UUID(byteBuffer.getLong(), byteBuffer.getLong()).toString();
     }
 
     public static List<String> getEnabledAccounts(final XmppConnectionService service) {
-        ArrayList<String> accounts = new ArrayList<>();
-        for (Account account : service.getAccounts()) {
+        final ArrayList<String> accounts = new ArrayList<>();
+        for (final Account account : service.getAccounts()) {
             if (account.isEnabled()) {
                 if (Config.DOMAIN_LOCK != null) {
                     accounts.add(account.getJid().getEscapedLocal());

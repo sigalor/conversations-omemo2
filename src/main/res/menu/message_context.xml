@@ -41,11 +41,6 @@
         android:title="@string/delete_message"
         android:visible="false" />
     <item
-        android:id="@+id/message_reaction"
-        android:title="@string/message_reaction"
-        android:visible="true"
-        app:actionLayout="@layout/emoji_search_row"/>
-    <item
         android:id="@+id/moderate_message"
         android:title="@string/moderate_message"
         android:visible="false" />

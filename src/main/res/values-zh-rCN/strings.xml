@@ -130,7 +130,7 @@
     <string name="error_compressing_image">转换图片文件时出错</string>
     <string name="error_file_not_found">文件未找到</string>
     <string name="error_io_exception">常规 I/O 错误。也许您的存储空间已用完？</string>
-    <string name="error_security_exception_during_image_copy">您用来选择此图片的应用程序没有为我们提供足够的权限来读取文件。
+    <string name="error_security_exception_during_image_copy">您用来选择此图片的应用没有为我们提供足够的权限来读取文件。
 \n
 \n<small>请使用不同的文件管理器来选择图片</small></string>
     <string name="account_status_unknown">未知</string>
@@ -192,8 +192,8 @@
     <string name="openpgp_messages_found">发现 OpenPGP 加密的消息</string>
     <string name="your_fingerprint">您的指纹</string>
     <string name="openpgp_key_id">OpenPGP 密钥 ID</string>
-    <string name="omemo_fingerprint">OMEMO 指纹</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO 指纹</string>
+    <string name="omemo_fingerprint">OMEMO 指纹 - </string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO 指纹 - </string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO 指纹 (消息来源)</string>
     <string name="other_devices">其他设备</string>
     <string name="trust_omemo_fingerprints">信任 OMEMO 指纹</string>
@@ -251,7 +251,7 @@
     <string name="without_mutual_presence_updates"><b>警告：</b>在双方没有更新在线状态的情况下发送此消息将会出现未知问题。
 \n
 \n<small>请前往联系人详情以验证您的在线状态订阅。</small></string>
-    <string name="pref_security_settings">安全和数据保护</string>
+    <string name="pref_security_settings">安全和隐私</string>
     <string name="pref_allow_message_correction">允许消息更正</string>
     <string name="pref_allow_message_correction_summary">允许您的联系人发送后编辑其消息</string>
     <string name="pref_expert_options">专家设置</string>
@@ -342,7 +342,7 @@
     <string name="password_changed">密码已更改！</string>
     <string name="could_not_change_password">无法更改密码</string>
     <string name="ask_question">提问</string>
-    <string name="smp_explain_question">如果您和您的联系人有一个共同的秘密，没有其他人知道(比如一个笑话或者上次见面时吃的午餐)，您可以用这个秘密来验证对方的指纹。
+    <string name="smp_explain_question">如果您和您的联系人有共同的秘密，没有别人知道（比如一个笑话或者上次见面时吃的午餐），您可以用这个秘密验证对方指纹。
 \n
 \n您为联系人提供提示或问题，您的联系人将给出区分大小写的答案。</string>
     <string name="smp_explain_answer">您的联系人希望通过共享秘密来验证您的指纹。您的联系人提供了以下有关此秘密的提示或问题。</string>
@@ -390,7 +390,7 @@
     <string name="video">视频</string>
     <string name="image">图片</string>
     <string name="pdf_document">PDF 文档</string>
-    <string name="apk">Android 应用程序</string>
+    <string name="apk">Android 应用</string>
     <string name="vcard">联系人</string>
     <string name="avatar_has_been_published">头像已发布！</string>
     <string name="sending_x_file">正在发送 %s</string>
@@ -518,7 +518,7 @@
     <string name="this_field_is_required">此字段是必需的</string>
     <string name="correct_message">更正消息</string>
     <string name="send_corrected_message">发送更正后的消息</string>
-    <string name="no_keys_just_confirm">您已经信任此联系人了。通过选择“完成”，您只是在确认 %s 是此房间的一部分。</string>
+    <string name="no_keys_just_confirm">您已信任此人的指纹。 选择“完成”即表示您确认 %s 是此房间的一员。</string>
     <string name="contacts_have_no_pgp_keys">monocles chat 无法加密您的消息，由于您的联系人未公布其公钥。
 \n
 \n</string>
@@ -526,7 +526,7 @@
     <string name="no_application_to_share_uri">未找到可以分享 URI 的应用程序</string>
     <string name="share_uri_with">分享 URI 至…</string>
     <string name="mgmt_account_reconnect">重新连接</string>
-    <string name="welcome_text">尊重隐私和安全的聊天客户端</string>
+    <string name="welcome_text">monocles chat 是一款尊重隐私和安全的聊天客户端。</string>
     <string name="your_full_jid_will_be">您的聊天地址将是：%s</string>
     <string name="create_account">创建新账号</string>
     <string name="welcome_existing_account">我已有账号</string>
@@ -546,7 +546,7 @@
     <string name="location_sharing_disabled">在设置中已禁用位置共享</string>
     <string name="locating">正在定位…</string>
     <string name="action_end_conversation_muc">离开房间</string>
-    <string name="leave_conference_warning">您确定要离开此房间吗？再次加入房间之前，您不会收到新消息通知。</string>
+    <string name="leave_conference_warning">是否确定要离开此房间？再次加入房间之前，您不会收到新消息通知。</string>
     <string name="show_password">显示密码</string>
     <string name="registration_please_wait">注册失败：稍后再试</string>
     <string name="registration_password_too_weak">注册失败：密码太弱</string>
@@ -561,8 +561,8 @@
 \n用户 %s 邀请您到 monocles。只需单击以下链接…</string>
     <string name="pref_broadcast_last_activity">广播最后一次用户互动</string>
     <string name="pref_broadcast_last_activity_summary">让您的所有联系人知道您最后使用 monocles chat 的时间</string>
-    <string name="request_permissions_message">monocles chat 会要求您允许一些权限。请务必允许这些全部权限，以便使用此信使的所有功能。如果您拒绝任何权限，应用程序将自动关闭。</string>
-    <string name="request_permissions_message_again">您已经拒绝了 monocles chat 所需的部分或全部权限。您想跳转到设置以允许这些权限吗？如果您拒绝这些权限，应用程序将自行关闭。</string>
+    <string name="request_permissions_message">monocles chat 会要求您允许一些权限。请务必允许这些全部权限，以便使用此应用的所有功能。如果您拒绝任何权限，应用将自动关闭。</string>
+    <string name="request_permissions_message_again">您已经拒绝了 monocles chat 所需的部分或全部权限。您想跳转到设置以允许这些权限吗？如果您拒绝这些权限，应用将自行关闭。</string>
     <string name="unable_to_connect_to_keychain">无法连接到 OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">此设备已不再使用</string>
     <string name="please_wait">请稍候…</string>
@@ -614,7 +614,7 @@
     <string name="invalid_barcode">无效的二维码</string>
     <string name="verify_with_qr_code">用二维码验证</string>
     <string name="i_followed_this_link_from_a_trusted_source">我从可信来源收到此链接</string>
-    <string name="verifying_omemo_keys_trusted_source">单击链接后，您即将验证 %1$s 的 OMEMO 密钥。只有当您从可信来源(只有 %2$s 可以发布此链接)收到此链接时，这才是安全的。</string>
+    <string name="verifying_omemo_keys_trusted_source">单击链接后，您将验证 %1$s 的 OMEMO 密钥。只有当您从可信来源（只有 %2$s 可以发布此链接）收到此链接才是安全的。</string>
     <string name="verify_omemo_keys">验证 OMEMO 指纹</string>
     <string name="show_inactive_devices">显示非活动设备</string>
     <string name="hide_inactive_devices">隐藏非活动设备</string>
@@ -686,7 +686,7 @@
 \n请确保双方都有在线状态订阅。</string>
     <string name="mark_as_read">标记为已读</string>
     <string name="server_info_partial">部分的</string>
-    <string name="pref_show_foreground_service_summary">一些 Android 设备会在一段时间后关闭一些应用程序，您将无法接收到新的消息。如果您遇到此类问题，请尝试激活前台服务。但请记住，选中此选项后，您将获得永久通知。</string>
+    <string name="pref_show_foreground_service_summary">一些 Android 设备会在一段时间后关闭一些应用，您将无法接收到新的消息。如果您遇到此类问题，请尝试激活前台服务。但请记住，选中此选项后，您将获得永久通知。</string>
     <string name="pref_show_foreground_service">使用前台服务</string>
     <string name="update_service">monocles chat 升级服务</string>
     <string name="install_update">安装更新吗？</string>
@@ -710,8 +710,8 @@
     <string name="no_write_access_in_public_muc">您没有参与此房间，所以现在没有写入权限。
 \n请按下 <b>确定</b>，进入房间详情，通过长按列表顶部/前面的成员名称之一，向主持人、管理员或所有者发送私信，以请求写入权限。</string>
     <string name="snooze">稍后提醒</string>
-    <string name="huawei_protected_apps">受保护的应用程序</string>
-    <string name="huawei_protected_apps_summary">为了继续接收通知，即使在屏幕关闭的情况下也是如此，您需要将 monocles chat 加入受保护的应用程序列表。</string>
+    <string name="huawei_protected_apps">受保护的应用</string>
+    <string name="huawei_protected_apps_summary">为了在屏幕关闭时也能收到消息提醒，您需要将 monocles chat 加入受保护的应用列表。</string>
     <string name="pref_enable_multi_accounts_title">启用多个账号</string>
     <string name="pref_enable_multi_accounts_summary">您想使用多个账号吗？</string>
     <string name="mtm_accept_cert">接受未知证书吗？</string>
@@ -801,13 +801,13 @@
     <string name="notification_group_messages">消息</string>
     <string name="messages_channel_name">消息</string>
     <string name="silent_messages_channel_name">静音消息</string>
-    <string name="silent_messages_channel_description">此通知类别用于显示不应触发任何声音的通知。例如，在另一台设备上处于活动状态时(静默期)。</string>
+    <string name="silent_messages_channel_description">此通知类别用于显示不应触发任何声音的通知。例如，在另一台设备上处于活动状态时（静默期）。</string>
     <string name="pref_more_notification_settings">通知设置</string>
     <string name="delivery_failed_channel_name">传递失败</string>
     <string name="pref_more_notification_settings_summary">重要性、声音、振动</string>
     <string name="video_compression_channel_name">视频压缩</string>
     <string name="backup_channel_name">备份 &amp; 恢复</string>
-    <string name="app_update_channel_name">应用程序更新</string>
+    <string name="app_update_channel_name">应用更新</string>
     <string name="action_group_details">房间详情</string>
     <string name="view_media">查看媒体</string>
     <string name="media_browser">媒体浏览器</string>
@@ -869,7 +869,7 @@
     <string name="xmpp_address">XMPP 地址</string>
     <string name="please_enter_name">请提供房间名称</string>
     <string name="please_enter_xmpp_address">请提供 XMPP 地址</string>
-    <string name="this_is_an_xmpp_address">这是一个 XMPP 地址。请提供一个名称。</string>
+    <string name="this_is_an_xmpp_address">这是 XMPP 地址。请提供名称。</string>
     <string name="creating_channel">正在创建公开房间…</string>
     <string name="channel_already_exists">此房间已存在</string>
     <string name="joined_an_existing_channel">您已加入现有房间</string>
@@ -912,7 +912,7 @@
     <string name="set_settings_intro">在这里，您可以根据需要设置一些重要的隐私设置。所有的设置也可以在之后修改。</string>
     <string name="pref_show_mappreview_inside_summary">直接在聊天视图中显示地图预览，将建立与 monocles 服务器的连接。</string>
     <string name="pref_show_mappreview_inside">在聊天中显示位置预览</string>
-    <string name="pref_use_internal_updater_summary">让此信使每天查找一次新的应用程序更新</string>
+    <string name="pref_use_internal_updater_summary">让此应用每天查找一次新的应用更新</string>
     <string name="pref_use_internal_updater">查找更新</string>
     <string name="attach">附加</string>
     <string name="delete_from_server">从服务器删除</string>
@@ -920,7 +920,7 @@
     <string name="discover_channels">发现房间</string>
     <string name="search_channels">搜索房间</string>
     <string name="channel_discovery_opt_in_title">隐私声明</string>
-    <string name="channel_discover_opt_in_message">房间发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。请参阅他们的 &lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt; 以获取更多信息。</string>
+    <string name="channel_discover_opt_in_message">房间发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。请参阅其 &lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt; 以获取更多信息。</string>
     <string name="action_add_existing_account">添加已有账号</string>
     <string name="use_own_provider">使用自己的提供者</string>
     <string name="this_looks_like_a_domain">这似乎是域名地址</string>
@@ -969,7 +969,7 @@
     <string name="pref_show_intro">再次显示介绍</string>
     <string name="show_intro_again">介绍屏幕将再次显示</string>
     <string name="show_intro_again_failed">重置介绍屏幕失败。 再试一次…</string>
-    <string name="intro_desc_whats_xmpp">XMPP，也称为 Jabber，是一个分散的通信网络，其工作原理类似于电子邮件。您需要一个聊天地址（也称为Jabber-ID）、一个密码和一个信使。稍后会详细介绍。</string>
+    <string name="intro_desc_whats_xmpp">XMPP，也称为 Jabber，是一个分散的通信网络，其工作原理类似于电子邮件。您需要一个聊天地址（也称为Jabber-ID）、一个密码和一个通讯软件。稍后会详细介绍。</string>
     <string name="intro_whats_xmpp">什么是 XMPP/Jabber/monocles chat？</string>
     <string name="intro_desc_optional_permissions">读取通讯录的权限用于从您的联系人中读取聊天地址（如果有）。联系人的内容不会被分享、上传或复制。</string>
     <string name="intro_desc_account2">您可以在 monocles chat 上创建一个新的账号，只需要输入一个昵称。</string>
@@ -979,7 +979,7 @@
 \n要分享语音消息，需要访问您的麦克风。</string>
     <string name="intro_desc_account3">您可以选择导入现有账号。
 \n如果有可用的备份文件，将显示它们。</string>
-    <string name="intro_desc_start_chatting2">您还可以添加、创建或加入多用户聊天室，即所谓的房间。它们分为私人房间和公开房间。</string>
+    <string name="intro_desc_start_chatting2">您还可以添加、创建或加入多用户聊天，即所谓的房间。它们分为私人房间和公开房间。</string>
     <string name="intro_desc_start_chatting3">祝贺！
 \n我们开始吧，用得开心…</string>
     <string name="intro_privacy">您的隐私
@@ -1008,7 +1008,7 @@
     <string name="magic_create_text_on_x">您已受邀加入 %1$s。我们将指导您完成创建账号的过程。
 \n当选择 %1$s 作为提供者时，通过向其他提供者的用户提供您的完整 XMPP 地址，您将能够与他们进行交流。</string>
     <string name="account_status_regis_invalid_token">注册令牌无效</string>
-    <string name="magic_create_text_fixed">您已受邀加入 %1$s。已为您选择了一个用户名。我们将指导您完成创建账号的过程。
+    <string name="magic_create_text_fixed">您已受邀加入 %1$s。已为您选择了用户名。我们将指导您完成创建账号的过程。
 \n通过向其他提供者的用户提供您的完整 XMPP 地址，您将能够与他们进行交流。</string>
     <string name="your_server_invitation">您的服务器邀请函</string>
     <string name="pref_use_unicolored_chatbg_summary">在聊天中使用单色背景。</string>
@@ -1082,7 +1082,7 @@
     <string name="webview_not_available">您的设备上无法使用 Webview。</string>
     <string name="pref_easy_downloader_summary">自动下载公开房间和陌生人发来的所有附件，而不是显示手动下载按钮。</string>
     <string name="pref_easy_downloader">自动下载所有附件</string>
-    <string name="got_invitation_from">您已被 %s 邀请到聊天室 %s。</string>
+    <string name="got_invitation_from">您已被 %s 邀请加入聊天室 %s。</string>
     <string name="a_user">1 位用户</string>
     <string name="pref_memory_management_summary">显示媒体目录的储存使用情况</string>
     <string name="title_memory_management">储存管理</string>
@@ -1093,7 +1093,7 @@
     <string name="files_usage">文件的储存使用</string>
     <string name="audios_usage">音频的储存使用</string>
     <string name="delete_files_dialog">删除附件</string>
-    <string name="delete_files_dialog_msg">您确定要删除所有 %s 吗？</string>
+    <string name="delete_files_dialog_msg">是否确定要删除所有 %s？</string>
     <string name="audios">音频</string>
     <string name="images">图片</string>
     <string name="videos">视频</string>
@@ -1108,14 +1108,14 @@
     <string name="pref_remove_all_individual_summary">移除联系人和房间的所有单独通知。</string>
     <string name="pref_remove_all_individual_notifications_title">移除所有单独通知</string>
     <string name="remove_individual_notifications">移除单独通知</string>
-    <string name="remove_individual_notifications_message">您确定要移除 %s 的单个通知设置吗？</string>
-    <string name="remove_all_individual_notifications_message">您确定要移除为您的联系人和房间设置的所有单独通知吗？</string>
+    <string name="remove_individual_notifications_message">是否确定要移除 %s 的单个通知设置？</string>
+    <string name="remove_all_individual_notifications_message">是否确定要移除为您的联系人和房间设置的所有单独通知？</string>
     <string name="exit">退出</string>
     <string name="record_voice_mail">录制语音消息</string>
     <string name="pref_up_push_server_summary">用户选择的推送服务器，通过 XMPP 将推送消息转送至您的设备。</string>
     <string name="moderate_message">审核</string>
     <string name="or_use_another">… 或在下面选择另一个</string>
-    <string name="pref_use_inner_storage_summary">其他应用程序将无法从内部存储空间读取媒体</string>
+    <string name="pref_use_inner_storage_summary">其他应用将无法从内部存储空间读取媒体</string>
     <string name="pref_use_indicate_received_summary">如果支持，接收到的消息将被打勾</string>
     <string name="block_media">屏蔽媒体文件</string>
     <string name="no_xmpp_adddress_found">未找到 XMPP 地址</string>
@@ -1126,15 +1126,15 @@
     <string name="pref_invidious_host">Invidious 主机</string>
     <string name="pref_invidious_host_summary">使用自定义 invidious 主机</string>
     <string name="import_backup_description">自 Android 11 以来，我们无法列出存储上的文件。您可以尝试导航到备份路径，通常在 Documents/monocles chat/Database 中。</string>
-    <string name="error_security_exception">您用来分享此文件的应用程序没有提供足够的权限。</string>
+    <string name="error_security_exception">您用来分享此文件的应用没有提供足够的权限。</string>
     <string name="help_format_text">您可以使用简单的样式选项来格式化文本。识别格式的开始和结束的键就在单词或单词组的开始和结束处。开始键前必须有一个空格，结束键后必须有一个空格，否则将无法识别格式。
 \n
 \n您可以在书写时直接使用这些工具，按下一个工具就会在光标位置插入一个键。或者，您可以标记一个单词或单词组，然后按下格式化按钮。</string>
     <string name="toast_message_otr_fingerprint">OTR 指纹已复制到剪贴板！</string>
     <string name="pref_theme_White">白色</string>
     <string name="copy_otr_clipboard_description">将 OTR 指纹复制到剪贴板</string>
-    <string name="pref_enable_persistent_rooms_summary">让房间和公开频道持久存在，当最后一个用户离开聊天后不要从服务器上删除它们。</string>
-    <string name="pref_follow_thread_in_channel">在频道中自动跟踪线程</string>
+    <string name="pref_enable_persistent_rooms_summary">让房间持久存在，当最后一位用户离开聊天后不要从服务器上删除它们。</string>
+    <string name="pref_follow_thread_in_channel">在房间中自动跟踪线程</string>
     <string name="user">用户</string>
     <string name="pref_allow_message_retraction">允许消息撤回</string>
     <string name="otr_warning">对 OTR 加密的支持正处于 beta 阶段。单击阅读更多以获取更多信息。将在浏览器中打开链接。</string>
@@ -1149,19 +1149,19 @@
     <string name="easy_invite_share_text">加入 %1$s 和我聊天：%2$s</string>
     <string name="updated_to_monocles">我们已成功将 Monocles Messenger 更新为 monocles chat
 \n
-\nmonocles chat 和 Monocles Messenger 两个项目的合作于 2020 年 11 月扩大。今后，安卓应用程序 Monocles Messenger 将以 monocles chat 的名称继续使用。
+\nmonocles chat 和 Monocles Messenger 两个项目的合作于 2020 年 11 月扩大。今后，安卓应用 Monocles Messenger 将以 monocles chat 的名称继续使用。
 \n
 \n您可以期待什么：
 \n- 功能范围保持不变
 \n- 支持聊天室已合并
 \n- 颜色和徽标都与 monocles 相适应
-\n- 此应用程序仍可在 F-Droid Store 免费下载
+\n- 此应用仍可在 F-Droid Store 免费下载
 \n
 \n您的 monocles 团队</string>
     <string name="pref_showtextformatting_sum">显示键盘的同时在聊天中显示文本格式工具栏</string>
     <string name="pref_allow_message_retraction_summary">允许您的联系人发送后撤回其消息</string>
     <string name="link">链接</string>
-    <string name="memory_warning">您的信使正在使用 %1$s (%2$s) 内部存储空间。
+    <string name="memory_warning">您的应用正在使用 %1$s (%2$s) 内部存储空间。
 \n
 \n您可以启用自动附件删除或手动删除存储的媒体。</string>
     <string name="show_keyboard">显示键盘</string>
@@ -1188,11 +1188,11 @@
     <string name="reject_switch_to_video">拒绝视频切换请求</string>
     <string name="sending_x_file_x">正在发送 %1$s (%2$s %)</string>
     <string name="pref_import_database_or_settings_summary">导入您的数据库或设置文件的备份</string>
-    <string name="no_manage_storage_permission">从 Android 11 开始，应用程序需要特殊权限才能访问外部存储空间上的所有文件类型。</string>
+    <string name="no_manage_storage_permission">从 Android 11 开始，应用需要特殊权限才能访问外部存储空间上的所有文件类型。</string>
     <string name="new_contact">新联系人</string>
-    <string name="magic_create_text">其中包括：
+    <string name="monocles_account_details">其中包括：
 \n● 一个月的加密临时聊天存储空间
-\n● 带有 1 GB 端到端加密存储空间的电子邮件
+\n● 带有 2 GB 端到端加密存储空间的电子邮件
 \n
 \n 可选：
 \n● 4 GB 云存储空间 (Nextcloud)
@@ -1204,9 +1204,9 @@
     <string name="gif">GIF</string>
     <string name="pref_confirm_delete_attachment">跳过从聊天中删除文件的确认</string>
     <string name="pref_import_database_or_settings">导入数据库或设置</string>
-    <string name="pref_resend_delay_summary">重发延迟(毫秒)，延迟重发的时间。</string>
+    <string name="pref_resend_delay_summary">重发延迟（毫秒），延迟重发的时间。</string>
     <string name="title_activity_about_x">关于 %s</string>
-    <string name="close_format_text">您确定要关闭文本格式工具栏吗？您可以在设置中再次启用工具栏。</string>
+    <string name="close_format_text">是否确定要关闭文本格式工具栏？您可以在设置中再次启用工具栏。</string>
     <string name="show_more">"
 \n
 \n… 显示更多"</string>
@@ -1238,9 +1238,9 @@
     <string name="related_chats">相关的聊天</string>
     <string name="new_contact_or_group">新的联系人或房间</string>
     <string name="receiving_x_file">正在接收 %1$s (%2$d%% 已完成)</string>
-    <string name="pref_import_settings">导入应用程序设置</string>
+    <string name="pref_import_settings">导入应用设置</string>
     <string name="are_you_sure_verify_fingerprint">您确定要验证您的联系人 OTR 指纹吗？</string>
-    <string name="verifying_omemo_keys_trusted_source_account">您即将验证您自己账号的 OMEMO 密钥。只有当您从一个可信来源(只有您可以发布此链接)收到此链接时，这才是安全的。</string>
+    <string name="verifying_omemo_keys_trusted_source_account">您将验证您自己账号的 OMEMO 密钥。只有当您从可信来源（只有您可以发布此链接）收到此链接才是安全的。</string>
     <string name="custom_primary_color">自定义主色调</string>
     <string name="account_status_incompatible_client">不兼容的客户端</string>
     <string name="no_account_deactivated">无 (已停用)</string>
@@ -1260,7 +1260,7 @@
     <string name="audio_video_disabled_tor">使用 Tor 时通话被禁用</string>
     <string name="one_participant">1 位参与者</string>
     <string name="custom_primary_dark_color">自定义深色主色调</string>
-    <string name="memory_warning_force">您的信使正在使用 %1$s (%2$s) 内部存储空间。
+    <string name="memory_warning_force">您的应用正在使用 %1$s (%2$s) 内部存储空间。
 \n
 \n您应该启用自动附件删除或手动删除存储的媒体。您的设备将耗尽内部存储空间！</string>
     <string name="outgoing_call_duration_timestamp">去电 (%s) · %s</string>
@@ -1287,8 +1287,8 @@
     <string name="action_execute">去</string>
     <string name="server_does_not_support_easy_onboarding_invites">服务器不支持生成邀请</string>
     <string name="notify_only_when_highlighted_or_replied">通知提及和回复</string>
-    <string name="pref_chat_background_summary">选择一个自己的图片文件作为聊天背景。图片文件将复制到 /Documents/monocles chat/backgrounds/bg.jpg。如果出现问题，请使用文件管理器删除图片文件。</string>
-    <string name="pref_dialler_integration_incoming_summary">来自电话号码的来电可能会通过系统拨号器响铃，而不是通过本应用程序的通知设置</string>
+    <string name="pref_chat_background_summary">选择一个自己的图片文件作为聊天背景。</string>
+    <string name="pref_dialler_integration_incoming_summary">来自电话号码的来电可能会通过系统拨号器响铃，而不是通过本应用的通知设置</string>
     <string name="block_avatar">屏蔽头像</string>
     <plurals name="n_missed_calls">
         <item quantity="other">%d 个未接来电</item>
@@ -1307,7 +1307,7 @@
     <string name="please_be_patient">请耐心点…</string>
     <string name="microphone_permission_for_call">需要麦克风权限才能完成通话</string>
     <string name="pref_up_push_server_title">推送服务器</string>
-    <string name="you_may_sometimes_have_to">有时您可能需要强制退出应用程序才能应用更改。</string>
+    <string name="you_may_sometimes_have_to">有时您可能需要强制退出应用才能进行更改。</string>
     <string name="pref_use_inner_storage">使用内部存储空间存储媒体</string>
     <string name="delete_avatar">删除自己的头像</string>
     <string name="custom_theme_options">自定义主题选项</string>
@@ -1339,7 +1339,7 @@
         <item quantity="other">一些消息无法传递</item>
     </plurals>
     <string name="rtp_state_content_add">添加额外轨道吗？</string>
-    <string name="title_undo_swipe_out_channel">撤销移除频道</string>
+    <string name="title_undo_swipe_out_channel">撤销移除房间</string>
     <string name="not_encrypted">未加密</string>
     <string name="title_undo_swipe_out_conversation">撤销移除聊天</string>
     <string name="pref_up_push_account_summary">接收推送消息的账号。</string>
@@ -1353,11 +1353,11 @@
     <string name="note_to_self">给自己的提示</string>
     <string name="show_edit_log">消息历史记录</string>
     <string name="improperly_formatted_provisioning">配置代码格式不当</string>
-    <string name="openkeychain_required_long">%1$s 使用名为 <b>OpenKeychain</b> 的第三方应用程序来加密和解密消息，并管理您的公钥。
+    <string name="openkeychain_required_long">%1$s 使用名为 <b>OpenKeychain</b> 的第三方应用来加密和解密消息，并管理您的公钥。
 \n
 \nOpenKeychain 采用 GPLv3 许可，可在 F-Droid 和 Google Play 上下载。
 \n
-\n<small>(请之后重新启动 %1$s。)</small></string>
+\n<small>（请之后重启 %1$s。）</small></string>
     <string name="pref_set_round_avatars">圆形头像</string>
     <string name="strikethrough">删除线</string>
     <string name="chat_background">聊天背景</string>
@@ -1373,8 +1373,8 @@
     <string name="italic">倾斜</string>
     <string name="receiving_file_x">正在接收 %1$s (%2$s %)</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="delete_recording_dialog_message">您确定要取消并删除您的录制吗？</string>
-    <string name="pref_import_settings_summary">从 monocles chat 备份目录中的 settings.dat 文件导入应用程序设置。</string>
+    <string name="delete_recording_dialog_message">是否确定要取消并删除您的录制？</string>
+    <string name="pref_import_settings_summary">从 monocles chat 备份目录中的 settings.dat 文件导入应用设置。</string>
     <string name="search_all_conversations">所有对话</string>
     <string name="pref_choose_camera_summary">选择自定义相机应用</string>
     <string name="error_import_settings">在导入设置时出错。</string>
@@ -1391,12 +1391,12 @@
     <string name="invite_to_app">邀请至 monocles chat</string>
     <string name="pref_allowmergemessages_sum">尝试合并来自同一 jid 的消息</string>
     <string name="unknown_otr_fingerprint">未知的 OTR 指纹</string>
-    <string name="create_monocles_only_backup">导出额外的 monocles chat-only 的数据吗(备份将不会导入到其他应用程序)？</string>
+    <string name="create_monocles_only_backup">导出额外的 monocles chat-only 的数据吗（备份将不会导入到其他应用）？</string>
     <string name="save_as_contact_bookmark">保存为联系人/书签</string>
     <string name="account_color">账号颜色</string>
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="pref_set_text_collapsable">折叠长文本</string>
-    <string name="notifications_disabled">通知已禁用。请在您的 android 设置中激活它们。</string>
+    <string name="notifications_disabled">通知已禁用。请在您的 Android 设置中激活它们。</string>
     <string name="no_media_permission">没有媒体存储权限</string>
     <string name="edit_sytemaccount">电话联系人</string>
     <string name="edit_chat_contact">聊天联系人</string>
@@ -1409,4 +1409,17 @@
     <string name="pref_show_thread_feature_summary">在输入字段中显示线程图标，并允许创建和跟踪线程</string>
     <string name="edit_sytemaccount_or_xmppaccount">编辑聊天联系人或电话联系人？</string>
     <string name="pref_show_less_avatars_summary">对话中只有必要的头像才会显示</string>
+    <string name="this_account_is_logged_out">您已登出此账号</string>
+    <string name="log_in">登入</string>
+    <string name="hide_notification">隐藏通知</string>
+    <string name="key_automatically_accepted"> - 密钥未验证</string>
+    <string name="verified_with_qr_code"> - 用二维码验证</string>
+    <string name="contact_uses_unverified_keys">您的联系人使用未经验证的设备。扫描其二维码进行验证并阻止主动式中间人攻击。</string>
+    <string name="unknown">未知</string>
+    <string name="log_out">登出</string>
+    <string name="retract_message_dialog_msg">是否确定要撤回此消息？</string>
+    <string name="account_state_logged_out">已登出</string>
+    <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证并阻止主动式中间人攻击。</string>
+    <string name="media">媒体</string>
+    <string name="security">安全</string>
 </resources>

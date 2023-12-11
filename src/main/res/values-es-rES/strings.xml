@@ -208,8 +208,8 @@
     <string name="openpgp_messages_found">Encontrado mensaje cifrado con OpenPGP</string>
     <string name="your_fingerprint">Tu huella digital</string>
     <string name="openpgp_key_id">ID de clave de OpenPGP</string>
-    <string name="omemo_fingerprint">Huella digital OMEMO&#160;-&#160;</string>
-    <string name="omemo_fingerprint_x509">Huella digital v\\OMEMO&#160;-&#160;</string>
+    <string name="omemo_fingerprint">Huella digital OMEMO - </string>
+    <string name="omemo_fingerprint_x509">Huella digital v\\OMEMO - </string>
     <string name="omemo_fingerprint_selected_message">Huella OMEMO (origen del mensaje)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\Huella OMEMO (mensaje original)</string>
     <string name="other_devices">Otros dispositivos</string>
@@ -511,7 +511,11 @@
     <string name="load_more_messages">Cargar más mensajes</string>
     <string name="no_storage_permission">monocles chat necesita acceso al almacenamiento externo</string>
     <string name="sync_with_contacts">Sincronizar contactos</string>
-    <string name="sync_with_contacts_long">monocles chat quiere cruzar tu lista de contactos de XMPP con tus contactos del móvil para mostrar sus nombres completos y sus fotos de perfil.\n\nmonocles chat solo leerá tus contactos y los cruzará localmente sin subirlos a tu servidor.\n\nEl sistema te preguntará ahora para conceder los permisos de acceso a tus contactos del móvil.</string>
+    <string name="sync_with_contacts_long">monocles chat quiere hacer coincidir tu lista de contactos XMPP con tus contactos del teléfono para mostrar sus nombres completos y avatares.
+\n
+\nmonocles chat solo leerá tus contactos y los cruzará localmente sin subirlos a tu servidor.
+\n
+\nEl sistema te preguntará ahora para conceder los permisos de acceso a tus contactos del móvil.</string>
     <string name="notify_on_all_messages">Notificar para todos los mensajes</string>
     <string name="notify_only_when_highlighted">Notificar solo cuando eres mencionado</string>
     <string name="notify_never">Notificaciones deshabilitadas</string>
@@ -547,9 +551,9 @@
     <string name="share_uri_with">Compartir URI con…</string>
     <string name="mgmt_account_reconnect">Reconectar</string>
     <string name="welcome_text">... es una aplicación XMPP/Jabber gratuita y segura.</string>
-    <string name="magic_create_text">Esto incluye:
+    <string name="monocles_account_details">Esto incluye:
 \n● dos meses de almacenamiento cifrado de chat
-\n● correo con 1 GB de almacenamiento cifrado extremo-a-extremo
+\n● correo con 2 GB de almacenamiento cifrado
 \n
 \n opcionalmente:
 \n● 4 GB de almacenamiento en nube (nextcloud)
@@ -1412,33 +1416,38 @@
     <string name="message_reaction">Enviar reacción</string>
     <string name="chat_background">Fondo en chats</string>
     <string name="custom_background">Fondo personalizado</string>
-    <string name="pref_chat_background_summary">Elegir una imagen como fondo de chat. El fichero de imagen será copiado en /Documents/monocles chat/pictures/bg.jpg. Si aparece algún problema, elimina el fichero de imagen con un administrador de archivos.</string>
+    <string name="pref_chat_background_summary">Elegir una imagen como fondo de chat.</string>
     <string name="pref_set_round_avatars_summary">Dale a los avatares de los usuarios una forma circular</string>
     <string name="pref_custom_theme_color_options_summary">Elige tus propios colores</string>
     <string name="pref_set_round_avatars">Avatares circulares</string>
     <string name="choose_emoji">Elige un emoticono</string>
     <string name="show_keyboard">Mostrar teclado</string>
-    <string name="pref_show_thread_feature_summary">Mostrar el icono del hilo en el campo de entrada y permitir crear y seguir hilos</string> 
-    <string name="pref_show_thread_feature">Mostrar icono del hilo</string> 
+    <string name="pref_show_thread_feature_summary">Mostrar el icono del hilo en el campo de entrada y permitir crear y seguir hilos</string>
+    <string name="pref_show_thread_feature">Mostrar icono del hilo</string>
     <string name="app_title" formatted="true">monocles chat</string>
-    <string name="edit_sytemaccount_or_xmppaccount">¿Editar contacto de chat o contacto de teléfono?</string> 
-    <string name="edit_sytemaccount">Contacto de teléfono</string> 
+    <string name="edit_sytemaccount_or_xmppaccount">¿Editar contacto de chat o contacto de teléfono?</string>
+    <string name="edit_sytemaccount">Contacto de teléfono</string>
     <string name="edit_chat_contact">contacto de chat</string>
-    <string name="enter_user_name">Entrar un nombre</string> 
-    <string name="account_color">Color de la cuenta</string> 
-    <string name="account_color_summary">Usado en conversaciones y listas de contactos, y notificaciones</string> 
-    <string name="notifications_enabled">Notificaciones habilitadas</string> 
-    <string name="notifications_disabled">Notificaciones deshabilitadas. Habilitarlas en los ajuste de android.</string> 
-    <string name="pref_show_less_avatars">Mostrar menos avatares en los chats</string> 
-    <string name="pref_show_less_avatars_summary">Solo se mostrarán los avatares necesarios en las conversaciones</string> 
-    <string name="no_media_permission">Sin permiso de almacenamiento de medios</string> 
-    <string name="pref_set_text_collapsable">Colapsar texto largo</string> 
-    <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 240 signos</string> 
+    <string name="enter_user_name">Entrar un nombre</string>
+    <string name="account_color">Color de la cuenta</string>
+    <string name="account_color_summary">Usado en conversaciones y listas de contactos, y notificaciones</string>
+    <string name="notifications_enabled">Notificaciones habilitadas</string>
+    <string name="notifications_disabled">Notificaciones deshabilitadas. Habilitarlas en los ajuste de android.</string>
+    <string name="pref_show_less_avatars">Mostrar menos avatares en los chats</string>
+    <string name="pref_show_less_avatars_summary">Solo se mostrarán los avatares necesarios en las conversaciones</string>
+    <string name="no_media_permission">Sin permiso de almacenamiento de medios</string>
+    <string name="pref_set_text_collapsable">Colapsar texto largo</string>
+    <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 230 signos</string>
     <string name="unknown">Desconocido</string>
     <string name="contact_uses_unverified_keys">Tus contactos usan dispositivos no verificados. Escanea sus códigos de barras 2D para realizar la verificación e impedir ataques MITM.</string>
     <string name="unverified_devices">Estás usando dispositivos no verificados. Escanea el código de barras 2D en tus otros dispositivos para realizar la verificación e impedir ataques MITM.</string>
     <string name="media">Medio</string>
     <string name="security">Seguridad</string>
-    <string name="verified_with_qr_code">&#160;- verificado con código QR</string>
-    <string name="key_automatically_accepted">&#160;- clave no verificada</string>
+    <string name="verified_with_qr_code"> - verificado con código QR</string>
+    <string name="key_automatically_accepted"> - clave no verificada</string>
+    <string name="this_account_is_logged_out">Ha cerrado la sesión de esta cuenta</string>
+    <string name="log_in">Iniciar sesión</string>
+    <string name="hide_notification">Ocultar la notificación</string>
+    <string name="log_out">Cerrar la sesión</string>
+    <string name="account_state_logged_out">Desconectado</string>
 </resources>

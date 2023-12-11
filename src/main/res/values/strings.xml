@@ -453,7 +453,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Marks your resource as \"Do not disturb\" when device is in silent mode</string>
     <string name="pref_treat_vibrate_as_silent">Treat vibrate as silent mode</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Marks your resource as \"Do not disturb\" when device is on vibrate</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Add account with certificate</string>
     <string name="unable_to_parse_certificate">Unable to parse certificate</string>
     <string name="authenticate_with_certificate">Leave empty to authenticate w/ certificate</string>
@@ -520,8 +520,8 @@
     <string name="share_uri_with">Share URI with…</string>
     <string name="mgmt_account_reconnect">Reconnect</string>
     <string name="welcome_text">…is a privacy respecting and secure chat client.</string>
-    <string name="magic_create_text">This includes:\n● one month encrypted temporary chat storage\n● e-mail with 1 GB end-to-end encrypted storage\n\n optionally: \n● 4 GB cloud storage (nextcloud)\n● calendar and contact sync\n● a secure conferencing tool \n and more on <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
-    <string name="your_full_jid_will_be">Your chat adress will be: %s</string>
+    <string name="monocles_account_details">This includes:\n● encrypted chat storage\n● e-mail with 2 GB encrypted storage\n\n optionally: \n● 4 GB cloud storage (nextcloud)\n● calendar and contact sync\n● a secure conferencing tool \n and more on <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="your_full_jid_will_be">Your chat address will be: %s</string>
     <string name="create_account">Create new account</string>
     <string name="welcome_existing_account">I have an account</string>
     <string name="pick_your_username">Choose your username</string>
@@ -561,6 +561,7 @@
     <string name="pref_export_plain_text_logs_summary">Enable an export of chat logs as human readable text files</string>
     <string name="pref_export_plain_text_logs">Export human readable chat logs</string>
     <string name="payment_required">Payment required</string>
+    <string name="reconnect_on_other_host">Reconnect on other host</string>
     <string name="missing_internet_permission">Missing internet permission</string>
     <string name="me">Me</string>
     <string name="contact_asks_for_presence_subscription">Contact asks for presence subscription</string>
@@ -959,6 +960,7 @@
     <string name="pref_vibrate_in_chat">Vibrate in open chat</string>
     <string name="open_backup">Open backup</string>
     <string name="not_a_backup_file">The file you selected is not a monocles chat backup file</string>
+    <string name="outdated_backup_file_format">You are trying to import an outdated backup file format</string>
     <string name="account_already_setup">This account has already been setup</string>
     <string name="please_enter_password">Please enter the password for this account</string>
     <string name="unable_to_perform_this_action">Unable to perform this action</string>
@@ -971,7 +973,7 @@
     <string name="pref_use_invidious_summary">Invidious is a privacy friendly alternative to YouTube</string>
     <string name="pref_use_inner_storage_summary">Other App won\'t be able to read the media from inner storage</string>
     <string name="this_device">This device</string>
-    <string name="intro_desc_main">Learn more…</string>
+    <string name="intro_desc_main">monocles chat is not just another messenger… monocles chat uses an official IETF standard. You can switch apps at any time and still stay in touch with your friends. \nHere you are the one who takes the center stage and makes the decision.</string>
     <string name="welcome_header">Welcome to\nmonocles chat</string>
     <string name="intro_required_permissions">Required permissions</string>
     <string name="intro_desc_required_permissions">At the end of the intro you will be asked to grant storage permissions (mandatory), if you have not already given them. Addition permissions are requested as needed and are optional.</string>
@@ -989,7 +991,7 @@
     <string name="pref_show_intro">Show intro again</string>
     <string name="show_intro_again">Intro screens will be shown again</string>
     <string name="show_intro_again_failed">Resetting intro screens failed. Try again…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, also called jabber, is a decentralized communication network and works like e-mail. You need a chat address (also called Jabber-ID), a password and a messenger. More about this later.</string>
+    <string name="intro_desc_whats_xmpp">XMPP is the Internet standard for instant messaging. As with e-mail, you have an address that you use for messaging. More on this later.</string>
     <string name="intro_whats_xmpp">What is XMPP / Jabber / monocles chat?</string>
     <string name="intro_desc_optional_permissions">Permissions to read your address book are required to read chat addresses (if any) from your contacts. Contacts are never shared, uploaded or copied.</string>
     <string name="intro_desc_account2">You can create a new account on monocles chat just by entering a nickname.</string>
@@ -1000,7 +1002,7 @@
     <string name="intro_desc_start_chatting2">You can also add, create or join multi user chats - so-called rooms. They where distinguished  between private rooms and public rooms - so called rooms.</string>
     <string name="intro_desc_start_chatting3">Congratulations!\nHere we go and have fun…</string>
     <string name="intro_privacy">Your privacy\nYour sovereignty</string>
-    <string name="intro_desc_privacy">monocles will neither sell nor analyze your data and you decide which permissions you grant.</string>
+    <string name="intro_desc_privacy">We at monocles will not sell or analyze your data and you decide which permissions you grant.</string>
     <string name="no_results">No results</string>
     <string name="file_transmission_cancelled">file transmission cancelled</string>
     <string name="sharing_application_not_grant_permission">The sharing application did not grant permission to access this file.</string>
@@ -1266,7 +1268,7 @@
     <string name="retract_message_dialog_msg">Do you really want to retract this message?</string>
     <string name="reply_to">Reply to</string>
     <string name="or_use_another">... or choose another one below</string>
-    <string name="monocles_account_introduction">You can use monocles chat with every modern XMPP account or <b>get an affordable and secure monocles account, powered with regenerative energies!</b></string>
+    <string name="monocles_account_introduction">Sign up now and <b>get an secure monocles account, powered with regenerative energies</b> to directly start chatting.</string>
     <string name="receiving_x_file">Receiving %1$s (%2$d%% completed)</string>
     <string name="refresh_feature_discovery">Refresh Feature Discovery</string>
     <string name="microphone_permission_for_call">Microphone permission required to complete call</string>
@@ -1326,7 +1328,7 @@
     <string name="chat_background">Chats background</string>
     <string name="message_reaction">Send reaction</string>
     <string name="custom_background">Custom background</string>
-    <string name="pref_chat_background_summary">Choose an own image file as chat background. The image file will be copied to /Documents/monocles chat/backgrounds/bg.jpg. Should a problem appear please delete the image file with a file manager.</string>
+    <string name="pref_chat_background_summary">Choose an own image file as chat background.</string>
     <string name="pref_custom_theme_color_options_summary">Set your own theme colours</string>
     <string name="pref_set_round_avatars_summary">Shape the user avatars round</string>
     <string name="pref_set_round_avatars">Round avatars</string>
@@ -1347,7 +1349,7 @@
     <string name="pref_show_less_avatars_summary">Only necessary avatars in conversations will be shown</string>
     <string name="no_media_permission">No media storage permission</string>
     <string name="pref_set_text_collapsable">Collapse long text</string>
-    <string name="pref_set_text_collapsable_summary">Collapses text with more than 240 signs</string>
+    <string name="pref_set_text_collapsable_summary">Collapses text with more than 230 signs</string>
     <string name="hide_notification">Hide notification</string>
     <string name="log_out">Log out</string>
     <string name="log_in">Log in</string>
@@ -1358,4 +1360,34 @@
     <string name="security">Security</string>
     <string name="verified_with_qr_code">&#160;- verified with QR-code</string>
     <string name="key_automatically_accepted">&#160;- key not verified</string>
+    <string name="not_dnssec_verified">Not DNSSEC verified</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
+    <string name="dnssec_verified">DNSSEC verified</string>
+    <string name="manage_phone_accounts">Manage phone accounts</string>
+    <string name="create_background_failed">Failed to create background</string>
+    <string name="custom_background_set">Custom background set</string>
+    <string name="delete_background_failed">Couldn\'t remove background image</string>
+    <string name="delete_background_success">Background image removed</string>
+    <string name="delete_background">Remove chat background</string>
+    <string name="pref_delete_background_summary">Remove your custom background image from the chat</string>
+    <string name="no_background_set">No custom background set</string>
+    <string name="input_field">Input field</string>
+    <string name="import_own_stickers">Import stickers</string>
+    <string name="import_own_stickers_summary">Import your own stickers. Use them with the original filename.</string>
+    <string name="thanks">Thanks for using monocles chat! Please consider supporting the development with a little donation.</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">Donate</string>
+    <string name="pref_enforce_dane_summary">Only connect an account when successfully verified DANE</string>
+    <string name="pref_enforce_dane">Enforce DANE</string>
+    <string name="dane_failed">DANE failed</string>
+    <string name="magic_create_text">We will guide you through the process of creating an account with a random password, which you can use or change to your own password on the next page. \\nThen you will be able to communicate with users of this and other providers by giving them your full XMPP-address.</string>
+    <string name="use_monocles">I prefer monocles</string>
+    <string name="describe_issue">Please describe your issue in detail. Thanks.</string>
+    <string name="sticker_saved">Sticker saved</string>
+    <string name="sticker_imported">Sticker imported</string>
+    <string name="import_sticker_failed">Failed to import sticker</string>
+    <string name="download_sticker">Download stickers?</string>
+    <string name="download_sticker_summary">Would you like to download some default sticker packs?</string>
+    <string name="pref_create_compatible_backup">Create universal backup</string>
+    <string name="pref_create_compatible_backup_summary">Write universal backup files to %s</string>
 </resources>

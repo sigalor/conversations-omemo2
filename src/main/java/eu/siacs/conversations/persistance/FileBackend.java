@@ -48,6 +48,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
+
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
@@ -1429,7 +1432,12 @@ public class FileBackend {
                 return new Pair(getPepAvatar(bitmap, Bitmap.CompressFormat.PNG, 100), false);
             }
         } catch (Exception e) {
-            return null;
+            try {
+                final SVG svg = SVG.getFromInputStream(mXmppConnectionService.getContentResolver().openInputStream(uri));
+                return new Pair(getPepAvatar(uri, (int) svg.getDocumentWidth(), (int) svg.getDocumentHeight(), "image/svg+xml"), true);
+            } catch (Exception e2) {
+                return null;
+            }
         }
     }
 
@@ -1658,7 +1666,7 @@ public class FileBackend {
                     decoder.setCrop(new Rect(left, top, left + newSize, top + newSize));
                 });
             } catch (final IOException e) {
-                return null;
+                return getSVGSquare(image, size);
             }
         } else {
             Bitmap bitmap = cropCenterSquare(image, size);
@@ -1869,6 +1877,9 @@ public class FileBackend {
                         dimensions = getVideoDimensions(file);
                     } else if (pdf) {
                         dimensions = getPDFDimensions(file);
+                    } else if ("image/svg+xml".equals(mime)) {
+                        SVG svg = SVG.getFromInputStream(new FileInputStream(file));
+                        dimensions = new Dimensions((int) svg.getDocumentHeight(), (int) svg.getDocumentWidth());
                     } else {
                         dimensions = getImageDimensions(file);
                     }
@@ -1879,7 +1890,7 @@ public class FileBackend {
                             fileParams.runtime = getMediaRuntime(file, isGif);
                         }
                     }
-                } catch (Exception notAVideoFile) {
+                } catch (final IOException | SVGParseException | NotAVideoFile notAVideoFile) {
                     Log.d(Config.LOGTAG, "file with mime type " + file.getMimeType() + " was not a video file, trying to handle it as audio file");
                     try {
                         fileParams.runtime = getMediaRuntime(file, false);
@@ -2277,11 +2288,68 @@ public class FileBackend {
                     decoder.setCrop(new Rect(left, top, left + newSize, top + newSize));
                 });
             } catch (final IOException e) {
-                return null;
+                return getSVGSquare(getAvatarUri(avatar), size);
             }
         } else {
             Bitmap bm = cropCenter(getAvatarUri(avatar), size, size);
             return bm == null ? null : new BitmapDrawable(bm);
+        }
+    }
+
+    public Drawable getSVGSquare(Uri uri, int size) {
+        try {
+            SVG svg = SVG.getFromInputStream(mXmppConnectionService.getContentResolver().openInputStream(uri));
+            svg.setDocumentPreserveAspectRatio(com.caverock.androidsvg.PreserveAspectRatio.FULLSCREEN);
+            svg.setDocumentWidth("100%");
+            svg.setDocumentHeight("100%");
+
+            float w = svg.getDocumentWidth();
+            float h = svg.getDocumentHeight();
+            float scale = Math.max((float) size / h, (float) size / w);
+            float outWidth = scale * w;
+            float outHeight = scale * h;
+            float left = (size - outWidth) / 2;
+            float top = (size - outHeight) / 2;
+            RectF target = new RectF(left, top, left + outWidth, top + outHeight);
+
+            Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+            svg.renderToCanvas(canvas, target);
+
+            return new SVGDrawable(output);
+        } catch (final IOException | SVGParseException e) {
+            return null;
+        }
+    }
+
+    public Drawable getSVG(File file, int size) {
+        try {
+            SVG svg = SVG.getFromInputStream(new FileInputStream(file));
+            return drawSVG(svg, size);
+        } catch (final IOException | SVGParseException | IllegalArgumentException e) {
+            Log.w(Config.LOGTAG, "Could not parse SVG: " + e);
+            return null;
+        }
+    }
+
+    public Drawable drawSVG(SVG svg, int size) {
+        try {
+            svg.setDocumentPreserveAspectRatio(com.caverock.androidsvg.PreserveAspectRatio.LETTERBOX);
+
+            float w = svg.getDocumentWidth();
+            float h = svg.getDocumentHeight();
+            Rect r = rectForSize(w < 1 ? size : (int) w, h < 1 ? size : (int) h, size);
+            svg.setDocumentWidth("100%");
+            svg.setDocumentHeight("100%");
+
+            Bitmap output = Bitmap.createBitmap(r.width(), r.height(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+            svg.renderToCanvas(canvas);
+
+            return new SVGDrawable(output);
+        } catch (final SVGParseException e) {
+            Log.w(Config.LOGTAG, "Could not parse SVG: " + e);
+            return null;
         }
     }
 
@@ -2613,7 +2681,9 @@ public class FileBackend {
                     return thumbnail;
                 }
                 final String mime = file.getMimeType();
-                if ("application/pdf".equals(mime)) {
+                if ("image/svg+xml".equals(mime)) {
+                    thumbnail = getSVG(file, size);
+                } else if ("application/pdf".equals(mime)) {
                     thumbnail = new BitmapDrawable(res, getPDFPreview(file, size));
                 } else if (mime.startsWith("video/")) {
                     thumbnail = new BitmapDrawable(res, getVideoPreview(file, size));
@@ -2771,5 +2841,9 @@ public class FileBackend {
             h = Math.max((int) (in.height / ((double) in.width / target)), 1);
         }
         return new Dimensions(h, w);
+    }
+
+    public static class SVGDrawable extends BitmapDrawable {
+        public SVGDrawable(Bitmap bm) { super(bm); }
     }
 }

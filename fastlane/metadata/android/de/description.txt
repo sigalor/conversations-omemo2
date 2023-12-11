@@ -1,4 +1,4 @@
-﻿monocles chat ist ein Fork der Anwendung blabber.im und der offiziellen Android-App <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a> mit
+﻿monocles chat ist ein moderner und sicherer chat client, welcher das XMPP Protokoll nutzt und viele Funktionen bietet. Basierend auf der Anwendung blabber.im und der offiziellen Android-App <a href="https://f-droid.org/packages/eu.siacs.conversations/">Conversations</a> mit
 vielen Änderungen, insbesondere zur Verbesserung der Sicherheit, also auch der Benutzerfreundlichkeit,
 um den Umstieg von oftmals vorinstallierten Messengern zu erleichtern.
 

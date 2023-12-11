@@ -12,6 +12,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -69,6 +70,9 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
         for (final String iceOption : IceOption.of(media)) {
             iceUdpTransportInfo.addChild(new IceOption(iceOption));
         }
+        for (final String candidate : media.attributes.get("candidate")) {
+            iceUdpTransportInfo.addChild(Candidate.fromSdpAttributeValue(candidate, ufrag));
+        }
         return iceUdpTransportInfo;
     }
 
@@ -95,7 +99,7 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
 
     public List<String> getIceOptions() {
         final ImmutableList.Builder<String> optionBuilder = new ImmutableList.Builder<>();
-        for (final Element child : this.children) {
+        for (final Element child : getChildren()) {
             if (Namespace.JINGLE_TRANSPORT_ICE_OPTION.equals(child.getNamespace())
                     && IceOption.WELL_KNOWN.contains(child.getName())) {
                 optionBuilder.add(child.getName());
@@ -113,7 +117,7 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
     public boolean isStub() {
         return Strings.isNullOrEmpty(this.getAttribute("ufrag"))
                 && Strings.isNullOrEmpty(this.getAttribute("pwd"))
-                && this.children.isEmpty();
+                && getChildren().isEmpty();
     }
 
     public List<Candidate> getCandidates() {
@@ -148,6 +152,16 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
         }
         for (final String iceOption : this.getIceOptions()) {
             transportInfo.addChild(new IceOption(iceOption));
+        }
+        return transportInfo;
+    }
+
+    public IceUdpTransportInfo withCandidates(ImmutableCollection<Candidate> candidates) {
+        final IceUdpTransportInfo transportInfo = new IceUdpTransportInfo();
+        transportInfo.setAttributes(new Hashtable<>(getAttributes()));
+        transportInfo.setChildren(this.getChildren());
+        for(final Candidate candidate : candidates) {
+            transportInfo.addChild(candidate);
         }
         return transportInfo;
     }
