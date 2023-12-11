@@ -26,4 +26,4 @@ Features:
 * Status Nachrichten
 * tägliches Backup der Datenbank auf den lokalen Speicher
 
-Benötigst du Hilfe? Bitte tritt doch einfach dem Support Gruppenchat <a href="xmpp:support@conference.monocles.de">support@conference.monocles.de</a> bei.
+Benötigst du Hilfe? Bitte tritt doch einfach dem Support Gruppenchat <a href="xmpp:support@conference.monocles.eu">support@conference.monocles.eu</a> bei.
