@@ -1173,7 +1173,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
                 for (Bookmark bookmark : account.getBookmarks()) {
                     if (bookmark.match(this, needle)) {
-                        if (bookmark.getJid().toString().equals("support@conference.monocles.de")) {
+                        if (bookmark.getJid().toString().equals("support@conference.monocles.eu")) {
                             foundSupport = true;
                         }
                         this.contacts.add(bookmark);
@@ -1228,7 +1228,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         if (!supportDeleted && !foundSupport && (needle == null || needle.equals("")) && xmppConnectionService.getAccounts().size() > 0) {
             Bookmark bookmark = new Bookmark(
                     xmppConnectionService.getAccounts().get(0),
-                    Jid.of("support@conference.monocles.de")
+                    Jid.of("support@conference.monocles.eu")
             );
             bookmark.setBookmarkName("monocles support room");
             bookmark.addChild("group").setContent("support");

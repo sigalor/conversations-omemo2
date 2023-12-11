@@ -2505,7 +2505,7 @@ public class XmppConnectionService extends Service {
     }
 
     public void deleteBookmark(final Account account, final Bookmark bookmark) {
-        if (bookmark.getJid().toString().equals("support@conference.monocles.de")) {
+        if (bookmark.getJid().toString().equals("support@conference.monocles.eu")) {
             getPreferences().edit().putBoolean("monocles_support_bookmark_deleted", true).apply();
         }
                         /*              //TODO: Add bridges as contacts
@@ -5456,7 +5456,7 @@ public class XmppConnectionService extends Service {
         if (Config.MAGIC_CREATE_DOMAIN != null) {
             hosts.add(Config.MAGIC_CREATE_DOMAIN);
         }
-        hosts.add("monocles.de");
+        hosts.add("monocles.eu");
         return hosts;
     }
 

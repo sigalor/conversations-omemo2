@@ -18,14 +18,14 @@
     <bug-database rdf:resource="https://codeberg.org/Arne/monocles_chat/issues"/>
     <!-- See https://github.com/ewilderj/doap/issues/53 -->
     <developer-forum rdf:resource="xmpp:development@conference.monocles.de?join"/>
-    <support-forum rdf:resource="xmpp:support@conference.monocles.de?join"/>
+    <support-forum rdf:resource="xmpp:support@conference.monocles.eu?join"/>
 
     <license rdf:resource="https://codeberg.org/Arne/monocles_chat/src/branch/master/LICENSE"/>
 
     <!-- See https://github.com/ewilderj/doap/issues/49 -->
     <language>en</language>
 
-    <schema:logo rdf:resource="https://monocles.de/more/assets/images/monocleslogo_chat-signet.svg"/>
+    <schema:logo rdf:resource="https://monocles.eu/more/assets/images/monocleslogo_chat-signet.svg"/>
     <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/00.png'/>
     <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/01.png'/>
     <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/02.png'/>
@@ -46,7 +46,7 @@
     <maintainer>
         <foaf:Person>
             <foaf:name>Arne-Brün Vogelsang</foaf:name>
-            <foaf:homepage rdf:resource="https://monocles.de/impressum/"/>
+            <foaf:homepage rdf:resource="https://monocles.eu/legacy-privacy/"/>
         </foaf:Person>
     </maintainer>
 
