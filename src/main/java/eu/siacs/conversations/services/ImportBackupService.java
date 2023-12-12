@@ -88,6 +88,7 @@ public class ImportBackupService extends Service {
                     Conversation.TABLENAME,
                     Message.TABLENAME,
                     "monocles." + Message.TABLENAME,
+                    "monocles.webxdc_updates",
                     SQLiteAxolotlStore.PREKEY_TABLENAME,
                     SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
                     SQLiteAxolotlStore.SESSION_TABLENAME,
