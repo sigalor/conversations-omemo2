@@ -2288,7 +2288,7 @@ public class FileBackend {
                     decoder.setCrop(new Rect(left, top, left + newSize, top + newSize));
                 });
             } catch (final IOException e) {
-                return getSVGSquare(getAvatarUri(avatar), size);
+                return null;            //TODO: Temporary fix until animated SVG comes
             }
         } else {
             Bitmap bm = cropCenter(getAvatarUri(avatar), size, size);
