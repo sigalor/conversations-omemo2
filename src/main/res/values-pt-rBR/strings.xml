@@ -204,8 +204,8 @@
     <string name="openpgp_messages_found">Mensagens criptografadas com OpenPGP encontradas</string>
     <string name="your_fingerprint">Sua impressão digital</string>
     <string name="openpgp_key_id">ID da chave OpenPGP</string>
-    <string name="omemo_fingerprint">Impressão digital OMEMO</string>
-    <string name="omemo_fingerprint_x509">Impressão digital v\\OMEMO</string>
+    <string name="omemo_fingerprint">Impressão digital OMEMO </string>
+    <string name="omemo_fingerprint_x509">Impressão digital v\\OMEMO </string>
     <string name="omemo_fingerprint_selected_message">Impressão digital do OMEMO (mensagem original)</string>
     <string name="omemo_fingerprint_x509_selected_message">Impressão digital do v\\OMEMO (mensagem original)</string>
     <string name="other_devices">Outros dispositivos</string>
@@ -264,7 +264,7 @@
     <string name="without_mutual_presence_updates"><b>Aviso:</b> Enviar isto sem atualizações de presença mútuas pode causar problemas inesperados.
 \n
 \n<small>Vá aos detalhes do contato para verificar as suas subscrições de presença.</small></string>
-    <string name="pref_security_settings">Segurança e proteção de dados</string>
+    <string name="pref_security_settings">Segurança e privacidade</string>
     <string name="pref_allow_message_correction">Permitir a correção de mensagem</string>
     <string name="pref_allow_message_correction_summary">Permitir que os seus contatos editem as mensagens deles após enviadas</string>
     <string name="pref_expert_options">Configurações avançadas</string>
@@ -1270,7 +1270,7 @@
     <string name="install_from_unknown_sources_disabled_dialog">Seu dispositivo está configurado para não permitir instalações de aplicativos de fontes desconhecidas, exceto da Google PlayStore. Isso causará problemas com o atualizador do aplicativo.
 \n
 \nAgora você será solicitado a permitir instalações de aplicativos de fontes desconhecidas.</string>
-    <string name="no_keys_just_confirm">Você já confia neste contato. Ao selecionar \'concluído\', você está apenas confirmando que %s faz parte deste grupo.</string>
+    <string name="no_keys_just_confirm">Você já confiou na impressão digital deste contato. Ao selecionar \'concluído\', você está apenas confirmando que %s faz parte deste grupo.</string>
     <string name="delete_file_dialog_msg">Tem certeza de que deseja excluir este arquivo\?
 \n
 \n<b>Aviso:</b> isso não excluirá as cópias deste arquivo que estão armazenadas em outros dispositivos ou servidores.</string>
@@ -1428,8 +1428,21 @@
     <string name="account_color_summary">Usado em listas de conversas, contatos e notificações</string>
     <string name="enter_user_name">Insira o nome</string>
     <string name="notifications_enabled">Notificações ativadas</string>
-    <string name="pref_set_text_collapsable_summary">Recolhe texto com mais de 240 caracteres</string>
+    <string name="pref_set_text_collapsable_summary">Recolhe texto com mais de 230 caracteres</string>
     <string name="pref_show_thread_feature_summary">Mostrar ícone de tópico na barra e permitir a criação e acompanhamento de tópicos</string>
     <string name="edit_sytemaccount_or_xmppaccount">Editar contato de conversa ou contato telefônico\?</string>
     <string name="pref_show_less_avatars_summary">Apenas os avatares necessários nas conversas serão mostrados</string>
+    <string name="this_account_is_logged_out">Você saiu desta conta</string>
+    <string name="log_in">Entrar</string>
+    <string name="hide_notification">Ocultar notificação</string>
+    <string name="key_automatically_accepted"> - chave não verificada</string>
+    <string name="verified_with_qr_code"> - verificado com código QR</string>
+    <string name="contact_uses_unverified_keys">Seu contato usa dispositivos não verificados. Digitalize seu código de barras 2D para realizar verificação e impedir ataques MITM ativos.</string>
+    <string name="unknown">Desconhecido</string>
+    <string name="log_out">Sair</string>
+    <string name="retract_message_dialog_msg">Você realmente deseja retratar esta mensagem?</string>
+    <string name="account_state_logged_out">Desconectado</string>
+    <string name="unverified_devices">Você está usando dispositivos não verificados. Digitalize o código de barras 2D em seus outros dispositivos para realizar a verificação e impedir ataques MITM ativos.</string>
+    <string name="media">Mídia</string>
+    <string name="security">Segurança</string>
 </resources>
