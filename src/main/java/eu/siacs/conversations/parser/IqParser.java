@@ -115,7 +115,7 @@ public class IqParser extends AbstractParser implements OnIqPacketReceived {
                 final Contact contact = account.getRoster().getContact(jid);
                 boolean bothPre = contact.getOption(Contact.Options.TO) && contact.getOption(Contact.Options.FROM);
                 if (!contact.getOption(Contact.Options.DIRTY_PUSH)) {
-                    contact.setServerName(name);
+                    contact.setServerName(contact.getPublicDisplayName());
                     contact.parseGroupsFromElement(item);
                 }
                 if ("remove".equals(subscription)) {
@@ -485,6 +485,4 @@ public class IqParser extends AbstractParser implements OnIqPacketReceived {
             }
         }
     }
-
-    ;
 }
