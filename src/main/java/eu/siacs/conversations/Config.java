@@ -63,15 +63,15 @@ public final class Config {
 
     public static final String LOGTAG = BuildConfig.LOGTAG;
 
-    public static final Jid BUG_REPORTS = Jid.of("support@monocles.de");
+    public static final Jid BUG_REPORTS = Jid.of("support@monocles.eu");
     public static final Uri HELP = Uri.parse("https://monocles.wiki");
 
     public static final String inviteUserURL = monocles() + "/chat/";
     public static final String inviteMUCURL = monocles() + "/chat/";
     public static final String inviteHostURL = monocles(); // without http(s)
     public static final String INVITE_DOMAIN = monocles();
-    public static final String termsOfUseURL = "https://monocles.eu/legal-privacy/";
-    public static final String privacyURL = "https://monocles.eu/legal-privacy/";
+    public static final String termsOfUseURL = "https://monocles.eu/legal-privacy/#policies-section";
+    public static final String privacyURL = "https://monocles.eu/legal-privacy/#policies-section";
     public static final String migrationURL = Locale.getDefault().getLanguage().equalsIgnoreCase("de") ? "https://codeberg.org/Arne/monocles_chat" : "https://codeberg.org/Arne/monocles_chat";
 
     public static final String CHANGELOG_URL = "https://codeberg.org/Arne/monocles_chat/src/branch/master/CHANGELOG.md";
@@ -181,7 +181,7 @@ public final class Config {
     public static final String UPDATE_URL = BuildConfig.UPDATE_URL;
     public static final long UPDATE_CHECK_TIMER = 24 * 60 * 60; // 24 h in seconds
 
-    public static final String ISSUE_URL = "xmpp:support@conference.monocles.de?join";
+    public static final String ISSUE_URL = "xmpp:support@conference.monocles.eu?join";
 
     //only allow secure tls chipers now
     public static final String[] ENABLED_CIPHERS = {

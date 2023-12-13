@@ -1206,7 +1206,7 @@
 \nmonocles chat буде лише читати Ваші контакти і зіставляти їх локально, не завантажуючи їх на сервер.
 \n
 \nЗараз Вам буде запропоновано надати дозвіл на доступ до Ваших контактів.</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="account_state_logged_out">Ви вийшли</string>
     <string name="channel_full_jid_example">room@conference.example.com/nick</string>
     <string name="unverified_devices">Ви використовуєте неперевірені пристрої. Відскануйте QR-код на інших своїх пристроях, щоб виконати перевірку та запобігти активним атакам MITM.</string>

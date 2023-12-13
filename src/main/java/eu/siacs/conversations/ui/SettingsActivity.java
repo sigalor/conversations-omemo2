@@ -917,7 +917,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 try {
                     Intent intent = new Intent(Intent.ACTION_SENDTO);
                     intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-                    intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "support@monocles.de" });
+                    intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "support@monocles.eu" });
                     intent.putExtra(Intent.EXTRA_SUBJECT, "monocles chat - Issue report");
                     intent.putExtra(Intent.EXTRA_TEXT, R.string.describe_issue);
                     startActivity(Intent.createChooser(intent, ""));
