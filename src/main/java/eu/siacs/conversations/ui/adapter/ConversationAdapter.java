@@ -97,6 +97,8 @@ public class ConversationAdapter
 
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
             viewHolder.binding.frame.setBackgroundColor(conversation.getAccount().getColor(activity.isDarkTheme()));
+        } else {
+            viewHolder.binding.frame.setBackgroundColor(StyledAttributes.getColor(this.activity, R.attr.color_background_tertiary));
         }
 
         final Message message = conversation.getLatestMessage();
