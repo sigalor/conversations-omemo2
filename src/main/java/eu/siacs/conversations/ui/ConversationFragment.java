@@ -31,6 +31,7 @@ import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
 import static eu.siacs.conversations.utils.StorageHelper.getConversationsDirectory;
 import static eu.siacs.conversations.xmpp.Patches.ENCRYPTION_EXCEPTIONS;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.common.collect.ImmutableList;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
@@ -1414,12 +1415,14 @@ public class ConversationFragment extends XmppFragment
         } else {
             throw new IllegalStateException("Trying to attach fragment to activity that is not the ConversationsActivity");
         }
+        ConversationsActivity.bottomNavigationView.setVisibility(GONE);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         this.activity = null; //TODO maybe not a good idea since some callbacks really need it
+        ConversationsActivity.bottomNavigationView.setVisibility(VISIBLE);
     }
 
     @Override

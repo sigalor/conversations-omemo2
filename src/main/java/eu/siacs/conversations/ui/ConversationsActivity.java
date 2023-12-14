@@ -159,6 +159,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final String EXTRA_NODE = "node";
     public static final String EXTRA_JID = "jid";
 
+    public static BottomNavigationView bottomNavigationView;
+
     private static final List<String> VIEW_AND_SHARE_ACTIONS = Arrays.asList(
             ACTION_VIEW_CONVERSATION,
             Intent.ACTION_SEND,
@@ -750,7 +752,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
 
         // Initialize and assign variable
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView=findViewById(R.id.bottom_navigation);
 
         // Set Home selected
         bottomNavigationView.setSelectedItemId(R.id.chats);

@@ -38,6 +38,7 @@
                 android:layout_height="match_parent"
                 android:background="?attr/color_background_secondary"
                 android:orientation="vertical"
+                android:layout_marginBottom="70dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <TextView
