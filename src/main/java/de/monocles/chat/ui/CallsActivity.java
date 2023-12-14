@@ -1,42 +1,44 @@
-package eu.siacs.conversations.ui;
+package de.monocles.chat.ui;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import eu.siacs.conversations.ui.ChannelDiscoveryActivity;
+import eu.siacs.conversations.ui.ConversationsActivity;
+import eu.siacs.conversations.ui.MediaBrowserActivity;
+import eu.siacs.conversations.ui.StartConversationActivity;
+import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.utils.Compatibility;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.databinding.ActivityImportBackupBinding;
+import eu.siacs.conversations.databinding.ActivityCallsBinding;
 import eu.siacs.conversations.databinding.DialogEnterPasswordBinding;
 import eu.siacs.conversations.services.ImportBackupService;
 import eu.siacs.conversations.ui.adapter.BackupFileAdapter;
@@ -44,9 +46,10 @@ import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.utils.BackupFileHeader;
 
 
-public class ImportBackupActivity extends XmppActivity implements ServiceConnection, ImportBackupService.OnBackupFilesLoaded, BackupFileAdapter.OnItemClickedListener, ImportBackupService.OnBackupProcessed {
+public class CallsActivity extends XmppActivity {
 
-    private ActivityImportBackupBinding binding;
+    private ActivityCallsBinding binding;
+
 
     private BackupFileAdapter backupFileAdapter;
     private ImportBackupService service;
@@ -56,12 +59,13 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_import_backup);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_calls);
         setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         setLoadingState(savedInstanceState != null && savedInstanceState.getBoolean("loading_state", false));
+
         this.backupFileAdapter = new BackupFileAdapter();
         this.binding.list.setAdapter(this.backupFileAdapter);
-        this.backupFileAdapter.setOnItemClickedListener(this);
+        //this.backupFileAdapter.setOnItemClickedListener(this);
     }
 
     @Override
@@ -69,6 +73,40 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
         getMenuInflater().inflate(R.menu.import_backup, menu);
         final MenuItem openBackup = menu.findItem(R.id.action_open_backup_file);
         openBackup.setVisible(!this.mLoadingState);
+
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.calls);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch(item.getItemId())
+                {
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.calls:
+                        return true;
+                    case R.id.contacts:
+                        startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                }
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -89,7 +127,7 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
         if (this.mTheme != theme) {
             recreate();
         } else {
-            bindService(new Intent(this, ImportBackupService.class), this, Context.BIND_AUTO_CREATE);
+            //bindService(new Intent(this, ImportBackupService.class), this, Context.BIND_AUTO_CREATE);
         }
         final Intent intent = getIntent();
         if (intent != null && Intent.ACTION_VIEW.equals(intent.getAction()) && !this.mLoadingState) {
@@ -104,52 +142,15 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
     public void onStop() {
         super.onStop();
         if (this.service != null) {
-            this.service.removeOnBackupProcessedListener(this);
+            //this.service.removeOnBackupProcessedListener(this);
         }
-        unbindService(this);
+        //unbindService(this);
     }
 
     @Override
-    protected void onBackendConnected() {
+    public void onBackendConnected() {
     }
 
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        ImportBackupService.ImportBackupServiceBinder binder = (ImportBackupService.ImportBackupServiceBinder) service;
-        this.service = binder.getService();
-        this.service.addOnBackupProcessedListener(this);
-        setLoadingState(this.service.getLoadingState());
-        this.service.loadBackupFiles(this);
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        this.service = null;
-    }
-
-    @Override
-    public void onBackupFilesLoaded(final List<ImportBackupService.BackupFile> files) {
-        runOnUiThread(() -> {
-            if (files.size() >= 1) {
-                this.binding.hint.setVisibility(View.GONE);
-                this.binding.list.setVisibility(View.VISIBLE);
-                backupFileAdapter.setFiles(files);
-            } else {
-                this.binding.hint.setVisibility(View.VISIBLE);
-                if (Compatibility.runsThirty()) {
-                    this.binding.hint.setText(getString(R.string.import_backup_description));
-                } else {
-                    this.binding.hint.setText(getString(R.string.no_backup_available));
-                }
-                this.binding.list.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    @Override
-    public void onClick(final ImportBackupService.BackupFile backupFile) {
-        showEnterPasswordDialog(backupFile, false);
-    }
 
 
     /***
@@ -308,19 +309,6 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
         }
     }
 
-    @Override
-    public void onAccountAlreadySetup() {
-        runOnUiThread(() -> {
-            setLoadingState(false);
-            Snackbar.make(binding.coordinator, R.string.account_already_setup, Snackbar.LENGTH_LONG).show();
-        });
-    }
-
-    @Override
-    public void onBackupRestored() {
-        runOnUiThread(this::restart);
-    }
-
     private void restart() {
         Log.d(Config.LOGTAG, "Restarting " + getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName()));
         Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
@@ -329,22 +317,6 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
         startActivity(intent);
         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         System.exit(0);
-    }
-
-    @Override
-    public void onBackupDecryptionFailed() {
-        runOnUiThread(() -> {
-            setLoadingState(false);
-            Snackbar.make(binding.coordinator, R.string.unable_to_decrypt_backup, Snackbar.LENGTH_LONG).show();
-        });
-    }
-
-    @Override
-    public void onBackupRestoreFailed() {
-        runOnUiThread(() -> {
-            setLoadingState(false);
-            Snackbar.make(binding.coordinator, R.string.unable_to_restore_backup, Snackbar.LENGTH_LONG).show();
-        });
     }
 
     @Override

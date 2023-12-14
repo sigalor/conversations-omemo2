@@ -32,7 +32,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -50,6 +49,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import de.monocles.chat.ui.CallsActivity;
 import eu.siacs.conversations.utils.UIHelper;
 
 import androidx.annotation.MenuRes;
@@ -70,6 +71,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
@@ -762,6 +764,40 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         mSearchEditText = mSearchView.findViewById(R.id.search_field);
         mSearchEditText.addTextChangedListener(mSearchTextWatcher);
         mSearchEditText.setOnEditorActionListener(mSearchDone);
+
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.contacts);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch(item.getItemId())
+                {
+                    case R.id.contacts:
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(), MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(),CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                }
+                return false;
+            }
+        });
+
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, getResources().getBoolean(R.bool.show_dynamic_tags));

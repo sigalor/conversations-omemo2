@@ -192,7 +192,7 @@ public class UpdaterActivity extends XmppActivity {
     }
 
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
         //ignored
     }
 
