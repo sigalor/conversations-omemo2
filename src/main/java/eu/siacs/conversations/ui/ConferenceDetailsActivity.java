@@ -616,7 +616,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     }
 
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
         if (mPendingConferenceInvite != null) {
             mPendingConferenceInvite.execute(this);
             mPendingConferenceInvite = null;

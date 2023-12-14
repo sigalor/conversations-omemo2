@@ -301,7 +301,6 @@ public class ConversationsOverviewFragment extends XmppFragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.mSwipeEscapeVelocity = getResources().getDimension(R.dimen.swipe_escape_velocity);
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversations_overview, container, false);
-        this.binding.fab.setOnClickListener((view) -> StartConversationActivity.launch(getActivity()));
 
         this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
         if (this.conversations.size() > 0) {

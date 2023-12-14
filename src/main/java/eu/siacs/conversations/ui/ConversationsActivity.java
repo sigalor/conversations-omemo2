@@ -55,7 +55,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.TypefaceSpan;
@@ -86,7 +85,7 @@ import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
-import eu.siacs.conversations.services.AvatarService;
+import de.monocles.chat.ui.CallsActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
@@ -96,7 +95,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -136,7 +134,7 @@ import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.utils.ThemeHelper;
 
-import com.google.common.collect.ImmutableList;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnRoomDestroy {
@@ -209,7 +207,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
         if (performRedirectIfNecessary(true)) {
             return;
         }
@@ -713,6 +711,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             pendingViewIntent.push(intent);
             setIntent(createLauncherIntent(this));
         }
+
         UpdateHelper.showPopup(this);
 
         // SDK >= 33 permissions
@@ -749,6 +748,39 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         } else {
             inviteUser.setVisible(false);
         }
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.chats);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch(item.getItemId())
+                {
+                    case R.id.chats:
+                        return true;
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.contacts:
+                        startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                }
+                return false;
+            }
+        });
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -821,7 +853,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         IntroHelper.showIntro(this, conversation.getMode() == Conversational.MODE_MULTI);
     }
 
-    private static void executePendingTransactions(final FragmentManager fragmentManager) {
+    static void executePendingTransactions(final FragmentManager fragmentManager) {
         try {
             fragmentManager.executePendingTransactions();
         } catch (final Exception e) {
