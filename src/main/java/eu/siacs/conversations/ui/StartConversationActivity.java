@@ -310,6 +310,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         Toolbar toolbar = (Toolbar) binding.toolbar.getRoot();
         setSupportActionBar(toolbar);
         configureActionBar(getSupportActionBar());
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        actionBar.setDisplayHomeAsUpEnabled(false);
 
         inflateFab(binding.speedDial, R.menu.start_conversation_fab_submenu);
         binding.tabLayout.setupWithViewPager(binding.startConversationViewPager);
@@ -995,17 +1000,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
     }
 
-    private void configureHomeButton() {
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null) {
-            return;
-        }
-        boolean openConversations = !createdByViewIntent && !xmppConnectionService.isConversationsListEmpty(null);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
-
-    }
-
     @Override
     protected void onBackendConnected() {
 
@@ -1018,7 +1012,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         this.mActivatedAccounts.clear();
         this.mActivatedAccounts.addAll(AccountUtils.getEnabledAccounts(xmppConnectionService));
-        configureHomeButton();
         Intent intent = pendingViewIntent.pop();
 
         /*  //TODO: Implement nicer onboarding later
@@ -1354,7 +1347,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         if (mSearchEditText != null) {
             filter(mSearchEditText.getText().toString());
         }
-        configureHomeButton();
         if (QuickConversationsService.isQuicksy()) {
             setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
         }
