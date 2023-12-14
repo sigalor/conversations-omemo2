@@ -7,7 +7,7 @@
     <item
         android:id="@+id/calls"
         android:icon="?attr/icon_call"
-        android:title="@string/calls"/>
+        android:title="@string/notification_group_calls"/>
     <item
         android:id="@+id/contacts"
         android:icon="?attr/icon_group"

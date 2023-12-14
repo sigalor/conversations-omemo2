@@ -51,29 +51,15 @@ public class CallsActivity extends XmppActivity {
     private ActivityCallsBinding binding;
 
 
-    private BackupFileAdapter backupFileAdapter;
-    private ImportBackupService service;
-    private boolean mLoadingState = false;
-
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_calls);
         setSupportActionBar((Toolbar) binding.toolbar.getRoot());
-        setLoadingState(savedInstanceState != null && savedInstanceState.getBoolean("loading_state", false));
-
-        this.backupFileAdapter = new BackupFileAdapter();
-        this.binding.list.setAdapter(this.backupFileAdapter);
-        //this.backupFileAdapter.setOnItemClickedListener(this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.import_backup, menu);
-        final MenuItem openBackup = menu.findItem(R.id.action_open_backup_file);
-        openBackup.setVisible(!this.mLoadingState);
-
 
         // Initialize and assign variable
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
@@ -118,7 +104,6 @@ public class CallsActivity extends XmppActivity {
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
-        bundle.putBoolean("loading_state", this.mLoadingState);
         super.onSaveInstanceState(bundle);
     }
 
@@ -131,22 +116,12 @@ public class CallsActivity extends XmppActivity {
         } else {
             //bindService(new Intent(this, ImportBackupService.class), this, Context.BIND_AUTO_CREATE);
         }
-        final Intent intent = getIntent();
-        if (intent != null && Intent.ACTION_VIEW.equals(intent.getAction()) && !this.mLoadingState) {
-            Uri uri = intent.getData();
-            if (uri != null) {
-                openBackupFileFromUri(uri, true);
-            }
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (this.service != null) {
-            //this.service.removeOnBackupProcessedListener(this);
-        }
-        //unbindService(this);
+
     }
 
     @Override
@@ -297,7 +272,6 @@ public class CallsActivity extends XmppActivity {
         binding.inProgress.setVisibility(loadingState ? View.VISIBLE : View.GONE);
         setTitle(loadingState ? R.string.restoring_backup : R.string.restore_backup);
         configureActionBar(getSupportActionBar(), !loadingState);
-        this.mLoadingState = loadingState;
         invalidateOptionsMenu();
     }
 

@@ -349,7 +349,7 @@
             android:launchMode="singleTask" />
         <activity
             android:name="de.monocles.chat.ui.CallsActivity"
-            android:label="@string/calls"
+            android:label="@string/notification_group_calls"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.EasyOnboardingInviteActivity"
