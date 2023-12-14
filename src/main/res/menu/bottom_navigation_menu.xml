@@ -12,8 +12,10 @@
         android:id="@+id/contacts"
         android:icon="?attr/icon_group"
         android:title="@string/contacts"/>
+    <!-- TODO: Coming soon
     <item
         android:id="@+id/stories"
         android:icon="@drawable/ic_stories_black_24dp"
         android:title="@string/stories"/>
+        -->
 </menu>

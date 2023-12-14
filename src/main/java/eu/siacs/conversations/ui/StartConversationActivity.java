@@ -780,10 +780,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 {
                     case R.id.contacts:
                         return true;
+                        /* TODO:
                     case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(), MediaBrowserActivity.class));
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
+                         */
                     case R.id.calls:
                         startActivity(new Intent(getApplicationContext(),CallsActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);

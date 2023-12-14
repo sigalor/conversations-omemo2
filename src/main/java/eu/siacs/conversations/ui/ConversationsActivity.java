@@ -772,10 +772,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
+                        /* TODO:
                     case R.id.stories:
                         startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
+                         */
                 }
                 return false;
             }
