@@ -94,7 +94,7 @@ public class CallsActivity extends XmppActivity {
                         return true;
                     case R.id.calls:
                         return true;
-                    case R.id.contacts:
+                    case R.id.contactslist:
                         startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;

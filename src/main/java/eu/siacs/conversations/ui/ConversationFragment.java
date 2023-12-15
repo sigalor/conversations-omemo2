@@ -1415,7 +1415,6 @@ public class ConversationFragment extends XmppFragment
         } else {
             throw new IllegalStateException("Trying to attach fragment to activity that is not the ConversationsActivity");
         }
-        ConversationsActivity.bottomNavigationView.setVisibility(GONE);
     }
 
     @Override
@@ -1498,10 +1497,12 @@ public class ConversationFragment extends XmppFragment
                         menuContactDetails.setVisible(!this.conversation.withSelf());
                     }
                     menuSearchUpdates.setVisible(true);
+                    ConversationsActivity.bottomNavigationView.setVisibility(VISIBLE);
                 } else {
                     menuGroupDetails.setVisible(false);
                     menuContactDetails.setVisible(false);
                     menuSearchUpdates.setVisible(false);
+                    ConversationsActivity.bottomNavigationView.setVisibility(GONE);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

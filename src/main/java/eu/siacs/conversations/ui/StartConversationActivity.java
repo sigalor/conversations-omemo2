@@ -310,6 +310,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         Toolbar toolbar = (Toolbar) binding.toolbar.getRoot();
         setSupportActionBar(toolbar);
         configureActionBar(getSupportActionBar());
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        actionBar.setDisplayHomeAsUpEnabled(false);
 
         inflateFab(binding.speedDial, R.menu.start_conversation_fab_submenu);
         binding.tabLayout.setupWithViewPager(binding.startConversationViewPager);
@@ -319,10 +324,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 updateSearchViewHint();
             }
         });
-        new Thread( new Runnable() { @Override public void run() {
         mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());
         binding.startConversationViewPager.setAdapter(mListPagerAdapter);
-        } } ).start();
+
         mConferenceAdapter = new ListItemAdapter(this, conferences);
         mContactsAdapter = new ListItemAdapter(this, contacts);
         mContactsAdapter.setOnTagClickedListener(this.mOnTagClickedListener);
@@ -385,6 +389,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             }
             return false;
         });
+
         binding.speedDial.getMainFab().setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.realwhite)));
     }
 
@@ -438,6 +443,42 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         mConferenceAdapter.refreshSettings();
         mContactsAdapter.refreshSettings();
+
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.contactslist);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch(item.getItemId())
+                {
+                    case R.id.contactslist:
+                        return true;
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                        /* TODO:
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                         */
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -765,40 +806,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         mSearchEditText.addTextChangedListener(mSearchTextWatcher);
         mSearchEditText.setOnEditorActionListener(mSearchDone);
 
-
-        // Initialize and assign variable
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.contacts);
-
-        // Perform item selected listener
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                switch(item.getItemId())
-                {
-                    case R.id.contacts:
-                        return true;
-                    case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(), MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.calls:
-                        startActivity(new Intent(getApplicationContext(),CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.chats:
-                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                }
-                return false;
-            }
-        });
-
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, getResources().getBoolean(R.bool.show_dynamic_tags));
         if (showDynamicTags) {
@@ -994,17 +1001,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
     }
 
-    private void configureHomeButton() {
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null) {
-            return;
-        }
-        boolean openConversations = !createdByViewIntent && !xmppConnectionService.isConversationsListEmpty(null);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
-
-    }
-
     @Override
     protected void onBackendConnected() {
 
@@ -1017,7 +1013,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         this.mActivatedAccounts.clear();
         this.mActivatedAccounts.addAll(AccountUtils.getEnabledAccounts(xmppConnectionService));
-        configureHomeButton();
         Intent intent = pendingViewIntent.pop();
 
         /*  //TODO: Implement nicer onboarding later
@@ -1353,7 +1348,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         if (mSearchEditText != null) {
             filter(mSearchEditText.getText().toString());
         }
-        configureHomeButton();
         if (QuickConversationsService.isQuicksy()) {
             setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
         }

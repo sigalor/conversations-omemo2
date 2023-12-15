@@ -751,38 +751,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             inviteUser.setVisible(false);
         }
 
-        // Initialize and assign variable
-        bottomNavigationView=findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.chats);
-
-        // Perform item selected listener
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                switch(item.getItemId())
-                {
-                    case R.id.chats:
-                        return true;
-                    case R.id.calls:
-                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.contacts:
-                        startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                }
-                return false;
-            }
-        });
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -997,14 +965,42 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         mRedirectInProcess.set(false);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
-        super.onStart();
+        
 
-        // SDK >= 33 permissions
-        if (Compatibility.runsThirtyThree()) {
-            ActivityCompat.requestPermissions(this,
-                    permissions(),
-                    1);
-        }
+
+        // Initialize and assign variable
+        bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.chats);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch(item.getItemId())
+                {
+                    case R.id.chats:
+                        return true;
+                    case R.id.contactslist:
+                        startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                        /* TODO:
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                         */
+                }
+                return false;
+            }
+        });
     }
 
     @Override
