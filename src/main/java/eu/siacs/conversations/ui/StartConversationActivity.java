@@ -389,6 +389,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             }
             return false;
         });
+
         binding.speedDial.getMainFab().setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.realwhite)));
     }
 
@@ -442,6 +443,42 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         mConferenceAdapter.refreshSettings();
         mContactsAdapter.refreshSettings();
+
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.contactslist);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch(item.getItemId())
+                {
+                    case R.id.contactslist:
+                        return true;
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                        /* TODO:
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                         */
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -768,42 +805,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         mSearchEditText = mSearchView.findViewById(R.id.search_field);
         mSearchEditText.addTextChangedListener(mSearchTextWatcher);
         mSearchEditText.setOnEditorActionListener(mSearchDone);
-
-
-        // Initialize and assign variable
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.contacts);
-
-        // Perform item selected listener
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                switch(item.getItemId())
-                {
-                    case R.id.contacts:
-                        return true;
-                        /* TODO:
-                    case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                         */
-                    case R.id.calls:
-                        startActivity(new Intent(getApplicationContext(),CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.chats:
-                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                }
-                return false;
-            }
-        });
-
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, getResources().getBoolean(R.bool.show_dynamic_tags));
