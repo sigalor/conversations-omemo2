@@ -2,9 +2,10 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <RelativeLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <com.leinardi.android.speeddial.SpeedDialOverlayLayout
             android:id="@+id/overlay"
@@ -35,7 +36,8 @@
             android:id="@+id/start_conversation_view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/tab_layout"
+            android:layout_alignTop="@id/toolbar"
+            android:layout_marginTop="?attr/actionBarSize"
             android:layout_marginBottom="70dp"
             android:background="?attr/color_background_secondary" />
 
@@ -51,6 +53,7 @@
             app:sdMainFabClosedSrc="@drawable/ic_add_white_24dp"
             app:sdMainFabOpenedBackgroundColor="?attr/colorAccent"
             app:sdOverlayLayout="@id/overlay"
+            android:layout_gravity="end|bottom"
             app:sdUseReverseAnimationOnClose="true"
             android:layout_marginBottom="70dp"
             app:tint="@color/realwhite" />
@@ -59,9 +62,12 @@
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:layout_alignParentBottom="true"
+            android:layout_gravity="end|bottom"
+            android:layout_below="@+id/start_conversation_view_pager"
             android:background="?attr/color_background_secondary"
+            app:labelVisibilityMode="selected"
+            app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
             app:menu="@menu/bottom_navigation_menu"
-            android:animateLayoutChanges="true"/>
-    </RelativeLayout>
+            android:animateLayoutChanges="true" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
