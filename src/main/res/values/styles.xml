@@ -271,7 +271,7 @@
     </style>
     <style name="monocles.Active.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">?attr/colorAccentLight</item>
-        <item name="android:height">30dp</item>
+        <item name="android:height">24dp</item>
         <item name="android:width">62dp</item>
     </style>
 </resources>

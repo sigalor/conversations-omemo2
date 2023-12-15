@@ -51,7 +51,7 @@
             android:layout_gravity="end|bottom"
             android:layout_below="@+id/main_fragment"
             android:background="?attr/color_background_secondary"
-            app:labelVisibilityMode="selected"
+            app:labelVisibilityMode="labeled"
             app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
             app:menu="@menu/bottom_navigation_menu"
             android:animateLayoutChanges="true" />
