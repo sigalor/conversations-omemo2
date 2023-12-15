@@ -317,9 +317,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 updateSearchViewHint();
             }
         });
+        new Thread( new Runnable() { @Override public void run() {
         mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());
         binding.startConversationViewPager.setAdapter(mListPagerAdapter);
-
+        } } ).start();
         mConferenceAdapter = new ListItemAdapter(this, conferences);
         mContactsAdapter = new ListItemAdapter(this, contacts);
         mContactsAdapter.setOnTagClickedListener(this.mOnTagClickedListener);
