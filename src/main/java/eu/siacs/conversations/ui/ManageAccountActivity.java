@@ -28,6 +28,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import org.openintents.openpgp.util.OpenPgpApi;
 
 import java.util.ArrayList;
@@ -149,6 +151,47 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         if (this.mTheme != theme) {
             recreate();
         }
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.manageaccounts);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId()) {
+                    case R.id.chats -> {
+                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
+                    case R.id.contactslist -> {
+                        startActivity(new Intent(getApplicationContext(), StartConversationActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
+                    case R.id.manageaccounts -> {
+                        return true;
+                    }
+                        /* TODO:
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                         */
+                    default ->
+                            throw new IllegalStateException("Unexpected value: " + item.getItemId());
+                }
+            }
+        });
     }
 
     @Override

@@ -8,7 +8,12 @@
         android:id="@+id/contactslist"
         android:icon="?attr/icon_group"
         android:title="@string/contacts"/>
-    <!-- TODO: Coming soon -->
+    <item
+        android:id="@+id/manageaccounts"
+        android:icon="?attr/icon_account"
+        android:title="@string/accounts"/>
+
+    <!-- TODO: Later -->
     <item
         android:id="@+id/calls"
         android:icon="?attr/icon_call"

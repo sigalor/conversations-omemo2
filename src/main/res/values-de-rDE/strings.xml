@@ -1427,4 +1427,5 @@
     <string name="pref_create_compatible_backup">Universelle Sicherung erstellen</string>
     <string name="pref_create_compatible_backup_summary">Universelle Sicherungsdateien schreiben nach %s</string>
     <string name="outdated_backup_file_format">Du versuchst ein veraltetes Sicherungsdateiformat zu importieren</string>
+    <string name="accounts">Konten</string>
 </resources>

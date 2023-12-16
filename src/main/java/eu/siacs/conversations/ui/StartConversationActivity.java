@@ -1,5 +1,7 @@
 package eu.siacs.conversations.ui;
 
+import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -457,14 +459,20 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                switch(item.getItemId())
-                {
-                    case R.id.contactslist:
-                        return true;
-                    case R.id.chats:
+                switch (item.getItemId()) {
+                    case R.id.chats -> {
                         startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
+                    }
+                    case R.id.contactslist -> {
+                        return true;
+                    }
+                    case R.id.manageaccounts -> {
+                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
                         /* TODO:
                     case R.id.calls:
                         startActivity(new Intent(getApplicationContext(), CallsActivity.class));
@@ -475,8 +483,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                          */
+                    default ->
+                            throw new IllegalStateException("Unexpected value: " + item.getItemId());
                 }
-                return false;
             }
         });
 
