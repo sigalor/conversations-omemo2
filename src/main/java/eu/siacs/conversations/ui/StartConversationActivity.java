@@ -311,8 +311,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_start_conversation);
         Toolbar toolbar = (Toolbar) binding.toolbar.getRoot();
         setSupportActionBar(toolbar);
-        configureActionBar(getSupportActionBar());
         final ActionBar actionBar = getSupportActionBar();
+        configureActionBar(actionBar);
         if (actionBar == null) {
             return;
         }

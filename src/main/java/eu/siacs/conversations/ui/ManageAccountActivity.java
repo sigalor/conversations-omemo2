@@ -82,7 +82,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(this.accountList.size() > 0);
-            actionBar.setDisplayHomeAsUpEnabled(this.accountList.size() > 0);
+            //actionBar.setDisplayHomeAsUpEnabled(this.accountList.size() > 0);
+            actionBar.setDisplayHomeAsUpEnabled(false);
         }
         invalidateOptionsMenu();
         mAccountAdapter.notifyDataSetChanged();
@@ -120,12 +121,15 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_manage_accounts);
         setSupportActionBar(findViewById(R.id.toolbar));
-        configureActionBar(getSupportActionBar());
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        configureActionBar(actionBar);
+        actionBar.setDisplayHomeAsUpEnabled(false);
         if (savedInstanceState != null) {
             String jid = savedInstanceState.getString(STATE_SELECTED_ACCOUNT);
             if (jid != null) {
