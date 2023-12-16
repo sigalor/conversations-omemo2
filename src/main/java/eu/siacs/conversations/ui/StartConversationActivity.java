@@ -302,7 +302,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
     @Override
     public void onRosterUpdate() {
-        this.refreshUi();
+        new Thread( new Runnable() { @Override public void run() {
+            refreshUi();
+        } } ).start();
     }
 
     @Override
@@ -312,10 +314,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         Toolbar toolbar = (Toolbar) binding.toolbar.getRoot();
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
-        configureActionBar(actionBar);
         if (actionBar == null) {
             return;
         }
+        configureActionBar(actionBar);
         actionBar.setDisplayHomeAsUpEnabled(false);
 
         inflateFab(binding.speedDial, R.menu.start_conversation_fab_submenu);
@@ -326,10 +328,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 updateSearchViewHint();
             }
         });
-        new Thread( new Runnable() { @Override public void run() {
+
         mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());
         binding.startConversationViewPager.setAdapter(mListPagerAdapter);
-        } } ).start();
+
         mConferenceAdapter = new ListItemAdapter(this, conferences);
         mContactsAdapter = new ListItemAdapter(this, contacts);
         mContactsAdapter.setOnTagClickedListener(this.mOnTagClickedListener);
