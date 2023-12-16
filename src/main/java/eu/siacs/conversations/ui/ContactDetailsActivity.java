@@ -690,10 +690,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             mNotifyStatusText.setText(R.string.notify_on_all_messages);
         }
 
-        TextView username = binding.detailsContactName;
-        username.setText(contact.getDisplayName());
-        username.setSelected(true);
-        username.setClickable(false);
+        TextView abtitle = binding.detailsContactName;
+        abtitle.setText(contact.getDisplayName());
+        abtitle.setSelected(true);
+        abtitle.setClickable(false);
 
         invalidateOptionsMenu();
         if (contact.showInRoster()) {
