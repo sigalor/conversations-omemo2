@@ -20,7 +20,8 @@
         android:id="@+id/action_accounts"
         android:orderInCategory="90"
         android:title="@string/action_accounts"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        android:visible="false" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

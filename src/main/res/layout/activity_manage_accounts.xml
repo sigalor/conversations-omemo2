@@ -5,6 +5,10 @@
     android:background="?attr/color_background_tertiary"
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <include layout="@layout/toolbar" />
 
@@ -13,7 +17,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
+        android:dividerHeight="0dp"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginBottom="70dp" />
 
     <RelativeLayout
         android:id="@+id/phone_accounts"
@@ -23,7 +29,9 @@
         android:background="?selectableItemBackground"
         android:paddingLeft="8dp"
         android:paddingBottom="8dp"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginBottom="70dp" >
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/phone_accounts_image"
@@ -70,4 +78,16 @@
             app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
     </RelativeLayout>
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_gravity="end|bottom"
+        android:layout_below="@+id/account_list"
+        android:background="?attr/color_background_secondary"
+        app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
+        app:menu="@menu/bottom_navigation_menu"
+        android:animateLayoutChanges="true" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

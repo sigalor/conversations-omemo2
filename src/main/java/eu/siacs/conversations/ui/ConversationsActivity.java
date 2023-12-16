@@ -33,6 +33,7 @@ import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_MEMORY_WARNING;
 import static eu.siacs.conversations.ui.SettingsActivity.MIN_ANDROID_SDK21_SHOWN;
+import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
 
 import android.Manifest;
@@ -979,14 +980,20 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                switch(item.getItemId())
-                {
-                    case R.id.chats:
+                switch (item.getItemId()) {
+                    case R.id.chats -> {
                         return true;
-                    case R.id.contactslist:
-                        startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
+                    }
+                    case R.id.contactslist -> {
+                        startActivity(new Intent(getApplicationContext(), StartConversationActivity.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
+                    }
+                    case R.id.manageaccounts -> {
+                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
                         /* TODO:
                     case R.id.calls:
                         startActivity(new Intent(getApplicationContext(), CallsActivity.class));
@@ -997,8 +1004,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                          */
+                    default ->
+                            throw new IllegalStateException("Unexpected value: " + item.getItemId());
                 }
-                return false;
             }
         });
     }
