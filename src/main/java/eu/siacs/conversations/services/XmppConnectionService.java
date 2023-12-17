@@ -5188,6 +5188,10 @@ public class XmppConnectionService extends Service {
         return getBooleanPreference(SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING, R.bool.hide_you_are_not_participating);
     }
 
+    public boolean hidedonationsnackbar() {
+        return getBooleanPreference(SettingsActivity.HIDE_DONATION_SNACKBAR, R.bool.hide_donation_snackbar);
+    }
+
     public boolean hideMemoryWarning() {
         return getBooleanPreference(SettingsActivity.HIDE_MEMORY_WARNING, R.bool.hide_memory_warning);
     }

@@ -1395,4 +1395,6 @@
     <string name="stories">Stories</string>
     <string name="accounts">Accounts</string>
     <string name="unified">Unified</string>
+    <string name="pref_hide_donation_snackbar_summary">Hide the donation hint permanently</string>
+    <string name="pref_hide_donation_snackbar">Hide donation hint</string>
 </resources>

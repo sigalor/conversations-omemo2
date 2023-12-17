@@ -36,6 +36,7 @@ import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -48,6 +49,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 import static eu.siacs.conversations.ui.ConversationsActivity.bottomNavigationView;
+import static eu.siacs.conversations.ui.SettingsActivity.HIDE_DONATION_SNACKBAR;
+import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 
 import android.app.AlertDialog;
 import android.graphics.Canvas;
@@ -320,7 +323,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
         this.binding.list.setAdapter(this.conversationsAdapter);
         this.binding.list.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         registerForContextMenu(this.binding.list);
-        askForDonationSnackbar();
+        if (activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("hide_donation_snackbar", R.bool.hide_donation_snackbar)) {
+            askForDonationSnackbar();
+        }
         return binding.getRoot();
     }
 
@@ -493,6 +498,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
             final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
             alertDialogBuilder.setTitle(R.string.choose_account);
+            alertDialogBuilder.setTitle(R.string.choose_account);
             final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toEscapedString()).toArray(new String[0]);
             alertDialogBuilder.setSingleChoiceItems(asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
             alertDialogBuilder.setNegativeButton(R.string.cancel, null);
@@ -539,7 +545,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
     }
 
     public void askForDonationSnackbar() {
-        long msToShow = (mLastDonationSnackbar + 2629746000L) - SystemClock.elapsedRealtime();
+        long msToShow = (mLastDonationSnackbar) - SystemClock.elapsedRealtime();            // (mLastDonationSnackbar + 2629746000L) to show monthly only
         if (msToShow > 0) return;
 
         mLastDonationSnackbar = SystemClock.elapsedRealtime();
@@ -552,6 +558,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
                                 Intent(Intent.ACTION_VIEW,
                                 Uri.parse(getString(R.string.donation_link)));
                         startActivity(browserIntent);
+                        SharedPreferences preferences = activity.getPreferences();
+                        preferences.edit().putBoolean(HIDE_DONATION_SNACKBAR, true).apply();
                     }
                 }).setTextMaxLines(7).setActionTextColor(getResources().getColor(R.color.accent_monocles)).show();
     }

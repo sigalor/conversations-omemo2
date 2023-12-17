@@ -1430,4 +1430,6 @@
     <string name="accounts">Konten</string>
     <string name="no_media_permission">Berechtigungen fehlen</string>
     <string name="unified">Alle</string>
+    <string name="pref_hide_donation_snackbar_summary">Zeige den Spenden Hinweis nicht wieder an</string>
+    <string name="pref_hide_donation_snackbar">Deaktiviere Spendenhinweis</string>
 </resources>
