@@ -28,8 +28,7 @@ monocles chat has different presettings compared to blabber.im:
 
 * don't show previews of weblinks in chat
 * don't show previews of locations in chat
-* use inner storage (files are hidden then and not shown in the Gallery)
-* don't automatically download all atachments
+* don't automatically download all attachments
 
 ### OTR
 
