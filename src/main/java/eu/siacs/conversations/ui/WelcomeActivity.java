@@ -89,6 +89,12 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
     @Override
     protected void onBackendConnected() {
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
     }
 
     @Override
@@ -100,17 +106,12 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         }
         new InstallReferrerUtils(this);
 
-        // SDK >= 33 permissions
-        if (Compatibility.runsThirtyThree()) {
-            ActivityCompat.requestPermissions(this,
-                    permissions(),
-                    1);
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
     }
 
     @Override
@@ -167,14 +168,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             finish();
             overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         });
-
-
-        // SDK >= 33 permissions
-        if (Compatibility.runsThirtyThree()) {
-            ActivityCompat.requestPermissions(this,
-                    permissions(),
-                    1);
-        }
     }
 
     public void addInviteUri(Intent to) {
