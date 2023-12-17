@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.VISIBLE;
 import static eu.siacs.conversations.ui.SettingsActivity.REQUEST_CREATE_BACKUP;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
@@ -196,6 +197,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 }
             }
         });
+        bottomNavigationView.setVisibility(VISIBLE);
     }
 
     @Override

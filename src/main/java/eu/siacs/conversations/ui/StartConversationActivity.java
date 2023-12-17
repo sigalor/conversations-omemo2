@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.VISIBLE;
 import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
 import android.Manifest;
@@ -490,7 +491,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 }
             }
         });
-
+        bottomNavigationView.setVisibility(VISIBLE);
     }
 
     @Override

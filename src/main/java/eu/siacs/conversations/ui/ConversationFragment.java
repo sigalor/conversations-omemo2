@@ -1421,7 +1421,6 @@ public class ConversationFragment extends XmppFragment
     public void onDetach() {
         super.onDetach();
         this.activity = null; //TODO maybe not a good idea since some callbacks really need it
-        ConversationsActivity.bottomNavigationView.setVisibility(VISIBLE);
     }
 
     @Override
@@ -2993,7 +2992,7 @@ public class ConversationFragment extends XmppFragment
                     }
                     if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) return;
                 }
-                if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(message.getThread());
                 }
             }
