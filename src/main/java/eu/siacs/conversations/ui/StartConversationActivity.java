@@ -1665,7 +1665,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getResources().getString(R.string.contacts);
+                    return getResources().getString(R.string.unified);
                 case 1:
                     return getResources().getString(R.string.bookmarks);
                 default:

@@ -18,26 +18,25 @@
             layout="@layout/toolbar" />
 
         <com.google.android.material.tabs.TabLayout
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"
-            android:background="?attr/colorPrimary"
-            android:elevation="@dimen/toolbar_elevation"
-            android:minHeight="?attr/actionBarSize"
+            android:layout_height="34dp"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:background="?attr/color_background_secondary"
+            android:elevation="2dp"
             android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
             app:tabGravity="fill"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/white"
-            app:tabTextColor="@color/white70" />
+            app:tabSelectedTextColor="?attr/text_Color_Main"
+            app:tabTextColor="?attr/button_text_color_disabled" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/start_conversation_view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignTop="@id/toolbar"
-            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginTop="98dp"
             android:layout_marginBottom="70dp"
             android:background="?attr/color_background_secondary" />
 
