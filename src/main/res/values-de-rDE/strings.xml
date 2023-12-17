@@ -1432,4 +1432,5 @@
     <string name="unified">Alle</string>
     <string name="pref_hide_donation_snackbar_summary">Zeige den Spenden Hinweis nicht wieder an</string>
     <string name="pref_hide_donation_snackbar">Deaktiviere Spendenhinweis</string>
+    <string name="snikket_login_activated">Snikket Login aktiviert</string>
 </resources>
