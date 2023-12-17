@@ -1040,6 +1040,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 }
                 //addInviteUri(intent);
                 startActivity(intent);
+                ToastCompat.makeText(this, R.string.snikket_login_activated, ToastCompat.LENGTH_LONG).show();
                 break;
             case R.id.mgmt_account_reconnect:
                 XmppConnection connection = mAccount.getXmppConnection();
