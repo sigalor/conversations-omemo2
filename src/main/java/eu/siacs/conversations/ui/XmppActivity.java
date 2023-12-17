@@ -512,12 +512,6 @@ public abstract class XmppActivity extends ActionBarActivity {
         mColorWhite = ContextCompat.getColor(this, R.color.white70);
         this.mUsingEnterKey = usingEnterKey();
 
-        // SDK >= 33 permissions
-        if (Compatibility.runsThirtyThree()) {
-            ActivityCompat.requestPermissions(this,
-                    permissions(),
-                    1);
-        }
     }
 
     protected boolean isCameraFeatureAvailable() {

@@ -280,6 +280,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 openConversation(conversation, null);
             }
         }
+
+        // SDK >= 33 permissions
+        if (Compatibility.runsThirtyThree()) {
+            ActivityCompat.requestPermissions(this,
+                    permissions(),
+                    1);
+        }
+
         invalidateActionBarTitle();
         showDialogsIfMainIsOverview();
     }
@@ -321,10 +329,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (offerToDownloadStickers()) return;
             openBatteryOptimizationDialogIfNeeded();
             xmppConnectionService.rescanStickers();
-
             new showMemoryWarning(this).execute();
             showOutdatedVersionWarning();
         }
+
     }
 
     private void showOutdatedVersionWarning() {
@@ -717,12 +725,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         UpdateHelper.showPopup(this);
 
-        // SDK >= 33 permissions
-        if (Compatibility.runsThirtyThree()) {
-            ActivityCompat.requestPermissions(this,
-                    permissions(),
-                    1);
-        }
     }
 
     @Override

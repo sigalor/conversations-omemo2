@@ -1347,7 +1347,7 @@
     <string name="notifications_disabled">Notifications disabled. Please activate them in your android settings.</string>
     <string name="pref_show_less_avatars">Show less avatars in chats</string>
     <string name="pref_show_less_avatars_summary">Only necessary avatars in conversations will be shown</string>
-    <string name="no_media_permission">No media storage permission</string>
+    <string name="no_media_permission">Permission not granted</string>
     <string name="pref_set_text_collapsable">Collapse long text</string>
     <string name="pref_set_text_collapsable_summary">Collapses text with more than 230 signs</string>
     <string name="hide_notification">Hide notification</string>
