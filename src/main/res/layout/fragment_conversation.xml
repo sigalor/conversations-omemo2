@@ -21,15 +21,15 @@
         android:visibility="gone"
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:background="?attr/colorPrimary"
+        android:layout_height="34dp"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="?attr/color_background_secondary"
         android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:tabGravity="start"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
         app:tabIndicatorColor="@color/white87"
-        app:tabMode="scrollable"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/white70" />
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="?attr/text_Color_Main"
+        app:tabTextColor="?attr/button_text_color_disabled" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/conversation_view_pager"
