@@ -439,7 +439,7 @@
     <string name="none">keine</string>
     <string name="recently_used">zuletzt verwendet</string>
     <string name="search_contacts">Kontakte suchen</string>
-    <string name="search_bookmarks">Gruppen durchsuchen</string>
+    <string name="search_bookmarks">Räume durchsuchen</string>
     <string name="choose_quick_action">Schnell-Taste auswählen</string>
     <string name="send_private_message">Private Nachricht senden</string>
     <string name="user_has_left_conference">%1$s hat den Raum verlassen!</string>
@@ -1381,7 +1381,7 @@
     <string name="edit_sytemaccount_or_xmppaccount">Bearbeite den Chatkontakt oder den Telefonkontakt?</string>
     <string name="edit_sytemaccount">Telefon Kontakt</string>
     <string name="edit_chat_contact">Chatkontakt</string>
-    <string name="enter_user_name">Gebe einen Namen ein</string>
+    <string name="enter_user_name">Gib einen Namen ein</string>
     <string name="account_color">Kontofarbe</string>
     <string name="account_color_summary">Kontofarbe for die Chatliste, Kontakteliste und Benachrichtigungen.</string>
     <string name="pref_show_less_avatars">Zeige weniger Profilbilder in Chats</string>
