@@ -552,7 +552,7 @@
     <string name="mgmt_account_reconnect">Reconectar</string>
     <string name="welcome_text">... es una aplicación XMPP/Jabber gratuita y segura.</string>
     <string name="monocles_account_details">Esto incluye:
-\n● dos meses de almacenamiento cifrado de chat
+\n● almacenamiento cifrado de chat
 \n● correo con 2 GB de almacenamiento cifrado
 \n
 \n opcionalmente:
@@ -601,6 +601,7 @@
     <string name="pref_export_plain_text_logs_summary">Habilita la exportación de chats como archivos de texto legibles</string>
     <string name="pref_export_plain_text_logs">Exportar chats como archivos de texto legibles</string>
     <string name="payment_required">Pago requerido</string>
+    <string name="reconnect_on_other_host">Reconectar en otro host</string>
     <string name="missing_internet_permission">Falta permiso de acceso a internet</string>
     <string name="me">Yo</string>
     <string name="contact_asks_for_presence_subscription">El contacto solicita ver tus actualizaciones de estado</string>
@@ -1017,6 +1018,7 @@
     <string name="pref_vibrate_in_chat">Vibrar en una conversación abierta</string>
     <string name="open_backup">Abrir backup</string>
     <string name="not_a_backup_file">El archivo que has seleccionado no es un backup de monocles chat</string>
+    <string name="outdated_backup_file_format">Estás intentando importar un formato de backup desactualizado</string>
     <string name="account_already_setup">Esta cuenta ya ha sido configurada</string>
     <string name="please_enter_password">Por favor entrar la contraseña para esta cuenta</string>
     <string name="unable_to_perform_this_action">No se pudo realizar la acción</string>
@@ -1028,7 +1030,7 @@
     <string name="pref_use_invidious_summary">Invidious es una alternativa a YouTube respetuosa con la privacidad</string>
     <string name="pref_use_inner_storage_summary">Otra aplicación no podrá leer los medios desde el almacenamiento interno</string>
     <string name="this_device">Este dispositivo</string>
-    <string name="intro_desc_main">Averiguar más…</string>
+    <string name="intro_desc_main">Aquí eres tú quien toma las decisiones. monocles chat no es otra mensajería… monocles chat usa un estandar oficial de IETF. Puedes cambiar las aplicaciones en cualquier momento y seguir en contacto con tus amigos.</string>
     <string name="welcome_header">Bienvenido a
 \nmonocles chat</string>
     <string name="intro_required_permissions">Permisos necesarios</string>
@@ -1047,7 +1049,7 @@
     <string name="pref_show_intro">Mostrar de nuevo la introducción</string>
     <string name="show_intro_again">Se volverán a mostrar las pantallas de introducción</string>
     <string name="show_intro_again_failed">El reinicio de pantallas de introducción ha fallado. Intentar otra vez…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, también conocido como Jabber, es una red de comunicación descentralizada y funciona parecido al correo electrónico. Necesita una dirección llamada dirección de chat, una contraseña y un cliente. Más información más adelante.</string>
+    <string name="intro_desc_whats_xmpp">XMPP es el estándar de Internet para mensajería instantánea. Al igual que con el correo electrónico, tienes una dirección que utilizas para enviar mensajes. Más sobre esto más adelante.</string>
     <string name="intro_whats_xmpp">¿Qué es XMPP / Jabber / monocles chat\?</string>
     <string name="intro_desc_optional_permissions">El permiso para leer tu libreta de direcciones es necesario para leer las direcciones de chat (si hay alguna) desde tus contactos. Los contactos nunca se comparten, se suben o se copian.</string>
     <string name="intro_desc_account2">Puedes crear un nuevo perfil en monocles chat solo entrando un alias.</string>
@@ -1062,7 +1064,7 @@
 \nVamos a divertirnos…</string>
     <string name="intro_privacy">Tu privacidad
 \nTu soberanía</string>
-    <string name="intro_desc_privacy">monocles chat no vende ni analiza tus datos y tú decides que permisos otorgas.</string>
+    <string name="intro_desc_privacy">Nosotros en monocles no venderemos ni analizaremos tus datos y tú decides que permisos otorgas.</string>
     <string name="no_results">No ha resultados</string>
     <string name="file_transmission_cancelled">transmisión de archivo cancelada</string>
     <string name="sharing_application_not_grant_permission">La aplicación de compartición no otorgó permiso de acceso a este archivo.</string>
@@ -1088,8 +1090,6 @@
     <string name="pref_theme_black">Negro (AMOLED)</string>
     <string name="pref_theme_color_options_summary">Selecciona la paleta de color del tema</string>
     <string name="pref_theme_color_options">Color del tema</string>
-    <string name="magic_create_text_on_x">Has sido invitado a %1$s. Te guiaremos en el proceso de creación de una cuenta.
-\nCuando escojas %1$s como proveedor, podrás comunicarte con usuarios de otros proveedores proporcionándoles tu dirección XMPP completa.</string>
     <string name="account_status_regis_invalid_token">Referencia de registro inválida</string>
     <string name="magic_create_text_fixed">Has sido invitado a %1$s. Ya se ha seleccionado un nombre de usuario para ti. Te guiaremos en el proceso de creación de cuenta.
 \nPodrás comunicarte con usuarios de otros proveedores proporcionándoles tu dirección XMPP completa.</string>
@@ -1440,14 +1440,45 @@
     <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 230 signos</string>
     <string name="unknown">Desconocido</string>
     <string name="contact_uses_unverified_keys">Tus contactos usan dispositivos no verificados. Escanea sus códigos de barras 2D para realizar la verificación e impedir ataques MITM.</string>
-    <string name="unverified_devices">Estás usando dispositivos no verificados. Escanea el código de barras 2D en tus otros dispositivos para realizar la verificación e impedir ataques MITM.</string>
-    <string name="media">Medio</string>
-    <string name="security">Seguridad</string>
-    <string name="verified_with_qr_code"> - verificado con código QR</string>
-    <string name="key_automatically_accepted"> - clave no verificada</string>
     <string name="this_account_is_logged_out">Ha cerrado la sesión de esta cuenta</string>
     <string name="log_in">Iniciar sesión</string>
     <string name="hide_notification">Ocultar la notificación</string>
     <string name="log_out">Cerrar la sesión</string>
     <string name="account_state_logged_out">Desconectado</string>
+    <string name="unverified_devices">Estás usando dispositivos no verificados. Escanea el código de barras 2D en tus otros dispositivos para realizar la verificación e impedir ataques MITM.</string>
+    <string name="media">Medio</string>
+    <string name="security">Seguridad</string>
+    <string name="verified_with_qr_code"> - verificado con código QR</string>
+    <string name="key_automatically_accepted"> - clave no verificada</string>
+    <string name="not_dnssec_verified">No se ha verificado DNSSEC</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE verificados</string>
+    <string name="dnssec_verified">DNSSEC verificado</string>
+    <string name="manage_phone_accounts">Gestionar cuentas en el teléfono</string>
+    <string name="create_background_failed">Fallo al crear el fondo</string>
+    <string name="custom_background_set">Conjunto de fondo personalizado</string>
+    <string name="delete_background_failed">No se pudo eliminar la imagen de fondo</string>
+    <string name="delete_background_success">Imagen de fondo eliminada</string>
+    <string name="delete_background">Eliminar fondo de chat</string>
+    <string name="pref_delete_background_summary">Eliminar tu imagen de fondo personalizada del chat</string>
+    <string name="no_background_set">No hay fondo personalizado</string>
+    <string name="input_field">Campo de entrada</string>
+    <string name="import_own_stickers">Importar stickers</string>
+    <string name="import_own_stickers_summary">Importar tus propios stickers. Úsalos con el nombre de fichero original</string>
+    <string name="thanks">¡Gracias por usar monocles chat! Considera apoyar el desarrollo con una pequeña donación.</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">Donar</string>
+    <string name="pref_enforce_dane_summary">Conectar cuenta solo cuando la verificación DANE sea exitosa</string>
+    <string name="pref_enforce_dane">Obligar DANE</string>
+    <string name="dane_failed">DANE falló</string>
+    <string name="magic_create_text_on_x">Has sido invitado a %1$s. Te guiaremos en el proceso de creación de una cuenta.
+\nCuando escojas %1$s como proveedor, podrás comunicarte con usuarios de otros proveedores proporcionándoles tu dirección XMPP completa.</string>    
+    <string name="use_monocles">Prefiero monocles</string>
+    <string name="describe_issue">Describe tu problema en detalle. Gracias.</string>
+    <string name="sticker_saved">Sticker guardado</string>
+    <string name="sticker_imported">Sticker importado</string>
+    <string name="import_sticker_failed">No se pudo importar el sticker</string>
+    <string name="download_sticker">¿Descargar stickers?</string>
+    <string name="download_sticker_summary">¿Te gustaría descargar paquetes de stickers por defecto?</string>
+    <string name="pref_create_compatible_backup">Crear backup universal</string>
+    <string name="pref_create_compatible_backup_summary">Escribir ficheros de backup universal a %s</string>
 </resources>
