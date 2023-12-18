@@ -1,0 +1,6 @@
+* Separate unified contacts and rooms
+* Fix rare crash when switching to land mode
+* Performance improvements
+* Hide support snackbar when already used
+* Revert "Do not rename the file to uuid.ext after download" for now
+* Bottom Navigation
