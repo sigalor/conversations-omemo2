@@ -136,7 +136,7 @@
     <string name="block_jabber_id">Заблокировать аккаунт</string>
     <string name="block_stranger">Заблокировать незнакомца</string>
     <string name="blocked">Заблокирован</string>
-    <string name="bookmarks">Закладки</string>
+    <string name="bookmarks">Конференции</string>
     <string name="cancel">Отменить</string>
     <string name="cancel_transmission">Закончить передачу</string>
     <string name="cancel_update">Отменить обновление\?</string>
@@ -1470,4 +1470,14 @@
     <string name="import_sticker_failed">Ошибка импортирования стикера</string>
     <string name="download_sticker">Скачать стикеры?</string>
     <string name="download_sticker_summary">Хотите загрузить несколько наборов наклеек по умолчанию?</string>
+    <string name="pref_create_compatible_backup">Создать универсальную резервную копию</string>
+    <string name="pref_create_compatible_backup_summary">Записать универсальные файлы резервных копий в %s.</string>
+    <string name="chats">Чаты</string>
+    <string name="calls">Звонки</string>
+    <string name="stories">История</string>
+    <string name="accounts">Аккаунты</string>
+    <string name="unified">Контакты</string>
+    <string name="pref_hide_donation_snackbar_summary">Скрыть подсказку о пожертвовании навсегда</string>
+    <string name="pref_hide_donation_snackbar">Скрыть подсказку о пожертвовании</string>
+    <string name="snikket_login_activated">Вход в Snikket активирован</string>
 </resources>
