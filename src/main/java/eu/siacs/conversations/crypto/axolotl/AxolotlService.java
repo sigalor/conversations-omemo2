@@ -1,10 +1,11 @@
 package eu.siacs.conversations.crypto.axolotl;
 
+import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
+
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.util.Log;
 import android.util.Pair;
-import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,17 +56,19 @@ import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.parser.IqParser;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.utils.SerialSingleThreadExecutor;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnAdvancedStreamFeaturesLoaded;
 import eu.siacs.conversations.xmpp.OnIqPacketReceived;
+import eu.siacs.conversations.xmpp.jingle.DescriptionTransport;
 import eu.siacs.conversations.xmpp.jingle.OmemoVerification;
 import eu.siacs.conversations.xmpp.jingle.OmemoVerifiedRtpContentMap;
 import eu.siacs.conversations.xmpp.jingle.RtpContentMap;
 import eu.siacs.conversations.xmpp.jingle.stanzas.IceUdpTransportInfo;
 import eu.siacs.conversations.xmpp.jingle.stanzas.OmemoVerifiedIceUdpTransportInfo;
+import eu.siacs.conversations.xmpp.jingle.stanzas.RtpDescription;
 import eu.siacs.conversations.xmpp.pep.PublishOptions;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
@@ -100,9 +103,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private int numPublishTriesOnEmptyPep = 0;
     private boolean pepBroken = false;
     private int lastDeviceListNotificationHash = 0;
-    private Set<XmppAxolotlSession> postponedSessions = new HashSet<>(); //sessions stored here will receive after mam catchup treatment
-    private Set<SignalProtocolAddress> postponedHealing = new HashSet<>(); //addresses stored here will need a healing notification after mam catchup
-    private AtomicBoolean changeAccessMode = new AtomicBoolean(false);
+    private final Set<XmppAxolotlSession> postponedSessions = new HashSet<>(); //sessions stored here will receive after mam catchup treatment
+    private final Set<SignalProtocolAddress> postponedHealing = new HashSet<>(); //addresses stored here will need a healing notification after mam catchup
+    private final AtomicBoolean changeAccessMode = new AtomicBoolean(false);
 
     public AxolotlService(Account account, XmppConnectionService connectionService) {
         if (account == null || connectionService == null) {
@@ -1192,7 +1195,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (message.hasFileOnRemoteHost()) {
             content = message.getFileParams().url;
         } else {
-            content = message.getRawBody();
+            content = message.getBody();
         }
         try {
             axolotlMessage.encrypt(content);
@@ -1261,12 +1264,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (Config.REQUIRE_RTP_VERIFICATION) {
             requireVerification(session);
         }
-        final ImmutableMap.Builder<String, RtpContentMap.DescriptionTransport> descriptionTransportBuilder = new ImmutableMap.Builder<>();
+        final ImmutableMap.Builder<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> descriptionTransportBuilder = new ImmutableMap.Builder<>();
         final OmemoVerification omemoVerification = new OmemoVerification();
         omemoVerification.setDeviceId(session.getRemoteAddress().getDeviceId());
         omemoVerification.setSessionFingerprint(session.getFingerprint());
-        for (final Map.Entry<String, RtpContentMap.DescriptionTransport> content : rtpContentMap.contents.entrySet()) {
-            final RtpContentMap.DescriptionTransport descriptionTransport = content.getValue();
+        for (final Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> content : rtpContentMap.contents.entrySet()) {
+            final DescriptionTransport<RtpDescription,IceUdpTransportInfo> descriptionTransport = content.getValue();
             final OmemoVerifiedIceUdpTransportInfo encryptedTransportInfo;
             try {
                 encryptedTransportInfo = encrypt(descriptionTransport.transport, session);
@@ -1275,7 +1278,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
             descriptionTransportBuilder.put(
                     content.getKey(),
-                    new RtpContentMap.DescriptionTransport(descriptionTransport.senders, descriptionTransport.description, encryptedTransportInfo)
+                    new DescriptionTransport<>(descriptionTransport.senders, descriptionTransport.description, encryptedTransportInfo)
             );
         }
         return Futures.immediateFuture(
@@ -1295,11 +1298,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public ListenableFuture<OmemoVerifiedPayload<RtpContentMap>> decrypt(OmemoVerifiedRtpContentMap omemoVerifiedRtpContentMap, final Jid from) {
-        final ImmutableMap.Builder<String, RtpContentMap.DescriptionTransport> descriptionTransportBuilder = new ImmutableMap.Builder<>();
+        final ImmutableMap.Builder<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> descriptionTransportBuilder = new ImmutableMap.Builder<>();
         final OmemoVerification omemoVerification = new OmemoVerification();
         final ImmutableList.Builder<ListenableFuture<XmppAxolotlSession>> pepVerificationFutures = new ImmutableList.Builder<>();
-        for (final Map.Entry<String, RtpContentMap.DescriptionTransport> content : omemoVerifiedRtpContentMap.contents.entrySet()) {
-            final RtpContentMap.DescriptionTransport descriptionTransport = content.getValue();
+        for (final Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> content : omemoVerifiedRtpContentMap.contents.entrySet()) {
+            final DescriptionTransport<RtpDescription,IceUdpTransportInfo> descriptionTransport = content.getValue();
             final OmemoVerifiedPayload<IceUdpTransportInfo> decryptedTransport;
             try {
                 decryptedTransport = decrypt((OmemoVerifiedIceUdpTransportInfo) descriptionTransport.transport, from, pepVerificationFutures);
@@ -1309,7 +1312,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             omemoVerification.setOrEnsureEqual(decryptedTransport);
             descriptionTransportBuilder.put(
                     content.getKey(),
-                    new RtpContentMap.DescriptionTransport(descriptionTransport.senders, descriptionTransport.description, decryptedTransport.payload)
+                    new DescriptionTransport<>(descriptionTransport.senders, descriptionTransport.description, decryptedTransport.payload)
             );
         }
         processPostponed();
@@ -1375,18 +1378,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         ));
     }
 
-    public void prepareKeyTransportMessage(final Conversation conversation, final OnMessageCreatedCallback onMessageCreatedCallback) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
-                if (buildHeader(axolotlMessage, conversation)) {
-                    onMessageCreatedCallback.run(axolotlMessage);
-                } else {
-                    onMessageCreatedCallback.run(null);
-                }
+    public ListenableFuture<XmppAxolotlMessage> prepareKeyTransportMessage(final Conversation conversation) {
+        return Futures.submit(()->{
+            final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
+            if (buildHeader(axolotlMessage, conversation)) {
+                return axolotlMessage;
+            } else {
+                throw new IllegalStateException("No session to decrypt to");
             }
-        });
+        },executor);
     }
 
     public XmppAxolotlMessage fetchAxolotlMessageFromCache(Message message) {

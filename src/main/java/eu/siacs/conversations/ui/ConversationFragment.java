@@ -2773,7 +2773,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void triggerRtpSession(final String action) {
-        if (activity.xmppConnectionService.getJingleConnectionManager().isBusy() != null) {
+        if (activity.xmppConnectionService.getJingleConnectionManager().isBusy()) {
             Toast.makeText(getActivity(), R.string.only_one_call_at_a_time, Toast.LENGTH_LONG)
                     .show();
             return;

@@ -63,7 +63,7 @@ public final class Config {
 
     public static final String LOGTAG = BuildConfig.LOGTAG;
 
-    public static final boolean QUICK_LOG = false;
+    public static final boolean QUICK_LOG = true;
 
     public static final Jid BUG_REPORTS = Jid.of("support@monocles.eu");
     public static final Uri HELP = Uri.parse("https://monocles.wiki");
@@ -151,7 +151,7 @@ public final class Config {
     public static final int ExportLogs_Hour = 4; //Time - hours: valid values from 0 to 23
     public static final int ExportLogs_Minute = 0; //Time - minutes: valid values from 0 to 59
 
-    public static final boolean DISABLE_PROXY_LOOKUP = false; //useful to debug ibb
+    public static final boolean DISABLE_PROXY_LOOKUP = false; //disables STUN/TURN and Proxy65 look up (useful to debug IBB fallback)
     public static final boolean USE_DIRECT_JINGLE_CANDIDATES = true;
     public static final boolean DISABLE_HTTP_UPLOAD = false;
     public static final boolean EXTENDED_SM_LOGGING = false; // log stanza counts

@@ -120,9 +120,9 @@ public class ConnectionService extends android.telecom.ConnectionService {
 			);
 		}
 
-		if (xmppConnectionService.getJingleConnectionManager().isBusy() != null) {
+		if (xmppConnectionService.getJingleConnectionManager().isBusy()) {
 			return Connection.createFailedConnection(
-				new DisconnectCause(DisconnectCause.BUSY)
+					new DisconnectCause(DisconnectCause.BUSY)
 			);
 		}
 
@@ -151,10 +151,10 @@ public class ConnectionService extends android.telecom.ConnectionService {
 				if (connection.getState() == Connection.STATE_DISCONNECTED) return;
 
 				connection.setSessionId(xmppConnectionService.getJingleConnectionManager().proposeJingleRtpSession(
-					account,
-					with,
-					ImmutableSet.of(Media.AUDIO)
-				));
+						account,
+						with,
+						ImmutableSet.of(Media.AUDIO)
+				).sessionId);
 			}
 
 			@Override
