@@ -63,7 +63,7 @@ public final class Config {
 
     public static final String LOGTAG = BuildConfig.LOGTAG;
 
-    public static final boolean QUICK_LOG = true;
+    public static final boolean QUICK_LOG = false;
 
     public static final Jid BUG_REPORTS = Jid.of("support@monocles.eu");
     public static final Uri HELP = Uri.parse("https://monocles.wiki");
