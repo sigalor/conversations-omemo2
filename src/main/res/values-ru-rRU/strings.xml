@@ -435,17 +435,17 @@
     <string name="intro_desc_account3">У Вас есть возможность импортировать существующую учетную запись. Если есть файлы резервных копий, они будут показаны.</string>
     <string name="intro_desc_chat_details">Хотите открыть детали чата\? Просто нажмите на название чата в строке меню вверху.</string>
     <string name="intro_desc_highlight_user">Если вы хотите выделить пользователя в конференции, просто коснитесь его аватара в чате. В качестве альтернативы, особенно если пользователя нет в чате, переключитесь на сведения о чате и найдите пользователя в списке участников. При длительном касании аватара пользователя появится всплывающее меню, в котором можно выделить пользователя.</string>
-    <string name="intro_desc_main">Узнать больше…</string>
+    <string name="intro_desc_main">Чат monocles — это не просто еще один мессенджер… чат monocles использует официальный стандарт IETF. Вы можете переключать приложения в любое время и при этом оставаться на связи с друзьями. Здесь вы тот, кто занимает центральное место и принимает решение.</string>
     <string name="intro_desc_open_chat">Теперь Вы можете начать общаться, обмениваться местоположением, файлами, видео, изображениями и отправлять голосовые сообщения.</string>
     <string name="intro_desc_open_chat_details">Вы открыли детали чата. Здесь Вы можете просмотреть подробную информацию о чате, изменить уведомления о новых сообщениях, добавить или удалить чат из списка контактов и многое другое.</string>
     <string name="intro_desc_optional_permissions">Разрешение на чтение Вашей адресной книги необходимо для получения chat address (если есть) Ваших контактов. Контакты никогда не передаются, не загружаются и не копируются.</string>
     <string name="intro_desc_optional_permissions2">Разрешение на доступ к Вашему местоположению необходимо, если Вы хотите поделиться своим местоположением. Для обмена голосовыми сообщениями требуется доступ к Вашему микрофону.</string>
-    <string name="intro_desc_privacy">monocles chat не будет ни продавать, ни анализировать Ваши данные, и Вы сами решаете, какие разрешения Вы предоставляете.</string>
+    <string name="intro_desc_privacy">Мы в monocles не будем продавать или анализировать ваши данные, и вы сами решаете, какие разрешения вам предоставить.</string>
     <string name="intro_desc_required_permissions">В конце вступления Вам будет предложено предоставить разрешение на доступ к хранилищу (обязательное), если Вы еще не предоставили его. Другие разрешения запрашиваются по мере необходимости и являются необязательными.</string>
     <string name="intro_desc_start_chatting">Если Вы предоставили разрешение на доступ к контактам, уже существующие контакты Jabber автоматически отобразятся в Вашей адресной книге. В противном случае просто добавьте chat address</string>
     <string name="intro_desc_start_chatting2">Вы также можете добавлять, создавать или присоединяться к многопользовательским чатам (так называемым MUC). Они разделяются на приватные комнаты и публичные комнаты (так называемые Конференции).</string>
     <string name="intro_desc_start_chatting3">Поздравляем! А теперь идем и веселимся…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, также известный как jabber, является децентрализованной коммуникационной сетью и работает подобно электронной почте. Вам понадобится адрес под названием chat address, пароль и мессенджер. Подробнее об этом позже.</string>
+    <string name="intro_desc_whats_xmpp">XMPP — это Интернет-стандарт обмена мгновенными сообщениями. Как и в случае с электронной почтой, у вас есть адрес, который вы используете для обмена сообщениями. Подробнее об этом позже.</string>
     <string name="intro_highlight_user">Отметить пользователя</string>
     <string name="intro_optional_permissions">Дополнительные разрешения</string>
     <string name="intro_privacy">Ваша конфиденциальность Ваш суверенитет</string>
@@ -1214,7 +1214,7 @@
     <string name="your_account">Ваша учетная запись</string>
     <string name="your_avatar">Ваш аватар</string>
     <string name="your_fingerprint">Ваш отпечаток</string>
-    <string name="your_full_jid_will_be">Ваш JID был: %s</string>
+    <string name="your_full_jid_will_be">Ваш адрес чата будет: %s</string>
     <string name="your_name">Ваше имя</string>
     <string name="your_nick_has_been_changed">Ваш ник был изменен</string>
     <string name="your_server">Ваш сервер</string>
@@ -1384,7 +1384,7 @@
     <string name="change_stickers_location">Изменить расположение стикеров</string>
     <string name="update_default_stickers">Обновить стикеры по умолчанию</string>
     <string name="clear_blocked_media">Очистить заблокированный носитель</string>
-    <string name="monocles_account_introduction">Вы можете использовать монокль-чат с любой современной учетной записью XMPP или <b>получить доступный и безопасный монокль-аккаунт, работающий на регенеративной энергии!</b></string>
+    <string name="monocles_account_introduction">Зарегистрируйтесь сейчас и <b>получите безопасную учетную запись monocles, питаемую регенеративной энергией</b>, чтобы напрямую начать общение.</string>
     <string name="cleanup_conversations">Очистить разговоры</string>
     <string name="save_as_contact_bookmark">Сохранить как контакт/закладку</string>
     <string name="new_contact_or_group">Новый контакт или конференция</string>
@@ -1418,7 +1418,7 @@
     <string name="chat_background">Фон чатов</string>
     <string name="message_reaction">Отправить реакцию</string>
     <string name="custom_background">Пользовательский фон</string>
-    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата. Файл изображения будет скопирован в /Documents/monocleschat/backgrounds/bg.jpg. В случае возникновения проблемы удалите файл изображения с помощью файлового менеджера.</string>
+    <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона для чата.</string>
     <string name="pref_set_round_avatars_summary">Придайте аватарам пользователей круглую форму</string>
     <string name="pref_set_round_avatars">Круглые аватары</string>
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
@@ -1439,7 +1439,7 @@
     <string name="pref_show_less_avatars_summary">В конференциях не будет виден личный аватар</string>
     <string name="no_media_permission">Нет разрешения на хранение мультимедиа</string>
     <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
-    <string name="pref_set_text_collapsable_summary">Будет свернут текст, содержащий более 240 знаков.</string>
+    <string name="pref_set_text_collapsable_summary">Сворачивает текст, содержащий более 230 знаков.</string>
     <string name="unverified_devices">Вы используете непроверенные устройства. Отсканируйте 2D-штрихкод на других устройствах, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>
     <string name="contact_uses_unverified_keys">Ваш собеседник использует непроверенные устройства. Отсканируйте их 2D-штрихкод, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>
     <string name="not_dnssec_verified">DNSSEC не подтвержден</string>
@@ -1470,4 +1470,29 @@
     <string name="import_sticker_failed">Ошибка импортирования стикера</string>
     <string name="download_sticker">Скачать стикеры?</string>
     <string name="download_sticker_summary">Хотите загрузить несколько наборов наклеек по умолчанию?</string>
+    <string name="reconnect_on_other_host">Переподключитесь на другом хосте</string>
+    <string name="verified_with_qr_code"> - подтверждено QR-кодом</string>
+    <string name="key_automatically_accepted"> - ключ не проверен</string>
+    <string name="outdated_backup_file_format">Вы пытаетесь импортировать устаревший формат файла резервной копии</string>
+    <string name="account_state_logged_out">Вышел из системы</string>
+    <string name="monocles_account_details">Это включает в себя:
+\n● зашифрованное хранилище чата
+\n● электронная почта с 2 ГБ зашифрованного хранилища
+\n
+\n необязательно:
+\n● 4 ГБ облачного хранилища (следующий облако)
+\n● календарь и контактная синхронизация
+\n● безопасный инструмент конференц-связи
+\n и больше на <a href="https://monocles.eu/more/"> https://monocles.eu/more/</a></string>
+    <string name="pref_create_compatible_backup">Создать универсальную резервную копию</string>
+    <string name="unknown">Неизвестный</string>
+    <string name="pref_create_compatible_backup_summary">Записать универсальные файлы резервных копий в %s</string>
+    <string name="chats">Чаты</string>
+    <string name="calls">Звонки</string>
+    <string name="stories">История</string>
+    <string name="accounts">Аккаунты</string>
+    <string name="unified">Контакты</string>
+    <string name="pref_hide_donation_snackbar_summary">Скрыть подсказку о пожертвовании навсегда</string>
+    <string name="pref_hide_donation_snackbar">Скрыть подсказку о пожертвовании</string>
+    <string name="snikket_login_activated">Вход в Snikket активирован</string>
 </resources>

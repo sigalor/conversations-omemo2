@@ -206,8 +206,8 @@
     <string name="openpgp_messages_found">Verschlüsselte OpenPGP-Nachricht gefunden</string>
     <string name="your_fingerprint">Dein Fingerabdruck</string>
     <string name="openpgp_key_id">OpenPGP Schlüssel ID</string>
-    <string name="omemo_fingerprint">OMEMO-Fingerabdruck&#160;-&#160;</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-Fingerabdruck&#160;-&#160;</string>
+    <string name="omemo_fingerprint">OMEMO-Fingerabdruck - </string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO-Fingerabdruck - </string>
     <string name="omemo_fingerprint_selected_message">OMEMO-Fingerabdruck (Nachrichtenquelle)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-Fingerabdruck (Nachrichtenquelle)</string>
     <string name="other_devices">Andere Geräte</string>
@@ -544,7 +544,7 @@
     <string name="this_field_is_required">Dieses Feld ist erforderlich</string>
     <string name="correct_message">Nachricht korrigieren</string>
     <string name="send_corrected_message">Korrigierte Nachricht senden</string>
-    <string name="no_keys_just_confirm">Du vertraust diesem Kontakt bereits. Durch Auswählen von Fertig bestätigst du, dass %s Teil dieses Raums ist.</string>
+    <string name="no_keys_just_confirm">Du vertraust diesem Kontakt bereits. Durch Auswählen von Fertig bestätigst du, dass %s Teil dieses Gruppenchats ist.</string>
     <string name="contacts_have_no_pgp_keys">monocles chat ist nicht in der Lage, deine Nachrichten zu verschlüsseln, weil deine Kontakte ihren öffentlichen Schlüssel nicht preisgeben.
 \n
 \n<small>Bitte sage deinen Kontakten, sie mögen OpenPGP einrichten.</small></string>
@@ -1038,7 +1038,7 @@
 \nFür den Versand von Sprachnachrichten ist es erforderlich, Zugriff auf das Mikrofon zu erhalten.</string>
     <string name="intro_desc_account3">Du hast die Möglichkeit, ein bestehendes Konto zu importieren.
 \nTippe einfach auf Konto importieren. Wenn Sicherungsdateien verfügbar sind, werden diese angezeigt. Wähle ein Konto aus, das importiert werden soll.</string>
-    <string name="intro_desc_start_chatting2">Du kannst auch Gruppenchats - sogenannte Räume - hinzufügen, erstellen oder ihnen beitreten. Man unterscheidet zwischen privaten Gruppenchats und öffentlichen Gruppenchats - sogenannten Räumen.</string>
+    <string name="intro_desc_start_chatting2">Du kannst auch Gruppenchats - sogenannte Räume - hinzufügen, erstellen oder ihnen beitreten. Man unterscheidet zwischen privaten und öffentlichen Gruppenchats.</string>
     <string name="intro_desc_start_chatting3">Herzlichen Glückwunsch!
 \nJetzt geht\'s los und viel Spaß…</string>
     <string name="intro_privacy">Deine Privatsphäre
@@ -1381,7 +1381,7 @@
     <string name="edit_sytemaccount_or_xmppaccount">Bearbeite den Chatkontakt oder den Telefonkontakt?</string>
     <string name="edit_sytemaccount">Telefon Kontakt</string>
     <string name="edit_chat_contact">Chatkontakt</string>
-    <string name="enter_user_name">Gebe einen Namen ein</string>
+    <string name="enter_user_name">Gib einen Namen ein</string>
     <string name="account_color">Kontofarbe</string>
     <string name="account_color_summary">Kontofarbe for die Chatliste, Kontakteliste und Benachrichtigungen.</string>
     <string name="pref_show_less_avatars">Zeige weniger Profilbilder in Chats</string>
@@ -1427,4 +1427,23 @@
     <string name="pref_create_compatible_backup">Universelle Sicherung erstellen</string>
     <string name="pref_create_compatible_backup_summary">Universelle Sicherungsdateien schreiben nach %s</string>
     <string name="outdated_backup_file_format">Du versuchst ein veraltetes Sicherungsdateiformat zu importieren</string>
+    <string name="this_account_is_logged_out">Du hast dich abgemeldet</string>
+    <string name="moderate_recent">Nachricht moderieren?</string>
+    <string name="unknown">Unbekannt</string>
+    <string name="new_contact">Neuer Kontakt</string>
+    <string name="notifications_disabled">Benachrichtigungen sind deaktiviert. Bitte aktiviere sie in den Android Einstellungen.</string>
+    <string name="save_as_sticker">Als Sticker speichern</string>
+    <string name="new_contact_or_group">Neuer Kontakt oder Raum</string>
+    <string name="action_execute">Los</string>
+    <string name="account_state_logged_out">Abmeldung erfolgt</string>
+    <string name="please_be_patient">Einen Moment Geduld bitte...</string>
+    <string name="notifications_enabled">Benachrichtigungen sind eingeschaltet</string>
+    <string name="colors">Farben</string>
+    <string name="save_as_contact_bookmark">Als Kontakt / Lesezeichen speichern</string>
+    <string name="accounts">Konten</string>
+    <string name="no_media_permission">Berechtigungen fehlen</string>
+    <string name="unified">Alle</string>
+    <string name="pref_hide_donation_snackbar_summary">Zeige den Spenden Hinweis nicht wieder an</string>
+    <string name="pref_hide_donation_snackbar">Deaktiviere Spendenhinweis</string>
+    <string name="snikket_login_activated">Snikket Login aktiviert</string>
 </resources>
