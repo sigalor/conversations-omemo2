@@ -560,7 +560,7 @@
 \n● sincronización de calendario y contactos
 \n● una herramienta segura de conferencia
 \n y más en <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
-    <string name="your_full_jid_will_be">Tu identificador Jabber será: %s</string>
+    <string name="your_full_jid_will_be">Tu dirección de chat será: %s</string>
     <string name="create_account">Crear cuenta</string>
     <string name="welcome_existing_account">Tengo una cuenta</string>
     <string name="pick_your_username">Selecciona tu nombre de usuario</string>
@@ -1028,7 +1028,8 @@
     <string name="pref_use_invidious_summary">Invidious es una alternativa a YouTube respetuosa con la privacidad</string>
     <string name="pref_use_inner_storage_summary">Otra aplicación no podrá leer los medios desde el almacenamiento interno</string>
     <string name="this_device">Este dispositivo</string>
-    <string name="intro_desc_main">Averiguar más…</string>
+    <string name="intro_desc_main">monocles chat no es un mensajero más... monocles chat utiliza un estándar oficial del IETF. Puedes cambiar de aplicación en cualquier momento y seguir en contacto con tus amigos.
+\nAquí eres tú quien ocupa el centro del escenario y toma la decisión.</string>
     <string name="welcome_header">Bienvenido a
 \nmonocles chat</string>
     <string name="intro_required_permissions">Permisos necesarios</string>
@@ -1047,7 +1048,7 @@
     <string name="pref_show_intro">Mostrar de nuevo la introducción</string>
     <string name="show_intro_again">Se volverán a mostrar las pantallas de introducción</string>
     <string name="show_intro_again_failed">El reinicio de pantallas de introducción ha fallado. Intentar otra vez…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, también conocido como Jabber, es una red de comunicación descentralizada y funciona parecido al correo electrónico. Necesita una dirección llamada dirección de chat, una contraseña y un cliente. Más información más adelante.</string>
+    <string name="intro_desc_whats_xmpp">XMPP es el estándar de Internet para mensajería instantánea. Al igual que con el correo electrónico, tienes una dirección que utilizas para la mensajería. Más adelante hablaremos de ello.</string>
     <string name="intro_whats_xmpp">¿Qué es XMPP / Jabber / monocles chat\?</string>
     <string name="intro_desc_optional_permissions">El permiso para leer tu libreta de direcciones es necesario para leer las direcciones de chat (si hay alguna) desde tus contactos. Los contactos nunca se comparten, se suben o se copian.</string>
     <string name="intro_desc_account2">Puedes crear un nuevo perfil en monocles chat solo entrando un alias.</string>
@@ -1062,7 +1063,7 @@
 \nVamos a divertirnos…</string>
     <string name="intro_privacy">Tu privacidad
 \nTu soberanía</string>
-    <string name="intro_desc_privacy">monocles chat no vende ni analiza tus datos y tú decides que permisos otorgas.</string>
+    <string name="intro_desc_privacy">En monocles no venderemos ni analizaremos sus datos y usted decide qué permisos concede.</string>
     <string name="no_results">No ha resultados</string>
     <string name="file_transmission_cancelled">transmisión de archivo cancelada</string>
     <string name="sharing_application_not_grant_permission">La aplicación de compartición no otorgó permiso de acceso a este archivo.</string>
@@ -1352,7 +1353,7 @@
     <string name="retract_message_dialog_msg">¿Realmente quieres retractar este mensaje?</string>
     <string name="reply_to">Responder a</string>
     <string name="or_use_another">... o escoger otro a continación</string>
-    <string name="monocles_account_introduction">¡Puedes usar monocles chat con cualquier cuenta de XMPP u <b>obtener una cuenta segura y asequible en monocles, alojada en el servidor de monocles alimentado con energía renovable!</b></string>
+    <string name="monocles_account_introduction">Regístrate ahora y consigue <b>cuenta monocles segura, alimentada por energías renovables.</b>para empezar a chatear de inmediato.</string>
     <string name="refresh_feature_discovery">Refrescar Descubrimiento de características</string>
     <string name="microphone_permission_for_call">Se requiere permiso de micrófono para completar la llamada</string>
     <string name="i_am_snikket_user">Uso Snikket</string>
@@ -1416,15 +1417,14 @@
     <string name="message_reaction">Enviar reacción</string>
     <string name="chat_background">Fondo en chats</string>
     <string name="custom_background">Fondo personalizado</string>
-    <string name="pref_chat_background_summary">Elegir una imagen como fondo de chat.</string>
+    <string name="pref_chat_background_summary">Elige un archivo de una imagen tuya como fondo para el chat. El archivo de la imagen se copiará en /Documents/monocles chat/backgrounds/bg.jpg. Si surge algún problema, elimina el archivo de la imagen con un gestor de archivos.</string>
     <string name="pref_set_round_avatars_summary">Dale a los avatares de los usuarios una forma circular</string>
     <string name="pref_custom_theme_color_options_summary">Elige tus propios colores</string>
     <string name="pref_set_round_avatars">Avatares circulares</string>
     <string name="choose_emoji">Elige un emoticono</string>
-    <string name="show_keyboard">Mostrar teclado</string>
+    <string name="show_keyboard">Mostrar el teclado</string>
     <string name="pref_show_thread_feature_summary">Mostrar el icono del hilo en el campo de entrada y permitir crear y seguir hilos</string>
     <string name="pref_show_thread_feature">Mostrar icono del hilo</string>
-    <string name="app_title" formatted="true">monocles chat</string>
     <string name="edit_sytemaccount_or_xmppaccount">¿Editar contacto de chat o contacto de teléfono?</string>
     <string name="edit_sytemaccount">Contacto de teléfono</string>
     <string name="edit_chat_contact">contacto de chat</string>
@@ -1450,4 +1450,37 @@
     <string name="hide_notification">Ocultar la notificación</string>
     <string name="log_out">Cerrar la sesión</string>
     <string name="account_state_logged_out">Desconectado</string>
+    <string name="manage_phone_accounts">Gestionar cuentas telefónicas</string>
+    <string name="pref_create_compatible_backup_summary">Escribir archivos de la copia de seguridad universal en %s</string>
+    <string name="download_sticker">¿Descargar pegatinas?</string>
+    <string name="pref_enforce_dane_summary">Conectar una cuenta sólo cuando se haya verificado correctamente DANE</string>
+    <string name="dane_failed">DANE fallido</string>
+    <string name="reconnect_on_other_host">Reconectar en otro host</string>
+    <string name="import_own_stickers">Importar pegatinas</string>
+    <string name="describe_issue">Por favor, describa su problema en detalle. Gracias.</string>
+    <string name="delete_background_failed">No se puede eliminar la imagen de fondo</string>
+    <string name="dnssec_dane_verified">Verificado DNSSEC + DANE</string>
+    <string name="use_monocles">Prefiero monocles</string>
+    <string name="dnssec_verified">Verificado por DNSSEC</string>
+    <string name="magic_create_text">Le guiaremos a través del proceso de creación de una cuenta con una contraseña aleatoria, que puede utilizar o cambiar por su propia contraseña en la página siguiente. \\nEntonces podrás comunicarte con los usuarios de este y otros proveedores dándoles tu dirección XMPP completa.</string>
+    <string name="delete_background_success">Imagen de fondo eliminada</string>
+    <string name="custom_background_set">Fondos personalizados</string>
+    <string name="create_background_failed">Error al crear el fondo</string>
+    <string name="sticker_imported">Pegatina importada</string>
+    <string name="outdated_backup_file_format">Está intentando importar un formato de archivo de copia de seguridad obsoleto</string>
+    <string name="import_own_stickers_summary">Importa tus propios adhesivos. Utilízalas con el nombre del archivo original.</string>
+    <string name="download_sticker_summary">¿Quieres descargarte algunos paquetes de adhesivos predeterminados?</string>
+    <string name="sticker_saved">Sticker guardado</string>
+    <string name="delete_background">Eliminar el fondo del chat</string>
+    <string name="pref_create_compatible_backup">Crear una copia de seguridad universal</string>
+    <string name="input_field">Campo de entrada</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="import_sticker_failed">No se pudieron importar pegatinas</string>
+    <string name="no_background_set">Sin fondo personalizado</string>
+    <string name="pref_delete_background_summary">Eliminar la imagen de fondo personalizada del chat</string>
+    <string name="not_dnssec_verified">Sin verificación DNSSEC</string>
+    <string name="thanks">¡Gracias por usar el chat de monocles! Por favor, considera apoyar el desarrollo con una pequeña donación.</string>
+    <string name="donate">Donar</string>
+    <string name="pref_enforce_dane">Aplicar DANE</string>
+    <string name="app_title" formatted="true">monocles chat</string>
 </resources>
