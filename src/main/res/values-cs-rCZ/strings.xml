@@ -1269,6 +1269,7 @@
     <string name="pref_set_text_collapsable">Sbalit dlouhý text</string>
 	<string name="pref_set_text_collapsable_summary">Sbalí text s více než 240 znaky</string>
     <string name="pref_follow_thread_in_channel">Automatické sledování vláken v kanálech</string>
+    <string name="i_am_snikket_user">Používám Snikket</string>
 	<string name="pref_follow_thread_in_channel_summary">Nastavení značky vlákna tak, aby odpovídala právě prohlížené zprávě</string>
  	<string name="pref_use_blue_readmarkers_title">Použít modré čtecí značky</string>
 	<string name="pref_use_blue_readmarkers_summary">Použití modrých čtecích značek namísto bílých nebo černých</string>
