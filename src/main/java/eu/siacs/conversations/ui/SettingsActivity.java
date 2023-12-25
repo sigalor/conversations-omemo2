@@ -1,14 +1,14 @@
 package eu.siacs.conversations.ui;
 
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
+import static eu.siacs.conversations.persistance.FileBackend.updateMediaScanner;
 import static eu.siacs.conversations.utils.StorageHelper.getBackupDirectory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -20,8 +20,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,8 +32,10 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
+
 import de.monocles.chat.DownloadDefaultStickers;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -41,13 +43,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 
-import eu.siacs.conversations.BuildConfig;
+import de.monocles.chat.SignUpPage;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CameraUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,28 +56,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyStoreException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import android.provider.MediaStore;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import eu.siacs.conversations.Config;
@@ -94,9 +85,6 @@ import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.xmpp.Jid;
 import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.services.UnifiedPushDistributor;
-import eu.siacs.conversations.utils.ThemeHelper;
-import eu.siacs.conversations.xmpp.InvalidJid;
-import eu.siacs.conversations.ui.ImportBackupActivity;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener {
 
@@ -146,12 +134,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final String PERSISTENT_ROOM = "enable_persistent_rooms";
     public static final String MAX_RESEND_TIME = "max_resend_time";
     public static final String RESEND_DELAY = "resend_delay";
+    public static final String STICKER_DIR = "Stickers";
 
     public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
-
     public static final int REQUEST_IMPORT_SETTINGS = 0xbf8703;
     public static final int REQUEST_IMPORT_BACKGROUND = 0xbf8704;
+    public static final int REQUEST_IMPORT_STICKERS = 0xbf8705;
 
     Preference multiAccountPreference;
     Preference autoMessageExpiryPreference;
@@ -180,62 +169,168 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         getWindow().getDecorView().setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_secondary));
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
-        registerFilePicker();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null || data.getData() == null) return;
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
-        p.edit().putString("sticker_directory", data.getData().toString()).commit();
+        if(requestCode == REQUEST_IMPORT_STICKERS) {
+            if(resultCode == RESULT_OK) {
+                if(data.getClipData() != null) {
+                    for(int i = 0; i < data.getClipData().getItemCount(); i++) {
+                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                        //do something with the image (save it to some directory or whatever you need to do with it here)
+                        if (imageUri != null) {
+                            InputStream in;
+                            OutputStream out;
+                            try {
+                                File stickerfolder = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom");
+                                //create output directory if it doesn't exist
+                                if (!stickerfolder.exists()) {
+                                    stickerfolder.mkdirs();
+                                }
+                                String filename = getFileName(imageUri);
+                                File newSticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
+
+                                in = getContentResolver().openInputStream(imageUri);
+                                out = new FileOutputStream(newSticker);
+                                byte[] buffer = new byte[4096];
+                                int read;
+                                while ((read = in.read(buffer)) != -1) {
+                                    out.write(buffer, 0, read);
+                                }
+                                in.close();
+                                in = null;
+                                // write the output file
+                                out.flush();
+                                out.close();
+                                out = null;
+                                if (!filename.endsWith(".webp") && !filename.endsWith(".svg")) {
+                                    compressImageToSticker(newSticker, imageUri, 0);
+                                }
+                            } catch (IOException exception) {
+                                Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
+                                Log.d(Config.LOGTAG, "Could not import sticker" + exception);
+                            }
+                        }
+                    }
+                    Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                    xmppConnectionService.forceRescanStickers();
+                } else if(data.getData() != null) {
+                    Uri imageUri = data.getData();
+                    //do something with the image (save it to some directory or whatever you need to do with it here)
+                    if (imageUri != null) {
+                        InputStream in;
+                        OutputStream out;
+                        try {
+                            File stickerfolder = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom");
+                            //create output directory if it doesn't exist
+                            if (!stickerfolder.exists()) {
+                                stickerfolder.mkdirs();
+                            }
+                            String filename = getFileName(imageUri);
+                            File newSticker = new File(this.getFilesDir() + File.separator + STICKER_DIR + File.separator + "Custom" + File.separator + filename);
+
+                            in = getContentResolver().openInputStream(imageUri);
+                            out = new FileOutputStream(newSticker);
+                            byte[] buffer = new byte[4096];
+                            int read;
+                            while ((read = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, read);
+                            }
+                            in.close();
+                            in = null;
+                            // write the output file
+                            out.flush();
+                            out.close();
+                            out = null;
+                            if (!filename.endsWith(".webp") && !filename.endsWith(".svg")) {
+                                compressImageToSticker(newSticker, imageUri, 0);
+                            }
+                            Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
+                            xmppConnectionService.forceRescanStickers();
+                        } catch (IOException exception) {
+                            Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
+                            Log.d(Config.LOGTAG, "Could not import sticker" + exception);
+                        }
+                    }
+                }
+            }
+        }
+
+        if(requestCode == REQUEST_IMPORT_BACKGROUND) {
+            if (resultCode == RESULT_OK) {
+                Uri bguri = data.getData();
+                onPickFile(bguri);
+            }
+        }
     }
 
-    private ActivityResultLauncher<String> filePicker;
-
-    //execute this in your AppCompatActivity onCreate
-    public void registerFilePicker() {
-        filePicker = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> onPickFile(uri)
-        );
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 
     //execute this to launch the picker
-    public void openFilePicker() {
-        String mimeType = "image/*";
-        filePicker.launch(mimeType);
+    public void openBGPicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
+        //**These following line is the important one!
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        startActivityForResult(Intent.createChooser(intent, "Select image"), REQUEST_IMPORT_BACKGROUND); //REQUEST_IMPORT_BACKGROUND is simply a global int used to check the calling intent in onActivityResult
     }
 
-    //this gets executed when the user picks a file
-    @SuppressLint("StaticFieldLeak")        //TODO: Don't suppress lint
-    public void onPickFile(Uri uri) {
-        if (uri != null && Build.VERSION.SDK_INT >= 26) {
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds");
-                    if (!folder.exists()) {
-                        folder.mkdirs();
-                    }
-                    try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
-                        try (OutputStream out = Files.newOutputStream(Paths.get(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"))) {
-                            // Transfer bytes from in to out
-                            byte[] buf = new byte[1024];
-                            int len;
-                            while ((len = inputStream.read(buf)) > 0) {
-                                out.write(buf, 0, len);
-                            }
-                        }
-                        compressImage(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "backgrounds" + File.separator + "bg.jpg"), uri, 0);
 
-                    } catch (IOException exception) {
-                    }
-                    return null;
+    //this gets executed when the user picks a file
+    public void onPickFile(Uri uri) {
+        if (uri != null) {
+            InputStream in;
+            OutputStream out;
+            try {
+                File bgfolder = new File(this.getFilesDir() + File.separator + "backgrounds");
+                File bgfile = new File(this.getFilesDir() + File.separator + "backgrounds" + File.separator + "bg.jpg");
+                //create output directory if it doesn't exist
+                if (!bgfolder.exists()) {
+                    bgfolder.mkdirs();
                 }
 
-            }.execute();
+                in = getContentResolver().openInputStream(uri);
+                out = new FileOutputStream(bgfile);
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                in = null;
+                // write the output file
+                out.flush();
+                out.close();
+                out = null;
+                compressImage(bgfile, uri, 0);
+                Toast.makeText(this,R.string.custom_background_set,Toast.LENGTH_LONG).show();
+            } catch (IOException exception) {
+                Toast.makeText(this,R.string.create_background_failed,Toast.LENGTH_LONG).show();
+                Log.d(Config.LOGTAG, "Could not create background" + exception);
+            }
         }
     }
 
@@ -304,6 +399,80 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             ++sampleSize;
             if (sampleSize <= 3) {
                 compressImage(f, image, sampleSize);
+            } else {
+                throw new IOException(String.valueOf(R.string.error_out_of_memory));
+            }
+        } finally {
+            close(os);
+            close(is);
+        }
+    }
+
+    public void compressImageToSticker(File f, Uri image, int sampleSize) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        int IMAGE_QUALITY = 65;
+        int ImageSize = (int) (0.04 * 1024 * 1024);
+        try {
+            if (!f.exists() && !f.createNewFile()) {
+                throw new IOException(String.valueOf(R.string.error_unable_to_create_temporary_file));
+            }
+            is = getContentResolver().openInputStream(image);
+            if (is == null) {
+                throw new IOException(String.valueOf(R.string.error_not_an_image_file));
+            }
+            final Bitmap originalBitmap;
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            final int inSampleSize = (int) Math.pow(2, sampleSize);
+            Log.d(Config.LOGTAG, "reading bitmap with sample size " + inSampleSize);
+            options.inSampleSize = inSampleSize;
+            originalBitmap = BitmapFactory.decodeStream(is, null, options);
+            is.close();
+            if (originalBitmap == null) {
+                throw new IOException("Source file was not an image");
+            }
+            if (!"image/jpeg".equals(options.outMimeType) && hasAlpha(originalBitmap)) {
+                originalBitmap.recycle();
+                throw new IOException("Source file had alpha channel");
+            }
+            int size;
+            int resolution = 480;
+            if (resolution == 0) {
+                int height = originalBitmap.getHeight();
+                int width = originalBitmap.getWidth();
+                size = height > width ? height : width;
+            } else {
+                size = resolution;
+            }
+            Bitmap scaledBitmap = resize(originalBitmap, size);
+            final int rotation = getRotation(image);
+            scaledBitmap = rotate(scaledBitmap, rotation);
+            boolean targetSizeReached = false;
+            int quality = IMAGE_QUALITY;
+            while (!targetSizeReached) {
+                os = new FileOutputStream(f);
+                boolean success = scaledBitmap.compress(Config.IMAGE_FORMAT, quality, os);
+                if (!success) {
+                    throw new IOException(String.valueOf(R.string.error_compressing_image));
+                }
+                os.flush();
+                targetSizeReached = (f.length() <= ImageSize && ImageSize != 0) || quality <= 50;
+                quality -= 5;
+            }
+            scaledBitmap.recycle();
+        } catch (final FileNotFoundException e) {
+            cleanup(f);
+            throw new IOException(String.valueOf(R.string.error_file_not_found));
+        } catch (final IOException e) {
+            cleanup(f);
+            throw new IOException(String.valueOf(R.string.error_io_exception));
+        } catch (SecurityException e) {
+            cleanup(f);
+            throw new IOException(String.valueOf(R.string.error_security_exception_during_image_copy));
+        } catch (final OutOfMemoryError e) {
+            ++sampleSize;
+            if (sampleSize <= 3) {
+                compressImageToSticker(f, image, sampleSize);
             } else {
                 throw new IOException(String.valueOf(R.string.error_out_of_memory));
             }
@@ -688,6 +857,17 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
+        final Preference createCompatibleBackupPreference = mSettingsFragment.findPreference("create_compatible_backup");
+        if (createCompatibleBackupPreference != null) {
+            createCompatibleBackupPreference.setSummary(getString(R.string.pref_create_compatible_backup_summary, getBackupDirectory(null)));
+            createCompatibleBackupPreference.setOnPreferenceClickListener(preference -> {
+                if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
+                    createCompatibleBackup();
+                }
+                return true;
+            });
+        }
+
         final Preference importSettingsPreference = mSettingsFragment.findPreference("import_database");
         if (importSettingsPreference != null) {
             importSettingsPreference.setSummary(getString(R.string.pref_import_database_or_settings_summary));
@@ -700,14 +880,50 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
-
         final Preference importBackgroundPreference = mSettingsFragment.findPreference("import_background");
         if (importBackgroundPreference != null) {
             importBackgroundPreference.setSummary(getString(R.string.pref_chat_background_summary));
             importBackgroundPreference.setOnPreferenceClickListener(preference -> {
                 if (hasStoragePermission(REQUEST_IMPORT_BACKGROUND)) {
-                    openFilePicker();
+                    openBGPicker();
                 }
+                return true;
+            });
+        }
+
+        final Preference deleteBackgroundPreference = mSettingsFragment.findPreference("delete_background");
+        if (deleteBackgroundPreference != null) {
+            deleteBackgroundPreference.setSummary(getString(R.string.pref_delete_background_summary));
+            deleteBackgroundPreference.setOnPreferenceClickListener(preference -> {
+                try {
+                    File bgfile = new File(this.getFilesDir() + File.separator + "backgrounds" + File.separator + "bg.jpg");
+                    if (bgfile.exists()) {
+                        bgfile.delete();
+                        Toast.makeText(this,R.string.delete_background_success,Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this,R.string.no_background_set,Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this,R.string.delete_background_failed,Toast.LENGTH_LONG).show();
+                    throw new RuntimeException(e);
+                }
+                return true;
+            });
+        }
+
+        final Preference createIssuePreference = mSettingsFragment.findPreference("create_issue");
+        if (createIssuePreference != null) {
+            createIssuePreference.setOnPreferenceClickListener(preference -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                    intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "support@monocles.eu" });
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "monocles chat - Issue report");
+                    intent.putExtra(Intent.EXTRA_TEXT, R.string.describe_issue);
+                    startActivity(Intent.createChooser(intent, ""));
+                } catch (android.content.ActivityNotFoundException ex) {
+                Toast.makeText(this, R.string.no_application_found, Toast.LENGTH_LONG).show();
+            }
                 return true;
             });
         }
@@ -838,28 +1054,29 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
             updateTheme();
         }
-        final Preference stickerDir = mSettingsFragment.findPreference("sticker_directory");
-        if (stickerDir != null) {
-            if (Build.VERSION.SDK_INT >= 29) {
-                stickerDir.setOnPreferenceClickListener((p) -> {
-                    Intent intent = ((StorageManager) getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-                    startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_sticker_location)), 0);
-                    return true;
-                });
-            } else {
-                return;
-            }
-        }
 
         final Preference downloadDefaultStickers = mSettingsFragment.findPreference("download_default_stickers");
         if (downloadDefaultStickers != null) {
             downloadDefaultStickers.setOnPreferenceClickListener(
-                    preference -> {
-                        if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
-                            downloadStickers();
-                        }
-                        return true;
-                    });
+                preference -> {
+                    if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
+                        downloadStickers();
+                    }
+                    return true;
+                }
+            );
+        }
+
+        final Preference importOwnStickers = mSettingsFragment.findPreference("import_own_stickers");
+        if (importOwnStickers != null) {
+            importOwnStickers.setOnPreferenceClickListener(
+                preference -> {
+                    if (hasStoragePermission(REQUEST_IMPORT_STICKERS)) {
+                        importStickers();
+                    }
+                    return true;
+                }
+            );
         }
 
         final Preference clearBlockedMedia = mSettingsFragment.findPreference("clear_blocked_media");
@@ -876,6 +1093,14 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             final Preference customTheme = mSettingsFragment.findPreference("custom_theme");
             if (customTheme != null) uiScreen.removePreference(customTheme);
         }
+    }
+
+    private void importStickers() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
+        //**These following line is the important one!
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);    //TODO: Change this to true as soon as it works
+        startActivityForResult(Intent.createChooser(intent, "Select an image"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
     }
 
     private void updateTheme() {
@@ -1045,6 +1270,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             }
             reconnectAccounts();
             xmppConnectionService.reinitializeMuclumbusService();
+        } else if (name.equals("enforce_dane")) {
+            reconnectAccounts();
         } else if (name.equals(AUTOMATIC_MESSAGE_DELETION)) {
             xmppConnectionService.expireOldMessages(true);
         } else if (name.equals(THEME) || name.equals(THEME_COLOR) || name.equals("custom_theme_primary") || name.equals("custom_theme_primary_dark") || name.equals("custom_theme_accent") || name.equals("custom_theme_dark")) {
@@ -1100,11 +1327,14 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 if (requestCode == REQUEST_CREATE_BACKUP) {
                     createBackup();
                 }
+                if (requestCode == REQUEST_CREATE_BACKUP) {
+                    createCompatibleBackup();
+                }
                 if (requestCode == REQUEST_DOWNLOAD_STICKERS) {
                     downloadStickers();
                 }
                 if (requestCode == REQUEST_IMPORT_BACKGROUND) {
-                    openFilePicker();
+                    openBGPicker();
                 }
             } else {
                 ToastCompat.makeText(
@@ -1117,15 +1347,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     }
 
     private void createBackup() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.pref_create_backup))
-                .setMessage(getString(R.string.create_monocles_only_backup))
-                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                    createBackup(true, true);
-                })
-                .setNegativeButton(R.string.no, (dialog, whichButton) -> {
-                    createBackup(false, false);
-                }).show();
+        createBackup(true, true);
+    }
+
+    private void createCompatibleBackup() {
+        createBackup(true, false);
     }
 
     private void createBackup(boolean notify, boolean withmonoclesDb) {

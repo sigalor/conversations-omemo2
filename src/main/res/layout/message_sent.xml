@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/message_photo"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -39,9 +39,9 @@
             android:layout_alignParentBottom="true"
             android:scaleType="fitXY"
             app:strokeColor="@color/custom_theme_accent"
-            app:riv_corner_radius="30dp" />
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoRound" />
 
-            <com.makeramen.roundedimageview.RoundedImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/message_photo_square"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -50,7 +50,7 @@
                 android:layout_alignParentBottom="true"
                 android:scaleType="fitXY"
                 app:strokeColor="@color/custom_theme_accent"
-                app:riv_corner_radius="5dp" />
+        app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <View
             android:id="@+id/placeholder"

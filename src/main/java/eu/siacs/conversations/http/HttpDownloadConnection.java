@@ -32,6 +32,7 @@ import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.FileWriterException;
 import eu.siacs.conversations.utils.MimeUtils;
+import io.ipfs.cid.Cid;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -214,33 +215,34 @@ public class HttpDownloadConnection implements Transferable {
         if (message.getEncryption() == Message.ENCRYPTION_PGP) {
             notify = message.getConversation().getAccount().getPgpDecryptionService().decrypt(message, notify);
         }
-        DownloadableFile file;
-        final DownloadableFile tmp = mXmppConnectionService.getFileBackend().getFile(message);
-        final String extension = MimeUtils.extractRelevantExtension(tmp.getName());
-        try {
-            mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, new FileInputStream(tmp), extension);
-            file = mXmppConnectionService.getFileBackend().getFile(message);
-            boolean didRename = tmp.renameTo(file);
-            if (!didRename) throw new IOException("rename failed");
-        } catch (final IOException e) {
-            Log.w(Config.LOGTAG, "Failed to rename downloaded file: " + e);
-            file = tmp;
-            message.setRelativeFilePath(file.getAbsolutePath());
-        } catch (final XmppConnectionService.BlockedMediaException e) {
-            file = tmp;
-            tmp.delete();
-            message.setDeleted(true);
+
+        DownloadableFile file = mXmppConnectionService.getFileBackend().getFile(message);
+        message.setRelativeFilePath(file.getAbsolutePath());
+
+        boolean isDeleted = false;
+        for(Cid cid : message.getFileParams().getCids()) {
+            if(mXmppConnectionService.databaseBackend.isBlockedMedia(cid)) {
+                message.setDeleted(true);
+                isDeleted = true;
+                file.delete(); // TODO: use java.nio
+                break;
+            }
         }
+
         message.setTransferable(null);
-        if (cb != null) cb.accept(file);
+        if (cb != null && !isDeleted) cb.accept(file);
+
         mXmppConnectionService.updateMessage(message);
         mHttpConnectionManager.finishConnection(this);
-        final boolean notifyAfterScan = notify;
-        mXmppConnectionService.getFileBackend().updateMediaScanner(file, () -> {
-            if (notifyAfterScan) {
-                mXmppConnectionService.getNotificationService().push(message);
-            }
-        });
+
+        if(!isDeleted) {
+            final boolean notifyAfterScan = notify;
+            mXmppConnectionService.getFileBackend().updateMediaScanner(file, () -> {
+                if (notifyAfterScan) {
+                    mXmppConnectionService.getNotificationService().push(message);
+                }
+            });
+        }
     }
 
     private void decryptIfNeeded() throws IOException {

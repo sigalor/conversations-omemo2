@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
 
+import de.monocles.chat.RegisterMonoclesActivity;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.WelcomeBinding;
@@ -142,7 +143,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         }
         binding.importDatabase.setOnClickListener(v -> startActivity(new Intent(this, ImportBackupActivity.class)));
         binding.createAccount.setOnClickListener(v -> {
-            final Intent intent = new Intent(WelcomeActivity.this, MagicCreateActivity.class);
+            final Intent intent = new Intent(WelcomeActivity.this, RegisterMonoclesActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             addInviteUri(intent);
             startActivity(intent);
@@ -166,20 +167,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             finish();
             overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         });
-        binding.useSnikket.setOnClickListener(v -> {
-            final List<Account> accounts = xmppConnectionService.getAccounts();
-            Intent intent = new Intent(WelcomeActivity.this, EditAccountActivity.class);
-            intent.putExtra(EditAccountActivity.EXTRA_FORCE_REGISTER, false);
-            intent.putExtra("snikket", true);
-            if (accounts.size() == 1) {
-                intent.putExtra("jid", accounts.get(0).getJid().asBareJid().toString());
-                intent.putExtra("init", true);
-            } else if (accounts.size() >= 1) {
-                intent = new Intent(WelcomeActivity.this, ManageAccountActivity.class);
-            }
-            addInviteUri(intent);
-            startActivity(intent);
-        });
+
 
         // SDK >= 33 permissions
         if (Compatibility.runsThirtyThree()) {
@@ -223,19 +211,8 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             case R.id.action_scan_qr_code:
                 UriHandlerActivity.scan(this, true);
                 break;
-            case R.id.action_add_account_with_cert:
-                addAccountFromKey();
-                break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void addAccountFromKey() {
-        try {
-            KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
-        } catch (ActivityNotFoundException e) {
-            ToastCompat.makeText(this, R.string.device_does_not_support_certificates, ToastCompat.LENGTH_LONG).show();
-        }
     }
 
     @Override

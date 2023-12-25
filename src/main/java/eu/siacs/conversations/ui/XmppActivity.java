@@ -422,9 +422,6 @@ public abstract class XmppActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_create_issue:
-                createIssue();
-                break;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
@@ -1166,7 +1163,8 @@ public abstract class XmppActivity extends ActionBarActivity {
         final List<Account> accounts = EasyOnboardingInvite.getSupportingAccounts(this.xmppConnectionService);
         if (accounts.size() == 0) {
             //This can technically happen if opening the menu item races with accounts reconnecting or something
-            ToastCompat.makeText(this, R.string.no_active_accounts_support_this, ToastCompat.LENGTH_LONG).show();
+            //ToastCompat.makeText(this, R.string.no_active_accounts_support_this, ToastCompat.LENGTH_LONG).show();
+            Log.d(Config.LOGTAG,"No active accounts support this");
             return false;
         } else if (accounts.size() == 1) {
             openEasyInviteScreen(accounts.get(0));
@@ -1263,7 +1261,7 @@ public abstract class XmppActivity extends ActionBarActivity {
                     0, 0, Compatibility.pgpStartIntentSenderOptions());
         } catch (final Throwable e) {
             Log.d(Config.LOGTAG,"could not launch OpenKeyChain", e);
-            ToastCompat.makeText(XmppActivity.this, R.string.openpgp_error, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(XmppActivity.this, R.string.openpgp_error, Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -43,7 +43,7 @@
         android:visibility="gone"
         android:orientation="horizontal">
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/message_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -52,7 +52,7 @@
             android:maxWidth="500dp"
             android:maxHeight="500dp"
             android:scaleType="centerCrop"
-            app:riv_corner_radius="@dimen/rounded_image_border" />
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/message_image_gif"
@@ -63,7 +63,7 @@
             android:maxWidth="500dp"
             android:maxHeight="500dp"
             android:scaleType="centerCrop"
-            app:riv_corner_radius="@dimen/rounded_image_border" />
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <TextView
             android:id="@+id/media_duration"

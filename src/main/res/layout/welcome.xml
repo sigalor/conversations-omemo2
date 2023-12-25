@@ -114,16 +114,6 @@
                             android:textColor="@color/accent_monocles"
                             android:layout_margin="10dp"/>
 
-                        <Button
-                            android:id="@+id/use_snikket"
-                            style="@style/Widget.Conversations.Button.Outline"
-                            android:layout_width="250dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/i_am_snikket_user"
-                            android:textColor="@color/accent_monocles"
-                            android:layout_margin="10dp"/>
-                        <!--           android:drawableLeft="@drawable/snikket"  TODO: Add icons -->
-
                     </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>

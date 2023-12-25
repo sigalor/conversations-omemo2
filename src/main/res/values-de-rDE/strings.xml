@@ -99,7 +99,7 @@
     <string name="install">Installieren</string>
     <string name="offering">angeboten…</string>
     <string name="waiting">warten…</string>
-    <string name="monocles_account_introduction">Du kannst monocles chat mit jedem modernen XMPP-Konto nutzen oder erhalte ein günstiges und <b>sicheres monocles Konto, versorgt mit regenerativen Energien!</b></string>
+    <string name="monocles_account_introduction">Registriere dich jetzt für ein <b>sicheres monocles Konto, versorgt mit regenerativen Energien</b>, um direkt loszuchatten.</string>
     <string name="create_monocles_account">Zur Registrierung</string>
     <string name="or_use_another">... oder wähle einen anderen Anbieter</string>
     <string name="no_pgp_key">Kein OpenPGP-Schlüssel gefunden</string>
@@ -206,8 +206,8 @@
     <string name="openpgp_messages_found">Verschlüsselte OpenPGP-Nachricht gefunden</string>
     <string name="your_fingerprint">Dein Fingerabdruck</string>
     <string name="openpgp_key_id">OpenPGP Schlüssel ID</string>
-    <string name="omemo_fingerprint">OMEMO-Fingerabdruck&#160;-&#160;</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-Fingerabdruck&#160;-&#160;</string>
+    <string name="omemo_fingerprint">OMEMO-Fingerabdruck - </string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO-Fingerabdruck - </string>
     <string name="omemo_fingerprint_selected_message">OMEMO-Fingerabdruck (Nachrichtenquelle)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-Fingerabdruck (Nachrichtenquelle)</string>
     <string name="other_devices">Andere Geräte</string>
@@ -475,7 +475,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Setze deinen Status auf \"Bitte nicht stören\", solange dein Gerät stummgeschaltet ist</string>
     <string name="pref_treat_vibrate_as_silent">Vibration als Lautlos behandeln</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Setze deinen Status auf \"Bitte nicht stören\", solange das Gerät auf Vibration geschaltet ist</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Konto mit Zertifikat hinzufügen</string>
     <string name="unable_to_parse_certificate">Zertifikat kann nicht gelesen werden</string>
     <string name="authenticate_with_certificate">Leer lassen, um mit Zertifikat anzumelden</string>
@@ -544,7 +544,7 @@
     <string name="this_field_is_required">Dieses Feld ist erforderlich</string>
     <string name="correct_message">Nachricht korrigieren</string>
     <string name="send_corrected_message">Korrigierte Nachricht senden</string>
-    <string name="no_keys_just_confirm">Du vertraust diesem Kontakt bereits. Durch Auswählen von Fertig bestätigst du, dass %s Teil dieses Raums ist.</string>
+    <string name="no_keys_just_confirm">Du vertraust diesem Kontakt bereits. Durch Auswählen von Fertig bestätigst du, dass %s Teil dieses Gruppenchats ist.</string>
     <string name="contacts_have_no_pgp_keys">monocles chat ist nicht in der Lage, deine Nachrichten zu verschlüsseln, weil deine Kontakte ihren öffentlichen Schlüssel nicht preisgeben.
 \n
 \n<small>Bitte sage deinen Kontakten, sie mögen OpenPGP einrichten.</small></string>
@@ -553,10 +553,11 @@
     <string name="share_uri_with">Teile URI mit…</string>
     <string name="mgmt_account_reconnect">Neu verbinden</string>
     <string name="welcome_text">…ist ein privatsphäre respektierender und sicherer Chat Client.</string>
-    <string name="magic_create_text">
+    <string name="magic_create_text">Wir erstellen nun mit dir gemeinsam ein Profil mit einem zufällig generierten Kennwort, welches du benutzen oder auf der nächsten Seite ändern kannst\nDanach kannst du mit Kontakten auf diesem und anderen Servern in Kontakt treten, indem du ihnen deine XMPP-Adresse mitteilst.</string>
+    <string name="monocles_account_details">
 \n Dies beinhaltet:
-\n ● zwei Monate verschlüsselte Chat-Speicher
-\n ● E-Mail mit 1 GB Ende-zu-Ende verschlüsseltem Speicher
+\n ● Verschlüsselter Chat-Speicher
+\n ● E-Mail mit 2 GB verschlüsseltem Speicher
 \n
 \n optional:
 \n ● 4 GB Cloud-Speicher (Nextcloud)
@@ -841,7 +842,7 @@
     <string name="no_location_permission">monocles chat benötigt Zugriff auf die Standortdienste</string>
     <string name="pref_show_record_voice_btn_summary">Zeige Sprachaufnahme-Taste als Schnell-Taste in den Chats</string>
     <string name="pref_show_record_voice_btn">Zeige Sprachaufnahme-Taste</string>
-    <string name="pref_use_quick_share_attachment_choice_summary">Ersetze Absende-Knopf durch Anlagen-Auswahl, wenn keine Nachricht eingetippt wurde. Andernfalls zeige Schnell-Tasten, welche in der folgenden Einstellung konfiguriert werden können.</string>
+    <string name="pref_use_quick_share_attachment_choice_summary">Ersetze Absende-Knopf durch Anlagen-Auswahl, wenn keine Nachricht eingetippt wurde. Andernfalls zeige Schnell-Tasten, welche in der folgenden Einstellung konfiguriert werden können</string>
     <string name="pref_quick_share_attachment_choice">Anlagen-Auswahl</string>
     <string name="unable_to_save_recording">Aufnahme kann nicht gespeichert werden</string>
     <string name="foreground_service_channel_name">Vordergrunddienst</string>
@@ -1008,7 +1009,7 @@
     <string name="pref_use_invidious_summary">Invidious ist eine datenschutzfreundliche Alternative zu YouTube</string>
     <string name="pref_use_inner_storage_summary">Andere Apps können die Medien aus dem versteckten Speicher nicht lesen</string>
     <string name="this_device">Dieses Gerät</string>
-    <string name="intro_desc_main">Mehr erfahren…</string>
+    <string name="intro_desc_main">monocles chat ist nicht einfach nur ein weiterer Messenger… monocles chat verwendet einen offiziellen Standard der IETF. Du kannst jederzeit die App wechseln und trotzdem mit deinen Freunden in Kontakt bleiben. \nHier stehst du im Mittelpunkt und triffst die Entscheidung.</string>
     <string name="welcome_header">Willkommen bei
 \nmonocles chat</string>
     <string name="intro_required_permissions">Erforderliche Berechtigungen</string>
@@ -1027,7 +1028,7 @@
     <string name="pref_show_intro">Hilfen erneut anzeigen</string>
     <string name="show_intro_again">Hilfen werden erneut angezeigt</string>
     <string name="show_intro_again_failed">Zurücksetzen der Hilfen fehlgeschlagen. Versuche es erneut…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, auch Jabber genannt, ist ein dezentrales Kommunikationsnetzwerk und funktioniert wie E-Mail. Du brauchst eine Chatadresse (auch Jabber-ID genannt), ein Kennwort und eine Messenger-Software, z. B. monocles chat. Mehr dazu später.</string>
+    <string name="intro_desc_whats_xmpp">XMPP ist der Internetstandard für Instant Messaging. Wie bei E-Mail hast du hier eine Adresse, die du für das Messaging verwendest. Mehr dazu später.</string>
     <string name="intro_whats_xmpp">Was ist XMPP / Jabber / monocles chat\?</string>
     <string name="intro_desc_optional_permissions">Berechtigungen zum Zugriff deines Adressbuchs sind zum Lesen von Chatadressen (falls vorhanden) erforderlich. Kontakte werden niemals geteilt, hochgeladen oder kopiert.</string>
     <string name="intro_desc_account2">Du kannst ein neues Konto auf monocles chat nur durch Eingabe eines Nicknamens erstellen.</string>
@@ -1037,12 +1038,12 @@
 \nFür den Versand von Sprachnachrichten ist es erforderlich, Zugriff auf das Mikrofon zu erhalten.</string>
     <string name="intro_desc_account3">Du hast die Möglichkeit, ein bestehendes Konto zu importieren.
 \nTippe einfach auf Konto importieren. Wenn Sicherungsdateien verfügbar sind, werden diese angezeigt. Wähle ein Konto aus, das importiert werden soll.</string>
-    <string name="intro_desc_start_chatting2">Du kannst auch Gruppenchats - sogenannte Räume - hinzufügen, erstellen oder ihnen beitreten. Man unterscheidet zwischen privaten Gruppenchats und öffentlichen Gruppenchats - sogenannten Räumen.</string>
+    <string name="intro_desc_start_chatting2">Du kannst auch Gruppenchats - sogenannte Räume - hinzufügen, erstellen oder ihnen beitreten. Man unterscheidet zwischen privaten und öffentlichen Gruppenchats.</string>
     <string name="intro_desc_start_chatting3">Herzlichen Glückwunsch!
 \nJetzt geht\'s los und viel Spaß…</string>
     <string name="intro_privacy">Deine Privatsphäre
 \nDeine Souveränität</string>
-    <string name="intro_desc_privacy">monocles chat wird deine Daten weder verkaufen noch analysieren und du entscheidest, welche Berechtigungen du erteilst.</string>
+    <string name="intro_desc_privacy">Wir bei monocles werden deine Daten weder verkaufen noch analysieren und du entscheidest, welche Berechtigungen du erteilst.</string>
     <string name="no_results">Keine Ergebnisse</string>
     <string name="file_transmission_cancelled">Übertragung abgebrochen</string>
     <string name="sharing_application_not_grant_permission">Die teilende App erteilte keine Berechtigung für den Zugriff auf diese Datei.</string>
@@ -1072,7 +1073,7 @@
     <string name="magic_create_text_fixed">Du wurdest zu %1$s eingeladen. Ein Nutzername wurde für dich bereits voreingestellt. Wir erstellen nun mit dir gemeinsam ein Konto.
 \nDu kannst mit Kontakten auf diesem und anderen Servern in Kontakt treten, indem du ihnen deine Chatadresse mitteilst.</string>
     <string name="your_server_invitation">Deine Server-Einladung</string>
-    <string name="pref_use_unicolored_chatbg_summary">Nutze einfarbigen Hintergrund in Chats.</string>
+    <string name="pref_use_unicolored_chatbg_summary">Nutze einfarbigen Hintergrund in Chats</string>
     <string name="pref_use_unicolored_chatbg">Nutze einfarbigen Hintergrund</string>
     <string name="pref_alternative_voice_settings_summary">Falls du bei der Sprachaufnahme Probleme hast, nutze einen alternativen Codec.</string>
     <string name="pref_alternative_voice_settings">Alternative Methode zur Sprachaufnahme</string>
@@ -1361,8 +1362,8 @@
     <string name="pref_import_database_or_settings_summary">Lade eine Sicherungsdatei oder eine Einstellungsdatei in monocles chat</string>
     <string name="action_complete">Fertig</string>
     <string name="message_reaction">Reaktion senden</string>
-    <string name="custom_background">Eigener Hintergrund</string>
-    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund. Das Bild wird in /Documents/monocles chat/backgrounds/bg.jpg kopiert. Sollte ein Problem auftreten, lösche das Bild mit einem Dateimanager.</string>
+    <string name="custom_background">Eigenes Hintergrundbild</string>
+    <string name="pref_chat_background_summary">Wähle ein eigenes Bild als Chat-Hintergrund</string>
     <string name="custom_theme_options">Individuelles Design</string>
     <string name="custom_theme_is_dark">Individuelles Design ist dunkel?</string>
     <string name="custom_primary_color">Individuelle Primärfarbe</string>
@@ -1380,13 +1381,13 @@
     <string name="edit_sytemaccount_or_xmppaccount">Bearbeite den Chatkontakt oder den Telefonkontakt?</string>
     <string name="edit_sytemaccount">Telefon Kontakt</string>
     <string name="edit_chat_contact">Chatkontakt</string>
-    <string name="enter_user_name">Gebe einen Namen ein</string>
+    <string name="enter_user_name">Gib einen Namen ein</string>
     <string name="account_color">Kontofarbe</string>
     <string name="account_color_summary">Kontofarbe for die Chatliste, Kontakteliste und Benachrichtigungen.</string>
     <string name="pref_show_less_avatars">Zeige weniger Profilbilder in Chats</string>
     <string name="pref_show_less_avatars_summary">Zeigt nur noch notwendige Profilbilder in Unterhaltungen an</string>
     <string name="pref_set_text_collapsable">Kürze lange Nachrichten</string>
-    <string name="pref_set_text_collapsable_summary">Verkürzt Nachrichten welche länger als 240 Zeichen sind.</string>
+    <string name="pref_set_text_collapsable_summary">Verkürzt Nachrichten welche länger als 230 Zeichen sind.</string>
     <string name="media">Medien</string>
     <string name="security">Sicherheit</string>
     <string name="verified_with_qr_code">verifiziert mit QR-Code</string>
@@ -1396,4 +1397,53 @@
     <string name="log_in">Anmelden</string>
     <string name="contact_uses_unverified_keys">Dein Kontakt nutzt nicht verifizierte Geräte. Scanne seinen QR-Code, um ihn zu verifizieren und "MITM"-Angriffe aktiv zu verhindern.</string>
     <string name="unverified_devices">Du benutzt nicht verifizierte Geräte. Scanne den QR-Code an deinen anderen Geräten um sie zu verifizieren und "MITM"-Angriffe aktiv zu verhindern.</string>
+    <string name="not_dnssec_verified">Nicht DNSSEC verifiziert</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE verifiziert</string>
+    <string name="dnssec_verified">DNSSEC verifiziert</string>
+    <string name="create_background_failed">Konnte Hintergrundbild nicht laden</string>
+    <string name="custom_background_set">Eigenes Hintergrundbild geladen</string>
+    <string name="delete_background_failed">Konnte Hintergrundbild nicht entfernen</string>
+    <string name="delete_background_success">Hintergrundbild entfernt</string>
+    <string name="delete_background">Hintergrundbild entfernen</string>
+    <string name="pref_delete_background_summary">Entferne dein eigenes Hintergrundbild im Chat</string>
+    <string name="no_background_set">Kein Hintergrundbild vorhanden</string>
+    <string name="input_field">Eingabefeld</string>
+    <string name="thanks">Schön, das du monocles chat nutzt! Bitte erwäge die Entwicklung mit einer kleinen Spende zu unterstützen.</string>
+    <string name="donation_link">https://monocles.eu/more/de.html#donation-section</string>
+    <string name="donate">Spenden</string>
+    <string name="pref_enforce_dane_summary">Erlaube Verbindungen nur bei erfolgreicher DANE-Verifizierung</string>
+    <string name="pref_enforce_dane">DANE erzwingen</string>
+    <string name="use_monocles">Ich bevorzuge monocles</string>
+    <string name="describe_issue">Bitte beschreibe das Problem detailliert. Danke.</string>
+    <string name="import_own_stickers">Importiere Sticker</string>
+    <string name="import_own_stickers_summary">Importiere eigene Sticker. Finde sie anschließend anhand des Dateinamens.</string>
+    <string name="sticker_saved">Sticker gespeichert</string>
+    <string name="sticker_imported">Sticker importiert</string>
+    <string name="import_sticker_failed">Konnte Sticker nicht importieren</string>
+    <string name="download_sticker">Sticker herunterladen?</string>
+    <string name="download_sticker_summary">Möchtest du gerne einige standard Sticker herunterladen?</string>
+    <string name="retract_message_dialog_msg">Möchtest du die Nachricht wirklich zurückziehen?</string>
+    <string name="dane_failed">DANE fehlgeschlagen</string>
+    <string name="pref_create_compatible_backup">Universelle Sicherung erstellen</string>
+    <string name="pref_create_compatible_backup_summary">Universelle Sicherungsdateien schreiben nach %s</string>
+    <string name="outdated_backup_file_format">Du versuchst ein veraltetes Sicherungsdateiformat zu importieren</string>
+    <string name="this_account_is_logged_out">Du hast dich abgemeldet</string>
+    <string name="moderate_recent">Nachricht moderieren?</string>
+    <string name="unknown">Unbekannt</string>
+    <string name="new_contact">Neuer Kontakt</string>
+    <string name="notifications_disabled">Benachrichtigungen sind deaktiviert. Bitte aktiviere sie in den Android Einstellungen.</string>
+    <string name="save_as_sticker">Als Sticker speichern</string>
+    <string name="new_contact_or_group">Neuer Kontakt oder Raum</string>
+    <string name="action_execute">Los</string>
+    <string name="account_state_logged_out">Abmeldung erfolgt</string>
+    <string name="please_be_patient">Einen Moment Geduld bitte...</string>
+    <string name="notifications_enabled">Benachrichtigungen sind eingeschaltet</string>
+    <string name="colors">Farben</string>
+    <string name="save_as_contact_bookmark">Als Kontakt / Lesezeichen speichern</string>
+    <string name="accounts">Konten</string>
+    <string name="no_media_permission">Berechtigungen fehlen</string>
+    <string name="unified">Alle</string>
+    <string name="pref_hide_donation_snackbar_summary">Zeige den Spenden Hinweis nicht wieder an</string>
+    <string name="pref_hide_donation_snackbar">Deaktiviere Spendenhinweis</string>
+    <string name="snikket_login_activated">Snikket Login aktiviert</string>
 </resources>

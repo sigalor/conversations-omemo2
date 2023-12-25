@@ -36,7 +36,7 @@ Il existe également des sales XMPP anglophones et germanophones qui se concentr
 
 Si vous êtes intéressé par le développement du chat, voici un MUC pour vous (en anglais et en allemand) :
 
-Développement-Chat :  [development@conference.monocles.de](https://monocles.social/)     
+Développement-Chat :  [development@conference.monocles.de](https://monocles.chat/)     
 
 
 Il existe également un Support-MUC où vous pouvez poser des questions et obtenir de l'aide pour les problèmes que vous pouvez rencontrer, voir ci-dessous pour plus de détails.
@@ -50,7 +50,7 @@ Vous pouvez créer une demande de fusion et ajouter de nouvelles langues en tant
 ## Aidez-moi ! J'ai rencontré des problèmes !
 La façon la plus simple d'obtenir de l'aide est de rejoindre notre support-MUC (en anglais et en allemand).
 
-Lien d'invitation à la discussion de soutien : [support@conference.monocles.de]
+Lien d'invitation à la discussion de soutien : [support@conference.monocles.eu]
 
 Si nous ne pouvons pas résoudre votre problème, vous pouvez ouvrir une question [ici](https://codeberg.org/Arne/monocles_chat/issues), en détaillant votre problème, comment le reproduire et en fournissant des journaux. Voir les instructions ci-dessous sur la façon de créer des fichiers journaux.
 

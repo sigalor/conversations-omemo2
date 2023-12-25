@@ -204,8 +204,8 @@
     <string name="openpgp_messages_found">Mensagens criptografadas com OpenPGP encontradas</string>
     <string name="your_fingerprint">Sua impressão digital</string>
     <string name="openpgp_key_id">ID da chave OpenPGP</string>
-    <string name="omemo_fingerprint">Impressão digital OMEMO</string>
-    <string name="omemo_fingerprint_x509">Impressão digital v\\OMEMO</string>
+    <string name="omemo_fingerprint">Impressão digital OMEMO </string>
+    <string name="omemo_fingerprint_x509">Impressão digital v\\OMEMO </string>
     <string name="omemo_fingerprint_selected_message">Impressão digital do OMEMO (mensagem original)</string>
     <string name="omemo_fingerprint_x509_selected_message">Impressão digital do v\\OMEMO (mensagem original)</string>
     <string name="other_devices">Outros dispositivos</string>
@@ -264,7 +264,7 @@
     <string name="without_mutual_presence_updates"><b>Aviso:</b> Enviar isto sem atualizações de presença mútuas pode causar problemas inesperados.
 \n
 \n<small>Vá aos detalhes do contato para verificar as suas subscrições de presença.</small></string>
-    <string name="pref_security_settings">Segurança e proteção de dados</string>
+    <string name="pref_security_settings">Segurança e privacidade</string>
     <string name="pref_allow_message_correction">Permitir a correção de mensagem</string>
     <string name="pref_allow_message_correction_summary">Permitir que os seus contatos editem as mensagens deles após enviadas</string>
     <string name="pref_expert_options">Configurações avançadas</string>
@@ -470,7 +470,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Define o seu recurso como \"Não perturbe\" quando o dispositivo está em modo silencioso</string>
     <string name="pref_treat_vibrate_as_silent">Considerar vibrar como modo silencioso</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Define o seu recurso como \"Não perturbe\" quando o dispositivo está em modo de vibração</string>
-    <string name="hostname_example">monocles chat</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Adicionar conta com certificado</string>
     <string name="unable_to_parse_certificate">Não foi possível processar o certificado</string>
     <string name="authenticate_with_certificate">Deixar vazio para autenticar com certificado</string>
@@ -534,7 +534,7 @@
     <string name="share_uri_with">Compartilhar URI com…</string>
     <string name="mgmt_account_reconnect">Reconectar</string>
     <string name="welcome_text">…é um cliente XMPP/Jabber gratuito e seguro.</string>
-    <string name="your_full_jid_will_be">Seu ID será: %s</string>
+    <string name="your_full_jid_will_be">Seu endereço será: %s</string>
     <string name="create_account">Criar conta</string>
     <string name="welcome_existing_account">Já tenho uma conta</string>
     <string name="pick_your_username">Escolha seu nome de usuário</string>
@@ -770,7 +770,8 @@
     <string name="your_status">Seu status</string>
     <string name="pref_use_invidious">Substituir links do YouTube pelo Invidious</string>
     <string name="this_device">Este dispositivo</string>
-    <string name="intro_desc_main">Saiba mais…</string>
+    <string name="intro_desc_main">O Monocles Chat não é apenas mais um mensageiro… O monocles Chat usa um padrão oficial da IETF. Você pode trocar de aplicativo a qualquer momento e ainda manter contato com seus amigos.
+\nAqui é você quem ocupa o centro do palco e toma a decisão.</string>
     <string name="welcome_header">Seja bem-vindo ao
 \nMonocles Chat</string>
     <string name="intro_required_permissions">Permissões necessárias</string>
@@ -1139,7 +1140,7 @@
     <string name="intro_whats_xmpp">O que é XMPP/Jabber/Monocles Chat\?</string>
     <string name="intro_privacy">Sua privacidade
 \nSua soberania</string>
-    <string name="intro_desc_privacy">O Monocles não venderá nem analisará seus dados e você decide quais permissões conceder.</string>
+    <string name="intro_desc_privacy">Nós da Monocles não venderemos ou analisaremos seus dados e você decide quais permissões conceder.</string>
     <string name="contact_asks_for_presence_subscription">Contato solicita subscrição de presença</string>
     <string name="pref_screen_security_summary">Considere o conteúdo como seguro e evite que ele apareça nas capturas de tela</string>
     <string name="otr_fingerprint_selected_message">Impressão digital OTR da mensagem</string>
@@ -1177,7 +1178,7 @@
     <string name="show_videos_images_only">Apenas imagens/vídeos</string>
     <string name="rtp_state_reconnecting">Reconectando</string>
     <string name="create_monocles_account">Obtenha uma conta Monocles!</string>
-    <string name="monocles_account_introduction">Você pode usar o Monocles Chat com todas as contas XMPP modernas ou obter uma conta de Monocles acessível e segura, hospedada na estação do servidor de Monocles e alimentada com energias renováveis!</string>
+    <string name="monocles_account_introduction">Cadastre-se agora e <b>obtenha uma conta Monóculos segura, alimentada com energias renováveis</b> para começar a conversar diretamente.</string>
     <string name="error_moving_data">Ocorreu um erro ao mover seus dados antigos. Mova-os manualmente.</string>
     <string name="data_successfully_moved">Seus dados foram movidos com sucesso.</string>
     <string name="server_does_not_support_easy_onboarding_invites">O servidor não suporta a geração de convites</string>
@@ -1231,7 +1232,7 @@
     <string name="strikethrough">traçado</string>
     <string name="grant">Conceder</string>
     <string name="no_manage_storage_permission">Desde o Android 11, os aplicativos precisam de uma permissão especial para acessar todos os tipos de arquivo no armazenamento externo. O Monocles Chat pedirá que você conceda essa permissão para continuar.</string>
-    <string name="pref_showtextformatting_sum">Mostrar barra de ferramentas de formatação de texto no chat enquanto o teclado é mostrado</string>
+    <string name="pref_showtextformatting_sum">Mostrar barra de ferramentas de formatação de texto na conversa enquanto o teclado é mostrado</string>
     <string name="pref_showtextformatting">Mostrar barra de ferramentas de formatação de texto</string>
     <string name="close">Fechar</string>
     <string name="close_format_text">Deseja mesmo fechar a barra de ferramentas de formatação de texto\? Você pode habilitar a barra de ferramentas nas configurações novamente.</string>
@@ -1270,7 +1271,7 @@
     <string name="install_from_unknown_sources_disabled_dialog">Seu dispositivo está configurado para não permitir instalações de aplicativos de fontes desconhecidas, exceto da Google PlayStore. Isso causará problemas com o atualizador do aplicativo.
 \n
 \nAgora você será solicitado a permitir instalações de aplicativos de fontes desconhecidas.</string>
-    <string name="no_keys_just_confirm">Você já confia neste contato. Ao selecionar \'concluído\', você está apenas confirmando que %s faz parte deste grupo.</string>
+    <string name="no_keys_just_confirm">Você já confiou na impressão digital deste contato. Ao selecionar \'concluído\', você está apenas confirmando que %s faz parte deste grupo.</string>
     <string name="delete_file_dialog_msg">Tem certeza de que deseja excluir este arquivo\?
 \n
 \n<b>Aviso:</b> isso não excluirá as cópias deste arquivo que estão armazenadas em outros dispositivos ou servidores.</string>
@@ -1280,9 +1281,9 @@
     <string name="pref_enable_persistent_rooms_summary">Torne grupos e salas públicas persistentes e não os exclua do servidor depois que o último usuário sair da conversa</string>
     <string name="pref_show_links_inside">Mostrar prévia de links na conversa</string>
     <string name="pref_enable_otr_summary">Ative a criptografia OTR para criptografia de mensagens. OTR ainda é altamente instável, por favor, use-o apenas se você souber o que está fazendo</string>
-    <string name="magic_create_text">Isso inclui:
+    <string name="monocles_account_details">Isso inclui:
 \n● armazenamento de bate-papo temporário criptografado por dois meses
-\n● e-mail com 1 GB de armazenamento criptografado de ponta a ponta
+\n● e-mail com 2 GB de armazenamento criptografado
 \n
 \n opcionalmente:
 \n● 4 GB de armazenamento em nuvem (nextcloud)
@@ -1312,7 +1313,7 @@
     <string name="intro_desc_open_chat_details">Você abriu os detalhes da conversa. Aqui você pode ver os detalhes da conversa, alterar o comportamento de notificação de novas mensagens, adicionar ou remover o usuário da sua lista de contatos e muito mais.</string>
     <string name="no_i2p_calls">Desabilitar I2P para fazer chamadas</string>
     <string name="pref_invidious_host_summary">Usar um host Invidious personalizado</string>
-    <string name="intro_desc_whats_xmpp">O XMPP, também chamado de Jabber, é uma rede de comunicação descentralizada e funciona como e-mail. Você precisa de um endereço de usuário (também chamado de Jabber-ID), uma senha e um aplicativo. Mais sobre isso mais tarde.</string>
+    <string name="intro_desc_whats_xmpp">XMPP é o padrão da internet para mensagens instantâneas. Tal como acontece com o e-mail, você tem um endereço que usa para enviar mensagens. Mais sobre isso mais tarde.</string>
     <string name="updated_to_monocles_google">Pedimos desculpas por não poder atualizar diretamente para o Monocles Chat. No link a seguir, você receberá instruções sobre como transferir todas as suas contas do Monocles Messenger para o Monocles Chat. Ao clicar em mover dados, tentamos mover todos os arquivos enviados e recebidos do Monocles Messenger para o Monocles Chat. Após uma migração bem-sucedida, lembre-se de remover o Monocles Messenger do seu dispositivo.</string>
     <string name="intro_desc_account2">Você pode criar uma nova conta no Monocles Chat apenas digitando um nome.</string>
     <string name="if_contact_is_nearby_use_qr">Se o seu contato estiver por perto, ele também pode escanear o código abaixo para aceitar seu convite.</string>
@@ -1400,7 +1401,7 @@
     <string name="menuitem_create_backup_action">Criar backup</string>
     <string name="collapse_message_signs_summary">Defina o número máximo de caracteres para recolher uma mensagem</string>
     <string name="notify_only_when_highlighted_or_replied">Notificar para menções e respostas</string>
-    <string name="pref_chat_background_summary">Escolha um arquivo de imagem como papel de parede da conversa. O arquivo de imagem será copiado para /Documents/monocles chat/backgrounds/bg.jpg. Caso surja algum problema, exclua o arquivo de imagem com um gerenciador de arquivos.</string>
+    <string name="pref_chat_background_summary">Escolha um arquivo de imagem como papel de parede da conversa.</string>
     <string name="settings_restore_message_success">Configurações restauradas com sucesso</string>
     <string name="message_reaction">Enviar reação</string>
     <string name="please_be_patient">Por favor, seja paciente...</string>
@@ -1428,8 +1429,47 @@
     <string name="account_color_summary">Usado em listas de conversas, contatos e notificações</string>
     <string name="enter_user_name">Insira o nome</string>
     <string name="notifications_enabled">Notificações ativadas</string>
-    <string name="pref_set_text_collapsable_summary">Recolhe texto com mais de 240 caracteres</string>
+    <string name="pref_set_text_collapsable_summary">Recolhe texto com mais de 230 caracteres</string>
     <string name="pref_show_thread_feature_summary">Mostrar ícone de tópico na barra e permitir a criação e acompanhamento de tópicos</string>
     <string name="edit_sytemaccount_or_xmppaccount">Editar contato de conversa ou contato telefônico\?</string>
     <string name="pref_show_less_avatars_summary">Apenas os avatares necessários nas conversas serão mostrados</string>
+    <string name="this_account_is_logged_out">Você saiu desta conta</string>
+    <string name="log_in">Entrar</string>
+    <string name="hide_notification">Ocultar notificação</string>
+    <string name="key_automatically_accepted"> - chave não verificada</string>
+    <string name="verified_with_qr_code"> - verificado com código QR</string>
+    <string name="contact_uses_unverified_keys">Seu contato usa dispositivos não verificados. Digitalize seu código de barras 2D para realizar verificação e impedir ataques MITM ativos.</string>
+    <string name="unknown">Desconhecido</string>
+    <string name="log_out">Sair</string>
+    <string name="retract_message_dialog_msg">Você realmente deseja retratar esta mensagem?</string>
+    <string name="account_state_logged_out">Desconectado</string>
+    <string name="unverified_devices">Você está usando dispositivos não verificados. Digitalize o código de barras 2D em seus outros dispositivos para realizar a verificação e impedir ataques MITM ativos.</string>
+    <string name="media">Mídia</string>
+    <string name="security">Segurança</string>
+    <string name="reconnect_on_other_host">Reconecte-se em outro host</string>
+    <string name="outdated_backup_file_format">Você está tentando importar um arquivo de backup desatualizado</string>
+    <string name="manage_phone_accounts">Gerenciar contas de telefone</string>
+    <string name="delete_background_failed">Não foi possível remover papel de parede</string>
+    <string name="delete_background_success">Papel de parede removido</string>
+    <string name="delete_background">Remover papel de parede da conversa</string>
+    <string name="no_background_set">Nenhum papel de parede personalizado definido</string>
+    <string name="custom_background_set">Definir papel de parede personalizado</string>
+    <string name="input_field">Barra</string>
+    <string name="import_own_stickers">Importar figurinhas</string>
+    <string name="thanks">Obrigado por usar o Monocles Chat! Por favor, considere apoiar o desenvolvimento com uma pequena doação.</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">Doar</string>
+    <string name="use_monocles">Eu prefiro Monocles</string>
+    <string name="describe_issue">Descreva seu problema detalhadamente. Obrigado.</string>
+    <string name="sticker_saved">Figurinha salva</string>
+    <string name="sticker_imported">Figurinha importada</string>
+    <string name="import_sticker_failed">Falha ao importar figurinha</string>
+    <string name="download_sticker">Baixar figurinhas?</string>
+    <string name="download_sticker_summary">Gostaria de baixar alguns pacotes de figurinhas padrão?</string>
+    <string name="pref_create_compatible_backup">Criar backup universal</string>
+    <string name="pref_create_compatible_backup_summary">Salvar arquivos de backup universais em %s</string>
+    <string name="create_background_failed">Falha ao criar papel de parede</string>
+    <string name="pref_delete_background_summary">Remova seu papel de parede personalizado da conversa</string>
+    <string name="import_own_stickers_summary">Importe suas próprias figurinhas. Use-as com o nome do arquivo original</string>
+    <string name="magic_create_text">Orientaremos você no processo de criação de uma conta com uma senha aleatória, que você pode usar ou alterar para sua própria senha na próxima página. Então você poderá se comunicar com usuários deste e de outros provedores, fornecendo-lhes seu endereço XMPP completo.</string>
 </resources>

@@ -367,16 +367,17 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return message;
     }
     public ContentValues getmonoclesContentValues() {
+        final FileParams fp = fileParams;
         ContentValues values = new ContentValues();
         values.put(UUID, uuid);
         values.put("subject", subject);
-        values.put("fileParams", fileParams == null ? null : fileParams.toString());
-        if (fileParams != null && !fileParams.isEmpty()) {
+        values.put("fileParams", fp == null ? null : fp.toString());
+        if (fp != null && !fp.isEmpty()) {
             List<Element> sims = getSims();
             if (sims.isEmpty()) {
-                addPayload(fileParams.toSims());
+                addPayload(fp.toSims());
             } else {
-                sims.get(0).replaceChildren(fileParams.toSims().getChildren());
+                sims.get(0).replaceChildren(fp.toSims().getChildren());
             }
         }
         values.put("payloads", payloads.size() < 1 ? null : payloads.stream().map(Object::toString).collect(Collectors.joining()));
@@ -547,10 +548,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public synchronized void appendBody(Spanned append) {
-        final Element body = getOrMakeHtml();
-        SpannedToXHTML.append(body, append);
-        if (body.getContent().equals(this.body + append.toString())) {
-            this.payloads.remove(getHtml());
+        if (!SpannedToXHTML.isPlainText(append) || getHtml() != null) {
+            final Element body = getOrMakeHtml();
+            SpannedToXHTML.append(body, append);
         }
         appendBody(append.toString());
     }

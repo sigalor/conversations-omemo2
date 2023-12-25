@@ -475,7 +475,7 @@
     <string name="pref_dnd_on_silent_mode_summary">Zet status op \"Niet storen\" wanneer het apparaat in Stille modus staat</string>
     <string name="pref_treat_vibrate_as_silent">Trillen behandelen als stille modus</string>
     <string name="pref_treat_vibrate_as_dnd_summary">Zet status op \"Niet storen\" wanneer het apparaat in trilmodus staat</string>
-    <string name="hostname_example">monocles.de</string>
+    <string name="hostname_example">monocles.eu</string>
     <string name="action_add_account_with_certificate">Account met certificaat toevoegen</string>
     <string name="unable_to_parse_certificate">Kan certificaat niet verwerken</string>
     <string name="authenticate_with_certificate">Laat leeg om te authenticeren met certificaat</string>

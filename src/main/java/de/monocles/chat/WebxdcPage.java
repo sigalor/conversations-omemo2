@@ -201,7 +201,7 @@ public class WebxdcPage implements ConversationPage {
         return res;
     }
 
-    public View inflateUi(Context context, eu.siacs.conversations.utils.Consumer<ConversationPage> remover) {
+    public View inflateUi(Context context, Consumer<ConversationPage> remover) {
         if (binding != null) {
             binding.webview.loadUrl("javascript:__webxdcUpdate();");
             return getView();
