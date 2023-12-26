@@ -33,16 +33,20 @@ public class Util {
         DISPLAYED
     }
 
-    public static int getReadmakerType(boolean isDarkBackground, boolean useBlueReadmarkers, ReadmarkerType readmakerType) {
+    public static int getReadmakerType(boolean isDarkBackground, boolean useBlueReadmarkers, boolean UseGreenBlueReadMarkers, ReadmarkerType readmakerType) {
         if(isDarkBackground) {
             if(readmakerType == ReadmarkerType.DISPLAYED) {
                 if(useBlueReadmarkers) {
                     return R.drawable.ic_check_all_blue_18dp;
+                } else if (UseGreenBlueReadMarkers) {
+                    return R.drawable.ic_check_all_green_blue_18dp;
                 } else {
                     return R.drawable.ic_check_all_white_18dp;
                 }
             } else {
                 if(useBlueReadmarkers) {
+                    return R.drawable.ic_check_blue_18dp;
+                } else if (UseGreenBlueReadMarkers) {
                     return R.drawable.ic_check_blue_18dp;
                 } else {
                     return R.drawable.ic_check_white_18dp;
@@ -52,11 +56,15 @@ public class Util {
             if(readmakerType == ReadmarkerType.DISPLAYED) {
                 if(useBlueReadmarkers) {
                     return R.drawable.ic_check_all_blue_18dp;
+                } else if (UseGreenBlueReadMarkers) {
+                    return R.drawable.ic_check_all_green_blue_18dp;
                 } else {
                     return R.drawable.ic_check_all_black_18dp;
                 }
             } else {
                 if(useBlueReadmarkers) {
+                    return R.drawable.ic_check_blue_18dp;
+                } else if (UseGreenBlueReadMarkers) {
                     return R.drawable.ic_check_blue_18dp;
                 } else {
                     return R.drawable.ic_check_black_18dp;

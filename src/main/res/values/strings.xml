@@ -1398,4 +1398,6 @@
     <string name="pref_hide_donation_snackbar_summary">Hide the donation hint permanently</string>
     <string name="pref_hide_donation_snackbar">Hide donation hint</string>
     <string name="snikket_login_activated">Snikket login activated</string>
+    <string name="pref_use_green_blue_readmarkers_title">Use green blue readmarkers</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Use two coloured read markers. Blue for received and green for read.</string>
 </resources>

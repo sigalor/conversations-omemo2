@@ -54,11 +54,13 @@ public class ConversationAdapter
     private OnConversationClickListener listener;
     private boolean hasInternetConnection = false;
     private boolean mUseBlueReadMarkers = false;
+    private boolean mUseGreenBlueReadMarkers = false;
 
     public ConversationAdapter(XmppActivity activity, List<Conversation> conversations) {
         this.activity = activity;
         this.conversations = conversations;
         this.mUseBlueReadMarkers = getPreferences().getBoolean("use_blue_readmarkers", activity.getResources().getBoolean(R.bool.use_blue_readmarkers));
+        this.mUseGreenBlueReadMarkers = getPreferences().getBoolean("use_green_blue_readmarkers", activity.getResources().getBoolean(R.bool.use_green_blue_readmarkers));
     }
 
     @NonNull
@@ -426,14 +428,14 @@ public class ConversationAdapter
                 case Message.STATUS_SEND_RECEIVED:
                     if (viewHolder.binding.indicatorReceived != null) {
                         viewHolder.binding.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmarkerType.RECEIVED));
+                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, mUseGreenBlueReadMarkers, Util.ReadmarkerType.RECEIVED));
                         viewHolder.binding.indicatorReceived.setAlpha(activity.isDarkTheme() ? 0.7f : 0.57f);
                     }
                     break;
                 case Message.STATUS_SEND_DISPLAYED:
                     if (viewHolder.binding.indicatorReceived != null) {
                         viewHolder.binding.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, Util.ReadmarkerType.DISPLAYED));
+                        viewHolder.binding.indicatorReceived.setImageResource(getReadmakerType(activity.isDarkTheme(), mUseBlueReadMarkers, mUseGreenBlueReadMarkers, Util.ReadmarkerType.DISPLAYED));
                         viewHolder.binding.indicatorReceived.setAlpha(activity.isDarkTheme() ? 0.7f : 0.57f);
                     }
                     break;
