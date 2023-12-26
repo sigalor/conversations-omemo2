@@ -950,7 +950,8 @@
     <string name="pref_use_invidious">用 Invidio 代替 Youtube 链接</string>
     <string name="pref_use_invidious_summary">Invidious 是 YouTube 的隐私友好的替代品</string>
     <string name="this_device">此设备</string>
-    <string name="intro_desc_main">了解更多…</string>
+    <string name="intro_desc_main">monocles chat 不只是另一个通讯应用… monocles chat 使用了官方的 IETF 标准。您可以随时切换应用，并与朋友保持联系。
+\n在这里，您是中心舞台上拥有选择权的主角。</string>
     <string name="welcome_header">欢迎来到
 \nmonocles chat</string>
     <string name="intro_required_permissions">需要的权限</string>
@@ -969,7 +970,7 @@
     <string name="pref_show_intro">再次显示介绍</string>
     <string name="show_intro_again">介绍屏幕将再次显示</string>
     <string name="show_intro_again_failed">重置介绍屏幕失败。 再试一次…</string>
-    <string name="intro_desc_whats_xmpp">XMPP，也称为 Jabber，是一个分散的通信网络，其工作原理类似于电子邮件。您需要一个聊天地址（也称为Jabber-ID）、一个密码和一个通讯软件。稍后会详细介绍。</string>
+    <string name="intro_desc_whats_xmpp">XMPP 是即时通讯的互联网标准。与电子邮件一样，你有一个用于发送消息的地址。稍后会详细介绍。</string>
     <string name="intro_whats_xmpp">什么是 XMPP/Jabber/monocles chat？</string>
     <string name="intro_desc_optional_permissions">读取通讯录的权限用于从您的联系人中读取聊天地址（如果有）。联系人的内容不会被分享、上传或复制。</string>
     <string name="intro_desc_account2">您可以在 monocles chat 上创建一个新的账号，只需要输入一个昵称。</string>
@@ -984,7 +985,7 @@
 \n我们开始吧，用得开心…</string>
     <string name="intro_privacy">您的隐私
 \n您作主</string>
-    <string name="intro_desc_privacy">monocles 既不会出售也不会分析您的数据，您可以自行决定授予哪些权限。</string>
+    <string name="intro_desc_privacy">在 monocles 我们不会出售或分析您的数据，您可以自行决定授予哪些权限。</string>
     <string name="no_results">无结果</string>
     <string name="file_transmission_cancelled">文件传输取消</string>
     <string name="sharing_application_not_grant_permission">共享应用程序未授予访问此文件的权限。</string>
@@ -1405,7 +1406,7 @@
     <string name="account_color_summary">用于对话、联系人列表和通知</string>
     <string name="enter_user_name">输入名称</string>
     <string name="notifications_enabled">通知已启用</string>
-    <string name="pref_set_text_collapsable_summary">折叠超过 240 个字符的文本</string>
+    <string name="pref_set_text_collapsable_summary">折叠超过 230 个字符的文本</string>
     <string name="pref_show_thread_feature_summary">在输入字段中显示线程图标，并允许创建和跟踪线程</string>
     <string name="edit_sytemaccount_or_xmppaccount">编辑聊天联系人或电话联系人？</string>
     <string name="pref_show_less_avatars_summary">对话中只有必要的头像才会显示</string>
@@ -1422,4 +1423,30 @@
     <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证并阻止主动式中间人攻击。</string>
     <string name="media">媒体</string>
     <string name="security">安全</string>
+    <string name="reconnect_on_other_host">在其它主机上重新连接</string>
+    <string name="outdated_backup_file_format">您正尝试导入过时的备份文件格式</string>
+    <string name="not_dnssec_verified">DNSSEC 未验证</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE 已验证</string>
+    <string name="dnssec_verified">DNSSEC 已验证</string>
+    <string name="manage_phone_accounts">管理手机账号</string>
+    <string name="create_background_failed">创建背景失败</string>
+    <string name="custom_background_set">自定义背景设置</string>
+    <string name="delete_background_failed">无法移除背景图片</string>
+    <string name="delete_background_success">已移除背景图片</string>
+    <string name="delete_background">移除聊天背景</string>
+    <string name="pref_delete_background_summary">移除聊天中的自定义背景图片</string>
+    <string name="no_background_set">未设置自定义背景</string>
+    <string name="input_field">输入字段</string>
+    <string name="import_own_stickers">导入贴纸</string>
+    <string name="import_own_stickers_summary">导入自己的贴纸。并使用它们的原始文件名。</string>
+    <string name="pref_enforce_dane_summary">只有在成功验证 DANE 后才连接账号</string>
+    <string name="dane_failed">DANE 失败</string>
+    <string name="pref_enforce_dane">执行 DANE</string>
+    <string name="sticker_saved">已保存贴纸</string>
+    <string name="sticker_imported">已导入贴纸</string>
+    <string name="import_sticker_failed">导入贴纸失败</string>
+    <string name="download_sticker">下载贴纸？</string>
+    <string name="download_sticker_summary">您想下载一些默认的贴纸包吗？</string>
+    <string name="pref_create_compatible_backup">创建通用备份</string>
+    <string name="pref_create_compatible_backup_summary">写入通用备份文件至 %s</string>
 </resources>

@@ -1091,7 +1091,7 @@
     <string name="rtp_state_declined_or_busy">Ocupado</string>
     <string name="rtp_state_connectivity_error">Non se pode conectar a chamada</string>
     <string name="rtp_state_connectivity_lost_error">Conexión perdida</string>
-    <string name="rtp_state_retracted">Chamada rechazada</string>
+    <string name="rtp_state_retracted">Chamada rexeitada</string>
     <string name="rtp_state_application_failure">Fallo da aplicación</string>
     <string name="rtp_state_security_error">Problema de verificación</string>
     <string name="incoming_call_duration">%s · Chamada entrante · %s</string>
@@ -1213,9 +1213,9 @@
     <string name="pref_import_settings">Importar a configuración da aplicación</string>
     <string name="success_import_settings">Configuración importada con éxito.</string>
     <string name="error_import_settings">Erro ao importar a configuración.</string>
-    <string name="pref_allow_message_retraction">Permitir eliminar a mensaxe</string>
+    <string name="pref_allow_message_retraction">Permitir retractar mensaxes</string>
     <string name="account_status_i2p_unavailable">Rede I2P non dispoñible</string>
-    <string name="pref_allow_message_retraction_summary">Permitir que os teus contactos poidan eliminar retroactivamente as súas mensaxes</string>
+    <string name="pref_allow_message_retraction_summary">Permitir que os contactos poidan retractarse de xeito retroactivo das mensaxes</string>
     <string name="conference_technical_problems">Saíches desta sala por razóns técnicas</string>
     <string name="sending_x_file_x">Enviando %1$s (%2$s %)</string>
     <string name="monocles_account_details">Isto inclúe:
@@ -1271,7 +1271,7 @@
     <string name="custom_theme_is_dark">É escuro o decorado personalizado\?</string>
     <string name="change_stickers_location">Cambiar localización dos adhesivos</string>
     <string name="using_inner_storage">Usar Almacenaxe Interna</string>
-    <string name="retract_message">Editar mensaxe</string>
+    <string name="retract_message">Retractar mensaxe</string>
     <string name="tags">Etiquetas</string>
     <string name="grant">Conceder</string>
     <string name="create_monocles_account">Crear conta</string>
@@ -1430,7 +1430,7 @@
     <string name="media">Multimedia</string>
     <string name="security">Seguridade</string>
     <string name="key_automatically_accepted"> - chave non verificada</string>
-    <string name="retract_message_dialog_msg">Tes a certeza de querer eliminar esta mensaxe\?</string>
+    <string name="retract_message_dialog_msg">Tes a certeza de querer retractar esta mensaxe?</string>
     <string name="verified_with_qr_code"> - verificada con código QR</string>
     <string name="this_account_is_logged_out">Fechouse a sesión desta conta</string>
     <string name="manage_phone_accounts">Xestionar contas do teléfono</string>
