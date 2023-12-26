@@ -465,7 +465,7 @@ public class ExportBackupService extends Service {
         boolean success = false;
         ObjectOutputStream output = null;
         try {
-            final File file = new File(getBackupDirectory(null), "settings_" + ((new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ".dat"));
+            final File file = new File(getBackupDirectory(null), "settings.dat");
             final File directory = file.getParentFile();
             if (directory != null && directory.mkdirs()) {
                 Log.d(Config.LOGTAG, "created backup directory " + directory.getAbsolutePath());
