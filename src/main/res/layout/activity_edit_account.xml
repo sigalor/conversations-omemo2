@@ -4,7 +4,7 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/color_background_tertiary">
@@ -16,6 +16,8 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginBottom="108dp"
             android:layout_above="@+id/button_bar"
             android:layout_below="@id/toolbar">
 
@@ -103,7 +105,7 @@
                                         <eu.siacs.conversations.ui.widget.TextInputEditText
                                             android:id="@+id/port"
                                             style="@style/Widget.Material3.TextInputEditText.FilledBox"
-android:fontFamily="notosansregular"
+                                            android:fontFamily="notosansregular"
                                             android:layout_width="match_parent"
                                             android:layout_height="match_parent"
                                             android:inputType="number"
@@ -124,7 +126,7 @@ android:fontFamily="notosansregular"
                                 <AutoCompleteTextView
                                     android:id="@+id/account_jid"
                                     style="@style/Widget.Material3.TextInputEditText.FilledBox"
-android:fontFamily="notosansregular"
+                                    android:fontFamily="notosansregular"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:imeOptions="actionNext"
@@ -1030,36 +1032,52 @@ android:fontFamily="notosansregular"
 
         <LinearLayout
             android:id="@+id/button_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true">
+            android:layout_width="fill_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="70dp"
+            android:orientation="horizontal"
+            android:gravity="center" >
 
             <Button
                 android:id="@+id/cancel_button"
                 style="@style/Widget.Conversations.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="@string/cancel" />
 
             <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginTop="7dp"
-                android:layout_marginBottom="7dp" />
+                android:layout_width="4dp"
+                android:layout_height="match_parent" />
 
             <Button
                 android:id="@+id/save_button"
                 style="@style/Widget.Conversations.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:enabled="false"
                 android:text="@string/save" />
         </LinearLayout>
-    </RelativeLayout>
+
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_gravity="end|bottom"
+            android:layout_below="@+id/button_bar"
+            android:background="?attr/color_background_secondary"
+            app:labelVisibilityMode="labeled"
+            app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
+            app:menu="@menu/bottom_navigation_menu"
+            android:animateLayoutChanges="true" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.VISIBLE;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.readGranted;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
@@ -42,6 +43,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.CharMatcher;
@@ -897,6 +899,49 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 this.binding.quietHoursBox.setVisibility(View.GONE);
             }
         }
+
+        // Initialize and assign variable
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
+        // Set Home selected
+        bottomNavigationView.setSelectedItemId(R.id.manageaccounts);
+
+        // Perform item selected listener
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId()) {
+                    case R.id.chats -> {
+                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
+                    case R.id.contactslist -> {
+                        startActivity(new Intent(getApplicationContext(), StartConversationActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
+                    case R.id.manageaccounts -> {
+                        return true;
+                    }
+                        /* TODO:
+                    case R.id.calls:
+                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    case R.id.stories:
+                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                         */
+                    default ->
+                            throw new IllegalStateException("Unexpected value: " + item.getItemId());
+                }
+            }
+        });
+        bottomNavigationView.setVisibility(VISIBLE);
+
         SharedPreferences preferences = getPreferences();
         mUseTor = preferences.getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor));
         mUseI2P = QuickConversationsService.isConversations() && preferences.getBoolean("use_i2p", getResources().getBoolean(R.bool.use_i2p));
