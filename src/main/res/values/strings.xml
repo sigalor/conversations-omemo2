@@ -1374,7 +1374,7 @@
     <string name="input_field">Input field</string>
     <string name="import_own_stickers">Import stickers</string>
     <string name="import_own_stickers_summary">Import your own stickers. Use them with the original filename.</string>
-    <string name="thanks">Thanks for using monocles chat! Please consider supporting the development with a little donation.</string>
+    <string name="thanks">Thanks for using monocles chat! Please consider supporting the development with a little donation.❤️</string>
     <string name="donation_link">https://monocles.eu/more/#donation-section</string>
     <string name="donate">Donate</string>
     <string name="pref_enforce_dane_summary">Only connect an account when successfully verified DANE</string>

@@ -1462,7 +1462,7 @@
     <string name="no_background_set">Fondo personalizado non establecido</string>
     <string name="pref_delete_background_summary">Retirar a imaxe de fondo personalizada da conversa</string>
     <string name="not_dnssec_verified">Sen verificación DNSSEC</string>
-    <string name="thanks">Grazas por usar monocles chat! Por favor, considera axudar ao desenvolvemento cunha pequena doazón.</string>
+    <string name="thanks">Grazas por usar monocles chat! Por favor, considera axudar ao desenvolvemento cunha pequena doazón.❤️</string>
     <string name="donate">Doar</string>
     <string name="pref_enforce_dane">Forzar DANE</string>
 </resources>

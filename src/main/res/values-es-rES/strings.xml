@@ -1479,7 +1479,7 @@
     <string name="no_background_set">Sin fondo personalizado</string>
     <string name="pref_delete_background_summary">Eliminar la imagen de fondo personalizada del chat</string>
     <string name="not_dnssec_verified">Sin verificación DNSSEC</string>
-    <string name="thanks">¡Gracias por usar el chat de monocles! Por favor, considera apoyar el desarrollo con una pequeña donación.</string>
+    <string name="thanks">¡Gracias por usar el chat de monocles! Por favor, considera apoyar el desarrollo con una pequeña donación.❤️</string>
     <string name="donate">Donar</string>
     <string name="pref_enforce_dane">Aplicar DANE</string>
     <string name="app_title" formatted="true">monocles chat</string>
