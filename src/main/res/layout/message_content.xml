@@ -8,6 +8,7 @@
         android:layout_height="wrap_content"
         android:autoLink="web"
         android:longClickable="false"
+        android:textIsSelectable="true"
         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
     <de.monocles.chat.ReadMoreTextView

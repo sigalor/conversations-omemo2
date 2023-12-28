@@ -1038,6 +1038,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public static class MergeSeparator {
     }
+
     public SpannableStringBuilder getSpannableBody(GetThumbnailForCid thumbnailer, Drawable fallbackImg) {
         final Element html = getHtml();
         if (html == null || Build.VERSION.SDK_INT < 24) {
@@ -1060,6 +1061,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                     },
                     (opening, tag, output, xmlReader) -> {}
             ));
+
             // Make images clickable and long-clickable with BetterLinkMovementMethod
             ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
             for (ImageSpan span : imageSpans) {
@@ -1082,7 +1084,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             return (SpannableStringBuilder) spannable.subSequence(0, i+1);
         }
     }
-
 
     public Element getHtml() {
         return getHtml(false);

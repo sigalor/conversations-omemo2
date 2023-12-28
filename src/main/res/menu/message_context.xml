@@ -34,7 +34,7 @@
         android:visible="false" />
     <item
         android:id="@+id/quote_message"
-        android:title="@string/quote"
+        android:title="@string/reply"
         android:visible="false" />
     <item
         android:id="@+id/delete_message"

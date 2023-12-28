@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
 import de.monocles.chat.BobTransfer;
+import de.monocles.chat.MessageTextActionModeCallback;
 import de.monocles.chat.Util;
 import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
 import eu.siacs.conversations.utils.Compatibility;
@@ -166,6 +167,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
     private String readmarkervalue;
+    private ConversationFragment mConversationFragment = null;
+
 
     public MessageAdapter(final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
         super(activity, 0, messages);
@@ -657,7 +660,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         return startsWithQuote;
     }
-
 
     private SpannableStringBuilder getSpannableBody(final Message message) {
         Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
@@ -1496,6 +1498,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
         }
 
+        if (viewHolder.messageBody != null) {
+            viewHolder.messageBody.setCustomSelectionActionModeCallback(new MessageTextActionModeCallback(this, viewHolder.messageBody));
+        }
+
         if (viewHolder.thread_identicon != null) {
             viewHolder.thread_identicon.setVisibility(GONE);
             final Element thread = message.getThread();
@@ -1947,8 +1953,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.highlightedTerm = terms == null ? null : StylingHelper.filterHighlightedWords(terms);
     }
 
-    public interface OnQuoteListener {
-        void onQuote(String text, String user);
+    public void setConversationFragment(ConversationFragment frag) {
+        mConversationFragment = frag;
+    }
+
+    public void quoteText(String text, String user) {
+        if (mConversationFragment != null) mConversationFragment.quoteText(text, null);
     }
 
     public interface OnContactPictureClicked {
