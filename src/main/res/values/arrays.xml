@@ -154,6 +154,17 @@
         <item>@string/large</item>
     </string-array>
 
+    <string-array name="readmarkers_values">
+        <item>grey_readmarkers</item>
+        <item>blue_readmarkers</item>
+        <item>greenandblue_readmarkers</item>
+    </string-array>
+    <string-array name="readmarkers_entries">
+        <item>@string/grey</item>
+        <item>@string/blue</item>
+        <item>@string/green_and_blue</item>
+    </string-array>
+
     <string-array name="grace_periods">
         <item>@string/gp_disable</item>
         <item>@string/gp_short</item>

@@ -8,6 +8,7 @@ import android.widget.ListAdapter;
 import eu.siacs.conversations.R;
 
 public class Util {
+
     public static void justifyListViewHeightBasedOnChildren (ListView listView) {
         ListAdapter adapter = listView.getAdapter();
 
@@ -33,20 +34,20 @@ public class Util {
         DISPLAYED
     }
 
-    public static int getReadmakerType(boolean isDarkBackground, boolean useBlueReadmarkers, boolean UseGreenBlueReadMarkers, ReadmarkerType readmakerType) {
+    public static int getReadmakerType(boolean isDarkBackground, String readmarkervalue, ReadmarkerType readmakerType) {
         if(isDarkBackground) {
             if(readmakerType == ReadmarkerType.DISPLAYED) {
-                if(useBlueReadmarkers) {
+                if(readmarkervalue.equals("blue_readmarkers")) {
                     return R.drawable.ic_check_all_blue_18dp;
-                } else if (UseGreenBlueReadMarkers) {
+                } else if (readmarkervalue.equals("greenandblue_readmarkers")) {
                     return R.drawable.ic_check_all_green_blue_18dp;
                 } else {
                     return R.drawable.ic_check_all_white_18dp;
                 }
             } else {
-                if(useBlueReadmarkers) {
+                if(readmarkervalue.equals("blue_readmarkers")) {
                     return R.drawable.ic_check_blue_18dp;
-                } else if (UseGreenBlueReadMarkers) {
+                } else if (readmarkervalue.equals("greenandblue_readmarkers")) {
                     return R.drawable.ic_check_blue_18dp;
                 } else {
                     return R.drawable.ic_check_white_18dp;
@@ -54,17 +55,17 @@ public class Util {
             }
         } else {
             if(readmakerType == ReadmarkerType.DISPLAYED) {
-                if(useBlueReadmarkers) {
+                if(readmarkervalue.equals("blue_readmarkers")) {
                     return R.drawable.ic_check_all_blue_18dp;
-                } else if (UseGreenBlueReadMarkers) {
+                } else if (readmarkervalue.equals("greenandblue_readmarkers")) {
                     return R.drawable.ic_check_all_green_blue_18dp;
                 } else {
                     return R.drawable.ic_check_all_black_18dp;
                 }
             } else {
-                if(useBlueReadmarkers) {
+                if(readmarkervalue.equals("blue_readmarkers")) {
                     return R.drawable.ic_check_blue_18dp;
-                } else if (UseGreenBlueReadMarkers) {
+                } else if (readmarkervalue.equals("greenandblue_readmarkers")) {
                     return R.drawable.ic_check_blue_18dp;
                 } else {
                     return R.drawable.ic_check_black_18dp;

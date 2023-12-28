@@ -1400,4 +1400,9 @@
     <string name="snikket_login_activated">Snikket login activated</string>
     <string name="pref_use_green_blue_readmarkers_title">Use green blue readmarkers</string>
     <string name="pref_use_green_blue_readmarkers_summary">Use two coloured read markers. Blue for received and green for read.</string>
+    <string name="pref_readmarkers_summary">Change the read markers style</string>
+    <string name="pref_readmarker_title">Readmarker style</string>
+    <string name="grey">Grey</string>
+    <string name="blue">Blue</string>
+    <string name="green_and_blue">Green and blue</string>
 </resources>

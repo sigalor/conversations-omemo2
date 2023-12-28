@@ -202,16 +202,13 @@
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
             -->
-        <SwitchPreference
-            android:defaultValue="@bool/use_blue_readmarkers"
-            android:key="use_blue_readmarkers"
-            android:summary="@string/pref_use_blue_readmarkers_summary"
-            android:title="@string/pref_use_blue_readmarkers_title" />
-        <SwitchPreference
-            android:defaultValue="@bool/use_green_blue_readmarkers"
-            android:key="use_green_blue_readmarkers"
-            android:summary="@string/pref_use_green_blue_readmarkers_summary"
-            android:title="@string/pref_use_green_blue_readmarkers_title" />
+            <ListPreference
+                android:defaultValue="@string/blue"
+                android:entries="@array/readmarkers_entries"
+                android:entryValues="@array/readmarkers_values"
+                android:key="readmarker_style"
+                android:summary="@string/pref_readmarkers_summary"
+                android:title="@string/pref_readmarker_title" />
         <!-- TODO: Add setting for number of signs to collapse message
         <EditTextPreference
             android:defaultValue="@string/collapse_message_signs"
