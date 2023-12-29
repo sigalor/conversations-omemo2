@@ -210,8 +210,8 @@
                             android:layout_height="wrap_content"
                             android:layout_toEndOf="@+id/thread_identicon_layout"
                             android:layout_toRightOf="@+id/thread_identicon_layout"
-                            android:layout_toStartOf="@+id/recordVoiceButton"
-                            android:layout_toLeftOf="@+id/recordVoiceButton">
+                            android:layout_toStartOf="@+id/takePictureButton"
+                            android:layout_toLeftOf="@+id/takePictureButton">
 
                                 <TextView
                                     android:id="@+id/text_input_hint"
@@ -261,10 +261,23 @@
                         </RelativeLayout>
 
                             <ImageButton
+                                android:id="@+id/takePictureButton"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginEnd="3dp"
+                                android:layout_toStartOf="@+id/recordVoiceButton"
+                                android:layout_toLeftOf="@+id/recordVoiceButton"
+                                android:layout_centerVertical="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/action_take_photo"
+                                android:src="?attr/ic_attach_camera"
+                                android:visibility="visible" />
+
+                            <ImageButton
                                 android:id="@+id/recordVoiceButton"
                                 android:layout_width="36dp"
                                 android:layout_height="36dp"
-                                android:layout_marginEnd="4dp"
+                                android:layout_marginEnd="3dp"
                                 android:layout_toStartOf="@+id/textSendButton"
                                 android:layout_toLeftOf="@+id/textSendButton"
                                 android:layout_centerVertical="true"

@@ -48,21 +48,25 @@ public class ConversationMenuConfigurator {
 
     private static boolean microphoneAvailable = false;
     private static boolean locationAvailable = false;
+    private static boolean cameraAvailable = false;
 
     public static void reloadFeatures(Context context) {
         microphoneAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
+        cameraAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
         locationAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS) || context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_NETWORK);
     }
 
-    public static void configureQuickShareAttachmentMenu(@NonNull Conversation conversation, Menu menu, boolean hideVoice) {
+    public static void configureQuickShareAttachmentMenu(@NonNull Conversation conversation, Menu menu, boolean hideVoiceAndTakePicture) {
         final boolean visible = SendButtonTool.AttachmentsVisible(conversation);
         if (!visible) {
             return;
         }
-        if (hideVoice) {
-            microphoneAvailable = false;
+        if (hideVoiceAndTakePicture) {
+            microphoneAvailable = true;
+            cameraAvailable = true;
         }
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
+        menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
         menu.findItem(R.id.attach_location).setVisible(locationAvailable);
     }
 
@@ -93,6 +97,7 @@ public class ConversationMenuConfigurator {
             return;
         }
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
+        menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
         menu.findItem(R.id.attach_location).setVisible(locationAvailable);
     }
 

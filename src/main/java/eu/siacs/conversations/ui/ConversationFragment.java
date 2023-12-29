@@ -682,6 +682,8 @@ public class ConversationFragment extends XmppFragment
 
     private final OnClickListener mRecordVoiceButtonListener = v -> attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
 
+    private final OnClickListener mtakePictureButtonListener = v -> attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
+
     private final OnClickListener mSendButtonListener = new OnClickListener() {
 
         @Override
@@ -847,11 +849,11 @@ public class ConversationFragment extends XmppFragment
     @SuppressLint("RestrictedApi")
     private void choose_attachment(View v) {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        final boolean hideVoice = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
+        final boolean hideVoiceAndTakePicture = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
         PopupMenu popup = new PopupMenu(activity, v);
         popup.inflate(R.menu.choose_attachment);
         final Menu menu = popup.getMenu();
-        ConversationMenuConfigurator.configureQuickShareAttachmentMenu(conversation, menu, hideVoice);
+        ConversationMenuConfigurator.configureQuickShareAttachmentMenu(conversation, menu, hideVoiceAndTakePicture);
         popup.setOnMenuItemClickListener(attachmentItem -> {
             switch (attachmentItem.getItemId()) {
                 case R.id.attach_choose_picture:
@@ -1565,6 +1567,7 @@ public class ConversationFragment extends XmppFragment
         binding.textSendButton.setOnLongClickListener(this.mSendButtonLongListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
+        binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
         binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
         mediaPreviewAdapter = new MediaPreviewAdapter(this);
@@ -1731,8 +1734,10 @@ public class ConversationFragment extends XmppFragment
         Log.d(Config.LOGTAG, "Recorder " + ShowRecordVoiceButton);
         if (!ShowRecordVoiceButton || binding.textinput.getText().length() > 0) {
             binding.recordVoiceButton.setVisibility(GONE);
+            binding.takePictureButton.setVisibility(GONE);
         } else if (ShowRecordVoiceButton && binding.textinput.getText().length() < 1) {
             binding.recordVoiceButton.setVisibility(View.VISIBLE);
+            binding.takePictureButton.setVisibility(View.VISIBLE);
         }
     }
 
