@@ -136,7 +136,7 @@
     <string name="block_jabber_id">Заблокировать аккаунт</string>
     <string name="block_stranger">Заблокировать незнакомца</string>
     <string name="blocked">Заблокирован</string>
-    <string name="bookmarks">Закладки</string>
+    <string name="bookmarks">Конференции</string>
     <string name="cancel">Отменить</string>
     <string name="cancel_transmission">Закончить передачу</string>
     <string name="cancel_update">Отменить обновление\?</string>
@@ -1437,7 +1437,7 @@
     <string name="notifications_disabled">Уведомления отключены. Пожалуйста, активируйте их в настройках телефона.</string>
     <string name="pref_show_less_avatars">Не показывать свой аватар в конференциях</string>
     <string name="pref_show_less_avatars_summary">В конференциях не будет виден личный аватар</string>
-    <string name="no_media_permission">Нет разрешения на хранение мультимедиа</string>
+    <string name="no_media_permission">Разрешение не предоставлено</string>
     <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
     <string name="pref_set_text_collapsable_summary">Сворачивает текст, содержащий более 230 знаков.</string>
     <string name="unverified_devices">Вы используете непроверенные устройства. Отсканируйте 2D-штрихкод на других устройствах, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>

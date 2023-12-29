@@ -618,7 +618,7 @@
     <string name="copy_to_clipboard">Copiar al portapapeles</string>
     <string name="message_copied_to_clipboard">Mensaje copiado al portapapeles</string>
     <string name="message">Mensaje</string>
-    <string name="quote">Responder</string>
+    <string name="quote">Citar</string>
     <string name="show_error_message">Mostrar mensaje de error</string>
     <string name="error_message">Mensaje de error</string>
     <string name="data_saver_enabled">Optimización de datos habilitado</string>
@@ -1435,7 +1435,7 @@
     <string name="notifications_disabled">Notificaciones deshabilitadas. Habilitarlas en los ajuste de android.</string>
     <string name="pref_show_less_avatars">Mostrar menos avatares en los chats</string>
     <string name="pref_show_less_avatars_summary">Solo se mostrarán los avatares necesarios en las conversaciones</string>
-    <string name="no_media_permission">Sin permiso de almacenamiento de medios</string>
+    <string name="no_media_permission">Permiso no otorgado</string>
     <string name="pref_set_text_collapsable">Colapsar texto largo</string>
     <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 230 signos</string>
     <string name="unknown">Desconocido</string>
@@ -1483,4 +1483,19 @@
     <string name="donate">Donar</string>
     <string name="pref_enforce_dane">Aplicar DANE</string>
     <string name="app_title" formatted="true">monocles chat</string>
+    <string name="calls">Llamadas</string>
+    <string name="stories">Cuentos</string>
+    <string name="accounts">Cuentas</string>
+    <string name="unified">Unificado</string>
+    <string name="pref_hide_donation_snackbar">Ocultar sugerencia de donación</string>
+    <string name="snikket_login_activated">Registro de Snikket activado</string>
+    <string name="chats">Chats</string>
+    <string name="pref_hide_donation_snackbar_summary">Ocultar la sugerencia de donación permanentemente</string>
+    <string name="pref_use_green_blue_readmarkers_title">Usar marcadores de lectura verdes y azules</string>
+    <string name="green_and_blue">Verde y azul</string>
+    <string name="pref_readmarkers_summary">Cambiar el estilo de los marcadores de lectura</string>
+    <string name="pref_readmarker_title">Estilo de marcadores de lectura</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Usar marcadores de lecturas de dos colores. Azul para recibido y verde para leído.</string>
+    <string name="grey">Gris</string>
+    <string name="blue">Azul</string>
 </resources>

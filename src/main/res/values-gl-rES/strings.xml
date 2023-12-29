@@ -214,7 +214,7 @@
     <string name="done">Feito</string>
     <string name="verify">Verificar</string>
     <string name="decrypt">Descifrar</string>
-    <string name="bookmarks">Salas de conversa</string>
+    <string name="bookmarks">Salas</string>
     <string name="search">Buscar</string>
     <string name="enter_contact">Engadir contacto</string>
     <string name="delete_contact">Eliminar contacto</string>
@@ -606,7 +606,7 @@
     <string name="copy_to_clipboard">Copiar ao portapapeis</string>
     <string name="message_copied_to_clipboard">Mensaxe copiada ao portapapeis</string>
     <string name="message">Mensaxe</string>
-    <string name="quote">Responder</string>
+    <string name="quote">Citar</string>
     <string name="show_error_message">Mostrar mensaxe do fallo</string>
     <string name="error_message">Mensaxe de erro</string>
     <string name="data_saver_enabled">Aforrador de datos habilitado</string>
@@ -1408,7 +1408,7 @@
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="pref_set_text_collapsable">Pregar textos longos</string>
     <string name="notifications_disabled">Notificacións desactivadas. Actívaas nos axustes do teu android.</string>
-    <string name="no_media_permission">Sen permiso de almacenaxe multimedia</string>
+    <string name="no_media_permission">Permiso non concedido</string>
     <string name="edit_sytemaccount">Contácto do teléfono</string>
     <string name="edit_chat_contact">Contacto de chat</string>
     <string name="pref_show_less_avatars">Mostar menos avatares nos chats</string>
@@ -1465,4 +1465,19 @@
     <string name="thanks">Grazas por usar monocles chat! Por favor, considera axudar ao desenvolvemento cunha pequena doazón.❤️</string>
     <string name="donate">Doar</string>
     <string name="pref_enforce_dane">Forzar DANE</string>
+    <string name="chats">Chats</string>
+    <string name="unified">Unificado</string>
+    <string name="stories">Historias</string>
+    <string name="accounts">Contas</string>
+    <string name="snikket_login_activated">Activado o acceso a Snikket</string>
+    <string name="pref_hide_donation_snackbar_summary">Agochar definitivamente a petición de doazón</string>
+    <string name="calls">Chamadas</string>
+    <string name="pref_hide_donation_snackbar">Agochar recordatorio doazón</string>
+    <string name="pref_use_green_blue_readmarkers_title">Marcadores de lectura azul e verde</string>
+    <string name="green_and_blue">Verde e azul</string>
+    <string name="pref_readmarkers_summary">Cambiar estilo dos marcadores de lectura</string>
+    <string name="pref_readmarker_title">Estilo do marcador de lectura</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Usar dous marcadores de lectura con cores. Azul para recibido e verde para lido.</string>
+    <string name="grey">Gris</string>
+    <string name="blue">Azul</string>
 </resources>

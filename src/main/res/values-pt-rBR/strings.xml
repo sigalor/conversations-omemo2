@@ -1421,7 +1421,7 @@
     <string name="show_keyboard">Mostrar teclado</string>
     <string name="pref_set_text_collapsable">Recolher texto longo</string>
     <string name="notifications_disabled">Notificações desativadas. Por favor, ative-as nas configurações do Android.</string>
-    <string name="no_media_permission">Sem permissão de armazenamento de mídia</string>
+    <string name="no_media_permission">Permissão não concedida</string>
     <string name="edit_sytemaccount">Contato telefônico</string>
     <string name="edit_chat_contact">Contato de conversa</string>
     <string name="pref_show_less_avatars">Mostrar menos avatares nas conversas</string>
@@ -1472,4 +1472,19 @@
     <string name="pref_delete_background_summary">Remova seu papel de parede personalizado da conversa</string>
     <string name="import_own_stickers_summary">Importe suas próprias figurinhas. Use-as com o nome do arquivo original</string>
     <string name="magic_create_text">Orientaremos você no processo de criação de uma conta com uma senha aleatória, que você pode usar ou alterar para sua própria senha na próxima página. Então você poderá se comunicar com usuários deste e de outros provedores, fornecendo-lhes seu endereço XMPP completo.</string>
+    <string name="chats">Conversas</string>
+    <string name="unified">Todos</string>
+    <string name="pref_use_green_blue_readmarkers_title">Use confirmações de leitura verdes e azuis</string>
+    <string name="stories">Stories</string>
+    <string name="accounts">Contas</string>
+    <string name="green_and_blue">Verde e azul</string>
+    <string name="snikket_login_activated">Login do Snikket ativado</string>
+    <string name="pref_readmarkers_summary">Alterar o estilo da confirmação de leitura</string>
+    <string name="pref_readmarker_title">Estilo de confirmação de leitura</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Use duas confirmações de leitura coloridos. Azul para recebido e verde para lido</string>
+    <string name="pref_hide_donation_snackbar_summary">Ocultar a sugestão de doação permanentemente</string>
+    <string name="grey">Cinza</string>
+    <string name="calls">Chamadas</string>
+    <string name="blue">Azul</string>
+    <string name="pref_hide_donation_snackbar">Ocultar sugestão de doação</string>
 </resources>

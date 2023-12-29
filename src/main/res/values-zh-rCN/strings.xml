@@ -201,7 +201,7 @@
     <string name="done">完成</string>
     <string name="verify">验证</string>
     <string name="decrypt">解密</string>
-    <string name="bookmarks">聊天室</string>
+    <string name="bookmarks">房间</string>
     <string name="search">搜索</string>
     <string name="enter_contact">输入联系人</string>
     <string name="delete_contact">删除联系人</string>
@@ -586,7 +586,7 @@
     <string name="copy_to_clipboard">复制到剪贴板</string>
     <string name="message_copied_to_clipboard">消息已复制到剪贴板</string>
     <string name="message">消息</string>
-    <string name="quote">回复</string>
+    <string name="quote">引用</string>
     <string name="show_error_message">显示错误消息</string>
     <string name="data_saver_enabled">省流量模式已启用</string>
     <string name="data_saver_enabled_explained">您的操作系统正限制 monocles chat 在后台时访问互联网。要接收新消息通知，您应当在“省流量模式”处于启用状态时允许 monocles chat 不受限制的访问。
@@ -1042,7 +1042,7 @@
     <string name="ongoing_call">正在进行的通话</string>
     <string name="ongoing_video_call">正在进行的视频通话</string>
     <string name="hang_up">挂断</string>
-    <string name="notification_group_calls">电话</string>
+    <string name="notification_group_calls">通话</string>
     <string name="microphone_unavailable">您的麦克风不可用</string>
     <string name="rtp_state_connecting">正在连接</string>
     <string name="rtp_state_connected">已连接</string>
@@ -1173,7 +1173,7 @@
     <string name="format_text">文本格式</string>
     <string name="account_registrations_are_not_supported">不支持账号注册</string>
     <string name="pref_resend_delay_title">重发延迟 (毫秒)</string>
-    <string name="monocles_account_introduction">您可以在每个现代 XMPP 账号中使用 monocles chat ，或者<b>获得一个经济实惠、安全可靠的 monocles 账号，由可再生能源提供动力！</b></string>
+    <string name="monocles_account_introduction">立即注册并<b>获得一个安全的 monocles 账号，由再生能源提供动力</b>可以直接开始聊天。</string>
     <string name="custom_theme_is_dark">自定义主题是深色的吗？</string>
     <string name="change_stickers_location">更改贴纸位置</string>
     <string name="using_inner_storage">使用内部存储空间</string>
@@ -1398,7 +1398,7 @@
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="pref_set_text_collapsable">折叠长文本</string>
     <string name="notifications_disabled">通知已禁用。请在您的 Android 设置中激活它们。</string>
-    <string name="no_media_permission">没有媒体存储权限</string>
+    <string name="no_media_permission">未授予权限</string>
     <string name="edit_sytemaccount">电话联系人</string>
     <string name="edit_chat_contact">聊天联系人</string>
     <string name="pref_show_less_avatars">在聊天中显示较少的头像</string>
@@ -1449,4 +1449,24 @@
     <string name="download_sticker_summary">您想下载一些默认的贴纸包吗？</string>
     <string name="pref_create_compatible_backup">创建通用备份</string>
     <string name="pref_create_compatible_backup_summary">写入通用备份文件至 %s</string>
+    <string name="thanks">感谢您使用 monocles chat！请考虑捐赠少量资金来支持开发。❤️</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">捐赠</string>
+    <string name="use_monocles">我更喜欢 monocles</string>
+    <string name="describe_issue">请详细描述您的问题。谢谢。</string>
+    <string name="magic_create_text">我们将指导您使用随机密码创建账号，您可以在下一页使用或更改为自己的密码。\\n然后，您就可以向其他用户提供完整的 XMPP 地址与他们交流。</string>
+    <string name="chats">聊天</string>
+    <string name="unified">统一</string>
+    <string name="accounts">账号</string>
+    <string name="snikket_login_activated">Snikket 登录已启用</string>
+    <string name="pref_hide_donation_snackbar_summary">永久隐藏捐赠提示</string>
+    <string name="calls">通话</string>
+    <string name="pref_hide_donation_snackbar">隐藏捐赠提示</string>
+    <string name="pref_use_green_blue_readmarkers_title">使用绿、蓝阅读标记</string>
+    <string name="green_and_blue">绿色和蓝色</string>
+    <string name="pref_readmarkers_summary">更改阅读标记样式</string>
+    <string name="pref_readmarker_title">阅读标记样式</string>
+    <string name="pref_use_green_blue_readmarkers_summary">使用两种颜色的阅读标记。蓝色表示已收到，绿色表示已读。</string>
+    <string name="grey">灰色</string>
+    <string name="blue">蓝色</string>
 </resources>
