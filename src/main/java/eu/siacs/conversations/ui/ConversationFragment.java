@@ -238,6 +238,9 @@ import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import io.ipfs.cid.Cid;
 import me.drakeet.support.toast.ToastCompat;
 import net.java.otr4j.session.SessionStatus;
+import androidx.emoji2.emojipicker.EmojiPickerView;
+import androidx.emoji2.emojipicker.RecentEmojiAsyncProvider;
+import androidx.emoji2.emojipicker.RecentEmojiProviderAdapter;
 
 public class ConversationFragment extends XmppFragment
         implements EditMessage.KeyboardListener,
@@ -680,6 +683,42 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+    private final OnClickListener memojiButtonListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (binding.emojiButton.getVisibility() == VISIBLE) {
+                binding.emojiPicker.setVisibility(VISIBLE);
+                binding.emojiButton.setVisibility(GONE);
+                binding.keyboardButton.setVisibility(VISIBLE);
+                hideSoftKeyboard(activity);
+                EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                backPressedLeaveEmojiPicker.setEnabled(true);
+                binding.textinput.requestFocus();
+                emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+                    int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
+                    binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
+                });
+            }
+        }
+    };
+
+    private final OnClickListener mkeyboardButtonListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (binding.keyboardButton.getVisibility() == VISIBLE) {
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiPicker.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+                InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (inputMethodManager != null) {
+                    binding.textinput.requestFocus();
+                    inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }
+        }
+    };
+
+
     private final OnClickListener mRecordVoiceButtonListener = v -> attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
 
     private final OnClickListener mtakePictureButtonListener = v -> attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
@@ -751,6 +790,21 @@ public class ConversationFragment extends XmppFragment
             }
         }
     };
+
+
+    private final OnBackPressedCallback backPressedLeaveEmojiPicker = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (binding.emojiPicker.getVisibility()==VISIBLE) {
+                binding.emojiPicker.setVisibility(GONE);
+                binding.keyboardButton.setVisibility(GONE);
+                binding.emojiButton.setVisibility(VISIBLE);
+            }
+            this.setEnabled(false);
+            refresh();
+        }
+    };
+
 
     private int completionIndex = 0;
     private int lastCompletionLength = 0;
@@ -1430,7 +1484,7 @@ public class ConversationFragment extends XmppFragment
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
-
+        activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
     }
 
     @Override
@@ -1551,6 +1605,12 @@ public class ConversationFragment extends XmppFragment
         //Setting hide thread icon
         showThreadFeature();
 
+        if (binding.emojiPicker.getVisibility()==VISIBLE) {
+            backPressedLeaveEmojiPicker.setEnabled(true);
+        } else {
+            backPressedLeaveEmojiPicker.setEnabled(false);
+        }
+
         binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
@@ -1567,6 +1627,8 @@ public class ConversationFragment extends XmppFragment
         binding.textSendButton.setOnLongClickListener(this.mSendButtonLongListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
+        binding.emojiButton.setOnClickListener(this.memojiButtonListener);
+        binding.keyboardButton.setOnClickListener(this.mkeyboardButtonListener);
         binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
         binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
@@ -1879,6 +1941,7 @@ public class ConversationFragment extends XmppFragment
             MenuItem moderateMessage = menu.findItem(R.id.moderate_message);
             MenuItem onlyThisThread = menu.findItem(R.id.only_this_thread);
             MenuItem deleteMessage = menu.findItem(R.id.delete_message);
+            MenuItem messageReaction = menu.findItem(R.id.message_reaction);  //add the most used emoticons
             MenuItem shareWith = menu.findItem(R.id.share_with);
             MenuItem sendAgain = menu.findItem(R.id.send_again);
             MenuItem copyUrl = menu.findItem(R.id.copy_url);
@@ -2114,6 +2177,14 @@ public class ConversationFragment extends XmppFragment
                     setThread(selectedMessage.getThread());
                 }
                 return true;
+            case R.id.message_reaction:
+                if (conversation.getMode() == Conversation.MODE_MULTI) {
+                    quoteMessage(selectedMessage, user);
+                } else {
+                    quoteMessage(selectedMessage, null);
+                }
+                chooseReaction(selectedMessage);
+                return true;
             default:
                 return onOptionsItemSelected(item);
         }
@@ -2266,6 +2337,10 @@ public class ConversationFragment extends XmppFragment
             if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 updateThreadFromLastMessage();
             }
+            return true;
+        }
+        if (binding.emojiPicker.getVisibility()==VISIBLE){
+            binding.emojiPicker.setVisibility(GONE);
             return true;
         }
         return false;
@@ -3323,6 +3398,26 @@ public class ConversationFragment extends XmppFragment
         this.conversation.setDraftMessage(editable.toString());
         this.binding.textinput.setText("");
         this.binding.textinput.append(message.getBody());
+    }
+
+    private void chooseReaction(Message message) {
+        while (message.mergeable(message.next())) {
+            message = message.next();
+        }
+        setThread(message.getThread());
+        conversation.setUserSelectedThread(true);
+        //Open emoji picker
+        binding.emojiPicker.setVisibility(VISIBLE);
+        binding.emojiButton.setVisibility(GONE);
+        binding.keyboardButton.setVisibility(VISIBLE);
+        hideSoftKeyboard(activity);
+        EmojiPickerView emojiPickerView = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+        backPressedLeaveEmojiPicker.setEnabled(true);
+        binding.textinput.requestFocus();
+        emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+            binding.textinput.append(emojiViewItem.getEmoji());
+        });
+        // TODO: Directly choose emojis from popup menu
     }
 
     private void highlightInConference(String nick) {
