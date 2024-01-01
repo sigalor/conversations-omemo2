@@ -520,7 +520,7 @@
     <string name="share_uri_with">Share URI with…</string>
     <string name="mgmt_account_reconnect">Reconnect</string>
     <string name="welcome_text">…is a privacy respecting and secure chat client.</string>
-    <string name="monocles_account_details">This includes:\n● encrypted chat storage\n● e-mail with 2 GB encrypted storage\n\n optionally: \n● 4 GB cloud storage (nextcloud)\n● calendar and contact sync\n● a secure conferencing tool \n and more on <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="monocles_account_details">This includes:\n● encrypted chat storage\n● e-mail with 2 GB encrypted storage\n\n optionally: \n● 5 GB cloud storage (nextcloud)\n● calendar and contact sync\n● a secure conferencing tool \n and more on <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="your_full_jid_will_be">Your chat address will be: %s</string>
     <string name="create_account">Create new account</string>
     <string name="welcome_existing_account">I have an account</string>
