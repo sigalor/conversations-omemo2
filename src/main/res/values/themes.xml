@@ -101,6 +101,7 @@
         <item name="ic_send_videocam_offline" type="reference">@drawable/ic_send_videocam_offline
         </item>
         <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline</item>
+        <item name="round_camera" type="reference">@drawable/round_camera_black_24</item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button</item>
         <item name="ic_keyboard_button" type="reference">@drawable/round_keyboard_black_24</item>
 
@@ -302,8 +303,8 @@
         <item name="ic_send_videocam_offline" type="reference">
             @drawable/ic_send_videocam_offline_white
         </item>
-        <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline_white
-        </item>
+        <item name="ic_send_voice_offline" type="reference">@drawable/ic_send_voice_offline_white</item>
+        <item name="round_camera" type="reference">@drawable/round_camera_white_24</item>
         <item name="ic_emoji_button" type="reference">@drawable/ic_emoji_button_white
         </item>
         <item name="ic_keyboard_button" type="reference">@drawable/round_keyboard_24</item>
