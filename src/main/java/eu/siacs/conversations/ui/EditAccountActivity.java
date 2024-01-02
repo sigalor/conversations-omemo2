@@ -834,6 +834,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     @Override
     protected void onStart() {
         super.onStart();
+
         final Intent intent = getIntent();
         final int theme = findTheme();
         if (this.mTheme != theme) {
@@ -874,11 +875,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             if (mExisting) {
                 this.binding.accountRegisterNew.setVisibility(View.GONE);
             }
+
             if (!mInitMode) {
                 this.binding.accountRegisterNew.setVisibility(View.GONE);
                 setTitle(getString(R.string.account_details));
                 configureActionBar(getSupportActionBar(), !openedFromNotification);
             } else {
+                this.binding.bottomNavigation.setVisibility(View.GONE);
                 this.binding.yourNameBox.setVisibility(View.GONE);
                 this.binding.yourStatusBox.setVisibility(View.GONE);
                 if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
@@ -900,9 +903,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             }
         }
 
+
         // Initialize and assign variable
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-
         // Set Home selected
         bottomNavigationView.setSelectedItemId(R.id.manageaccounts);
 
@@ -925,22 +928,26 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                     case R.id.manageaccounts -> {
                         return true;
                     }
-                        /* TODO:
-                    case R.id.calls:
-                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                         */
+                    /* TODO:
+                case R.id.calls:
+                    startActivity(new Intent(getApplicationContext(), CallsActivity.class));
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                case R.id.stories:
+                    startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                     */
                     default ->
                             throw new IllegalStateException("Unexpected value: " + item.getItemId());
                 }
             }
         });
-        bottomNavigationView.setVisibility(VISIBLE);
+        if (xmppConnectionService != null && xmppConnectionService.multipleAccounts()) {
+            bottomNavigationView.setVisibility(View.GONE);
+        } else {
+            bottomNavigationView.setVisibility(VISIBLE);
+        }
 
         SharedPreferences preferences = getPreferences();
         mUseTor = preferences.getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor));
