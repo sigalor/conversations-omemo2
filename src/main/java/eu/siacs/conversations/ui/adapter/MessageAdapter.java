@@ -1716,7 +1716,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayMediaPreviewMessage(viewHolder, message, darkBackground, type);
             } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
                 displayAudioMessage(viewHolder, message, darkBackground, type);
-            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty()) {
+            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty()) {
                 displayWebxdcMessage(viewHolder, message, darkBackground, type);
             } else {
                 displayOpenableMessage(viewHolder, message, darkBackground, type);
