@@ -4297,7 +4297,7 @@ public class ConversationFragment extends XmppFragment
                     } else if (activity != null ){
                         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                     }
-                    if (activity.xmppConnectionService != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
+                    if (activity != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
                         binding.emojiPicker.setVisibility(GONE);
                         binding.keyboardButton.setVisibility(GONE);
                     }
