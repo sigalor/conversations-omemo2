@@ -1957,7 +1957,7 @@ public class ConversationFragment extends XmppFragment
             final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError = m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null && !Message.ERROR_MESSAGE_CANCELLED.equals(m.getErrorMessage());
             final boolean messageDeleted = m.isMessageDeleted();
-            deleteMessage.setVisible(false);    //TODO: Set visible again when needed
+            deleteMessage.setVisible(true);
             if (!encrypted && !m.getBody().equals("")) {
                 copyMessage.setVisible(true);
                 quoteMessage.setVisible(!showError && MessageUtils.prepareQuote(m).length() > 0);
