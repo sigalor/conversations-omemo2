@@ -625,11 +625,13 @@
                 android:title="@string/pref_resend_delay_title"
                 android:inputType="number"
                 />
+            <!--
             <SwitchPreference
                 android:defaultValue="@bool/enable_multi_accounts"
                 android:key="enable_multi_accounts"
                 android:summary="@string/pref_enable_multi_accounts_summary"
                 android:title="@string/pref_enable_multi_accounts_title" />
+                -->
         </PreferenceCategory>
         <PreferenceCategory
             android:key="unified_push"
