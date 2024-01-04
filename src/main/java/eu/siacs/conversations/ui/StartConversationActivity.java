@@ -472,17 +472,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                         return true;
                     }
                     case R.id.manageaccounts -> {
-                        if (xmppConnectionServiceBound && xmppConnectionService.getAccounts().size() == 1 && !xmppConnectionService.multipleAccounts()) {
-                            final Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
-                            Account mAccount = xmppConnectionService.getAccounts().get(0);
-                            intent.putExtra("jid", mAccount.getJid().asBareJid().toString());
-                            intent.putExtra("init", false);
-                            startActivity(intent);
-                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        } else {
-                            startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
-                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        }
+                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
                         /* TODO:
