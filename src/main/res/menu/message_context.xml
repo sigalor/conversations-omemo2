@@ -43,7 +43,7 @@
     <item
         android:id="@+id/message_reaction"
         android:title="@string/message_reaction"
-        android:visible="false" />
+        android:visible="true" />
     <item
         android:id="@+id/moderate_message"
         android:title="@string/moderate_message"
