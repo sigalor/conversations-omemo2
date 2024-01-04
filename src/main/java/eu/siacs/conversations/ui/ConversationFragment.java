@@ -4262,10 +4262,8 @@ public class ConversationFragment extends XmppFragment
                 } else if (activity != null && binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.emojiPicker.setVisibility(GONE);
                     binding.keyboardButton.setVisibility(GONE);
-                } else if (activity != null) {
-                    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                 }
-                if (activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
+                if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
                     showTextFormat(me);
                 } else {
                     hideTextFormat();
