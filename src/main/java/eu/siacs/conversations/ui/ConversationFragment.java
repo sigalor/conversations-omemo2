@@ -1975,11 +1975,11 @@ public class ConversationFragment extends XmppFragment
                     && relevantForCorrection.isLastCorrectableMessage()
                     && m.getConversation() instanceof Conversation) {
                 correctMessage.setVisible(true);
-                if (!relevantForCorrection.getBody().equals("") && !relevantForCorrection.getBody().equals(" ")) retractMessage.setVisible(true);
+                if (!relevantForCorrection.getBody().equals("") && !relevantForCorrection.getBody().equals(" ")) retractMessage.setVisible(false);
             }
             if (relevantForCorrection.getReactions() != null) {
                 correctMessage.setVisible(false);
-                retractMessage.setVisible(true);
+                retractMessage.setVisible(false);
             }
             if (conversation.getMode() == Conversation.MODE_MULTI && m.getServerMsgId() != null && m.getModerated() == null && conversation.getMucOptions().getSelf().getRole().ranks(MucOptions.Role.MODERATOR) && conversation.getMucOptions().hasFeature("urn:xmpp:message-moderate:0")) {
                 moderateMessage.setVisible(true);

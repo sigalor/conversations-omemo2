@@ -1086,25 +1086,27 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
         if (timestamp == -1) {
-            String[] selectionArgs = {conversation.getUuid()};
+            String[] selectionArgs = {conversation.getUuid(), "1"};
             cursor = db.rawQuery(
                     "SELECT * FROM " + Message.TABLENAME + " " +
                             "LEFT JOIN monocles." + Message.TABLENAME +
                             "  USING (" + Message.UUID + ")" +
-                            "WHERE " + Message.CONVERSATION + "=? " +
+                            "WHERE " + Message.CONVERSATION + "=? AND " +
+                            Message.DELETED + "<?" +
                             "ORDER BY " + Message.TIME_SENT + " DESC " +
                             "LIMIT " + String.valueOf(limit),
                     selectionArgs
             );
         } else {
             String[] selectionArgs = {conversation.getUuid(),
-                    Long.toString(timestamp)};
+                    Long.toString(timestamp), "1"};
             cursor = db.rawQuery(
                     "SELECT * FROM " + Message.TABLENAME + " " +
                             "LEFT JOIN monocles." + Message.TABLENAME +
                             "  USING (" + Message.UUID + ")" +
                             "WHERE " + Message.CONVERSATION + "=? AND " +
-                            Message.TIME_SENT + "<? " +
+                            Message.TIME_SENT + "<? AND " +
+                            Message.DELETED + "<?" +
                             "ORDER BY " + Message.TIME_SENT + " DESC " +
                             "LIMIT " + String.valueOf(limit),
                     selectionArgs
