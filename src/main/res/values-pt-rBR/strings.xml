@@ -927,8 +927,8 @@
     <string name="sending_x_file_x">Enviando %1$s (%2$s %)</string>
     <string name="account_status_i2p_unavailable">Rede I2P indisponível</string>
     <string name="conference_destroyed">Este grupo foi excluído</string>
-    <string name="pref_show_record_voice_btn_summary">Mostrar botão de gravação de voz em chats como ação rápida</string>
-    <string name="pref_show_record_voice_btn">Mostrar botão de gravação de voz</string>
+    <string name="pref_show_record_voice_btn_summary">Mostrar botão de gravação de voz e botão de tirar foto na barra como ação rápida</string>
+    <string name="pref_show_record_voice_btn">Mostrar botões de gravação de voz e tirar foto</string>
     <string name="pref_quick_share_attachment_choice">Escolha do anexo</string>
     <string name="unable_to_save_recording">Não foi possível salvar a gravação</string>
     <string name="foreground_service_channel_name">Serviço em primeiro plano</string>

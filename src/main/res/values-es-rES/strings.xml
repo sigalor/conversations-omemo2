@@ -844,8 +844,8 @@
     <string name="no_application_found_to_view_contact">No se ha encontrado ninguna aplicación con la que ver este contacto</string>
     <string name="welcome_server_info">Recomendamos el uso de monocles chat como tu proveedor.</string>
     <string name="no_location_permission">monocles chat necesita acceso a los servicio de ubicación</string>
-    <string name="pref_show_record_voice_btn_summary">Mostrar el botón de grabación de voz en conversaciones como acción rápida</string>
-    <string name="pref_show_record_voice_btn">Mostrar botón de grabación de voz</string>
+    <string name="pref_show_record_voice_btn_summary">Mostrar el botón de grabación de voz y hacer fotografía en campo de entrada como acción rápida</string>
+    <string name="pref_show_record_voice_btn">Mostrar botón de grabación de voz y toma de fotografía</string>
     <string name="pref_use_quick_share_attachment_choice_summary">Reemplazar el botón de enviar con selección de adjunto si no se está tecleando un mensaje. En otro caso mostrar acciones rápidas, que pueden ser configuradas en la siguiente opción.</string>
     <string name="pref_quick_share_attachment_choice">Seleccionar adjunto</string>
     <string name="unable_to_save_recording">Imposible guardar la grabación</string>

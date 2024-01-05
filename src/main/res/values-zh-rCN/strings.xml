@@ -788,8 +788,8 @@
     <string name="no_application_found_to_view_contact">未找到可以查看联系人的应用程序</string>
     <string name="welcome_server_info">我们建议使用 monocles 作为您的提供者。</string>
     <string name="no_location_permission">monocles chat 需要访问位置服务</string>
-    <string name="pref_show_record_voice_btn_summary">在聊天中显示录制语音按钮作为快捷操作</string>
-    <string name="pref_show_record_voice_btn">显示录制语音按钮</string>
+    <string name="pref_show_record_voice_btn_summary">在输入框中显示录制语音按钮和拍照按钮作为快捷操作</string>
+    <string name="pref_show_record_voice_btn">显示录制语音按钮和拍照按钮</string>
     <string name="pref_use_quick_share_attachment_choice_summary">如果没有输入信息，则用附件选择代替发送按钮。否则将显示快捷操作，可在以下设置中进行配置。</string>
     <string name="pref_quick_share_attachment_choice">附件选择</string>
     <string name="unable_to_save_recording">无法保存录制</string>

@@ -839,8 +839,8 @@
     <string name="pref_show_mappreview_inside_summary">Предпросмотр карты внутри чата (будет устанавливаться соединение с monocles chat-Server).</string>
     <string name="pref_show_own_accounts">Отображение учетных записей</string>
     <string name="pref_show_own_accounts_summary">Отображать мои учетные записи в чатах и контактах, если используется несколько учетных записей.</string>
-    <string name="pref_show_record_voice_btn">Показывать кнопку записи голоса</string>
-    <string name="pref_show_record_voice_btn_summary">Показывать кнопку записи голоса в качестве кнопки быстрого действия</string>
+    <string name="pref_show_record_voice_btn">Показать кнопки записи голоса и фотосъемки</string>
+    <string name="pref_show_record_voice_btn_summary">Показывать кнопку записи голоса и кнопку сфотографировать в поле ввода как быстрое действие</string>
     <string name="pref_showtextformatting">Показать панель инструментов форматирования текста</string>
     <string name="pref_showtextformatting_sum">Показывать панель инструментов форматирования текста в чате, когда отображается клавиатура</string>
     <string name="pref_sound">Рингтон</string>
@@ -919,7 +919,7 @@
     <string name="publish">Опубликовать</string>
     <string name="publishing">Публикация…</string>
     <string name="qr_code_scanner_needs_access_to_camera">Сканеру QR-кодов нужен доступ к камере</string>
-    <string name="quote">Ответить</string>
+    <string name="quote">Цитировать</string>
     <string name="readmore">Подробнее</string>
     <string name="receive_presence_updates">Принимать обновления присутствия</string>
     <string name="received_message_from_stranger">Принимать сообщения от не знакомых контактов</string>
@@ -1495,4 +1495,11 @@
     <string name="pref_hide_donation_snackbar_summary">Скрыть подсказку о пожертвовании навсегда</string>
     <string name="pref_hide_donation_snackbar">Скрыть подсказку о пожертвовании</string>
     <string name="snikket_login_activated">Вход в Snikket активирован</string>
+    <string name="pref_use_green_blue_readmarkers_title">Использовать зеленые и синие маркеры чтения</string>
+    <string name="green_and_blue">Зеленый и синий</string>
+    <string name="pref_readmarkers_summary">Изменение стиля маркеров чтения</string>
+    <string name="pref_readmarker_title">Стиль маркера чтения</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Используйте два цветных маркера чтения. Синий — полученный, зеленый — прочитанный.</string>
+    <string name="grey">Серый</string>
+    <string name="blue">Синий</string>
 </resources>
