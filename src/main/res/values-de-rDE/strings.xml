@@ -1446,4 +1446,9 @@
     <string name="pref_hide_donation_snackbar_summary">Zeige den Spenden Hinweis nicht wieder an</string>
     <string name="pref_hide_donation_snackbar">Deaktiviere Spendenhinweis</string>
     <string name="snikket_login_activated">Snikket Login aktiviert</string>
+    <string name="pref_readmarkers_summary">Ändere den Stil der Lese-Markierungen</string>
+    <string name="pref_readmarker_title">Lese-Markierungen</string>
+    <string name="grey">Grau</string>
+    <string name="blue">Blau</string>
+    <string name="green_and_blue">Grün und blau</string>
 </resources>
