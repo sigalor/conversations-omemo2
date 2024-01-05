@@ -4299,7 +4299,7 @@ public class ConversationFragment extends XmppFragment
                         binding.emojiPicker.setVisibility(GONE);
                         binding.keyboardButton.setVisibility(GONE);
                     }
-                    if (activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
+                    if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
                         showTextFormat(me);
                     } else {
                         hideTextFormat();
