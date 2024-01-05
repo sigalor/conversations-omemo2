@@ -35,7 +35,7 @@
             android:id="@+id/conversation_view_pager"
             android:layout_below="@id/tab_layout"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent" >
 
             <RelativeLayout
                 android:layout_width="fill_parent"
@@ -54,7 +54,8 @@
                     android:listSelector="@android:color/transparent"
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
-                    tools:listitem="@layout/message_sent" />
+                    tools:listitem="@layout/message_sent"
+                    android:animateLayoutChanges="true" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/scroll_to_bottom_button"
@@ -68,7 +69,8 @@
                     android:visibility="gone"
                     app:backgroundTint="?attr/color_background_primary"
                     app:fabCustomSize="48dp"
-                    app:useCompatPadding="true" />
+                    app:useCompatPadding="true"
+                    android:animateLayoutChanges="true" />
 
                 <eu.siacs.conversations.ui.widget.UnreadCountCustomView
                     android:id="@+id/unread_count_custom_view"
@@ -82,7 +84,8 @@
                     android:layout_marginRight="8dp"
                     android:elevation="8dp"
                     android:visibility="gone"
-                    app:backgroundColor="?attr/colorAccent" />
+                    app:backgroundColor="?attr/colorAccent"
+                    android:animateLayoutChanges="true" />
 
                 <LinearLayout
                     android:id="@+id/input_area"
@@ -326,7 +329,7 @@
 
                         <androidx.emoji2.emojipicker.EmojiPickerView
                             android:id="@+id/emoji_picker"
-                            android:layout_below="@+id/message_input_box"
+                            android:layout_below="@+id/textformat"
                             android:layout_width="match_parent"
                             android:layout_height="190dp"
                             app:emojiGridColumns="20"
