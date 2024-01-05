@@ -498,7 +498,6 @@ public class ConversationsOverviewFragment extends XmppFragment {
             final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
             alertDialogBuilder.setTitle(R.string.choose_account);
-            alertDialogBuilder.setTitle(R.string.choose_account);
             final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toEscapedString()).toArray(new String[0]);
             alertDialogBuilder.setSingleChoiceItems(asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
             alertDialogBuilder.setNegativeButton(R.string.cancel, null);
