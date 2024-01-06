@@ -7,7 +7,7 @@
 * Update dependencies 
 * Default to play gif inside chat 
 * Bigger send button area
-* Reimplement emoji picker
+* Re-implement emoji picker
 * Remove multi account option since it's always active
 * Add simple message reaction option
 * Improve message deletion with compatibility to movim
