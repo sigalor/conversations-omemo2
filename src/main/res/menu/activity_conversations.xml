@@ -31,7 +31,8 @@
         android:id="@+id/action_check_updates"
         android:orderInCategory="850"
         android:title="@string/action_check_update"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        android:visible="@bool/show_combined_search_options" />
     <item
         android:id="@+id/action_invite_user"
         android:orderInCategory="100"
