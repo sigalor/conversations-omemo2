@@ -22,8 +22,8 @@ public class XEP0392Helper {
     public static int rgbFromNick(String name) {
         double[] hsluv = new double[3];
         hsluv[0] = angle(name) * 360;
-        hsluv[1] = 100;
-        hsluv[2] = 50;
+        hsluv[1] = 85;
+        hsluv[2] = 58;
         double[] rgb = HUSLColorConverter.hsluvToRgb(hsluv);
         return Color.rgb((int) Math.round(rgb[0] * 255), (int) Math.round(rgb[1] * 255), (int) Math.round(rgb[2] * 255));
     }
