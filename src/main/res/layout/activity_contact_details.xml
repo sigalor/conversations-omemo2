@@ -93,6 +93,7 @@
                                         android:layout_height="wrap_content"
                                         android:paddingTop="3dp"
                                         android:text="@string/account_settings_example_jabber_id"
+                                        android:textIsSelectable="true"
                                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                                         android:layout_gravity="center_horizontal" />
 
