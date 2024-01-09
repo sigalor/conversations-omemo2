@@ -779,7 +779,7 @@ public class XmppConnectionService extends Service {
     }
 
     private File stickerDir() {
-        return new File(this.getFilesDir() + File.separator + "Stickers");
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
     }
 
     public void rescanStickers() {

@@ -121,6 +121,16 @@ public class DownloadDefaultStickers extends Service {
             mDatabaseBackend.saveCid(cid, file, sticker.getString("url"));
         }
 
+        File nomediastickers = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/" + ".nomedia");
+        File nomediastickersfolder = new File(mStickerDir.getAbsolutePath() + "/" + ".nomedia");
+        try {
+            nomediastickers.createNewFile();
+            nomediastickersfolder.createNewFile();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+
+
         if (file != null) {
             MediaScannerConnection.scanFile(
                     getBaseContext(),
@@ -187,7 +197,7 @@ public class DownloadDefaultStickers extends Service {
     }
 
     private File stickerDir() {
-        return new File(this.getFilesDir() + File.separator + "Stickers");
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
     }
 
     @Override

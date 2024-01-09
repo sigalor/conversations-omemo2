@@ -2014,7 +2014,7 @@ public class ConversationFragment extends XmppFragment
                 final String path = m.getRelativeFilePath();
                 Log.d(Config.LOGTAG, "Path = " + path);
                 if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
-                    //saveAsSticker.setVisible(true);   TODO: Enable it again with better storage handling
+                    saveAsSticker.setVisible(true);
                     blockMedia.setVisible(true);
                     deleteFile.setVisible(true);
                     deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
@@ -3236,14 +3236,14 @@ public class ConversationFragment extends XmppFragment
             InputStream in;
             OutputStream out;
             try {
-                File stickerfolder = new File(activity.getFilesDir() + File.separator + "Stickers" + File.separator + "User");
+                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User");
                 //create output directory if it doesn't exist
                 if (!stickerfolder.exists()) {
                     stickerfolder.mkdirs();
                 }
 
                 String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
-                File newSticker = new File(activity.getFilesDir() + File.separator + "Stickers" + File.separator + "User" + File.separator + filename);
+                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User" + File.separator + filename);
 
                 in = activity.getContentResolver().openInputStream(imageUri);
                 out = new FileOutputStream(newSticker);
