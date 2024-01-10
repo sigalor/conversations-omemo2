@@ -35,7 +35,7 @@ public class MessageGenerator extends AbstractGenerator {
         super(service);
     }
 
-    private MessagePacket preparePacket(Message message) {
+    private MessagePacket preparePacket(Message message, boolean legacyEncryption) {
         Conversation conversation = (Conversation) message.getConversation();
         Account account = conversation.getAccount();
         MessagePacket packet = new MessagePacket();
@@ -75,8 +75,11 @@ public class MessageGenerator extends AbstractGenerator {
             packet.addChild("store", "urn:xmpp:hints");
             packet.setBody("This person attempted to retract a previous message, but it's unsupported by your client.");
         }
-        for (Element el : message.getPayloads()) {
-            packet.addChild(el);
+        if (!legacyEncryption) {
+            // Legacy encryption can't handle advanced payloads
+            for (Element el : message.getPayloads()) {
+                packet.addChild(el);
+            }
         }
         return packet;
     }
@@ -91,7 +94,7 @@ public class MessageGenerator extends AbstractGenerator {
     }
 
     public MessagePacket generateAxolotlChat(Message message, XmppAxolotlMessage axolotlMessage) {
-        MessagePacket packet = preparePacket(message);
+        MessagePacket packet = preparePacket(message, true);
         if (axolotlMessage == null) {
             return null;
         }
@@ -128,7 +131,7 @@ public class MessageGenerator extends AbstractGenerator {
         if (otrSession == null) {
             return null;
         }
-        MessagePacket packet = preparePacket(message);
+        MessagePacket packet = preparePacket(message, true);
         addMessageHints(packet);
         try {
             String content;
@@ -146,7 +149,7 @@ public class MessageGenerator extends AbstractGenerator {
     }
 
     public MessagePacket generateChat(Message message) {
-        MessagePacket packet = preparePacket(message);
+        MessagePacket packet = preparePacket(message, false);
         if (message.hasFileOnRemoteHost()) {
             final Message.FileParams fileParams = message.getFileParams();
 
@@ -172,7 +175,7 @@ public class MessageGenerator extends AbstractGenerator {
     }
 
     public MessagePacket generatePgpChat(Message message) {
-        MessagePacket packet = preparePacket(message);
+        MessagePacket packet = preparePacket(message, true);
         if (message.hasFileOnRemoteHost()) {
             Message.FileParams fileParams = message.getFileParams();
             final String url = fileParams.url;
