@@ -1273,6 +1273,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             xmppConnectionService.reinitializeMuclumbusService();
         } else if (name.equals("enforce_dane")) {
             reconnectAccounts();
+        } else if (name.equals("show_less_avatars")) {
+            refreshUiReal();
         } else if (name.equals(AUTOMATIC_MESSAGE_DELETION)) {
             xmppConnectionService.expireOldMessages(true);
         } else if (name.equals(THEME) || name.equals(THEME_COLOR) || name.equals("custom_theme_primary") || name.equals("custom_theme_primary_dark") || name.equals("custom_theme_accent") || name.equals("custom_theme_dark")) {
