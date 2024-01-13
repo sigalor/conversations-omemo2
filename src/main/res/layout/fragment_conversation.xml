@@ -115,6 +115,61 @@
             android:dividerHeight="0dp"
             android:visibility="gone" />
 
+
+        <RelativeLayout
+            android:id="@+id/recordingVoiceActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:animateLayoutChanges="true" >
+
+            <LinearLayout
+                android:id="@+id/button_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/timer"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true">
+
+                <Button
+                    android:id="@+id/cancel_button"
+                    style="@style/Widget.Conversations.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/cancel"
+                    android:textColor="?attr/colorAccent" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:textColor="?attr/colorAccent" />
+
+                <Button
+                    android:id="@+id/share_button"
+                    style="@style/Widget.Conversations.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/attach"
+                    android:textColor="?attr/colorAccent" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="8dp"
+                android:text="0:00.0"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:typeface="monospace" />
+        </RelativeLayout>
+
         <LinearLayout
             android:id="@+id/context_preview"
             android:visibility="gone"

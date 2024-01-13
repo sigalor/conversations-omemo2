@@ -243,6 +243,7 @@
             android:launchMode="singleTask"
             android:minWidth="336dp"
             android:minHeight="480dp"
+            android:enableOnBackInvokedCallback="true"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.ScanActivity"
@@ -450,13 +451,6 @@
                 android:name="android.service.chooser.chooser_target_service"
                 android:value="eu.siacs.conversations.services.ContactChooserTargetService" />
         </activity>
-        <activity
-            android:name=".ui.RecordingActivity"
-            android:autoRemoveFromRecents="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:launchMode="singleInstance"
-            android:supportsPictureInPicture="true"
-            android:theme="@style/AppTheme.Transparent" />
         <activity
             android:name=".ui.ShareLocationActivity"
             android:label="@string/share_location"

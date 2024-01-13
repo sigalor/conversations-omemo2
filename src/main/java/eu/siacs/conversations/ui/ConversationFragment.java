@@ -4,6 +4,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.Map;
 
 import de.monocles.chat.KeyboardHeightProvider;
@@ -13,11 +15,14 @@ import eu.siacs.conversations.utils.Random;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
+import static eu.siacs.conversations.persistance.FileBackend.SENT_AUDIOS;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 import static eu.siacs.conversations.ui.SettingsActivity.WARN_UNENCRYPTED_CHAT;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -64,9 +69,11 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -160,6 +167,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -242,11 +251,73 @@ import androidx.emoji2.emojipicker.EmojiPickerView;
 import androidx.emoji2.emojipicker.RecentEmojiAsyncProvider;
 import androidx.emoji2.emojipicker.RecentEmojiProviderAdapter;
 
+import static eu.siacs.conversations.persistance.FileBackend.SENT_AUDIOS;
+import static eu.siacs.conversations.utils.StorageHelper.getConversationsDirectory;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.media.MediaRecorder;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.FileObserver;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import eu.siacs.conversations.Config;
+import eu.siacs.conversations.R;
+import eu.siacs.conversations.databinding.FragmentConversationBinding;
+import eu.siacs.conversations.utils.ThemeHelper;
+import eu.siacs.conversations.utils.TimeFrameUtils;
+import me.drakeet.support.toast.ToastCompat;
+
 public class ConversationFragment extends XmppFragment
         implements EditMessage.KeyboardListener,
         MessageAdapter.OnContactPictureLongClicked,
         MessageAdapter.OnContactPictureClicked,
         MessageAdapter.OnInlineImageLongClicked {
+
+    //Voice recoder
+
+    private MediaRecorder mRecorder;
+    private Integer oldOrientation;
+    private long mStartTime = 0;
+    private boolean alternativeCodec = false;
+    private boolean recording = false;
+
+    private CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
+
+    private Handler mHandler = new Handler();
+    private Runnable mTickExecutor = new Runnable() {
+        @Override
+        public void run() {
+            tick();
+            mHandler.postDelayed(mTickExecutor, 100);
+        }
+    };
+
+    private File mOutputFile;
+
+    private FileObserver mFileObserver;
 
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
@@ -764,6 +835,27 @@ public class ConversationFragment extends XmppFragment
             } else {
                 sendMessage();
             }
+        }
+    };
+
+    private final OnClickListener mCancelVoiceRecord = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mHandler.removeCallbacks(mTickExecutor);
+            stopRecording(false);
+            activity.setResult(RESULT_CANCELED);
+            //activity.finish();
+            binding.recordingVoiceActivity.setVisibility(View.GONE);
+        }
+    };
+
+    private final OnClickListener mShareVoiceRecord = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            //binding.shareButton.setEnabled(false);
+            //binding.shareButton.setText(R.string.please_wait);
+            mHandler.removeCallbacks(mTickExecutor);
+            mHandler.postDelayed(() -> stopRecording(true), 500);
         }
     };
 
@@ -1336,8 +1428,8 @@ public class ConversationFragment extends XmppFragment
                 break;
             case ATTACHMENT_CHOICE_CHOOSE_FILE:
             case ATTACHMENT_CHOICE_RECORD_VIDEO:
-            case ATTACHMENT_CHOICE_RECORD_VOICE:
             case ATTACHMENT_CHOICE_CHOOSE_VIDEO:
+            case ATTACHMENT_CHOICE_RECORD_VOICE:
                 final Attachment.Type type = requestCode == ATTACHMENT_CHOICE_RECORD_VOICE ? Attachment.Type.RECORDING : Attachment.Type.FILE;
                 final List<Attachment> fileUris = Attachment.extractAttachments(getActivity(), data, type);
                 mediaPreviewAdapter.addMediaPreviews(fileUris);
@@ -1619,6 +1711,12 @@ public class ConversationFragment extends XmppFragment
         if (displayMetrics.heightPixels > 0) binding.textinput.setMaxHeight(displayMetrics.heightPixels / 4);
 
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
+        if (binding.cancelButton != null) {
+            binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
+        }
+        if (binding.shareButton != null) {
+            binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
+        }
         binding.contextPreviewCancel.setOnClickListener((v) -> {
             setThread(null);
             conversation.setUserSelectedThread(false);
@@ -2984,8 +3082,7 @@ public class ConversationFragment extends XmppFragment
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 break;
             case ATTACHMENT_CHOICE_RECORD_VOICE:
-                intent = new Intent(getActivity(), RecordingActivity.class);
-                intent.putExtra("ALTERNATIVE_CODEC", activity.xmppConnectionService.alternativeVoiceSettings());
+                recordVoice();
                 break;
             case ATTACHMENT_CHOICE_LOCATION:
                 intent = GeoHelper.getFetchIntent(activity);
@@ -3016,6 +3113,159 @@ public class ConversationFragment extends XmppFragment
                 ToastCompat.makeText(context, R.string.no_application_found, ToastCompat.LENGTH_LONG).show();
             }
         }
+    }
+
+
+    public void recordVoice() {
+        this.binding.recordingVoiceActivity.setVisibility(View.VISIBLE);
+        if (!startRecording()) {
+            this.binding.shareButton.setEnabled(false);
+            this.binding.timer.setTextAppearance(activity, R.style.TextAppearance_Conversations_Title);
+            this.binding.timer.setText(R.string.unable_to_start_recording);
+        }
+    }
+
+
+    private boolean startRecording() {
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        if (activity.xmppConnectionService.getBooleanPreference("ALTERNATIVE_CODEC", R.bool.alternative_voice_settings)) {
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        } else {
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mRecorder.setAudioEncodingBitRate(96000);
+            mRecorder.setAudioSamplingRate(22050);
+        }
+        setupOutputFile();
+        mRecorder.setOutputFile(mOutputFile.getAbsolutePath());
+
+        try {
+            mRecorder.prepare();
+            mRecorder.start();
+            recording = true;
+            mStartTime = SystemClock.elapsedRealtime();
+            mHandler.postDelayed(mTickExecutor, 100);
+            Log.d("Voice Recorder", "started recording to " + mOutputFile.getAbsolutePath());
+            return true;
+        } catch (Exception e) {
+            Log.e("Voice Recorder", "prepare() failed " + e.getMessage());
+            return false;
+        }
+    }
+
+    protected void stopRecording() {
+        try {
+            mRecorder.stop();
+            mRecorder.release();
+            recording = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void stopRecording(final boolean saveFile) {
+        try {
+            if (recording) {
+                stopRecording();
+            }
+        } catch (Exception e) {
+            if (saveFile) {
+                ToastCompat.makeText(activity, R.string.unable_to_save_recording, ToastCompat.LENGTH_SHORT).show();
+                return;
+            }
+        } finally {
+            mRecorder = null;
+            mStartTime = 0;
+        }
+        if (!saveFile && mOutputFile != null) {
+            if (mOutputFile.delete()) {
+                Log.d(Config.LOGTAG, "deleted canceled recording");
+            }
+        }
+        if (saveFile) {
+            new Thread(new Finisher(outputFileWrittenLatch, mOutputFile, activity)).start();
+        }
+    }
+
+    private class Finisher implements Runnable {
+
+        private final CountDownLatch latch;
+        private final File outputFile;
+        private final WeakReference<Activity> activityReference;
+
+        private Finisher(CountDownLatch latch, File outputFile, Activity activity) {
+            this.latch = latch;
+            this.outputFile = outputFile;
+            this.activityReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (!latch.await(8, TimeUnit.SECONDS)) {
+                    Log.d(Config.LOGTAG, "time out waiting for output file to be written");
+                }
+            } catch (InterruptedException e) {
+                Log.d(Config.LOGTAG, "interrupted while waiting for output file to be written", e);
+            }
+            final Activity activity = activityReference.get();
+            if (activity == null) {
+                return;
+            }
+            activity.runOnUiThread(
+                    () -> {
+                        activity.setResult(
+                            Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
+                        mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                        toggleInputMethod();
+                        binding.recordingVoiceActivity.setVisibility(View.GONE);
+                        //attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
+                    });
+        }
+    }
+
+    private static File generateOutputFilename(Context context) {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
+        return new File(getConversationsDirectory(context, SENT_AUDIOS)
+                + dateFormat.format(new Date())
+                + ".m4a");
+    }
+
+    private void setupOutputFile() {
+        mOutputFile = generateOutputFilename(activity);
+        final File parentDirectory = mOutputFile.getParentFile();
+        if (parentDirectory.mkdirs()) {
+            Log.d(Config.LOGTAG, "created " + parentDirectory.getAbsolutePath());
+        }
+        final File noMedia = new File(parentDirectory, ".nomedia");
+        if (!noMedia.exists()) {
+            try {
+                if (noMedia.createNewFile()) {
+                    Log.d(Config.LOGTAG, "created nomedia file in " + parentDirectory.getAbsolutePath());
+                }
+            } catch (IOException e) {
+                Log.d(Config.LOGTAG, "unable to create nomedia file in " + parentDirectory.getAbsolutePath(), e);
+            }
+        }
+        setupFileObserver(parentDirectory);
+    }
+
+    private void setupFileObserver(final File directory) {
+        mFileObserver = new FileObserver(directory.getAbsolutePath()) {
+            @Override
+            public void onEvent(int event, String s) {
+                if (s != null && s.equals(mOutputFile.getName()) && event == FileObserver.CLOSE_WRITE) {
+                    outputFileWrittenLatch.countDown();
+                }
+            }
+        };
+        mFileObserver.startWatching();
+    }
+
+    private void tick() {
+        this.binding.timer.setText(TimeFrameUtils.formatTimePassed(mStartTime, true));
     }
 
     @Override
