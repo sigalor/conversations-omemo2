@@ -3493,7 +3493,7 @@ public class ConversationFragment extends XmppFragment
                 }
 
                 String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
-                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User" + File.separator + filename);
+                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User" + File.separator + filename + ".jpg");
 
                 in = activity.getContentResolver().openInputStream(imageUri);
                 out = new FileOutputStream(newSticker);
