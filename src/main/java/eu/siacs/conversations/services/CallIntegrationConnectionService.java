@@ -24,25 +24,22 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
-import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
+import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class CallIntegrationConnectionService extends ConnectionService {
 
-    public static final String EXTRA_SESSION_ID = null;
     private ListenableFuture<ServiceConnectionService> serviceFuture;
 
     @Override
@@ -63,12 +60,6 @@ public class CallIntegrationConnectionService extends ConnectionService {
             return;
         }
         this.unbindService(serviceConnection);
-    }
-
-    private static void sendJingleFinishMessage(
-            final XmppConnectionService service, final Contact contact, final Reason reason) {
-        service.getJingleConnectionManager()
-                .sendJingleMessageFinish(contact, UUID.randomUUID().toString(), reason);
     }
 
     @Override
@@ -93,6 +84,7 @@ public class CallIntegrationConnectionService extends ConnectionService {
         }
         final Account account = service.findAccountByUuid(phoneAccountHandle.getId());
         final Intent intent = new Intent(this, RtpSessionActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
         intent.putExtra(RtpSessionActivity.EXTRA_ACCOUNT, account.getJid().toEscapedString());
         intent.putExtra(RtpSessionActivity.EXTRA_WITH, jid.toEscapedString());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -103,10 +95,17 @@ public class CallIntegrationConnectionService extends ConnectionService {
                     service.getJingleConnectionManager()
                             .proposeJingleRtpSession(account, jid, media);
 
+            intent.putExtra(
+                    RtpSessionActivity.EXTRA_LAST_REPORTED_STATE,
+                    RtpEndUserState.FINDING_DEVICE.toString());
             if (Media.audioOnly(media)) {
-                intent.setAction(RtpSessionActivity.ACTION_MAKE_VOICE_CALL);
+                intent.putExtra(
+                        RtpSessionActivity.EXTRA_LAST_ACTION,
+                        RtpSessionActivity.ACTION_MAKE_VOICE_CALL);
             } else {
-                intent.setAction(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
+                intent.putExtra(
+                        RtpSessionActivity.EXTRA_LAST_ACTION,
+                        RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
             }
             callIntegration = proposal.getCallIntegration();
         } else {
