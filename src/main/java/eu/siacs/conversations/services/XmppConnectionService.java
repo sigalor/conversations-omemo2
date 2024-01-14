@@ -267,6 +267,7 @@ public class XmppConnectionService extends Service {
     public static final String ACTION_END_CALL = "end_call";
     public static final String ACTION_STARTING_CALL = "starting_call";
     public static final String ACTION_PROVISION_ACCOUNT = "provision_account";
+    public static final String ACTION_CALL_INTEGRATION_SERVICE_STARTED = "call_integration_service_started";
     private static final String ACTION_POST_CONNECTIVITY_CHANGE = "eu.siacs.conversations.POST_CONNECTIVITY_CHANGE";
     public static final String ACTION_RENEW_UNIFIED_PUSH_ENDPOINTS = "eu.siacs.conversations.UNIFIED_PUSH_RENEW";
     public static final String ACTION_QUICK_LOG = "eu.siacs.conversations.QUICK_LOG";
@@ -392,16 +393,7 @@ public class XmppConnectionService extends Service {
     };
     private final AtomicBoolean isPhoneInCall = new AtomicBoolean(false);
     private final AtomicBoolean diallerIntegrationActive = new AtomicBoolean(false);
-    private final PhoneStateListener phoneStateListener = new PhoneStateListener() {
-        @Override
-        public void onCallStateChanged(final int state, final String phoneNumber) {
-            if (diallerIntegrationActive.get()) return;
-            isPhoneInCall.set(state != TelephonyManager.CALL_STATE_IDLE);
-            if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                mJingleConnectionManager.notifyPhoneCallStarted();
-            }
-        }
-    };
+
     private LruCache<String, Drawable> mDrawableCache;
 
     public void setDiallerIntegrationActive(boolean active) {
@@ -1754,6 +1746,9 @@ public class XmppConnectionService extends Service {
         editor.apply();
         toggleSetProfilePictureActivity(hasEnabledAccounts);
         reconfigurePushDistributor();
+
+        CallIntegrationConnectionService.registerPhoneAccounts(this, this.accounts);
+
         restoreFromDatabase();
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
@@ -1813,7 +1808,6 @@ public class XmppConnectionService extends Service {
                 ContextCompat.RECEIVER_EXPORTED);
         mForceDuringOnCreate.set(false);
         toggleForegroundService();
-        setupPhoneStateListener();
         internalPingExecutor.scheduleAtFixedRate(this::manageAccountConnectionStatesInternal,120,120,TimeUnit.SECONDS);
         //start export log service every day at given time
         ScheduleAutomaticExport();
@@ -1837,19 +1831,7 @@ public class XmppConnectionService extends Service {
             }
         }).start();
     }
-
-    private void setupPhoneStateListener() {
-        final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        if (telephonyManager == null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return;
-        }
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-    }
-
-    public boolean isPhoneInCall() {
-        return isPhoneInCall.get();
-    }
-
+    
     private void checkForDeletedFiles() {
         if (destroyed) {
             Log.d(Config.LOGTAG, "Do not check for deleted files because service has been destroyed");
@@ -5571,7 +5553,7 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public void notifyJingleRtpConnectionUpdate(AppRTCAudioManager.AudioDevice selectedAudioDevice, Set<AppRTCAudioManager.AudioDevice> availableAudioDevices) {
+    public void notifyJingleRtpConnectionUpdate(CallIntegration.AudioDevice selectedAudioDevice, Set<CallIntegration.AudioDevice> availableAudioDevices) {
         for (OnJingleRtpConnectionUpdate listener : threadSafeList(this.onJingleRtpConnectionUpdate)) {
             listener.onAudioDeviceChanged(selectedAudioDevice, availableAudioDevices);
         }
@@ -6601,7 +6583,7 @@ public class XmppConnectionService extends Service {
     public interface OnJingleRtpConnectionUpdate {
         void onJingleRtpConnectionUpdate(final Account account, final Jid with, final String sessionId, final RtpEndUserState state);
 
-        void onAudioDeviceChanged(AppRTCAudioManager.AudioDevice selectedAudioDevice, Set<AppRTCAudioManager.AudioDevice> availableAudioDevices);
+        void onAudioDeviceChanged(CallIntegration.AudioDevice selectedAudioDevice, Set<CallIntegration.AudioDevice> availableAudioDevices);
     }
 
     public interface OnAccountUpdate {
