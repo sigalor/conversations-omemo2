@@ -70,7 +70,7 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
     }
 
     @Override
-    protected void onBackendConnected() {
+    public void onBackendConnected() {
         if (pendingServices != null) {
             mucServices = new HashMap<>();
             for (int i = 0; i < pendingServices.length; i += 2) {
@@ -111,13 +111,7 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
     }
 
     public static ChannelDiscoveryService.Method getMethod(final Context c) {
-        if (mucServices != null) return ChannelDiscoveryService.Method.LOCAL_SERVER;
-        if ( Strings.isNullOrEmpty(Config.CHANNEL_DISCOVERY)) {
-            return ChannelDiscoveryService.Method.LOCAL_SERVER;
-        }
-        if (QuickConversationsService.isQuicksy()) {
-            return ChannelDiscoveryService.Method.JABBER_NETWORK;
-        }
+        // if (mucServices != null) return ChannelDiscoveryService.Method.LOCAL_SERVER;
         final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(c);
         final String m = p.getString("channel_discovery_method", c.getString(R.string.default_channel_discovery));
         try {
@@ -164,18 +158,14 @@ public class ChannelDiscoveryActivity extends XmppActivity implements MenuItem.O
             mSearchEditText.append(initialSearchValue);
             mSearchEditText.requestFocus();
             if ((optedIn || method == ChannelDiscoveryService.Method.LOCAL_SERVER) && xmppConnectionService != null) {
-                xmppConnectionService.discoverChannels(initialSearchValue, this.method, this.mucServices, this);
+                xmppConnectionService.discoverChannels(initialSearchValue, this.method, mucServices, this);
             }
         }
         mSearchEditText.setOnEditorActionListener(this);
         mMenuSearchView.setOnActionExpandListener(this);
         switch (method) {
-            case JABBER_NETWORK:
-                mJabberNetwork.setChecked(true);
-                break;
-            case LOCAL_SERVER:
-                mLocalServer.setChecked(true);
-                break;
+            case JABBER_NETWORK -> mJabberNetwork.setChecked(true);
+            case LOCAL_SERVER -> mLocalServer.setChecked(true);
         }
         return true;
     }
