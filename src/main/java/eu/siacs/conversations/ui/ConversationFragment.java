@@ -3218,10 +3218,10 @@ public class ConversationFragment extends XmppFragment
                     () -> {
                         activity.setResult(
                             Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
-                        mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
-                        toggleInputMethod();
+                        //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                        //toggleInputMethod();
+                        attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
                         binding.recordingVoiceActivity.setVisibility(View.GONE);
-                        //attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
                     });
         }
     }
