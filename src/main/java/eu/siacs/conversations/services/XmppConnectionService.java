@@ -3348,6 +3348,7 @@ public class XmppConnectionService extends Service {
     public void createAccount(final Account account) {
         account.initAccountServices(this);
         databaseBackend.createAccount(account);
+        CallIntegrationConnectionService.registerPhoneAccount(this, account);
         this.accounts.add(account);
         this.reconnectAccountInBackground(account);
         updateAccountUi();
@@ -3540,6 +3541,7 @@ public class XmppConnectionService extends Service {
             };
             mDatabaseWriterExecutor.execute(runnable);
             this.accounts.remove(account);
+            CallIntegrationConnectionService.unregisterPhoneAccount(this, account);
             this.mRosterSyncTaskManager.clear(account);
             updateAccountUi();
             mNotificationService.updateErrorNotification();
