@@ -6,3 +6,4 @@
 * Directly send voice message instead of just attach
 * Append file type to stickers saved from inside chat 
 * Fix public chat room search method
+* Hide attach record voice and take picture when buttons already visible 
