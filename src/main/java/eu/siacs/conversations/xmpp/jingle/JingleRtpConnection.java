@@ -1,6 +1,6 @@
 package eu.siacs.conversations.xmpp.jingle;
 
-import android.telecom.Call;
+import android.content.Intent;
 import android.telecom.TelecomManager;
 import android.util.Log;
 
@@ -35,6 +35,7 @@ import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.services.AppRTCAudioManager;
 import eu.siacs.conversations.services.CallIntegration;
+import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
@@ -75,7 +76,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private static final long BUSY_TIME_OUT = 30;
 
     private final WebRTCWrapper webRTCWrapper = new WebRTCWrapper(this);
-    private final Queue<Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>>>
+    private final Queue<
+                    Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>>
             pendingIceCandidates = new LinkedList<>();
     private final OmemoVerification omemoVerification = new OmemoVerification();
     public final CallIntegration callIntegration;
@@ -91,13 +93,28 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private final Queue<PeerConnection.PeerConnectionState> stateHistory = new LinkedList<>();
     private ScheduledFuture<?> ringingTimeoutFuture;
 
-    JingleRtpConnection(final JingleConnectionManager jingleConnectionManager, final Id id, final Jid initiator) {
-        this(jingleConnectionManager, id, initiator, new CallIntegration(jingleConnectionManager.getXmppConnectionService().getApplicationContext()));
-        this.callIntegration.setAddress(CallIntegration.address(id.with.asBareJid()), TelecomManager.PRESENTATION_ALLOWED);
+    JingleRtpConnection(
+            final JingleConnectionManager jingleConnectionManager,
+            final Id id,
+            final Jid initiator) {
+        this(
+                jingleConnectionManager,
+                id,
+                initiator,
+                new CallIntegration(
+                        jingleConnectionManager
+                                .getXmppConnectionService()
+                                .getApplicationContext()));
+        this.callIntegration.setAddress(
+                CallIntegration.address(id.with.asBareJid()), TelecomManager.PRESENTATION_ALLOWED);
         this.callIntegration.setInitialized();
     }
 
-    JingleRtpConnection(final JingleConnectionManager jingleConnectionManager, final Id id, final Jid initiator, final CallIntegration callIntegration) {
+    JingleRtpConnection(
+            final JingleConnectionManager jingleConnectionManager,
+            final Id id,
+            final Jid initiator,
+            final CallIntegration callIntegration) {
         super(jingleConnectionManager, id, initiator);
         final Conversation conversation =
                 jingleConnectionManager
@@ -235,8 +252,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     private void receiveTransportInfo(
             final JinglePacket jinglePacket, final RtpContentMap contentMap) {
-        final Set<Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>>> candidates =
-                contentMap.contents.entrySet();
+        final Set<Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>>
+                candidates = contentMap.contents.entrySet();
         final RtpContentMap remote = getRemoteContentMap();
         final Set<String> remoteContentIds =
                 remote == null ? Collections.emptySet() : remote.contents.keySet();
@@ -1008,14 +1025,17 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     private void processCandidates(
-            final Set<Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>>> contents) {
-        for (final Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> content : contents) {
+            final Set<Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>>
+                    contents) {
+        for (final Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
+                content : contents) {
             processCandidate(content);
         }
     }
 
     private void processCandidate(
-            final Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> content) {
+            final Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
+                    content) {
         final RtpContentMap rtpContentMap = getRemoteContentMap();
         final List<String> indices = toIdentificationTags(rtpContentMap);
         final String sdpMid = content.getKey(); // aka content name
@@ -1386,7 +1406,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     private void addIceCandidatesFromBlackLog() {
-        Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> foo;
+        Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>> foo;
         while ((foo = this.pendingIceCandidates.poll()) != null) {
             processCandidate(foo);
             Log.d(
@@ -1964,11 +1984,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
         sendSessionTerminate(reason, null);
     }
 
-
     protected void sendSessionTerminate(final Reason reason, final String text) {
-        sendSessionTerminate(reason,text, this::writeLogMessage);
+        sendSessionTerminate(reason, text, this::writeLogMessage);
     }
-
 
     private void sendTransportInfo(
             final String contentName, IceUdpTransportInfo.Candidate candidate) {
@@ -2355,7 +2373,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
         sendSessionAccept();
     }
 
-
     @Override
     protected synchronized boolean transition(final State target, final Runnable runnable) {
         if (super.transition(target, runnable)) {
@@ -2596,7 +2613,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private void modifyLocalContentMap(final RtpContentMap rtpContentMap) {
         final RtpContentMap activeContents = rtpContentMap.activeContents();
         setLocalContentMap(activeContents);
-        // TODO change audio device on callIntegration was (`switchSpeakerPhonePreference(AppRTCAudioManager.SpeakerPhonePreference.of(activeContents.getMedia())`)
         updateEndUserState();
     }
 
@@ -2628,7 +2644,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
     public long getCallDuration() {
         return this.sessionDuration.elapsed(TimeUnit.MILLISECONDS);
     }
-
 
     public CallIntegration getCallIntegration() {
         return this.callIntegration;
@@ -2678,10 +2693,36 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     @Override
+    public void onCallIntegrationReject() {
+        Log.d(Config.LOGTAG, "rejecting call from system notification / call integration");
+        try {
+            rejectCall();
+        } catch (final IllegalStateException e) {
+            Log.w(Config.LOGTAG, "race condition on rejecting call from notification", e);
+        }
+    }
+
+    @Override
+    public void onCallIntegrationAnswer() {
+        // we need to start the UI to a) show it and b) be able to ask for permissions
+        final Intent intent = new Intent(xmppConnectionService, RtpSessionActivity.class);
+        intent.setAction(RtpSessionActivity.ACTION_ACCEPT_CALL);
+        intent.putExtra(RtpSessionActivity.EXTRA_ACCOUNT, id.account.getJid().toEscapedString());
+        intent.putExtra(RtpSessionActivity.EXTRA_WITH, id.with.toEscapedString());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(RtpSessionActivity.EXTRA_SESSION_ID, id.sessionId);
+        Log.d(Config.LOGTAG, "start activity to accept call from call integration");
+        xmppConnectionService.startActivity(intent);
+    }
+
+    @Override
     public void onAudioDeviceChanged(
             final CallIntegration.AudioDevice selectedAudioDevice,
             final Set<CallIntegration.AudioDevice> availableAudioDevices) {
-        Log.d(Config.LOGTAG,"onAudioDeviceChanged("+selectedAudioDevice+","+availableAudioDevices+")");
+        Log.d(
+                Config.LOGTAG,
+                "onAudioDeviceChanged(" + selectedAudioDevice + "," + availableAudioDevices + ")");
         xmppConnectionService.notifyJingleRtpConnectionUpdate(
                 selectedAudioDevice, availableAudioDevices);
     }

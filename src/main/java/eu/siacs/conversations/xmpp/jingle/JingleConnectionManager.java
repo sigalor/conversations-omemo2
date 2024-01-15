@@ -1119,5 +1119,15 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         public void onAudioDeviceChanged(
                 CallIntegration.AudioDevice selectedAudioDevice,
                 Set<CallIntegration.AudioDevice> availableAudioDevices) {}
+
+        @Override
+        public void onCallIntegrationReject() {
+
+        }
+
+        @Override
+        public void onCallIntegrationAnswer() {
+
+        }
     }
 }
