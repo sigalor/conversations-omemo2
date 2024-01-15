@@ -62,8 +62,8 @@ public class ConversationMenuConfigurator {
             return;
         }
         if (hideVoiceAndTakePicture) {
-            microphoneAvailable = true;
-            cameraAvailable = true;
+            microphoneAvailable = false;
+            cameraAvailable = false;
         }
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
         menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
