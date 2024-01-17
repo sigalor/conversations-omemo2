@@ -3206,20 +3206,14 @@ public class ConversationFragment extends XmppFragment
     private boolean hasPermissions(int requestCode, List<String> permissions) {
         final List<String> missingPermissions = new ArrayList<>();
         for (String permission : permissions) {
-            if (!Compatibility.runsThirtyThree() && Config.ONLY_INTERNAL_STORAGE
-                    && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                continue;
-            } else if (Compatibility.runsThirtyThree() && Config.ONLY_INTERNAL_STORAGE
-                    && permission.equals(Manifest.permission.READ_MEDIA_AUDIO)
-                    && permission.equals(Manifest.permission.READ_MEDIA_VIDEO)
-                    && permission.equals(Manifest.permission.READ_MEDIA_IMAGES)) {
+            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU || Config.ONLY_INTERNAL_STORAGE) && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 continue;
             }
             if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission);
             }
         }
-        if (missingPermissions.size() == 0) {
+        if (missingPermissions.isEmpty()) {
             return true;
         } else {
             requestPermissions(
@@ -3228,6 +3222,7 @@ public class ConversationFragment extends XmppFragment
             return false;
         }
     }
+
     private boolean hasPermissions(int requestCode, String... permissions) {
         return hasPermissions(requestCode, ImmutableList.copyOf(permissions));
     }
