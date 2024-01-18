@@ -61,8 +61,8 @@ public class PresenceSelector {
 
     public static void selectFullJidForDirectRtpConnection(final Activity activity, final Contact contact, final RtpCapability.Capability required, final OnFullJidSelected onFullJidSelected) {
         final String[] resources = RtpCapability.filterPresences(contact, required);
-        if (resources.length < 1) {
-            Toast.makeText(activity, "No online resources to call.", Toast.LENGTH_SHORT).show();
+        if (resources.length == 0) {
+            Toast.makeText(activity,R.string.rtp_state_contact_offline,Toast.LENGTH_LONG).show();
         } else if (resources.length == 1) {
             onFullJidSelected.onFullJidSelected(contact.getJid().withResource(resources[0]));
         } else {

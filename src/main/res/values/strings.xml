@@ -1441,4 +1441,5 @@
     <string name="import_own_gifs_summary">Import your own GIFs. They will be sorted by the filename.</string>
     <string name="pref_accept_invites_from_strangers">Invites from strangers</string>
     <string name="pref_accept_invites_from_strangers_summary">Accept invites to group chats from strangers</string>
+    <string name="rtp_state_contact_offline">No online resource to call</string>
 </resources>
