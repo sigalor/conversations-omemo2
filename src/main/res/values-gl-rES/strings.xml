@@ -434,7 +434,7 @@
     <string name="none">Ningunha</string>
     <string name="recently_used">Utilizadas recentemente</string>
     <string name="search_contacts">Buscar contactos</string>
-    <string name="search_bookmarks">Buscar chats multi-usuarios</string>
+    <string name="search_bookmarks">Buscar salas de conversa</string>
     <string name="choose_quick_action">Escolla a acción rápida</string>
     <string name="send_private_message">Enviar mensaxe privada</string>
     <string name="user_has_left_conference">%1$s saíu da sala!</string>
@@ -526,10 +526,10 @@
     <string name="battery_optimizations_enabled_dialog">O seu dispositivo está facendo unhas optimizacións de batería moi fortes en monocles chat que poderían facer que se retrasasen algunhas mensaxes ou incluso se perdesen.
 \n
 \nAgora pediráselle que se deshabiliten as mismas.</string>
-    <string name="install_from_unknown_sources_disabled">Instalación desde fontes descoñecidas desactivada</string>
-    <string name="install_from_unknown_sources_disabled_dialog">O seu dispositivo está configurado para non permitir a instalación de aplicacións desde fontes descoñecidas, excepto desde Google PlayStore. Isto causará problemas co actualizador da aplicación.
+    <string name="install_from_unknown_sources_disabled">Instalación desde orixes descoñecidas desactivada</string>
+    <string name="install_from_unknown_sources_disabled_dialog">O teu dispositivo está configurado para non permitir a instalación de aplicacións desde orixes descoñecidas, excepto desde Google PlayStore. Isto causará problemas co actualizador da aplicación.
 \n
-\n Agora pediráselle que permita a instalación de aplicacións desde fontes descoñecidas.</string>
+\nÍmosche pedir que permitas a instalación de aplicacións desde orixes descoñecidas.</string>
     <string name="disable">Deshabilitar</string>
     <string name="cancel_update">Cancelar actualización\?</string>
     <string name="yes">Si</string>
@@ -634,8 +634,8 @@
     <string name="not_trusted">Non confiables</string>
     <string name="invalid_barcode">Código QR non válido</string>
     <string name="verify_with_qr_code">verificar co código QR</string>
-    <string name="i_followed_this_link_from_a_trusted_source">Seguín esta ligazón desde unha fonte de confianza</string>
-    <string name="verifying_omemo_keys_trusted_source">Vai verificar as chaves OMEMO de %1$s despois de pulsar na ligazón. Esto só é seguro si sigueu esta ligazón desde unha fonte de confianza onde só %2$s a podería ter publicado.</string>
+    <string name="i_followed_this_link_from_a_trusted_source">Seguín esta ligazón desde unha orixe de confianza</string>
+    <string name="verifying_omemo_keys_trusted_source">Vas verificar as chaves OMEMO de %1$s ao premer na ligazón. Esto só é seguro se seguiches esta ligazón desde unha orixe de confianza onde só %2$s a podería ter publicado.</string>
     <string name="verify_omemo_keys">Validar chaves OMEMO</string>
     <string name="show_inactive_devices">Mostrar como inactivo</string>
     <string name="hide_inactive_devices">Ocultar os inactivos</string>
@@ -784,8 +784,8 @@
     <string name="pref_theme_options_summary">Seleccionar o brillo do decorado</string>
     <string name="pref_theme_options">Decorado</string>
     <string name="chooce_account">Seleccionar conta</string>
-    <string name="pref_font_size">Tamaño da fonte</string>
-    <string name="pref_font_size_summary">O tamaño relativo da fonte utilizada na aplicación.</string>
+    <string name="pref_font_size">Tamaño da letra</string>
+    <string name="pref_font_size_summary">O tamaño relativo da letra utilizada na aplicación.</string>
     <string name="small">Pequeno</string>
     <string name="medium">Mediano</string>
     <string name="large">Grande</string>
@@ -858,7 +858,7 @@
     <string name="bad_key_for_encryption">Clave errónea para a encriptación.</string>
     <string name="delete_message_dialog">Borrar mensaxe</string>
     <string name="feature_not_implemented">Función non implementada</string>
-    <string name="device_does_not_support_unknown_source_op">O seu dispositivo non permite a instalación de aplicacións desde fontes descoñecidas.</string>
+    <string name="device_does_not_support_unknown_source_op">O dispositivo non permite a instalación de aplicacións desde orixes descoñecidas.</string>
     <string name="reject_request">Rexeitar a solicitude</string>
     <string name="error_message_copied_to_clipboard">Mensaxe de erro copiado no portapapeles</string>
     <string name="pref_screen_security_summary">Trata o contido como seguro e evita que apareza nas capturas de pantalla.</string>
@@ -1287,7 +1287,7 @@
     <string name="close_format_text">Tes a certeza de querer pechar a barra de formato do texto\? Podes activar cando queiras a barra nos axustes.</string>
     <string name="show_more">"
 \n
-\n... mostrar máis"</string>
+\n... mostrar mais"</string>
     <string name="settings_restore_message_failure">Fallou o restablecemento: %s</string>
     <string name="otr_fingerprint_selected_message">Impresión dixital OTR da mensaxe</string>
     <string name="pref_dialler_integration_incoming">Usar os Contactos do Teléfono para Chamadas Entrantes</string>

@@ -985,7 +985,7 @@
     <string name="scan_qr_code">Сканировать QR-код</string>
     <string name="search">Поиск</string>
     <string name="search_all_conversations">Поиск всех разговоров</string>
-    <string name="search_bookmarks">Поиск закладок</string>
+    <string name="search_bookmarks">Поиск конференций</string>
     <string name="search_channels">Поиск конференции</string>
     <string name="search_contacts">Поиск контактов</string>
     <string name="search_messages">Поиск сообщений</string>
@@ -1476,14 +1476,14 @@
     <string name="outdated_backup_file_format">Вы пытаетесь импортировать устаревший формат файла резервной копии</string>
     <string name="account_state_logged_out">Вышел из системы</string>
     <string name="monocles_account_details">Это включает в себя:
-\n● зашифрованное хранилище чата
-\n● электронная почта с 2 ГБ зашифрованного хранилища
+\n● зашифрованное хранилище чатов.
+\n● электронная почта с зашифрованным хранилищем объемом 2 ГБ.
 \n
-\n необязательно:
-\n● 4 ГБ облачного хранилища (следующий облако)
-\n● календарь и контактная синхронизация
-\n● безопасный инструмент конференц-связи
-\n и больше на <a href="https://monocles.eu/more/"> https://monocles.eu/more/</a></string>
+\nнеобязательно:
+\n● Облачное хранилище объемом 5 ГБ (nextcloud).
+\n● синхронизация календаря и контактов.
+\n● инструмент безопасной конференц-связи.
+\nи многое другое на <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="pref_create_compatible_backup">Создать универсальную резервную копию</string>
     <string name="unknown">Неизвестный</string>
     <string name="pref_create_compatible_backup_summary">Записать универсальные файлы резервных копий в %s</string>

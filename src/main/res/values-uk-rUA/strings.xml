@@ -409,7 +409,7 @@
     <string name="none">Жодної</string>
     <string name="recently_used">Остання, що використана</string>
     <string name="search_contacts">Шукати в контактах</string>
-    <string name="search_bookmarks">Шукати закладки</string>
+    <string name="search_bookmarks">Шукати групи</string>
     <string name="choose_quick_action">Вибрати швидку дію</string>
     <string name="send_private_message">Приватне повідомлення</string>
     <string name="user_has_left_conference">%1$s залишив групу!</string>
@@ -1193,7 +1193,7 @@
 \n● електронну пошту з 2 ГБ зашифрованого сховища, захищеного наскрізним шифруванням
 \n
 \n за бажанням:
-\n● хмарне сховище 4 ГБ (Nextcloud)
+\n● 5 ГБ у хмарному сховищі (Nextcloud)
 \n● синхронізація календаря та контактів
 \n● захищений інструмент для проведення конференцій
 \n та багато іншого на <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
