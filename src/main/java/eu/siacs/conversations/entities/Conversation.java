@@ -64,9 +64,9 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.Optional;
 
-import eu.monocles.chat.ConversationPage;
-import eu.monocles.chat.Util;
-import eu.monocles.chat.WebxdcPage;
+import de.monocles.chat.ConversationPage;
+import de.monocles.chat.Util;
+import de.monocles.chat.WebxdcPage;
 
 import eu.siacs.conversations.xmpp.forms.Field;
 

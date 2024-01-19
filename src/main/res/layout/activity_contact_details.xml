@@ -107,7 +107,7 @@
                                         android:layout_gravity="center_horizontal"
                                         android:orientation="horizontal" />
 
-                                    <eu.monocles.chat.TagEditorView
+                                    <de.monocles.chat.TagEditorView
                                         android:id="@+id/edit_tags"
                                         android:visibility="gone"
                                         android:hint="@string/tags"

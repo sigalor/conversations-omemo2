@@ -188,7 +188,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_gravity="center_vertical" />
 
-            <eu.monocles.chat.ReadMoreTextView
+            <de.monocles.chat.ReadMoreTextView
                 app:trimExpandedText="@string/show_less"
                 app:trimCollapsedText="@string/show_more"
                 app:trimMode="trimModeLength"

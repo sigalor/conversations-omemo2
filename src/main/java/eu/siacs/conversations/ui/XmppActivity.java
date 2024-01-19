@@ -1,6 +1,6 @@
 package eu.siacs.conversations.ui;
 
-import static eu.monocles.chat.ui.PermissionsActivity.permissions;
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.SettingsActivity.USE_INTERNAL_UPDATER;
 
 import android.graphics.drawable.AnimatedImageDrawable;

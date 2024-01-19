@@ -157,7 +157,7 @@ android {
 
         archivesBaseName += "-$versionName"
         // archivesBaseName += "$versionNameSuffix"  // activate for beta versions
-        applicationId "eu.monocles.chat"
+        applicationId "de.monocles.chat"
         multiDexEnabled true
         //versionName grgit.describe(always: true)
         buildConfigField("String", "LOGTAG", '"monocles chat"')
@@ -199,7 +199,7 @@ android {
         playstore {
             dimension "distribution"
             versionNameSuffix "-playstore"
-            applicationId "eu.monocles.chat"
+            applicationId "de.monocles.chat"
             buildConfigField("boolean", "SHOW_MIGRATION_INFO", 'false')
             resValue "string", "applicationId", applicationId
         }

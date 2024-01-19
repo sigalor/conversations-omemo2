@@ -9,7 +9,7 @@ import android.util.Log;
 import android.util.Base64OutputStream;
 import eu.siacs.conversations.entities.Message;
 
-import eu.monocles.chat.BobTransfer;
+import de.monocles.chat.BobTransfer;
 
 import com.google.common.io.ByteStreams;
 

@@ -29,7 +29,7 @@
 
 package eu.siacs.conversations.ui;
 
-import static eu.monocles.chat.ui.PermissionsActivity.permissions;
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_MEMORY_WARNING;
 import static eu.siacs.conversations.ui.SettingsActivity.MIN_ANDROID_SDK21_SHOWN;
@@ -71,7 +71,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import eu.monocles.chat.DownloadDefaultStickers;
+import de.monocles.chat.DownloadDefaultStickers;
 
 import net.java.otr4j.session.SessionStatus;
 import androidx.appcompat.widget.PopupMenu;
@@ -86,7 +86,7 @@ import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
-import eu.monocles.chat.ui.CallsActivity;
+import de.monocles.chat.ui.CallsActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;

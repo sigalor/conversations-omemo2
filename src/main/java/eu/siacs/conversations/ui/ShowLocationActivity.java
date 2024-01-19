@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
-import eu.monocles.chat.SignUpPage;
+import de.monocles.chat.SignUpPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityShowLocationBinding;

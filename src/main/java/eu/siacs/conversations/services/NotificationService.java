@@ -1,6 +1,6 @@
 package eu.siacs.conversations.services;
 
-import static eu.monocles.chat.ui.PermissionsActivity.permissions;
+import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 import static eu.siacs.conversations.utils.Compatibility.s;
 

@@ -40,7 +40,7 @@ import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.widget.TextView;
 import android.content.res.loader.ResourcesLoader;
-import eu.monocles.chat.ColorResourcesLoaderCreator;
+import de.monocles.chat.ColorResourcesLoaderCreator;
 import java.util.HashMap;
 import android.util.Log;
 
@@ -66,7 +66,7 @@ public class ThemeHelper {
         if (sharedPreferences.contains("custom_theme_accent")) colors.put(R.color.custom_theme_accent, sharedPreferences.getInt("custom_theme_accent", 0));
         if (colors.isEmpty()) return colors;
 
-        ResourcesLoader loader = eu.monocles.chat.ColorResourcesLoaderCreator.create(context, colors);
+        ResourcesLoader loader = de.monocles.chat.ColorResourcesLoaderCreator.create(context, colors);
         try {
             if (loader != null) context.getResources().addLoaders(loader);
         } catch (final IllegalArgumentException e) {
