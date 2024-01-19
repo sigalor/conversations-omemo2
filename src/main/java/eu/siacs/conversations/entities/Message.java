@@ -21,10 +21,10 @@ import android.text.Html;
 import android.util.Pair;
 import android.view.View;
 
-import de.monocles.chat.BobTransfer;
-import de.monocles.chat.GetThumbnailForCid;
-import de.monocles.chat.InlineImageSpan;
-import de.monocles.chat.SpannedToXHTML;
+import eu.monocles.chat.BobTransfer;
+import eu.monocles.chat.GetThumbnailForCid;
+import eu.monocles.chat.InlineImageSpan;
+import eu.monocles.chat.SpannedToXHTML;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -37,8 +37,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.primitives.Longs;
-import de.monocles.chat.BobTransfer;
-import de.monocles.chat.GetThumbnailForCid;
+import eu.monocles.chat.BobTransfer;
+import eu.monocles.chat.GetThumbnailForCid;
 
 import java.net.URI;
 import java.net.URISyntaxException;

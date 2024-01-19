@@ -133,10 +133,10 @@
         tools:targetApi="tiramisu">
 
         <service
-            android:name="de.monocles.chat.DownloadDefaultStickers"
+            android:name="eu.monocles.chat.DownloadDefaultStickers"
             android:foregroundServiceType="dataSync" />
 
-        <service android:name="de.monocles.chat.ConnectionService"
+        <service android:name="eu.monocles.chat.ConnectionService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"
             android:exported="true">
@@ -225,7 +225,7 @@
         <receiver android:name=".services.AlarmReceiver" />
 
         <activity
-            android:name="de.monocles.chat.ui.StartUI"
+            android:name="eu.monocles.chat.ui.StartUI"
             android:configChanges="orientation|screenSize"
             android:label="@string/short_app_name"
             android:launchMode="singleTask"
@@ -328,7 +328,7 @@
             android:label="@string/create_account"
             android:launchMode="singleTask" />
         <activity
-            android:name="de.monocles.chat.SignUpPage"
+            android:name="eu.monocles.chat.SignUpPage"
             android:label="@string/create_account"
             android:launchMode="singleTask"
             android:exported="true">
@@ -345,11 +345,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="de.monocles.chat.RegisterMonoclesActivity"
+            android:name="eu.monocles.chat.RegisterMonoclesActivity"
             android:label="@string/create_account"
             android:launchMode="singleTask" />
         <activity
-            android:name="de.monocles.chat.ui.CallsActivity"
+            android:name="eu.monocles.chat.ui.CallsActivity"
             android:label="@string/calls"
             android:launchMode="singleTask" />
         <activity

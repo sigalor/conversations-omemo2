@@ -100,8 +100,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
 
-import de.monocles.chat.EmojiSearch;
-import de.monocles.chat.WebxdcUpdate;
+import eu.monocles.chat.EmojiSearch;
+import eu.monocles.chat.WebxdcUpdate;
 
 import org.conscrypt.Conscrypt;
 import org.openintents.openpgp.IOpenPgpService2;

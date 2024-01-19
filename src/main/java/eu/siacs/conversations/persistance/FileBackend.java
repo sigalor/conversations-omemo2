@@ -63,8 +63,8 @@ import com.google.common.io.ByteStreams;
 
 import com.wolt.blurhashkt.BlurHashDecoder;
 
-import de.monocles.chat.BobTransfer;
-import de.monocles.chat.ThumbHash;
+import eu.monocles.chat.BobTransfer;
+import eu.monocles.chat.ThumbHash;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -6,8 +6,8 @@ import android.net.Uri;
 
 
 
-import de.monocles.chat.BobTransfer;
-import de.monocles.chat.WebxdcUpdate;
+import eu.monocles.chat.BobTransfer;
+import eu.monocles.chat.WebxdcUpdate;
 import java.io.File;
 
 import java.net.URISyntaxException;

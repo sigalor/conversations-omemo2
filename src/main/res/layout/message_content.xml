@@ -11,7 +11,7 @@
         android:textIsSelectable="true"
         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
-    <de.monocles.chat.ReadMoreTextView
+    <eu.monocles.chat.ReadMoreTextView
         app:trimExpandedText="@string/show_less"
         app:trimCollapsedText="@string/show_more"
         app:trimMode="trimModeLength"

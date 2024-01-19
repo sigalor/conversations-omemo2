@@ -53,7 +53,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import de.monocles.chat.ui.CallsActivity;
+import eu.monocles.chat.ui.CallsActivity;
 import eu.siacs.conversations.utils.UIHelper;
 
 import androidx.annotation.MenuRes;

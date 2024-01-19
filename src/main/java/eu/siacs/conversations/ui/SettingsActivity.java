@@ -36,7 +36,7 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 
-import de.monocles.chat.DownloadDefaultStickers;
+import eu.monocles.chat.DownloadDefaultStickers;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -45,7 +45,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 
-import de.monocles.chat.SignUpPage;
+import eu.monocles.chat.SignUpPage;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CameraUtils;
 

@@ -1,8 +1,8 @@
 package eu.siacs.conversations.ui.adapter;
 
-import de.monocles.chat.BobTransfer;
-import de.monocles.chat.MessageTextActionModeCallback;
-import de.monocles.chat.Util;
+import eu.monocles.chat.BobTransfer;
+import eu.monocles.chat.MessageTextActionModeCallback;
+import eu.monocles.chat.Util;
 import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.xml.Element;
@@ -11,7 +11,7 @@ import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 import static android.view.View.GONE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static de.monocles.chat.Util.getReadmakerType;
+import static eu.monocles.chat.Util.getReadmakerType;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY_OLD;
 import static eu.siacs.conversations.persistance.FileBackend.formatTime;
@@ -95,8 +95,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
-import de.monocles.chat.WebxdcUpdate;
-import de.monocles.chat.WebxdcPage;
+import eu.monocles.chat.WebxdcUpdate;
+import eu.monocles.chat.WebxdcPage;
 
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.Config;
