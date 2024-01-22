@@ -299,9 +299,7 @@ public class ConversationFragment extends XmppFragment
     //Voice recoder
 
     private MediaRecorder mRecorder;
-    private Integer oldOrientation;
     private long mStartTime = 0;
-    private boolean alternativeCodec = false;
     private boolean recording = false;
 
     private CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
@@ -869,7 +867,7 @@ public class ConversationFragment extends XmppFragment
             return true;
         }
     };
-    private OnBackPressedCallback backPressedLeaveSingleThread = new OnBackPressedCallback(false) {
+    private final OnBackPressedCallback backPressedLeaveSingleThread = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
             conversation.setLockThread(false);
@@ -1711,12 +1709,8 @@ public class ConversationFragment extends XmppFragment
         if (displayMetrics.heightPixels > 0) binding.textinput.setMaxHeight(displayMetrics.heightPixels / 4);
 
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
-        if (binding.cancelButton != null) {
-            binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
-        }
-        if (binding.shareButton != null) {
-            binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
-        }
+        binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
+        binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
         binding.contextPreviewCancel.setOnClickListener((v) -> {
             setThread(null);
             conversation.setUserSelectedThread(false);
@@ -3129,16 +3123,16 @@ public class ConversationFragment extends XmppFragment
     private boolean startRecording() {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        if (activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
             mRecorder.setAudioSamplingRate(48000);
-            mRecorder.setAudioEncodingBitRate(128000);
+            mRecorder.setAudioEncodingBitRate(64000);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
         } else {
             mRecorder.setAudioSamplingRate(44100);
-            mRecorder.setAudioEncodingBitRate(128000);
+            mRecorder.setAudioEncodingBitRate(96000);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC_ELD);
         }
         setupOutputFile();
         mRecorder.setOutputFile(mOutputFile.getAbsolutePath());
@@ -3223,7 +3217,7 @@ public class ConversationFragment extends XmppFragment
                                     Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
                             //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
                             //toggleInputMethod();
-                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/webm");
+                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/webm;codecs=opus");
                             binding.recordingVoiceActivity.setVisibility(View.GONE);
                         });
             } else {
