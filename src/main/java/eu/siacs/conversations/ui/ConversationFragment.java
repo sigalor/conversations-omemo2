@@ -365,7 +365,7 @@ public class ConversationFragment extends XmppFragment
     private String lastMessageUuid = null;
     private Conversation conversation;
     private Toast messageLoaderToast;
-    private ConversationsActivity activity;
+    private static ConversationsActivity activity;
     private Menu mOptionsMenu;
     protected OnClickListener clickToVerify = new OnClickListener() {
         @Override
@@ -3205,34 +3205,63 @@ public class ConversationFragment extends XmppFragment
 
         @Override
         public void run() {
-            try {
-                if (!latch.await(8, TimeUnit.SECONDS)) {
-                    Log.d(Config.LOGTAG, "time out waiting for output file to be written");
+            if (activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
+                try {
+                    if (!latch.await(8, TimeUnit.SECONDS)) {
+                        Log.d(Config.LOGTAG, "time out waiting for output file to be written");
+                    }
+                } catch (InterruptedException e) {
+                    Log.d(Config.LOGTAG, "interrupted while waiting for output file to be written", e);
                 }
-            } catch (InterruptedException e) {
-                Log.d(Config.LOGTAG, "interrupted while waiting for output file to be written", e);
+                final Activity activity = activityReference.get();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(
+                        () -> {
+                            activity.setResult(
+                                    Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
+                            //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                            //toggleInputMethod();
+                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/webm");
+                            binding.recordingVoiceActivity.setVisibility(View.GONE);
+                        });
+            } else {
+                try {
+                    if (!latch.await(8, TimeUnit.SECONDS)) {
+                        Log.d(Config.LOGTAG, "time out waiting for output file to be written");
+                    }
+                } catch (InterruptedException e) {
+                    Log.d(Config.LOGTAG, "interrupted while waiting for output file to be written", e);
+                }
+                final Activity activity = activityReference.get();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(
+                        () -> {
+                            activity.setResult(
+                                    Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
+                            //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                            //toggleInputMethod();
+                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
+                            binding.recordingVoiceActivity.setVisibility(View.GONE);
+                        });
             }
-            final Activity activity = activityReference.get();
-            if (activity == null) {
-                return;
-            }
-            activity.runOnUiThread(
-                    () -> {
-                        activity.setResult(
-                            Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
-                        //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
-                        //toggleInputMethod();
-                        attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
-                        binding.recordingVoiceActivity.setVisibility(View.GONE);
-                    });
         }
     }
 
     private static File generateOutputFilename(Context context) {
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
-        return new File(getConversationsDirectory(context, SENT_AUDIOS)
-                + dateFormat.format(new Date())
-                + ".m4a");
+        if (activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
+            return new File(getConversationsDirectory(context, SENT_AUDIOS)
+                    + dateFormat.format(new Date())
+                    + ".webm");
+        } else {
+            return new File(getConversationsDirectory(context, SENT_AUDIOS)
+                    + dateFormat.format(new Date())
+                    + ".m4a");
+        }
     }
 
     private void setupOutputFile() {
