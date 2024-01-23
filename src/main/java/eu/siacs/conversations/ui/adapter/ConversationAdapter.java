@@ -186,8 +186,7 @@ public class ConversationAdapter
                 final int imageResource;
                 if (message.isGeoUri()) {
                     imageResource =
-                            activity.getThemeResource(
-                                    R.attr.ic_attach_location, R.drawable.ic_attach_location);
+                            activity.getThemeResource(R.attr.share_location, R.drawable.ic_attach_location);
                     showPreviewText = false;
                 } else {
                     // TODO move this into static MediaPreview method and use same icons as in
@@ -197,20 +196,17 @@ public class ConversationAdapter
                         final Message.FileParams fileParams = message.getFileParams();
                         if (fileParams.width > 0 && fileParams.height > 0) {
                             imageResource =
-                                    activity.getThemeResource(
-                                            R.attr.ic_attach_videocam,
-                                            R.drawable.ic_attach_videocam);
+                                    activity.getThemeResource(R.attr.take_video, R.drawable.ic_attach_videocam);
                             showPreviewText = false;
                         } else if (fileParams.runtime > 0) {
                             imageResource =
                                     activity.getThemeResource(
-                                            R.attr.ic_attach_record, R.drawable.ic_attach_record);
+                                            R.attr.ic_send_voice_offline, R.drawable.ic_attach_record);
                             showPreviewText = false;
                         } else {
                             imageResource =
                                     activity.getThemeResource(
-                                            R.attr.ic_attach_document,
-                                            R.drawable.ic_attach_document);
+                                            R.attr.document_file, R.drawable.ic_attach_document);
                             showPreviewText = true;
                         }
                     } else {
@@ -218,28 +214,24 @@ public class ConversationAdapter
                             case "image":
                                 imageResource =
                                         activity.getThemeResource(
-                                                R.attr.ic_attach_photo, R.drawable.ic_attach_photo);
+                                                R.attr.outline_photo, R.drawable.ic_attach_photo);
                                 showPreviewText = false;
                                 break;
                             case "video":
                                 imageResource =
                                         activity.getThemeResource(
-                                                R.attr.ic_attach_video,
-                                                R.drawable.ic_attach_video);
+                                                R.attr.attach_video_file, R.drawable.ic_attach_video);
                                 showPreviewText = false;
                                 break;
                             case "audio":
                                 imageResource =
                                         activity.getThemeResource(
-                                                R.attr.ic_attach_record,
-                                                R.drawable.ic_attach_record);
+                                                R.attr.ic_send_voice_offline, R.drawable.ic_attach_record);
                                 showPreviewText = false;
                                 break;
                             default:
                                 imageResource =
-                                        activity.getThemeResource(
-                                                R.attr.ic_attach_document,
-                                                R.drawable.ic_attach_document);
+                                        activity.getThemeResource(R.attr.choose_file, R.drawable.ic_attach_document);
                                 showPreviewText = true;
                                 break;
                         }
