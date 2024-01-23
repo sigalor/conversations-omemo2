@@ -1254,7 +1254,7 @@ public class ConversationFragment extends XmppFragment
         if (body == null) body = new SpannableStringBuilder("");
         final Conversation conversation = this.conversation;
         final boolean hasSubject = binding.textinputSubject.getText().length() > 0;
-        if (conversation == null || body.length() == 0) { // (conversation.getThread() == null || !hasSubject))) https://issues.prosody.im/1838
+        if (conversation == null || (body.length() == 0 && (conversation.getThread() == null || !hasSubject))) {
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_TEXT)) {
