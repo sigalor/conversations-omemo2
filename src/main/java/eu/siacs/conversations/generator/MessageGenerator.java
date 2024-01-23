@@ -76,6 +76,7 @@ public class MessageGenerator extends AbstractGenerator {
             packet.setBody("This person attempted to retract a previous message, but it's unsupported by your client.");
         }
         if (!legacyEncryption) {
+            if (message.getSubject() != null && message.getSubject().length() > 0) packet.addChild("subject").setContent(message.getSubject());
             // Legacy encryption can't handle advanced payloads
             for (Element el : message.getPayloads()) {
                 packet.addChild(el);

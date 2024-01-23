@@ -134,6 +134,7 @@
     <attr name="choose_file" format="reference" />
     <attr name="ic_attach_location" format="reference" />
     <attr name="share_location" format="reference" />
+    <attr name="add_subject" format="reference" />
     <attr name="ic_attach_photo" format="reference" />
     <attr name="outline_photo" format="reference" />
     <attr name="ic_attach_record" format="reference" />

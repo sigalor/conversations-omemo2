@@ -203,6 +203,22 @@
                             android:src="?attr/icon_cancel_comment" />
                     </LinearLayout>
 
+                    <eu.siacs.conversations.ui.widget.EditMessage
+                        android:id="@+id/textinput_subject"
+                        style="@style/Widget.Material3.TextInputEditText.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginRight="12dp"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginStart="12dp"
+                        android:hint="@string/subject"
+                        android:maxLines="1"
+                        android:padding="8dp"
+                        android:imeOptions="flagNoExtractUi"
+                        android:inputType="textShortMessage|textMultiLine|textCapSentences"
+                        android:visibility="gone" />
+
                     <RelativeLayout
                         android:id="@+id/input"
                         android:layout_width="match_parent"

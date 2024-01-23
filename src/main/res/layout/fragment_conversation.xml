@@ -203,6 +203,22 @@
                 android:src="?attr/icon_cancel_comment" />
         </LinearLayout>
 
+        <eu.siacs.conversations.ui.widget.EditMessage
+            android:id="@+id/textinput_subject"
+            style="@style/Widget.Material3.TextInputEditText.FilledBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginStart="24dp"
+            android:hint="@string/subject"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:imeOptions="flagNoExtractUi"
+            android:inputType="textShortMessage|textMultiLine|textCapSentences"
+            android:visibility="gone" />
+
         <RelativeLayout
             android:id="@+id/input"
             android:layout_width="match_parent"
@@ -276,24 +292,24 @@
                     android:visibility="visible" />
 
                 <RelativeLayout
-                            android:id="@+id/textinput_layout_new"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toEndOf="@+id/emojiButton"
-                            android:layout_toRightOf="@+id/emojiButton"
-                            android:layout_toStartOf="@+id/takePictureButton"
-                            android:layout_toLeftOf="@+id/takePictureButton">
+                    android:id="@+id/textinput_layout_new"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/emojiButton"
+                    android:layout_toRightOf="@+id/emojiButton"
+                    android:layout_toStartOf="@+id/takePictureButton"
+                    android:layout_toLeftOf="@+id/takePictureButton">
 
-                                <TextView
-                                    android:id="@+id/text_input_hint"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="-7dp"
-                                    android:maxLines="1"
-                                    android:paddingLeft="8dp"
-                                    android:paddingRight="8dp"
-                                    android:textAppearance="@style/TextAppearance.Conversations.Caption.Highlight"
-                                    android:visibility="gone" />
+                            <TextView
+                                android:id="@+id/text_input_hint"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="-7dp"
+                                android:maxLines="1"
+                                android:paddingLeft="8dp"
+                                android:paddingRight="8dp"
+                                android:textAppearance="@style/TextAppearance.Conversations.Caption.Highlight"
+                                android:visibility="gone" />
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/media_preview"

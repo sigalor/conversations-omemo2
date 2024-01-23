@@ -94,6 +94,11 @@
                 android:id="@+id/attach_location"
                 android:icon="?attr/share_location"
                 android:title="@string/send_location" />
+
+            <item
+                android:id="@+id/attach_subject"
+                android:icon="?attr/add_subject"
+                android:title="@string/add_subject" />
         </menu>
     </item>
     <item

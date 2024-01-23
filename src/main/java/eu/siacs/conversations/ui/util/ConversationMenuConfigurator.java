@@ -68,6 +68,7 @@ public class ConversationMenuConfigurator {
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
         menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
         menu.findItem(R.id.attach_location).setVisible(locationAvailable);
+        menu.findItem(R.id.attach_subject).setVisible(true);
     }
 
     public static void configureAttachmentMenu(@NonNull Conversation conversation, Menu menu, Boolean Quick_share_attachment_choice, boolean hasAttachments) {
@@ -99,6 +100,7 @@ public class ConversationMenuConfigurator {
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
         menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
         menu.findItem(R.id.attach_location).setVisible(locationAvailable);
+        menu.findItem(R.id.attach_subject).setVisible(true);
     }
 
     public static void configureEncryptionMenu(@NonNull Conversation conversation, Menu menu, final XmppActivity activity) {

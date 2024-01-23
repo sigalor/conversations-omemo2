@@ -200,6 +200,7 @@
         <item name="choose_file" type="reference">@drawable/choose_file_back_24dp</item>
         <item name="ic_attach_location" type="reference">@drawable/ic_attach_location</item>
         <item name="share_location" type="reference">@drawable/rounded_location_black_24</item>
+        <item name="add_subject" type="reference">@drawable/subject</item>
         <item name="ic_attach_photo" type="reference">@drawable/ic_attach_photo</item>
         <item name="outline_photo" type="reference">@drawable/outline_photo_black_24</item>
         <item name="ic_attach_video" type="reference">@drawable/ic_attach_video</item>
@@ -333,6 +334,7 @@
         <item name="choose_file" type="reference">@drawable/choose_file_white_24dp</item>
         <item name="ic_attach_location" type="reference">@drawable/ic_attach_location_white</item>
         <item name="share_location" type="reference">@drawable/rounded_location_white_24</item>
+        <item name="add_subject" type="reference">@drawable/subject_white</item>
         <item name="outline_photo" type="reference">@drawable/outline_photo_white_24</item>
         <item name="ic_attach_record" type="reference">@drawable/ic_attach_record_white</item>
         <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_white_24dp</item>

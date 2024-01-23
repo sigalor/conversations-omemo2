@@ -1410,4 +1410,6 @@
     <string name="pref_send_link_previews_summary">Attach metadata about links when sending a message</string>
     <string name="report_spam">Report spam</string>
     <string name="report_spam_and_block">Report spam and block spammer</string>
+    <string name="subject">Subject</string>
+    <string name="add_subject">Add Subject</string>
 </resources>

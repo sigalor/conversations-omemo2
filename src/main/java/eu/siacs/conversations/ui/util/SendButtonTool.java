@@ -50,13 +50,13 @@ import eu.siacs.conversations.utils.UIHelper;
 
 public class SendButtonTool {
 
-    public static SendButtonAction getAction(final Activity activity, final Conversation c, final String text) {
+    public static SendButtonAction getAction(final Activity activity, final Conversation c, final String text, final String subject) {
         if (activity == null) {
             return SendButtonAction.TEXT;
         }
         final boolean empty = text.length() == 0;
         final boolean conference = c.getMode() == Conversation.MODE_MULTI;
-        if (c.getCorrectingMessage() != null && (empty || (text.equals(c.getCorrectingMessage().getBody()) && (c.getThread() == c.getCorrectingMessage().getThread() || (c.getThread() != null && c.getThread().equals(c.getCorrectingMessage().getThread())))))) {
+        if (c.getCorrectingMessage() != null && (empty || (text.equals(c.getCorrectingMessage().getBody()) && (subject.equals(c.getCorrectingMessage().getSubject())) && (c.getThread() == c.getCorrectingMessage().getThread() || (c.getThread() != null && c.getThread().equals(c.getCorrectingMessage().getThread())))))) {
             return SendButtonAction.CANCEL;
         } else if (conference && !c.getAccount().httpUploadAvailable()) {
             if (empty && c.getNextCounterpart() != null) {
@@ -65,7 +65,7 @@ public class SendButtonTool {
                 return SendButtonAction.TEXT;
             }
         } else {
-            if (empty) {
+            if (empty && (c.getThread() == null || subject.length() == 0)) {
                 final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
                 if (conference && c.getNextCounterpart() != null) {
                     return SendButtonAction.CANCEL;
