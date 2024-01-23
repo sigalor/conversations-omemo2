@@ -4567,11 +4567,12 @@ public class ConversationFragment extends XmppFragment
                         params.height = keyboardHeight - 150;
                         emojipickerview.setLayoutParams(params);
                         binding.emojiPicker.setVisibility(VISIBLE);
-                    } else if (activity != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
+                    } else if (activity != null ){
+                        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                    }
+                    if (activity != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
                         binding.emojiPicker.setVisibility(GONE);
                         binding.keyboardButton.setVisibility(GONE);
-                    } else if (activity != null ) {
-                        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                     }
                     if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
                         showTextFormat(me);
