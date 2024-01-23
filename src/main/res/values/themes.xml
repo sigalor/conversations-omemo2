@@ -125,7 +125,8 @@
         <item name="icon_link" type="reference">@drawable/link_black</item>
         <item name="icon_email" type="reference">@drawable/email_black</item>
         <item name="icon_org" type="reference">@drawable/business_black</item>
-        <item name="icon_chat" type="reference">@drawable/ic_chat_black_24dp</item>
+        <item name="icon_chat" type="reference">@drawable/outline_chat_black_24</item>
+        <item name="icon_chat_unselected" type="reference">@drawable/outline_chat_black_24</item>
         <item name="icon_chat_selected" type="reference">@drawable/chat_selected_black_24</item>
         <item name="icon_account" type="reference">@drawable/ic_account_black_24dp</item>
         <item name="icon_accounts_selected" type="reference">@drawable/accounts_selected_black_24</item>
@@ -143,7 +144,8 @@
         <item name="icon_edit_body" type="reference">@drawable/ic_edit_black_24dp</item>
         <item name="icon_save" type="reference">@drawable/ic_save_black_24dp</item>
         <item name="icon_done" type="reference">@drawable/ic_done_black_24dp</item>
-        <item name="icon_group" type="reference">@drawable/ic_group_black_24dp</item>
+        <item name="icon_group" type="reference">@drawable/outline_group_black_24dp</item>
+        <item name="icon_group_unselected" type="reference">@drawable/outline_group_black_24dp</item>
         <item name="icon_group_selected" type="reference">@drawable/ic_group_selected_black_24</item>
         <item name="icon_new" type="reference">@drawable/ic_contacts_black_24dp</item>
         <item name="icon_quote" type="reference">@drawable/ic_reply_black</item>
@@ -361,7 +363,8 @@
         <item name="icon_link" type="reference">@drawable/link_white</item>
         <item name="icon_email" type="reference">@drawable/email_white</item>
         <item name="icon_org" type="reference">@drawable/business_white</item>
-        <item name="icon_chat" type="reference">@drawable/ic_chat_white_24dp</item>
+        <item name="icon_chat" type="reference">@drawable/outline_chat_white_24</item>
+        <item name="icon_chat_unselected" type="reference">@drawable/outline_chat_white_24</item>
         <item name="icon_chat_selected" type="reference">@drawable/chat_selected_white_24</item>
         <item name="icon_account" type="reference">@drawable/ic_account_white_24dp</item>
         <item name="icon_accounts_selected" type="reference">@drawable/accounts_selected_white_24</item>
@@ -379,7 +382,8 @@
         <item name="icon_edit_body" type="reference">@drawable/ic_edit_white_24dp</item>
         <item name="icon_save" type="reference">@drawable/ic_save_white_24dp</item>
         <item name="icon_done" type="reference">@drawable/ic_done_black_24dp</item>
-        <item name="icon_group" type="reference">@drawable/ic_group_white_24dp</item>
+        <item name="icon_group" type="reference">@drawable/outline_group_white_24</item>
+        <item name="icon_group_unselected" type="reference">@drawable/outline_group_white_24</item>
         <item name="icon_group_selected" type="reference">@drawable/ic_group_selected_white_24</item>
         <item name="icon_new" type="reference">@drawable/ic_contacts_white_24dp</item>
         <item name="icon_quote" type="reference">@drawable/ic_reply_white_24dp</item>

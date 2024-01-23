@@ -14,7 +14,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_group_details"
-        android:icon="?attr/icon_group"
+        android:icon="?attr/icon_group_unselected"
         android:orderInCategory="10"
         android:title="@string/conference_details"
         app:showAsAction="never" />
