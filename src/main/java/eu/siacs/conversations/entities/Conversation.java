@@ -79,6 +79,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -256,6 +257,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     protected boolean lockThread = false;
     protected boolean userSelectedThread = false;
     protected Message replyTo = null;
+    protected HashMap<String, Thread> threads = new HashMap<>();
 
     public Conversation(final String name, final Account account, final Jid contactJid,
                         final int mode) {
@@ -811,12 +813,26 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         synchronized (this.messages) {
             messages.clear();
             messages.addAll(this.messages);
+            threads.clear();
         }
         Set<String> extraIds = new HashSet<>();
         for (ListIterator<Message> iterator = messages.listIterator(messages.size()); iterator.hasPrevious(); ) {
             Message m = iterator.previous();
             final Element mthread = m.getThread();
-            if (m.wasMergedIntoPrevious() || (getLockThread() && !extraIds.contains(m.replyId()) && (mthread == null || !mthread.getContent().equals(getThread() == null ? "" : getThread().getContent())))) {
+            if (mthread != null) {
+                Thread thread = threads.get(mthread.getContent());
+                if (thread == null) {
+                    thread = new Thread();
+                    threads.put(mthread.getContent(), thread);
+                }
+                if (thread.subject == null && (m.getSubject() != null && (m.getRawBody() == null || m.getRawBody().length() == 0))) {
+                    thread.subject = m;
+                } else {
+                    if (thread.last == null) thread.last = m;
+                    thread.first = m;
+                }
+            }
+            if (m.wasMergedIntoPrevious() || (m.getSubject() != null && (m.getRawBody() == null || m.getRawBody().length() == 0)) || (getLockThread() && !extraIds.contains(m.replyId()) && (mthread == null || !mthread.getContent().equals(getThread() == null ? "" : getThread().getContent())))) {
                 iterator.remove();
             } else if (getLockThread() && mthread != null) {
                 Element reply = m.getReply();
@@ -3604,6 +3620,20 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                 return null;
             }
+        }
+    }
+
+    public static class Thread {
+        protected Message subject = null;
+        protected Message first = null;
+        protected Message last = null;
+
+        protected Thread() {}
+
+        public String getSubject() {
+            if (subject == null) return null;
+
+            return subject.getSubject();
         }
     }
 }
