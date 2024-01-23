@@ -3182,12 +3182,11 @@ public class ConversationFragment extends XmppFragment
             if (mOutputFile.delete()) {
                 Log.d(Config.LOGTAG, "deleted canceled recording");
             }
-            activity.setRequestedOrientation(oldOrientation);
         }
         if (saveFile) {
             new Thread(new Finisher(outputFileWrittenLatch, mOutputFile, activity)).start();
-            activity.setRequestedOrientation(oldOrientation);
         }
+        activity.setRequestedOrientation(oldOrientation);
     }
 
     private class Finisher implements Runnable {
