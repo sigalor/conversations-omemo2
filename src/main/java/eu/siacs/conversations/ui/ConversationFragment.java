@@ -299,6 +299,7 @@ public class ConversationFragment extends XmppFragment
     //Voice recoder
 
     private MediaRecorder mRecorder;
+    private Integer oldOrientation;
     private long mStartTime = 0;
     private boolean recording = false;
 
@@ -844,6 +845,7 @@ public class ConversationFragment extends XmppFragment
             activity.setResult(RESULT_CANCELED);
             //activity.finish();
             binding.recordingVoiceActivity.setVisibility(View.GONE);
+            activity.setRequestedOrientation(oldOrientation);
         }
     };
 
@@ -854,6 +856,7 @@ public class ConversationFragment extends XmppFragment
             //binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
             mHandler.postDelayed(() -> stopRecording(true), 500);
+            activity.setRequestedOrientation(oldOrientation);
         }
     };
 
@@ -1573,6 +1576,7 @@ public class ConversationFragment extends XmppFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        oldOrientation = activity.getRequestedOrientation();
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
     }
@@ -3121,6 +3125,7 @@ public class ConversationFragment extends XmppFragment
 
 
     private boolean startRecording() {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
