@@ -243,7 +243,7 @@
             android:launchMode="singleTask"
             android:minWidth="336dp"
             android:minHeight="480dp"
-            android:enableOnBackInvokedCallback="true"
+            android:enableOnBackInvokedCallback="false"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.ScanActivity"
