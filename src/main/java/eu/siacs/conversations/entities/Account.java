@@ -694,7 +694,13 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
             return ImmutableList.copyOf(this.bookmarks.values());
         }
     }
-    public boolean areBookmarksLoaded() { return bookmarksLoaded; }
+    public boolean areBookmarksLoaded() {
+        // No way to tell if old PEP bookmarks are all loaded yet if they are empty
+        // because we don't manually fetch them...
+        if (getXmppConnection().getFeatures().bookmarksConversion()) return true;
+
+        return bookmarksLoaded;
+    }
 
     public void setBookmarks(Map<Jid, Bookmark> bookmarks) {
         synchronized (this.bookmarks) {
