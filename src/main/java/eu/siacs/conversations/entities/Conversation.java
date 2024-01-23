@@ -843,6 +843,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         }
     }
 
+    public Thread getThread(String id) {
+        return threads.get(id);
+    }
+
     @Override
     public boolean isBlocked() {
         return getContact().isBlocked();
