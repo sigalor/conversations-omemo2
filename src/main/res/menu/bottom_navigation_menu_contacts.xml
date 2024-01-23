@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/chats"
+        android:icon="?attr/icon_chat"
+        android:title="@string/chats"/>
+    <item
+        android:id="@+id/contactslist"
+        android:icon="?attr/icon_group_selected"
+        android:title="@string/contacts"/>
+    <item
+        android:id="@+id/manageaccounts"
+        android:icon="?attr/icon_account"
+        android:title="@string/accounts"/>
+
+    <!-- TODO: Later -->
+    <item
+        android:id="@+id/calls"
+        android:icon="?attr/icon_call"
+        android:title="@string/notification_group_calls"
+        android:visible="false" />
+    <item
+        android:id="@+id/stories"
+        android:icon="@drawable/ic_stories_black_24dp"
+        android:title="@string/stories"
+        android:visible="false" />
+</menu>

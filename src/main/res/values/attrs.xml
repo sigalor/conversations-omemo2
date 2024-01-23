@@ -77,7 +77,9 @@
     <attr name="icon_cancel" format="reference" />
     <attr name="icon_cancel_comment" format="reference" />
     <attr name="icon_chat" format="reference" />
+    <attr name="icon_chat_selected" format="reference" />
     <attr name="icon_account" format="reference" />
+    <attr name="icon_accounts_selected" format="reference" />
     <attr name="icon_qr_code" format="reference" />
     <attr name="icon_navigate" format="reference" />
     <attr name="icon_action_copy" format="reference" />
@@ -89,6 +91,7 @@
     <attr name="icon_save" format="reference" />
     <attr name="icon_done" format="reference" />
     <attr name="icon_group" format="reference" />
+    <attr name="icon_group_selected" format="reference" />
     <attr name="icon_new" format="reference" />
     <attr name="icon_new_attachment" format="reference" />
     <attr name="icon_not_secure" format="reference" />

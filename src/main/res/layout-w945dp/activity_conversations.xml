@@ -39,7 +39,7 @@
             android:background="?attr/color_background_secondary"
             app:labelVisibilityMode="labeled"
             app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
-            app:menu="@menu/bottom_navigation_menu"
+            app:menu="@menu/bottom_navigation_menu_chat"
             android:visibility="gone"
             android:animateLayoutChanges="true" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
