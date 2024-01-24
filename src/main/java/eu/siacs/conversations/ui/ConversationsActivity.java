@@ -156,6 +156,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final int REQUEST_MICROPHONE = 0x5432f;
     public static final int DIALLER_INTEGRATION = 0x5432ff;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
+    public static final String EXTRA_THREAD = "threadId";
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_NODE = "node";
     public static final String EXTRA_JID = "jid";

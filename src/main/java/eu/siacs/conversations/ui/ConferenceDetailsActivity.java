@@ -3,9 +3,14 @@ package eu.siacs.conversations.ui;
 import static eu.siacs.conversations.entities.Bookmark.printableValue;
 import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
 import static eu.siacs.conversations.utils.StringUtils.changed;
+import eu.siacs.conversations.databinding.ThreadRowBinding;
+import de.monocles.chat.Util;
+import androidx.annotation.NonNull;
+import android.view.ViewGroup;
 
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import java.util.ArrayList;
@@ -34,6 +39,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
@@ -72,6 +78,7 @@ import eu.siacs.conversations.utils.MenuDoubleTabUtil;
 import eu.siacs.conversations.utils.StringUtils;
 import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.utils.TimeFrameUtils;
+import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.XmppConnection;
@@ -335,6 +342,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         //TODO: Implement recyclerview for users list and media list
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
         GridManager.setupLayoutManager(this, this.binding.users, R.dimen.media_size);
+        this.binding.recentThreads.setOnItemClickListener((a0, v, pos, a3) -> {
+            final Conversation.Thread thread = (Conversation.Thread) binding.recentThreads.getAdapter().getItem(pos);
+            switchToConversation(mConversation, null, false, null, false, true, null, thread.getThreadId());
+        });
         this.binding.invite.setOnClickListener(v -> inviteToConversation(mConversation));
         this.binding.showUsers.setOnClickListener(v -> {
             Intent intent = new Intent(this, MucUsersActivity.class);
@@ -850,6 +861,17 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             return;
         }
 
+        final List<Conversation.Thread> recentThreads = mConversation.recentThreads();
+        if (recentThreads.isEmpty()) {
+            this.binding.recentThreadsWrapper.setVisibility(View.GONE);
+        } else {
+            final ThreadAdapter threads = new ThreadAdapter();
+            threads.addAll(recentThreads);
+            this.binding.recentThreads.setAdapter(threads);
+            this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+            Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
+        }
+
         List<ListItem.Tag> tagList = bookmark.getTags(this);
         if (tagList.size() == 0 || !showDynamicTags) {
             binding.tags.setVisibility(View.GONE);
@@ -936,6 +958,23 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             } else {
                 this.binding.editMucNameButton.setImageResource(getThemeResource(R.attr.icon_cancel, R.drawable.ic_cancel_black_24dp));
             }
+        }
+    }
+
+    class ThreadAdapter extends ArrayAdapter<Conversation.Thread> {
+        ThreadAdapter() { super(ConferenceDetailsActivity.this, 0); }
+
+        @Override
+        public View getView(int position, View view, @NonNull ViewGroup parent) {
+            final ThreadRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.thread_row, parent, false);
+            final Conversation.Thread item = getItem(position);
+
+            binding.threadIdenticon.setColor(UIHelper.getColorForName(item.getThreadId()));
+            binding.threadIdenticon.setHash(UIHelper.identiconHash(item.getThreadId()));
+
+            binding.threadSubject.setText(item.getDisplay());
+
+            return binding.getRoot();
         }
     }
 }

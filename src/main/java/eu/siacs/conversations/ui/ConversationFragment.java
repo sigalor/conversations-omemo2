@@ -4147,6 +4147,15 @@ public class ConversationFragment extends XmppFragment
         final boolean pm = extras.getBoolean(ConversationsActivity.EXTRA_IS_PRIVATE_MESSAGE, false);
         final boolean doNotAppend = extras.getBoolean(ConversationsActivity.EXTRA_DO_NOT_APPEND, false);
         final String type = extras.getString(ConversationsActivity.EXTRA_TYPE);
+
+        final String thread = extras.getString(ConversationsActivity.EXTRA_THREAD);
+        if (thread != null) {
+            conversation.setLockThread(true);
+            backPressedLeaveSingleThread.setEnabled(true);
+            setThread(new Element("thread").setContent(thread));
+            refresh();
+        }
+
         final List<Uri> uris = extractUris(extras);
         if (uris != null && uris.size() > 0) {
             if (uris.size() == 1 && "geo".equals(uris.get(0).getScheme())) {
