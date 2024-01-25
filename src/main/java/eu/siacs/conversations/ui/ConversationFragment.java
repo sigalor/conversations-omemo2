@@ -896,6 +896,21 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+    private final OnBackPressedCallback backPressedLeaveVoiceRecorder = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (binding.recordingVoiceActivity.getVisibility()==VISIBLE){
+                mHandler.removeCallbacks(mTickExecutor);
+                stopRecording(false);
+                activity.setResult(RESULT_CANCELED);
+                //activity.finish();
+                binding.recordingVoiceActivity.setVisibility(View.GONE);
+            }
+            this.setEnabled(false);
+            refresh();
+        }
+    };
+
 
     private int completionIndex = 0;
     private int lastCompletionLength = 0;
@@ -1577,6 +1592,7 @@ public class ConversationFragment extends XmppFragment
         oldOrientation = activity.getRequestedOrientation();
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
+        activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveVoiceRecorder);
     }
 
     @Override
@@ -2436,7 +2452,15 @@ public class ConversationFragment extends XmppFragment
         if (binding.emojiPicker.getVisibility()==VISIBLE){
             binding.emojiPicker.setVisibility(GONE);
             hideSoftKeyboard(activity);
-            return true;
+            return false;
+        }
+        if (binding.recordingVoiceActivity.getVisibility()==VISIBLE){
+            mHandler.removeCallbacks(mTickExecutor);
+            stopRecording(false);
+            activity.setResult(RESULT_CANCELED);
+            //activity.finish();
+            binding.recordingVoiceActivity.setVisibility(View.GONE);
+            return false;
         }
         return false;
     }
@@ -3078,6 +3102,7 @@ public class ConversationFragment extends XmppFragment
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 break;
             case ATTACHMENT_CHOICE_RECORD_VOICE:
+                backPressedLeaveVoiceRecorder.setEnabled(true);
                 recordVoice();
                 break;
             case ATTACHMENT_CHOICE_LOCATION:
@@ -3354,7 +3379,7 @@ public class ConversationFragment extends XmppFragment
                     }
                     if (!activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) return;
                 }
-                if (activity != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(message.getThread());
                 }
             }
