@@ -518,7 +518,7 @@
     <string name="this_field_is_required">此字段是必需的</string>
     <string name="correct_message">更正消息</string>
     <string name="send_corrected_message">发送更正后的消息</string>
-    <string name="no_keys_just_confirm">您已信任此人的指纹。 选择“完成”即表示您确认 %s 是此房间的一员。</string>
+    <string name="no_keys_just_confirm">您已信任此人的指纹。选择“完成”即表示您确认 %s 是此房间的一员。</string>
     <string name="contacts_have_no_pgp_keys">monocles chat 无法加密您的消息，由于您的联系人未公布其公钥。
 \n
 \n</string>

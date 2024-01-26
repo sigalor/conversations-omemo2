@@ -340,7 +340,7 @@
     <string name="manually_verify">Ruční ověření</string>
     <string name="pref_show_dynamic_tags">Zobrazit dynamické tagy</string>
     <string name="pref_show_dynamic_tags_summary">Povolit řazení podle tagů</string>
-    <string name="no_conference_server_found">Nenalezeny žádné skupiny</string>
+    <string name="no_conference_server_found">Nenalezen žádný server s místnostmi</string>
     <string name="conference_creation_failed">Vytváření skupiny se nezdařilo!</string>
     <string name="account_image_description">Avatar účtu</string>
     <string name="copy_omemo_clipboard_description">Zkopírovat OMEMO otisk do schránky</string>
@@ -746,11 +746,11 @@
     <string name="pref_use_bundled_emoji_summary">Použít integrovanou knihovnu emoji namísto té v zařízení. Změny se projeví po restartu aplikace.</string>
     <string name="invalid_muc_nick">Neplatná přezdívka</string>
     <string name="title_activity_share_via_account">Sdílet pomocí účtu</string>
-    <string name="destroy_room">Zničit skupinu</string>
-    <string name="conference_unknown_error">Již nejste v této skupině</string>
-    <string name="destroy_room_dialog">Opravdu chcete smazat skupinu %s\? Smazání skupiny je nevratné.</string>
-    <string name="destroy_room_succeed">Skupina úspěšně smazána</string>
-    <string name="destroy_room_failed">Mazání skupiny se nepodařilo</string>
+    <string name="destroy_room">Smazat místnost</string>
+    <string name="conference_unknown_error">Už nejste v této místnosti</string>
+    <string name="destroy_room_dialog">Chcete smazaz místnost %s? Smazání je nevratné.</string>
+    <string name="destroy_room_succeed">Místnost úspěšně smazána</string>
+    <string name="destroy_room_failed">Místnost nebyla smazána</string>
     <string name="no_write_access_in_public_muc">Nejste členem tohoto skupinového chatu a v této chvíli nemůžete posílat zprávy.
 \nStisknutím <b>OK</b> otevřete detaily chatu. Odtud pošlete soukromou zprávu moderátorovi, administrátorovi nebo vlastníkovi chatu pomocí dlouhého stisknutí jejich jména na vrcholu seznamu a požádejte je o právo posílat zprávy.</string>
     <string name="snooze">Odložit</string>
@@ -783,7 +783,7 @@
     <string name="disable_now">Zakázat</string>
     <string name="draft">Koncept:</string>
     <string name="pref_omemo_setting">OMEMO šifrování</string>
-    <string name="pref_omemo_setting_summary_always">Šifrování OMEMO bude vždy použito pro chaty s jednotlivými kontakty a soukromé skupinové chaty.</string>
+    <string name="pref_omemo_setting_summary_always">Šifrování OMEMO bude vždy použito pro konverzace s jednotlivými kontakty a soukromé skupinové chaty.</string>
     <string name="pref_omemo_setting_summary_default_on">Šifrování OMEMO bude použito jako výchozí pro nové konverzace.</string>
     <string name="pref_omemo_setting_summary_default_off">Šifrování OMEMO bude nutné zapnout pro každou konverzaci zvlášť.</string>
     <string name="pref_omemo_setting_summary_always_off">Nikdy nepoužívat šifrování OMEMO.</string>
@@ -1304,7 +1304,7 @@
     <string name="this_account_is_logged_out">Z tohoto účtu jste se odhlásili</string>
     <string name="moderate_message">Moderovat</string>
     <string name="or_use_another">... nebo si vyberte z možností níže</string>
-    <string name="chats">Chaty</string>
+    <string name="chats">Konverzace</string>
     <string name="unified">Sjednocené</string>
     <string name="manage_phone_accounts">Spravovat účty v telefonu</string>
     <string name="block_media">Blokovat média</string>
@@ -1474,4 +1474,5 @@
     <string name="unknown_otr_fingerprint">Neznámý OTR otisk</string>
     <string name="create_monocles_only_backup">Exportovat extra chatová data aplikace monocles (soubor nebude možné importovat do jiných aplikací)?</string>
     <string name="save_as_contact_bookmark">Uložit jako kontakt / záložku</string>
+    <string name="not_fetching_history_retention_period">Zprávy se nenačítají kvůli místní zadržovací lhůtě.</string>
 </resources>
