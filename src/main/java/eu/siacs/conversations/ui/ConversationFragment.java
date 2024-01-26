@@ -3152,15 +3152,15 @@ public class ConversationFragment extends XmppFragment
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
-            mRecorder.setAudioSamplingRate(48000);
-            mRecorder.setAudioEncodingBitRate(64000);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
-        } else {
-            mRecorder.setAudioSamplingRate(44100);
             mRecorder.setAudioEncodingBitRate(96000);
+            mRecorder.setAudioSamplingRate(48000);
+        } else {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC_ELD);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mRecorder.setAudioEncodingBitRate(96000);
+            mRecorder.setAudioSamplingRate(44100);
         }
         setupOutputFile();
         mRecorder.setOutputFile(mOutputFile.getAbsolutePath());
