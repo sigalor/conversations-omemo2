@@ -3149,6 +3149,7 @@ public class ConversationFragment extends XmppFragment
 
     private boolean startRecording() {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
@@ -3211,6 +3212,7 @@ public class ConversationFragment extends XmppFragment
         if (saveFile) {
             new Thread(new Finisher(outputFileWrittenLatch, mOutputFile, activity)).start();
         }
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         activity.setRequestedOrientation(oldOrientation);
     }
 
