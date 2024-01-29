@@ -1525,8 +1525,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } else {
                 viewHolder.status_message.setText(DateUtils.formatDateTime(activity, message.getTimeSent(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
             }
+            viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
             viewHolder.message_box.setBackgroundResource(darkBackground ? R.drawable.date_bubble_dark : R.drawable.date_bubble);
-            int date_bubble_color = ColorUtils.setAlphaComponent(StyledAttributes.getColor(activity, R.attr.colorAccent), 120); //set alpha to date_bubble
+            int date_bubble_color = ColorUtils.setAlphaComponent(StyledAttributes.getColor(activity, R.attr.text_Color_Main), 50); //set alpha to date_bubble
             activity.setBubbleColor(viewHolder.message_box, (date_bubble_color), -1); // themed color
             return view;
         } else if (type == RTP_SESSION) {
@@ -1538,22 +1539,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (received) {
                 if (duration > 0) {
                     viewHolder.status_message.setText(activity.getString(R.string.incoming_call_duration_timestamp, TimeFrameUtils.resolve(activity, duration), UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
+                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
                 } else if (rtpSessionStatus.successful) {
                     viewHolder.status_message.setText(R.string.incoming_call);
+                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
                 } else {
                     viewHolder.status_message.setText(activity.getString(R.string.missed_call_timestamp, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
+                    viewHolder.status_message.setTextColor(ThemeHelper.getMissedCallTextColor(activity, darkBackground));
                 }
             } else {
                 if (duration > 0) {
                     viewHolder.status_message.setText(activity.getString(R.string.outgoing_call_duration_timestamp, TimeFrameUtils.resolve(activity, duration), UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
+                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
                 } else {
                     viewHolder.status_message.setText(activity.getString(R.string.outgoing_call_timestamp, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
+                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
                 }
             }
             viewHolder.indicatorReceived.setImageResource(RtpSessionStatus.getDrawable(received, rtpSessionStatus.successful, isDarkTheme));
-            viewHolder.indicatorReceived.setAlpha(isDarkTheme ? 0.7f : 0.57f);
             viewHolder.message_box.setBackgroundResource(darkBackground ? R.drawable.date_bubble_dark : R.drawable.date_bubble);
-            int date_bubble_color = ColorUtils.setAlphaComponent(StyledAttributes.getColor(activity, R.attr.colorAccent), 120); //set alpha to date bubble
+            int date_bubble_color = ColorUtils.setAlphaComponent(StyledAttributes.getColor(activity, R.attr.text_Color_Main), 50); //set alpha to date bubble
             activity.setBubbleColor(viewHolder.message_box, (date_bubble_color), -1); //themed color
             return view;
         } else if (type == STATUS) {

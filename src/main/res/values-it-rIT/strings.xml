@@ -1114,7 +1114,7 @@
     <string name="incoming_call_duration">%s · Chiamata in arrivo · %s</string>
     <string name="incoming_call_time">%s · Chiamata in arrivo</string>
     <string name="incoming_call">Chiamata in arrivo</string>
-    <string name="missed_call_timestamp">%s · Chiamata persa</string>
+    <string name="missed_call_timestamp">Chiamata persa · %s</string>
     <string name="outgoing_call_duration">%s · Chiamata in uscita · %s</string>
     <string name="outgoing_call_time">%s · Chiamata in uscita</string>
     <string name="outgoing_call">Chiamata in uscita</string>

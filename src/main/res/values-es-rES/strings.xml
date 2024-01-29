@@ -1146,7 +1146,7 @@
     <string name="incoming_call_duration">%s · Llamada entrante · %s</string>
     <string name="incoming_call_time">%s · Llamada entrante</string>
     <string name="incoming_call">Llamada entrante</string>
-    <string name="missed_call_timestamp">%s · Llamada perdida</string>
+    <string name="missed_call_timestamp">Llamada perdida · %s</string>
     <string name="outgoing_call_duration">%s · Llamada en curso · %s</string>
     <string name="outgoing_call_time">%s · Llamada en curso</string>
     <string name="outgoing_call">Llamada en curso</string>

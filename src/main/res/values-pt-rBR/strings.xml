@@ -833,7 +833,7 @@
     <string name="incoming_call_duration">%s · Recebendo chamada · %s</string>
     <string name="incoming_call_time">%s · Recebendo chamada</string>
     <string name="incoming_call">Recebendo chamada</string>
-    <string name="missed_call_timestamp">%s Chamada Perdida</string>
+    <string name="missed_call_timestamp">Chamada Perdida · %s</string>
     <string name="outgoing_call_duration">%s · Fazendo chamada · %s</string>
     <string name="outgoing_call_time">%s · Fazendo chamada</string>
     <string name="outgoing_call">Fazendo chamada</string>

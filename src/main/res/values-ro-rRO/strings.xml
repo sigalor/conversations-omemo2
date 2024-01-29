@@ -1119,7 +1119,7 @@
     <string name="incoming_call_duration">%s - Apel primit - %s</string>
     <string name="incoming_call_time">%s - Apel primit</string>
     <string name="incoming_call">Apel primit</string>
-    <string name="missed_call_timestamp">%s · Apel ratat</string>
+    <string name="missed_call_timestamp">Apel ratat · %s</string>
     <string name="outgoing_call_duration">%s · Apel de ieșire · %s</string>
     <string name="outgoing_call_time">%s · Apel de ieșire</string>
     <string name="outgoing_call">Apel de ieșire</string>

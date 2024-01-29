@@ -659,6 +659,22 @@ public class ThemeHelper {
         }
     }
 
+    public static int getMissedCallTextColor(Context context, boolean onDark) {
+        if (onDark) {
+            return ContextCompat.getColor(context, R.color.redmissedcall);
+        } else {
+            return ContextCompat.getColor(context, R.color.redmissedcall);
+        }
+    }
+
+    public static int getCallTextColor(Context context, boolean onDark) {
+        if (onDark) {
+            return ContextCompat.getColor(context, R.color.realwhite);
+        } else {
+            return ContextCompat.getColor(context, R.color.realwhite);
+        }
+    }
+
     public static void fix(Snackbar snackbar) {
         final Context context = snackbar.getContext();
         TypedArray typedArray = context.obtainStyledAttributes(new int[]{R.attr.TextSizeBody1});

@@ -1093,7 +1093,7 @@
     <string name="incoming_call_duration">%s · входящий вызов · %s</string>
     <string name="incoming_call_time">%s · исходящий вызов</string>
     <string name="incoming_call">Gələn zəng</string>
-    <string name="missed_call_timestamp">%s Cavabsız zəng</string>
+    <string name="missed_call_timestamp">Cavabsız zəng · %s</string>
     <string name="outgoing_call_duration">%s · Исходящий вызов · %s</string>
     <string name="outgoing_call_time">%s · Исходящий вызов</string>
     <string name="outgoing_call">Gedən zəng</string>

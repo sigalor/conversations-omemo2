@@ -133,6 +133,7 @@
     <color name="grey800">#ff424242</color> <!-- grey 800 -->
     <color name="grey900">#ff212121</color> <!-- grey 900 -->
     <color name="grey900_40">#66212121</color>
+    <color name="redmissedcall">#ffc94f4f</color>
     <color name="red800">#ffc62828</color>  <!-- red 800 -->
     <color name="red500">#fff44336</color>  <!-- red 500 -->
     <color name="red700">#ffd50000</color> <!-- red 700 -->

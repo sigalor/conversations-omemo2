@@ -1057,7 +1057,7 @@
     <string name="incoming_call_duration">%s · 來電 · %s</string>
     <string name="incoming_call_time">%s · 來電</string>
     <string name="incoming_call">來電</string>
-    <string name="missed_call_timestamp">%s · 未接來電</string>
+    <string name="missed_call_timestamp">未接來電 · %s</string>
     <string name="outgoing_call_duration">%s · 去電 · %s</string>
     <string name="outgoing_call_time">%s · 去電</string>
     <string name="outgoing_call">去電</string>

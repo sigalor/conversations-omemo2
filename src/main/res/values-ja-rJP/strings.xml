@@ -1073,7 +1073,7 @@
     <string name="incoming_call_duration">%s・着信通話・%s</string>
     <string name="incoming_call_time">%s・着信通話</string>
     <string name="incoming_call">着信通話</string>
-    <string name="missed_call_timestamp">%s・不在着信通話</string>
+    <string name="missed_call_timestamp">不在着信通話 · %s</string>
     <string name="outgoing_call_duration">%s・発信通話・%s</string>
     <string name="outgoing_call_time">%s・発信通話</string>
     <string name="outgoing_call">発信通話</string>

@@ -1115,7 +1115,7 @@
     <string name="incoming_call_duration">%s · Appel entrant · %s</string>
     <string name="incoming_call_time">%s · Appel entrant</string>
     <string name="incoming_call">Appel entrant</string>
-    <string name="missed_call_timestamp">%s · Appel manqué</string>
+    <string name="missed_call_timestamp">Appel manqué · %s</string>
     <string name="outgoing_call_duration">%s · Appel sortant · %s</string>
     <string name="outgoing_call_time">%s · Appel sortant</string>
     <string name="outgoing_call">Appel sortant</string>

@@ -1093,7 +1093,7 @@
     <string name="incoming_call_duration">%s · Trucada entrant · %s</string>
     <string name="incoming_call_time">%s · Trucada entrant</string>
     <string name="incoming_call">Trucada entrant</string>
-    <string name="missed_call_timestamp">%s · Trucada perduda</string>
+    <string name="missed_call_timestamp">Trucada perduda · %s</string>
     <string name="outgoing_call_duration">%s · Trucada en curs · %s</string>
     <string name="outgoing_call_time">%s · Trucada en curs</string>
     <string name="outgoing_call">Trucada sortint</string>

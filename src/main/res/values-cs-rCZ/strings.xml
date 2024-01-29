@@ -1111,7 +1111,7 @@
     <string name="incoming_call_duration">%s · Příchozí hovor · %s</string>
     <string name="incoming_call_time">%s · Příchozí hovor</string>
     <string name="incoming_call">Příchozí hovor</string>
-    <string name="missed_call_timestamp">%s · Zmeškaný hovor</string>
+    <string name="missed_call_timestamp">Zmeškaný hovor · %s</string>
     <string name="outgoing_call_duration">%s · Odchozí hovor · %s</string>
     <string name="outgoing_call_time">%s · Odchozí hovor</string>
     <string name="outgoing_call">Odchozí hovor</string>

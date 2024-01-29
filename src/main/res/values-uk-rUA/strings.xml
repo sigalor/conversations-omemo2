@@ -1155,7 +1155,7 @@
     <string name="colors">Кольори</string>
     <string name="pref_allowmergemessages_sum">Намагатися об\'єднувати повідомлення, надіслані від одного JID</string>
     <string name="missed_calls_channel_name">Пропущені виклики</string>
-    <string name="missed_call_timestamp">%s · Пропущений виклик</string>
+    <string name="missed_call_timestamp">Пропущений виклик · %s</string>
     <plurals name="n_missed_calls">
         <item quantity="one">%d пропущений виклик</item>
         <item quantity="few">%d пропущених виклики</item>

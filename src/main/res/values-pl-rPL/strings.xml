@@ -1050,7 +1050,7 @@
     <string name="incoming_call_duration">%s · Połączenie przychodzące · %s</string>
     <string name="incoming_call_time">%s · Połączenie przychodzące</string>
     <string name="incoming_call">Połączenie przychodzące</string>
-    <string name="missed_call_timestamp">%s Nieodebrane połączenie</string>
+    <string name="missed_call_timestamp">Nieodebrane połączenie · %s</string>
     <string name="outgoing_call_duration">%s · Połączenie wychodzące · %s</string>
     <string name="outgoing_call_time">%s · Połączenie wychodzące</string>
     <string name="outgoing_call">Połączenie wychodzące</string>

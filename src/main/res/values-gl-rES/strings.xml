@@ -1097,7 +1097,7 @@
     <string name="incoming_call_duration">%s · Chamada entrante · %s</string>
     <string name="incoming_call_time">%s · Chamada entrante</string>
     <string name="incoming_call">Chamada entrante</string>
-    <string name="missed_call_timestamp">%s · Chamadas perdidas</string>
+    <string name="missed_call_timestamp">Chamadas perdidas · %s</string>
     <string name="outgoing_call_duration">%s · Chamada saínte · %s</string>
     <string name="outgoing_call_time">%s · Chamada saínte</string>
     <string name="outgoing_call">Chamada saínte</string>

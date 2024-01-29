@@ -1111,7 +1111,7 @@
     <string name="incoming_call_duration">%s · Inkomende oproep · %s</string>
     <string name="incoming_call_time">%s · Inkomende oproep</string>
     <string name="incoming_call">Inkomende oproep</string>
-    <string name="missed_call_timestamp">%s · Gemiste oproep</string>
+    <string name="missed_call_timestamp">Gemiste oproep · %s</string>
     <string name="outgoing_call_duration">%s · Uitgaande oproep · %s</string>
     <string name="outgoing_call_time">%s · Uitgaande oproep</string>
     <string name="outgoing_call">Uitgaande oproep</string>
