@@ -3281,7 +3281,7 @@ public class ConversationFragment extends XmppFragment
         if (activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
             return new File(getConversationsDirectory(context, SENT_AUDIOS)
                     + dateFormat.format(new Date())
-                    + ".webm");
+                    + ".opus");
         } else {
             return new File(getConversationsDirectory(context, SENT_AUDIOS)
                     + dateFormat.format(new Date())
