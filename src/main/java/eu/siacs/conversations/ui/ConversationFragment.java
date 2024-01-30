@@ -2144,7 +2144,7 @@ public class ConversationFragment extends XmppFragment
                 openWith.setVisible(true);
             }
             if (m.edited() && m.getRetractId() == null) {
-                showLog.setVisible(true);
+                showLog.setVisible(false);
             }
         }
     }
