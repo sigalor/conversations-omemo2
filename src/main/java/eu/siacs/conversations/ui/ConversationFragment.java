@@ -5277,7 +5277,7 @@ public class ConversationFragment extends XmppFragment
                                             Toast.LENGTH_SHORT)
                                     .show();
                         }
-                        highlightInConference(mucUser == null ? (tcpMucUser == null ? user.getResource() : tcpMucUser.getNick()) : mucUser.getNick());
+                        highlightInConference(mucUser == null || mucUser.getNick() == null ? (tcpMucUser == null || tcpMucUser.getNick() == null ? user.getResource() : tcpMucUser.getNick()) : mucUser.getNick());
                     } else {
                         Toast.makeText(
                                         getActivity(),
