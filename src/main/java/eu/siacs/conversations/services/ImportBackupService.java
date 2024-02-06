@@ -164,6 +164,7 @@ public class ImportBackupService extends Service {
                 if (files == null) {
                     continue;
                 }
+                Log.d(Config.LOGTAG, "looking for backups in " + directory);
                 for (final File file : files) {
                     if (file.isFile() && file.getName().endsWith(".ceb")) {
                         Log.d(Config.LOGTAG, "Backup files: " + directory.getAbsolutePath() + "/" + file);
@@ -174,7 +175,9 @@ public class ImportBackupService extends Service {
                             } else {
                                 backupFiles.add(backupFile);
                             }
-                        } catch (IOException | IllegalArgumentException e) {
+                        } catch (final IOException
+                                       | IllegalArgumentException
+                                       | BackupFileHeader.OutdatedBackupFileVersion e) {
                             Log.d(Config.LOGTAG, "unable to read backup file ", e);
                         }
                     }
