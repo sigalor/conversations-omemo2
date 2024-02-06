@@ -681,7 +681,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
                 return d;
             } catch (final IOException e) {
-                return fallbackImg;
+                return null;
             }
         }, fallbackImg);
     }
