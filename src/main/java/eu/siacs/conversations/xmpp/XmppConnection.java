@@ -1539,6 +1539,8 @@ public class XmppConnection implements Runnable {
                 && isSecure) {
             authenticate(SaslMechanism.Version.SASL);
         } else if (this.streamFeatures.hasChild("sm", Namespace.STREAM_MANAGEMENT)
+                && isSecure
+                && loginInfo != null
                 && streamId != null
                 && !inSmacksSession) {
             if (Config.EXTENDED_SM_LOGGING) {
@@ -1553,7 +1555,9 @@ public class XmppConnection implements Runnable {
             this.mWaitingForSmCatchup.set(true);
             this.tagWriter.writeStanzaAsync(resume);
         } else if (needsBinding) {
-            if (this.streamFeatures.hasChild("bind", Namespace.BIND) && isSecure) {
+            if (this.streamFeatures.hasChild("bind", Namespace.BIND)
+                    && isSecure
+                    && loginInfo != null) {
                 sendBindRequest();
             } else {
                 Log.d(
@@ -1564,7 +1568,6 @@ public class XmppConnection implements Runnable {
                 throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
             }
         } else {
-
             Log.d(
                     Config.LOGTAG,
                     account.getJid().asBareJid()
