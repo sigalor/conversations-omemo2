@@ -1752,11 +1752,11 @@ public class XmppConnectionService extends Service {
         toggleSetProfilePictureActivity(hasEnabledAccounts);
         reconfigurePushDistributor();
 
-        CallIntegrationConnectionService.registerPhoneAccounts(this, this.accounts);
+        CallIntegrationConnectionService.togglePhoneAccountsAsync(this, this.accounts);
 
         restoreFromDatabase();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             startContactObserver();
         }
         FileBackend.switchStorage(usingInnerStorage());
