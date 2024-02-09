@@ -3167,6 +3167,7 @@ public class ConversationFragment extends XmppFragment
             mRecorder.setAudioEncodingBitRate(96000);
             mRecorder.setAudioSamplingRate(48000);
         } else {
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             if (AAC_SENSITIVE_DEVICES.contains(Build.MODEL)) {
                 // Changing these three settings for AAC sensitive devices might lead to sporadically truncated (cut-off) voice messages.
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
