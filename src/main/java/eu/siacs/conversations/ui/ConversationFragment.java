@@ -39,6 +39,7 @@ import static eu.siacs.conversations.xmpp.Patches.ENCRYPTION_EXCEPTIONS;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 import eu.siacs.conversations.utils.PermissionUtils;
