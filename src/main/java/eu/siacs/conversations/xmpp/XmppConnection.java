@@ -704,6 +704,8 @@ public class XmppConnection implements Runnable {
                                     + ": received 'challenge on an unsecure connection");
                     throw new StateChangingException(Account.State.INCOMPATIBLE_CLIENT);
                 }
+            } else if (!LoginInfo.isSuccess(this.loginInfo)) {
+                throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
             } else if (nextTag.isStart("enabled", Namespace.STREAM_MANAGEMENT)) {
                 final Element enabled = tagReader.readElement(nextTag);
                 processEnabled(enabled);
@@ -803,8 +805,12 @@ public class XmppConnection implements Runnable {
         } else {
             throw new AssertionError("Missing implementation for " + version);
         }
+        final LoginInfo currentLoginInfo = this.loginInfo;
+        if (currentLoginInfo == null || LoginInfo.isSuccess(currentLoginInfo)) {
+            throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
+        }
         try {
-            response.setContent(this.loginInfo.saslMechanism.getResponse(challenge.getContent(), sslSocketOrNull(socket)));
+            response.setContent(currentLoginInfo.saslMechanism.getResponse(challenge.getContent(), sslSocketOrNull(socket)));
         } catch (final SaslMechanism.AuthenticationException e) {
             // TODO: Send auth abort tag.
             Log.e(Config.LOGTAG, e.toString());
@@ -835,9 +841,9 @@ public class XmppConnection implements Runnable {
             throw new AssertionError("Missing implementation for " + version);
         }
         try {
-            currentSaslMechanism.getResponse(challenge, sslSocketOrNull(socket));
+            currentLoginInfo.success(challenge, sslSocketOrNull(socket));
         } catch (final SaslMechanism.AuthenticationException e) {
-            Log.e(Config.LOGTAG, String.valueOf(e));
+            Log.e(Config.LOGTAG, account.getJid().asBareJid() + ": authentication failure ", e);
             throw new StateChangingException(Account.State.UNAUTHORIZED);
         }
         Log.d(
@@ -1540,7 +1546,7 @@ public class XmppConnection implements Runnable {
             authenticate(SaslMechanism.Version.SASL);
         } else if (this.streamFeatures.hasChild("sm", Namespace.STREAM_MANAGEMENT)
                 && isSecure
-                && loginInfo != null
+                && LoginInfo.isSuccess(loginInfo)
                 && streamId != null
                 && !inSmacksSession) {
             if (Config.EXTENDED_SM_LOGGING) {
@@ -1557,7 +1563,7 @@ public class XmppConnection implements Runnable {
         } else if (needsBinding) {
             if (this.streamFeatures.hasChild("bind", Namespace.BIND)
                     && isSecure
-                    && loginInfo != null) {
+                    && LoginInfo.isSuccess(loginInfo)) {
                 sendBindRequest();
             } else {
                 Log.d(
@@ -2911,6 +2917,7 @@ public class XmppConnection implements Runnable {
         public final SaslMechanism saslMechanism;
         public final SaslMechanism.Version saslVersion;
         public final List<String> inlineBindFeatures;
+        public final AtomicBoolean success = new AtomicBoolean(false);
 
         private LoginInfo(
                 final SaslMechanism saslMechanism,
@@ -2928,6 +2935,24 @@ public class XmppConnection implements Runnable {
 
         public static SaslMechanism mechanism(final LoginInfo loginInfo) {
             return loginInfo == null ? null : loginInfo.saslMechanism;
+        }
+
+
+        public void success(final String challenge, final SSLSocket sslSocket)
+                throws SaslMechanism.AuthenticationException {
+            final var response = this.saslMechanism.getResponse(challenge, sslSocket);
+            if (!Strings.isNullOrEmpty(response)) {
+                throw new SaslMechanism.AuthenticationException(
+                        "processing success yielded another response");
+            }
+            if (this.success.compareAndSet(false, true)) {
+                return;
+            }
+            throw new SaslMechanism.AuthenticationException("Process 'success' twice");
+        }
+
+        public static boolean isSuccess(final LoginInfo loginInfo) {
+            return loginInfo != null && loginInfo.success.get();
         }
     }
 
