@@ -39,6 +39,7 @@ import static eu.siacs.conversations.xmpp.Patches.ENCRYPTION_EXCEPTIONS;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 import eu.siacs.conversations.utils.PermissionUtils;
@@ -3146,6 +3147,15 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
+    private static final Set<String> AAC_SENSITIVE_DEVICES =
+            new ImmutableSet.Builder<String>()
+                    .add("FP4")             // Fairphone 4 https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("ONEPLUS A6000")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
+                    .add("ONEPLUS A6003")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
+                    .add("ONEPLUS A6010")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("ONEPLUS A6013")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("Pixel 4a")        // Pixel 4a https://github.com/iNPUTmice/Conversations/issues/4223
+                    .build();
 
     private boolean startRecording() {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
@@ -3159,9 +3169,16 @@ public class ConversationFragment extends XmppFragment
             mRecorder.setAudioSamplingRate(48000);
         } else {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-            mRecorder.setAudioEncodingBitRate(96000);
-            mRecorder.setAudioSamplingRate(44100);
+            if (AAC_SENSITIVE_DEVICES.contains(Build.MODEL)) {
+                // Changing these three settings for AAC sensitive devices might lead to sporadically truncated (cut-off) voice messages.
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
+                mRecorder.setAudioSamplingRate(24000);
+                mRecorder.setAudioEncodingBitRate(28000);
+            } else {
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mRecorder.setAudioSamplingRate(44100);
+                mRecorder.setAudioEncodingBitRate(96000);
+            }
         }
         setupOutputFile();
         mRecorder.setOutputFile(mOutputFile.getAbsolutePath());
