@@ -11,35 +11,9 @@
       "type": "UNIVERSAL",
       "filters": [],
       "attributes": [],
-      "versionCode": 159,
-      "versionName": "1.7.8.8",
-      "outputFile": "monocles chat-1.7.8.8-git-universal-release.apk"
-    },
-    {
-      "type": "ONE_OF_MANY",
-      "filters": [
-        {
-          "filterType": "ABI",
-          "value": "armeabi-v7a"
-        }
-      ],
-      "attributes": [],
-      "versionCode": 15901,
-      "versionName": "1.7.8.8",
-      "outputFile": "monocles chat-1.7.8.8-git-armeabi-v7a-release.apk"
-    },
-    {
-      "type": "ONE_OF_MANY",
-      "filters": [
-        {
-          "filterType": "ABI",
-          "value": "arm64-v8a"
-        }
-      ],
-      "attributes": [],
-      "versionCode": 15904,
-      "versionName": "1.7.8.8",
-      "outputFile": "monocles chat-1.7.8.8-git-arm64-v8a-release.apk"
+      "versionCode": 160,
+      "versionName": "1.7.8.9",
+      "outputFile": "monocles chat-1.7.8.9-git-universal-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -50,9 +24,9 @@
         }
       ],
       "attributes": [],
-      "versionCode": 15902,
-      "versionName": "1.7.8.8",
-      "outputFile": "monocles chat-1.7.8.8-git-x86-release.apk"
+      "versionCode": 16002,
+      "versionName": "1.7.8.9",
+      "outputFile": "monocles chat-1.7.8.9-git-x86-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -63,9 +37,35 @@
         }
       ],
       "attributes": [],
-      "versionCode": 15903,
-      "versionName": "1.7.8.8",
-      "outputFile": "monocles chat-1.7.8.8-git-x86_64-release.apk"
+      "versionCode": 16003,
+      "versionName": "1.7.8.9",
+      "outputFile": "monocles chat-1.7.8.9-git-x86_64-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 16004,
+      "versionName": "1.7.8.9",
+      "outputFile": "monocles chat-1.7.8.9-git-arm64-v8a-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "armeabi-v7a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 16001,
+      "versionName": "1.7.8.9",
+      "outputFile": "monocles chat-1.7.8.9-git-armeabi-v7a-release.apk"
     }
   ],
   "elementType": "File"

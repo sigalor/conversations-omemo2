@@ -250,22 +250,22 @@
         <item name="fontFamily">@font/notosansregular</item>
     </style>
 
-    <style name="ShapeAppearanceOverlay.PhotoSquare" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="ShapeAppearanceOverlay.PhotoSquare" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">5dp</item>
     </style>
 
-    <style name="ShapeAppearanceOverlay.PhotoRound" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="ShapeAppearanceOverlay.PhotoRound" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="ShapeAppearanceOverlay.IncomingCall" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="ShapeAppearanceOverlay.IncomingCall" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/incoming_call_radius</item>
     </style>
 
-    <style name="ShapeAppearanceOverlay.PhotoRoundBig" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="ShapeAppearanceOverlay.PhotoRoundBig" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
