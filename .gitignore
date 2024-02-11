@@ -3,6 +3,7 @@
 .settings
 
 src/playstore/res/values/gcm.xml
+git/**/*
 
 # https://github.com/github/gitignore/blob/master/Gradle.gitignore
 .gradle/
