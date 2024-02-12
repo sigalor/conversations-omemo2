@@ -672,7 +672,7 @@ public class UIHelper {
             case CHAT:
                 return new ListItem.Tag(context.getString(R.string.presence_chat), 0xff4ab04a, 0, account, isActive);
             case AWAY:
-                return new ListItem.Tag(context.getString(R.string.presence_away), 0xfff8b990, 0, account, isActive);
+                return new ListItem.Tag(context.getString(R.string.presence_away), 0xfff69c44, 0, account, isActive);
             case XA:
                 return new ListItem.Tag(context.getString(R.string.presence_xa), 0xff397975, 0, account, isActive);
             case DND:
