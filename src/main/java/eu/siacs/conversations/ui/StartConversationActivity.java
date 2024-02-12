@@ -387,7 +387,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                     showPublicChannelDialog();
                     break;
                 case R.id.join_public_channel:
-                    showJoinConferenceDialog(prefilled);
+                    showJoinConferenceDialog(prefilled, null);
                     break;
                 case R.id.create_contact:
                     showCreateContactDialog(prefilled, null);
