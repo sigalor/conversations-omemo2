@@ -708,7 +708,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        JoinConferenceDialog joinConferenceFragment = JoinConferenceDialog.newInstance(prefilledJid, invite.getParameter("password"), mActivatedAccounts);
+        JoinConferenceDialog joinConferenceFragment = JoinConferenceDialog.newInstance(prefilledJid, invite.getParameter("password"), mActivatedAccounts, xmppConnectionService.multipleAccounts());
         joinConferenceFragment.show(ft, FRAGMENT_TAG_DIALOG);
     }
 
