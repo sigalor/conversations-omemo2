@@ -674,9 +674,9 @@ public class UIHelper {
             case AWAY:
                 return new ListItem.Tag(context.getString(R.string.presence_away), 0xfff69c44, 0, account, isActive);
             case XA:
-                return new ListItem.Tag(context.getString(R.string.presence_xa), 0xff397975, 0, account, isActive);
+                return new ListItem.Tag(context.getString(R.string.presence_xa), 0xffe7524a, 0, account, isActive);
             case DND:
-                return new ListItem.Tag(context.getString(R.string.presence_dnd), 0xffe97975, 0, account, isActive);
+                return new ListItem.Tag(context.getString(R.string.presence_dnd), 0xffe7524a, 0, account, isActive);
             case OFFLINE:
                 return new ListItem.Tag(context.getString(R.string.presence_offline), 0xff808080, 1, account, isActive);
             default:
