@@ -104,7 +104,7 @@
                     android:layout_marginRight="4sp"
                     android:accessibilityTraversalAfter="@id/message_photo"
                     android:accessibilityTraversalBefore="@id/message_time"
-                    android:textAppearance="@style/TextAppearance.Conversations.Caption.OnDark.Bold"/>
+                    android:textAppearance="@style/TextAppearance.Conversations.Subject"/>
 
                 <TextView
                     android:id="@+id/message_encryption"

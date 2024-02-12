@@ -162,6 +162,11 @@
         <item name="fontFamily">@font/notosansregular</item>
     </style>
 
+    <style name="TextAppearance.Conversations.Subject" parent="TextAppearance.Conversations.Caption">
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/notosansregular</item>
+    </style>
+
     <style name="TextAppearance.Conversations.Caption.OnDark" parent="TextAppearance.Conversations.Caption">
         <item name="android:textColor">@color/white70</item>
         <item name="fontFamily">@font/notosansregular</item>
