@@ -59,6 +59,8 @@ import android.util.Pair;
 import android.util.DisplayMetrics;
 import com.caverock.androidsvg.SVG;
 import android.os.Build;
+import android.util.SparseBooleanArray;
+import java.util.Collection;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
@@ -2314,14 +2316,16 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     super(binding);
                     binding.search.addTextChangedListener(this);
                 }
-                protected Element mValue = null;
+                protected Field field = null;
+                Set<String> filteredValues;
                 List<Option> options = new ArrayList<>();
                 protected ArrayAdapter<Option> adapter;
                 protected boolean open;
+                protected boolean multi;
 
                 @Override
                 public void bind(Item item) {
-                    Field field = (Field) item;
+                    field = (Field) item;
                     setTextOrHide(binding.label, field.getLabel());
                     setTextOrHide(binding.desc, field.getDesc());
 
@@ -2333,23 +2337,40 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                         binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Status);
                     }
 
-                    mValue = field.getValue();
-
                     Element validate = field.el.findChild("validate", "http://jabber.org/protocol/xdata-validate");
                     open = validate != null && validate.findChild("open", "http://jabber.org/protocol/xdata-validate") != null;
                     setupInputType(field.el, binding.search, null);
 
+                    multi = field.getType().equals(Optional.of("list-multi"));
+                    if (multi) {
+                        binding.list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+                    } else {
+                        binding.list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    }
+
                     options = field.getOptions();
                     binding.list.setOnItemClickListener((parent, view, position, id) -> {
-                        mValue.setContent(adapter.getItem(binding.list.getCheckedItemPosition()).getValue());
-                        if (open) binding.search.setText(mValue.getContent());
+                        Set<String> values = new HashSet<>(field.getValues());
+                        for (final String value : field.getValues()) {
+                            if (filteredValues.contains(value)) {
+                                values.remove(value);
+                            }
+                        }
+
+                        SparseBooleanArray positions = binding.list.getCheckedItemPositions();
+                        for (int i = 0; i < positions.size(); i++) {
+                            values.add(adapter.getItem(positions.keyAt(i)).getValue());
+                        }
+                        field.setValues(values);
+
+                        if (!multi && open) binding.search.setText(String.join("\n", field.getValues()));
                     });
                     search("");
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (open) mValue.setContent(s.toString());
+                    if (!multi && open) field.setValues(List.of(s.toString()));
                     search(s.toString());
                 }
 
@@ -2367,11 +2388,14 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     } else {
                         filteredOptions = options.stream().filter(o -> o.toString().replaceAll("\\W", "").toLowerCase().contains(q)).collect(Collectors.toList());
                     }
+                    filteredValues = filteredOptions.stream().map(o -> o.getValue()).collect(Collectors.toSet());
                     adapter = new ArrayAdapter(binding.getRoot().getContext(), R.layout.simple_list_item, filteredOptions);
                     binding.list.setAdapter(adapter);
 
-                    int checkedPos = filteredOptions.indexOf(new Option(mValue.getContent(), ""));
-                    if (checkedPos >= 0) binding.list.setItemChecked(checkedPos, true);
+                    for (final String value : field.getValues()) {
+                        int checkedPos = filteredOptions.indexOf(new Option(value, ""));
+                        if (checkedPos >= 0) binding.list.setItemChecked(checkedPos, true);
+                    }
                 }
             }
 
@@ -2802,7 +2826,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     return value;
                 }
 
-                public void setValues(List<String> values) {
+                public void setValues(Collection<String> values) {
                     for(Element child : el.getChildren()) {
                         if ("value".equals(child.getName()) && "jabber:x:data".equals(child.getNamespace())) {
                             el.removeChild(child);
@@ -2866,6 +2890,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             } else {
                                 viewType = TYPE_SPINNER_FIELD;
                             }
+                        } else if (fieldType.equals("list-multi")) {
+                            viewType = TYPE_SEARCH_LIST_FIELD;
                         } else {
                             viewType = TYPE_TEXT_FIELD;
                         }
