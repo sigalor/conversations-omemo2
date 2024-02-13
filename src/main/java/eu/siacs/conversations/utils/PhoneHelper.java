@@ -13,11 +13,11 @@ import android.provider.Settings;
 public class PhoneHelper {
 
     @SuppressLint("HardwareIds")
-    public static String getAndroidId(Context context) {
+    public static String getAndroidId(final Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
-    public static Uri getProfilePictureUri(Context context) {
+    public static Uri getProfilePictureUri(final Context context) {
         if (context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
