@@ -1502,4 +1502,11 @@
     <string name="pref_use_green_blue_readmarkers_summary">Используйте два цветных маркера чтения. Синий — полученный, зеленый — прочитанный.</string>
     <string name="grey">Серый</string>
     <string name="blue">Синий</string>
+    <string name="pref_send_link_previews_summary">Прикрепляйте метаданные о ссылках при отправке сообщения</string>
+    <string name="report_spam_and_block">Сообщить о спаме и заблокировать спамера</string>
+    <string name="pref_send_link_previews">Отправить превью ссылок</string>
+    <string name="subject">Тема</string>
+    <string name="audiobook">Аудиокнига</string>
+    <string name="report_spam">Пожаловаться на спам</string>
+    <string name="add_subject">Добавить тему</string>
 </resources>

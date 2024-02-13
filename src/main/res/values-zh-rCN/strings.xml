@@ -1470,4 +1470,11 @@
     <string name="grey">灰色</string>
     <string name="blue">蓝色</string>
     <string name="stories">故事</string>
+    <string name="pref_send_link_previews_summary">发送消息时附加有关链接的元数据</string>
+    <string name="report_spam_and_block">报告垃圾消息并屏蔽垃圾消息发送者</string>
+    <string name="pref_send_link_previews">发送链接预览</string>
+    <string name="subject">话题</string>
+    <string name="audiobook">有声读物</string>
+    <string name="report_spam">报告垃圾消息</string>
+    <string name="add_subject">添加话题</string>
 </resources>

@@ -1498,4 +1498,11 @@
     <string name="pref_use_green_blue_readmarkers_summary">Usar marcadores de lecturas de dos colores. Azul para recibido y verde para leído.</string>
     <string name="grey">Gris</string>
     <string name="blue">Azul</string>
+    <string name="pref_send_link_previews_summary">Adjuntar metadatos sobre enlaces cuando envíe un mensaje</string>
+    <string name="report_spam_and_block">Informar de spam y bloquear al spamer</string>
+    <string name="pref_send_link_previews">Enviar previsualizaciones de enlaces</string>
+    <string name="subject">Asunto</string>
+    <string name="audiobook">Audiolibro</string>
+    <string name="report_spam">Informar de spam</string>
+    <string name="add_subject">Añadir asunto</string>
 </resources>
