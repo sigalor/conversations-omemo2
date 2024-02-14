@@ -518,7 +518,7 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:launchMode="singleTask"
-            android:theme="@style/Base.Theme.AppCompat" />
+            android:theme="@style/Base.Theme.MaterialComponents" />
         <activity android:name=".ui.MemorizingActivity" />
         <activity
             android:name=".ui.MediaBrowserActivity"
