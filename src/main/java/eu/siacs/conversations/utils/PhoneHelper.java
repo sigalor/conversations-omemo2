@@ -18,7 +18,8 @@ public class PhoneHelper {
     }
 
     public static Uri getProfilePictureUri(final Context context) {
-        if (context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
 
