@@ -586,7 +586,7 @@ public class Resolver {
                         return ip != null ? -1 : 1;
                     }
                 } else {
-                    return directTls ? -1 : 1;
+                    return directTls ? 1 : -1;
                 }
             } else {
                 return priority - result.priority;
