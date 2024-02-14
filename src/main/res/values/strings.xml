@@ -1412,4 +1412,5 @@
     <string name="report_spam_and_block">Report spam and block spammer</string>
     <string name="subject">Subject</string>
     <string name="add_subject">Add Subject</string>
+    <string name="recent_threads">Recent threads</string>
 </resources>

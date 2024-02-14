@@ -1456,4 +1456,5 @@
     <string name="report_spam_and_block">Melde Spam und blockiere Spammer</string>
     <string name="subject">Thema</string>
     <string name="add_subject">Thema anfügen</string>
+    <string name="recent_threads">Letzte Threads</string>
 </resources>
