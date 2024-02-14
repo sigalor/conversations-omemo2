@@ -1,6 +1,10 @@
 package eu.siacs.conversations.ui;
 
 import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
+import eu.siacs.conversations.databinding.ThreadRowBinding;
+import de.monocles.chat.Util;
+import androidx.annotation.NonNull;
+import android.view.ViewGroup;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
@@ -312,6 +316,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
+        this.binding.recentThreads.setOnItemClickListener((a0, v, pos, a3) -> {
+            final Conversation.Thread thread = (Conversation.Thread) binding.recentThreads.getAdapter().getItem(pos);
+            switchToConversation(mConversation, null, false, null, false, true, null, thread.getThreadId());
+        });
         showIntro(this, false);
     }
 
@@ -915,6 +923,18 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.tags.addView(tv);
             }
         }
+
+        final List<Conversation.Thread> recentThreads = mConversation.recentThreads();
+        if (recentThreads.isEmpty()) {
+            this.binding.recentThreadsWrapper.setVisibility(View.GONE);
+        } else {
+            final ContactDetailsActivity.ThreadAdapter threads = new ContactDetailsActivity.ThreadAdapter();
+            threads.addAll(recentThreads);
+            this.binding.recentThreads.setAdapter(threads);
+            this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+            Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
+        }
+
     }
 
     private void onBadgeClick(View view) {
@@ -1084,6 +1104,23 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (uriS != null) return Uri.parse(uriS).normalizeScheme();
             if (item.getName().equals("email")) return Uri.parse("mailto:" + item.findChildContent("text", Namespace.VCARD4));
             return null;
+        }
+    }
+
+    class ThreadAdapter extends ArrayAdapter<Conversation.Thread> {
+        ThreadAdapter() { super(ContactDetailsActivity.this, 0); }
+
+        @Override
+        public View getView(int position, View view, @NonNull ViewGroup parent) {
+            final ThreadRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.thread_row, parent, false);
+            final Conversation.Thread item = getItem(position);
+
+            binding.threadIdenticon.setColor(UIHelper.getColorForName(item.getThreadId()));
+            binding.threadIdenticon.setHash(UIHelper.identiconHash(item.getThreadId()));
+
+            binding.threadSubject.setText(item.getDisplay());
+
+            return binding.getRoot();
         }
     }
 }
