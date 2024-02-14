@@ -41,6 +41,8 @@
         <item name="colorAccentLight">@color/accent_light</item>
         <item name="colorAccentLightDisabled">@color/accent_light_disabled</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.Material3.Light</item>
+        <item name="colorOnBackground">?colorPrimaryDark</item>
+        <item name="colorSurface">?colorPrimaryDark</item>
         <item name="colorControlNormal">?attr/text_Color_Main</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="text_Color_Main">@color/realblack</item>
