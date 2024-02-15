@@ -97,6 +97,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.siacs.conversations.Config;
@@ -136,6 +137,8 @@ import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.utils.ThemeHelper;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.guardanis.applock.activities.UnlockActivity;
+import com.guardanis.applock.dialogs.UnlockDialogBuilder;
 
 
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnRoomDestroy {
@@ -156,6 +159,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final int REQUEST_MICROPHONE = 0x5432f;
     public static final int DIALLER_INTEGRATION = 0x5432ff;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
+    public static final int REQUEST_CODE_ULOCK = 0xbf8706;
     public static final String EXTRA_THREAD = "threadId";
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_NODE = "node";
@@ -703,6 +707,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        // Check if lock is set
+        if (getBooleanPreference("app_is_locked", R.bool.app_is_locked)) {
+            Intent intent = new Intent(this, UnlockActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_ULOCK);
+        }
         super.onCreate(savedInstanceState);
         ConversationMenuConfigurator.reloadFeatures(this);
         OmemoSetting.load(this);

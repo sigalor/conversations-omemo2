@@ -708,6 +708,14 @@
                 android:key="pause_voice_on_move_from_ear"
                 android:summary="@string/pref_pause_voice_on_move_from_ear_summary"
                 android:title="@string/pref_pause_voice_on_move_from_ear" />
+            <Preference
+                android:key="app_lock"
+                android:summary="@string/pref_app_lock_summary"
+                android:title="@string/pref_app_lock_title" />
+            <Preference
+                android:key="app_lock_disabled"
+                android:summary="@string/pref_app_lock_disable_summary"
+                android:title="@string/pref_app_lock_disable_title" />
         </PreferenceCategory>
         <PreferenceCategory
             android:key="connection_options"

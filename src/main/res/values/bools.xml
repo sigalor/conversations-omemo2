@@ -11,4 +11,5 @@
     <bool name="enforce_dane">false</bool>
     <bool name="hide_donation_snackbar">false</bool>
     <bool name="send_link_previews">true</bool>
+    <bool name="app_is_locked">false</bool>
 </resources>

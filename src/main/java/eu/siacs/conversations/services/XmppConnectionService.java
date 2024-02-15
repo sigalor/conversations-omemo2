@@ -5349,6 +5349,10 @@ public class XmppConnectionService extends Service {
         return getBooleanPreference(SettingsActivity.HIDE_DONATION_SNACKBAR, R.bool.hide_donation_snackbar);
     }
 
+    public boolean appIsLocked() {
+        return getBooleanPreference(SettingsActivity.APP_IS_LOCKED, R.bool.app_is_locked);
+    }
+
     public boolean hideMemoryWarning() {
         return getBooleanPreference(SettingsActivity.HIDE_MEMORY_WARNING, R.bool.hide_memory_warning);
     }

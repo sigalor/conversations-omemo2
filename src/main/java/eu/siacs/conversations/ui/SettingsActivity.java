@@ -7,6 +7,7 @@ import static eu.siacs.conversations.utils.StorageHelper.getBackupDirectory;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.guardanis.applock.activities.LockCreationActivity;
 
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -99,6 +100,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final String WARN_UNENCRYPTED_CHAT = "warn_unencrypted_chat";
     public static final String HIDE_YOU_ARE_NOT_PARTICIPATING = "hide_you_are_not_participating";
     public static final String HIDE_DONATION_SNACKBAR = "hide_donation_snackbar";
+    public static final String APP_IS_LOCKED = "app_is_locked";
     public static final String HIDE_MEMORY_WARNING = "hide_memory_warning";
     public static final String THEME = "theme";
     public static final String THEME_COLOR = "theme_color";
@@ -142,6 +144,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final int REQUEST_IMPORT_SETTINGS = 0xbf8703;
     public static final int REQUEST_IMPORT_BACKGROUND = 0xbf8704;
     public static final int REQUEST_IMPORT_STICKERS = 0xbf8705;
+    public static final int REQUEST_CODE_CREATE_LOCK = 0xbf8706;
+    public static final int REQUEST_CODE_DELETE_LOCK = 0xbf8707;
 
     Preference multiAccountPreference;
     Preference autoMessageExpiryPreference;
@@ -925,6 +929,34 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                 } catch (android.content.ActivityNotFoundException ex) {
                 Toast.makeText(this, R.string.no_application_found, Toast.LENGTH_LONG).show();
             }
+                return true;
+            });
+        }
+
+        final Preference appLockPreference = mSettingsFragment.findPreference("app_lock");
+        if (appLockPreference != null) {
+            appLockPreference.setOnPreferenceClickListener(preference -> {
+                try {
+                    Intent intent = new Intent(this, LockCreationActivity.class);
+                    startActivityForResult(intent, REQUEST_CODE_CREATE_LOCK);
+                    SharedPreferences preferences = this.getPreferences();
+                    preferences.edit().putBoolean(APP_IS_LOCKED, true).apply();
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(this, R.string.can_not_create_lock, Toast.LENGTH_LONG).show();
+                }
+                return true;
+            });
+        }
+
+        final Preference appUnLockPreference = mSettingsFragment.findPreference("app_lock_disabled");
+        if (appUnLockPreference != null) {
+            appUnLockPreference.setOnPreferenceClickListener(preference -> {
+                try {
+                    SharedPreferences preferences = this.getPreferences();
+                    preferences.edit().putBoolean(APP_IS_LOCKED, false).apply();
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(this, R.string.can_not_remove_lock, Toast.LENGTH_LONG).show();
+                }
                 return true;
             });
         }
