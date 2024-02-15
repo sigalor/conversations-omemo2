@@ -42,7 +42,7 @@ import de.monocles.chat.DownloadDefaultStickers;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 

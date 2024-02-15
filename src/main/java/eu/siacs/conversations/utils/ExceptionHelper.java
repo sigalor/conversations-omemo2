@@ -9,7 +9,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

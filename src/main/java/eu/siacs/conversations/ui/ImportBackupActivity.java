@@ -18,7 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import eu.siacs.conversations.utils.Compatibility;
 
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
