@@ -1413,8 +1413,4 @@
     <string name="subject">Subject</string>
     <string name="add_subject">Add Subject</string>
     <string name="recent_threads">Recent threads</string>
-    <string name="pref_value_lock">App lock</string>
-    <string name="settings_lock">App Lock (Beta)</string>
-    <string name="settings_lock_summary">Lock the app with your devices password or fingerprint</string>
-    <string name="unlock_app">Unlock monocles chat</string>
 </resources>

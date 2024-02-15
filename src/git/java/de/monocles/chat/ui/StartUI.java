@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.preference.PreferenceManager;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -16,16 +15,8 @@ import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.util.IntroHelper;
 public class StartUI extends AppCompatActivity {
 
-    private static final long LOCK_TIME = 30_000;
-    private static boolean lockedPreference = false;
-    private static boolean isLocked = true;
-    private static long lastInteraction = 0;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final var prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        lockedPreference = prefs.getBoolean("pref_key_lock", false);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_ui);
         IntroHelper.showIntro(this, false);
@@ -47,25 +38,5 @@ public class StartUI extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    public static void setLockedPreference(boolean lockedPreference) {
-        Log.i("App lock", "New locked preference: " + lockedPreference);
-        StartUI.lockedPreference = lockedPreference;
-    }
-
-    public static boolean isLocked() {
-        if (!isLocked && System.currentTimeMillis() > (LOCK_TIME + lastInteraction)) {
-            isLocked = true;
-        }
-        return lockedPreference && isLocked;
-    }
-
-    public static void unlock() {
-        isLocked = false;
-    }
-
-    public static void updateLastInteraction() {
-        lastInteraction = System.currentTimeMillis();
     }
 }
