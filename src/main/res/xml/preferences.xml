@@ -507,7 +507,7 @@
             android:key="use_internal_updater"
             android:summary="@string/pref_use_internal_updater_summary"
             android:title="@string/pref_use_internal_updater" />
-        <!--
+        <!--    TODO: Reactivate
         <SwitchPreference
             android:defaultValue="@bool/show_links_inside"
             android:key="show_links_inside"
@@ -668,6 +668,12 @@
                 android:summary="@string/pref_show_date_in_quotes_summary"
                 android:title="@string/pref_show_date_in_quotes" />
                 -->
+            <SwitchPreference
+                android:defaultValue="@string/pref_value_lock"
+                android:icon="?attr/icon_small_lock"
+                android:key="pref_key_lock"
+                android:summary="@string/settings_lock_summary"
+                android:title="@string/settings_lock" />
             <SwitchPreference
                 android:defaultValue="@bool/use_bundled_emoji"
                 android:key="use_bundled_emoji"

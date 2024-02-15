@@ -16,7 +16,7 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
 	private final UncaughtExceptionHandler defaultHandler;
 	private final Context context;
 
-	ExceptionHandler(final Context context) {
+	public ExceptionHandler(final Context context) {
         this.context = context;
         this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
     }
