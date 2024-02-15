@@ -507,13 +507,11 @@
             android:key="use_internal_updater"
             android:summary="@string/pref_use_internal_updater_summary"
             android:title="@string/pref_use_internal_updater" />
-        <!--
         <SwitchPreference
             android:defaultValue="@bool/show_links_inside"
             android:key="show_links_inside"
             android:summary="@string/pref_show_links_inside_summary"
             android:title="@string/pref_show_links_inside" />
-            -->
         <SwitchPreference
             android:defaultValue="@bool/show_maps_inside"
             android:disableDependentsState="false"
