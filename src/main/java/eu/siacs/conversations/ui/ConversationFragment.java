@@ -507,7 +507,7 @@ public class ConversationFragment extends XmppFragment
                                     final String uuid = message != null ? message.getUuid() : null;
                                     View v = binding.messagesView.getChildAt(childPos);
                                     final int pxOffset = (v == null) ? 0 : v.getTop();
-                                    ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList);
+                                    ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList, activity.xmppConnectionService);
                                     try {
                                         updateStatusMessages();
                                     } catch (IllegalStateException e) {
@@ -1207,7 +1207,7 @@ public class ConversationFragment extends XmppFragment
                 return i;
             } else {
                 Message next = messages.get(i);
-                while (next != null && next.wasMergedIntoPrevious()) {
+                while (next != null && next.wasMergedIntoPrevious(activity.xmppConnectionService)) {
                     if (uuid.equals(next.getUuid())) {
                         return i;
                     }
@@ -3692,7 +3692,7 @@ public class ConversationFragment extends XmppFragment
                     }
                 }
                 if (message != null) {
-                    while (message.next() != null && message.next().wasMergedIntoPrevious()) {
+                    while (message.next() != null && message.next().wasMergedIntoPrevious(activity.xmppConnectionService)) {
                         message = message.next();
                     }
                     return message;
@@ -4797,7 +4797,7 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                conversation.populateWithMessages(ConversationFragment.this.messageList);
+                conversation.populateWithMessages(this.messageList, activity.xmppConnectionService);
                 updateStatusMessages();
                 if (conversation.unreadCount() > 0) {
                     binding.unreadCountCustomView.setVisibility(View.VISIBLE);
@@ -5486,7 +5486,12 @@ public class ConversationFragment extends XmppFragment
                 }
                 final Jid tcp = message.getTrueCounterpart();
                 final User userByRealJid = tcp != null ? conversation.getMucOptions().findOrCreateUserByRealJid(tcp, cp) : null;
-                final User user = userByRealJid != null ? userByRealJid : conversation.getMucOptions().findUserByFullJid(cp);
+                final String occupantId = message.getOccupantId();
+                final User userByOccupantId =
+                        occupantId != null
+                                ? conversation.getMucOptions().findUserByOccupantId(occupantId)
+                                : null;
+                final User user = userByRealJid != null ? userByRealJid : (userByOccupantId != null ? userByOccupantId : conversation.getMucOptions().findUserByFullJid(cp));
                 if (user == null) return;
                 popupMenu.inflate(R.menu.muc_details_context);
                 final Menu menu = popupMenu.getMenu();

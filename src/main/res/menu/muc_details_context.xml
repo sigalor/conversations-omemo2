@@ -37,6 +37,14 @@
         android:title="@string/block_avatar"
         android:visible="false" />
     <item
+        android:id="@+id/action_mute_participant"
+        android:title="@string/mute_locally"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_unmute_participant"
+        android:title="@string/unmute_locally"
+        android:visible="false" />
+    <item
         android:id="@+id/action_muc_contact_details"
         android:orderInCategory="100"
         android:title="@string/action_contact_details"

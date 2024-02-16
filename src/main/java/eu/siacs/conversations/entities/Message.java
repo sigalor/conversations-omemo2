@@ -81,7 +81,7 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Tag;
 import eu.siacs.conversations.xml.XmlReader;
-
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.ui.util.QuoteHelper;
@@ -149,6 +149,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     protected String conversationUuid;
     protected Jid counterpart;
     protected Jid trueCounterpart;
+    protected String occupantId = null;
     protected String body;
     protected String encryptedBody;
     protected String subject;
@@ -312,7 +313,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             }
         }
 
-        return new Message(conversation,
+        Message m = new Message(conversation,
                 cursor.getString(cursor.getColumnIndex(UUID)),
                 cursor.getString(cursor.getColumnIndex(CONVERSATION)),
                 fromString(cursor.getString(cursor.getColumnIndex(COUNTERPART))),
@@ -342,6 +343,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 cursor.getString(cursor.getColumnIndex("fileParams")),
                 payloads
         );
+        m.setOccupantId(cursor.getString(cursor.getColumnIndex("occupant_id")));
+        return m;
     }
 
     private static Jid fromString(String value) {
@@ -384,6 +387,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             }
         }
         values.put("payloads", payloads.size() < 1 ? null : payloads.stream().map(Object::toString).collect(Collectors.joining()));
+        values.put("occupant_id", occupantId);
         return values;
     }
 
@@ -735,8 +739,17 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         addPayload(thread);
     }
 
+    public void setOccupantId(final String id) {
+        occupantId = id;
+    }
+
+    public String getOccupantId() {
+        return occupantId;
+    }
+
     public void setMucUser(MucOptions.User user) {
         this.user = new WeakReference<>(user);
+        if (user != null && user.getOccupantId() != null) setOccupantId(user.getOccupantId());
     }
 
     public boolean sameMucUser(Message otherMessage) {
@@ -1249,9 +1262,13 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return time;
     }
 
-    public boolean wasMergedIntoPrevious() {
+    public boolean wasMergedIntoPrevious(XmppConnectionService xmppConnectionService) {
         Message prev = this.prev();
         if (prev != null && getModerated() != null && prev.getModerated() != null) return true;
+        if (getOccupantId() != null && xmppConnectionService != null) {
+            final boolean muted = getStatus() == Message.STATUS_RECEIVED && conversation.getMode() == Conversation.MODE_MULTI && xmppConnectionService.isMucUserMuted(new MucOptions.User(null, conversation.getJid(), getOccupantId(), null, null));
+            if (prev != null && muted && getOccupantId().equals(prev.getOccupantId())) return true;
+        }
         return prev != null && prev.mergeable(this);
     }
 

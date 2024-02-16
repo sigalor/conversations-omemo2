@@ -15,6 +15,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
@@ -108,10 +109,10 @@ public final class MucDetailsContextMenuHelper {
     }
 
     public static void configureMucDetailsContextMenu(Activity activity, Menu menu, Conversation conversation, User user) {
-        configureMucDetailsContextMenu(activity, menu, conversation, user, false, null);
+        configureMucDetailsContextMenu((XmppActivity) activity, menu, conversation, user, false, null);
     }
 
-    public static void configureMucDetailsContextMenu(Activity activity, Menu menu, Conversation conversation, User user, boolean forceContextMenu, String username) {
+    public static void configureMucDetailsContextMenu(XmppActivity activity, Menu menu, Conversation conversation, User user, boolean forceContextMenu, String username) {
         final boolean advancedMode = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("advanced_muc_mode", false);
         final MucOptions mucOptions = conversation.getMucOptions();
         final boolean isGroupChat = mucOptions.isPrivateAndNonAnonymous();
@@ -136,6 +137,17 @@ public final class MucDetailsContextMenuHelper {
             blockAvatar.setVisible(true);
         }
         MenuItem blockUnblockMUCUser = menu.findItem(R.id.context_muc_contact_block_unblock);
+
+        MenuItem muteParticipant = menu.findItem(R.id.action_mute_participant);
+        MenuItem unmuteParticipant = menu.findItem(R.id.action_unmute_participant);
+        if (user != null && user.getOccupantId() != null) {
+            if (activity.xmppConnectionService.isMucUserMuted(user)) {
+                unmuteParticipant.setVisible(true);
+            } else {
+                muteParticipant.setVisible(true);
+            }
+        }
+
         if (user != null && user.getRealJid() != null) {
             MenuItem showContactDetails = menu.findItem(R.id.action_contact_details);
             MenuItem startConversation = menu.findItem(R.id.start_conversation);
@@ -241,6 +253,19 @@ public final class MucDetailsContextMenuHelper {
                         })
                         .setNegativeButton(R.string.no, null).show();
                 return true;
+            case R.id.action_mute_participant:
+                if (activity.xmppConnectionService.muteMucUser(user)) {
+                    activity.xmppConnectionService.updateConversationUi();
+                } else {
+                    Toast.makeText(activity, "Failed to mute", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.action_unmute_participant:
+                if (activity.xmppConnectionService.unmuteMucUser(user)) {
+                    activity.xmppConnectionService.updateConversationUi();
+                } else {
+                    Toast.makeText(activity, "Failed to unmute", Toast.LENGTH_SHORT).show();
+                }
             case R.id.action_show_avatar:
                 activity.ShowAvatarPopup(activity, user);
                 return true;
