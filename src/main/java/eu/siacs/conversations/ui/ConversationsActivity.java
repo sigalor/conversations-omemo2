@@ -708,6 +708,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     protected void onCreate(final Bundle savedInstanceState) {
         // Check if lock is set
         if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+            EasyLock.setBackgroundColor(getColor(R.color.primary_black));
             EasyLock.checkPassword(this);
         }
         super.onCreate(savedInstanceState);
