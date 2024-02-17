@@ -10,8 +10,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import eu.siacs.conversations.R;
+import p32929.easypasscodelock.Utils.LockscreenHandler;
 
-public abstract class ActionBarActivity extends AppCompatActivity {
+public abstract class ActionBarActivity extends LockscreenHandler {
     public static void configureActionBar(ActionBar actionBar) {
         configureActionBar(actionBar, true);
     }

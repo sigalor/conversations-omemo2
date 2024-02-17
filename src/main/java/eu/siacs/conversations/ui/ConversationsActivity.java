@@ -135,10 +135,9 @@ import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.utils.ThemeHelper;
+import p32929.easypasscodelock.Utils.EasyLock;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.guardanis.applock.activities.UnlockActivity;
-import com.guardanis.applock.dialogs.UnlockDialogBuilder;
 
 
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnRoomDestroy {
@@ -709,8 +708,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     protected void onCreate(final Bundle savedInstanceState) {
         // Check if lock is set
         if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
-            Intent intent = new Intent(this, UnlockActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_ULOCK);
+            EasyLock.checkPassword(this);
         }
         super.onCreate(savedInstanceState);
         ConversationMenuConfigurator.reloadFeatures(this);

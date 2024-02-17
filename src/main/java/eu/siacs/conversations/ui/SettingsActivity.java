@@ -7,7 +7,6 @@ import static eu.siacs.conversations.utils.StorageHelper.getBackupDirectory;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.guardanis.applock.activities.LockCreationActivity;
 
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -86,6 +85,7 @@ import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.xmpp.Jid;
 import me.drakeet.support.toast.ToastCompat;
 import eu.siacs.conversations.services.UnifiedPushDistributor;
+import p32929.easypasscodelock.Utils.EasyLock;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener {
 
@@ -933,16 +933,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
-        final Preference appLockPreference = mSettingsFragment.findPreference("app_lock");
+        final Preference appLockPreference = mSettingsFragment.findPreference("app_lock_enabled");
         if (appLockPreference != null) {
-            appLockPreference.setOnPreferenceClickListener(preference -> {
-                try {
-                    Intent intent = new Intent(this, LockCreationActivity.class);
-                    startActivityForResult(intent, REQUEST_CODE_CREATE_LOCK);
-                    SharedPreferences preferences = this.getPreferences();
-                    preferences.edit().putBoolean(APP_IS_LOCKED, true).apply();
-                } catch (android.content.ActivityNotFoundException ex) {
-                    Toast.makeText(this, R.string.can_not_create_lock, Toast.LENGTH_LONG).show();
+            appLockPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+                    EasyLock.setPassword(this, SettingsActivity.class);
+                } else {
+                    EasyLock.disablePassword(this, SettingsActivity.class);
                 }
                 return true;
             });
