@@ -19,7 +19,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 

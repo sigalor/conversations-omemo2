@@ -136,9 +136,11 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import android.app.AlertDialog;
-
-import android.widget.PopupMenu;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.widget.PopupMenu;
+import android.widget.PopupWindow;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
@@ -269,7 +271,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
@@ -1030,10 +1032,8 @@ public class ConversationFragment extends XmppFragment
                     return false;
             }
         });
-        PopupMenu menuHelper = new PopupMenu(getActivity(), null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            menuHelper.setForceShowIcon(true);
-        }
+        MenuPopupHelper menuHelper = new MenuPopupHelper(getActivity(), (MenuBuilder) menu, v);
+        menuHelper.setForceShowIcon(true);
         menuHelper.show();
     }
 

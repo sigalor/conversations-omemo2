@@ -6,6 +6,8 @@ import android.text.method.LinkMovementMethod;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.ui.MagicCreateActivity;
 
@@ -14,7 +16,7 @@ public class RegisterMonoclesActivity extends MagicCreateActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_monocles);
-        setSupportActionBar(findViewById(R.id.toolbar));
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupHyperlink();

@@ -68,21 +68,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import de.monocles.chat.DownloadDefaultStickers;
 
 import net.java.otr4j.session.SessionStatus;
-import android.widget.PopupMenu;
+import androidx.appcompat.widget.PopupMenu;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-
-import android.app.AlertDialog;
-import android.widget.Toolbar;
-
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 
@@ -717,7 +715,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         ConversationMenuConfigurator.reloadFeatures(this);
         OmemoSetting.load(this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
-        setSupportActionBar(binding.toolbar.getRoot());
+        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
         configureActionBar(getSupportActionBar());
         this.getFragmentManager().addOnBackStackChangedListener(this::invalidateActionBarTitle);
         this.getFragmentManager().addOnBackStackChangedListener(this::showDialogsIfMainIsOverview);

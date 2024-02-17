@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -109,7 +109,7 @@ public class MemoryManagementActivity extends XmppActivity {
         } else {
             file = getString(R.string.all_media_files);
         }
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setTitle(R.string.delete_files_dialog);
         builder.setMessage(getResources().getString(R.string.delete_files_dialog_msg, file));

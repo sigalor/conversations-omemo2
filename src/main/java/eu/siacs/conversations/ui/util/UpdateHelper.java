@@ -10,7 +10,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
 import java.io.File;
 import java.lang.ref.WeakReference;

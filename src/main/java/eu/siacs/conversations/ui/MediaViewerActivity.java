@@ -31,7 +31,7 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 

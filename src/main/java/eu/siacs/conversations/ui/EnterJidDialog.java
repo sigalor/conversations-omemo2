@@ -28,7 +28,7 @@ import eu.siacs.conversations.xmpp.OnGatewayResult;
 
 
 import androidx.annotation.NonNull;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 

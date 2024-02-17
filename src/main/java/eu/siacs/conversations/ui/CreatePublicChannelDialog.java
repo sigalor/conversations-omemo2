@@ -13,7 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 

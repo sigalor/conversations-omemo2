@@ -21,7 +21,7 @@ import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.utils.Compatibility;
 
 import androidx.annotation.NonNull;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;

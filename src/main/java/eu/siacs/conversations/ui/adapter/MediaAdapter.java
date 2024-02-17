@@ -22,8 +22,8 @@ import android.widget.ImageView;
 import androidx.annotation.AttrRes;
 import androidx.annotation.DimenRes;
 import androidx.annotation.NonNull;
-import android.app.AlertDialog;
-import android.widget.PopupMenu;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
