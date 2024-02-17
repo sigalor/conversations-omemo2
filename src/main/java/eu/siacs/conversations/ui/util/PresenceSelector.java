@@ -34,7 +34,7 @@ import android.content.Context;
 import android.util.Pair;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 
 import java.util.Collections;
 import java.util.Map;

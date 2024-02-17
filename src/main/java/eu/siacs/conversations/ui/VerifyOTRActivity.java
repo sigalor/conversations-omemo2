@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 
 import net.java.otr4j.OtrException;
 import net.java.otr4j.session.Session;

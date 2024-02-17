@@ -17,7 +17,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 

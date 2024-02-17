@@ -22,7 +22,7 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
