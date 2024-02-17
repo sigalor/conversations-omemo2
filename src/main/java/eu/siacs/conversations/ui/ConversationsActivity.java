@@ -712,7 +712,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             EasyLock.checkPassword(this);
         }
         super.onCreate(savedInstanceState);
-        ConversationMenuConfigurator.reloadFeatures(this);
         OmemoSetting.load(this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
         setSupportActionBar((Toolbar) binding.toolbar.getRoot());

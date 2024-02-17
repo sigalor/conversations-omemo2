@@ -49,11 +49,17 @@ public class ConversationMenuConfigurator {
     private static boolean microphoneAvailable = false;
     private static boolean locationAvailable = false;
     private static boolean cameraAvailable = false;
+    private static boolean attachSubject = false;
 
-    public static void reloadFeatures(Context context) {
+    public static void reloadFeatures(@NonNull Conversation conversation, Context context) {
         microphoneAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
         cameraAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
         locationAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS) || context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_NETWORK);
+        if (conversation.getNextEncryption()== Message.ENCRYPTION_NONE) {
+            attachSubject = true;
+        } else {
+            attachSubject = false;
+        }
     }
 
     public static void configureQuickShareAttachmentMenu(@NonNull Conversation conversation, Menu menu, boolean hideVoiceAndTakePicture) {
@@ -68,7 +74,7 @@ public class ConversationMenuConfigurator {
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
         menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
         menu.findItem(R.id.attach_location).setVisible(locationAvailable);
-        menu.findItem(R.id.attach_subject).setVisible(true);
+        menu.findItem(R.id.attach_subject).setVisible(attachSubject);
     }
 
     public static void configureAttachmentMenu(@NonNull Conversation conversation, Menu menu, Boolean Quick_share_attachment_choice, boolean hasAttachments) {
@@ -100,7 +106,7 @@ public class ConversationMenuConfigurator {
         menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
         menu.findItem(R.id.attach_take_picture).setVisible(cameraAvailable);
         menu.findItem(R.id.attach_location).setVisible(locationAvailable);
-        menu.findItem(R.id.attach_subject).setVisible(true);
+        menu.findItem(R.id.attach_subject).setVisible(attachSubject);
     }
 
     public static void configureEncryptionMenu(@NonNull Conversation conversation, Menu menu, final XmppActivity activity) {

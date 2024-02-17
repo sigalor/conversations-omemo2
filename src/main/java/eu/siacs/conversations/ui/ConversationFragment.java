@@ -798,6 +798,7 @@ public class ConversationFragment extends XmppFragment
 
         @Override
         public void onClick(View v) {
+            ConversationMenuConfigurator.reloadFeatures(conversation, activity);
             Object tag = v.getTag();
             if (tag instanceof SendButtonAction) {
                 SendButtonAction action = (SendButtonAction) tag;
@@ -3977,6 +3978,7 @@ public class ConversationFragment extends XmppFragment
         this.binding.textinput.setKeyboardListener(null);
         this.binding.textinputSubject.setKeyboardListener(null);
         showRecordVoiceButton();
+        ConversationMenuConfigurator.reloadFeatures(conversation, activity);
         final boolean participating = conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating();
         if (participating) {
             this.binding.textinput.setText(this.conversation.getNextMessage());
