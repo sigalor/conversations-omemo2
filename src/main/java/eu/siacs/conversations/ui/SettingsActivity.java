@@ -948,19 +948,6 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             });
         }
 
-        final Preference appUnLockPreference = mSettingsFragment.findPreference("app_lock_disabled");
-        if (appUnLockPreference != null) {
-            appUnLockPreference.setOnPreferenceClickListener(preference -> {
-                try {
-                    SharedPreferences preferences = this.getPreferences();
-                    preferences.edit().putBoolean(APP_IS_LOCKED, false).apply();
-                } catch (android.content.ActivityNotFoundException ex) {
-                    Toast.makeText(this, R.string.can_not_remove_lock, Toast.LENGTH_LONG).show();
-                }
-                return true;
-            });
-        }
-
         final Preference prefereXmppAvatarPreference = mSettingsFragment.findPreference(PREFER_XMPP_AVATAR);
         if (prefereXmppAvatarPreference != null) {
             prefereXmppAvatarPreference.setOnPreferenceClickListener(preference -> {

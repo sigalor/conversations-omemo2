@@ -710,10 +710,11 @@
                 android:key="app_lock"
                 android:summary="@string/pref_app_lock_summary"
                 android:title="@string/pref_app_lock_title" />
-            <Preference
-                android:key="app_lock_disabled"
-                android:summary="@string/pref_app_lock_disable_summary"
-                android:title="@string/pref_app_lock_disable_title" />
+            <SwitchPreference
+                android:defaultValue="@bool/app_lock_enabled"
+                android:key="app_lock_enabled"
+                android:summary="@string/pref_app_lock_enable_summary"
+                android:title="@string/pref_app_lock_enable_title" />
         </PreferenceCategory>
         <PreferenceCategory
             android:key="connection_options"

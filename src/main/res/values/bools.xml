@@ -12,4 +12,5 @@
     <bool name="hide_donation_snackbar">false</bool>
     <bool name="send_link_previews">true</bool>
     <bool name="app_is_locked">false</bool>
+    <bool name="app_lock_enabled">false</bool>
 </resources>

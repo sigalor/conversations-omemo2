@@ -1417,6 +1417,6 @@
     <string name="pref_app_lock_summary">Lock the app with a pin or fingerprint. Monocles chat will be locked after closed and can only be opened with the right pin or fingerprint again</string>
     <string name="can_not_create_lock">Can\'t create pin or fingerprint</string>
     <string name="can_not_remove_lock">Can not remove lock</string>
-    <string name="pref_app_lock_disable_title">Disable app lock</string>
-    <string name="pref_app_lock_disable_summary">Disable the app lock</string>
+    <string name="pref_app_lock_enable_title">Enable app lock</string>
+    <string name="pref_app_lock_enable_summary">Enable the app lock. Be aware you can\'t open the app anymore when you forgot the PIN.</string>
 </resources>

@@ -708,7 +708,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         // Check if lock is set
-        if (getBooleanPreference("app_is_locked", R.bool.app_is_locked)) {
+        if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
             Intent intent = new Intent(this, UnlockActivity.class);
             startActivityForResult(intent, REQUEST_CODE_ULOCK);
         }
