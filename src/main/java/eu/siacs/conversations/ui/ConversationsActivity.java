@@ -138,6 +138,7 @@ import eu.siacs.conversations.utils.ThemeHelper;
 import p32929.easypasscodelock.Utils.EasyLock;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnRoomDestroy {
@@ -710,6 +711,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
             EasyLock.setBackgroundColor(getColor(R.color.primary_black));
             EasyLock.checkPassword(this);
+            EasyLock.forgotPassword(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(ConversationsActivity.this, R.string.app_lock_forgot_password, Toast.LENGTH_LONG).show();
+                }
+            });
         }
         super.onCreate(savedInstanceState);
         OmemoSetting.load(this);

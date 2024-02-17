@@ -938,9 +938,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             appLockPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 if (!getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
                     EasyLock.setBackgroundColor(getColor(R.color.primary_black));
-                    EasyLock.setPassword(this, SettingsActivity.class);
+                    EasyLock.setPassword(this, ConversationsActivity.class);
                 } else {
-                    EasyLock.disablePassword(this, SettingsActivity.class);
+                    EasyLock.disablePassword(this, ConversationsActivity.class);
                 }
                 return true;
             });
