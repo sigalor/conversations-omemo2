@@ -134,7 +134,7 @@
         <item name="icon_add_group" type="reference">@drawable/ic_group_add_black_24dp</item>
         <item name="icon_add_person" type="reference">@drawable/ic_person_add_black_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_black_24dp</item>
-        <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_black_24dp</item>
+        <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_black_24dp</item>
         <item name="icon_qr_code" type="reference">@drawable/ic_qr_code_black_24dp</item>
         <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_black_24dp</item>
         <item name="icon_navigate" type="reference">@drawable/ic_navigation_black_24dp</item>
@@ -146,6 +146,7 @@
         <item name="icon_save" type="reference">@drawable/ic_save_black_24dp</item>
         <item name="icon_done" type="reference">@drawable/ic_done_black_24dp</item>
         <item name="icon_group" type="reference">@drawable/outline_group_black_24dp</item>
+        <item name="icon_contact" type="reference">@drawable/ic_contact_black_24dp</item>
         <item name="icon_group_unselected" type="reference">@drawable/outline_group_black_24dp</item>
         <item name="icon_group_selected" type="reference">@drawable/ic_group_selected_black_24</item>
         <item name="icon_new" type="reference">@drawable/ic_contacts_black_24dp</item>
@@ -191,29 +192,19 @@
         <item name="icon_alpha" type="float">0.54</item>
         <item name="delete_icon_alpha" type="float">0.70</item>
 
-        <item name="ic_attach_camera" type="reference">@drawable/ic_attach_camera</item>
-        <item name="ic_attach_videocam" type="reference">@drawable/ic_attach_videocam</item>
         <item name="attach_video_file" type="reference">@drawable/outline_video_file_black_24</item>
         <item name="take_video" type="reference">@drawable/outline_videocam_black_24</item>
-        <item name="ic_attach_document" type="reference">@drawable/ic_attach_document</item>
         <item name="document_file" type="reference">@drawable/document_black_24</item>
-        <item name="choose_file" type="reference">@drawable/choose_file_back_24dp</item>
-        <item name="ic_attach_location" type="reference">@drawable/ic_attach_location</item>
+        <item name="choose_file" type="reference">@drawable/choose_file_black_24dp</item>
         <item name="share_location" type="reference">@drawable/rounded_location_black_24</item>
         <item name="add_subject" type="reference">@drawable/subject</item>
         <item name="ic_attach_photo" type="reference">@drawable/ic_attach_photo</item>
         <item name="outline_photo" type="reference">@drawable/outline_photo_black_24</item>
-        <item name="ic_attach_video" type="reference">@drawable/ic_attach_video</item>
-        <item name="ic_attach_record" type="reference">@drawable/ic_attach_record</item>
         <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_black_24dp</item>
 
         <item name="conversations_overview_background">@color/primary</item>
 
         <item name="ic_file_apk" type="reference">@drawable/ic_file_grey600_48dp</item>
-        <item name="ic_file_pdf" type="reference">@drawable/ic_file_pdf_grey600_48dp</item>
-        <item name="ic_file_vcard" type="reference">@drawable/ic_account_card_details_grey600_48dp
-        </item>
-        <item name="ic_file_calendar" type="reference">@drawable/ic_calendar_grey600_48dp</item>
 
         <item name="ic_bold" type="reference">@drawable/ic_format_bold_black</item>
         <item name="ic_italic" type="reference">@drawable/ic_format_italic_black</item>
@@ -324,19 +315,13 @@
 
 
 
-        <item name="ic_attach_camera" type="reference">@drawable/ic_attach_camera_white</item>
-        <item name="ic_attach_videocam" type="reference">@drawable/ic_attach_videocam_white</item>
         <item name="attach_video_file" type="reference">@drawable/outline_video_file_white_24</item>
         <item name="take_video" type="reference">@drawable/outline_videocam_white_24</item>
-        <item name="ic_attach_video" type="reference">@drawable/ic_attach_videocam_white</item>
-        <item name="ic_attach_document" type="reference">@drawable/ic_attach_document_white</item>
         <item name="document_file" type="reference">@drawable/document_white_24</item>
         <item name="choose_file" type="reference">@drawable/choose_file_white_24dp</item>
-        <item name="ic_attach_location" type="reference">@drawable/ic_attach_location_white</item>
         <item name="share_location" type="reference">@drawable/rounded_location_white_24</item>
         <item name="add_subject" type="reference">@drawable/subject_white</item>
         <item name="outline_photo" type="reference">@drawable/outline_photo_white_24</item>
-        <item name="ic_attach_record" type="reference">@drawable/ic_attach_record_white</item>
         <item name="ic_dialpad_24dp" type="reference">@drawable/ic_dialpad_white_24dp</item>
 
         <item name="conversations_overview_background">@color/primary_dark</item>
@@ -375,7 +360,7 @@
         <item name="icon_add_group" type="reference">@drawable/ic_group_add_white_24dp</item>
         <item name="icon_add_person" type="reference">@drawable/ic_person_add_white_24dp</item>
         <item name="icon_cancel" type="reference">@drawable/ic_cancel_white_24dp</item>
-        <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_comment_white_24dp</item>
+        <item name="icon_cancel_comment" type="reference">@drawable/ic_cancel_white_24dp</item>
         <item name="icon_qr_code" type="reference">@drawable/ic_qr_code_white_24dp</item>
         <item name="icon_action_copy" type="reference">@drawable/ic_content_copy_white_24dp</item>
         <item name="icon_navigate" type="reference">@drawable/ic_navigation_white_24dp</item>
@@ -387,6 +372,7 @@
         <item name="icon_save" type="reference">@drawable/ic_save_white_24dp</item>
         <item name="icon_done" type="reference">@drawable/ic_done_black_24dp</item>
         <item name="icon_group" type="reference">@drawable/outline_group_white_24</item>
+        <item name="icon_contact" type="reference">@drawable/ic_contact_white_24dp</item>
         <item name="icon_group_unselected" type="reference">@drawable/outline_group_white_24</item>
         <item name="icon_group_selected" type="reference">@drawable/ic_group_selected_white_24</item>
         <item name="icon_new" type="reference">@drawable/ic_contacts_white_24dp</item>
