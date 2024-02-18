@@ -47,6 +47,17 @@ public class JoinConferenceDialog extends DialogFragment implements OnBackendCon
         return dialog;
     }
 
+    public static JoinConferenceDialog newInstance(String prefilledJid, List<String> accounts, boolean multipleAccounts) {
+        JoinConferenceDialog dialog = new JoinConferenceDialog();
+        Bundle bundle = new Bundle();
+        bundle.putString(PREFILLED_JID_KEY, prefilledJid);
+        bundle.putBoolean(MULTIPLE_ACCOUNTS, multipleAccounts);
+        bundle.putStringArrayList(ACCOUNTS_LIST_KEY, (ArrayList<String>) accounts);
+
+        dialog.setArguments(bundle);
+        return dialog;
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

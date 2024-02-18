@@ -387,7 +387,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                     showPublicChannelDialog();
                     break;
                 case R.id.join_public_channel:
-                    showJoinConferenceDialog(prefilled, null);
+                    showJoinConferenceDialog(prefilled);
                     break;
                 case R.id.create_contact:
                     showCreateContactDialog(prefilled, null);
@@ -709,6 +709,18 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         ft.addToBackStack(null);
         JoinConferenceDialog joinConferenceFragment = JoinConferenceDialog.newInstance(prefilledJid, invite.getParameter("password"), mActivatedAccounts, xmppConnectionService.multipleAccounts());
+        joinConferenceFragment.show(ft, FRAGMENT_TAG_DIALOG);
+    }
+
+    @SuppressLint("InflateParams")
+    protected void showJoinConferenceDialog(final String prefilledJid) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_DIALOG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        JoinConferenceDialog joinConferenceFragment = JoinConferenceDialog.newInstance(prefilledJid, mActivatedAccounts, xmppConnectionService.multipleAccounts());
         joinConferenceFragment.show(ft, FRAGMENT_TAG_DIALOG);
     }
 
