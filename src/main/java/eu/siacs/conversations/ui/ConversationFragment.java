@@ -101,6 +101,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.WindowManager;
@@ -298,20 +300,19 @@ public class ConversationFragment extends XmppFragment
         MessageAdapter.OnInlineImageLongClicked {
 
     //Voice recoder
-
     private MediaRecorder mRecorder;
     private Integer oldOrientation;
-    private long mStartTime = 0;
+    private int mStartTime = 0;
     private boolean recording = false;
 
-    private CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
+    private final CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
 
-    private Handler mHandler = new Handler();
-    private Runnable mTickExecutor = new Runnable() {
+    private final Handler mHandler = new Handler();
+    private final Runnable mTickExecutor = new Runnable() {
         @Override
         public void run() {
             tick();
-            mHandler.postDelayed(mTickExecutor, 100);
+            mHandler.postDelayed(mTickExecutor, 1000);
         }
     };
 
@@ -789,6 +790,17 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+    private final OnClickListener mTimerClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (recording && binding.recordingVoiceActivity.getVisibility() == VISIBLE) {
+                pauseRecording();
+            } else if (!recording && binding.recordingVoiceActivity.getVisibility() == VISIBLE) {
+                resumeRecording();
+            }
+        }
+    };
+
 
     private final OnClickListener mRecordVoiceButtonListener = v -> attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
 
@@ -858,7 +870,8 @@ public class ConversationFragment extends XmppFragment
             //binding.shareButton.setEnabled(false);
             //binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
-            mHandler.postDelayed(() -> stopRecording(true), 500);
+            resumeRecording();
+            mHandler.postDelayed(() -> stopRecording(true), 100);
         }
     };
 
@@ -1749,6 +1762,7 @@ public class ConversationFragment extends XmppFragment
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
         binding.emojiButton.setOnClickListener(this.memojiButtonListener);
         binding.keyboardButton.setOnClickListener(this.mkeyboardButtonListener);
+        binding.timer.setOnClickListener(this.mTimerClickListener);
         binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
         binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
@@ -3211,13 +3225,13 @@ public class ConversationFragment extends XmppFragment
         }
         setupOutputFile();
         mRecorder.setOutputFile(mOutputFile.getAbsolutePath());
-
+        binding.timer.clearAnimation();
         try {
             mRecorder.prepare();
             mRecorder.start();
             recording = true;
-            mStartTime = SystemClock.elapsedRealtime();
-            mHandler.postDelayed(mTickExecutor, 100);
+            //mStartTime = SystemClock.elapsedRealtime();
+            mHandler.postDelayed(mTickExecutor, 0);
             Log.d("Voice Recorder", "started recording to " + mOutputFile.getAbsolutePath());
             return true;
         } catch (Exception e) {
@@ -3236,7 +3250,44 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
+    private void StartTimerAnimation() {
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(500); //You can manage the blinking time with this parameter
+        anim.setStartOffset(20);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(Animation.INFINITE);
+        binding.timer.startAnimation(anim);
+    }
+
+    protected void pauseRecording() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mRecorder.pause();
+                mHandler.removeCallbacks(mTickExecutor);
+                recording = false;
+                StartTimerAnimation();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void resumeRecording() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mRecorder.resume();
+                mHandler.postDelayed(mTickExecutor, 0);
+                binding.timer.clearAnimation();
+            }
+            recording = true;
+            Log.e("Voice Recorder", "resume recording");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     protected void stopRecording(final boolean saveFile) {
+        binding.timer.clearAnimation();
         try {
             if (recording) {
                 stopRecording();
@@ -3249,6 +3300,7 @@ public class ConversationFragment extends XmppFragment
         } finally {
             mRecorder = null;
             mStartTime = 0;
+            mHandler.removeCallbacks(mTickExecutor);
         }
         if (!saveFile && mOutputFile != null) {
             if (mOutputFile.delete()) {
@@ -3367,7 +3419,26 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void tick() {
-        this.binding.timer.setText(TimeFrameUtils.formatTimePassed(mStartTime, true));
+        //this.binding.timer.setText(TimeFrameUtils.formatTimePassed(mStartTime, true));
+        int minutes = (mStartTime % 3600) / 60;
+        int seconds = mStartTime % 60;
+
+        // Format the seconds into hours, minutes,
+        // and seconds.
+        String time
+                = String
+                .format(Locale.getDefault(),
+                        "%02d:%02d", minutes,
+                        seconds);
+
+        // Set the text view text.
+        this.binding.timer.setText(time);
+
+        // If running is true, increment the
+        // seconds variable.
+        if (recording) {
+            mStartTime++;
+        }
     }
 
     @Override
