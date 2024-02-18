@@ -861,7 +861,7 @@ public class NotificationService {
         );
         if (media.contains(Media.VIDEO)) {
             style.setIsVideo(true);
-            builder.setSmallIcon(R.drawable.ic_videocam_white_24dp);
+            builder.setSmallIcon(R.drawable.outline_videocam_white_24);
             builder.setContentTitle(mXmppConnectionService.getString(R.string.rtp_state_incoming_video_call));
         } else {
             style.setIsVideo(false);
@@ -910,7 +910,7 @@ public class NotificationService {
         );
         if (ongoingCall.media.contains(Media.VIDEO)) {
             style.setIsVideo(true);
-            builder.setSmallIcon(R.drawable.ic_videocam_white_24dp);
+            builder.setSmallIcon(R.drawable.outline_videocam_white_24);
             if (ongoingCall.reconnecting) {
                 builder.setContentTitle(mXmppConnectionService.getString(R.string.reconnecting_video_call));
             } else {

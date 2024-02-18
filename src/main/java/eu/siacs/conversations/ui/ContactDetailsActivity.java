@@ -1076,7 +1076,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("tel")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.ic_make_audio_call), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_call), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("mailto")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
