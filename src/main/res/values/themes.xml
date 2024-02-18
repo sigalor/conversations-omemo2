@@ -153,8 +153,6 @@
         <item name="icon_quote" type="reference">@drawable/ic_reply_black</item>
         <item name="icon_new_attachment" type="reference">@drawable/ic_attach_file_black_24dp</item>
         <item name="icon_not_secure" type="reference">@drawable/ic_lock_open_black_24dp</item>
-        <item name="ic_make_audio_call" type="reference">@drawable/ic_call_black54_24dp</item>
-        <item name="ic_make_video_call" type="reference">@drawable/ic_videocam_black54_24dp</item>
         <item name="icon_call" type="reference">@drawable/ic_call_black_24dp</item>
         <item name="icon_ongoing_call" type="reference">@drawable/ic_phone_in_talk_black_24dp</item>
         <item name="ic_ongoing_call_hint" type="reference">@drawable/ic_phone_in_talk_black_18dp
@@ -380,8 +378,6 @@
         <item name="icon_refresh" type="reference">@drawable/ic_refresh_white_24dp</item>
         <item name="icon_new_attachment" type="reference">@drawable/ic_attach_file_white_24dp</item>
         <item name="icon_not_secure" type="reference">@drawable/ic_lock_open_white_24dp</item>
-        <item name="ic_make_audio_call" type="reference">@drawable/ic_call_white70_24dp</item>
-        <item name="ic_make_video_call" type="reference">@drawable/ic_videocam_white70_24dp</item>
         <item name="icon_call" type="reference">@drawable/ic_call_white_24dp</item>
         <item name="icon_ongoing_call" type="reference">@drawable/ic_phone_in_talk_white_24dp</item>
         <item name="ic_ongoing_call_hint" type="reference">@drawable/ic_phone_in_talk_white_18dp
