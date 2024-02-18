@@ -1355,8 +1355,8 @@
     <string name="log_out">Log out</string>
     <string name="log_in">Log in</string>
     <string name="unknown">Unknown</string>
-    <string name="contact_uses_unverified_keys">Your contact uses unverified devices. Scan their 2D barcode to perform verification and impede active MITM attacks.</string>
-    <string name="unverified_devices">You are using unverified devices. Scan the 2D barcode on your other devices to perform verification and impede active MITM attacks.</string>
+    <string name="contact_uses_unverified_keys">Your contact uses unverified devices. Scan their QR-code to perform verification and impede active MITM attacks.</string>
+    <string name="unverified_devices">You are using unverified devices. Scan the QR-code on your other devices to perform verification and impede active MITM attacks.</string>
     <string name="media">Media</string>
     <string name="security">Security</string>
     <string name="verified_with_qr_code">&#160;- verified with QR-code</string>
