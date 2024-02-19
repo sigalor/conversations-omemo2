@@ -245,7 +245,7 @@ public class ConversationAdapter
             }
             final Pair<CharSequence, Boolean> preview =
                     UIHelper.getMessagePreview(
-                            activity,
+                            activity.xmppConnectionService,
                             message,
                             viewHolder.binding.conversationLastmsg.getCurrentTextColor());
             if (showPreviewText) {

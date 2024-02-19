@@ -302,15 +302,18 @@ public class UIHelper {
         }
     }
 
-    public static Pair<CharSequence, Boolean> getMessagePreview(final Context context, final Message message) {
+    public static Pair<CharSequence, Boolean> getMessagePreview(final XmppConnectionService context, final Message message) {
         return getMessagePreview(context, message, 0);
     }
 
     @SuppressLint({"StringFormatMatches", "StringFormatInvalid"})
-    public static Pair<CharSequence, Boolean> getMessagePreview(final Context context, final Message message, @ColorInt int textColor) {
+    public static Pair<CharSequence, Boolean> getMessagePreview(final XmppConnectionService context, final Message message, @ColorInt int textColor) {
         final Transferable d = message.getTransferable();
         final boolean moderated = message.getModerated() != null;
-        if (d != null && !moderated) {
+        final boolean muted = message.getStatus() == Message.STATUS_RECEIVED && message.getConversation().getMode() == Conversation.MODE_MULTI && context.isMucUserMuted(new MucOptions.User(null, message.getConversation().getJid(), message.getOccupantId(), null, null));
+        if (muted) {
+            return new Pair<>("Muted", false);
+        } else if (d != null && !moderated) {
             switch (d.getStatus()) {
                 case Transferable.STATUS_WAITING:
                     return new Pair<>(context.getString(R.string.waiting_for_transfer), true);
