@@ -870,7 +870,6 @@ public class ConversationFragment extends XmppFragment
             //binding.shareButton.setEnabled(false);
             //binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
-            resumeRecording();
             mHandler.postDelayed(() -> stopRecording(true), 100);
         }
     };
@@ -3287,7 +3286,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     protected void stopRecording(final boolean saveFile) {
-        binding.timer.clearAnimation();
+        resumeRecording();
         try {
             if (recording) {
                 stopRecording();
