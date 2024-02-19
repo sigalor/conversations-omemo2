@@ -4103,8 +4103,7 @@ public class ConversationFragment extends XmppFragment
             binding.commandsView.setOnItemClickListener((parent, view, position, id) -> {
                 if (activity == null) return;
 
-                final Element command = commandAdapter.getItem(position);
-                activity.startCommand(ConversationFragment.this.conversation.getAccount(), command.getAttributeAsJid("jid"), command.getAttribute("node"));
+                commandAdapter.getItem(position).start(activity, ConversationFragment.this.conversation);
             });
             refreshCommands(false);
         }
@@ -4149,6 +4148,11 @@ public class ConversationFragment extends XmppFragment
     protected void refreshCommands(boolean delayShow) {
         if (commandAdapter == null) return;
 
+        final CommandAdapter.MucConfig mucConfig =
+                conversation.getMucOptions().getSelf().getAffiliation().ranks(MucOptions.Affiliation.OWNER) ?
+                        new CommandAdapter.MucConfig() :
+                        null;
+
         Jid commandJid = conversation.getContact().resourceWhichSupport(Namespace.COMMANDS);
         if (commandJid == null && conversation.getMode() == Conversation.MODE_MULTI && conversation.getMucOptions().hasFeature(Namespace.COMMANDS)) {
             commandJid = conversation.getJid().asBareJid();
@@ -4157,7 +4161,14 @@ public class ConversationFragment extends XmppFragment
             commandJid = conversation.getJid();
         }
         if (commandJid == null) {
-            conversation.hideViewPager();
+            binding.commandsViewProgressbar.setVisibility(View.GONE);
+            if (mucConfig == null) {
+                conversation.hideViewPager();
+            } else {
+                commandAdapter.clear();
+                commandAdapter.add(mucConfig);
+                conversation.showViewPager();
+            }
         } else {
             if (!delayShow) conversation.showViewPager();
             binding.commandsViewProgressbar.setVisibility(View.VISIBLE);
@@ -4165,14 +4176,16 @@ public class ConversationFragment extends XmppFragment
                 if (activity == null) return;
 
                 activity.runOnUiThread(() -> {
+                    binding.commandsViewProgressbar.setVisibility(View.GONE);
+                    commandAdapter.clear();
                     if (iq.getType() == IqPacket.TYPE.RESULT) {
-                        binding.commandsViewProgressbar.setVisibility(GONE);
-                        commandAdapter.clear();
                         for (Element child : iq.query().getChildren()) {
                             if (!"item".equals(child.getName()) || !Namespace.DISCO_ITEMS.equals(child.getNamespace())) continue;
-                            commandAdapter.add(child);
+                            commandAdapter.add(new CommandAdapter.Command0050(child));
                         }
                     }
+
+                    if (mucConfig != null) commandAdapter.add(mucConfig);
 
                     if (commandAdapter.getCount() < 1) {
                         conversation.hideViewPager();
@@ -4330,7 +4343,10 @@ public class ConversationFragment extends XmppFragment
     private Element commandFor(final Jid jid, final String node) {
         if (commandAdapter != null) {
             for (int i = 0; i < commandAdapter.getCount(); i++) {
-                Element command = commandAdapter.getItem(i);
+                final CommandAdapter.Command c = commandAdapter.getItem(i);
+                if (!(c instanceof CommandAdapter.Command0050)) continue;
+
+                final Element command = ((CommandAdapter.Command0050) c).el;
                 final String commandNode = command.getAttribute("node");
                 if (commandNode == null || !commandNode.equals(node)) continue;
 
@@ -4717,7 +4733,7 @@ public class ConversationFragment extends XmppFragment
             });
         } else {
             RelativeLayout llRoot = binding.conversationsFragment; //The root layout (Linear, Relative, Contraint, etc...)
-            new KeyboardHeightProvider(this.activity, activity.getWindowManager(), llRoot, new KeyboardHeightProvider.KeyboardHeightListener() {
+            new KeyboardHeightProvider(activity, activity.getWindowManager(), llRoot, new KeyboardHeightProvider.KeyboardHeightListener() {
                 @Override
                 public void onKeyboardHeightChanged(int keyboardHeight, boolean keyboardOpen, boolean isLandscape) {
                     Log.i("keyboard listener", "keyboardHeight: " + keyboardHeight + " keyboardOpen: " + keyboardOpen + " isLandscape: " + isLandscape);
