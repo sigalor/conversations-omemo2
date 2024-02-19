@@ -50,7 +50,7 @@ public class GeoHelper {
         } catch (NumberFormatException nfe) {
             return null;
         }
-        return getMappreviewHost(activity) + "?center=" + latitude + "," + longitude + "&size=500x500&markers=" + latitude + "," + longitude + "&zoom=" + Config.Map.FINAL_ZOOM_LEVEL;
+        return getMappreviewHost(activity) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
     }
 
     private static String getMappreviewHost(Activity activity) {
@@ -73,7 +73,7 @@ public class GeoHelper {
         try {
             return URLUtil.isValidUrl(urlstring) && Patterns.WEB_URL.matcher(urlstring).matches();
         } catch (Exception e) {
-            Log.d(Config.LOGTAG, "Could not use custom mappreview host and using blabber.im for mappreview " + e);
+            Log.d(Config.LOGTAG, "Could not use custom mappreview host and using monocles.eu for mappreview " + e);
         }
         return false;
     }
