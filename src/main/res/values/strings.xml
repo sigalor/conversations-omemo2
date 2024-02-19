@@ -1416,4 +1416,6 @@
     <string name="pref_app_lock_enable_title">Enable app lock (Beta)</string>
     <string name="pref_app_lock_enable_summary">Enable the app lock. Be aware you can\'t open the app anymore when you forgot the PIN.</string>
     <string name="app_lock_forgot_password">Reinstall app and load chat backup</string>
+    <string name="pref_open_links_inapp">Open links in-app</string>
+    <string name="pref_open_links_inapp_summary">Open weblinks in monocles chat</string>
 </resources>

@@ -32,16 +32,21 @@ package eu.siacs.conversations.ui.text;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.style.URLSpan;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Arrays;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.util.CustomTab;
 import eu.siacs.conversations.utils.ThemeHelper;
@@ -51,6 +56,7 @@ import me.drakeet.support.toast.ToastCompat;
 
 @SuppressLint("ParcelCreator")
 public class FixedURLSpan extends URLSpan {
+    protected XmppConnectionService mXmppConnectionService;
 
     protected final Account account;
 
@@ -90,12 +96,24 @@ public class FixedURLSpan extends URLSpan {
                 return;
             }
         }
-
-        try {
-            CustomTab.openTab(context, uri, ThemeHelper.isDark(ThemeHelper.find(context)));
-            widget.playSoundEffect(0);
-        } catch (ActivityNotFoundException e) {
-            ToastCompat.makeText(context, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+        if (p.getBoolean("open_links_inapp", context.getResources().getBoolean(R.bool.open_links_inapp))) {
+            try {
+                CustomTab.openTab(context, uri, ThemeHelper.isDark(ThemeHelper.find(context)));
+                widget.playSoundEffect(0);
+            } catch (ActivityNotFoundException e) {
+                ToastCompat.makeText(context, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
+            }
+        } else {
+            final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+            try {
+                context.startActivity(intent);
+                widget.playSoundEffect(0);
+            } catch (ActivityNotFoundException e) {
+                ToastCompat.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
