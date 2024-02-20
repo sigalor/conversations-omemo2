@@ -1,0 +1,25 @@
+* Rounder message bubbles
+* Fix message deletion in some cases
+* Updates from upstream
+* Reactivate and improve map preview
+* Allow adding subject to messages
+* Possible fix crash on older devices when keyboard height handling
+* Fix cut voice messages on some devices
+* Themable launcher icon
+* Bump reporting xep and add ability to report messages
+* No extended addressing fallbacks in quotes
+* Escape URI properly
+* Use phone icon istead of PSTN
+* Do not attach payloads to legacy encryption
+* Fix OMEMO and location sending
+* Show list of recent threads in room and contact details
+* Process chat room password from XMPP URI 
+* Don't show aesgcm urls to people
+* Don't bother trying dnssec on TLDs with no support
+* Updated translations
+* Support list-multi 
+* App lock
+* Only show subject feature when encryption disabled
+* More outlined icons
+* Pause voice recording when tapped on timer
+* Further fixes
