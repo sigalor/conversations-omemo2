@@ -22,4 +22,7 @@
 * Only show subject feature when encryption disabled
 * More outlined icons
 * Pause voice recording when tapped on timer
+* Update default chat background
+* Remove blue theme
+* Add option to open weblinks in external browser 
 * Further fixes

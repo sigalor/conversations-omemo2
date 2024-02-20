@@ -22,4 +22,7 @@
 * Betreff-Funktion nur bei deaktivierter Verschlüsselung anzeigen
 * Mehr konturierte Icons
 * Sprachaufnahme pausieren, wenn auf Timer getippt wird
+* Standard-Chat-Hintergrund aktualisiert
+* Blaues Theme entfernt
+* Option zum Öffnen von Weblinks in einem externen Browser hinzugefügt
 * Weitere Korrekturen
