@@ -4797,7 +4797,7 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                conversation.populateWithMessages(this.messageList, activity.xmppConnectionService);
+                conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
                 updateStatusMessages();
                 if (conversation.unreadCount() > 0) {
                     binding.unreadCountCustomView.setVisibility(View.VISIBLE);
