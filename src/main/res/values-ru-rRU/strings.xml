@@ -1440,8 +1440,8 @@
     <string name="no_media_permission">Разрешение не предоставлено</string>
     <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
     <string name="pref_set_text_collapsable_summary">Сворачивает текст, содержащий более 230 знаков.</string>
-    <string name="unverified_devices">Вы используете непроверенные устройства. Отсканируйте 2D-штрихкод на других устройствах, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>
-    <string name="contact_uses_unverified_keys">Ваш собеседник использует непроверенные устройства. Отсканируйте их 2D-штрихкод, чтобы выполнить проверку и предотвратить активные MITM-атаки.</string>
+    <string name="unverified_devices">Вы используете непроверенные устройства. Отсканируйте QR-код на других ваших устройствах, чтобы выполнить проверку и предотвратить активные атаки MITM.</string>
+    <string name="contact_uses_unverified_keys">Ваш контакт использует непроверенные устройства. Отсканируйте их QR-код, чтобы выполнить проверку и предотвратить активные атаки MITM.</string>
     <string name="not_dnssec_verified">DNSSEC не подтвержден</string>
     <string name="dnssec_dane_verified">DNSSEC + DANE подтверждено</string>
     <string name="dnssec_verified">DNSSEC подтвержден</string>
@@ -1509,4 +1509,18 @@
     <string name="audiobook">Аудиокнига</string>
     <string name="report_spam">Пожаловаться на спам</string>
     <string name="add_subject">Добавить тему</string>
+    <string name="pref_value_lock">Блокировка приложения</string>
+    <string name="recent_threads">Последние темы</string>
+    <string name="settings_lock">Блокировка приложения (бета-версия)</string>
+    <string name="settings_lock_summary">Заблокируйте приложение паролем вашего устройства или отпечатком пальца</string>
+    <string name="unlock_app">Разблокировать monocles chat</string>
+    <string name="pref_app_lock_summary">Заблокируйте приложение с помощью PIN-кода или отпечатка пальца. Monocles chat будет заблокирован после закрытия и его можно будет снова открыть только с помощью правильного PIN-кода или отпечатка пальца</string>
+    <string name="can_not_remove_lock">Не могу снять блокировку</string>
+    <string name="pref_app_lock_title">Блокировка приложения (бета-версия)</string>
+    <string name="can_not_create_lock">Невозможно создать PIN-код или отпечаток пальца</string>
+    <string name="pref_app_lock_disable_title">Отключить блокировку приложения</string>
+    <string name="pref_app_lock_disable_summary">Отключить блокировку приложения</string>
+    <string name="app_lock_forgot_password">Переустановите приложение и загрузите резервную копию чата</string>
+    <string name="pref_app_lock_enable_title">Включить блокировку приложения (бета-версия)</string>
+    <string name="pref_app_lock_enable_summary">Включите блокировку приложения. Имейте в виду, что вы больше не сможете открыть приложение, если забудете PIN-код.</string>
 </resources>

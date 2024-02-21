@@ -1439,8 +1439,8 @@
     <string name="pref_set_text_collapsable">Colapsar texto largo</string>
     <string name="pref_set_text_collapsable_summary">Colapsar texto con más de 230 signos</string>
     <string name="unknown">Desconocido</string>
-    <string name="contact_uses_unverified_keys">Tus contactos usan dispositivos no verificados. Escanea sus códigos de barras 2D para realizar la verificación e impedir ataques MITM.</string>
-    <string name="unverified_devices">Estás usando dispositivos no verificados. Escanea el código de barras 2D en tus otros dispositivos para realizar la verificación e impedir ataques MITM.</string>
+    <string name="contact_uses_unverified_keys">Su contacto utiliza dispositivos no verificados. Escanee su código QR para realizar la verificación e impedir ataques MITM activos.</string>
+    <string name="unverified_devices">Estás utilizando dispositivos no verificados. Escanee el código QR en sus otros dispositivos para realizar la verificación e impedir ataques MITM activos.</string>
     <string name="media">Medio</string>
     <string name="security">Seguridad</string>
     <string name="verified_with_qr_code"> - verificado con código QR</string>
@@ -1505,4 +1505,14 @@
     <string name="audiobook">Audiolibro</string>
     <string name="report_spam">Informar de spam</string>
     <string name="add_subject">Añadir asunto</string>
+    <string name="recent_threads">Hilos recientes</string>
+    <string name="pref_app_lock_summary">Bloquear la aplicación con pin o con huella. Monocles chat será bloqueado después de ser cerrado y solo puede ser abierto con el pin correcto o con la huella</string>
+    <string name="can_not_remove_lock">No se puede retirar el bloqueo</string>
+    <string name="pref_app_lock_title">Bloquear aplicación (Beta)</string>
+    <string name="can_not_create_lock">No se puede crear pin o huella</string>
+    <string name="pref_app_lock_disable_title">Deshabilitar bloqueo de aplicación</string>
+    <string name="pref_app_lock_disable_summary">Deshabilitar bloqueo de aplicación</string>
+    <string name="app_lock_forgot_password">Reinstala la aplicación y carga la copia de seguridad del chat</string>
+    <string name="pref_app_lock_enable_title">Activar el bloqueo de aplicaciones (Beta)</string>
+    <string name="pref_app_lock_enable_summary">Activa el bloqueo de aplicaciones. Ten en cuenta que ya no podrás abrir la aplicación si olvidaste el PIN.</string>
 </resources>

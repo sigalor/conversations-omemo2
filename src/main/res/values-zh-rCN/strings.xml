@@ -1477,4 +1477,18 @@
     <string name="audiobook">有声读物</string>
     <string name="report_spam">报告垃圾消息</string>
     <string name="add_subject">添加话题</string>
+    <string name="pref_value_lock">应用锁</string>
+    <string name="recent_threads">最近的线程</string>
+    <string name="settings_lock">应用锁（Beta）</string>
+    <string name="settings_lock_summary">使用您的设备密码或指纹锁定应用</string>
+    <string name="unlock_app">解锁 monocles chat</string>
+    <string name="pref_app_lock_summary">使用 PIN 码或指纹锁定应用程序。Monocles chat 在关闭后将被锁定，只能再次使用正确的 PIN 码或指纹打开</string>
+    <string name="can_not_remove_lock">无法移除锁</string>
+    <string name="pref_app_lock_title">应用锁 (Beta)</string>
+    <string name="can_not_create_lock">无法创建 PIN 码或指纹</string>
+    <string name="pref_app_lock_disable_title">禁用应用锁</string>
+    <string name="pref_app_lock_disable_summary">禁用应用锁定</string>
+    <string name="app_lock_forgot_password">重新安装应用并加载聊天备份</string>
+    <string name="pref_app_lock_enable_title">启用应用锁 (Beta)</string>
+    <string name="pref_app_lock_enable_summary">启用应用锁。请注意，当您忘记 PIN 时，您就无法再打开此应用了。</string>
 </resources>

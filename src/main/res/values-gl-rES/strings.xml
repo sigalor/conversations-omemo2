@@ -637,7 +637,7 @@
     <string name="i_followed_this_link_from_a_trusted_source">Seguín esta ligazón desde unha orixe de confianza</string>
     <string name="verifying_omemo_keys_trusted_source">Vas verificar as chaves OMEMO de %1$s ao premer na ligazón. Esto só é seguro se seguiches esta ligazón desde unha orixe de confianza onde só %2$s a podería ter publicado.</string>
     <string name="verify_omemo_keys">Validar chaves OMEMO</string>
-    <string name="show_inactive_devices">Mostrar como inactivo</string>
+    <string name="show_inactive_devices">Mostrar os inactivos</string>
     <string name="hide_inactive_devices">Ocultar os inactivos</string>
     <string name="reply">Responder</string>
     <string name="transcoding_video">Comprimindo vídeo</string>
@@ -1425,8 +1425,8 @@
     <string name="log_out">Fechar sesión</string>
     <string name="log_in">Acceder</string>
     <string name="unknown">Descoñecido</string>
-    <string name="contact_uses_unverified_keys">Os teus contactos están usando dispositivos sen verificar. Escanea o seu código de barras 2D para verficalos e evitar ataques MITM.</string>
-    <string name="unverified_devices">Estás usando dispositivos sen verificar. Escanea o código de barras 2D nos teus outros dispositivos para verificalos e evitar ataques MITM.</string>
+    <string name="contact_uses_unverified_keys">O contacto está usando dispositivos sen verificar. Escanea o seu código QR para verficalos e evitar ataques MITM.</string>
+    <string name="unverified_devices">Estás usando dispositivos sen verificar. Escanea o código QR nos teus outros dispositivos para verificalos e evitar ataques MITM.</string>
     <string name="media">Multimedia</string>
     <string name="security">Seguridade</string>
     <string name="key_automatically_accepted"> - chave non verificada</string>
@@ -1480,4 +1480,21 @@
     <string name="pref_use_green_blue_readmarkers_summary">Usar dous marcadores de lectura con cores. Azul para recibido e verde para lido.</string>
     <string name="grey">Gris</string>
     <string name="blue">Azul</string>
+    <string name="pref_send_link_previews_summary">Adxuntar metadatos acerca das ligazóns que envías na mensaxe</string>
+    <string name="report_spam_and_block">Denunciar como spam e bloquear remitente</string>
+    <string name="pref_send_link_previews">Enviar vista previa das ligazóns</string>
+    <string name="subject">Asunto</string>
+    <string name="audiobook">Audiolibro</string>
+    <string name="report_spam">Denunciar spam</string>
+    <string name="add_subject">Engadir Asunto</string>
+    <string name="recent_threads">Fíos recentes</string>
+    <string name="pref_app_lock_summary">Bloquear a app cun PIN ou impresión dixital. Monocles chat quedará bloqueada ao pechala e só se poderá abrir co sistema de proteción elexido</string>
+    <string name="can_not_remove_lock">Non se pode quitar o bloqueo</string>
+    <string name="pref_app_lock_title">Bloqueo da app (Beta)</string>
+    <string name="can_not_create_lock">Non se puido crear PIN ou impresión</string>
+    <string name="pref_app_lock_disable_title">Desactivar bloqueo da app</string>
+    <string name="pref_app_lock_disable_summary">Desactivar o bloqueo da app</string>
+    <string name="pref_app_lock_enable_title">Activar bloqueo da app (Beta)</string>
+    <string name="pref_app_lock_enable_summary">Activar bloqueo da app. Ten en conta que non podes volver abrir a app se esqueces o PIN.</string>
+    <string name="app_lock_forgot_password">Reinstalar e restablecer conversas desde copia de apoio</string>
 </resources>
