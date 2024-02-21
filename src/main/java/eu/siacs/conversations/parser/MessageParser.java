@@ -1026,6 +1026,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     mXmppConnectionService.databaseBackend.createMessage(message);
                     return;
                 }
+                if (replaceElement != null && !replaceElement.getName().equals("replace")) return;
             }
 
             boolean checkForDuplicates = (isTypeGroupChat && packet.hasChild("delay", "urn:xmpp:delay"))
