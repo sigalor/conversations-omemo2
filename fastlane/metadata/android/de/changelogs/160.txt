@@ -1,5 +1,5 @@
 * Rundere Nachrichtenblasen
-* Behebt das Löschen von Nachrichten in einigen Fällen
+* Behebt das Löschen von Nachrichten
 * Updates von Upstream
 * Reaktivierung und Verbesserung der Kartenvorschau
 * Erlaubt das Hinzufügen eines Betreffs zu Nachrichten
@@ -10,7 +10,6 @@
 * Keine erweiterten Adressierungsfallbacks in Zitaten
 * Korrekte Escape URI
 * Telefon-Symbol anstelle von PSTN verwenden
-* Keine Payloads an alte Verschlüsselung anhängen
 * OMEMO und Standortübermittlung korrigieren
 * Liste der letzten Themen im Raum und Kontaktdetails anzeigen
 * Verarbeitet Chatraum-Passwort aus XMPP URI 

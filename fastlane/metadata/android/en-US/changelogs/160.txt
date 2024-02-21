@@ -1,5 +1,5 @@
 * Rounder message bubbles
-* Fix message deletion in some cases
+* Fix message deletion
 * Updates from upstream
 * Reactivate and improve map preview
 * Allow adding subject to messages
@@ -10,7 +10,6 @@
 * No extended addressing fallbacks in quotes
 * Escape URI properly
 * Use phone icon istead of PSTN
-* Do not attach payloads to legacy encryption
 * Fix OMEMO and location sending
 * Show list of recent threads in room and contact details
 * Process chat room password from XMPP URI 
