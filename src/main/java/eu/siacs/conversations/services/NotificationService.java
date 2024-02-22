@@ -1587,10 +1587,6 @@ public class NotificationService {
                 mBuilder.setSmallIcon(R.drawable.ic_notification);
                 mBuilder.setDeleteIntent(createDeleteIntent(conversation));
                 mBuilder.setContentIntent(createContentIntent(conversation));
-                if (mXmppConnectionService.getAccounts().size() > 1) {
-                    mBuilder.setSubText(conversation.getAccount().getJid().asBareJid().toString());
-                }
-
                 mBuilder.setShortcutInfo(info);
                 if (Build.VERSION.SDK_INT >= 30) {
                     mXmppConnectionService.getSystemService(ShortcutManager.class).pushDynamicShortcut(info.toShortcutInfo());
