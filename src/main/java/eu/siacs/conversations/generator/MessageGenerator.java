@@ -81,6 +81,10 @@ public class MessageGenerator extends AbstractGenerator {
             for (Element el : message.getPayloads()) {
                 packet.addChild(el);
             }
+        } else {
+            for (Element el : message.getPayloads()) {
+                if ("thread".equals(el.getName())) packet.addChild(el);
+            }
         }
         return packet;
     }
