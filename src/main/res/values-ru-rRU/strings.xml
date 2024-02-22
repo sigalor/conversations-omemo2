@@ -1523,4 +1523,6 @@
     <string name="app_lock_forgot_password">Переустановите приложение и загрузите резервную копию чата</string>
     <string name="pref_app_lock_enable_title">Включить блокировку приложения (бета-версия)</string>
     <string name="pref_app_lock_enable_summary">Включите блокировку приложения. Имейте в виду, что вы больше не сможете открыть приложение, если забудете PIN-код.</string>
+    <string name="pref_open_links_inapp_summary">Открытие веб-ссылок в monocles</string>
+    <string name="pref_open_links_inapp">Открыть ссылки в приложении</string>
 </resources>

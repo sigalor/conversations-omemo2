@@ -1491,4 +1491,6 @@
     <string name="app_lock_forgot_password">重新安装应用并加载聊天备份</string>
     <string name="pref_app_lock_enable_title">启用应用锁 (Beta)</string>
     <string name="pref_app_lock_enable_summary">启用应用锁。请注意，当您忘记 PIN 时，您就无法再打开此应用了。</string>
+    <string name="pref_open_links_inapp">在应用中打开链接</string>
+    <string name="pref_open_links_inapp_summary">在 monocles chat 中打开网络链接</string>
 </resources>

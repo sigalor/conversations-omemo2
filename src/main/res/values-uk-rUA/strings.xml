@@ -1325,4 +1325,6 @@
     <string name="calls">Виклики</string>
     <string name="accounts">Облікові записи</string>
     <string name="me_quote">Я:</string>
+    <string name="pref_open_links_inapp">Відкривати посилання в застосунку</string>
+    <string name="pref_open_links_inapp_summary">Відкривати веб-посилання в monocles chat</string>
 </resources>
