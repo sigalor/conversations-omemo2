@@ -676,7 +676,7 @@ public class FileBackend {
         return path.startsWith(androidDataPath) || !f.canRead();
     }
 
-    public String getOriginalPath(Uri uri) {
+    public String getOriginalPath(final Uri uri) {
         return FileUtils.getPath(mXmppConnectionService, uri);
     }
 
