@@ -73,6 +73,7 @@ import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
+import p32929.easypasscodelock.Utils.EasyLock;
 
 import static eu.siacs.conversations.utils.PermissionUtils.getFirstDenied;
 import static java.util.Arrays.asList;
@@ -160,6 +161,17 @@ public class RtpSessionActivity extends XmppActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Check if lock is set
+        if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+            EasyLock.setBackgroundColor(getColor(R.color.primary_black));
+            EasyLock.checkPassword(this);
+            EasyLock.forgotPassword(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(RtpSessionActivity.this, R.string.app_lock_forgot_password, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
