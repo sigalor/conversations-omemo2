@@ -45,7 +45,7 @@ public class Compatibility {
 
     public static boolean hasStoragePermission(final Context context) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU || ContextCompat.checkSelfPermission(
-                context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+                context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static boolean s() {
@@ -209,6 +209,17 @@ public class Compatibility {
 
     public static boolean runsThirtyFour() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static boolean isActiveNetworkMetered(
+            @NonNull final ConnectivityManager connectivityManager) {
+        try {
+            return connectivityManager.isActiveNetworkMetered();
+        } catch (final RuntimeException e) {
+            // when in doubt better assume it's metered
+            return true;
+        }
     }
 
     public static Bundle pgpStartIntentSenderOptions() {
