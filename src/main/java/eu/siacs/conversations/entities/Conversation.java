@@ -2960,7 +2960,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             }
                         } else if (fieldType.equals("list-single")) {
                         } else if (
-                                range != null && (
+                                range != null && range.getAttribute("min") != null && range.getAttribute("max") != null && (
                                         "xs:integer".equals(datatype) || "xs:int".equals(datatype) || "xs:long".equals(datatype) || "xs:short".equals(datatype) || "xs:byte".equals(datatype) ||
                                                 "xs:decimal".equals(datatype) || "xs:double".equals(datatype)
                                 )
