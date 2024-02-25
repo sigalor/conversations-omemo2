@@ -4085,7 +4085,7 @@ public class ConversationFragment extends XmppFragment
         }
 
         this.binding.messagesView.post(this::fireReadEvent);
-        //TODO if we only do this when this fragment is running on main it won't *bing* in tablet layout which might be unnecessary since we can *see* it
+        // TODO if we only do this when this fragment is running on main it won't *bing* in tablet
         // layout which might be unnecessary since we can *see* it
         activity.xmppConnectionService
                 .getNotificationService()
@@ -4308,9 +4308,8 @@ public class ConversationFragment extends XmppFragment
                     if (discoJid != null) commandJid = discoJid;
                 }
                 if (node != null && commandJid != null) {
-                    if (!conversation.switchToSession(node)) {
-                        conversation.startCommand(commandFor(commandJid, node), activity.xmppConnectionService);
-                    }                }
+                    conversation.startCommand(commandFor(commandJid, node), activity.xmppConnectionService);
+                }
             });
             return;
         }

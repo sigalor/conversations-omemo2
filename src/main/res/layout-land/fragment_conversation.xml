@@ -27,7 +27,7 @@
             android:elevation="@dimen/toolbar_elevation"
             android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
             app:tabIndicatorColor="@color/white87"
-            app:tabMode="fixed"
+            app:tabMode="scrollable"
             app:tabSelectedTextColor="?attr/text_Color_Main"
             app:tabTextColor="?attr/button_text_color_disabled" />
 
