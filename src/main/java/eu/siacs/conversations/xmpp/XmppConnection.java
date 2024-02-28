@@ -1218,7 +1218,12 @@ public class XmppConnection implements Runnable {
                 mXmppConnectionService.updateConversationUi();
             }
         } else {
-            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": resumption failed");
+            Log.d(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": resumption failed ("
+                            + XmlHelper.print(failed.getChildren())
+                            + ")");
         }
         resetStreamId();
         if (sendBindRequest) {
