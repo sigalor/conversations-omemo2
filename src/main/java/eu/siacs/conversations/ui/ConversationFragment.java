@@ -508,7 +508,7 @@ public class ConversationFragment extends XmppFragment
                                     final String uuid = message != null ? message.getUuid() : null;
                                     View v = binding.messagesView.getChildAt(childPos);
                                     final int pxOffset = (v == null) ? 0 : v.getTop();
-                                    ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList, activity.xmppConnectionService);
+                                    ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList,  activity == null ? null : activity.xmppConnectionService);
                                     try {
                                         updateStatusMessages();
                                     } catch (IllegalStateException e) {
