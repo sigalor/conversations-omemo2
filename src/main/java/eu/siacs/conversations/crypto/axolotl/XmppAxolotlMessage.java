@@ -147,8 +147,6 @@ public class XmppAxolotlMessage {
     }
 
     void encrypt(final String plaintext) throws CryptoFailedException {
-        if (plaintext == null) return;
-
         try {
             SecretKey secretKey = new SecretKeySpec(innerKey, KEYTYPE);
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
