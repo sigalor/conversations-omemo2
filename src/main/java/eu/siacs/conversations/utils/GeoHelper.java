@@ -50,7 +50,7 @@ public class GeoHelper {
         } catch (NumberFormatException nfe) {
             return null;
         }
-        return getMappreviewHost(activity) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
+        return activity.getResources().getString(R.string.mappreview_url) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
     }
 
     private static String getMappreviewHost(Activity activity) {
