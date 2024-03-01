@@ -4722,6 +4722,12 @@ public class ConversationFragment extends XmppFragment
                 } else if (activity != null && binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.emojiPicker.setVisibility(GONE);
                     binding.keyboardButton.setVisibility(GONE);
+                } else if (activity != null && binding.keyboardButton.getVisibility() == VISIBLE) {
+                    binding.emojiPicker.setVisibility(VISIBLE);
+                } else {
+                    binding.emojiButton.setVisibility(VISIBLE);
+                    binding.emojiPicker.setVisibility(GONE);
+                    binding.keyboardButton.setVisibility(GONE);
                 }
                 if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
                     showTextFormat(me);
@@ -4737,7 +4743,7 @@ public class ConversationFragment extends XmppFragment
                 public void onKeyboardHeightChanged(int keyboardHeight, boolean keyboardOpen, boolean isLandscape) {
                     Log.i("keyboard listener", "keyboardHeight: " + keyboardHeight + " keyboardOpen: " + keyboardOpen + " isLandscape: " + isLandscape);
                     if (activity != null && keyboardOpen && !(secondaryFragment instanceof ConversationFragment)) {
-                        EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                        EmojiPickerView emojipickerview = binding.emojiPicker;
                         binding.keyboardButton.setVisibility(GONE);
                         binding.emojiButton.setVisibility(VISIBLE);
                         ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
@@ -4745,15 +4751,24 @@ public class ConversationFragment extends XmppFragment
                         emojipickerview.setLayoutParams(params);
                         binding.emojiPicker.setVisibility(VISIBLE);
                     } else if (activity != null && keyboardOpen) {
-                        EmojiPickerView emojipickerview = (EmojiPickerView) activity.findViewById(R.id.emoji_picker);
+                        EmojiPickerView emojipickerview = binding.emojiPicker;
                         binding.keyboardButton.setVisibility(GONE);
                         binding.emojiButton.setVisibility(VISIBLE);
                         ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
                         params.height = keyboardHeight - 150;
                         emojipickerview.setLayoutParams(params);
                         binding.emojiPicker.setVisibility(VISIBLE);
+                    } else if (activity != null && binding.emojiButton.getVisibility() == VISIBLE) {
+                        binding.emojiPicker.setVisibility(GONE);
+                        binding.keyboardButton.setVisibility(GONE);
+                    } else if (activity != null && binding.keyboardButton.getVisibility() == VISIBLE) {
+                        binding.emojiPicker.setVisibility(VISIBLE);
                     } else if (activity != null ) {
                         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                    } else {
+                        binding.emojiButton.setVisibility(VISIBLE);
+                        binding.emojiPicker.setVisibility(GONE);
+                        binding.keyboardButton.setVisibility(GONE);
                     }
                     if (activity != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
                         binding.emojiPicker.setVisibility(GONE);
