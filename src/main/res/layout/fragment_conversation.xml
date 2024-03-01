@@ -31,7 +31,7 @@
         app:tabSelectedTextColor="?attr/text_Color_Main"
         app:tabTextColor="?attr/button_text_color_disabled" />
 
-    <androidx.viewpager.widget.ViewPager
+    <de.monocles.chat.MonoclesViewPager
         android:id="@+id/conversation_view_pager"
         android:layout_below="@id/tab_layout"
         android:layout_width="fill_parent"
@@ -562,6 +562,6 @@
 
         </RelativeLayout>
 
-    </androidx.viewpager.widget.ViewPager>
+    </de.monocles.chat.MonoclesViewPager>
     </RelativeLayout>
 </layout>

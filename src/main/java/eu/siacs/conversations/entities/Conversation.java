@@ -4,11 +4,11 @@ import static eu.siacs.conversations.entities.Bookmark.printableValue;
 
 import android.content.Intent;
 
+import de.monocles.chat.MonoclesViewPager;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.ui.UriHandlerActivity;
 import android.content.DialogInterface;
 import android.content.Context;
-import android.annotation.SuppressLint;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedImageDrawable;
@@ -17,9 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.LruCache;
 import android.telephony.PhoneNumberUtils;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
@@ -44,7 +41,6 @@ import android.widget.GridLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
@@ -54,11 +50,10 @@ import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import android.util.Pair;
 import android.util.DisplayMetrics;
 import com.caverock.androidsvg.SVG;
-import android.os.Build;
+
 import android.util.SparseBooleanArray;
 import java.util.Collection;
 
@@ -70,12 +65,8 @@ import de.monocles.chat.ConversationPage;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
 
-import eu.siacs.conversations.xmpp.forms.Field;
-
-import io.ipfs.cid.Cid;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
@@ -130,7 +121,6 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AlertDialog.Builder;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
@@ -141,59 +131,21 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.OmemoSetting;
 import eu.siacs.conversations.crypto.PgpDecryptionService;
 import eu.siacs.conversations.databinding.CommandButtonGridFieldBinding;
-import eu.siacs.conversations.databinding.CommandCheckboxFieldBinding;
-import eu.siacs.conversations.databinding.CommandItemCardBinding;
-import eu.siacs.conversations.databinding.CommandNoteBinding;
-import eu.siacs.conversations.databinding.CommandPageBinding;
-import eu.siacs.conversations.databinding.CommandProgressBarBinding;
-import eu.siacs.conversations.databinding.CommandRadioEditFieldBinding;
-import eu.siacs.conversations.databinding.CommandResultCellBinding;
-import eu.siacs.conversations.databinding.CommandResultFieldBinding;
-import eu.siacs.conversations.databinding.CommandSearchListFieldBinding;
-import eu.siacs.conversations.databinding.CommandSpinnerFieldBinding;
-import eu.siacs.conversations.databinding.CommandTextFieldBinding;
-import eu.siacs.conversations.databinding.CommandWebviewBinding;
-import eu.siacs.conversations.ui.UriHandlerActivity;
 import eu.siacs.conversations.databinding.DialogQuickeditBinding;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.AvatarService;
-import eu.siacs.conversations.services.QuickConversationsService;
-import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.ui.text.FixedURLSpan;
-import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.JidHelper;
 import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.utils.UIHelper;
-import eu.siacs.conversations.xml.Element;
-import eu.siacs.conversations.xml.Namespace;
-import eu.siacs.conversations.xmpp.Jid;
-import eu.siacs.conversations.xmpp.chatstate.ChatState;
-import eu.siacs.conversations.xmpp.forms.Data;
-import eu.siacs.conversations.xmpp.forms.Option;
-import eu.siacs.conversations.xmpp.mam.MamReference;
-import eu.siacs.conversations.xmpp.stanzas.IqPacket;
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.crypto.OmemoSetting;
-import eu.siacs.conversations.crypto.PgpDecryptionService;
-import eu.siacs.conversations.persistance.DatabaseBackend;
-import eu.siacs.conversations.services.AvatarService;
-import eu.siacs.conversations.services.QuickConversationsService;
-import eu.siacs.conversations.utils.JidHelper;
-import eu.siacs.conversations.utils.MessageUtils;
-import eu.siacs.conversations.utils.UIHelper;
-import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import eu.siacs.conversations.xmpp.mam.MamReference;
@@ -1743,7 +1695,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return pagerAdapter.switchToSession(node);
     }
 
-    public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
+    public void setupViewPager(MonoclesViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
         pagerAdapter.setupViewPager(pager, tabs, onboarding, oldConversation);
     }
 
@@ -1778,14 +1730,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     }
 
     public class ConversationPagerAdapter extends PagerAdapter {
-        protected ViewPager mPager = null;
+        protected MonoclesViewPager mPager = null;
         protected TabLayout mTabs = null;
         ArrayList<ConversationPage> sessions = null;
         protected View page1 = null;
         protected View page2 = null;
         protected boolean mOnboarding = false;
 
-        public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
+
+        public void setupViewPager(MonoclesViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
             mPager = pager;
             mTabs = tabs;
             mOnboarding = onboarding;
@@ -1819,7 +1772,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             tabs.setupWithViewPager(mPager);
             pager.post(() -> pager.setCurrentItem(getCurrentTab()));
 
-            mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            mPager.setSwipeLocked(true);
+
+            mPager.addOnPageChangeListener(new MonoclesViewPager.OnPageChangeListener() {
                 public void onPageScrollStateChanged(int state) { }
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
