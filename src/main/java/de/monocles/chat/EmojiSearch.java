@@ -61,11 +61,11 @@ public class EmojiSearch {
         final ResultPQ pq = new ResultPQ();
         for (Emoji e : emoji) {
             if (e.emoticonMatch(q)) {
-                pq.addTopK(e, 999999, 10);
+                pq.addTopK(e, 999999, 999);
             }
             int shortcodeScore = e.shortcodes.isEmpty() ? 0 : Collections.max(Lists.transform(e.shortcodes, (shortcode) -> FuzzySearch.ratio(q, shortcode)));
             int tagScore = e.tags.isEmpty() ? 0 : Collections.max(Lists.transform(e.tags, (tag) -> FuzzySearch.ratio(q, tag))) - 2;
-            pq.addTopK(e, Math.max(shortcodeScore, tagScore), 10);
+            pq.addTopK(e, Math.max(shortcodeScore, tagScore), 999);
         }
 
         for (BoundExtractedResult<Emoji> r : new ArrayList<>(pq)) {
@@ -75,13 +75,13 @@ public class EmojiSearch {
                     e.shortcodes.clear();
                     e.shortcodes.addAll(r.getReferent().shortcodes);
 
-                    pq.addTopK(e, r.getScore() - 1, 10);
+                    pq.addTopK(e, r.getScore() - 1, 999);
                 }
             }
         }
 
         List<Emoji> result = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 999; i++) {
             BoundExtractedResult<Emoji> e = pq.poll();
             if (e != null) result.add(e.getReferent());
         }
@@ -178,7 +178,7 @@ public class EmojiSearch {
         protected final Drawable icon;
 
         public CustomEmoji(final String shortcode, final String source, final Drawable icon, final String tag) {
-            super(null, 10);
+            super(null, 999);
             shortcodes.add(shortcode);
             if (tag != null) tags.add(tag);
             this.source = source;

@@ -104,17 +104,6 @@
         android:alpha="0.88"
         android:animateLayoutChanges="true" >
 
-        <ListView
-            android:id="@+id/emoji"
-            android:layout_width="fill_parent"
-            android:layout_height="150dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="0dp"
-            android:visibility="gone" />
-
         <RelativeLayout
             android:id="@+id/recordingVoiceActivity"
             android:layout_width="match_parent"
@@ -385,14 +374,67 @@
                                 android:src="@drawable/ic_send_text_offline" />
                     </RelativeLayout>
 
-            <androidx.emoji2.emojipicker.EmojiPickerView
-                android:id="@+id/emoji_picker"
-                android:layout_below="@+id/textformat"
+            <LinearLayout
+                android:id="@+id/emojis_sticker_layout"
                 android:layout_width="match_parent"
                 android:layout_height="270dp"
-                app:emojiGridColumns="9"
-                android:layout_marginBottom="4dp"
-                android:visibility="gone"/>
+                android:layout_below="@+id/textformat"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:animateLayoutChanges="true" >
+
+                <androidx.emoji2.emojipicker.EmojiPickerView
+                    android:id="@+id/emoji_picker"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:emojiGridColumns="9"
+                    android:visibility="visible" />
+
+                <de.monocles.chat.GridView
+                    android:id="@+id/stickers"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="4dp"
+                    android:divider="@android:color/transparent"
+                    android:numColumns="7"
+                    android:dividerHeight="0dp"
+                    android:layout_weight="1"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="bottom|center_horizontal"
+                    android:orientation="horizontal"
+                    android:animateLayoutChanges="true" >
+
+                    <TextView
+                        android:id="@+id/emojis_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
+                        android:gravity="bottom|center_horizontal"
+                        android:text="Emojis"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/stickers_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:gravity="bottom|center_horizontal"
+                        android:text="Stickers"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/textformat"
