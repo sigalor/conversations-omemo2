@@ -775,13 +775,17 @@ public class ConversationFragment extends XmppFragment
 
                 if (binding.emojiPicker.getVisibility() == VISIBLE) {
                     binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                    binding.emojisButton.setTypeface(null, Typeface.BOLD);
                 } else {
                     binding.emojisButton.setBackgroundColor(0);
+                    binding.emojisButton.setTypeface(null, Typeface.NORMAL);
                 }
                 if (binding.stickers.getVisibility() == VISIBLE) {
                     binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                    binding.stickersButton.setTypeface(null, Typeface.BOLD);
                 } else {
                     binding.stickersButton.setBackgroundColor(0);
+                    binding.stickersButton.setTypeface(null, Typeface.NORMAL);
                 }
             }
         }
@@ -802,13 +806,17 @@ public class ConversationFragment extends XmppFragment
 
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.emojisButton.setTypeface(null, Typeface.BOLD);
             } else {
                 binding.emojisButton.setBackgroundColor(0);
+                binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
             if (binding.stickers.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
                 binding.stickersButton.setBackgroundColor(0);
+                binding.stickersButton.setTypeface(null, Typeface.NORMAL);
             }
         }
     };
@@ -821,13 +829,17 @@ public class ConversationFragment extends XmppFragment
 
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.emojisButton.setTypeface(null, Typeface.BOLD);
             } else {
                 binding.emojisButton.setBackgroundColor(0);
+                binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
             if (binding.stickers.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
                 binding.stickersButton.setBackgroundColor(0);
+                binding.stickersButton.setTypeface(null, Typeface.NORMAL);
             }
         }
     };
