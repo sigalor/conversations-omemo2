@@ -1845,6 +1845,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             };
 
             if (command.getAttribute("node").equals("jabber:iq:register") && packet.getTo().asBareJid().equals(Jid.of("cheogram.com"))) {
+                return;
+            } else {
                 task.run();
             }
 
