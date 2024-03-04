@@ -1420,4 +1420,6 @@
     <string name="pref_open_links_inapp_summary">Open weblinks in monocles chat</string>
     <string name="new_notification">New notification</string>
     <string name="new_message">New message</string>
+    <string name="emojis">Emojis</string>
+    <string name="stickers">Stickers</string>
 </resources>

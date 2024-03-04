@@ -419,7 +419,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="bottom|center_horizontal"
-                        android:text="Emojis"
+                        android:text="@string/emojis"
                         android:textSize="16sp" />
 
                     <View
@@ -431,7 +431,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="bottom|center_horizontal"
-                        android:text="Stickers"
+                        android:text="@string/stickers"
                         android:textSize="16sp" />
 
                 </LinearLayout>

@@ -772,6 +772,7 @@ public class ConversationFragment extends XmppFragment
                     int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
                     binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
                 });
+                setupStickers();
 
                 if (binding.emojiPicker.getVisibility() == VISIBLE) {
                     binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
@@ -826,6 +827,8 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(GONE);
             binding.stickers.setVisibility(VISIBLE);
+            backPressedLeaveEmojiPicker.setEnabled(true);
+            binding.textinput.requestFocus();
 
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
@@ -1899,14 +1902,14 @@ public class ConversationFragment extends XmppFragment
             if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
         });
 
-        setupEmojiSearch();
+        setupStickers();
         updateinputfield(canSendMeCommand());
 
         hasWriteAccessInMUC();
         return binding.getRoot();
     }
 
-    protected void setupEmojiSearch() {
+    protected void setupStickers() {
         if (emojiSearch == null && activity != null && activity.xmppConnectionService != null) {
             emojiSearch = activity.xmppConnectionService.emojiSearch();
         }
@@ -1922,16 +1925,13 @@ public class ConversationFragment extends XmppFragment
             Matcher lastColonMatcher = lastColonPattern.matcher(s);
             int lastColon = 0;
             while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon < 0) {
-                binding.stickers.setVisibility(GONE);
-                return;
-            }
+
             final String q = s.toString().substring(lastColon);
             EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickers.getAdapter());
             if (adapter != null) {
                 adapter.search(q);
             }
-        }, 800L);
+        }, 400L);
     }
 
 
@@ -4772,7 +4772,7 @@ public class ConversationFragment extends XmppFragment
                     emojipickerview.setLayoutParams(params);
                     binding.emojisStickerLayout.setVisibility(VISIBLE);
                 } else if (activity != null && isKeyboardVisible) {
-                    LinearLayout emojipickerview = (LinearLayout) binding.emojisStickerLayout;
+                    LinearLayout emojipickerview = binding.emojisStickerLayout;
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
                     ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
@@ -5237,7 +5237,7 @@ public class ConversationFragment extends XmppFragment
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
         updateinputfield(canSendMeCommand());
-        setupEmojiSearch();
+        setupStickers();
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
