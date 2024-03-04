@@ -4018,7 +4018,9 @@ public class ConversationFragment extends XmppFragment
         final Activity activity = getActivity();
         messageListAdapter.unregisterListenerInAudioPlayer();
         if (activity == null || !activity.isChangingConfigurations()) {
-            hideSoftKeyboard(activity);
+            if (activity != null) {
+                hideSoftKeyboard(activity);
+            }
             messageListAdapter.stopAudioPlayer();
         }
         if (this.conversation != null) {
@@ -4028,7 +4030,7 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
-        if (binding.stickers != null) binding.stickers.setVisibility(GONE);;
+        // if (binding.stickers != null) binding.stickers.setVisibility(GONE);;
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {
@@ -4782,6 +4784,12 @@ public class ConversationFragment extends XmppFragment
                 } else if (activity != null && binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.emojisStickerLayout.setVisibility(GONE);
                     binding.keyboardButton.setVisibility(GONE);
+                    hideSoftKeyboard(activity);
+                } else if (activity == null) {
+                    binding.emojisStickerLayout.setVisibility(GONE);
+                    binding.keyboardButton.setVisibility(GONE);
+                    binding.emojiButton.setVisibility(VISIBLE);
+                    hideSoftKeyboard(activity);
                 }
                 if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
                     showTextFormat(me);
@@ -4812,8 +4820,17 @@ public class ConversationFragment extends XmppFragment
                         params.height = keyboardHeight - 150;
                         emojipickerview.setLayoutParams(params);
                         binding.emojisStickerLayout.setVisibility(VISIBLE);
-                    } else if (activity != null ) {
+                    } else if (activity != null && binding.emojiButton.getVisibility() == VISIBLE) {
+                        binding.emojisStickerLayout.setVisibility(GONE);
+                        binding.keyboardButton.setVisibility(GONE);
+                        hideSoftKeyboard(activity);
+                    } else if (activity != null) {
                         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                    } else if (activity == null) {
+                        binding.emojisStickerLayout.setVisibility(GONE);
+                        binding.keyboardButton.setVisibility(GONE);
+                        binding.emojiButton.setVisibility(VISIBLE);
+                        hideSoftKeyboard(activity);
                     }
                     if (activity != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
                         binding.emojisStickerLayout.setVisibility(GONE);
