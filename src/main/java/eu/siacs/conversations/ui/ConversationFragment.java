@@ -4015,12 +4015,10 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onStop() {
         super.onStop();
+        hideSoftKeyboard(activity);
         final Activity activity = getActivity();
         messageListAdapter.unregisterListenerInAudioPlayer();
         if (activity == null || !activity.isChangingConfigurations()) {
-            if (activity != null) {
-                hideSoftKeyboard(activity);
-            }
             messageListAdapter.stopAudioPlayer();
         }
         if (this.conversation != null) {
@@ -4030,7 +4028,6 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
-        // if (binding.stickers != null) binding.stickers.setVisibility(GONE);;
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {
