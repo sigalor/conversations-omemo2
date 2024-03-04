@@ -4028,7 +4028,6 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
-        if (binding.stickers != null) binding.stickers.setVisibility(GONE);;
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {
