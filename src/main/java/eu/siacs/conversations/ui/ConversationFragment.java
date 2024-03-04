@@ -4015,9 +4015,7 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onStop() {
         super.onStop();
-        if (activity != null) {
-            hideSoftKeyboard(activity);
-        }
+        hideSoftKeyboard(activity);
         final Activity activity = getActivity();
         messageListAdapter.unregisterListenerInAudioPlayer();
         if (activity == null || !activity.isChangingConfigurations()) {
