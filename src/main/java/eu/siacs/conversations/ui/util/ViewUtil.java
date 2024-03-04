@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -73,7 +74,11 @@ public class ViewUtil {
             try {
                 context.startActivity(openIntent);
             } catch (final ActivityNotFoundException e) {
-                ToastCompat.makeText(context, R.string.no_application_found_to_open_file, ToastCompat.LENGTH_SHORT).show();
+                if (mime.equals("application/xdc+zip")) {
+                    Toast.makeText(context, R.string.webxdc_hint, Toast.LENGTH_LONG).show();
+                } else {
+                    ToastCompat.makeText(context, R.string.no_application_found_to_open_file, ToastCompat.LENGTH_SHORT).show();
+                }
             }
         }
     }

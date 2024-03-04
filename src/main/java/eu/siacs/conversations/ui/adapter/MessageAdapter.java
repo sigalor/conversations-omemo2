@@ -14,6 +14,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static de.monocles.chat.Util.getReadmakerType;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY;
 import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY_OLD;
+import static eu.siacs.conversations.entities.Message.ENCRYPTION_NONE;
 import static eu.siacs.conversations.persistance.FileBackend.formatTime;
 import static eu.siacs.conversations.persistance.FileBackend.safeLongToInt;
 import static eu.siacs.conversations.ui.SettingsActivity.PLAY_GIF_INSIDE;
@@ -139,6 +140,7 @@ import me.drakeet.support.toast.ToastCompat;
 import pl.droidsonroids.gif.GifImageView;
 
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 public class MessageAdapter extends ArrayAdapter<Message> {
@@ -1716,7 +1718,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayMediaPreviewMessage(viewHolder, message, darkBackground, type);
             } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
                 displayAudioMessage(viewHolder, message, darkBackground, type);
-            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty()) {
+            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty() && message.getEncryption() == ENCRYPTION_NONE) {
                 displayWebxdcMessage(viewHolder, message, darkBackground, type);
             } else {
                 displayOpenableMessage(viewHolder, message, darkBackground, type);
