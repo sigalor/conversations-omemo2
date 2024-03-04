@@ -16,8 +16,8 @@ public class WebxdcUpdate {
     protected final String conversationId;
     protected final String messageId;
     protected final Jid sender;
-    protected String thread;
-    protected String threadParent;
+    protected final String thread;
+    protected final String threadParent;
     protected final String info;
     protected final String document;
     protected final String summary;
@@ -29,13 +29,8 @@ public class WebxdcUpdate {
         this.conversationId = conversation.getUuid();
         this.messageId = messageId;
         this.sender = sender;
-        if (thread != null ) {
-            this.thread = thread.getContent();
-            this.threadParent = thread.getAttribute("parent");
-        } else {
-            this.thread = "thread";
-            this.threadParent = "parent";
-        }
+        this.thread = thread.getContent();
+        this.threadParent = thread.getAttribute("parent");
         this.info = info;
         this.document = document;
         this.summary = summary;
