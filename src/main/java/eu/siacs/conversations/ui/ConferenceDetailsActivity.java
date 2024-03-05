@@ -868,7 +868,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             final ThreadAdapter threads = new ThreadAdapter();
             threads.addAll(recentThreads);
             this.binding.recentThreads.setAdapter(threads);
-            this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+
+            if (xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+            }
             Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
         }
 
