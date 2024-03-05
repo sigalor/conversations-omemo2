@@ -377,7 +377,7 @@
             <LinearLayout
                 android:id="@+id/emojis_sticker_layout"
                 android:layout_width="match_parent"
-                android:layout_height="270dp"
+                android:layout_height="0dp"
                 android:layout_below="@+id/textformat"
                 android:orientation="vertical"
                 android:visibility="gone"
