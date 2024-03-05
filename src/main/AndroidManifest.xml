@@ -244,7 +244,7 @@
             android:minWidth="336dp"
             android:minHeight="480dp"
             android:enableOnBackInvokedCallback="false"
-            android:windowSoftInputMode="adjustPan|stateHidden" />
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.ScanActivity"
             android:screenOrientation="portrait"

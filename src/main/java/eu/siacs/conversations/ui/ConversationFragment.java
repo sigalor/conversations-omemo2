@@ -4759,11 +4759,11 @@ public class ConversationFragment extends XmppFragment
         if (Build.VERSION.SDK_INT > 29) {
             ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), (v, insets) -> {
                 boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-                int keyboardHeight = 0;
+                int keyboardHeight = 350;
                 if (activity != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
-                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 25;
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
                 } else if (activity != null) {
-                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 25;
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 24;
                 }
                 if (activity != null && isKeyboardVisible && !(secondaryFragment instanceof ConversationFragment)) {
                     LinearLayout emojipickerview = binding.emojisStickerLayout;
@@ -4803,7 +4803,7 @@ public class ConversationFragment extends XmppFragment
                         binding.keyboardButton.setVisibility(GONE);
                         binding.emojiButton.setVisibility(VISIBLE);
                         ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                        params.height = keyboardHeight - 25;
+                        params.height = keyboardHeight - 24;
                         emojipickerview.setLayoutParams(params);
                         binding.emojisStickerLayout.setVisibility(VISIBLE);
                     } else if (activity != null && keyboardOpen) {
@@ -4814,6 +4814,8 @@ public class ConversationFragment extends XmppFragment
                         params.height = keyboardHeight - 150;
                         emojipickerview.setLayoutParams(params);
                         binding.emojisStickerLayout.setVisibility(VISIBLE);
+                    } else if (activity != null ) {
+                        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                     }
                     if (activity != null && !keyboardOpen && binding.emojiButton.getVisibility() == VISIBLE) {
                         binding.emojisStickerLayout.setVisibility(GONE);
