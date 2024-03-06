@@ -913,7 +913,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image.setVisibility(GONE);
         viewHolder.audioPlayer.setVisibility(GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
-        viewHolder.download_button.setText("Open " + webxdc.getName());
+        viewHolder.download_button.setText(activity.getResources().getString(R.string.open) + " " + webxdc.getName() + " " + "(" + activity.getResources().getString(R.string.unencrypted) + ")");
         viewHolder.download_button.setOnClickListener(v -> {
             Conversation conversation = (Conversation) message.getConversation();
             if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
