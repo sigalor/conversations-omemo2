@@ -4790,7 +4790,7 @@ public class ConversationFragment extends XmppFragment
                     params.height = keyboardHeight;
                     emojipickerview.setLayoutParams(params);
                 }
-                if (activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
+                if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
                     showTextFormat(me);
                 } else {
                     hideTextFormat();
@@ -4828,7 +4828,7 @@ public class ConversationFragment extends XmppFragment
                         params.height = keyboardHeight;
                         emojipickerview.setLayoutParams(params);
                     }
-                    if (activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
+                    if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
                         showTextFormat(me);
                     } else {
                         hideTextFormat();
