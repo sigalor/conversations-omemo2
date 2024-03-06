@@ -933,6 +933,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             this.binding.recentThreads.setAdapter(threads);
             if (xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+            } else {
+                this.binding.recentThreadsWrapper.setVisibility(View.GONE);
             }
             Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
         }
