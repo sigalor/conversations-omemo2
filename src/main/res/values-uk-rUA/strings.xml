@@ -1327,4 +1327,9 @@
     <string name="me_quote">Я:</string>
     <string name="pref_open_links_inapp">Відкривати посилання в застосунку</string>
     <string name="pref_open_links_inapp_summary">Відкривати веб-посилання в monocles chat</string>
+    <string name="new_message">Нове повідомлення</string>
+    <string name="new_notification">Нове сповіщення</string>
+    <string name="emojis">Емоджі</string>
+    <string name="open">Відкрити</string>
+    <string name="unencrypted">незашифрований</string>
 </resources>

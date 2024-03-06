@@ -1499,4 +1499,9 @@
     <string name="app_lock_forgot_password">Reinstalar e restablecer conversas desde copia de apoio</string>
     <string name="pref_open_links_inapp">Abrir ligazóns na app</string>
     <string name="pref_open_links_inapp_summary">Abrir ligazóns con monocles chat</string>
+    <string name="new_notification">Nova notificación</string>
+    <string name="new_message">Nova mensaxe</string>
+    <string name="emojis">Emojis</string>
+    <string name="stickers">Adhesivos</string>
+    <string name="webxdc_hint">Activar característica de fíos, desactivar OMEMO e enviar outra vez</string>
 </resources>

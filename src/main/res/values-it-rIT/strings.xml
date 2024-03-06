@@ -27,7 +27,7 @@
     <string name="minutes_ago">%d min fa</string>
     <plurals name="x_unread_conversations">
         <item quantity="one">%d conversazione non letta</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d conversazioni non lette</item>
     </plurals>
     <string name="sending">invio…</string>
@@ -430,7 +430,7 @@
     <string name="dialog_manage_certs_negativebutton">Annulla</string>
     <plurals name="toast_delete_certificates">
         <item quantity="one">Cancellato il %d certificato</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">Cancellati %d certificati</item>
     </plurals>
     <string name="pref_quick_action_summary">Sostituisci il tasto invio con un\'azione rapida</string>
@@ -499,7 +499,7 @@
     <string name="connected_accounts">%1$d su %2$d account connessi</string>
     <plurals name="x_messages">
         <item quantity="one">%d messaggio</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d messaggi</item>
     </plurals>
     <string name="load_more_messages">Carica altri messaggi</string>
@@ -649,37 +649,37 @@
     <string name="not_fetching_history_retention_period">Nessun recupero di messaggi a causa del periodo di conservazione locale.</string>
     <plurals name="seconds">
         <item quantity="one">%d secondo</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d secondi</item>
     </plurals>
     <plurals name="minutes">
         <item quantity="one">%d minuto</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d minuti</item>
     </plurals>
     <plurals name="hours">
         <item quantity="one">%d ora</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d ore</item>
     </plurals>
     <plurals name="days">
         <item quantity="one">%d giorno</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d giorni</item>
     </plurals>
     <plurals name="weeks">
         <item quantity="one">%d settimana</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d settimane</item>
     </plurals>
     <plurals name="months">
         <item quantity="one">%d mese</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d mesi</item>
     </plurals>
     <plurals name="years">
         <item quantity="one">%d anno</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">%d anni</item>
     </plurals>
     <string name="today">Oggi</string>
@@ -907,7 +907,7 @@
     <string name="pref_prefer_xmpp_avatar">Preferisci l\'immagine di profilo XMPP</string>
     <plurals name="view_users">
         <item quantity="one">Vedi %1$d partecipante</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">Vedi %1$d partecipanti</item>
     </plurals>
     <string name="group_chat_members">Partecipanti</string>
@@ -1140,7 +1140,7 @@
     <string name="add_contact_or_create_or_join_group_chat">Aggiungi un contatto, crea o unisciti ad una conversazione di gruppo, o scopri canali</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">Non è stato possibile inviare il messaggio</item>
-        <item quantity="many"></item>
+        <item quantity="many"/>
         <item quantity="other">Non è stato possibile inviare alcuni messaggi</item>
     </plurals>
     <string name="failed_deliveries">Consegne non riuscite</string>
@@ -1241,4 +1241,13 @@
     <string name="show_edit_log">Cronologia messaggi</string>
     <string name="reconnecting_call">Riconnettendo la chiamata</string>
     <string name="reconnecting_video_call">Riconnettendo la videochiamata</string>
+    <string name="account_status_incompatible_client">Client non compatibile</string>
+    <string name="conference_technical_problems">Hai lasciato la conversazione di gruppo a causa di problemi tecnici</string>
+    <string name="enable_notifications">Abilita notifiche</string>
+    <string name="receiving_file_x">Ricevendo %1$s (%2$s %)</string>
+    <string name="account_state_logged_out">Disconnesso</string>
+    <string name="this_account_is_logged_out">Ti sei disconnesso da questo account</string>
+    <string name="audiobook">Audiolibro</string>
+    <string name="sending_x_file_x">Inviando %1$s (%2$s %)</string>
+    <string name="transcoding_video_x">Compressione video (%s %)</string>
 </resources>

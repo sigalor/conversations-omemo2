@@ -1525,4 +1525,9 @@
     <string name="pref_app_lock_enable_summary">Включите блокировку приложения. Имейте в виду, что вы больше не сможете открыть приложение, если забудете PIN-код.</string>
     <string name="pref_open_links_inapp_summary">Открытие веб-ссылок в monocles</string>
     <string name="pref_open_links_inapp">Открыть ссылки в приложении</string>
+    <string name="new_notification">Новое уведомление</string>
+    <string name="new_message">Новое сообщение</string>
+    <string name="emojis">Смайлы</string>
+    <string name="stickers">Стикеры</string>
+    <string name="webxdc_hint">Активируйте функцию нитей, отключите OMEMO и отправьте снова</string>
 </resources>

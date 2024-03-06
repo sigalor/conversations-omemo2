@@ -3,7 +3,7 @@
     <string name="action_settings">Instellingen</string>
     <string name="action_add">Nieuw gesprek</string>
     <string name="action_accounts">Accounts beheren</string>
-    <string name="action_end_conversation">Gesprek beëindigen</string>
+    <string name="action_end_conversation">Gesprek archiveren</string>
     <string name="action_contact_details">Contactgegevens</string>
     <string name="action_secure">Beveiligd gesprek</string>
     <string name="action_add_new_account">Nieuw account toevoegen</string>
@@ -38,7 +38,7 @@
     <string name="moderator">Moderator</string>
     <string name="participant">Deelnemer</string>
     <string name="visitor">Bezoeker</string>
-    <string name="remove_contact_text">Wil je %s uit je contactlijst verwijderen\? Het gesprek met deze persoon zal niet worden verwijderd.</string>
+    <string name="remove_contact_text">Wil je %s uit je contactlijst verwijderen? Het gesprek met deze persoon zal niet worden verwijderd.</string>
     <string name="block_contact_text">Wil je alle berichten van %s blokkeren\?</string>
     <string name="unblock_contact_text">Wil je %s deblokkeren en er weer berichten van kunnen ontvangen\?</string>
     <string name="block_domain_text">Alle contacten van %s blokkeren\?</string>
@@ -71,7 +71,7 @@
     <string name="problem_connecting_to_accounts">Verbinden met meerdere accounts mislukt</string>
     <string name="touch_to_fix">Klik hier om je accounts te beheren</string>
     <string name="attach_file">Bestand bijvoegen</string>
-    <string name="not_in_roster">Het contact staat niet in je lijst. Wil je hem/haar toevoegen\?</string>
+    <string name="not_in_roster">Het contact staat niet in je lijst. Wil je hem/haar toevoegen?</string>
     <string name="add_contact">Contact toevoegen</string>
     <string name="send_failed">afleveren mislukt</string>
     <string name="preparing_image">Bezig met voorbereiden van versturen van afbeelding</string>
@@ -82,11 +82,11 @@
 \n<b>Waarschuwing:</b> Dit zal geen invloed hebben op de berichten die zijn opgeslagen op andere apparaten of servers.</string>
     <string name="also_end_conversation">Dit gesprek na afloop beëindigen</string>
     <string name="choose_presence">Apparaat kiezen</string>
-    <string name="send_unencrypted_message">Verstuur onversleuteld bericht</string>
+    <string name="send_unencrypted_message">Typ een bericht…</string>
     <string name="send_message_to_x">Bericht sturen naar %s</string>
-    <string name="send_omemo_message">Verstuur OMEMO-versleuteld bericht</string>
+    <string name="send_omemo_message">Typ een bericht…</string>
     <string name="send_omemo_x509_message">Verstuur v\\OMEMO-versleuteld bericht</string>
-    <string name="send_pgp_message">Verstuur OpenPGP-versleuteld bericht</string>
+    <string name="send_pgp_message">Typ een bericht…</string>
     <string name="your_nick_has_been_changed">Je bijnaam is veranderd</string>
     <string name="send_unencrypted">Verstuur onversleuteld</string>
     <string name="decryption_failed">Ontsleutelen mislukt. Misschien heb je niet de juiste private sleutel.</string>
@@ -205,8 +205,8 @@
     <string name="openpgp_messages_found">OpenPGP-versleutelde berichten gevonden</string>
     <string name="your_fingerprint">Jouw vingerafdruk</string>
     <string name="openpgp_key_id">OpenPGP-sleutel-ID</string>
-    <string name="omemo_fingerprint">OMEMO-vingerafdruk</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-vingerafdruk</string>
+    <string name="omemo_fingerprint">OMEMO-vingerafdruk - </string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO-vingerafdruk - </string>
     <string name="omemo_fingerprint_selected_message">OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
     <string name="other_devices">Andere apparaten</string>
@@ -215,7 +215,7 @@
     <string name="done">Klaar</string>
     <string name="verify">Verifiëren</string>
     <string name="decrypt">Ontsleutelen</string>
-    <string name="bookmarks">Bladwijzers</string>
+    <string name="bookmarks">Groepen</string>
     <string name="search">Zoeken</string>
     <string name="enter_contact">Contact invoeren</string>
     <string name="delete_contact">Contact verwijderen</string>
@@ -236,7 +236,7 @@
     <string name="contact_added_you">Contact heeft je toegevoegd aan zijn/haar contacten</string>
     <string name="add_back">Ook toevoegen</string>
     <string name="publish">Publiceer</string>
-    <string name="touch_to_choose_picture">Tik op avatar om een foto uit de galerij te kiezen</string>
+    <string name="touch_to_choose_picture">Tik op de avatar om een afbeelding uit de galerij te kiezen</string>
     <string name="publishing">Publiceren…</string>
     <string name="error_publish_avatar_server_reject">De server weigerde de publicatie van je afbeelding</string>
     <string name="error_publish_avatar_converting">Fout bij converteren van afbeelding</string>
@@ -253,7 +253,7 @@
     <string name="skip">Overslaan</string>
     <string name="disable_notifications">Meldingen uitschakelen</string>
     <string name="enable">Inschakelen</string>
-    <string name="conference_requires_password">Wachtwoord vereist voor toegang tot groepsgesprek</string>
+    <string name="conference_requires_password">Dit groepsgesprek vereist een wachtwoord</string>
     <string name="enter_password">Wachtwoord invoeren</string>
     <string name="request_presence_updates">Vraag eerst aanwezigheidsupdates van je contact aan.
 \n
@@ -265,7 +265,7 @@
     <string name="without_mutual_presence_updates"><b>Waarschuwing:</b> Dit verzenden zonder wederzijdse aanwezigheidsupdates kan voor onverwachte problemen zorgen.
 \n
 \n<small>Ga naar contactgegevens om je aanwezigheidsupdates te bevestigen.</small></string>
-    <string name="pref_security_settings">Beveiliging</string>
+    <string name="pref_security_settings">Beveiliging en privacy</string>
     <string name="pref_allow_message_correction">Berichtcorrectie toestaan</string>
     <string name="pref_allow_message_correction_summary">Sta je contacten toe hun berichten na het versturen nog te corrigeren</string>
     <string name="pref_allow_message_retraction">Berichten intrekken toestaan</string>
@@ -291,7 +291,7 @@
     <string name="conference_banned">Je bent verbannen uit dit groepsgesprek</string>
     <string name="conference_members_only">Dit groepsgesprek is enkel voor leden</string>
     <string name="conference_kicked">Je bent uit dit groepsgesprek verwijderd</string>
-    <string name="conference_shutdown">Het groepsgesprek is uitgeschakeld</string>
+    <string name="conference_shutdown">Dit groepsgesprek is verwijderd</string>
     <string name="using_account">met account %s</string>
     <string name="checking_x">%s op HTTP-host nakijken</string>
     <string name="not_connected_try_again">Je bent niet verbonden. Probeer later opnieuw</string>
@@ -340,10 +340,10 @@
     <string name="could_not_verify_fingerprint">Kon vingerafdruk niet verifiëren</string>
     <string name="manually_verify">Handmatig verifiëren</string>
     <string name="pref_show_dynamic_tags">Toon dynamische tags</string>
-    <string name="pref_show_dynamic_tags_summary">Toon tags onder contacten</string>
+    <string name="pref_show_dynamic_tags_summary">Met tags contacten groeperen</string>
     <string name="no_conference_server_found">Geen groepsgespreksserver gevonden</string>
     <string name="conference_creation_failed">Aanmaken van groepsgesprek mislukt!</string>
-    <string name="account_image_description">Account-avatar</string>
+    <string name="account_image_description">Avatar voor account</string>
     <string name="copy_omemo_clipboard_description">OMEMO-vingerafdruk kopiëren naar klembord</string>
     <string name="regenerate_omemo_key">OMEMO-sleutel opnieuw aanmaken</string>
     <string name="clear_other_devices">Apparaten wissen</string>
@@ -387,7 +387,7 @@
     <string name="ban_from_conference">Verbannen uit groepsgesprek</string>
     <string name="kick_from_conference">Uit groepsgesprek verbannen</string>
     <string name="ban_from_public_conference_message">Poging om %s voor altijd te verbannen uit een openbaar kanaal.</string>
-    <string name="ban_from_conference_message">Poging om %s voor altijd te verbannen uit een groepsgesprek</string>
+    <string name="ban_from_conference_message">Je probeert om %s voor altijd te verbannen uit een groepsgesprek</string>
     <string name="kicking_from_public_conference">Je probeert %s uit een openbaar kanaal te verbannen.</string>
     <string name="kicking_from_conference">Je probeert %s uit een groepsgesprek te verbannen.</string>
     <string name="ban_now">Nu verbannen</string>
@@ -439,7 +439,7 @@
     <string name="none">Geen</string>
     <string name="recently_used">Recent gebruikt</string>
     <string name="search_contacts">Contacten zoeken</string>
-    <string name="search_bookmarks">Bladwijzers doorzoeken</string>
+    <string name="search_bookmarks">Groepsgesprekken doorzoeken</string>
     <string name="choose_quick_action">Snelle actie kiezen</string>
     <string name="send_private_message">Privébericht sturen</string>
     <string name="user_has_left_conference">%1$s heeft het groepsgesprek verlaten!</string>
@@ -543,7 +543,7 @@
     <string name="this_field_is_required">Dit veld is vereist</string>
     <string name="correct_message">Bericht corrigeren</string>
     <string name="send_corrected_message">Gecorrigeerd bericht versturen</string>
-    <string name="no_keys_just_confirm">Je vertrouwt dit contact al. Door \'klaar\' te kiezen bevestig je enkel dat %s deel uitmaakt van dit groepsgesprek.</string>
+    <string name="no_keys_just_confirm">Je vertrouwt deze vingerafdruk van het contact al. Door op “Klaar” te drukken bevestig je enkel dat %s deel uitmaakt van dit groepsgesprek.</string>
     <string name="contacts_have_no_pgp_keys">monocles chat kan de berichten niet versleutelen, omdat je contacten hun publieke sleutels niet hebben doorgegeven.
 \n
 \n</string>
@@ -552,7 +552,7 @@
     <string name="share_uri_with">URI delen met…</string>
     <string name="mgmt_account_reconnect">Opnieuw verbinden</string>
     <string name="welcome_text">…is een gratis en veilige client voor XMPP/Jabber.</string>
-    <string name="your_full_jid_will_be">Je volledige chat address zal %s zijn</string>
+    <string name="your_full_jid_will_be">Je volledige chatadres zal zijn: %s</string>
     <string name="create_account">Account aanmaken</string>
     <string name="welcome_existing_account">Ik heb een account</string>
     <string name="pick_your_username">Kies je gebruikersnaam</string>
@@ -571,7 +571,7 @@
     <string name="location_sharing_disabled">Delen van locatie is uitgeschakeld in instellingen</string>
     <string name="locating">Locatie bepalen…</string>
     <string name="action_end_conversation_muc">Groepsgesprek verlaten</string>
-    <string name="leave_conference_warning">Wil je dit groepsgesprek echt verlaten\? Je zult niet langer een melding krijgen bij nieuwe berichten uit dit gesprek.</string>
+    <string name="leave_conference_warning">Wil je dit groepsgesprek echt verlaten? Je zult niet langer een melding krijgen bij nieuwe berichten uit dit gesprek.</string>
     <string name="show_password">Wachtwoord weergeven</string>
     <string name="registration_please_wait">Registratie mislukt: probeer later opnieuw</string>
     <string name="registration_password_too_weak">Registratie mislukt: wachtwoord te zwak</string>
@@ -740,11 +740,11 @@
     <string name="pref_use_bundled_emoji_summary">Gebruik de geïntegreerde collectie emoji\'s in plaats van die van het apparaat. De verandering zal worden doorgevoerd na het herstarten van de app.</string>
     <string name="invalid_muc_nick">Ongeldige bijnaam</string>
     <string name="title_activity_share_via_account">Delen via account</string>
-    <string name="destroy_room">Groepsgesprek vernietigen</string>
+    <string name="destroy_room">Groepsgesprek ontbinden</string>
     <string name="conference_unknown_error">Je neem niet langer deel aan dit groepsgesprek</string>
-    <string name="destroy_room_dialog">Wil je het %s ontbinden\? Dit zal het groepsgesprek definitief verwijderen.</string>
-    <string name="destroy_room_succeed">Groepsgesprek met succes verwijderd</string>
-    <string name="destroy_room_failed">Kan groepsgesprek niet vernietigen</string>
+    <string name="destroy_room_dialog">Wil je de groep %s ontbinden? Dit zal het groepsgesprek definitief verwijderen.</string>
+    <string name="destroy_room_succeed">Groepsgesprek met succes ontbonden</string>
+    <string name="destroy_room_failed">Kan groepsgesprek niet ontbinden</string>
     <string name="no_write_access_in_public_muc">Je neemt niet deel aan dit groepsgesprek en hebt op dit moment geen schrijftoegang.
 \nGa naar de gespreksgegevens door op <b>OK</b> te drukken en stuur een privébericht naar een moderator, beheerder of eigenaar door lang te drukken op de gebruikersnaam. Vraag vervolgens om schrijftoegang.</string>
     <string name="snooze">Sluimeren</string>
@@ -824,12 +824,12 @@
     <string name="everyone_has_read_up_to_this_point">Iedereen heeft tot hier gelezen</string>
     <string name="conference_resource_constraint">Bronbeperking</string>
     <string name="delete_message">Bericht verwijderen</string>
-    <string name="conference_destroyed">Dit groepsgesprek is verwijderd</string>
+    <string name="conference_destroyed">Dit groepsgesprek is ontbonden</string>
     <string name="no_application_found_to_view_contact">Er is geen app gevonden om dit contact te bekijken</string>
     <string name="welcome_server_info">Wij raden aan om monocles chat te gebruiken als server.</string>
     <string name="no_location_permission">monocles chatheeft toegang nodig tot de locatieservices</string>
-    <string name="pref_show_record_voice_btn_summary">Toon de knop voor stemopname als snelle actie in gesprekken</string>
-    <string name="pref_show_record_voice_btn">Knop stemopname tonen</string>
+    <string name="pref_show_record_voice_btn_summary">Toon de knoppen voor stemopname en camera als snelle acties in gesprekken</string>
+    <string name="pref_show_record_voice_btn">Knoppen stemopname en camera tonen</string>
     <string name="pref_use_quick_share_attachment_choice_summary">Vervang de verzendknop door de knop om bijlages toe te voegen indien er nog geen bericht is ingevoerd. Toon anders de snelle actie die hieronder kan worden ingesteld.</string>
     <string name="pref_quick_share_attachment_choice">Bijlage kiezen</string>
     <string name="unable_to_save_recording">Kon de opname niet opslaan</string>
@@ -939,10 +939,10 @@
     <string name="remove_from_channel">Uit kanaal verwijderen</string>
     <string name="ban_from_channel">Uit kanaal verbannen</string>
     <string name="manage_permission">Rechten beheren</string>
-    <string name="destroy_channel">Kanaal vernietigen</string>
-    <string name="destroy_channel_dialog">Kanaal %s vernietigen\? Dit zal het kanaal permanent verwijderen.</string>
-    <string name="destroy_channel_succeed">Kanaal is vernietigd</string>
-    <string name="destroy_channel_failed">Kanaal kon niet worden vernietigd</string>
+    <string name="destroy_channel">Kanaal ontbinden</string>
+    <string name="destroy_channel_dialog">Kanaal %s ontbinden? Dit zal het kanaal permanent verwijderen.</string>
+    <string name="destroy_channel_succeed">Kanaal is ontbonden</string>
+    <string name="destroy_channel_failed">Kanaal kon niet worden ontbonden</string>
     <string name="action_end_conversation_channel">Kanaal verlaten</string>
     <string name="autojoin_channel">Automatisch deelnemen aan dit kanaal</string>
     <string name="no_attachments">Er zijn geen bijlagen</string>
@@ -999,7 +999,8 @@
     <string name="pref_use_invidious_summary">Invidious is een privacy-vriendelijk alternatief voor YouTube</string>
     <string name="pref_use_inner_storage_summary">Andere apps zullen de media niet kunnen benaderen</string>
     <string name="this_device">Dit apparaat</string>
-    <string name="intro_desc_main">Meer informatie…</string>
+    <string name="intro_desc_main">monocles chat is niet zomaar een messenger, maar gebruikt een officiële IETF-standaard. Je kunt op ieder moment besluiten om een andere app te gebruiken en daarmee nog steeds met dezelfde vrienden in contact blijven.
+\nHier sta jij in het middelpunt en maak jij de beslissingen.</string>
     <string name="welcome_header">Welkom bij
 \nmonocles chat</string>
     <string name="intro_required_permissions">Vereiste machtigingen</string>
@@ -1018,7 +1019,7 @@
     <string name="pref_show_intro">Introductieschermen nogmaals tonen</string>
     <string name="show_intro_again">De introductieschermen worden opnieuw getoond</string>
     <string name="show_intro_again_failed">Resetten van introductieschermen mislukt. Probeer opnieuw…</string>
-    <string name="intro_desc_whats_xmpp">XMPP, ook wel jabber genoemd, is een gedecentraliseerd communicatienetwerk en werkt zoals e-mail: je hebt een adres nodig (een chat address), een wachtwoord en een app. Hierover later meer.</string>
+    <string name="intro_desc_whats_xmpp">XMPP is de Internetstandaard voor instant messaging. Net zoals bij e-mail heb je eerst een adres nodig. Hierover later meer.</string>
     <string name="intro_whats_xmpp">Wat is XMPP / Jabber / monocles chat\?</string>
     <string name="intro_desc_optional_permissions">De machtiging om je contacten te lezen is nodig om chat address\'s (indien aanwezig) van je contacten te verzamelen. Contacten zullen nooit worden gedeeld, geüpload of gekopieerd.</string>
     <string name="intro_desc_account2">Je kunt eenvoudig een nieuw profiel aanmaken op monocles chat door een bijnaam in te voeren.</string>
@@ -1033,7 +1034,7 @@
 \nDaar gaan we dan… Veel plezier!</string>
     <string name="intro_privacy">Jouw privacy
 \nJouw soevereiniteit</string>
-    <string name="intro_desc_privacy">monocles chatzal je gegevens niet analyseren of verkopen en jij bepaalt zelf de machtigingen voor deze app.</string>
+    <string name="intro_desc_privacy">monocles chat zal je gegevens niet analyseren of verkopen en jij bepaalt zelf welke rechten deze app krijgt.</string>
     <string name="no_results">Geen resultaten</string>
     <string name="file_transmission_cancelled">bestandsoverdracht geannuleerd</string>
     <string name="sharing_application_not_grant_permission">De app die het bestand deelde heeft geen toegang tot het bestand gegeven.</string>
@@ -1115,7 +1116,7 @@
     <string name="outgoing_call_duration">%s · Uitgaande oproep · %s</string>
     <string name="outgoing_call_time">%s · Uitgaande oproep</string>
     <string name="outgoing_call">Uitgaande oproep</string>
-    <string name="disable_tor_to_make_call">Schakel Tor uit voor oproepen</string>
+    <string name="disable_tor_to_make_call">Schakel Tor uit voor oproepen of gebruik Tor in VPN-modus</string>
     <string name="help">Help</string>
     <string name="switch_to_conversation">Overschakelen naar gesprek</string>
     <string name="only_one_call_at_a_time">Je kunt maar één gesprek tegelijk voeren.</string>
@@ -1134,7 +1135,7 @@
     <string name="encrypted_with_omemo">Versleuteld met OMEMO</string>
     <string name="encrypted_with_openpgp">Versleuteld met OpenPGP</string>
     <string name="not_encrypted">Niet versleuteld</string>
-    <string name="add_contact_or_create_or_join_group_chat">Toevoegen, aanmaken, deelnemen of ontdekken</string>
+    <string name="add_contact_or_create_or_join_group_chat">Contact toevoegen, groepsgesprekken aanmaken of betreden, kanalen ontdekken</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">Bericht kon niet worden bezorgd</item>
         <item quantity="other">Enkele berichten konden niet worden bezorgd</item>
@@ -1214,7 +1215,7 @@
     <string name="pref_remove_all_individual_notifications_title">Alle individuele meldingsinstellingen verwijderen</string>
     <string name="remove_individual_notifications">Individuele meldingsinstellingen verwijderen</string>
     <string name="remove_individual_notifications_message">Individuele meldingsinstellingen voor %s verwijderen\?</string>
-    <string name="remove_all_individual_notifications_message">Alle individuele meldingsinstellingen verwijderen\?</string>
+    <string name="remove_all_individual_notifications_message">Alle individuele meldingsinstellingen verwijderen?</string>
     <string name="exit">Afsluiten</string>
     <string name="record_voice_mail">Spraakbericht opnemen</string>
     <string name="backup_started_message">De back-up is gestart. Je krijgt een melding zodra deze is voltooid.</string>
@@ -1244,4 +1245,51 @@
     <string name="italic">cursief</string>
     <string name="monospace">vaste breedte</string>
     <string name="strikethrough">doorgehaald</string>
+    <string name="reconnect_on_other_host">Opnieuw verbinden met een andere host</string>
+    <string name="create_monocles_account">Aanmelden</string>
+    <string name="send_otr_message">Typ een bericht…</string>
+    <string name="unknown_otr_fingerprint">Onbekende OTR-vingerafdruk</string>
+    <string name="otr_fingerprint">OTR-vingerafdruk</string>
+    <string name="toast_message_otr_fingerprint">OTR-vingerafdruk gekopieerd naar klembord!</string>
+    <string name="verify_otr">OTR verifiëren</string>
+    <string name="no_otr_session_found">Geen geldige OTR-sessie gevonden!</string>
+    <string name="copy_otr_clipboard_description">OTR-vingerafdruk naar klembord kopiëren</string>
+    <string name="otr_session_not_started">Stuur een bericht om een versleuteld gesprek te beginnen</string>
+    <string name="pref_enable_otr">OTR-encryptie inschakelen (BETA)</string>
+    <string name="otr_warning">De ondersteuning voor OTR-versleuteling is in de testfase. Klik op “Lees meer” voor verdere informatie (dit zal een browservenster openen).</string>
+    <string name="outdated_backup_file_format">Je probeert een back-up met een verouderd bestandsformaat te importeren</string>
+    <string name="rtp_state_content_add_video">Videogesprek beginnen?</string>
+    <string name="rtp_state_content_add">Extra tracks toevoegen?</string>
+    <string name="no_i2p_calls">Oproepen kunnen niet via I2P verlopen</string>
+    <string name="copy_file_to">Bestand kopiëren naar %s</string>
+    <string name="pref_showtextformatting_sum">Toon de werkbalk voor tekstopmaak wanneer het toetsenbord wordt weergegeven</string>
+    <string name="pref_showtextformatting">Werkbalk tekstopmaak tonen</string>
+    <string name="pref_show_date_in_quotes_summary">Voeg de originele datum en tijd aan het geciteerde bericht toe.</string>
+    <string name="pref_show_date_in_quotes">Datum en tijd aan citaten toevoegen</string>
+    <string name="optimize_database">Database optimaliseren… Even geduld…</string>
+    <string name="delete_avatar">Eigen avatar verwijderen</string>
+    <string name="pref_set_round_avatars">Ronde avatars</string>
+    <string name="pref_show_less_avatars">Minder avatars tonen</string>
+    <string name="pref_show_less_avatars_summary">Herhaal de avatar van een gebruiker zo min mogelijk</string>
+    <string name="enable_notifications">Meldingen inschakelen</string>
+    <string name="audiobook">Audioboek</string>
+    <string name="pref_use_i2p">Verbinden via I2P</string>
+    <string name="otr_fingerprint_selected_message">OTR-vingerafdruk van bericht</string>
+    <string name="grant">Toestemmen</string>
+    <string name="close_format_text">Deze werkbalk tekstopmaak echt sluiten? Schakel de werkbalk weer in via de instellingen.</string>
+    <string name="import_backup_description">Sinds Android 11 is het niet toegestaan om alle bestanden te tonen van je opslag. Probeer zelf te navigeren naar de map met back-ups, meestal Documenten/monocles chat/Database.</string>
+    <string name="account_status_i2p_unavailable">I2P-netwerk niet beschikbaar</string>
+    <string name="account_status_incompatible_client">Niet-compatibele client</string>
+    <string name="pref_use_i2p_summary">Alle verbindingen via het I2P-netwerk laten verlopen. Vereist een I2P-client.</string>
+    <string name="pref_enable_otr_summary">OTR als versleuteling van berichten gebruiken. OTR is geen stabiele versleutelingsmethode, gebruik het alleen als je zeker van je zaak bent.</string>
+    <string name="no_manage_storage_permission">Sinds Android 11 hebben apps speciale rechten nodig om all bestandstypen op externe opslag te kunnen benaderen. monocles chat zal nu om toestemming vragen.</string>
+    <string name="close">Sluiten</string>
+    <string name="pref_set_round_avatars_summary">Toon de avatars in ronde vorm</string>
+    <string name="are_you_sure_verify_fingerprint">De OTR-vingerafdruk van dit contact verifiëren?</string>
+    <string name="pref_theme_White">Wit</string>
+    <string name="block_avatar">Avatar blokkeren</string>
+    <string name="conference_technical_problems">Groepsgesprek verlaten om technische redenen</string>
+    <string name="action_dialpad">Toetsenblok</string>
+    <string name="account_state_logged_out">Uitgelogd</string>
+    <string name="this_account_is_logged_out">Je bent uitgelogd bij dit account</string>
 </resources>

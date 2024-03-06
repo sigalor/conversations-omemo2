@@ -1176,7 +1176,7 @@
     <string name="move_data">Daten verschieben</string>
     <string name="error_moving_data">Beim Verschieben deiner alten Daten ist ein Fehler aufgetreten. Bitte verschiebe sie manuell.</string>
     <string name="data_successfully_moved">Daten wurden erfolgreich verschoben.</string>
-    <string name="invite_to_app">Zu monocles chat einladen</string>
+    <string name="invite_to_app">Einladen zu monocles chat</string>
     <string name="unable_to_parse_invite">Einladung kann nicht gelesen werden</string>
     <string name="server_does_not_support_easy_onboarding_invites">Server unterstützt keine Generierung von Einladungen</string>
     <string name="your_server">Dein Provider</string>
@@ -1457,4 +1457,14 @@
     <string name="subject">Thema</string>
     <string name="add_subject">Thema anfügen</string>
     <string name="recent_threads">Letzte Threads</string>
+    <string name="webxdc_hint">Um WebXDC zu nutzen bitte Threads icon aktivieren und WebXDC noch einmal unverschlüsselt senden</string>
+    <string name="open">Öffne</string>
+    <string name="unencrypted">unverschlüsselt</string>
+    <string name="pref_open_links_inapp">Öffne Links in der App</string>
+    <string name="pref_open_links_inapp_summary">Öffne Weblinks in monocles chat</string>
+    <string name="pref_app_lock_enable_title">Aktiviere App Schloss (Beta)</string>
+    <string name="pref_app_lock_enable_summary">Aktiviere das App-Schloss. Sei dir bewusst, das die App nicht mehr geöffnet werden kann ohne die PIN.</string>
+    <string name="app_lock_forgot_password">Installiere die App neu und lade das Chat-Backup</string>
+    <string name="new_message">Neue Nachricht</string>
+    <string name="new_notification">Neue Benachrichtigung</string>
 </resources>

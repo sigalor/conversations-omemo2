@@ -1517,4 +1517,9 @@
     <string name="pref_app_lock_enable_summary">Activa el bloqueo de aplicaciones. Ten en cuenta que ya no podrás abrir la aplicación si olvidaste el PIN.</string>
     <string name="pref_open_links_inapp_summary">Abrir enlaces web en el chat de monocles</string>
     <string name="pref_open_links_inapp">Abrir enlaces en la aplicación</string>
+    <string name="new_message">Nuevo mensaje</string>
+    <string name="new_notification">Nueva notificación</string>
+    <string name="stickers">Stickers</string>
+    <string name="emojis">Emojis</string>
+    <string name="webxdc_hint">Activar la función de hilos, desactive OMEMO y envíe nuevamente</string>
 </resources>
