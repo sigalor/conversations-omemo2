@@ -3935,16 +3935,45 @@ public class ConversationFragment extends XmppFragment
         setThread(message.getThread());
         conversation.setUserSelectedThread(true);
         //Open emoji picker
-        binding.emojisStickerLayout.setVisibility(VISIBLE);
-        binding.emojiButton.setVisibility(GONE);
-        binding.keyboardButton.setVisibility(VISIBLE);
-        hideSoftKeyboard(activity);
-        EmojiPickerView emojiPickerView = binding.emojiPicker;
-        backPressedLeaveEmojiPicker.setEnabled(true);
-        binding.textinput.requestFocus();
-        emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
-            binding.textinput.append(emojiViewItem.getEmoji());
-        });
+        if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() > 70) {
+            binding.emojiButton.setVisibility(GONE);
+            binding.keyboardButton.setVisibility(VISIBLE);
+            hideSoftKeyboard(activity);
+            EmojiPickerView emojiPickerView = binding.emojiPicker;
+            backPressedLeaveEmojiPicker.setEnabled(true);
+            binding.textinput.requestFocus();
+            emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+                binding.textinput.append(emojiViewItem.getEmoji());
+            });
+        } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
+            LinearLayout emojipickerview = binding.emojisStickerLayout;
+            ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
+            params.height = 600;
+            emojipickerview.setLayoutParams(params);
+            binding.emojiButton.setVisibility(GONE);
+            binding.keyboardButton.setVisibility(VISIBLE);
+            hideSoftKeyboard(activity);
+            EmojiPickerView emojiPickerView = binding.emojiPicker;
+            backPressedLeaveEmojiPicker.setEnabled(true);
+            binding.textinput.requestFocus();
+            emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
+                binding.textinput.append(emojiViewItem.getEmoji());
+            });
+        }
+        if (binding.emojiPicker.getVisibility() == VISIBLE) {
+            binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+            binding.emojisButton.setTypeface(null, Typeface.BOLD);
+        } else {
+            binding.emojisButton.setBackgroundColor(0);
+            binding.emojisButton.setTypeface(null, Typeface.NORMAL);
+        }
+        if (binding.stickers.getVisibility() == VISIBLE) {
+            binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+            binding.stickersButton.setTypeface(null, Typeface.BOLD);
+        } else {
+            binding.stickersButton.setBackgroundColor(0);
+            binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+        }
         // TODO: Directly choose emojis from popup menu
     }
 
@@ -4843,13 +4872,11 @@ public class ConversationFragment extends XmppFragment
                         binding.emojiButton.setVisibility(VISIBLE);
                         params.height = keyboardHeight - 25;
                         emojipickerview.setLayoutParams(params);
-                        binding.emojisStickerLayout.setVisibility(VISIBLE);
                     } else if (keyboardOpen) {
                         binding.keyboardButton.setVisibility(GONE);
                         binding.emojiButton.setVisibility(VISIBLE);
                         params.height = keyboardHeight - 150;
                         emojipickerview.setLayoutParams(params);
-                        binding.emojisStickerLayout.setVisibility(VISIBLE);
                     } else if (binding.emojiButton.getVisibility() == VISIBLE) {
                         binding.keyboardButton.setVisibility(GONE);
                         params.height = 0;
