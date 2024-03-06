@@ -4818,7 +4818,7 @@ public class ConversationFragment extends XmppFragment
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
                     binding.emojiButton.setVisibility(GONE);
-                    params.height = 350;
+                    params.height = 600;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
                     binding.emojiButton.setVisibility(GONE);
@@ -4856,7 +4856,7 @@ public class ConversationFragment extends XmppFragment
                         emojipickerview.setLayoutParams(params);
                     } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
                         binding.emojiButton.setVisibility(GONE);
-                        params.height = 350;
+                        params.height = 600;
                         emojipickerview.setLayoutParams(params);
                     } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
                         binding.emojiButton.setVisibility(GONE);
