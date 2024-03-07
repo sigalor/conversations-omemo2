@@ -25,7 +25,7 @@ import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.FileInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -234,7 +234,8 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
     private void openBackupFileFromUri(final Uri uri, final boolean finishOnCancel) {
         new Thread(() -> {
             try {
-                if( uri.getPath().endsWith(".ceb") ) {
+                // check if setting
+                if(isUserData(uri)) {
                     final ImportBackupService.BackupFile backupFile = ImportBackupService.BackupFile.read(this, uri);
                     runOnUiThread(() -> showEnterPasswordDialog(backupFile, finishOnCancel));
                 } else {
@@ -247,6 +248,19 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
                 runOnUiThread(() -> Snackbar.make(binding.coordinator, R.string.not_a_backup_file, Snackbar.LENGTH_LONG).show());
             }
         }).start();
+    }
+
+    private boolean isUserData(Uri uri) {
+        try {
+            DataInputStream inputStream = new DataInputStream(getContentResolver().openInputStream(uri));
+            BackupFileHeader header = BackupFileHeader.read(inputStream);
+            if (header.getJid() == null) {
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void showEnterPasswordDialog(final ImportBackupService.BackupFile backupFile, final boolean finishOnCancel) {
