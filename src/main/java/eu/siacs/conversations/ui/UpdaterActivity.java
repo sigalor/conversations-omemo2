@@ -336,7 +336,7 @@ public class UpdaterActivity extends XmppActivity {
             SSLContext sslcontext = null;
             SSLSocketFactory NoSSLv3Factory = null;
             try {
-                sslcontext = SSLContext.getInstance("TLSv1");
+                sslcontext = SSLContext.getInstance("TLSv1.2");
                 if (sslcontext != null) {
                     sslcontext.init(null, null, null);
                     NoSSLv3Factory = new NoSSLv3SocketFactory(sslcontext.getSocketFactory());
