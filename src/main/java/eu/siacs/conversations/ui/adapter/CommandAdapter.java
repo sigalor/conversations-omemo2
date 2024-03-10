@@ -52,7 +52,7 @@ public class CommandAdapter extends ArrayAdapter<CommandAdapter.Command> {
         public MucConfig() { }
 
         public String getName() {
-            return "⚙️ Configure Channel";
+            return "⚙️ Configure room";
         }
 
         public void start(final ConversationsActivity activity, final Conversation conversation) {
