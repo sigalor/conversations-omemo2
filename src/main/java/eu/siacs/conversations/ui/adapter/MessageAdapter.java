@@ -1435,7 +1435,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.transfer = view.findViewById(R.id.transfer);
                     viewHolder.progressBar = view.findViewById(R.id.progressBar);
                     viewHolder.cancel_transfer = view.findViewById(R.id.cancel_transfer);
-                    if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                    if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                         viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
                     }
                     break;
@@ -1596,7 +1596,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             viewHolder.message_box.setOnClickListener(v -> {
                 if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                     MessageAdapter.this.mOnMessageBoxClickedListener

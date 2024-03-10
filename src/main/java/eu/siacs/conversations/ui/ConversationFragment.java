@@ -525,7 +525,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             if (AbsListView.OnScrollListener.SCROLL_STATE_IDLE == scrollState) {
-                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     updateThreadFromLastMessage();
                 }
                 fireReadEvent();
@@ -994,7 +994,7 @@ public class ConversationFragment extends XmppFragment
             conversation.setUserSelectedThread(false);
             setThread(null);
             refresh();
-            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 updateThreadFromLastMessage();
             }
         }
@@ -1419,7 +1419,7 @@ public class ConversationFragment extends XmppFragment
                 }
             }
             if (hasSubject) message.setSubject(binding.textinputSubject.getText().toString());
-            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 message.setThread(conversation.getThread());
             }
             if (attention) {
@@ -1430,7 +1430,7 @@ public class ConversationFragment extends XmppFragment
             message = conversation.getCorrectingMessage();
             message.setBody(hasSubject && body.length() == 0 ? null : body);
             if (hasSubject) message.setSubject(binding.textinputSubject.getText().toString());
-            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 message.setThread(conversation.getThread());
             }
             message.putEdited(message.getUuid(), message.getServerMsgId(), message.getBody(), message.getTimeSent());
@@ -1823,9 +1823,9 @@ public class ConversationFragment extends XmppFragment
         SharedPreferences t = PreferenceManager.getDefaultSharedPreferences(activity);
         final boolean ShowThreadFeature = t.getBoolean("show_thread_feature", activity.getResources().getBoolean(R.bool.show_thread_feature));
         Log.d(Config.LOGTAG, "Thread " + ShowThreadFeature);
-        if (!ShowThreadFeature) {
+        if (activity != null && activity.xmppConnectionService != null && !ShowThreadFeature) {
             binding.threadIdenticonLayout.setVisibility(GONE);
-        } else if (ShowThreadFeature) {
+        } else if (activity != null && activity.xmppConnectionService != null && ShowThreadFeature) {
             binding.threadIdenticonLayout.setVisibility(VISIBLE);
 
         }
@@ -1897,7 +1897,7 @@ public class ConversationFragment extends XmppFragment
                 setThread(null);
                 conversation.setUserSelectedThread(false);
                 refresh();
-                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     updateThreadFromLastMessage();
                 }
             } else {
@@ -2074,7 +2074,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setThread(Element thread) {
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             this.conversation.setThread(thread);
         }
         binding.threadIdenticon.setAlpha(0f);
@@ -2410,11 +2410,11 @@ public class ConversationFragment extends XmppFragment
             case R.id.only_this_thread:
                 conversation.setLockThread(true);
                 backPressedLeaveSingleThread.setEnabled(true);
-                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(selectedMessage.getThread());
                 }
                 refresh();
-                if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(selectedMessage.getThread());
                 }
                 return true;
@@ -2576,7 +2576,7 @@ public class ConversationFragment extends XmppFragment
             setThread(null);
             conversation.setUserSelectedThread(false);
             refresh();
-            if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 updateThreadFromLastMessage();
             }
             return true;
@@ -3576,7 +3576,7 @@ public class ConversationFragment extends XmppFragment
     private void newThread() {
         Element thread = new Element("thread", "jabber:client");
         thread.setContent(UUID.randomUUID().toString());
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             setThread(thread);
         }
     }
@@ -3913,7 +3913,7 @@ public class ConversationFragment extends XmppFragment
         while (message.mergeable(message.next())) {
             message = message.next();
         }
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             setThread(message.getThread());
         }
         conversation.setUserSelectedThread(true);
@@ -4157,7 +4157,7 @@ public class ConversationFragment extends XmppFragment
             activity.onConversationArchived(this.conversation);
             return false;
         }
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             setThread(conversation.getThread());
         }
         stopScrolling();
@@ -5469,7 +5469,7 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void onContactPictureClicked(Message message) {
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             setThread(message.getThread());
         }
         conversation.setUserSelectedThread(true);
