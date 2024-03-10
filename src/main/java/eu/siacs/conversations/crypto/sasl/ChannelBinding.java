@@ -3,19 +3,21 @@ package eu.siacs.conversations.crypto.sasl;
 import android.util.Log;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.base.Strings;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableBiMap;
+
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.utils.SSLSockets;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public enum ChannelBinding {
     NONE,
@@ -33,12 +35,11 @@ public enum ChannelBinding {
         SHORT_NAMES = builder.build();
     }
 
-
     public static Collection<ChannelBinding> of(final Element channelBinding) {
         Preconditions.checkArgument(
                 channelBinding == null
                         || ("sasl-channel-binding".equals(channelBinding.getName())
-                        && Namespace.CHANNEL_BINDING.equals(channelBinding.getNamespace())),
+                                && Namespace.CHANNEL_BINDING.equals(channelBinding.getNamespace())),
                 "pass null or a valid channel binding stream feature");
         return Collections2.filter(
                 Collections2.transform(
@@ -74,6 +75,7 @@ public enum ChannelBinding {
             return NONE;
         }
     }
+
     public static ChannelBinding best(
             final Collection<ChannelBinding> bindings, final SSLSockets.Version sslVersion) {
         if (sslVersion == SSLSockets.Version.NONE) {
@@ -83,10 +85,10 @@ public enum ChannelBinding {
             return TLS_EXPORTER;
         } else if (bindings.contains(TLS_UNIQUE)
                 && Arrays.asList(
-                        SSLSockets.Version.TLS_1_0,
-                        SSLSockets.Version.TLS_1_1,
-                        SSLSockets.Version.TLS_1_2)
-                .contains(sslVersion)) {
+                                SSLSockets.Version.TLS_1_0,
+                                SSLSockets.Version.TLS_1_1,
+                                SSLSockets.Version.TLS_1_2)
+                        .contains(sslVersion)) {
             return TLS_UNIQUE;
         } else if (bindings.contains(TLS_SERVER_END_POINT)) {
             return TLS_SERVER_END_POINT;
@@ -102,22 +104,17 @@ public enum ChannelBinding {
     }
 
     private static String shortName(final ChannelBinding channelBinding) {
-        switch (channelBinding) {
-            case TLS_UNIQUE:
-                return "UNIQ";
-            case TLS_EXPORTER:
-                return "EXPR";
-            case TLS_SERVER_END_POINT:
-                return "ENDP";
-            case NONE:
-                return "NONE";
-            default:
-                throw new AssertionError("Missing short name for " + channelBinding);
-        }
+        return switch (channelBinding) {
+            case TLS_UNIQUE -> "UNIQ";
+            case TLS_EXPORTER -> "EXPR";
+            case TLS_SERVER_END_POINT -> "ENDP";
+            case NONE -> "NONE";
+            default -> throw new AssertionError("Missing short name for " + channelBinding);
+        };
     }
 
     public static int priority(final ChannelBinding channelBinding) {
-        if (Arrays.asList(TLS_EXPORTER,TLS_UNIQUE).contains(channelBinding)) {
+        if (Arrays.asList(TLS_EXPORTER, TLS_UNIQUE).contains(channelBinding)) {
             return 2;
         } else if (channelBinding == ChannelBinding.TLS_SERVER_END_POINT) {
             return 1;
