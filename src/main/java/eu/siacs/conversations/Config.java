@@ -76,7 +76,7 @@ public final class Config {
     public static final String privacyURL = "https://monocles.eu/legal-privacy/#privacy-monocles-chat-android";
     public static final String migrationURL = Locale.getDefault().getLanguage().equalsIgnoreCase("de") ? "https://codeberg.org/Arne/monocles_chat" : "https://codeberg.org/Arne/monocles_chat";
 
-    public static final String CHANGELOG_URL = "https://codeberg.org/Arne/monocles_chat/src/branch/master/CHANGELOG.md";
+    public static final String CHANGELOG_URL = "https://codeberg.org/monocles/monocles_chat/releases";
     public static final String GIT_URL = "https://codeberg.org/Arne/monocles_chat";
 
     public static final String PROVIDER_URL = "";// "https://data.xmpp.net/providers/v1/providers-A.json"; // https://invent.kde.org/melvo/xmpp-providers
