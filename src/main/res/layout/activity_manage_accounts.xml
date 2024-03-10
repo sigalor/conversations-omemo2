@@ -9,6 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+<LinearLayout
+    android:id="@+id/accounts_lists"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginBottom="70dp" >
 
     <include layout="@layout/toolbar" />
 
@@ -17,21 +23,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_marginBottom="70dp" />
+        android:dividerHeight="0dp" />
 
     <RelativeLayout
         android:id="@+id/phone_accounts"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
         android:paddingLeft="8dp"
         android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_marginBottom="70dp" >
+        android:paddingTop="8dp" >
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/phone_accounts_image"
@@ -77,13 +79,12 @@
             app:strokeColor="@null"
             app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
     </RelativeLayout>
-
+</LinearLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_gravity="end|bottom"
-        android:layout_below="@+id/account_list"
         android:background="?attr/color_background_secondary"
         app:labelVisibilityMode="labeled"
         app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
