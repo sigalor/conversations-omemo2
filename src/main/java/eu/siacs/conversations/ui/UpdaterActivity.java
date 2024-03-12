@@ -139,7 +139,7 @@ public class UpdaterActivity extends XmppActivity {
                         //ask for permissions on devices >= SDK 23
                         if (isStoragePermissionGranted() && isNetworkAvailable(getApplicationContext())) {
                             //start downloading the file using the download manager
-                            if (store != null && store.equalsIgnoreCase(PlayStore) || BuildConfig.APPLICATION_ID.equals("im.blabber.messenger")) {
+                            if (store != null && store.equalsIgnoreCase(PlayStore) || BuildConfig.APPLICATION_ID.equals("de.monocles.chat")) {
                                 ToastCompat.makeText(getApplicationContext(), getText(R.string.download_started), ToastCompat.LENGTH_LONG).show();
                                 downloadTask = new DownloadTask(UpdaterActivity.this);
                                 downloadTask.execute(appURI);
@@ -336,7 +336,7 @@ public class UpdaterActivity extends XmppActivity {
             SSLContext sslcontext = null;
             SSLSocketFactory NoSSLv3Factory = null;
             try {
-                sslcontext = SSLContext.getInstance("TLSv1");
+                sslcontext = SSLContext.getInstance("TLSv1.2");
                 if (sslcontext != null) {
                     sslcontext.init(null, null, null);
                     NoSSLv3Factory = new NoSSLv3SocketFactory(sslcontext.getSocketFactory());
