@@ -254,6 +254,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     id.account.getJid().asBareJid() + ": improperly formatted contents",
                     Throwables.getRootCause(e));
             respondOk(jinglePacket);
+            terminateTransport();
             sendSessionTerminate(Reason.of(e), e.getMessage());
             return;
         }
@@ -536,6 +537,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         if (isTerminated()) {
             return;
         }
+        terminateTransport();
         final Throwable rootCause = Throwables.getRootCause(throwable);
         Log.d(Config.LOGTAG, "unable to send session accept", rootCause);
         sendSessionTerminate(Reason.ofThrowable(rootCause), rootCause.getMessage());
@@ -605,6 +607,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     id.account.getJid().asBareJid() + ": improperly formatted contents",
                     Throwables.getRootCause(e));
             respondOk(jinglePacket);
+            terminateTransport();
             sendSessionTerminate(Reason.of(e), e.getMessage());
             return;
         }
@@ -648,6 +651,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     id.account.getJid().asBareJid() + ": improperly formatted contents",
                     Throwables.getRootCause(e));
             respondOk(jinglePacket);
+            terminateTransport();
             sendSessionTerminate(Reason.of(e), e.getMessage());
             return;
         }
@@ -710,6 +714,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         } else if (transportInfo
                 instanceof SocksByteStreamsTransportInfo.CandidateUsed candidateUsed) {
             if (!socksBytestreamsTransport.setCandidateUsed(candidateUsed.cid)) {
+                terminateTransport();
                 sendSessionTerminate(
                         Reason.FAILED_TRANSPORT,
                         String.format(
@@ -737,6 +742,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     id.account.getJid().asBareJid() + ": improperly formatted contents",
                     Throwables.getRootCause(e));
             respondOk(jinglePacket);
+            terminateTransport();
             sendSessionTerminate(Reason.of(e), e.getMessage());
             return;
         }
@@ -834,8 +840,9 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         if (transport == null) {
             return;
         }
-        // TODO consider setting transport callback to null. requires transport to handle null callback
-        //transport.setTransportCallback(null);
+        // TODO consider setting transport callback to null. requires transport to handle null
+        // callback
+        // transport.setTransportCallback(null);
         transport.terminate();
         this.transport = null;
     }
@@ -866,8 +873,12 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     }
 
                     @Override
-                    public void onFailure(@NonNull Throwable throwable) {
-                        onFileTransmissionFailed(throwable);
+                    public void onFailure(@NonNull final Throwable throwable) {
+                        // The state transition in here should be synchronized to not race with the
+                        // state transition in receiveSessionTerminate
+                        synchronized (JingleFileTransferConnection.this) {
+                            onFileTransmissionFailed(throwable);
+                        }
                     }
                 },
                 MoreExecutors.directExecutor());
