@@ -3019,11 +3019,13 @@ public class JingleRtpConnection extends AbstractJingleConnection
             this.webRTCWrapper.verifyClosed();
             this.jingleConnectionManager.setTerminalSessionState(id, getEndUserState(), getMedia());
             this.jingleConnectionManager.finishConnectionOrThrow(this);
+            /*       // Disable call log files for now
             try {
                 File log = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "calls/" + id.getWith().asBareJid() + "." + id.getSessionId() + "." + created + ".log");
                 log.getParentFile().mkdirs();
                 Runtime.getRuntime().exec(new String[]{"logcat", "-dT", "" + created + ".0", "-f", log.getAbsolutePath()});
             } catch (final IOException e) { }
+            */
         } else {
             throw new IllegalStateException(
                     String.format("Unable to call finish from %s", this.state));
