@@ -23,8 +23,10 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import de.monocles.chat.SignUpPage;
+import de.monocles.chat.services.ProviderService;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMagicCreateBinding;
@@ -88,10 +90,19 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         }
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_magic_create);
-        final List<String> domains = Arrays.asList(getResources().getStringArray(R.array.domains));
+        // Try fetching current providers list
+        final List<String> domains = ProviderService.getProviders();
         Collections.sort(domains, String::compareToIgnoreCase);
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, domains);
-        int defaultServer = adapter.getPosition("conversations.im");
+        try {
+            if (new ProviderService().execute().get()) {
+                adapter.notifyDataSetChanged();
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        // final List<String> domains = Arrays.asList(getResources().getStringArray(R.array.domains));
+        int defaultServer = adapter.getPosition(de.monocles.chat.Config.DOMAIN.getRandomServer());
         if (registerFromUri && !useOwnProvider && (this.preAuth != null || domain != null)) {
             binding.server.setEnabled(false);
             binding.server.setVisibility(View.GONE);
@@ -238,7 +249,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
     private void updateFullJidInformation(String username) {
         if (useOwnProvider && !registerFromUri) {
             this.domain = updateDomain();
-        } else if (!registerFromUri){
+        } else if (!registerFromUri && !binding.server.getSelectedItem().toString().isEmpty()) {
             this.domain = binding.server.getSelectedItem().toString();
         }
         if (username.trim().isEmpty()) {

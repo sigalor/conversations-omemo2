@@ -7,17 +7,20 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 public class KeyboardHeightProvider extends PopupWindow {
+    LinearLayout popupView;
+    ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener;
     public KeyboardHeightProvider(Context context, WindowManager windowManager, View parentView, KeyboardHeightListener listener) {
         super(context);
 
-        LinearLayout popupView = new LinearLayout(context);
+        popupView = new LinearLayout(context);
         popupView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        popupView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+        globalLayoutListener = () -> {
             DisplayMetrics metrics = new DisplayMetrics();
             windowManager.getDefaultDisplay().getMetrics(metrics);
 
@@ -37,7 +40,8 @@ public class KeyboardHeightProvider extends PopupWindow {
             if (listener != null) {
                 listener.onKeyboardHeightChanged(keyboardHeight, keyboardOpen, isLandscape);
             }
-        });
+        };
+        popupView.getViewTreeObserver().addOnGlobalLayoutListener(globalLayoutListener);
 
         setContentView(popupView);
 
@@ -48,6 +52,15 @@ public class KeyboardHeightProvider extends PopupWindow {
         setBackgroundDrawable(new ColorDrawable(0));
 
         parentView.post(() -> showAtLocation(parentView, Gravity.NO_GRAVITY, 0, 0));
+    }
+
+    @Override
+    public void dismiss() {
+        if (globalLayoutListener != null) {
+            popupView.getViewTreeObserver().removeOnGlobalLayoutListener(globalLayoutListener);
+            globalLayoutListener = null;
+        }
+        super.dismiss();
     }
 
     public interface KeyboardHeightListener {
