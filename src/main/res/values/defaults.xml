@@ -116,12 +116,10 @@
 
     <string-array name="support_domains">
         <item>monocles.eu</item>
-        <item>monocles.de</item>
         <item>conversations.im</item>
     </string-array>
 
     <string-array name="support_site">
-        <item>https://monocles.wiki</item>
         <item>https://monocles.wiki</item>
         <item>https://conversations.im/#support</item>
     </string-array>
