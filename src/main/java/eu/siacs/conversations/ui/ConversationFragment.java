@@ -1985,6 +1985,11 @@ public class ConversationFragment extends XmppFragment
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
+        if (activity != null &&
+                activity.getWindow() != null &&
+                activity.getWindow().getDecorView() != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(activity.getWindow().getDecorView(), null);
+        }
         if (keyboardHeightProvider != null) {
             keyboardHeightProvider.dismiss();
         }
