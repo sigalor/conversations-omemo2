@@ -384,6 +384,9 @@ public class ConversationFragment extends XmppFragment
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
+
+    private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
+    private KeyboardHeightProvider keyboardHeightProvider = null;
     private final OnClickListener clickToMuc = new OnClickListener() {
 
         @Override
@@ -1742,7 +1745,9 @@ public class ConversationFragment extends XmppFragment
         final MenuItem menuManageAccounts = menu.findItem(R.id.action_accounts);
         final MenuItem menuSettings = menu.findItem(R.id.action_settings);
         final MenuItem menuInviteToChat = menu.findItem(R.id.action_invite_user);
-
+        if (activity == null) {
+            return;
+        }
         if (conversation != null) {
             if (conversation.getMode() == Conversation.MODE_MULTI || (activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection())) {
                 menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
@@ -1852,7 +1857,6 @@ public class ConversationFragment extends XmppFragment
         DisplayMetrics displayMetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         if (displayMetrics.heightPixels > 0) binding.textinput.setMaxHeight(displayMetrics.heightPixels / 4);
-
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
         binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
         binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
@@ -1981,6 +1985,12 @@ public class ConversationFragment extends XmppFragment
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
+        if (keyboardHeightProvider != null) {
+            keyboardHeightProvider.dismiss();
+        }
+        if (messageListAdapter == null) {
+            return;
+        }
         messageListAdapter.setOnContactPictureClicked(null);
         messageListAdapter.setOnContactPictureLongClicked(null);
         messageListAdapter.setOnInlineImageLongClicked(null);
@@ -4083,6 +4093,9 @@ public class ConversationFragment extends XmppFragment
             hideSoftKeyboard(activity);
         }
         final Activity activity = getActivity();
+        if (messageListAdapter == null) {
+            return;
+        }
         messageListAdapter.unregisterListenerInAudioPlayer();
         if (activity == null || !activity.isChangingConfigurations()) {
             hideSoftKeyboard(activity);
@@ -4186,6 +4199,9 @@ public class ConversationFragment extends XmppFragment
         }
         this.binding.textinput.setKeyboardListener(this);
         this.binding.textinputSubject.setKeyboardListener(this);
+        if (messageListAdapter == null) {
+            return true;
+        }
         messageListAdapter.updatePreferences();
         refresh(false);
         activity.invalidateOptionsMenu();
@@ -4241,30 +4257,29 @@ public class ConversationFragment extends XmppFragment
 
     private void hasWriteAccessInMUC() {
         if ((conversation != null && conversation.getMode() == Conversation.MODE_MULTI && !conversation.getMucOptions().participating()) && !activity.xmppConnectionService.hideYouAreNotParticipating()) {
-            activity.runOnUiThread(() -> {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getString(R.string.you_are_not_participating));
-                builder.setMessage(getString(R.string.no_write_access_in_public_muc));
-                builder.setNegativeButton(getString(R.string.hide_warning),
-                        (dialog, which) -> {
-                            SharedPreferences preferences = activity.getPreferences();
-                            preferences.edit().putBoolean(HIDE_YOU_ARE_NOT_PARTICIPATING, true).apply();
-                            hideSnackbar();
-                        });
-                builder.setPositiveButton(getString(R.string.ok),
-                        (dialog, which) -> {
-                            try {
-                                Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
-                                intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
-                                intent.putExtra("uuid", conversation.getUuid());
-                                startActivity(intent);
-                                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                builder.create().show();
-            });
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(getString(R.string.you_are_not_participating));
+            builder.setMessage(getString(R.string.no_write_access_in_public_muc));
+            builder.setNegativeButton(getString(R.string.hide_warning),
+                    (dialog, which) -> {
+                        SharedPreferences preferences = activity.getPreferences();
+                        preferences.edit().putBoolean(HIDE_YOU_ARE_NOT_PARTICIPATING, true).apply();
+                        hideSnackbar();
+                    });
+            builder.setPositiveButton(getString(R.string.ok),
+                    (dialog, which) -> {
+                        try {
+                            Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
+                            intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
+                            intent.putExtra("uuid", conversation.getUuid());
+                            startActivity(intent);
+                            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+            AlertDialog alertDialog = builder.create();
+            activity.runOnUiThread(alertDialog::show);
             showSnackbar(R.string.no_write_access_in_public_muc, R.string.ok, clickToMuc);
         }
     }
@@ -4750,7 +4765,10 @@ public class ConversationFragment extends XmppFragment
 
     private boolean storeNextMessage(String msg) {
         final boolean participating = conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating();
-        if (this.conversation.getStatus() != Conversation.STATUS_ARCHIVED && participating && this.conversation.setNextMessage(msg)) {
+        if (this.conversation.getStatus() != Conversation.STATUS_ARCHIVED &&
+                participating &&
+                this.conversation.setNextMessage(msg) &&
+                Objects.nonNull(activity.xmppConnectionService)) {
             this.activity.xmppConnectionService.updateConversation(this.conversation);
             return true;
         }
@@ -4862,41 +4880,42 @@ public class ConversationFragment extends XmppFragment
                 return ViewCompat.onApplyWindowInsets(v, insets);
             });
         } else {
+            if (keyboardHeightProvider != null) {
+                return;
+            }
             RelativeLayout llRoot = binding.conversationsFragment; //The root layout (Linear, Relative, Contraint, etc...)
-            new KeyboardHeightProvider(activity, activity.getWindowManager(), llRoot, new KeyboardHeightProvider.KeyboardHeightListener() {
-                @Override
-                public void onKeyboardHeightChanged(int keyboardHeight, boolean keyboardOpen, boolean isLandscape) {
-                    Log.i("keyboard listener", "keyboardHeight: " + keyboardHeight + " keyboardOpen: " + keyboardOpen + " isLandscape: " + isLandscape);
-                    if (keyboardOpen && !(secondaryFragment instanceof ConversationFragment)) {
-                        binding.keyboardButton.setVisibility(GONE);
-                        binding.emojiButton.setVisibility(VISIBLE);
-                        params.height = keyboardHeight - 25;
-                        emojipickerview.setLayoutParams(params);
-                    } else if (keyboardOpen) {
-                        binding.keyboardButton.setVisibility(GONE);
-                        binding.emojiButton.setVisibility(VISIBLE);
-                        params.height = keyboardHeight - 150;
-                        emojipickerview.setLayoutParams(params);
-                    } else if (binding.emojiButton.getVisibility() == VISIBLE) {
-                        binding.keyboardButton.setVisibility(GONE);
-                        params.height = 0;
-                        emojipickerview.setLayoutParams(params);
-                    } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
-                        binding.emojiButton.setVisibility(GONE);
-                        params.height = 600;
-                        emojipickerview.setLayoutParams(params);
-                    } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
-                        binding.emojiButton.setVisibility(GONE);
-                        params.height = keyboardHeight;
-                        emojipickerview.setLayoutParams(params);
-                    }
-                    if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
-                        showTextFormat(me);
-                    } else {
-                        hideTextFormat();
-                    }
+            keyboardHeightListener = (int keyboardHeight, boolean keyboardOpen, boolean isLandscape) -> {
+                Log.i("keyboard listener", "keyboardHeight: " + keyboardHeight + " keyboardOpen: " + keyboardOpen + " isLandscape: " + isLandscape);
+                if (keyboardOpen && !(secondaryFragment instanceof ConversationFragment)) {
+                    binding.keyboardButton.setVisibility(GONE);
+                    binding.emojiButton.setVisibility(VISIBLE);
+                    params.height = keyboardHeight - 25;
+                    emojipickerview.setLayoutParams(params);
+                } else if (keyboardOpen) {
+                    binding.keyboardButton.setVisibility(GONE);
+                    binding.emojiButton.setVisibility(VISIBLE);
+                    params.height = keyboardHeight - 150;
+                    emojipickerview.setLayoutParams(params);
+                } else if (binding.emojiButton.getVisibility() == VISIBLE) {
+                    binding.keyboardButton.setVisibility(GONE);
+                    params.height = 0;
+                    emojipickerview.setLayoutParams(params);
+                } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
+                    binding.emojiButton.setVisibility(GONE);
+                    params.height = 600;
+                    emojipickerview.setLayoutParams(params);
+                } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
+                    binding.emojiButton.setVisibility(GONE);
+                    params.height = keyboardHeight;
+                    emojipickerview.setLayoutParams(params);
                 }
-            });
+                if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
+                    showTextFormat(me);
+                } else {
+                    hideTextFormat();
+                }
+            };
+            keyboardHeightProvider = new KeyboardHeightProvider(activity, activity.getWindowManager(), llRoot, keyboardHeightListener);
         }
     }
 
