@@ -62,9 +62,8 @@
     <string name="save">Opslaan</string>
     <string name="ok">Oké</string>
     <string name="crash_report_title">monocles chat is vastgelopen</string>
-    <string name="crash_report_message">Door het versturen van crashrapportages help je de ontwikkeling van monocles chat.
-\n
-\n<b>Waarschuwing:</b> Deze app zal je XMPP-account gebruiken om de rapportage te versturen naar de ontwikkelaar.</string>
+    <string name="crash_report_message">Door het versturen van crashrapportages help je de ontwikkeling van monocles chat. 
+\n <b>Waarschuwing:</b> Deze app zal je XMPP-account gebruiken om de rapportage te versturen naar de ontwikkelaar.</string>
     <string name="send_now">Nu versturen</string>
     <string name="send_never">Niet opnieuw vragen</string>
     <string name="problem_connecting_to_account">Verbinding maken met account mislukt</string>
@@ -91,11 +90,11 @@
     <string name="send_unencrypted">Verstuur onversleuteld</string>
     <string name="decryption_failed">Ontsleutelen mislukt. Misschien heb je niet de juiste private sleutel.</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">%1$s gebruikt een app genaamd <b>OpenKeychain</b> om berichten te versleutelen/ontsleutelen en om publieke sleutels te beheren.
-\n
-\nOpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en Google Play.
-\n
-\n<small>(Herstart monocles chat na installatie.)</small></string>
+    <string name="openkeychain_required_long">%1$s gebruikt een app genaamd <b>OpenKeychain</b> om berichten te versleutelen/ontsleutelen en om publieke sleutels te beheren. 
+\n 
+\nOpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en Google Play. 
+\n 
+\n<small>(Herstart %1$s na de installatie.)</small></string>
     <string name="restart">Herstarten</string>
     <string name="install">Installeren</string>
     <string name="offering">bezig met aanbieden…</string>
@@ -175,7 +174,7 @@
 \n
 \nBij het verwijderen van het account op de server kan ook niet meer worden ingelogd met dit account.</string>
     <string name="attach_record_voice">Stem opnemen</string>
-    <string name="account_settings_jabber_id">chat address:</string>
+    <string name="account_settings_jabber_id">XMPP-adres</string>
     <string name="account_settings_example_jabber_id">gebruikersnaam@monocles.eu</string>
     <string name="password">Wachtwoord</string>
     <string name="invalid_jid">Dit is geen geldige chat address</string>
@@ -557,7 +556,7 @@
     <string name="welcome_existing_account">Ik heb een account</string>
     <string name="pick_your_username">Kies je gebruikersnaam</string>
     <string name="pref_manually_change_presence">Handmatig je aanwezigheid aanpassen</string>
-    <string name="pref_manually_change_presence_summary">Stel je aanwezigheid in wanneer je je statusbericht aanpast.</string>
+    <string name="pref_manually_change_presence_summary">Verander je aanwezigheid wanneer je je statusbericht aanpast.</string>
     <string name="status_message">Statusbericht</string>
     <string name="presence_chat">Beschikbaar voor gesprek</string>
     <string name="presence_online">Online</string>
@@ -602,7 +601,7 @@
     <string name="remote_server_not_found">Externe server niet gevonden</string>
     <string name="error_file_corrupt">Dit bestand is mogelijk corrupt.</string>
     <string name="unable_to_update_account">Kan account niet bijwerken</string>
-    <string name="report_jid_as_spammer">Rapporteer deze JID voor het sturen van ongewenste berichten</string>
+    <string name="report_jid_as_spammer">Rapporteer dit XMPP-adres voor het sturen van ongewenste berichten.</string>
     <string name="create_issue">Een probleem melden</string>
     <string name="pref_delete_omemo_identities">OMEMO-identiteiten verwijderen</string>
     <string name="pref_delete_omemo_identities_summary">Maak je OMEMO-sleutels opnieuw aan. Al je contacten zullen je opnieuw moeten verifiëren. Gebruik dit enkel als een laatste reddingsmiddel.</string>
@@ -629,7 +628,7 @@
     <string name="barcode_does_not_contain_fingerprints_for_this_conversation">Streepjescode bevat geen vingerafdruk voor dit gesprek.</string>
     <string name="verified_fingerprints">Geverifieerde vingerafdrukken</string>
     <string name="use_camera_icon_to_scan_barcode">Gebruik de camera om de streepjescode van een contact te scannen</string>
-    <string name="please_wait_for_keys_to_be_fetched">De sleutels worden opgehaald. Even geduld.</string>
+    <string name="please_wait_for_keys_to_be_fetched">De sleutels worden opgehaald. Even geduld…</string>
     <string name="share_as_barcode">Delen als streepjescode</string>
     <string name="share_as_uri">Delen als XMPP-URI</string>
     <string name="share_as_http">Delen als HTTP-link</string>
@@ -884,9 +883,8 @@
     <string name="no_name_set_instructions">Geen bijnaam ingevoerd.</string>
     <string name="autojoin_group_chat">Automatisch deelnemen aan dit groepsgesprek</string>
     <string name="pref_show_links_inside">Voorbeelden van links in gesprekken tonen</string>
-    <string name="pref_show_links_inside_summary">Toon een voorbeeld van de website als er een link wordt gestuurd in een gesprek.
-\n
-\n<b>Waarschuwing</b>: Voor iedere link die wordt gedeeld zal er vanaf dit apparaat een verbinding worden gemaakt met die website!</string>
+    <string name="pref_show_links_inside_summary">Toon een voorbeeld van de website als er een link wordt gestuurd in een gesprek. 
+\n <b>Waarschuwing</b>: Voor iedere link die wordt gedeeld zal er vanaf dit apparaat een verbinding worden gemaakt met die website!</string>
     <string name="pref_play_gif_inside">GIF-animaties afspelen</string>
     <string name="pref_play_gif_inside_summary">Speel GIF-animaties direct in het gesprek af.</string>
     <string name="open_with">Open met…</string>
@@ -1008,7 +1006,7 @@
     <string name="intro_account">Je account</string>
     <string name="intro_desc_account">Als je al een account hebt, kun je gewoon inloggen met je chat address en wachtwoord</string>
     <string name="intro_start_chatting">Een gesprek beginnen</string>
-    <string name="intro_desc_start_chatting">Als je de machtiging om je Android-adresboek te lezen aan de app geeft, worden personen met een chat address automatisch in je contactlijst getoond. Anders kun je gewoon zelf chat address\'s toevoegen.</string>
+    <string name="intro_desc_start_chatting">Als je de app toegang tot je contacten geeft, worden personen met een XMPP-adres automatisch in de app getoond. Voeg anders zelf XMPP-adressen toe.</string>
     <string name="intro_desc_open_chat">Vanaf nu kun je beginnen met chatten, je locatie, bestanden, afbeeldingen en video\'s delen of spraakberichten versturen.</string>
     <string name="intro_chat_details">Gespreksgegevens</string>
     <string name="intro_desc_chat_details">Wil je de gespreksgegevens inzien\? Druk dan bovenaan op de naam van het gesprek.</string>
@@ -1025,8 +1023,8 @@
     <string name="intro_desc_account2">Je kunt eenvoudig een nieuw profiel aanmaken op monocles chat door een bijnaam in te voeren.</string>
     <string name="open_join_dialog">Deelnemen aan openbaar kanaal…</string>
     <string name="intro_optional_permissions">Optionele machtigingen</string>
-    <string name="intro_desc_optional_permissions2">Als je je locatie wilt delen, is de machtiging voor je locatie nodig.
-\nVoor het delen van spraakberichten heeft de app toegang tot je microfoon nodig.</string>
+    <string name="intro_desc_optional_permissions2">De app heeft het recht om de locatie uit te lezen nodig om die te kunnen delen.
+\nVoor het delen van spraakberichten moet de app de microfoon kunnen gebruiken.</string>
     <string name="intro_desc_account3">Bestaande accounts kunnen worden geïmporteerd.
 \nAls er back-ups beschikbaar zijn, dan zullen die worden getoond.</string>
     <string name="intro_desc_start_chatting2">Er kunnen ook groepsgesprekken worden aangemaakt (rooms). Deze kunnen worden onderverdeeld in besloten groepsgesprekken en openbare kanalen.</string>
@@ -1119,7 +1117,7 @@
     <string name="disable_tor_to_make_call">Schakel Tor uit voor oproepen of gebruik Tor in VPN-modus</string>
     <string name="help">Help</string>
     <string name="switch_to_conversation">Overschakelen naar gesprek</string>
-    <string name="only_one_call_at_a_time">Je kunt maar één gesprek tegelijk voeren.</string>
+    <string name="only_one_call_at_a_time">Er kan maar één oproep tegelijk actief zijn.</string>
     <string name="missed_call">Gemiste oproep</string>
     <string name="could_not_switch_camera">Kan de camera niet omschakelen</string>
     <string name="readmore">Meer lezen</string>
@@ -1292,4 +1290,215 @@
     <string name="action_dialpad">Toetsenblok</string>
     <string name="account_state_logged_out">Uitgelogd</string>
     <string name="this_account_is_logged_out">Je bent uitgelogd bij dit account</string>
+    <string name="continue_btn">Doorgaan</string>
+    <string name="participants">Deelnemers</string>
+    <string name="verifying_omemo_keys_trusted_source_account">Je staat op het punt om de OMEMO-sleutels van je eigen account te verifiëren. Dit is alleen veilig als je deze link hebt gevolgd vanuit een vertrouwde bron waar alleen jij deze link kunt hebben gepubliceerd.</string>
+    <string name="orbot_not_found">Orbot niet gevonden</string>
+    <string name="account_status_temporary_auth_failure">Tijdelijke authenticatiestoring</string>
+    <string name="i_have_written">Ik schreef:</string>
+    <string name="title_activity_about_x">Over %s</string>
+    <string name="x_has_written">%s schreef:</string>
+    <string name="pref_choose_camera_summary">Kies een eigen camera-app</string>
+    <string name="choose_camera_app">Camera-app kiezen</string>
+    <string name="vector_graphic">vectorafbeelding</string>
+    <string name="multimedia_file">mediabestand</string>
+    <string name="pref_resend_delay_title">Vertraging opnieuw verzenden (milliseconden)</string>
+    <string name="pref_resend_delay_summary">De vertraging tussen de pogingen om berichten alsnog te verzenden.</string>
+    <string name="unified_push_distributor">UnifiedPush Distributor</string>
+    <string name="title_undo_swipe_out_group_chat">Ongedaan maken</string>
+    <string name="title_undo_swipe_out_channel">Ongedaan maken</string>
+    <string name="title_undo_swipe_out_conversation">Ongedaan maken</string>
+    <string name="undo">Ongedaan maken</string>
+    <string name="audio_video_disabled_tor">Oproepen zijn uitgeschakeld als Tor gebruikt wordt</string>
+    <string name="pref_enable_persistent_rooms_title">Permanente gesprekken</string>
+    <string name="reject_switch_to_video">Videogesprek weigeren</string>
+    <string name="switch_to_video">Videogesprek beginnen</string>
+    <string name="pref_up_push_account_title">Account</string>
+    <string name="pref_up_push_server_title">Push-server</string>
+    <string name="pref_enable_persistent_rooms_summary">Maak gesprekken en kanalen permanent: verwijder ze niet van de server nadat de laatste gebruiker het gesprek heeft verlaten.</string>
+    <string name="pref_up_push_account_summary">De account waarmee pushberichten worden ontvangen.</string>
+    <string name="no_account_deactivated">Geen (uitgeschakeld)</string>
+    <string name="pref_theme_custom">Eigen</string>
+    <string name="moderate_message">Modereren</string>
+    <string name="moderate_reason">Reden voor moderatie</string>
+    <string name="unable_to_moderate">Modereren mislukt</string>
+    <string name="note_to_self">Notitie voor mezelf</string>
+    <string name="retract_message">Bericht intrekken</string>
+    <string name="or_use_another">… of kies een andere hieronder</string>
+    <string name="receiving_x_file">Ontvangen %1$s (%2$d%% compleet)</string>
+    <string name="i_am_snikket_user">Ik gebruik Snikket</string>
+    <string name="microphone_permission_for_call">Het recht om de microfoon te gebruiken is benodigd voor oproepen</string>
+    <string name="outgoing_call_timestamp">Uitgaande oproep · %s</string>
+    <string name="outgoing_call_duration_timestamp">Uitgaande oproep (%s) · %s</string>
+    <string name="action_edit_contact">Contact bewerken</string>
+    <string name="only_this_thread">Alleen deze thread tonen</string>
+    <string name="pref_dialler_integration_incoming">Telefoonaccounts gebruiken voor inkomende oproepen</string>
+    <string name="refresh_feature_discovery">Serverfuncties ophalen</string>
+    <string name="reply_to">Reageren op</string>
+    <string name="call">Oproep</string>
+    <string name="tags">Tags</string>
+    <string name="save_as_sticker">Opslaan als sticker</string>
+    <string name="sticker_name">Stickernaam</string>
+    <string name="action_execute">OK</string>
+    <string name="block_media">Media blokkeren</string>
+    <string name="new_contact">Nieuw contact</string>
+    <string name="cleanup_conversations">Gesprekken opschonen</string>
+    <string name="save_as_contact_bookmark">Opslaan als contact/bladwijzer</string>
+    <string name="add_to_home_screen">Toevoegen aan beginscherm</string>
+    <string name="new_contact_or_group">Nieuw contact of gesprek</string>
+    <string name="thread_marker">Threadmarkering</string>
+    <string name="join_room">Deelnemen</string>
+    <string name="custom_primary_color">Primaire kleur</string>
+    <string name="custom_primary_dark_color">Primaire donkere kleur</string>
+    <string name="custom_accent_color">Accentkleur</string>
+    <string name="change_stickers_location">Locatie stickers wijzigen</string>
+    <string name="update_default_stickers">Standaardstickers wijzigen</string>
+    <string name="clear_blocked_media">Geblokkeerde media resetten</string>
+    <string name="choose_sticker_location">Kies de locatie voor stickers</string>
+    <string name="colors">Kleuren</string>
+    <string name="create_monocles_only_backup">Gegevens specifiek voor monocles chat exporteren? (De back-up kan dan niet worden geïmporteerd in andere apps.)</string>
+    <string name="action_complete">Actie voltooid</string>
+    <string name="moderate_recent">Berichten modereren?</string>
+    <string name="settings_restore_message_success">Instellingen zijn succesvol hersteld</string>
+    <string name="settings_restore_message_failure">Instellingen zijn niet hersteld: %s</string>
+    <string name="pref_import_database_or_settings">Database of instellingen importeren</string>
+    <string name="pref_import_database_or_settings_summary">Importeer een back-up van je database of instellingen</string>
+    <string name="related_chats">Gerelateerd</string>
+    <string name="menuitem_create_backup_action">Back-up maken</string>
+    <string name="pref_use_blue_readmarkers_title">Blauwe leesmarkeringen gebruiken</string>
+    <string name="pref_use_blue_readmarkers_summary">Kleur de leesmarkeringen blauw in plaats van wit of zwart</string>
+    <string name="chat_background">Achtergrond gesprekken</string>
+    <string name="message_reaction">Reactie sturen</string>
+    <string name="custom_background">Eigen achtergrond</string>
+    <string name="pref_chat_background_summary">Kies zelf een afbeelding voor de achtergrond van gesprekken.</string>
+    <string name="please_be_patient">Even geduld…</string>
+    <string name="notify_only_when_highlighted_or_replied">Waarschuwen bij vermeldingen en reacties</string>
+    <string name="pref_follow_thread_in_channel">Thread automatisch volgen in kanalen</string>
+    <string name="pref_follow_thread_in_channel_summary">Stel de threadmarkering in zodat deze overeenkomt met het bericht dat momenteel wordt bekeken</string>
+    <string name="show_less">"
+\n
+\n… minder tonen"</string>
+    <string name="show_more">"
+\n
+\n… meer tonen"</string>
+    <string name="confirm_delete_attachment_summary">Wil je de bevestigingsvraag overslaan als je een lokaal bestand uit een gesprek verwijdert?</string>
+    <string name="pref_confirm_delete_attachment">Bij bestanden verwijderen niet om bevestiging vragen</string>
+    <string name="pref_custom_theme_color_options_summary">Kies zelf de themakleuren</string>
+    <string name="choose_emoji">Emoji\'s kiezen</string>
+    <string name="show_keyboard">Toetsenbord tonen</string>
+    <string name="app_title" formatted="true">monocles chat</string>
+    <string name="pref_show_thread_feature_summary">Activeer de threadmarkering in het invoerveld en sta het maken en volgen van threads toe</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Contact bewerken voor dit gesprek of in het adresboek van telefoon?</string>
+    <string name="edit_sytemaccount">Adresboek telefoon</string>
+    <string name="edit_chat_contact">Gesprek</string>
+    <string name="account_color">Accountkleur</string>
+    <string name="notifications_enabled">Meldingen ingeschakeld</string>
+    <string name="notifications_disabled">Meldingen uitgeschakeld. Schakel ze weer in via de systeeminstellingen.</string>
+    <string name="hide_notification">Melding verbergen</string>
+    <string name="enter_user_name">Voer een naam in</string>
+    <string name="account_color_summary">Wordt gebruikt bij gesprekken, in de contactenlijst en bij meldingen</string>
+    <string name="pref_set_text_collapsable">Langere tekstblokken samenvouwen</string>
+    <string name="key_automatically_accepted"> - sleutel niet geverifieerd</string>
+    <string name="log_out">Uitloggen</string>
+    <string name="unknown">Onbekend</string>
+    <string name="media">Media</string>
+    <string name="security">Beveiliging</string>
+    <string name="verified_with_qr_code"> - geverifieerd met QR-code</string>
+    <string name="not_dnssec_verified">Niet met DNSSEC geverifieerd</string>
+    <string name="dnssec_dane_verified">Geverifieerd met DNSSEC en DANE</string>
+    <string name="dnssec_verified">Geverifieerd met DNSSEC</string>
+    <string name="manage_phone_accounts">Telefoonaccounts beheren</string>
+    <string name="create_background_failed">Achtergrond kon niet worden aangemaakt</string>
+    <string name="custom_background_set">Achtergrond ingesteld</string>
+    <string name="delete_background_failed">De achtergrondafbeelding kon niet worden verwijderd</string>
+    <string name="unverified_devices">Je gebruikt apparaten die nog niet geverifieerd zijn. Scan de QR-code op je andere apparaten en voltooi de verificatie om man-in-the-middle-aanvallen te voorkomen.</string>
+    <string name="pref_delete_background_summary">Verwijder je eerder gekozen achtergrond voor gesprekken</string>
+    <string name="no_background_set">Geen achtergrond ingesteld</string>
+    <string name="import_own_stickers">Stickers importeren</string>
+    <string name="thanks">Bedankt voor het gebruiken van monocles chat! Overweeg alsjeblieft om de ontwikkeling te steunen met een kleine donatie.❤️</string>
+    <string name="delete_background_success">Achtergrondafbeelding verwijderd</string>
+    <string name="donation_link">https://monocles.eu/more/#donation-section</string>
+    <string name="donate">Doneren</string>
+    <string name="pref_enforce_dane_summary">Verbind alleen met een account als de verificatie via DANE succesvol is</string>
+    <string name="pref_enforce_dane">DANE-verificatie vereisen</string>
+    <string name="use_monocles">Ik gebruiker liever monocles</string>
+    <string name="sticker_saved">Sticker opgeslagen</string>
+    <string name="sticker_imported">Sticker geïmporteerd</string>
+    <string name="import_sticker_failed">Sticker kon niet worden geïmporteerd</string>
+    <string name="download_sticker">Stickers downloaden?</string>
+    <string name="download_sticker_summary">Wil je de standaardset van stickerpacks downloaden?</string>
+    <string name="pref_create_compatible_backup">Universele back-up maken</string>
+    <string name="pref_hide_donation_snackbar">Donatiemelding verbergen</string>
+    <string name="snikket_login_activated">Snikket-login geactiveerd</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Gebruik twee kleuren leesmarkeringen: blauw voor ontvangen en groen voor gelezen.</string>
+    <string name="pref_readmarkers_summary">Verander de stijl van de leesmarkeringen</string>
+    <string name="pref_readmarker_title">Stijl leesmarkeringen</string>
+    <string name="grey">Grijs</string>
+    <string name="blue">Blauw</string>
+    <string name="green_and_blue">Blauw en groen</string>
+    <string name="pref_send_link_previews">Previews van links versturen</string>
+    <string name="report_spam">Spam rapporteren</string>
+    <string name="subject">Onderwerp</string>
+    <string name="add_subject">Onderwerp toevoegen</string>
+    <string name="pref_create_compatible_backup_summary">Schrijf universele back-upbestanden naar %s</string>
+    <string name="no_media_permission">Recht niet toegekend</string>
+    <string name="unified">Alles</string>
+    <string name="calls">Oproepen</string>
+    <string name="stories">Verhalen</string>
+    <string name="accounts">Accounts</string>
+    <string name="chats">Gesprekken</string>
+    <string name="pref_hide_donation_snackbar_summary">Verberg de donatiemelding permanent</string>
+    <string name="webxdc_hint">Om WebXDC te kunnen gebruiken moet de threads-functie geactiveerd zijn en moet de WebXDC-app onversleuteld worden verstuurd</string>
+    <string name="unencrypted">onversleuteld</string>
+    <string name="open">Openen</string>
+    <string name="pref_open_links_inapp">Links in-app openen</string>
+    <string name="recent_threads">Recente threads</string>
+    <string name="app_lock_forgot_password">App opnieuw installeren en back-up importeren</string>
+    <string name="pref_send_link_previews_summary">Verstuur metadata over links bij het versturen van berichten. Alleen voor onversleutelde berichten.</string>
+    <string name="pref_show_thread_feature">Threadsfunctie inschakelen</string>
+    <string name="download_failed_invalid_file">Download mislukt: ongeldig bestand</string>
+    <string name="pref_use_green_blue_readmarkers_title">Leesmarkeringen blauw/groen maken</string>
+    <string name="incoming_call_duration_timestamp">Inkomende oproep (%s) · %s</string>
+    <string name="report_spam_and_block">Spam rapporteren en afzender blokkeren</string>
+    <string name="delete_background">Achtergrond gesprekken verwijderen</string>
+    <string name="import_own_stickers_summary">Importeer je eigen stickers. Gebruik ze met de originele bestandsnaam.</string>
+    <string name="dane_failed">DANE-verificatie mislukt</string>
+    <string name="pref_app_lock_enable_title">App-vergrendeling inschakelen (beta)</string>
+    <string name="thread_locked">Thread vergrendeld</string>
+    <string name="pref_up_push_server_summary">Kies een push-server om pushberichten naar andere apps op dit apparaat door te kunnen sturen.</string>
+    <string name="retract_message_dialog_msg">Wil je dit bericht intrekken?</string>
+    <string name="input_field">Invoerveld</string>
+    <string name="pref_app_lock_enable_summary">Schakel de app-vergrendeling in. Pas op: je kunt de app niet meer openen als je de pincode bent vergeten.</string>
+    <string name="pref_open_links_inapp_summary">Weblinks in monocles chat openen</string>
+    <string name="log_in">Inloggen</string>
+    <string name="magic_create_text">We leiden je door het proces van het aanmaken van een account met een willekeurig wachtwoord, dat je kunt blijven gebruiken of op de volgende pagina kunt wijzigen.\\nVervolgens kun je communiceren met gebruikers van deze en andere providers door ze je volledige XMPP-adres te geven.</string>
+    <string name="pref_max_resend_time_summary">Als het verzenden van een tekstbericht mislukt, is dit de maximale tijd waarbinnen het verzenden opnieuw zal worden geprobeerd. Als het aantal pogingen groter is dan de helft van de maximale tijd, wordt het bericht vertraagd.</string>
+    <string name="describe_issue">Please describe your issue in detail. Thanks.</string>
+    <string name="pref_max_resend_time_title">Max. tijdsbestek waarin berichten opnieuw verzonden worden bij fouten</string>
+    <string name="contact_uses_unverified_keys">Dit contact gebruikt apparaten die nog niet geverifieerd zijn. Scan de QR-code en voltooi de verificatie om man-in-the-middle-aanvallen te voorkomen.</string>
+    <string name="monocles_account_details">Dit is inclusief:
+\n● Versleutelde chatopslag
+\n● E-mail met 2 GB aan versleutelde opslag
+\n
+\nMet optioneel:
+\n● 5 GB cloudopslag (Nextcloud)
+\n● Kalender and contacten synchroniseren
+\n● Een veilige tool voor vergaderen
+\n en meer: <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="monocles_account_introduction">Meld je nu aan en <b>krijg een beveiligde monocles-account, aangedreven door duurzame energie</b> om direct te beginnen met chatten.</string>
+    <string name="pref_dialler_integration_incoming_summary">Inkomende oproepen van telefoonnummers kunnen overgaan via de telefoon-app van je systeem in plaats van via meldingen van deze app</string>
+    <string name="custom_theme_options">Opties aangepast thema</string>
+    <string name="custom_theme_is_dark">Is dit een donker thema?</string>
+    <string name="you_may_sometimes_have_to">Soms moet de app geforceerd afgesloten worden om de wijzigingen toe te passen.</string>
+    <string name="restore_warning_continued">Herstel alleen back-ups die je zelf hebt gemaakt!</string>
+    <string name="collapse_message_signs_title">Lange tekstberichten samenvouwen</string>
+    <string name="collapse_message_signs_summary">Stel het maximum aantal tekens in voordat een bericht zal worden samengevouwen</string>
+    <string name="pref_set_text_collapsable_summary">Klap teksten in als ze bestaan uit meer dan 230 tekens</string>
+    <string name="help_format_text">Je kunt eenvoudige opties gebruiken om je tekst op te maken. De tekens om het begin en het einde van een opmaak aan te geven staan precies aan het begin en het einde van het woord of de woordgroep. Er moet een spatie staan voor het beginteken en een spatie na het eindteken, anders wordt de opmaak niet herkend.
+\n
+\nJe kunt de werkbalk direct tijdens het schrijven gebruiken. Als je op een knop drukt, wordt het teken op de cursorpositie ingevoegd. Je kunt ook een woord of woordgroep selecteren en dan op een van de knoppen drukken.</string>
+    <string name="new_message">Nieuw bericht</string>
+    <string name="new_notification">Nieuwe melding</string>
+    <string name="emojis">Emoji\'s</string>
+    <string name="stickers">Stickers</string>
 </resources>

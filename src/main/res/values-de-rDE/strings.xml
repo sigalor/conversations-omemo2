@@ -1457,7 +1457,7 @@
     <string name="subject">Thema</string>
     <string name="add_subject">Thema anfügen</string>
     <string name="recent_threads">Letzte Threads</string>
-    <string name="webxdc_hint">Um WebXDC zu nutzen bitte Threads icon aktivieren und WebXDC noch einmal unverschlüsselt senden</string>
+    <string name="webxdc_hint">Um WebXDC zu nutzen, bitte Threads aktivieren und WebXDC unverschlüsselt senden</string>
     <string name="open">Öffne</string>
     <string name="unencrypted">unverschlüsselt</string>
     <string name="pref_open_links_inapp">Öffne Links in der App</string>

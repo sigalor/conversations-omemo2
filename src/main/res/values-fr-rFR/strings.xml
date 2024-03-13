@@ -15,9 +15,9 @@
     <string name="action_unblock_domain">Débloquer le domaine</string>
     <string name="title_activity_manage_accounts">Gestion des comptes</string>
     <string name="title_activity_settings">Paramètres</string>
-    <string name="conference_details">Détails du groupe de discussion</string>
+    <string name="conference_details">Détails du salon</string>
     <string name="contact_details">Détails du contact</string>
-    <string name="title_activity_sharewith">Partager avec la conversation</string>
+    <string name="title_activity_sharewith">Partager la conversation</string>
     <string name="title_activity_start_conversation">Démarrer une conversation</string>
     <string name="title_activity_choose_contact">Choisir un contact</string>
     <string name="title_activity_choose_contacts">Choisir des contacts</string>
@@ -39,7 +39,7 @@
     <string name="moderator">Modérateur/trice</string>
     <string name="participant">Participant⸱e</string>
     <string name="visitor">Visiteur/teuse</string>
-    <string name="remove_contact_text">Voulez-vous supprimer %s de votre liste ? Les discussions associées à ce contact ne seront pas supprimées.</string>
+    <string name="remove_contact_text">Voulez-vous supprimer %s de vos contacts ? La discussion associée à ce contact ne sera pas supprimée.</string>
     <string name="block_contact_text">Voulez-vous bloquer %s pour l\'empêcher de vous envoyer des messages ?</string>
     <string name="unblock_contact_text">Voulez-vous débloquer %s et lui permettre de vous envoyer des messages ?</string>
     <string name="block_domain_text">Bloquer tous les contacts de %s ?</string>
@@ -216,7 +216,7 @@
     <string name="done">Terminé</string>
     <string name="verify">Vérifier</string>
     <string name="decrypt">Déchiffrer</string>
-    <string name="bookmarks">Discussions</string>
+    <string name="bookmarks">Salons</string>
     <string name="search">Rechercher</string>
     <string name="enter_contact">Ajouter contact</string>
     <string name="delete_contact">Supprimer le contact</string>
@@ -227,12 +227,12 @@
     <string name="select">Sélectionner</string>
     <string name="contact_already_exists">Le contact existe déjà.</string>
     <string name="join">Rejoindre</string>
-    <string name="channel_full_jid_example">canal@conference.example.com/pseudo</string>
-    <string name="channel_bare_jid_example">canal@conference.example.com</string>
+    <string name="channel_full_jid_example">salon@conference.example.com/pseudo</string>
+    <string name="channel_bare_jid_example">salon@conference.example.com</string>
     <string name="save_as_bookmark">Enregistrer comme favori</string>
     <string name="delete_bookmark">Supprimer le favori</string>
     <string name="topic">Sujet</string>
-    <string name="joining_conference">Rejoint la discussion…</string>
+    <string name="joining_conference">Rejoint le salon…</string>
     <string name="leave">Quitter</string>
     <string name="contact_added_you">Votre correspondant·e vous a ajouté·e dans sa liste de contacts</string>
     <string name="add_back">Ré-ajouter</string>
@@ -255,7 +255,7 @@
     <string name="disable_notifications">Désactiver les notifications</string>
     <string name="enable_notifications">Activer les notifications</string>
     <string name="enable">Activer</string>
-    <string name="conference_requires_password">Ce groupe de discussion requiert un mot de passe</string>
+    <string name="conference_requires_password">Ce salon requiert un mot de passe</string>
     <string name="enter_password">Entrer le mot de passe</string>
     <string name="request_presence_updates">Veuillez demander à votre contact de partager ses mises à jour de présence.
 \n
@@ -286,12 +286,12 @@
     <string name="pref_use_colored_names_to_indicate_status_summary">Colorer les noms des contacts pour indiquer leurs statuts.</string>
     <string name="pref_expert_options_other">Autres</string>
     <string name="pref_autojoin">Synchroniser avec les favoris</string>
-    <string name="pref_autojoin_summary">Rejoindre et quitter des discussions en fonction du paramètre « Rejoindre automatiquement » définit dans les détails de la discussion.</string>
+    <string name="pref_autojoin_summary">Rejoindre et quitter des salons en fonction du paramètre « Rejoindre automatiquement » définit dans les détails du salon.</string>
     <string name="toast_message_omemo_fingerprint">Empreinte OMEMO copiée dans le presse-papier !</string>
-    <string name="conference_banned">Vous êtes banni·e de cette discussion</string>
-    <string name="conference_members_only">Ce groupe de discussion n\'est autorisé qu\'aux membres</string>
-    <string name="conference_kicked">Vous avez été exclu·e de ce groupe de discussion</string>
-    <string name="conference_shutdown">Ce groupe de discussion n’existe plus</string>
+    <string name="conference_banned">Vous êtes banni·e de ce salon</string>
+    <string name="conference_members_only">Ce salon n\'est autorisé qu\'aux membres</string>
+    <string name="conference_kicked">Vous avez été exclu·e de ce salon</string>
+    <string name="conference_shutdown">Ce salon n’existe plus</string>
     <string name="using_account">avec le compte %s</string>
     <string name="checking_x">Vérification de %s sur l’hôte HTTP</string>
     <string name="not_connected_try_again">Vous n\'êtes pas connecté·e. Essayez plus tard.</string>
@@ -337,10 +337,10 @@
     <string name="no_application_found_to_open_file">Aucune application disponible pour ouvrir le fichier</string>
     <string name="could_not_verify_fingerprint">Impossible de vérifier l’empreinte</string>
     <string name="manually_verify">Vérifier manuellement</string>
-    <string name="pref_show_dynamic_tags">Afficher les tags dynamiques</string>
-    <string name="pref_show_dynamic_tags_summary">Affiche des tags en lecture seule en dessous des contacts.</string>
-    <string name="no_conference_server_found">Aucun serveur de discussions n’a été trouvé</string>
-    <string name="conference_creation_failed">Échec de la création du groupe de discussion !</string>
+    <string name="pref_show_dynamic_tags">Afficher des tags dynamiques</string>
+    <string name="pref_show_dynamic_tags_summary">Affiche des tags en lecture seule sous les contacts.</string>
+    <string name="no_conference_server_found">Aucun serveur de salons n’a été trouvé</string>
+    <string name="conference_creation_failed">Échec de la création du salon !</string>
     <string name="account_image_description">Avatar du compte</string>
     <string name="copy_omemo_clipboard_description">Copier l’empreinte OMEMO dans le presse-papier</string>
     <string name="regenerate_omemo_key">Renouveler la clef OMEMO</string>
@@ -380,21 +380,21 @@
     <string name="remove_membership">Révoquer les privilèges de membre</string>
     <string name="grant_admin_privileges">Accorder des privilèges d’administration</string>
     <string name="remove_admin_privileges">Révoquer les privilèges d’administration</string>
-    <string name="kick_from_room">Exclure de la discussion</string>
+    <string name="kick_from_room">Exclure du salon</string>
     <string name="could_not_change_affiliation">Impossible de changer l’affiliation de %s</string>
-    <string name="ban_from_conference">Bannir de la discussion</string>
-    <string name="kick_from_conference">Exclure de la discussion</string>
-    <string name="ban_from_public_conference_message">Vous allez bannir définitivement %s d\'un canal public.</string>
-    <string name="ban_from_conference_message">Vous allez bannir définitivement %s d\'un groupe de discussion</string>
-    <string name="kicking_from_public_conference">Vous allez exclure %s d\'un canal public.</string>
-    <string name="kicking_from_conference">Vous allez exclure %s d\'un groupe de discussion.</string>
+    <string name="ban_from_conference">Bannir du salon</string>
+    <string name="kick_from_conference">Exclure du salon</string>
+    <string name="ban_from_public_conference_message">Vous allez bannir définitivement %s d\'un salon public.</string>
+    <string name="ban_from_conference_message">Vous allez bannir définitivement %s d\'un salon</string>
+    <string name="kicking_from_public_conference">Vous allez exclure %s d\'un salon public.</string>
+    <string name="kicking_from_conference">Vous allez exclure %s d\'un salon.</string>
     <string name="ban_now">Bannir maintenant</string>
     <string name="kick_now">Exclure maintenant</string>
     <string name="non_anonymous">Rendre l’identifiant Jabber visible à tout le monde</string>
-    <string name="moderated">Rendre le canal modéré</string>
+    <string name="moderated">Rendre le salon modéré</string>
     <string name="you_are_not_participating">Vous ne participez pas</string>
-    <string name="modified_conference_options">Options de la discussion modifiées !</string>
-    <string name="could_not_modify_conference_options">Impossible de modifier les options de la discussion</string>
+    <string name="modified_conference_options">Options du salon modifiées !</string>
+    <string name="could_not_modify_conference_options">Impossible de modifier les options du salon</string>
     <string name="never">Jamais</string>
     <string name="until_further_notice">Jusqu’à nouvel ordre</string>
     <string name="pref_input_options">Saisie</string>
@@ -433,14 +433,14 @@
         <item quantity="other">%d certificats supprimés</item>
     </plurals>
     <string name="pref_quick_action_summary">Remplacer le bouton Envoyer par une action rapide.</string>
-    <string name="pref_quick_action">Action Rapide</string>
+    <string name="pref_quick_action">Action rapide</string>
     <string name="none">Aucune</string>
     <string name="recently_used">Dernière utilisée</string>
     <string name="search_contacts">Rechercher des contacts</string>
-    <string name="search_bookmarks">Chercher des groupes de discussions</string>
+    <string name="search_bookmarks">Chercher des salons</string>
     <string name="choose_quick_action">Sélectionner l’action rapide</string>
     <string name="send_private_message">Envoyer un message privé</string>
-    <string name="user_has_left_conference">%1$s a quitté la discussion !</string>
+    <string name="user_has_left_conference">%1$s a quitté le salon !</string>
     <string name="username">Identifiant</string>
     <string name="username_hint">Identifiant</string>
     <string name="invalid_username">Cet identifiant n\'est pas valide</string>
@@ -570,14 +570,14 @@
     <string name="share_location">Partager ma position</string>
     <string name="location_sharing_disabled">Le partage de position a été désactivé dans les paramètres</string>
     <string name="locating">Géolocalisation en cours…</string>
-    <string name="action_end_conversation_muc">Quitter la discussion</string>
-    <string name="leave_conference_warning">Désirez-vous quitter ce groupe de discussion ?
-\nVous ne serez plus notifié de l’arrivée des nouveaux messages jusqu’à ce que vous rejoigniez à nouveau la discussion.</string>
+    <string name="action_end_conversation_muc">Quitter le salon</string>
+    <string name="leave_conference_warning">Désirez-vous quitter ce salon ?
+\nVous ne serez plus notifié de l’arrivée des nouveaux messages jusqu’à ce que vous rejoigniez le salon à nouveau.</string>
     <string name="show_password">Afficher le mot de passe</string>
     <string name="registration_please_wait">L’enregistrement a échoué : réessayer plus tard</string>
     <string name="registration_password_too_weak">Échec de l’enregistrement : le mot de passe n’est pas assez fort</string>
     <string name="choose_participants">Choisir les participant⸱e⸱s</string>
-    <string name="creating_conference">Création du groupe de discussion…</string>
+    <string name="creating_conference">Création du salon…</string>
     <string name="import_text">Si une sauvegarde est disponible, vous pouvez la restaurer en appuyant sur le bouton ci-dessous.</string>
     <string name="import_database">Importer une sauvegarde</string>
     <string name="invite_again">Inviter à nouveau</string>
@@ -747,13 +747,13 @@
     <string name="pref_use_bundled_emoji_summary">Utilise les émojis de l\'application plutôt que ceux de votre appareil. Les modifications seront prises en compte à la réouverture de l’application.</string>
     <string name="invalid_muc_nick">Pseudo invalide</string>
     <string name="title_activity_share_via_account">Partager via le compte</string>
-    <string name="destroy_room">Supprimer complètement la discussion</string>
-    <string name="conference_unknown_error">Vous ne faites plus partie de cette discussion</string>
-    <string name="destroy_room_dialog">Désirez-vous supprimer complètement la discussion %s ? Ceci supprimera la discussion pour de bon.</string>
-    <string name="destroy_room_succeed">Discussion supprimée avec succès</string>
-    <string name="destroy_room_failed">Impossible de supprimer la discussion</string>
-    <string name="no_write_access_in_public_muc">Vous ne participez pas à ce groupe de discussion et ne pouvez pas y écrire pour le moment.
-\nAllez SVP dans les détails du groupe en appuyant sur <b>OK</b> et envoyez un message privé au modérateur, administrateur ou propriétaire du groupe en appuyant longtemps sur son nom en haut de la liste pour lui demander l\'autorisation d\'écrire.</string>
+    <string name="destroy_room">Supprimer le salon</string>
+    <string name="conference_unknown_error">Vous ne faites plus partie de ce salon</string>
+    <string name="destroy_room_dialog">Désirez-vous supprimer le salon %s ? Ceci supprimera le salon pour de bon.</string>
+    <string name="destroy_room_succeed">Salon supprimé avec succès</string>
+    <string name="destroy_room_failed">Impossible de supprimer le salon</string>
+    <string name="no_write_access_in_public_muc">Vous ne participez pas à ce salon et ne pouvez pas y écrire pour le moment. 
+\nAllez SVP dans les détails du salon en appuyant sur <b>OK</b> et envoyez un message privé au modérateur, administrateur ou propriétaire du groupe en appuyant longtemps sur son nom en haut de la liste pour lui demander l\'autorisation d\'écrire.</string>
     <string name="snooze">Silencer</string>
     <string name="huawei_protected_apps">Applications protégées</string>
     <string name="huawei_protected_apps_summary">Pour continuer à recevoir des notifications, même lorsque l\'écran est éteint, vous devez ajouter monocles chat à la liste des applications protégées.</string>
@@ -785,7 +785,7 @@
     <string name="disable_now">Désactiver maintenant</string>
     <string name="draft">Brouillon :</string>
     <string name="pref_omemo_setting">Chiffrement avec OMEMO</string>
-    <string name="pref_omemo_setting_summary_always">OMEMO sera toujours utilisé dans les discussions privées à deux.</string>
+    <string name="pref_omemo_setting_summary_always">OMEMO sera toujours utilisé dans les discussions à deux et les salons privés.</string>
     <string name="pref_omemo_setting_summary_default_on">OMEMO sera utilisé par défaut dans les nouvelles discussions.</string>
     <string name="pref_omemo_setting_summary_default_off">OMEMO devra être activé explicitement pour les nouvelles conversations.</string>
     <string name="pref_omemo_setting_summary_always_off">OMEMO ne sera jamais utilisé.</string>
@@ -820,22 +820,22 @@
     <string name="pref_start_search">Recherche directe</string>
     <string name="pref_start_search_summary">Ouvre le clavier et place le curseur sur le champs de recherche dans la fenêtre « Démarrer une conversation ».</string>
     <string name="paste_as_quote">Coller comme une citation</string>
-    <string name="group_chat_avatar">Avatar de la discussion</string>
+    <string name="group_chat_avatar">Avatar du salon</string>
     <string name="host_does_not_support_group_chat_avatars">L’hôte ne prend pas en charge les avatars</string>
     <string name="only_the_owner_can_change_group_chat_avatar">Seul le propriétaire peut changer l’avatar</string>
     <string name="contact_name">Nom du contact</string>
-    <string name="nickname">Pseudonyme pour cette discussion</string>
+    <string name="nickname">Pseudonyme pour ce salon</string>
     <string name="group_chat_name">Nom</string>
     <string name="providing_a_name_is_optional">Le nom est optionnel</string>
-    <string name="create_dialog_group_chat_name">Nom de la discussion</string>
+    <string name="create_dialog_group_chat_name">Nom du salon</string>
     <string name="everyone_has_read_up_to_this_point">Tout le monde a tout lu jusqu’ici</string>
     <string name="conference_resource_constraint">Contraintes de ressource</string>
     <string name="delete_message">Supprimer le message</string>
-    <string name="conference_destroyed">La discussion a été supprimée</string>
+    <string name="conference_destroyed">Le salon a été supprimé</string>
     <string name="no_application_found_to_view_contact">Aucune application permettant d’afficher ce contact n’a été trouvée</string>
     <string name="welcome_server_info">Nous vous recommandons d’utiliser monocles chat comme votre fournisseur.</string>
     <string name="no_location_permission">monocles chat a besoin d’accéder à la géolocalisation</string>
-    <string name="pref_show_record_voice_btn_summary">Affiche les boutons Enregistrement audio et Appareil photo dans les conversations.</string>
+    <string name="pref_show_record_voice_btn_summary">Affiche les boutons Enregistrement audio et Appareil photo dans du champ de saisie.</string>
     <string name="pref_show_record_voice_btn">Boutons Enregistrement audio et Appareil photo</string>
     <string name="pref_use_quick_share_attachment_choice_summary">Remplacer le bouton Envoyer par le bouton Joindre si aucun message n\'est tapé. Sinon afficher le bouton d\'actions rapides qui peut être configuré comme suit.</string>
     <string name="pref_quick_share_attachment_choice">Choix des fichiers joints</string>
@@ -855,7 +855,7 @@
     <string name="video_compression_channel_name">Compression vidéo</string>
     <string name="backup_channel_name">Sauvegarde et restauration</string>
     <string name="app_update_channel_name">Mise à jour de l’application</string>
-    <string name="action_group_details">Détails de la discussion</string>
+    <string name="action_group_details">Détails du salon</string>
     <string name="view_media">Afficher les médias</string>
     <string name="media_browser">Gestionnaire de médias</string>
     <string name="account_status_stream_opening_error">Erreur lors de l’ouverture du flux</string>
@@ -883,13 +883,13 @@
     <string name="install_orbot">Installer Orbot</string>
     <string name="start_orbot">Démarrer Orbot</string>
     <string name="no_market_app_installed">Aucun magasin d’applications n’est installé.</string>
-    <string name="group_chat_will_make_your_jabber_id_public">Ce canal rendra visible publiquement votre ID Jabber</string>
+    <string name="group_chat_will_make_your_jabber_id_public">Ce salon rendra visible publiquement votre ID Jabber</string>
     <string name="ebook">e-book</string>
     <string name="your_name">Votre nom</string>
     <string name="enter_your_name">Saisissez votre nom</string>
     <string name="enter_your_name_instructions">Veuillez saisir le pseudonyme que verront vos contacts.</string>
     <string name="no_name_set_instructions">Pas de pseudo défini.</string>
-    <string name="autojoin_group_chat">Rejoindre automatiquement ce groupe de discussion</string>
+    <string name="autojoin_group_chat">Rejoindre automatiquement ce salon</string>
     <string name="pref_show_links_inside">Montrer les aperçus des liens Web</string>
     <string name="pref_show_links_inside_summary">Affiche un aperçu des liens Web directement dans la discussion, une connexion au serveur correspondant est nécessaire.</string>
     <string name="pref_play_gif_inside">Animer les images GIF</string>
@@ -913,22 +913,22 @@
     </plurals>
     <string name="group_chat_members">Participant⸱e⸱s</string>
     <string name="message_deleted">Le message a été supprimé</string>
-    <string name="channel_details">Détails du canal</string>
-    <string name="join_public_channel">Rejoindre un canal public</string>
-    <string name="create_private_group_chat">Créer un groupe de discussion privé</string>
-    <string name="create_public_channel">Créer un canal public</string>
-    <string name="create_dialog_channel_name">Nom du canal</string>
+    <string name="channel_details">Détails du salon</string>
+    <string name="join_public_channel">Rejoindre un salon public</string>
+    <string name="create_private_group_chat">Créer un salon privé</string>
+    <string name="create_public_channel">Créer un salon public</string>
+    <string name="create_dialog_channel_name">Nom du salon</string>
     <string name="xmpp_address">Adresse XMPP</string>
-    <string name="please_enter_name">Merci de donner un nom à ce canal</string>
+    <string name="please_enter_name">Merci de donner un nom à ce salon</string>
     <string name="please_enter_xmpp_address">Veuillez fournir une adresse XMPP</string>
     <string name="this_is_an_xmpp_address">Ceci est une adresse XMPP. Veuillez fournir un nom.</string>
-    <string name="creating_channel">Canal public en cours de création…</string>
-    <string name="channel_already_exists">Ce canal existe déjà</string>
-    <string name="joined_an_existing_channel">Vous venez de rejoindre un canal existant</string>
-    <string name="unable_to_set_channel_configuration">Impossible de définir la configuration du canal</string>
+    <string name="creating_channel">Salon public en cours de création…</string>
+    <string name="channel_already_exists">Ce salon existe déjà</string>
+    <string name="joined_an_existing_channel">Vous venez de rejoindre un salon existant</string>
+    <string name="unable_to_set_channel_configuration">Impossible de définir la configuration du salon</string>
     <string name="back">Retour</string>
-    <string name="conference_options">Configuration du groupe de discussion privé</string>
-    <string name="channel_options">Configuration du canal public</string>
+    <string name="conference_options">Configuration du salon privé</string>
+    <string name="channel_options">Configuration du salon public</string>
     <string name="allow_participants_to_edit_subject">Permettre à quiconque de modifier le sujet</string>
     <string name="allow_participants_to_invite_others">Permettre à quiconque d\'inviter d\'autres utilisateurs/trices</string>
     <string name="anyone_can_edit_subject">N\'importe qui peut modifier le sujet.</string>
@@ -938,19 +938,19 @@
     <string name="anyone_can_invite_others">N\'importe qui peut inviter d\'autres utilisateurs/trices.</string>
     <string name="jabber_ids_are_visible_to_admins">Les identifiants Jabber sont visibles par les administrateurs/trices.</string>
     <string name="jabber_ids_are_visible_to_anyone">Tout le monde peut voir les identifiants Jabber.</string>
-    <string name="no_users_hint_channel">Ce canal public n\'a pas de participant⸱e⸱s. Invitez vos contacts ou utilisez le bouton de partage afin de transmettre l\'adresse XMPP du canal.</string>
-    <string name="no_users_hint_group_chat">Ce groupe de discussion privé n\'a pas de participant⸱e⸱s.</string>
+    <string name="no_users_hint_channel">Ce salon public n\'a pas de participant⸱e⸱s. Invitez vos contacts ou utilisez le bouton de partage afin de transmettre son adresse.</string>
+    <string name="no_users_hint_group_chat">Ce salon privé n\'a pas de participant⸱e⸱s.</string>
     <string name="grant_owner_privileges">Accorder des privilèges de propriétaire</string>
     <string name="remove_owner_privileges">Révoquer les privilèges de propriétaire</string>
-    <string name="remove_from_channel">Retirer du canal</string>
-    <string name="ban_from_channel">Bannir du canal</string>
+    <string name="remove_from_channel">Retirer du salon</string>
+    <string name="ban_from_channel">Bannir du salon</string>
     <string name="manage_permission">Gestion des privilèges</string>
-    <string name="destroy_channel">Supprimer le canal</string>
-    <string name="destroy_channel_dialog">Désirez-vous supprimer complètement le canal %s ? Ceci supprimera le canal pour de bon.</string>
-    <string name="destroy_channel_succeed">Canal supprimé avec succès</string>
-    <string name="destroy_channel_failed">Impossible de supprimer le canal</string>
-    <string name="action_end_conversation_channel">Quitter le canal</string>
-    <string name="autojoin_channel">Rejoindre automatiquement ce canal</string>
+    <string name="destroy_channel">Supprimer le salon</string>
+    <string name="destroy_channel_dialog">Désirez-vous supprimer complètement le salon %s ? Ceci supprimera le salon pour de bon.</string>
+    <string name="destroy_channel_succeed">Salon supprimé avec succès</string>
+    <string name="destroy_channel_failed">Impossible de supprimer le salon</string>
+    <string name="action_end_conversation_channel">Quitter le salon</string>
+    <string name="autojoin_channel">Rejoindre automatiquement ce salon</string>
     <string name="no_attachments">Il n\'y a pas de pièces jointes</string>
     <string name="notification_backup_created_title">Succès de la sauvegarde</string>
     <string name="notification_backup_created_subtitle">La sauvegarde a été placée dans le dossier %s</string>
@@ -977,7 +977,7 @@
     <string name="use_own_provider">Recourir à un fournisseur personnalisé</string>
     <string name="this_looks_like_a_domain">Il semble que ce soit une adresse de domaine</string>
     <string name="add_anyway">Ajouter quand même</string>
-    <string name="this_looks_like_channel">Il semble que ce soit une adresse de canal</string>
+    <string name="this_looks_like_channel">Il semble que ce soit une adresse de salon</string>
     <string name="no_backup_available">Aucune sauvegarde disponible</string>
     <string name="pref_show_own_accounts_summary">Si vous avez plusieurs comptes, affichez les dans les discussions et les contacts.</string>
     <string name="pref_show_own_accounts">Affichez vos comptes</string>
@@ -1017,7 +1017,7 @@
     <string name="intro_chat_details">Détails du chat</string>
     <string name="intro_desc_chat_details">Vous voulez voir les détails d\'un chat ? Il vous suffit d\'appuyer sur le nom du chat dans la barre de menu du haut.</string>
     <string name="intro_highlight_user">Mettre en évidence l’utilisateur/trice</string>
-    <string name="intro_desc_highlight_user">Si vous souhaitez mettre en évidence un·e utilisateur/trice dans une discussion, toucher son avatar. Si celui-ci n\'est pas visible, passez aux détails du chat et cherchez l\'utilisateur/trice parmi les participant·e·s. Une pression longue sur son avatar fera apparaître un menu permettant de le/la mettre en évidence.</string>
+    <string name="intro_desc_highlight_user">Si vous souhaitez mettre en évidence un·e utilisateur/trice dans une discussion, toucher son avatar. Si celui-ci n\'est pas visible, passez aux détails de la discussions et cherchez l\'utilisateur/trice parmi les participant·e·s. Une pression longue sur son avatar fera apparaître un menu permettant de le/la mettre en évidence.</string>
     <string name="intro_desc_open_chat_details">Vous avez ouvert les détails du chat. Vous pouvez y voir les détails de ce chat, modifier le comportement des notifications des nouveaux messages, ajouter ou supprimer le chat de votre liste de contacts et bien plus encore.</string>
     <string name="pref_show_intro_summary">Revoir les messages d\'introduction et de présentation de monocles chat.</string>
     <string name="pref_show_intro">Revoir l\'introduction</string>
@@ -1027,13 +1027,13 @@
     <string name="intro_whats_xmpp">Qu\'est-ce que XMPP / Jabber / monocles chat ?</string>
     <string name="intro_desc_optional_permissions">Vous devez autoriser la lecture de votre carnet d\'adresses pour lire les identifiants Jabber de vos contacts (s\'ils en possèdent). Les contacts ne sont jamais partagés, téléchargés ou copiés.</string>
     <string name="intro_desc_account2">Vous pouvez créer un nouveau profile sur monocles chat en tapant votre surnom.</string>
-    <string name="open_join_dialog">Rejoindre un canal public…</string>
+    <string name="open_join_dialog">Rejoindre un salon public…</string>
     <string name="intro_optional_permissions">Permissions optionnelles</string>
     <string name="intro_desc_optional_permissions2">L\'accès à votre position est nécessaire si vous souhaitez la partager.
 \nPour envoyer des messages audio il est nécessaire d\'avoir accès à votre micro.</string>
     <string name="intro_desc_account3">Vous pouvez importer un compte existant.
 \nSi des sauvegardes sont disponibles, les fichiers correspondants seront affichés.</string>
-    <string name="intro_desc_start_chatting2">Vous pouvez également ajouter, créer ou rejoindre des chats multi-utilisateurs/trices. On distingue les chats de groupe privés et les chats de groupe publics, appelés canaux.</string>
+    <string name="intro_desc_start_chatting2">Vous pouvez également ajouter, créer ou rejoindre des chats multi-utilisateurs/trices. On distingue les chats privés des chats publics, appelés salons.</string>
     <string name="intro_desc_start_chatting3">Félicitations !
 \nC\'est parti et amusez-vous…</string>
     <string name="intro_privacy">Votre confidentialité
@@ -1067,11 +1067,11 @@
     <string name="magic_create_text_fixed">Vous avez été invité chez %1$s. Un nom d\'utilisateur/trice a déjà été créé pour vous. Nous vous guiderons pour créer un compte.
 \nVous pourrez communiquer avec des utilisateurs/trices d\'autres fournisseurs en leur indiquant votre adresse XMPP complète.</string>
     <string name="your_server_invitation">Votre invitation sur un serveur</string>
-    <string name="pref_use_unicolored_chatbg_summary">Avoir des arrière-plans de discussions uniformes.</string>
+    <string name="pref_use_unicolored_chatbg_summary">Avoir des arrière-plans unicolores pour les discussions.</string>
     <string name="pref_use_unicolored_chatbg">Arrière-plans uniformes</string>
     <string name="pref_alternative_voice_settings_summary">Si vous avez des problèmes pendant un enregistrement audio, sélectionner cette option pour modifier le codec.</string>
     <string name="pref_alternative_voice_settings">Méthode alternative d\'enregistrement audio</string>
-    <string name="pref_use_colored_muc_names_summary">Colorer les pseudos dans les discussions ou les canaux comme les arrière-plans d\'avatars par défaut.</string>
+    <string name="pref_use_colored_muc_names_summary">Colorer les pseudos dans les discussions ou les salons comme les arrière-plans d\'avatars par défaut.</string>
     <string name="pref_use_colored_muc_names">Colorer les pseudos</string>
     <string name="show_videos_images_only">Uniquement images/vidéos</string>
     <string name="show_avatar">Afficher l\'avatar</string>
@@ -1141,7 +1141,7 @@
     <string name="encrypted_with_omemo">Chiffré avec OMEMO</string>
     <string name="encrypted_with_openpgp">Chiffré avec OpenPGP</string>
     <string name="not_encrypted">Non chiffré</string>
-    <string name="add_contact_or_create_or_join_group_chat">Ajouter un contact, créer ou rejoindre un groupe de discussion, ou découvrir des canaux</string>
+    <string name="add_contact_or_create_or_join_group_chat">Ajouter un contact, créer ou rejoindre un salon, ou découvrir des salons</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">Un message n\'a pas pu être délivré</item>
         <item quantity="many">Des messages n\'ont pas pu être délivrés</item>
@@ -1190,7 +1190,7 @@
     <string name="webview_not_available">Aperçu web non disponible sur votre appareil.</string>
     <string name="pref_easy_downloader_summary">Télécharger automatiquement toutes les pièces jointes des canaux publics et des inconnus au lieu d\'un téléchargement manuel.</string>
     <string name="pref_easy_downloader">Auto-téléchargement des pièces jointes</string>
-    <string name="got_invitation_from">Vous avez été invité par %s à rejoindre le canal %s.</string>
+    <string name="got_invitation_from">Vous avez été invité par %s à rejoindre le salon %s.</string>
     <string name="a_user">un·e utilisateur/trice</string>
     <string name="pref_memory_management_summary">Afficher la taille mémoire du répertoire des médias</string>
     <string name="title_memory_management">Gestion de la mémoire</string>
@@ -1249,7 +1249,7 @@
     <string name="reconnecting_video_call">Reconnexion en cours</string>
     <string name="pref_use_i2p">Connexion via I2P</string>
     <string name="action_dialpad">Clavier</string>
-    <string name="conference_technical_problems">Vous avez quitté ce groupe de discussion pour des raisons techniques</string>
+    <string name="conference_technical_problems">Vous avez quitté ce salon pour des raisons techniques</string>
     <string name="pref_allow_message_retraction">Permettre la rétractation des messages</string>
     <string name="pref_allow_message_retraction_summary">Permettre à vos contacts de se rétracter rétroactivement</string>
     <string name="receiving_file_x">Réception de %1$s (%2$s %)</string>
@@ -1266,8 +1266,8 @@
     <string name="custom_primary_dark_color">Personnaliser la couleur primaire sombre</string>
     <string name="custom_accent_color">Personnaliser la couleur accentuée</string>
     <string name="custom_background">Personnaliser l\'arrière-plan</string>
-    <string name="pref_follow_thread_in_channel">Suivez automatiquement le thread dans les canaux</string>
-    <string name="pref_follow_thread_in_channel_summary">Définissez le marqueur de fil pour correspondre au message sélectionné</string>
+    <string name="pref_follow_thread_in_channel">Suivi automatique des fils de discussion dans les salons</string>
+    <string name="pref_follow_thread_in_channel_summary">Définir le marqueur de fil de discussion pour qu\'il corresponde au message en cours de consultation.</string>
     <string name="pref_use_blue_readmarkers_title">Utiliser des marques de lecture bleus</string>
     <string name="pref_use_blue_readmarkers_summary">Utilisez des marques de lecture bleus au lieu du blanc ou du noir</string>
     <string name="pref_dialler_integration_incoming">Utiliser les comptes téléphoniques pour les appels entrants</string>
@@ -1316,14 +1316,14 @@
     <string name="account_state_logged_out">Déconnecté</string>
     <string name="this_account_is_logged_out">Vous vous êtes déconnecté de ce compte</string>
     <string name="audiobook">Livre audio</string>
-    <string name="monocles_account_details">Cela comprend :
-\n● Un stockage chiffré des discussions,
-\n● E-mail avec 2Go de stockage chiffré.
-\n
-\n En option :
-\n● 5 Go de stockage dans le cloud (Nextcloud),
-\n● Synchro de calendriers et contacts,
-\n● Un outil de discussion sécurisé,
+    <string name="monocles_account_details">Cela comprend : 
+\n● Un stockage chiffré des salons, 
+\n● E-mail avec 2Go de stockage chiffré. 
+\n 
+\n En option : 
+\n● 5 Go de stockage dans le cloud (Nextcloud), 
+\n● Synchro de calendriers et contacts, 
+\n● Un outil de discussion sécurisé, 
 \n Et plus sur <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="verify_otr">Vérifier OTR</string>
     <string name="unknown_otr_fingerprint">Empreinte OTR inconnue</string>
@@ -1358,15 +1358,15 @@
     <string name="reject_switch_to_video">Rejeter la demande de passage en mode vidéo</string>
     <string name="moderate_message">Modérer</string>
     <string name="unable_to_moderate">Impossible de modérer</string>
-    <string name="only_this_thread">Montrer uniquement cette conversation</string>
+    <string name="only_this_thread">Montrer uniquement ce fil</string>
     <string name="tags">Étiquettes</string>
     <string name="sticker_name">Nom d\'autocollant</string>
     <string name="action_execute">Allez-y</string>
     <string name="block_avatar">Bloquer l\'avatar</string>
     <string name="new_contact">Nouveau contact</string>
     <string name="call">Appel</string>
-    <string name="new_contact_or_group">Nouveau contact ou discussion</string>
-    <string name="join_room">Rejoindre la discussion</string>
+    <string name="new_contact_or_group">Nouveau contact ou salon</string>
+    <string name="join_room">Rejoindre le salon</string>
     <string name="please_be_patient">Veuillez patienter SVP…</string>
     <string name="chat_background">Arrière-plan des discussions</string>
     <string name="pref_chat_background_summary">Choisissez votre propre image d\'arrière-plan.</string>
@@ -1388,8 +1388,8 @@
     <string name="verifying_omemo_keys_trusted_source_account">Vous êtes sur le point de vérifier les clefs OMEMO de votre propre compte. Cette opération n\'est sécurisée que si vous avez suivi ce lien à partir d\'une source de confiance où vous seul avez pu publier ce lien.</string>
     <string name="create_monocles_account">Obtenez un compte monocles !</string>
     <string name="no_manage_storage_permission">Depuis Android 11, les applications ont besoin d\'une autorisation spéciale pour accéder à tous les types de fichiers sur le stockage externe. monocles chat vous demandera d\'accorder cette autorisation pour continuer.</string>
-    <string name="title_undo_swipe_out_group_chat">Annuler la suppression de la discussion de groupe</string>
-    <string name="title_undo_swipe_out_channel">Annuler la suppression d\'un canal</string>
+    <string name="title_undo_swipe_out_group_chat">Annuler la suppression du salon</string>
+    <string name="title_undo_swipe_out_channel">Annuler la suppression d\'un salon</string>
     <string name="audio_video_disabled_tor">Les appels sont désactivés lorsque l\'on utilise Tor</string>
     <string name="moderate_reason">Motif de la modération</string>
     <string name="incoming_call_duration_timestamp">Appel entrant (%s) · %s</string>
@@ -1436,8 +1436,8 @@
     <string name="pref_set_round_avatars_summary">Les avatars sont affichés dans un cercle</string>
     <string name="choose_emoji">Choisir un émoji</string>
     <string name="show_keyboard">Afficher le clavier</string>
-    <string name="pref_show_thread_feature_summary">Afficher les icônes de fils de discussions et permettre de créer et suivre des fils.</string>
-    <string name="pref_show_thread_feature">Afficher les icônes de fils</string>
+    <string name="pref_show_thread_feature_summary">Afficher l\'icône du fil de discussion dans le champ de saisie et permettre la création et le suivi de fils de discussion.</string>
+    <string name="pref_show_thread_feature">Afficher l\'icône du fil de discussion</string>
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="edit_sytemaccount_or_xmppaccount">Éditer les contacts ?</string>
     <string name="edit_sytemaccount">Contact téléphonique</string>
@@ -1448,7 +1448,7 @@
     <string name="account_color_summary">Utilisé dans les listes de conversations et de contacts, ainsi que dans les notifications</string>
     <string name="notifications_enabled">Notifications activées</string>
     <string name="notifications_disabled">Notifications désactivées. Activer les SVP dans vos paramètres Android.</string>
-    <string name="pref_show_less_avatars_summary">Seuls les avatars nécessaires dans les discussions seront affichés</string>
+    <string name="pref_show_less_avatars_summary">Seuls les avatars nécessaires dans les discussions seront affichés.</string>
     <string name="pref_set_text_collapsable">Réduire les longs textes</string>
     <string name="hide_notification">Cacher les notifications</string>
     <string name="log_out">Se déconnecter</string>
@@ -1511,4 +1511,9 @@
     <string name="pref_set_text_collapsable_summary">Réduire les messages de plus de 230 caractères</string>
     <string name="pref_use_green_blue_readmarkers_summary">Utilisez des marqueurs de lecture bicolores. Le bleu pour la réception et le vert pour la lecture.</string>
     <string name="pref_app_lock_enable_summary">Activez le verrouillage de l\'application. Sachez que vous ne pourrez plus ouvrir l\'application si vous avez oublié le code PIN.</string>
+    <string name="webxdc_hint">Pour utiliser WebXDC, activez les fils de discussion et envoyez WebXDC en clair.</string>
+    <string name="open">Ouvrir</string>
+    <string name="unencrypted">en clair</string>
+    <string name="emojis">Émojis</string>
+    <string name="stickers">Autocollants</string>
 </resources>

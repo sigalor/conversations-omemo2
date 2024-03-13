@@ -1402,12 +1402,12 @@
     <string name="edit_sytemaccount">电话联系人</string>
     <string name="edit_chat_contact">聊天联系人</string>
     <string name="pref_show_less_avatars">在聊天中显示较少的头像</string>
-    <string name="pref_show_thread_feature">显示线程图标</string>
+    <string name="pref_show_thread_feature">激活线程功能</string>
     <string name="account_color_summary">用于对话、联系人列表和通知</string>
     <string name="enter_user_name">输入名称</string>
     <string name="notifications_enabled">通知已启用</string>
     <string name="pref_set_text_collapsable_summary">折叠超过 230 个字符的文本</string>
-    <string name="pref_show_thread_feature_summary">在输入字段中显示线程图标，并允许创建和跟踪线程</string>
+    <string name="pref_show_thread_feature_summary">激活输入框中的线程图标，允许创建和跟踪线程</string>
     <string name="edit_sytemaccount_or_xmppaccount">编辑聊天联系人或电话联系人？</string>
     <string name="pref_show_less_avatars_summary">对话中只有必要的头像才会显示</string>
     <string name="this_account_is_logged_out">您已登出此账号</string>
@@ -1436,7 +1436,7 @@
     <string name="delete_background">移除聊天背景</string>
     <string name="pref_delete_background_summary">移除聊天中的自定义背景图片</string>
     <string name="no_background_set">未设置自定义背景</string>
-    <string name="input_field">输入字段</string>
+    <string name="input_field">输入框</string>
     <string name="import_own_stickers">导入贴纸</string>
     <string name="import_own_stickers_summary">导入自己的贴纸。并使用它们的原始文件名。</string>
     <string name="pref_enforce_dane_summary">只有在成功验证 DANE 后才连接账号</string>
@@ -1470,7 +1470,7 @@
     <string name="grey">灰色</string>
     <string name="blue">蓝色</string>
     <string name="stories">故事</string>
-    <string name="pref_send_link_previews_summary">发送消息时附加有关链接的元数据</string>
+    <string name="pref_send_link_previews_summary">发送消息时附加有关链接的元数据。仅适用于未加密的消息。</string>
     <string name="report_spam_and_block">报告垃圾消息并屏蔽垃圾消息发送者</string>
     <string name="pref_send_link_previews">发送链接预览</string>
     <string name="subject">话题</string>
@@ -1495,4 +1495,9 @@
     <string name="pref_open_links_inapp_summary">在 monocles chat 中打开网络链接</string>
     <string name="new_notification">新通知</string>
     <string name="new_message">新消息</string>
+    <string name="webxdc_hint">要使用 WebXDC，请激活线程功能并发送未加密的 WebXDC</string>
+    <string name="open">打开</string>
+    <string name="unencrypted">未加密的</string>
+    <string name="emojis">表情符号</string>
+    <string name="stickers">贴纸</string>
 </resources>

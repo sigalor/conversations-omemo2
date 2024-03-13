@@ -1412,12 +1412,12 @@
     <string name="edit_sytemaccount">Contácto do teléfono</string>
     <string name="edit_chat_contact">Contacto de chat</string>
     <string name="pref_show_less_avatars">Mostar menos avatares nos chats</string>
-    <string name="pref_show_thread_feature">Mostrar icona de fío</string>
+    <string name="pref_show_thread_feature">Activar a ferramenta de fío</string>
     <string name="account_color_summary">Usado na conversa, listas de contactos e notificacións</string>
     <string name="enter_user_name">Escribe o nome</string>
     <string name="notifications_enabled">Notificacións activadas</string>
     <string name="pref_set_text_collapsable_summary">Prega os textos de máis de 230 caracteres</string>
-    <string name="pref_show_thread_feature_summary">Mostrar icona de fío no campo de entrada para permitir a creación e seguimento de fíos</string>
+    <string name="pref_show_thread_feature_summary">Activar a icona de fío no campo de entrada para permitir a creación e seguimento de fíos</string>
     <string name="edit_sytemaccount_or_xmppaccount">Editar o contacto do chat ou do teléfono\?</string>
     <string name="pref_show_less_avatars_summary">Só se mostrarán os avatares necesarios nas conversas</string>
     <string name="account_state_logged_out">Sesión pechada</string>
@@ -1480,7 +1480,7 @@
     <string name="pref_use_green_blue_readmarkers_summary">Usar dous marcadores de lectura con cores. Azul para recibido e verde para lido.</string>
     <string name="grey">Gris</string>
     <string name="blue">Azul</string>
-    <string name="pref_send_link_previews_summary">Adxuntar metadatos acerca das ligazóns que envías na mensaxe</string>
+    <string name="pref_send_link_previews_summary">Adxuntar metadatos acerca das ligazóns que envías na mensaxe. Só para mensaxes sen cifrar.</string>
     <string name="report_spam_and_block">Denunciar como spam e bloquear remitente</string>
     <string name="pref_send_link_previews">Enviar vista previa das ligazóns</string>
     <string name="subject">Asunto</string>
@@ -1503,5 +1503,7 @@
     <string name="new_message">Nova mensaxe</string>
     <string name="emojis">Emojis</string>
     <string name="stickers">Adhesivos</string>
-    <string name="webxdc_hint">Activar característica de fíos, desactivar OMEMO e enviar outra vez</string>
+    <string name="webxdc_hint">Para usar WebXDC actíva a ferramenta fíos e envía un WebXDC sen cifrar</string>
+    <string name="open">Abrir</string>
+    <string name="unencrypted">sen cifrar</string>
 </resources>

@@ -1423,8 +1423,8 @@
     <string name="pref_set_round_avatars">Avatares circulares</string>
     <string name="choose_emoji">Elige un emoticono</string>
     <string name="show_keyboard">Mostrar el teclado</string>
-    <string name="pref_show_thread_feature_summary">Mostrar el icono del hilo en el campo de entrada y permitir crear y seguir hilos</string>
-    <string name="pref_show_thread_feature">Mostrar icono del hilo</string>
+    <string name="pref_show_thread_feature_summary">Activar el icono del hilo en el campo de entrada y permitir crear y seguir hilos</string>
+    <string name="pref_show_thread_feature">Activar la función del hilo</string>
     <string name="edit_sytemaccount_or_xmppaccount">¿Editar contacto de chat o contacto de teléfono?</string>
     <string name="edit_sytemaccount">Contacto de teléfono</string>
     <string name="edit_chat_contact">contacto de chat</string>
@@ -1498,7 +1498,7 @@
     <string name="pref_use_green_blue_readmarkers_summary">Usar marcadores de lecturas de dos colores. Azul para recibido y verde para leído.</string>
     <string name="grey">Gris</string>
     <string name="blue">Azul</string>
-    <string name="pref_send_link_previews_summary">Adjuntar metadatos sobre enlaces cuando envíe un mensaje</string>
+    <string name="pref_send_link_previews_summary">Adjuntar metadatos sobre enlaces al enviar un mensaje. Solo para mensajes no cifrados.</string>
     <string name="report_spam_and_block">Informar de spam y bloquear al spamer</string>
     <string name="pref_send_link_previews">Enviar previsualizaciones de enlaces</string>
     <string name="subject">Asunto</string>
@@ -1521,5 +1521,7 @@
     <string name="new_notification">Nueva notificación</string>
     <string name="stickers">Stickers</string>
     <string name="emojis">Emojis</string>
-    <string name="webxdc_hint">Activar la función de hilos, desactive OMEMO y envíe nuevamente</string>
+    <string name="webxdc_hint">Para utilizar WebXDC active la función de hilos y envíe WebXDC sin encriptar</string>
+    <string name="open">Abrir</string>
+    <string name="unencrypted">sin encriptar</string>
 </resources>

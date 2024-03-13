@@ -1424,8 +1424,8 @@
     <string name="pref_custom_theme_color_options_summary">Установите свои собственные цвета темы</string>
     <string name="choose_emoji">Выберите смайл</string>
     <string name="show_keyboard">Показать клавиатуру</string>
-    <string name="pref_show_thread_feature_summary">Показывать значок нитей в поле ввода и разрешать создавать и отслеживать нити</string>
-    <string name="pref_show_thread_feature">Показывать значок нитей</string>
+    <string name="pref_show_thread_feature_summary">Активируйте значок темы в поле ввода и разрешите создавать и отслеживать темы</string>
+    <string name="pref_show_thread_feature">Активировать функцию темы</string>
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="edit_sytemaccount_or_xmppaccount">Изменить контакт в приложении или телефонный контакт?</string>
     <string name="edit_sytemaccount">Контакт в телефоне</string>
@@ -1502,7 +1502,7 @@
     <string name="pref_use_green_blue_readmarkers_summary">Используйте два цветных маркера чтения. Синий — полученный, зеленый — прочитанный.</string>
     <string name="grey">Серый</string>
     <string name="blue">Синий</string>
-    <string name="pref_send_link_previews_summary">Прикрепляйте метаданные о ссылках при отправке сообщения</string>
+    <string name="pref_send_link_previews_summary">Прикрепите метаданные о ссылках при отправке сообщения. Только для не зашифрованных сообщений.</string>
     <string name="report_spam_and_block">Сообщить о спаме и заблокировать спамера</string>
     <string name="pref_send_link_previews">Отправить превью ссылок</string>
     <string name="subject">Тема</string>
@@ -1529,5 +1529,7 @@
     <string name="new_message">Новое сообщение</string>
     <string name="emojis">Смайлы</string>
     <string name="stickers">Стикеры</string>
-    <string name="webxdc_hint">Активируйте функцию нитей, отключите OMEMO и отправьте снова</string>
+    <string name="webxdc_hint">Чтобы использовать WebXDC, активируйте функцию потоков и отправляйте WebXDC в не зашифрованном виде</string>
+    <string name="open">Открыть</string>
+    <string name="unencrypted">не зашифрованный</string>
 </resources>
