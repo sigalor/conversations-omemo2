@@ -54,6 +54,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.common.base.Optional;
+import com.squareup.picasso.Picasso;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
@@ -735,10 +736,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (getPreferences().getBoolean("send_link_previews", true)) {
                 if (statusMessages.size() == 0) {
                     binding.statusMessage.setVisibility(View.GONE);
-                    binding.statusImage.setVisibility(View.GONE);
                 } else if (statusMessages.size() == 1) {
                     final String message = statusMessages.get(0);
                     binding.statusMessage.setVisibility(View.VISIBLE);
+                    binding.statusImage.setVisibility(View.VISIBLE);
                     final Spannable span = new SpannableString(message);
                     if (Emoticons.isOnlyEmoji(message)) {
                         span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -749,25 +750,15 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     for (String statusMessage : statusMessages) {
                         if (containsLink(statusMessage)) {
                             List<String> url = extractUrls(statusMessage);
-                            binding.statusImage.setVisibility(View.VISIBLE);
                             for (String imageurl : url) {
-                                Thread imageDataThread = new Thread(() -> {
-                                    try {
-                                        URL tUrl = new URL(imageurl);
-                                        Bitmap imageBitmap = BitmapFactory.decodeStream(tUrl.openConnection().getInputStream());
-                                        BitmapDrawable image = new BitmapDrawable(imageBitmap);
-                                        binding.statusImage.setImageDrawable(image);
-                                    } catch (IOException pExc) {
-                                        pExc.printStackTrace();
-                                    }
-                                });
-                                imageDataThread.start();
+                                Picasso.get().load(imageurl).into(binding.statusImage);
                             }
                         }
                     }
                 } else {
                     StringBuilder builder = new StringBuilder();
                     binding.statusMessage.setVisibility(View.VISIBLE);
+                    binding.statusImage.setVisibility(View.VISIBLE);
                     int s = statusMessages.size();
                     for (int i = 0; i < s; ++i) {
                         builder.append(statusMessages.get(i));
@@ -781,19 +772,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     for (String statusMessage : statusMessages) {
                         if (containsLink(statusMessage)) {
                             List<String> url = extractUrls(statusMessage);
-                            binding.statusImage.setVisibility(View.VISIBLE);
                             for (String imageurl : url) {
-                                Thread imageDataThread = new Thread(() -> {
-                                    try {
-                                        URL tUrl = new URL(imageurl);
-                                        Bitmap imageBitmap = BitmapFactory.decodeStream(tUrl.openConnection().getInputStream());
-                                        BitmapDrawable image = new BitmapDrawable(imageBitmap);
-                                        binding.statusImage.setImageDrawable(image);
-                                    } catch (IOException pExc) {
-                                        pExc.printStackTrace();
-                                    }
-                                });
-                                imageDataThread.start();
+                                Picasso.get().load(imageurl).into(binding.statusImage);
                             }
                         }
                     }
