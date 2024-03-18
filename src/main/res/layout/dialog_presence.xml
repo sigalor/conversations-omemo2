@@ -68,7 +68,6 @@
                     android:ems="10"
                     android:maxLines="5"
                     android:hint="@string/status_message"
-                    android:imeOptions="flagNoExtractUi"
                     android:inputType="textMultiLine|textCapSentences"
                     android:padding="16dp"
                     android:textColor="?attr/text_Color_Main" />

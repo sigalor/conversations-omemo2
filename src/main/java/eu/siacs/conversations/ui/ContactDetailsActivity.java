@@ -39,6 +39,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -742,16 +743,26 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.statusImage.setVisibility(View.VISIBLE);
                     final Spannable span = new SpannableString(message);
                     if (Emoticons.isOnlyEmoji(message)) {
-                        span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        span.setSpan(new RelativeSizeSpan(3.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                     binding.statusMessage.setText(span);
 
                     //find and show images from links
-                    for (String statusMessage : statusMessages) {
-                        if (containsLink(statusMessage)) {
-                            List<String> url = extractUrls(statusMessage);
-                            for (String imageurl : url) {
-                                Picasso.get().load(imageurl).into(binding.statusImage);
+                    int size = statusMessages.size();
+                    for (int i = 0; i < size; ++i) {
+                        if (containsLink(statusMessages.get(i))) {
+                            List<String> url = extractUrls(statusMessages.get(i));
+                            for (int j = 0; j < url.size(); j++) {
+                                Picasso.get().load(url.get(0)).into(binding.statusImage);
+                                binding.statusImage.setOnClickListener(new View.OnClickListener() {
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent();
+                                        intent.setAction(Intent.ACTION_VIEW);
+                                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                                        intent.setData(Uri.parse(url.get(0)));
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         }
                     }
@@ -763,20 +774,27 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     for (int i = 0; i < s; ++i) {
                         builder.append(statusMessages.get(i));
                         if (i < s - 1) {
+                            if (containsLink(statusMessages.get(i))) {
+                                List<String> url = extractUrls(statusMessages.get(i));
+                                for (int j = 0; j < url.size(); j++) {
+                                    Picasso.get().load(url.get(0)).into(binding.statusImage);
+                                    binding.statusImage.setOnClickListener(new View.OnClickListener() {
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent();
+                                            intent.setAction(Intent.ACTION_VIEW);
+                                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                                            intent.setData(Uri.parse(url.get(0)));
+                                            startActivity(intent);
+                                        }
+                                    });
+                                }
+                            }
                             builder.append("\n");
                         }
                     }
                     binding.statusMessage.setText(builder);
 
-                    //find and show images from links
-                    for (String statusMessage : statusMessages) {
-                        if (containsLink(statusMessage)) {
-                            List<String> url = extractUrls(statusMessage);
-                            for (String imageurl : url) {
-                                Picasso.get().load(imageurl).into(binding.statusImage);
-                            }
-                        }
-                    }
+
                 }
             } else {
                 if (statusMessages.size() == 0) {
@@ -786,7 +804,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.statusMessage.setVisibility(View.VISIBLE);
                     final Spannable span = new SpannableString(message);
                     if (Emoticons.isOnlyEmoji(message)) {
-                        span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        span.setSpan(new RelativeSizeSpan(3.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                     binding.statusMessage.setText(span);
                 } else {
