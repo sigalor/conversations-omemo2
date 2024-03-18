@@ -44,7 +44,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_alignParentStart="true"
                                     android:layout_alignParentLeft="true"
-                                    android:orientation="vertical">
+                                    android:orientation="vertical" >
 
                                     <LinearLayout
                                         android:layout_width="wrap_content"
@@ -132,14 +132,6 @@
                                         android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
 
                                     <TextView
-                                        android:id="@+id/status_message"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
-                                        android:layout_marginBottom="4dp"
-                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
-
-                                    <TextView
                                         android:id="@+id/resource"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
@@ -147,6 +139,43 @@
                                         android:layout_marginBottom="4dp"
                                         android:textAppearance="@style/TextAppearance.Conversations.Status" />
                                 </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_below="@+id/details_display"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:layout_marginBottom="4dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:orientation="vertical" >
+
+                                    <TextView
+                                        android:id="@+id/status_message"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:autoLink="web"
+                                        android:clickable="true"
+                                        android:layout_marginTop="4dp"
+                                        android:layout_marginBottom="4dp"
+                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
+
+                                    <ImageSwitcher
+                                        android:id="@+id/status_image"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:maxWidth="120dp"
+                                        android:maxHeight="120dp"
+                                        android:adjustViewBounds="true"
+                                        android:layout_marginTop="4dp"
+                                        android:layout_marginBottom="4dp"
+                                        android:scaleType="fitXY"
+                                        android:visibility="gone" />
+
+                                </LinearLayout>
+
                             </RelativeLayout>
 
                             <RelativeLayout

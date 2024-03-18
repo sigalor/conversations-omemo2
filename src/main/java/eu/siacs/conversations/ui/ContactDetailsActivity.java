@@ -4,6 +4,11 @@ import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
 import eu.siacs.conversations.databinding.ThreadRowBinding;
 import de.monocles.chat.Util;
 import androidx.annotation.NonNull;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Patterns;
 import android.view.ViewGroup;
 
 import android.Manifest;
@@ -33,6 +38,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -51,6 +57,9 @@ import com.google.common.base.Optional;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import eu.siacs.conversations.entities.Bookmark;
@@ -101,6 +111,8 @@ import de.monocles.chat.Util;
 import android.view.ViewGroup;
 import android.util.TypedValue;
 import android.graphics.drawable.Drawable;
+import android.widget.ViewFlipper;
+
 import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import me.drakeet.support.toast.ToastCompat;
@@ -108,7 +120,6 @@ import me.drakeet.support.toast.ToastCompat;
 public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated, OnMediaLoaded {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
     private final int REQUEST_SYNC_CONTACTS = 0x28cf;
-
     private Contact contact;
     private Conversation mConversation;
     private ConversationFragment mConversationFragment;
@@ -721,27 +732,95 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                         .setPositiveButton(getString(R.string.delete), removeFromRoster).create().show();
             });
             List<String> statusMessages = contact.getPresences().getStatusMessages();
-            if (statusMessages.size() == 0) {
-                binding.statusMessage.setVisibility(View.GONE);
-            } else if (statusMessages.size() == 1) {
-                final String message = statusMessages.get(0);
-                binding.statusMessage.setVisibility(View.VISIBLE);
-                final Spannable span = new SpannableString(message);
-                if (Emoticons.isOnlyEmoji(message)) {
-                    span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-                binding.statusMessage.setText(span);
-            } else {
-                StringBuilder builder = new StringBuilder();
-                binding.statusMessage.setVisibility(View.VISIBLE);
-                int s = statusMessages.size();
-                for (int i = 0; i < s; ++i) {
-                    builder.append(statusMessages.get(i));
-                    if (i < s - 1) {
-                        builder.append("\n");
+            if (getPreferences().getBoolean("send_link_previews", true)) {
+                if (statusMessages.size() == 0) {
+                    binding.statusMessage.setVisibility(View.GONE);
+                    binding.statusImage.setVisibility(View.GONE);
+                } else if (statusMessages.size() == 1) {
+                    final String message = statusMessages.get(0);
+                    binding.statusMessage.setVisibility(View.VISIBLE);
+                    final Spannable span = new SpannableString(message);
+                    if (Emoticons.isOnlyEmoji(message)) {
+                        span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    binding.statusMessage.setText(span);
+
+                    //find and show images from links
+                    for (String statusMessage : statusMessages) {
+                        if (containsLink(statusMessage)) {
+                            List<String> url = extractUrls(statusMessage);
+                            binding.statusImage.setVisibility(View.VISIBLE);
+                            for (String imageurl : url) {
+                                Thread imageDataThread = new Thread(() -> {
+                                    try {
+                                        URL tUrl = new URL(imageurl);
+                                        Bitmap imageBitmap = BitmapFactory.decodeStream(tUrl.openConnection().getInputStream());
+                                        BitmapDrawable image = new BitmapDrawable(imageBitmap);
+                                        binding.statusImage.setImageDrawable(image);
+                                    } catch (IOException pExc) {
+                                        pExc.printStackTrace();
+                                    }
+                                });
+                                imageDataThread.start();
+                            }
+                        }
+                    }
+                } else {
+                    StringBuilder builder = new StringBuilder();
+                    binding.statusMessage.setVisibility(View.VISIBLE);
+                    int s = statusMessages.size();
+                    for (int i = 0; i < s; ++i) {
+                        builder.append(statusMessages.get(i));
+                        if (i < s - 1) {
+                            builder.append("\n");
+                        }
+                    }
+                    binding.statusMessage.setText(builder);
+
+                    //find and show images from links
+                    for (String statusMessage : statusMessages) {
+                        if (containsLink(statusMessage)) {
+                            List<String> url = extractUrls(statusMessage);
+                            binding.statusImage.setVisibility(View.VISIBLE);
+                            for (String imageurl : url) {
+                                Thread imageDataThread = new Thread(() -> {
+                                    try {
+                                        URL tUrl = new URL(imageurl);
+                                        Bitmap imageBitmap = BitmapFactory.decodeStream(tUrl.openConnection().getInputStream());
+                                        BitmapDrawable image = new BitmapDrawable(imageBitmap);
+                                        binding.statusImage.setImageDrawable(image);
+                                    } catch (IOException pExc) {
+                                        pExc.printStackTrace();
+                                    }
+                                });
+                                imageDataThread.start();
+                            }
+                        }
                     }
                 }
-                binding.statusMessage.setText(builder);
+            } else {
+                if (statusMessages.size() == 0) {
+                    binding.statusMessage.setVisibility(View.GONE);
+                } else if (statusMessages.size() == 1) {
+                    final String message = statusMessages.get(0);
+                    binding.statusMessage.setVisibility(View.VISIBLE);
+                    final Spannable span = new SpannableString(message);
+                    if (Emoticons.isOnlyEmoji(message)) {
+                        span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    binding.statusMessage.setText(span);
+                } else {
+                    StringBuilder builder = new StringBuilder();
+                    binding.statusMessage.setVisibility(View.VISIBLE);
+                    int s = statusMessages.size();
+                    for (int i = 0; i < s; ++i) {
+                        builder.append(statusMessages.get(i));
+                        if (i < s - 1) {
+                            builder.append("\n");
+                        }
+                    }
+                    binding.statusMessage.setText(builder);
+                }
             }
             String resources = contact.getPresences().getMostAvailableResource();
             if (resources.length() == 0) {
@@ -1126,5 +1205,43 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 
             return binding.getRoot();
         }
+    }
+
+    public static boolean containsLink(String input) {
+        boolean result = false;
+
+        String[] parts = input.split("\\s+");
+
+        for (String item : parts) {
+            if (android.util.Patterns.WEB_URL.matcher(item).matches()) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public static List<String> extractUrls(String input)
+    {
+        List<String> result = new ArrayList<String>();
+
+        String[] words = input.split("\\s+");
+
+
+        Pattern pattern = Patterns.WEB_URL;
+        for(String word : words)
+        {
+            if(pattern.matcher(word).find())
+            {
+                if(!word.toLowerCase().contains("http://") && !word.toLowerCase().contains("https://"))
+                {
+                    word = "http://" + word;
+                }
+                result.add(word);
+            }
+        }
+
+        return result;
     }
 }
