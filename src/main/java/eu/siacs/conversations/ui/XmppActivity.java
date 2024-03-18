@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui;
 import static de.monocles.chat.ui.PermissionsActivity.permissions;
 import static eu.siacs.conversations.ui.SettingsActivity.USE_INTERNAL_UPDATER;
 
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.telephony.TelephonyManager;
 import eu.siacs.conversations.utils.Compatibility;
@@ -70,6 +71,8 @@ import androidx.databinding.DataBindingUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.io.File;
 import java.util.PriorityQueue;
@@ -1587,5 +1590,30 @@ public abstract class XmppActivity extends ActionBarActivity {
         if (AvatarPopup != null && AvatarPopup.isShowing()) {
             AvatarPopup.cancel();
         }
+    }
+
+    public void ShowStatusImagePopup(final Activity activity, final String imageUrl) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AvatarPopup = builder.create();
+        final LayoutInflater inflater = getLayoutInflater();
+        final View dialogLayout = inflater.inflate(R.layout.avatar_dialog, null);
+        AvatarPopup.setView(dialogLayout);
+        AvatarPopup.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        ImageView statusimage = new ImageView(this);
+        Thread imageDataThread = new Thread(() -> {
+        try {
+            URL url = new URL(imageUrl);
+            Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            statusimage.setImageBitmap(image);
+            statusimage.setScaleType(ImageView.ScaleType.FIT_XY);
+            statusimage.setAdjustViewBounds(true);
+
+            AvatarPopup.setView(statusimage);
+            runOnUiThread(() -> AvatarPopup.show());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        });
+        imageDataThread.start();
     }
 }

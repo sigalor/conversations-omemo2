@@ -763,6 +763,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                                         startActivity(intent);
                                     }
                                 });
+                                binding.statusImage.setOnLongClickListener(v -> {
+                                    ShowStatusImagePopup(ContactDetailsActivity.this, url.get(0));
+                                    return true;
+                                });
                             }
                         }
                     }
@@ -786,6 +790,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                                             intent.setData(Uri.parse(url.get(0)));
                                             startActivity(intent);
                                         }
+                                    });
+                                    binding.statusImage.setOnLongClickListener(v -> {
+                                        ShowStatusImagePopup(ContactDetailsActivity.this, url.get(0));
+                                        return true;
                                     });
                                 }
                             }
