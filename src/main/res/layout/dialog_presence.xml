@@ -62,13 +62,14 @@
                 <eu.siacs.conversations.ui.widget.ImmediateAutoCompleteTextView
                     android:id="@+id/status_message"
                     style="@style/Widget.Material3.TextInputEditText.FilledBox"
-android:fontFamily="notosansregular"
+                    android:fontFamily="notosansregular"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:lines="5"
+                    android:maxLines="5"
                     android:hint="@string/status_message"
-                    android:inputType="textShortMessage"
+                    android:imeOptions="flagNoExtractUi"
+                    android:inputType="textMultiLine|textCapSentences"
                     android:padding="16dp"
                     android:textColor="?attr/text_Color_Main" />
             </com.google.android.material.textfield.TextInputLayout>
