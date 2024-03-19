@@ -80,6 +80,7 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.bumptech.glide.Glide;
 import com.daimajia.swipe.SwipeLayout;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
@@ -1224,7 +1225,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
             layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
             viewHolder.images.setLayoutParams(layoutParams);
-            activity.loadGif(file, viewHolder.gifImage);
+            Glide.with(activity).load(file).into(viewHolder.gifImage);
             viewHolder.gifImage.setOnClickListener(v -> openDownloadable(message));
         } else {
             showImages(true, mediaRuntime, false, viewHolder);
