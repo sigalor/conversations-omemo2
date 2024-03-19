@@ -68,6 +68,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import com.bumptech.glide.Glide;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 
@@ -1615,5 +1616,6 @@ public abstract class XmppActivity extends ActionBarActivity {
         }
         });
         imageDataThread.start();
+        Glide.with(this).load(imageUrl).into(statusimage);
     }
 }

@@ -54,6 +54,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 
+import com.bumptech.glide.Glide;
 import com.google.common.base.Optional;
 import com.squareup.picasso.Picasso;
 
@@ -753,7 +754,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                         if (containsLink(statusMessages.get(i))) {
                             List<String> url = extractUrls(statusMessages.get(i));
                             for (int j = 0; j < url.size(); j++) {
-                                Picasso.get().load(url.get(0)).into(binding.statusImage);
+                                Glide.with(this).load(url.get(j)).into(binding.statusImage);
                                 binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
                                         Intent intent = new Intent();
@@ -781,7 +782,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                             if (containsLink(statusMessages.get(i))) {
                                 List<String> url = extractUrls(statusMessages.get(i));
                                 for (int j = 0; j < url.size(); j++) {
-                                    Picasso.get().load(url.get(0)).into(binding.statusImage);
+                                    Glide.with(this).load(url.get(j)).into(binding.statusImage);
                                     binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
                                             Intent intent = new Intent();
