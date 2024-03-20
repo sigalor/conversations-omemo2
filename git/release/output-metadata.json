@@ -33,13 +33,13 @@
       "filters": [
         {
           "filterType": "ABI",
-          "value": "x86_64"
+          "value": "x86"
         }
       ],
       "attributes": [],
-      "versionCode": 16603,
+      "versionCode": 16602,
       "versionName": "1.7.9.4.1",
-      "outputFile": "monocles chat-1.7.9.4.1-git-x86_64-release.apk"
+      "outputFile": "monocles chat-1.7.9.4.1-git-x86-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -59,13 +59,13 @@
       "filters": [
         {
           "filterType": "ABI",
-          "value": "x86"
+          "value": "x86_64"
         }
       ],
       "attributes": [],
-      "versionCode": 16602,
+      "versionCode": 16603,
       "versionName": "1.7.9.4.1",
-      "outputFile": "monocles chat-1.7.9.4.1-git-x86-release.apk"
+      "outputFile": "monocles chat-1.7.9.4.1-git-x86_64-release.apk"
     }
   ],
   "elementType": "File"
