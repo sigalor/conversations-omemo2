@@ -100,7 +100,7 @@ public class AvatarWorkerTask extends AsyncTask<AvatarService.Avatarable, Void, 
             if (activity == null) {
                 return;
             }
-            final Drawable bm = activity.avatarService().get(avatarable, (int) activity.getResources().getDimension(size), false);
+            final Drawable bm = activity.avatarService().get(avatarable, (int) activity.getResources().getDimension(size), true);
             setContentDescription(avatarable, imageView);
             if (bm != null && JidFromJabberNetwork == null) {
                 cancelPotentialWork(avatarable, imageView);
