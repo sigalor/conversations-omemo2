@@ -119,13 +119,14 @@
                         android:id="@+id/recordingVoiceActivity"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
                         android:visibility="gone"
                         android:animateLayoutChanges="true" >
 
                         <ImageView
                             android:id="@+id/cancel_button"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
@@ -147,8 +148,8 @@
 
                         <ImageView
                             android:id="@+id/share_button"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
                             android:layout_alignParentRight="true"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
