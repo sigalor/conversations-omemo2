@@ -1616,6 +1616,8 @@ public abstract class XmppActivity extends ActionBarActivity {
         }
         });
         imageDataThread.start();
-        Glide.with(this).load(imageUrl).into(statusimage);
+        if (activity != null) {
+            Glide.with(activity).load(imageUrl).into(statusimage);
+        }
     }
 }

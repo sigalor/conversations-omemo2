@@ -738,8 +738,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (getPreferences().getBoolean("send_link_previews", true)) {
                 if (statusMessages.size() == 0) {
                     binding.statusMessage.setVisibility(View.GONE);
+                    binding.statusBox.setVisibility(View.GONE);
                 } else if (statusMessages.size() == 1) {
                     final String message = statusMessages.get(0);
+                    binding.statusBox.setVisibility(View.VISIBLE);
                     binding.statusMessage.setVisibility(View.VISIBLE);
                     binding.statusImage.setVisibility(View.VISIBLE);
                     final Spannable span = new SpannableString(message);
@@ -754,7 +756,9 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                         if (containsLink(statusMessages.get(i))) {
                             List<String> url = extractUrls(statusMessages.get(i));
                             for (int j = 0; j < url.size(); j++) {
-                                Glide.with(this).load(url.get(j)).into(binding.statusImage);
+                                if (this != null) {
+                                    Glide.with(this).load(url.get(j)).into(binding.statusImage);
+                                }
                                 binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
                                         Intent intent = new Intent();
@@ -773,6 +777,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     }
                 } else {
                     StringBuilder builder = new StringBuilder();
+                    binding.statusBox.setVisibility(View.VISIBLE);
                     binding.statusMessage.setVisibility(View.VISIBLE);
                     binding.statusImage.setVisibility(View.VISIBLE);
                     int s = statusMessages.size();
@@ -782,7 +787,9 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                             if (containsLink(statusMessages.get(i))) {
                                 List<String> url = extractUrls(statusMessages.get(i));
                                 for (int j = 0; j < url.size(); j++) {
-                                    Glide.with(this).load(url.get(j)).into(binding.statusImage);
+                                    if (this != null) {
+                                        Glide.with(this).load(url.get(j)).into(binding.statusImage);
+                                    }
                                     binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
                                             Intent intent = new Intent();
@@ -807,9 +814,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 }
             } else {
                 if (statusMessages.size() == 0) {
+                    binding.statusBox.setVisibility(View.GONE);
                     binding.statusMessage.setVisibility(View.GONE);
                 } else if (statusMessages.size() == 1) {
                     final String message = statusMessages.get(0);
+                    binding.statusBox.setVisibility(View.VISIBLE);
                     binding.statusMessage.setVisibility(View.VISIBLE);
                     final Spannable span = new SpannableString(message);
                     if (Emoticons.isOnlyEmoji(message)) {
@@ -818,6 +827,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.statusMessage.setText(span);
                 } else {
                     StringBuilder builder = new StringBuilder();
+                    binding.statusBox.setVisibility(View.VISIBLE);
                     binding.statusMessage.setVisibility(View.VISIBLE);
                     int s = statusMessages.size();
                     for (int i = 0; i < s; ++i) {
@@ -1043,7 +1053,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     }
 
     public void onBackendConnected() {
-        if (accountJid != null && contactJid != null) {
+        if (accountJid != null && contactJid != null && this != null) {
             Account account = xmppConnectionService.findAccountByJid(accountJid);
             if (account == null) {
                 return;
@@ -1094,8 +1104,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             });
             xmppConnectionService.fetchVcard4(account, contact, (vcard4) -> {
                 if (vcard4 == null) return;
-
                 runOnUiThread(() -> {
+                    binding.profile.setVisibility(View.VISIBLE);
                     for (Element el : vcard4.getChildren()) {
                         if (el.findChildEnsureSingle("uri", Namespace.VCARD4) != null || el.findChildEnsureSingle("text", Namespace.VCARD4) != null) {
                             items.add(el);
