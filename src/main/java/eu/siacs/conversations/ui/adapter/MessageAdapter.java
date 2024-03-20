@@ -1249,7 +1249,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
             layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
             viewHolder.images.setLayoutParams(layoutParams);
-            activity.loadBitmap(message, viewHolder.image);
+            Picasso.get().load(file).into(viewHolder.image);
             viewHolder.image.setOnClickListener(v -> openDownloadable(message));
         }
     }
