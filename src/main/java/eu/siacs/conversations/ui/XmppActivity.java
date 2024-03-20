@@ -1616,7 +1616,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         }
         });
         imageDataThread.start();
-        if (activity != null) {
+        if (activity != null && getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
             Glide.with(activity).load(imageUrl).into(statusimage);
         }
     }

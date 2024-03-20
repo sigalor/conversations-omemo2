@@ -1290,6 +1290,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             xmppConnectionService.reinitializeMuclumbusService();
         } else if (name.equals("enforce_dane")) {
             reconnectAccounts();
+        } else if (name.equals("play_gif_inside")) {
+            reconnectAccounts();
         } else if (name.equals("show_less_avatars")) {
             refreshUiReal();
         } else if (name.equals("show_record_voice_btn")) {

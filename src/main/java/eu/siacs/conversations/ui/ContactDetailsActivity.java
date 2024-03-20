@@ -756,8 +756,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                         if (containsLink(statusMessages.get(i))) {
                             List<String> url = extractUrls(statusMessages.get(i));
                             for (int j = 0; j < url.size(); j++) {
-                                if (this != null) {
+                                if (this != null && xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
                                     Glide.with(this).load(url.get(j)).into(binding.statusImage);
+                                } else {
+                                    Picasso.get().load(url.get(j)).into(binding.statusImage);
                                 }
                                 binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
@@ -787,8 +789,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                             if (containsLink(statusMessages.get(i))) {
                                 List<String> url = extractUrls(statusMessages.get(i));
                                 for (int j = 0; j < url.size(); j++) {
-                                    if (this != null) {
+                                    if (this != null && xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
                                         Glide.with(this).load(url.get(j)).into(binding.statusImage);
+                                    } else {
+                                        Picasso.get().load(url.get(j)).into(binding.statusImage);
                                     }
                                     binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
