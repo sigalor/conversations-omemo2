@@ -176,6 +176,15 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:layout_gravity="center_vertical" />
 
+                        <ImageView
+                            android:id="@+id/image_reply_preview"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:layout_marginLeft="13dp"
+                            android:layout_marginStart="13dp"
+                            android:scaleType="fitCenter"
+                            android:visibility="gone" />
+
                         <de.monocles.chat.ReadMoreTextView
                             app:trimExpandedText="@string/show_less"
                             app:trimCollapsedText="@string/show_more"
