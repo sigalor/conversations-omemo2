@@ -2895,9 +2895,7 @@ public class XmppConnectionService extends Service {
     private void markChangedFiles(List<DatabaseBackend.FilePathInfo> infos) {
         final boolean[] changed = {false};
         for (Conversation conversation : getConversations()) {
-            new Thread( new Runnable() { @Override public void run() {
                 changed[0] |= conversation.markAsChanged(infos);
-            } } ).start();
         }
         if (changed[0]) {
             updateConversationUi();
