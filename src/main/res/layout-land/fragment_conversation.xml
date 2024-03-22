@@ -178,10 +178,12 @@
 
                         <ImageView
                             android:id="@+id/image_reply_preview"
-                            android:layout_width="72dp"
-                            android:layout_height="72dp"
-                            android:layout_marginLeft="13dp"
-                            android:layout_marginStart="13dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:adjustViewBounds="true"
+                            android:paddingTop="2dp"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginStart="12dp"
                             android:scaleType="fitCenter"
                             android:visibility="gone" />
 

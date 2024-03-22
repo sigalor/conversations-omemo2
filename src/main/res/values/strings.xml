@@ -1406,7 +1406,7 @@
     <string name="grey">Grey</string>
     <string name="blue">Blue</string>
     <string name="green_and_blue">Green and blue</string>
-    <string name="pref_send_link_previews">Send link previews</string>
+    <string name="pref_send_link_previews">Show image link previews</string>
     <string name="pref_send_link_previews_summary">Attach metadata about links when sending a message. Only for unencrypted messages.</string>
     <string name="report_spam">Report spam</string>
     <string name="report_spam_and_block">Report spam and block spammer</string>

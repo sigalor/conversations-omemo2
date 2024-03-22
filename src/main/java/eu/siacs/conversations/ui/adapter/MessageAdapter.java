@@ -25,6 +25,7 @@ import static eu.siacs.conversations.ui.util.MyLinkify.removeTrailingBracket;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 import eu.siacs.conversations.ui.util.ShareUtil;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.style.URLSpan;
 import android.text.style.ImageSpan;
@@ -57,6 +58,7 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.util.Patterns;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -74,6 +76,8 @@ import android.os.AsyncTask;
 import android.widget.ListAdapter;
 
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
@@ -81,6 +85,10 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.daimajia.swipe.SwipeLayout;
 import com.google.common.base.Strings;
 import com.squareup.picasso.Picasso;
@@ -696,6 +704,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.transfer.setVisibility(GONE);
         viewHolder.audioPlayer.setVisibility(GONE);
         viewHolder.messageBody.setVisibility(GONE);
+        viewHolder.quotedImage.setVisibility(GONE);
         if (darkBackground) {
             viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_OnDark);
         } else {
@@ -815,6 +824,49 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayRichLinkMessage(viewHolder, message, darkBackground);
             }
             MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
+
+            // Load image from Uri in quotes
+            if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true)) {
+                if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
+                    Glide.with(activity)
+                            .load(body.toString())
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                                    viewHolder.quotedImage.setVisibility(GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                    viewHolder.quotedImage.setVisibility(View.VISIBLE);
+                                    return false;
+                                }
+                            })
+                            .thumbnail(0.2f)
+                            .into(viewHolder.quotedImage);
+                } else {
+                    Glide.with(activity).asBitmap()
+                            .load(body.toString())
+                            .listener(new RequestListener<Bitmap>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Bitmap> target, boolean isFirstResource) {
+                                    viewHolder.quotedImage.setVisibility(GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(@NonNull Bitmap resource, @NonNull Object model, Target<Bitmap> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                    viewHolder.quotedImage.setVisibility(View.VISIBLE);
+
+                                    return false;
+                                }
+                            })
+                            .thumbnail(0.2f)
+                            .into(viewHolder.quotedImage);
+                }
+            }
+
             viewHolder.messageBody.setText(body);
             viewHolder.messageBody.setAutoLinkMask(0);
             BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
@@ -837,7 +889,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 }
-            };            method.setOnLinkLongClickListener((tv, url) -> {
+            };
+            method.setOnLinkLongClickListener((tv, url) -> {
                 tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
                 ShareUtil.copyLinkToClipboard(activity, url);
                 return true;
@@ -1229,7 +1282,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.gifImage.setOnClickListener(v -> openDownloadable(message));
         } else {
             showImages(true, mediaRuntime, false, viewHolder);
-            FileParams params = message.getFileParams();
+            Log.d(Config.LOGTAG, "non animated Image");
+            final FileParams params = message.getFileParams();
             final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
             final int scaledW;
             final int scaledH;
@@ -1246,10 +1300,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 scaledW = (int) target;
                 scaledH = (int) (params.height / ((double) params.width / target));
             }
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
+            final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
             layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
             viewHolder.images.setLayoutParams(layoutParams);
-            activity.loadBitmap(message, viewHolder.image);
+            Glide.with(activity).asBitmap().load(file).into(viewHolder.image);
             viewHolder.image.setOnClickListener(v -> openDownloadable(message));
         }
     }
@@ -1423,6 +1477,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
                     viewHolder.gifImage = view.findViewById(R.id.message_image_gif);
+                    viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -1463,6 +1518,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
                     viewHolder.gifImage = view.findViewById(R.id.message_image_gif);
+                    viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -1998,6 +2054,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected Button resend_button;
         protected ImageButton answer_button;
         protected ImageView image;
+        protected ImageView quotedImage;
         protected GifImageView gifImage;
         protected TextView mediaduration;
         protected RichLinkView richlinkview;
