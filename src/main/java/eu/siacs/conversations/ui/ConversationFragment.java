@@ -106,6 +106,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.emoji2.emojipicker.EmojiPickerView;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -2008,7 +2009,17 @@ public class ConversationFragment extends XmppFragment
         }
 
         SpannableStringBuilder body = message.getSpannableBody(null, null);
-        if (message.isFileOrImage() || message.isOOb()) body.append(" 🖼️");
+        if ((message.isFileOrImage() || message.isOOb()) && binding.imageReplyPreview != null) {
+            binding.imageReplyPreview.setVisibility(VISIBLE);
+            if (activity.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
+                Glide.with(activity).load(message.getRelativeFilePath()).thumbnail(0.2f).into(binding.imageReplyPreview);
+            } else {
+                Glide.with(activity).asBitmap().load(message.getRelativeFilePath()).thumbnail(0.2f).into(binding.imageReplyPreview);
+            }
+        } else if (binding.imageReplyPreview != null) {
+            Glide.with(activity).clear(binding.imageReplyPreview);
+            binding.imageReplyPreview.setVisibility(GONE);
+        }
         messageListAdapter.handleTextQuotes(body, activity.isDarkTheme());
         binding.contextPreviewText.setText(body);
         binding.contextPreview.setVisibility(View.VISIBLE);
