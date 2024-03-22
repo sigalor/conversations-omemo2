@@ -1727,100 +1727,99 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        mOptionsMenu = menu;
-        boolean hasAttachments = mediaPreviewAdapter != null && mediaPreviewAdapter.hasAttachments();
-        menuInflater.inflate(R.menu.fragment_conversation, menu);
-        final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
-        final MenuItem menuSearchUpdates = menu.findItem(R.id.action_check_updates);
-        final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive_chat);
-        final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
-        final MenuItem menuGroupDetails = menu.findItem(R.id.action_group_details);
-        final MenuItem menuParticipants = menu.findItem(R.id.action_participants);
-        final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
-        final MenuItem menuCall = menu.findItem(R.id.action_call);
-        final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
-        final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
-        final MenuItem menuMediaBrowser = menu.findItem(R.id.action_mediabrowser);
-        final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
-        final MenuItem menuManageAccounts = menu.findItem(R.id.action_accounts);
-        final MenuItem menuSettings = menu.findItem(R.id.action_settings);
-        final MenuItem menuInviteToChat = menu.findItem(R.id.action_invite_user);
-        if (activity == null) {
-            return;
-        }
-        if (conversation != null) {
-            if (conversation.getMode() == Conversation.MODE_MULTI || (activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection())) {
-                menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
-                menuArchiveChat.setVisible(false);
-                menuLeaveGroup.setVisible(true);
-                menuCall.setVisible(false);
-                menuOngoingCall.setVisible(false);
-                menuParticipants.setVisible(true);
-                menuManageAccounts.setVisible(false);
-                menuSettings.setVisible(false);
-                menuInviteToChat.setVisible(false);
-            } else {
-                final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
-                final Optional<OngoingRtpSession> ongoingRtpSession = service == null ? Optional.absent() : service.getJingleConnectionManager().getOngoingRtpConnection(conversation.getContact());
-                if (ongoingRtpSession.isPresent()) {
-                    menuOngoingCall.setVisible(true);
+        if (activity != null) {
+            mOptionsMenu = menu;
+            boolean hasAttachments = mediaPreviewAdapter != null && mediaPreviewAdapter.hasAttachments();
+            menuInflater.inflate(R.menu.fragment_conversation, menu);
+            final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
+            final MenuItem menuSearchUpdates = menu.findItem(R.id.action_check_updates);
+            final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive_chat);
+            final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
+            final MenuItem menuGroupDetails = menu.findItem(R.id.action_group_details);
+            final MenuItem menuParticipants = menu.findItem(R.id.action_participants);
+            final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
+            final MenuItem menuCall = menu.findItem(R.id.action_call);
+            final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
+            final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
+            final MenuItem menuMediaBrowser = menu.findItem(R.id.action_mediabrowser);
+            final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
+            final MenuItem menuManageAccounts = menu.findItem(R.id.action_accounts);
+            final MenuItem menuSettings = menu.findItem(R.id.action_settings);
+            final MenuItem menuInviteToChat = menu.findItem(R.id.action_invite_user);
+            if (conversation != null) {
+                if (conversation.getMode() == Conversation.MODE_MULTI || (activity.xmppConnectionService != null && !activity.xmppConnectionService.hasInternetConnection())) {
+                    menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
+                    menuArchiveChat.setVisible(false);
+                    menuLeaveGroup.setVisible(true);
                     menuCall.setVisible(false);
-                } else {
                     menuOngoingCall.setVisible(false);
-                    final RtpCapability.Capability rtpCapability = RtpCapability.check(conversation.getContact());
-                    final boolean cameraAvailable = activity != null && activity.isCameraFeatureAvailable();
-                    menuCall.setVisible(rtpCapability != RtpCapability.Capability.NONE);
-                    menuVideoCall.setVisible(rtpCapability == RtpCapability.Capability.VIDEO && cameraAvailable);
+                    menuParticipants.setVisible(true);
+                    menuManageAccounts.setVisible(false);
+                    menuSettings.setVisible(false);
+                    menuInviteToChat.setVisible(false);
+                } else {
+                    final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
+                    final Optional<OngoingRtpSession> ongoingRtpSession = service == null ? Optional.absent() : service.getJingleConnectionManager().getOngoingRtpConnection(conversation.getContact());
+                    if (ongoingRtpSession.isPresent()) {
+                        menuOngoingCall.setVisible(true);
+                        menuCall.setVisible(false);
+                    } else {
+                        menuOngoingCall.setVisible(false);
+                        final RtpCapability.Capability rtpCapability = RtpCapability.check(conversation.getContact());
+                        final boolean cameraAvailable = activity != null && activity.isCameraFeatureAvailable();
+                        menuCall.setVisible(rtpCapability != RtpCapability.Capability.NONE);
+                        menuVideoCall.setVisible(rtpCapability == RtpCapability.Capability.VIDEO && cameraAvailable);
+                    }
+                    menuParticipants.setVisible(false);
+                    menuInviteContact.setVisible(false);
+                    menuArchiveChat.setVisible(true);
+                    menuLeaveGroup.setVisible(false);
+                    menuManageAccounts.setVisible(false);
+                    menuSettings.setVisible(false);
+                    menuInviteToChat.setVisible(false);
                 }
-                menuParticipants.setVisible(false);
-                menuInviteContact.setVisible(false);
-                menuArchiveChat.setVisible(true);
-                menuLeaveGroup.setVisible(false);
-                menuManageAccounts.setVisible(false);
-                menuSettings.setVisible(false);
-                menuInviteToChat.setVisible(false);
-            }
-            try {
-                Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
-                if (secondaryFragment instanceof ConversationFragment) {
-                    if (conversation.getMode() == Conversation.MODE_MULTI) {
-                        menuGroupDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_group_details : R.string.channel_details);
-                        menuGroupDetails.setVisible(true);
-                        menuContactDetails.setVisible(false);
+                try {
+                    Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
+                    if (secondaryFragment instanceof ConversationFragment) {
+                        if (conversation.getMode() == Conversation.MODE_MULTI) {
+                            menuGroupDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_group_details : R.string.channel_details);
+                            menuGroupDetails.setVisible(true);
+                            menuContactDetails.setVisible(false);
+                        } else {
+                            menuGroupDetails.setVisible(false);
+                            menuContactDetails.setVisible(!this.conversation.withSelf());
+                        }
+                        menuSearchUpdates.setVisible(true);
+                        ConversationsActivity.bottomNavigationView.setVisibility(VISIBLE);
                     } else {
                         menuGroupDetails.setVisible(false);
-                        menuContactDetails.setVisible(!this.conversation.withSelf());
+                        menuContactDetails.setVisible(false);
+                        menuSearchUpdates.setVisible(false);
+                        ConversationsActivity.bottomNavigationView.setVisibility(GONE);
                     }
-                    menuSearchUpdates.setVisible(true);
-                    ConversationsActivity.bottomNavigationView.setVisibility(VISIBLE);
-                } else {
+                } catch (Exception e) {
+                    e.printStackTrace();
                     menuGroupDetails.setVisible(false);
                     menuContactDetails.setVisible(false);
                     menuSearchUpdates.setVisible(false);
-                    ConversationsActivity.bottomNavigationView.setVisibility(GONE);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                menuMediaBrowser.setVisible(true);
+                ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, activity.getAttachmentChoicePreference(), hasAttachments);
+                ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu, activity);
+                if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, false)) {
+                    menuTogglePinned.setTitle(R.string.remove_from_favorites);
+                } else {
+                    menuTogglePinned.setTitle(R.string.add_to_favorites);
+                }
+            } else {
+                menuSearchUpdates.setVisible(true);
+                menuInviteContact.setVisible(false);
                 menuGroupDetails.setVisible(false);
                 menuContactDetails.setVisible(false);
-                menuSearchUpdates.setVisible(false);
+                menuMediaBrowser.setVisible(false);
             }
-            menuMediaBrowser.setVisible(true);
-            ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, activity.getAttachmentChoicePreference(), hasAttachments);
-            ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu, activity);
-            if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, false)) {
-                menuTogglePinned.setTitle(R.string.remove_from_favorites);
-            } else {
-                menuTogglePinned.setTitle(R.string.add_to_favorites);
-            }
-        } else {
-            menuSearchUpdates.setVisible(true);
-            menuInviteContact.setVisible(false);
-            menuGroupDetails.setVisible(false);
-            menuContactDetails.setVisible(false);
-            menuMediaBrowser.setVisible(false);
+            super.onCreateOptionsMenu(menu, menuInflater);
         }
-        super.onCreateOptionsMenu(menu, menuInflater);
     }
 
     //Setting hide thread icon
