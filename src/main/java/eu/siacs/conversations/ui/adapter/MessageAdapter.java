@@ -829,7 +829,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true)) {
                 if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
                     Glide.with(activity)
-                            .load(body.toString())
+                            .load(body.toString()).placeholder(R.drawable.ic_image_grey600_48dp)
                             .listener(new RequestListener<Drawable>() {
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
@@ -847,7 +847,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             .into(viewHolder.quotedImage);
                 } else {
                     Glide.with(activity).asBitmap()
-                            .load(body.toString())
+                            .load(body.toString()).placeholder(R.drawable.ic_image_grey600_48dp)
                             .listener(new RequestListener<Bitmap>() {
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Bitmap> target, boolean isFirstResource) {
