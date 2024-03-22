@@ -176,7 +176,7 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:layout_gravity="center_vertical" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/image_reply_preview"
                             android:layout_width="64dp"
                             android:layout_height="64dp"
@@ -185,6 +185,7 @@
                             android:layout_marginLeft="12dp"
                             android:layout_marginStart="12dp"
                             android:scaleType="fitCenter"
+                            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
                             android:visibility="gone" />
 
                         <de.monocles.chat.ReadMoreTextView

@@ -2,14 +2,15 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_quote_preview"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:paddingLeft="12dp"
+        android:paddingStart="12dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
+        app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
         android:visibility="gone" />
 
     <TextView
