@@ -18,6 +18,7 @@ import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -61,6 +62,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -74,6 +76,7 @@ import com.google.common.base.Strings;
 import com.lelloman.identicon.view.GithubIdenticonView;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
@@ -117,6 +120,7 @@ import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.text.DividerSpan;
 import eu.siacs.conversations.ui.text.QuoteSpan;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.ui.util.CustomTab;
 import eu.siacs.conversations.ui.util.MyLinkify;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.ui.util.ShareUtil;
@@ -753,6 +757,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                                 .into(viewHolder.quotedImage);
                         viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
                     }
+
+                    viewHolder.quotedImageBox.setOnClickListener(v -> {
+                        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("open_links_inapp", R.bool.open_links_inapp)) {
+                            try {
+                                CustomTab.openTab(activity, Uri.parse(imageurl), ThemeHelper.isDark(ThemeHelper.find(activity)));
+                            } catch (ActivityNotFoundException e) {
+                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(imageurl));
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                            //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+                            try {
+                                activity.startActivity(intent);
+                            } catch (ActivityNotFoundException e) {
+                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
                     if (body.toString().startsWith("> https://")) {
                         int start = 0;
                         int end = imageurl.length();
