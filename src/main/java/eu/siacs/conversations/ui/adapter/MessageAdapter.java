@@ -1,14 +1,5 @@
 package eu.siacs.conversations.ui.adapter;
 
-import de.monocles.chat.BobTransfer;
-import de.monocles.chat.MessageTextActionModeCallback;
-import de.monocles.chat.Util;
-import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
-import eu.siacs.conversations.utils.Compatibility;
-import eu.siacs.conversations.xml.Element;
-import io.ipfs.cid.Cid;
-import me.saket.bettermovementmethod.BetterLinkMovementMethod;
-
 import static android.view.View.GONE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static de.monocles.chat.Util.getReadmakerType;
@@ -23,13 +14,6 @@ import static eu.siacs.conversations.ui.SettingsActivity.SHOW_MAPS_INSIDE;
 import static eu.siacs.conversations.ui.util.MyLinkify.removeTrackingParameter;
 import static eu.siacs.conversations.ui.util.MyLinkify.removeTrailingBracket;
 import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
-import eu.siacs.conversations.ui.util.ShareUtil;
-
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.text.style.URLSpan;
-import android.text.style.ImageSpan;
-import android.text.style.ClickableSpan;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -38,28 +22,31 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-
-import java.util.Map;
-import java.util.HashMap;
-
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Patterns;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,46 +56,46 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.os.AsyncTask;
-import android.widget.ListAdapter;
 
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.daimajia.swipe.SwipeLayout;
 import com.google.common.base.Strings;
-import com.squareup.picasso.Picasso;
 import com.lelloman.identicon.view.GithubIdenticonView;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 
-import de.monocles.chat.WebxdcUpdate;
+import de.monocles.chat.BobTransfer;
+import de.monocles.chat.MessageTextActionModeCallback;
+import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
-
-import eu.siacs.conversations.entities.Message;
+import de.monocles.chat.WebxdcUpdate;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
@@ -116,6 +103,7 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Message.FileParams;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
@@ -131,9 +119,12 @@ import eu.siacs.conversations.ui.text.QuoteSpan;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.MyLinkify;
 import eu.siacs.conversations.ui.util.QuoteHelper;
+import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.ui.util.StyledAttributes;
 import eu.siacs.conversations.ui.util.ViewUtil;
+import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
 import eu.siacs.conversations.ui.widget.RichLinkView;
+import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.GeoHelper;
@@ -143,13 +134,12 @@ import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.utils.UIHelper;
+import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.mam.MamReference;
+import io.ipfs.cid.Cid;
 import me.drakeet.support.toast.ToastCompat;
-import pl.droidsonroids.gif.GifImageView;
-
-import android.widget.ListView;
-import android.widget.Toast;
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 
 public class MessageAdapter extends ArrayAdapter<Message> {
@@ -704,7 +694,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.transfer.setVisibility(GONE);
         viewHolder.audioPlayer.setVisibility(GONE);
         viewHolder.messageBody.setVisibility(GONE);
-        viewHolder.quotedImage.setVisibility(GONE);
+        viewHolder.quotedImageBox.setVisibility(GONE);
         if (darkBackground) {
             viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_OnDark);
         } else {
@@ -741,11 +731,40 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     return fallbackImg;
                 }
             }, fallbackImg)));
+            boolean isFirstImageQuote = body.toString().startsWith("> https://");
+            boolean isSecondImageQuote = body.toString().startsWith(">> https://");
             if (message.getBody().equals(DELETED_MESSAGE_BODY)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY.length(), activity.getString(R.string.message_deleted));
             } else if (message.getBody().equals(DELETED_MESSAGE_BODY_OLD)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY_OLD.length(), activity.getString(R.string.message_deleted));
+            } else if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true) && isFirstImageQuote && containsLink(body.toString())) {
+                List<String> uri = extractUrls(body.toString());
+                for (String imageurl : uri) {
+                    if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
+                    Glide.with(activity)
+                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
+                                .thumbnail(0.2f).error(imageurl)
+                                .into(viewHolder.quotedImage);
+                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
+                    } else {
+                        Glide.with(activity).asBitmap()
+                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
+                                .thumbnail(0.2f).error(imageurl)
+                                .into(viewHolder.quotedImage);
+                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
+                    }
+                    if (body.toString().startsWith("> https://")) {
+                        int start = 0;
+                        int end = imageurl.length();
+                        body = body.replace(start, end, "");
+                    } else {
+                        int start = imageurl.indexOf("https://");
+                        int end = imageurl.length();
+                        body = body.replace(start, end, "");
+                    }
+                }
             } else {
+                viewHolder.quotedImageBox.setVisibility(GONE);
                 boolean hasMeCommand = message.hasMeCommand();
                 if (hasMeCommand) {
                     body = body.replace(0, Message.ME_COMMAND.length(), nick);
@@ -760,13 +779,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     int end = body.getSpanEnd(mergeSeparator);
                     body.setSpan(new DividerSpan(true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
+                final boolean startsWithQuote = handleTextQuotes(body, darkBackground);
                 for (final android.text.style.QuoteSpan quote : body.getSpans(0, body.length(), android.text.style.QuoteSpan.class)) {
                     int start = body.getSpanStart(quote);
                     int end = body.getSpanEnd(quote);
                     body.removeSpan(quote);
                     applyQuoteSpan(body, start, end, darkBackground);
                 }
-                final boolean startsWithQuote = handleTextQuotes(body, darkBackground);
                 if (!message.isPrivateMessage()) {
                     if (hasMeCommand) {
                         body.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, nick.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -824,48 +843,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayRichLinkMessage(viewHolder, message, darkBackground);
             }
             MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
-
-            // Load image from Uri in quotes
-            if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true)) {
-                if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                    Glide.with(activity)
-                            .load(body.toString()).placeholder(R.drawable.ic_image_grey600_48dp)
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                                    viewHolder.quotedImage.setVisibility(GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                                    viewHolder.quotedImage.setVisibility(View.VISIBLE);
-                                    return false;
-                                }
-                            })
-                            .thumbnail(0.2f)
-                            .into(viewHolder.quotedImage);
-                } else {
-                    Glide.with(activity).asBitmap()
-                            .load(body.toString()).placeholder(R.drawable.ic_image_grey600_48dp)
-                            .listener(new RequestListener<Bitmap>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Bitmap> target, boolean isFirstResource) {
-                                    viewHolder.quotedImage.setVisibility(GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(@NonNull Bitmap resource, @NonNull Object model, Target<Bitmap> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                                    viewHolder.quotedImage.setVisibility(View.VISIBLE);
-
-                                    return false;
-                                }
-                            })
-                            .thumbnail(0.2f)
-                            .into(viewHolder.quotedImage);
-                }
-            }
 
             viewHolder.messageBody.setText(body);
             viewHolder.messageBody.setAutoLinkMask(0);
@@ -1252,10 +1229,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             ToastCompat.makeText(activity, R.string.file_deleted, ToastCompat.LENGTH_SHORT).show();
             return;
         }
-        final String mime = file.getMimeType();
-        final boolean isGif = mime != null && mime.equals("image/gif");
         final int mediaRuntime = message.getFileParams().runtime;
-        if (isGif && mPlayGifInside) {
             showImages(true, mediaRuntime, true, viewHolder);
             Log.d(Config.LOGTAG, "Gif Image file");
             final FileParams params = message.getFileParams();
@@ -1278,33 +1252,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
             layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
             viewHolder.images.setLayoutParams(layoutParams);
-            Glide.with(activity).load(file).into(viewHolder.gifImage);
-            viewHolder.gifImage.setOnClickListener(v -> openDownloadable(message));
-        } else {
-            showImages(true, mediaRuntime, false, viewHolder);
-            Log.d(Config.LOGTAG, "non animated Image");
-            final FileParams params = message.getFileParams();
-            final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
-            final int scaledW;
-            final int scaledH;
-            if (Math.max(params.height, params.width) * metrics.density <= target) {
-                scaledW = (int) (params.width * metrics.density);
-                scaledH = (int) (params.height * metrics.density);
-            } else if (Math.max(params.height, params.width) <= target) {
-                scaledW = params.width;
-                scaledH = params.height;
-            } else if (params.width <= params.height) {
-                scaledW = (int) (params.width / ((double) params.height / target));
-                scaledH = (int) target;
-            } else {
-                scaledW = (int) target;
-                scaledH = (int) (params.height / ((double) params.width / target));
-            }
-            final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
-            layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
-            viewHolder.images.setLayoutParams(layoutParams);
-            Glide.with(activity).asBitmap().load(file).into(viewHolder.image);
             viewHolder.image.setOnClickListener(v -> openDownloadable(message));
+        if (mPlayGifInside) {
+            Glide.with(activity).load(file).into(viewHolder.image);
+        } else {
+            Glide.with(activity).asBitmap().load(file).into(viewHolder.image);
         }
     }
 
@@ -1338,23 +1290,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         boolean hasDuration = duration > 0;
         if (show) {
             viewHolder.images.setVisibility(View.VISIBLE);
+            viewHolder.image.setVisibility(View.VISIBLE);
             if (hasDuration) {
                 viewHolder.mediaduration.setVisibility(View.VISIBLE);
                 viewHolder.mediaduration.setText(formatTime(safeLongToInt(duration)));
             } else {
                 viewHolder.mediaduration.setVisibility(GONE);
             }
-            if (isGif) {
-                viewHolder.image.setVisibility(GONE);
-                viewHolder.gifImage.setVisibility(View.VISIBLE);
-            } else {
-                viewHolder.image.setVisibility(View.VISIBLE);
-                viewHolder.gifImage.setVisibility(GONE);
-            }
         } else {
             viewHolder.images.setVisibility(GONE);
             viewHolder.image.setVisibility(GONE);
-            viewHolder.gifImage.setVisibility(GONE);
             viewHolder.mediaduration.setVisibility(GONE);
         }
     }
@@ -1476,8 +1421,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.images = view.findViewById(R.id.images);
                     viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
-                    viewHolder.gifImage = view.findViewById(R.id.message_image_gif);
                     viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
+                    viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -1517,8 +1462,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.images = view.findViewById(R.id.images);
                     viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
-                    viewHolder.gifImage = view.findViewById(R.id.message_image_gif);
                     viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
+                    viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -2055,7 +2000,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected ImageButton answer_button;
         protected ImageView image;
         protected ImageView quotedImage;
-        protected GifImageView gifImage;
+        protected RelativeLayout quotedImageBox;
         protected TextView mediaduration;
         protected RichLinkView richlinkview;
         protected ImageView indicator;
@@ -2141,5 +2086,87 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (isCancelled()) return;
             activity.xmppConnectionService.updateConversationUi();
         }
+    }
+
+    public static boolean containsLink(String input) {
+        boolean result = false;
+
+        String[] parts = input.split("\\s+");
+
+        for (String item : parts) {
+            if (android.util.Patterns.WEB_URL.matcher(item).matches()) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public static List<String> extractUrls(String input)
+    {
+        List<String> result = new ArrayList<String>();
+
+        String[] words = input.split("\\s+");
+
+
+        Pattern pattern = Patterns.WEB_URL;
+        for(String word : words)
+        {
+            if(pattern.matcher(word).find())
+            {
+                if(!word.toLowerCase().contains("http://") && !word.toLowerCase().contains("https://"))
+                {
+                    word = "http://" + word;
+                }
+                result.add(word);
+            }
+        }
+
+        return result;
+    }
+
+    String WebUri = null;
+    private Boolean isWebUri = null;
+    public synchronized String getWebUri(String thisbody) {
+        final Pattern urlPattern = Pattern.compile(
+                "(?:(?:https?):\\/\\/|www\\.)(?:\\([-A-Z0-9+&@#\\/%=~_|$?!:,.]*\\)|[-A-Z0-9+&@#\\/%=~_|$?!:,.])*(?:\\([-A-Z0-9+&@#\\/%=~_|$?!:,.]*\\)|[A-Z0-9+&@#\\/%=~_|$])",
+                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        Matcher m = urlPattern.matcher(thisbody);
+        while (m.find()) {
+            if (WebUri == null) {
+                WebUri = m.group(0);
+                Log.d(Config.LOGTAG, "Weburi Message: " + WebUri);
+                return WebUri;
+            }
+        }
+        return WebUri;
+    }
+
+    public synchronized boolean isWebUri(String thisbody) {
+        if (isWebUri == null) {
+            isWebUri = Patterns.WEB_URL.matcher(thisbody).matches();
+        }
+        return isWebUri;
+    }
+
+    public synchronized boolean isImageUri(String thisbody) {
+        final AtomicBoolean b = new AtomicBoolean(false);
+        Thread imageDataThread = new Thread(() -> {
+            try {
+                URLConnection connection = new URL(thisbody).openConnection();
+                String contentType = connection.getHeaderField("Content-Type");
+                if (contentType.startsWith("image/") || contentType.startsWith("video/")) b.set(true);
+            } catch (IOException pExc) {
+                pExc.printStackTrace();
+            }
+        });
+        imageDataThread.start();
+        try {
+            imageDataThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return b.get();
     }
 }

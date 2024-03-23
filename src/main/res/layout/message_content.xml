@@ -2,16 +2,37 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/image_quote_preview"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:paddingLeft="12dp"
-        android:paddingStart="12dp"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
+    <RelativeLayout
+        android:id="@+id/image_quote_box"
+        android:layout_width="84dp"
+        android:layout_height="78dp"
+        android:clickable="true"
+        android:background="@drawable/quote_bubble"
         app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
-        android:visibility="gone" />
+        android:visibility="gone" >
+
+        <View
+            android:layout_height="52dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_width="1dp"
+            android:layout_centerVertical="true"
+            android:background="?attr/text_Color_Main"
+            android:orientation="vertical"/>
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/image_quote_preview"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/message_body"
@@ -48,10 +69,9 @@
 
     <LinearLayout
         android:id="@+id/images"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="2dp"
         android:visibility="gone"
         android:orientation="horizontal">
 
@@ -60,21 +80,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:longClickable="true"
             android:maxWidth="500dp"
-            android:maxHeight="500dp"
-            android:scaleType="centerCrop"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
-
-        <pl.droidsonroids.gif.GifImageView
-            android:id="@+id/message_image_gif"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
+            android:maxHeight="800dp"
             android:longClickable="true"
-            android:maxWidth="500dp"
-            android:maxHeight="500dp"
-            android:scaleType="centerCrop"
+            android:scaleType="fitXY"
             app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <TextView
