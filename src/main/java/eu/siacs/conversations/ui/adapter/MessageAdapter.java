@@ -694,6 +694,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.audioPlayer.setVisibility(GONE);
         viewHolder.messageBody.setVisibility(GONE);
         viewHolder.quotedImageBox.setVisibility(GONE);
+        viewHolder.secondQuoteLine.setVisibility(GONE);
         if (darkBackground) {
             viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_OnDark);
         } else {
@@ -732,54 +733,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }, fallbackImg)));
             boolean isFirstImageQuote = body.toString().startsWith("> https://");
             boolean isSecondImageQuote = body.toString().startsWith(">> https://");
+            boolean isOmemoImageQuote = body.toString().startsWith("> aesgcm://") || body.toString().startsWith(">> aesgcm://");
             if (message.getBody().equals(DELETED_MESSAGE_BODY)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY.length(), activity.getString(R.string.message_deleted));
             } else if (message.getBody().equals(DELETED_MESSAGE_BODY_OLD)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY_OLD.length(), activity.getString(R.string.message_deleted));
-            } else if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true) && isFirstImageQuote && containsLink(body.toString())) {
-                List<String> uri = extractUrls(body.toString());
-                for (String imageurl : uri) {
-                    if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                    Glide.with(activity)
-                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
-                                .thumbnail(0.2f).error(imageurl)
-                                .into(viewHolder.quotedImage);
-                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
-                    } else {
-                        Glide.with(activity).asBitmap()
-                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
-                                .thumbnail(0.2f).error(imageurl)
-                                .into(viewHolder.quotedImage);
-                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
-                    }
-
-                    viewHolder.quotedImageBox.setOnClickListener(v -> {
-                        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("open_links_inapp", R.bool.open_links_inapp)) {
-                            try {
-                                CustomTab.openTab(activity, Uri.parse(imageurl), ThemeHelper.isDark(ThemeHelper.find(activity)));
-                            } catch (ActivityNotFoundException e) {
-                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(imageurl));
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                            //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-                            try {
-                                activity.startActivity(intent);
-                            } catch (ActivityNotFoundException e) {
-                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                    try {
-                        int start = 0;
-                        int end = imageurl.length() + 3;
-                        body = body.replace(start, end, "");
-                    } catch (Exception e) {
-                        Log.d("Error", "Can't replace link");
-                    }
-
-                }
             } else {
                 viewHolder.quotedImageBox.setVisibility(GONE);
                 boolean hasMeCommand = message.hasMeCommand();
@@ -854,6 +812,52 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 StylingHelper.format(body, viewHolder.messageBody.getCurrentTextColor(), true);
                 if (highlightedTerm != null) {
                     StylingHelper.highlight(activity, body, highlightedTerm, StylingHelper.isDarkText(viewHolder.messageBody));
+                }
+            }
+            if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true) && (isFirstImageQuote || isSecondImageQuote || isOmemoImageQuote) && containsLink(body.toString())) {
+                List<String> uri = extractUrls(body.toString());
+                for (String imageurl : uri) {
+                    if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
+                        Glide.with(activity)
+                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
+                                .thumbnail(0.2f).error(imageurl)
+                                .into(viewHolder.quotedImage);
+                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
+                    } else {
+                        Glide.with(activity).asBitmap()
+                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
+                                .thumbnail(0.2f).error(imageurl)
+                                .into(viewHolder.quotedImage);
+                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
+                    }
+                    if (isSecondImageQuote) {
+                        viewHolder.secondQuoteLine.setVisibility(View.VISIBLE);
+                    }
+                    viewHolder.quotedImageBox.setOnClickListener(v -> {
+                        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("open_links_inapp", R.bool.open_links_inapp)) {
+                            try {
+                                CustomTab.openTab(activity, Uri.parse(imageurl), ThemeHelper.isDark(ThemeHelper.find(activity)));
+                            } catch (ActivityNotFoundException e) {
+                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(imageurl));
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                            //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+                            try {
+                                activity.startActivity(intent);
+                            } catch (ActivityNotFoundException e) {
+                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    try {
+                        int start = 0;
+                        int end = imageurl.length() + 2;
+                        body = body.replace(start, end, "");
+                    } catch (Exception e) {
+                        Log.d("Error", "Can't replace link");
+                    }
                 }
             }
             if (message.isWebUri() || message.getWebUri() != null) {
@@ -1440,6 +1444,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.image = view.findViewById(R.id.message_image);
                     viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
                     viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
+                    viewHolder.secondQuoteLine = view.findViewById(R.id.second_quote_line);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -1481,6 +1486,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.image = view.findViewById(R.id.message_image);
                     viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
                     viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
+                    viewHolder.secondQuoteLine = view.findViewById(R.id.second_quote_line);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -2018,6 +2024,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected ImageView image;
         protected ImageView quotedImage;
         protected RelativeLayout quotedImageBox;
+        protected View secondQuoteLine;
         protected TextView mediaduration;
         protected RichLinkView richlinkview;
         protected ImageView indicator;

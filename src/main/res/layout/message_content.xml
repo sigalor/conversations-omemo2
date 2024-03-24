@@ -11,14 +11,27 @@
         app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
         android:visibility="gone" >
 
+
         <View
+            android:layout_height="52dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_width="1dp"
+            android:layout_centerVertical="true"
+            android:background="?attr/text_Color_Main"
+            android:orientation="vertical"/>
+
+        <View
+            android:id="@+id/second_quote_line"
             android:layout_height="52dp"
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
             android:layout_width="1dp"
             android:layout_centerVertical="true"
             android:background="?attr/text_Color_Main"
-            android:orientation="vertical"/>
+            android:orientation="vertical"
+            android:visibility="gone" />
+
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/image_quote_preview"
