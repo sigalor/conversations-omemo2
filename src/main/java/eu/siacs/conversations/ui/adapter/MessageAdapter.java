@@ -771,16 +771,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             }
                         }
                     });
-
-                    if (body.toString().startsWith("> https://")) {
+                    try {
                         int start = 0;
-                        int end = imageurl.length();
+                        int end = imageurl.length() + 3;
                         body = body.replace(start, end, "");
-                    } else {
-                        int start = imageurl.indexOf("https://");
-                        int end = imageurl.length();
-                        body = body.replace(start, end, "");
+                    } catch (Exception e) {
+                        Log.d("Error", "Can't replace link");
                     }
+
                 }
             } else {
                 viewHolder.quotedImageBox.setVisibility(GONE);
