@@ -23,11 +23,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -74,9 +71,7 @@ import com.bumptech.glide.Glide;
 import com.daimajia.swipe.SwipeLayout;
 import com.google.common.base.Strings;
 import com.lelloman.identicon.view.GithubIdenticonView;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
@@ -1181,7 +1176,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
             viewHolder.images.setLayoutParams(layoutParams);
             viewHolder.image.setOnClickListener(v -> showLocation(message));
-            Picasso .get()
+            Glide.with(activity)
                     .load(Uri.parse(url))
                     .placeholder(R.drawable.ic_map_marker_grey600_48dp)
                     .error(R.drawable.ic_map_marker_grey600_48dp)

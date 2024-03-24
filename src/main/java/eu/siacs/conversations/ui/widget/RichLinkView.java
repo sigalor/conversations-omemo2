@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -93,14 +93,12 @@ public class RichLinkView extends RelativeLayout {
         imageView.setAdjustViewBounds(true);
         if (meta.getImageurl() != null && !meta.getImageurl().equals("") && !meta.getImageurl().isEmpty()) {
             if (!dataSaverDisabled) {
-                Picasso.get()
-                        .load(R.drawable.ic_web_grey600_48)
-                        .into(imageView);
+                Glide.with(this).load(R.drawable.ic_web_grey600_48).into(imageView);
             } else {
                 imageView.setVisibility(VISIBLE);
-                Picasso.get()
+                Glide.with(this)
                         .load(meta.getImageurl())
-                        .resize(80, 80)
+                        .override(80,80)
                         .centerInside()
                         .placeholder(R.drawable.ic_web_grey600_48)
                         .error(R.drawable.ic_web_grey600_48)
@@ -108,7 +106,7 @@ public class RichLinkView extends RelativeLayout {
             }
         } else {
             imageView.setVisibility(VISIBLE);
-            Picasso.get()
+            Glide.with(this)
                     .load(R.drawable.ic_web_grey600_48)
                     .into(imageView);
         }

@@ -1,15 +1,6 @@
 package eu.siacs.conversations.ui;
 
 import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
-import eu.siacs.conversations.databinding.ThreadRowBinding;
-import de.monocles.chat.Util;
-import androidx.annotation.NonNull;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.util.Patterns;
-import android.view.ViewGroup;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
@@ -18,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,24 +21,24 @@ import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
+import android.util.Patterns;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
@@ -56,31 +48,30 @@ import androidx.databinding.DataBindingUtil;
 
 import com.bumptech.glide.Glide;
 import com.google.common.base.Optional;
-import com.squareup.picasso.Picasso;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import eu.siacs.conversations.entities.Bookmark;
+import de.monocles.chat.Util;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlSession;
 import eu.siacs.conversations.databinding.ActivityContactDetailsBinding;
+import eu.siacs.conversations.databinding.CommandRowBinding;
+import eu.siacs.conversations.databinding.ThreadRowBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.ListItem;
@@ -94,28 +85,21 @@ import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.CallManager;
 import eu.siacs.conversations.ui.util.GridManager;
 import eu.siacs.conversations.ui.util.JidDialog;
+import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.IrregularUnicodeDetector;
 import eu.siacs.conversations.utils.MenuDoubleTabUtil;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.utils.XmppUri;
+import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
-import eu.siacs.conversations.xml.Element;
-import eu.siacs.conversations.ui.util.ShareUtil;
-import eu.siacs.conversations.databinding.CommandRowBinding;
-import de.monocles.chat.Util;
-import android.view.ViewGroup;
-import android.util.TypedValue;
-import android.graphics.drawable.Drawable;
-import android.widget.ViewFlipper;
-
 import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import me.drakeet.support.toast.ToastCompat;
@@ -759,7 +743,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                                 if (this != null && xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
                                     Glide.with(this).load(url.get(j)).into(binding.statusImage);
                                 } else {
-                                    Picasso.get().load(url.get(j)).into(binding.statusImage);
+                                    Glide.with(this).asBitmap().load(url.get(j)).into(binding.statusImage);
                                 }
                                 binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
@@ -792,7 +776,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                                     if (this != null && xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
                                         Glide.with(this).load(url.get(j)).into(binding.statusImage);
                                     } else {
-                                        Picasso.get().load(url.get(j)).into(binding.statusImage);
+                                        Glide.with(this).asBitmap().load(url.get(j)).into(binding.statusImage);
                                     }
                                     binding.statusImage.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
