@@ -94,7 +94,7 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:maxWidth="500dp"
-            android:maxHeight="800dp"
+            android:maxHeight="500dp"
             android:longClickable="true"
             android:scaleType="fitCenter"
             app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
