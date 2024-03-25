@@ -73,6 +73,13 @@
                             android:value="custom_theme" />
                     </intent>
                 </PreferenceScreen>
+            <ListPreference
+                android:defaultValue="@string/default_font_size"
+                android:entries="@array/font_size_entries"
+                android:entryValues="@array/font_size_entry_values"
+                android:key="font_size"
+                android:summary="@string/pref_font_size_summary"
+                android:title="@string/pref_font_size" />
             <Preference
                 android:key="import_background"
                 android:summary="@string/pref_chat_background_summary"
@@ -86,6 +93,23 @@
                 android:key="unicolored_chatbg"
                 android:summary="@string/pref_use_unicolored_chatbg_summary"
                 android:title="@string/pref_use_unicolored_chatbg" />
+            <SwitchPreference
+                android:defaultValue="@bool/set_round_avatars"
+                android:key="set_round_avatars"
+                android:summary="@string/pref_set_round_avatars_summary"
+                android:title="@string/pref_set_round_avatars" />
+            <SwitchPreference
+                android:defaultValue="@bool/show_less_avatars"
+                android:key="show_less_avatars"
+                android:summary="@string/pref_show_less_avatars_summary"
+                android:title="@string/pref_show_less_avatars" />
+            <ListPreference
+                android:defaultValue="@string/blue"
+                android:entries="@array/readmarkers_entries"
+                android:entryValues="@array/readmarkers_values"
+                android:key="readmarker_style"
+                android:summary="@string/pref_readmarkers_summary"
+                android:title="@string/pref_readmarker_title" />
         </PreferenceCategory>
         <PreferenceCategory android:title="@string/input_field">
             <SwitchPreference
@@ -112,49 +136,12 @@
                 android:summary="@string/pref_show_record_voice_btn_summary"
                 android:title="@string/pref_show_record_voice_btn" />
             <SwitchPreference
-                android:defaultValue="@bool/show_thread_feature"
-                android:key="show_thread_feature"
-                android:summary="@string/pref_show_thread_feature_summary"
-                android:title="@string/pref_show_thread_feature" />
-            <SwitchPreference
                 android:defaultValue="@bool/showtextformatting"
                 android:key="showtextformatting"
                 android:summary="@string/pref_showtextformatting_sum"
                 android:title="@string/pref_showtextformatting" />
         </PreferenceCategory>
         <PreferenceCategory android:title="@string/pref_expert_options_other">
-        <SwitchPreference
-            android:defaultValue="@bool/set_round_avatars"
-            android:key="set_round_avatars"
-            android:summary="@string/pref_set_round_avatars_summary"
-            android:title="@string/pref_set_round_avatars" />
-        <SwitchPreference
-            android:defaultValue="@bool/show_less_avatars"
-            android:key="show_less_avatars"
-            android:summary="@string/pref_show_less_avatars_summary"
-            android:title="@string/pref_show_less_avatars" />
-        <SwitchPreference
-            android:defaultValue="@bool/set_text_collapsable"
-            android:key="set_text_collapsable"
-            android:summary="@string/pref_set_text_collapsable_summary"
-            android:title="@string/pref_set_text_collapsable" />
-        <ListPreference
-            android:defaultValue="@string/default_font_size"
-            android:entries="@array/font_size_entries"
-            android:entryValues="@array/font_size_entry_values"
-            android:key="font_size"
-            android:summary="@string/pref_font_size_summary"
-            android:title="@string/pref_font_size" />
-        <SwitchPreference
-            android:defaultValue="@bool/use_colored_muc_names"
-            android:key="colored_muc_names"
-            android:summary="@string/pref_use_colored_muc_names_summary"
-            android:title="@string/pref_use_colored_muc_names" />
-        <SwitchPreference
-            android:defaultValue="@bool/presence_colored_names"
-            android:key="presence_colored_names"
-            android:summary="@string/pref_use_colored_names_to_indicate_status_summary"
-            android:title="@string/pref_use_colored_names_to_indicate_status" />
         <SwitchPreference
             android:defaultValue="@bool/use_max_brightness"
             android:key="use_max_brightness"
@@ -166,20 +153,30 @@
             android:summary="@string/pref_use_auto_rotate_summary"
             android:title="@string/pref_use_auto_rotate" />
         <SwitchPreference
-            android:defaultValue="@bool/scroll_to_bottom"
-            android:key="scroll_to_bottom"
-            android:summary="@string/pref_scroll_to_bottom_summary"
-            android:title="@string/pref_scroll_to_bottom" />
-        <SwitchPreference
             android:defaultValue="@bool/play_gif_inside"
             android:key="play_gif_inside"
             android:summary="@string/pref_play_gif_inside_summary"
             android:title="@string/pref_play_gif_inside" />
         <SwitchPreference
-            android:defaultValue="@bool/open_links_inapp"
-            android:key="open_links_inapp"
-            android:summary="@string/pref_open_links_inapp_summary"
-            android:title="@string/pref_open_links_inapp" />
+            android:defaultValue="@bool/set_text_collapsable"
+            android:key="set_text_collapsable"
+            android:summary="@string/pref_set_text_collapsable_summary"
+            android:title="@string/pref_set_text_collapsable" />
+        <SwitchPreference
+            android:defaultValue="@bool/scroll_to_bottom"
+            android:key="scroll_to_bottom"
+            android:summary="@string/pref_scroll_to_bottom_summary"
+            android:title="@string/pref_scroll_to_bottom" />
+        <SwitchPreference
+            android:defaultValue="@bool/use_colored_muc_names"
+            android:key="colored_muc_names"
+            android:summary="@string/pref_use_colored_muc_names_summary"
+            android:title="@string/pref_use_colored_muc_names" />
+        <SwitchPreference
+            android:defaultValue="@bool/presence_colored_names"
+            android:key="presence_colored_names"
+            android:summary="@string/pref_use_colored_names_to_indicate_status_summary"
+            android:title="@string/pref_use_colored_names_to_indicate_status" />
         <SwitchPreference
             android:defaultValue="@bool/prefer_xmpp_avatar"
             android:key="prefer_xmpp_avatar"
@@ -191,10 +188,10 @@
             android:summary="@string/pref_show_own_accounts_summary"
             android:title="@string/pref_show_own_accounts" />
         <SwitchPreference
-            android:defaultValue="@bool/follow_thread_in_channel"
-            android:key="follow_thread_in_channel"
-            android:summary="@string/pref_follow_thread_in_channel_summary"
-            android:title="@string/pref_follow_thread_in_channel" />
+            android:defaultValue="@bool/open_links_inapp"
+            android:key="open_links_inapp"
+            android:summary="@string/pref_open_links_inapp_summary"
+            android:title="@string/pref_open_links_inapp" />
         <SwitchPreference
             android:defaultValue="@bool/start_searching"
             android:key="start_searching"
@@ -207,13 +204,6 @@
             android:summary="@string/pref_allowmergemessages_sum"
             android:title="@string/pref_allowmergemessages" />
             -->
-            <ListPreference
-                android:defaultValue="@string/blue"
-                android:entries="@array/readmarkers_entries"
-                android:entryValues="@array/readmarkers_values"
-                android:key="readmarker_style"
-                android:summary="@string/pref_readmarkers_summary"
-                android:title="@string/pref_readmarker_title" />
         <!-- TODO: Add setting for number of signs to collapse message
         <EditTextPreference
             android:defaultValue="@string/collapse_message_signs"
@@ -304,6 +294,11 @@
             android:key="remove_all_individual_notifications"
             android:summary="@string/pref_remove_all_individual_summary"
             android:title="@string/pref_remove_all_individual_notifications_title" />
+        <SwitchPreference
+            android:defaultValue="@bool/notifications_from_strangers"
+            android:key="notifications_from_strangers"
+            android:summary="@string/pref_notifications_from_strangers_summary"
+            android:title="@string/pref_notifications_from_strangers" />
         <RingtonePreference
             android:defaultValue="@string/notification_ringtone"
             android:key="notification_ringtone"
@@ -492,11 +487,6 @@
             android:key="send_link_previews"
             android:summary="@string/pref_send_link_previews_summary"
             android:title="@string/pref_send_link_previews" />
-        <SwitchPreference
-            android:defaultValue="@bool/notifications_from_strangers"
-            android:key="notifications_from_strangers"
-            android:summary="@string/pref_notifications_from_strangers_summary"
-            android:title="@string/pref_notifications_from_strangers" />
         <ListPreference
             android:defaultValue="@integer/automatic_message_deletion"
             android:key="automatic_message_deletion"
@@ -666,6 +656,16 @@
                 android:key="show_dynamic_tags"
                 android:summary="@string/pref_show_dynamic_tags_summary"
                 android:title="@string/pref_show_dynamic_tags" />
+            <SwitchPreference
+                android:defaultValue="@bool/show_thread_feature"
+                android:key="show_thread_feature"
+                android:summary="@string/pref_show_thread_feature_summary"
+                android:title="@string/pref_show_thread_feature" />
+            <SwitchPreference
+                android:defaultValue="@bool/follow_thread_in_channel"
+                android:key="follow_thread_in_channel"
+                android:summary="@string/pref_follow_thread_in_channel_summary"
+                android:title="@string/pref_follow_thread_in_channel" />
             <!-- TODO: add it later again?
             <SwitchPreference
                 android:defaultValue="@bool/show_date_in_quotes"
