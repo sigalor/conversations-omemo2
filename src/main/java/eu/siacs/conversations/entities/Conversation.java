@@ -2,47 +2,54 @@ package eu.siacs.conversations.entities;
 
 import static eu.siacs.conversations.entities.Bookmark.printableValue;
 
-import android.content.Intent;
-
-import de.monocles.chat.MonoclesViewPager;
-import eu.siacs.conversations.http.HttpConnectionManager;
-import eu.siacs.conversations.ui.UriHandlerActivity;
-import android.content.DialogInterface;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedImageDrawable;
-import android.net.Uri;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
-import android.util.LruCache;
+import android.preference.PreferenceManager;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.widget.AbsListView;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.util.LruCache;
+import android.util.Pair;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebMessage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.GridLayout;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.databinding.DataBindingUtil;
@@ -50,34 +57,55 @@ import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
-import android.util.Pair;
-import android.util.DisplayMetrics;
+
 import com.caverock.androidsvg.SVG;
-
-import android.util.SparseBooleanArray;
-import java.util.Collection;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.Optional;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Lists;
 
-import de.monocles.chat.ConversationPage;
-import de.monocles.chat.Util;
-import de.monocles.chat.WebxdcPage;
+import net.java.otr4j.OtrException;
+import net.java.otr4j.crypto.OtrCryptoException;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
 
-import io.michaelrocks.libphonenumber.android.NumberParseException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.security.interfaces.DSAPublicKey;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import de.monocles.chat.ConversationPage;
+import de.monocles.chat.MonoclesViewPager;
+import de.monocles.chat.Util;
+import de.monocles.chat.WebxdcPage;
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.crypto.OmemoSetting;
+import eu.siacs.conversations.crypto.PgpDecryptionService;
+import eu.siacs.conversations.databinding.CommandButtonGridFieldBinding;
 import eu.siacs.conversations.databinding.CommandCheckboxFieldBinding;
+import eu.siacs.conversations.databinding.CommandItemCardBinding;
 import eu.siacs.conversations.databinding.CommandNoteBinding;
 import eu.siacs.conversations.databinding.CommandPageBinding;
 import eu.siacs.conversations.databinding.CommandProgressBarBinding;
@@ -88,67 +116,28 @@ import eu.siacs.conversations.databinding.CommandSearchListFieldBinding;
 import eu.siacs.conversations.databinding.CommandSpinnerFieldBinding;
 import eu.siacs.conversations.databinding.CommandTextFieldBinding;
 import eu.siacs.conversations.databinding.CommandWebviewBinding;
+import eu.siacs.conversations.databinding.DialogQuickeditBinding;
+import eu.siacs.conversations.http.HttpConnectionManager;
+import eu.siacs.conversations.persistance.DatabaseBackend;
+import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.text.FixedURLSpan;
 import eu.siacs.conversations.ui.util.ShareUtil;
-import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
-import eu.siacs.conversations.databinding.CommandItemCardBinding;
-
-import eu.siacs.conversations.xml.Element;
-import eu.siacs.conversations.xml.Namespace;
-import eu.siacs.conversations.xmpp.forms.Data;
-import eu.siacs.conversations.xmpp.forms.Option;
-
-import eu.siacs.conversations.xmpp.stanzas.IqPacket;
-import me.saket.bettermovementmethod.BetterLinkMovementMethod;
-import android.content.ContentValues;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.java.otr4j.OtrException;
-import net.java.otr4j.crypto.OtrCryptoException;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
-
-import java.security.interfaces.DSAPublicKey;
-import java.util.Locale;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Lists;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.crypto.OmemoSetting;
-import eu.siacs.conversations.crypto.PgpDecryptionService;
-import eu.siacs.conversations.databinding.CommandButtonGridFieldBinding;
-import eu.siacs.conversations.databinding.DialogQuickeditBinding;
-import eu.siacs.conversations.persistance.DatabaseBackend;
-import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.JidHelper;
 import eu.siacs.conversations.utils.MessageUtils;
+import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
 import eu.siacs.conversations.utils.UIHelper;
+import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
+import eu.siacs.conversations.xmpp.forms.Data;
+import eu.siacs.conversations.xmpp.forms.Option;
 import eu.siacs.conversations.xmpp.mam.MamReference;
+import eu.siacs.conversations.xmpp.stanzas.IqPacket;
+import io.michaelrocks.libphonenumber.android.NumberParseException;
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 
 public class Conversation extends AbstractEntity implements Blockable, Comparable<Conversation>, Conversational, AvatarService.Avatarable {
@@ -3131,14 +3120,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                                 String scheme = Uri.parse(url).getScheme();
                                 if (scheme.equals("http") || scheme.equals("https")) {
                                     this.responseElement = el;
-                                    break;
-                                }
-                                if (scheme.equals("xmpp")) {
-                                    expectingRemoval = true;
-                                    final Intent intent = new Intent(getView().getContext(), UriHandlerActivity.class);
-                                    intent.setAction(Intent.ACTION_VIEW);
-                                    intent.setData(Uri.parse(url));
-                                    getView().getContext().startActivity(intent);
                                     break;
                                 }
                             }
