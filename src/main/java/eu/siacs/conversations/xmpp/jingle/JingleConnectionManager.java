@@ -504,6 +504,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
             final RtpSessionProposal proposal =
                     getRtpSessionProposal(account, from.asBareJid(), sessionId);
             synchronized (rtpSessionProposals) {
+                // TODO remove the remove()!= null check to ensure we always call busy()
                 if (proposal != null && rtpSessionProposals.remove(proposal) != null) {
                     proposal.callIntegration.busy();
                     writeLogMissedOutgoing(

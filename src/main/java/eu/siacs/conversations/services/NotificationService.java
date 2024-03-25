@@ -775,7 +775,7 @@ public class NotificationService {
         }
 
         showIncomingCallNotification(id, media, toString());
-        final NotificationManager notificationManager = (NotificationManager) mXmppConnectionService.getSystemService(Context.NOTIFICATION_SERVICE);
+        final NotificationManager notificationManager = mXmppConnectionService.getSystemService(NotificationManager.class);
         final int currentInterruptionFilter;
         if (notificationManager != null) {
             currentInterruptionFilter = notificationManager.getCurrentInterruptionFilter();
@@ -787,7 +787,7 @@ public class NotificationService {
             return;
         }
         final ScheduledFuture<?> currentVibrationFuture = this.vibrationFuture;
-        this.vibrationFuture = SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(
+        this.vibrationFuture = SCHEDULED_EXECUTOR_SERVICE.scheduleWithFixedDelay(
                 new VibrationRunnable(),
                 0,
                 3,
@@ -795,6 +795,10 @@ public class NotificationService {
         );
         if (currentVibrationFuture != null) {
             currentVibrationFuture.cancel(true);
+        }
+        final var preexistingRingtone = this.currentlyPlayingRingtone;
+        if (preexistingRingtone != null) {
+            preexistingRingtone.stop();
         }
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mXmppConnectionService);
         final Resources resources = mXmppConnectionService.getResources();
