@@ -96,7 +96,7 @@
             android:maxWidth="500dp"
             android:maxHeight="800dp"
             android:longClickable="true"
-            android:scaleType="fitXY"
+            android:scaleType="fitCenter"
             app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
 
         <TextView
