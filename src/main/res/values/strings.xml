@@ -847,8 +847,8 @@
     <string name="autojoin_group_chat">Automatically join this room</string>
     <string name="pref_show_links_inside">Show previews of web links in chat</string>
     <string name="pref_show_links_inside_summary">Show previews of web links directly inside the chat view, a connection to the server specified in the link will be established.</string>
-    <string name="pref_play_gif_inside">Play GIF files in chat</string>
-    <string name="pref_play_gif_inside_summary">Play GIF files directly inside the chat view.</string>
+    <string name="pref_play_gif_inside">Directly play animated images</string>
+    <string name="pref_play_gif_inside_summary">Directly play animated images for avatars, status messages and image messages.</string>
     <string name="open_with">Open with…</string>
     <string name="send_otr_message">Write message…</string>
     <string name="unknown_otr_fingerprint">Unknown OTR fingerprint</string>
