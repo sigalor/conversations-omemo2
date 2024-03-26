@@ -1544,7 +1544,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 });
-            } else if (viewHolder.messageBody.getLineCount() < 7) {
+            } else if (viewHolder.messageBody.getLineCount() <= 7) {
                 viewHolder.seeMore.setVisibility(View.GONE);
             }
         }
