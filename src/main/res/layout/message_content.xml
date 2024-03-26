@@ -54,7 +54,6 @@
         android:autoLink="web"
         android:longClickable="false"
         android:textIsSelectable="true"
-        android:visibility="gone"
         android:maxLines="7"
         android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 

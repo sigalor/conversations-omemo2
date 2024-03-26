@@ -1526,14 +1526,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (viewHolder.messageBody != null) {
             viewHolder.messageBody.setCustomSelectionActionModeCallback(new MessageTextActionModeCallback(this, viewHolder.messageBody));
 
-            if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable) && viewHolder.messageBody.getLineCount() > 7 && !viewHolder.seeMore.getText().toString().equalsIgnoreCase(activity.getString(R.string.show_less))) {
-                viewHolder.seeMore.setVisibility(View.VISIBLE);
-            } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+            if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                 viewHolder.messageBody.setMaxLines(Integer.MAX_VALUE);//Message TextView
                 viewHolder.seeMore.setVisibility(View.GONE);
-            }
-
-            if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable) && viewHolder.seeMore.getVisibility()==View.VISIBLE) {
+            } else if (viewHolder.messageBody.getLineCount() > 7 && viewHolder.seeMore.getText().toString().equalsIgnoreCase(activity.getString(R.string.show_more))) {
+                viewHolder.seeMore.setVisibility(View.VISIBLE);
                 viewHolder.seeMore.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1547,6 +1544,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 });
+            } else if (viewHolder.messageBody.getLineCount() < 7) {
+                viewHolder.seeMore.setVisibility(View.GONE);
             }
         }
 
