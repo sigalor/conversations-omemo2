@@ -1694,21 +1694,6 @@ public class ConversationFragment extends XmppFragment
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveVoiceRecorder);
-
-        File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
-        if (!dirGifs.exists()) {
-            dirGifs.mkdir();
-        }
-        if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
-            files = dirGifs.listFiles();
-            filesPaths = new String[files.length];
-            filesNames = new String[files.length];
-
-            for (int i = 0; i < files.length; i++) {
-                filesPaths[i] = files[i].getAbsolutePath();
-                filesNames[i] = files[i].getName();
-            }
-        }
     }
 
     @Override
@@ -1827,6 +1812,20 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
 
+        File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+        if (!dirGifs.exists()) {
+            dirGifs.mkdir();
+        }
+        if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+            files = dirGifs.listFiles();
+            filesPaths = new String[files.length];
+            filesNames = new String[files.length];
+            for (int i = 0; i < files.length; i++) {
+                filesPaths[i] = files[i].getAbsolutePath();
+                filesNames[i] = files[i].getName();
+            }
+        }
+
         de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
         // Create an object of CustomAdapter and set Adapter to GirdView
         GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
@@ -1836,7 +1835,7 @@ public class ConversationFragment extends XmppFragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (activity == null) return;
                 String filePath = filesPaths[position];
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
                 toggleInputMethod();
             }
         });
