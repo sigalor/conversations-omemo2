@@ -209,6 +209,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     private ChatState mIncomingChatState = Config.DEFAULT_CHAT_STATE;
     private String mLastReceivedOtrMessageId = null;
     private String mFirstMamReference = null;
+    private String displayState = null;
     protected int mCurrentTab = -1;
     protected ConversationPagerAdapter pagerAdapter = new ConversationPagerAdapter();
     protected Element thread = null;
@@ -1720,6 +1721,14 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
     public void hideViewPager() {
         pagerAdapter.hide();
+    }
+
+    public void setDisplayState(final String stanzaId) {
+        this.displayState = stanzaId;
+    }
+
+    public String getDisplayState() {
+        return this.displayState;
     }
 
     public interface OnMessageFound {

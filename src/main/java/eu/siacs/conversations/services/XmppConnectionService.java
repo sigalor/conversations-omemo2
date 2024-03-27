@@ -2591,13 +2591,13 @@ public class XmppConnectionService extends Service {
         if (jid == null) {
             return;
         }
-        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": processing mds item for " + jid);
         final Element displayed = item.findChild("displayed", Namespace.MDS_DISPLAYED);
         final Element stanzaId =
                 displayed == null ? null : displayed.findChild("stanza-id", Namespace.STANZA_IDS);
         final String id = stanzaId == null ? null : stanzaId.getAttribute("id");
         final Conversation conversation = find(account, jid);
         if (id != null && conversation != null) {
+            conversation.setDisplayState(id);
             markReadUpToStanzaId(conversation, id);
         }
     }
@@ -4192,11 +4192,10 @@ public class XmppConnectionService extends Service {
         final String nick = self.getNick();
         final Bookmark bookmark = conversation.getBookmark();
         final String bookmarkedNick = bookmark == null ? null : bookmark.getNick();
-        if (bookmark != null && (tookProposedNickFromBookmark || TextUtils.isEmpty(bookmarkedNick)) && !nick.equals(bookmarkedNick)) {
+        if (bookmark != null && (tookProposedNickFromBookmark || Strings.isNullOrEmpty(bookmarkedNick)) && !full.getResource().equals(bookmarkedNick)) {
             final Account account = conversation.getAccount();
             final String defaultNick = MucOptions.defaultNick(account);
-            if (TextUtils.isEmpty(bookmarkedNick) && nick.equals(defaultNick)) {
-                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": do not overwrite empty bookmark nick with default nick for " + conversation.getJid().asBareJid());
+            if (Strings.isNullOrEmpty(bookmarkedNick) && full.getResource().equals(defaultNick)) {
                 return;
             }
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": persist nick '" + nick + "' into bookmark for " + conversation.getJid().asBareJid());
