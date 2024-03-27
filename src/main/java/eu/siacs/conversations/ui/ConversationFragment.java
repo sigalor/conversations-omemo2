@@ -4744,9 +4744,8 @@ public class ConversationFragment extends XmppFragment
         final boolean participating = conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating();
         if (this.conversation.getStatus() != Conversation.STATUS_ARCHIVED &&
                 participating &&
-                this.conversation.setNextMessage(msg) &&
-                Objects.nonNull(activity.xmppConnectionService)) {
-            this.activity.xmppConnectionService.updateConversation(this.conversation);
+                this.conversation.setNextMessage(msg) && activity != null) {
+            activity.xmppConnectionService.updateConversation(this.conversation);
             return true;
         }
         return false;
