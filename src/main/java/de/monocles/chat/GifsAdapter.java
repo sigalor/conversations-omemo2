@@ -37,18 +37,18 @@ public class GifsAdapter extends BaseAdapter {
         return pos;
     }
 
-    @Override
-    public View getView(int p, View convertView, ViewGroup parent) {
-        View grid;
-        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        if (convertView == null) {
-            grid = inflater.inflate(R.layout.activity_gridview, null);
-            ImageView imageView = (ImageView)grid.findViewById(R.id.grid_item);
-            Glide.with(ctx).load(filesPaths[p]).into(imageView);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View v;
+        if (convertView == null) {  // if it's not recycled, initialize some attributes
+            LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(     Context.LAYOUT_INFLATER_SERVICE );
+            v = inflater.inflate(R.layout.activity_gridview, parent, false);
         } else {
-            grid = (View) convertView;
+            v = (View) convertView;
         }
-        return grid;
+        ImageView image = (ImageView)v.findViewById(R.id.grid_item);
+        Glide.with(ctx).load(filesPaths[position]).into(image);
+        return v;
     }
+
+
 }
