@@ -7,6 +7,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.persistance.FileBackend.SENT_AUDIOS;
+import static eu.siacs.conversations.persistance.FileBackend.getFileType;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 import static eu.siacs.conversations.ui.SettingsActivity.WARN_UNENCRYPTED_CHAT;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -39,6 +40,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -52,6 +54,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
@@ -79,6 +82,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -97,6 +101,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
@@ -146,6 +151,7 @@ import java.util.regex.Pattern;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
+import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.Config;
@@ -298,6 +304,11 @@ public class ConversationFragment extends XmppFragment
     private Toast messageLoaderToast;
     private static ConversationsActivity activity;
     private Menu mOptionsMenu;
+    GridView gridView;
+    private File[] files;
+    private String[] filesPaths;
+    private String[] filesNames;
+
     protected OnClickListener clickToVerify = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -717,6 +728,13 @@ public class ConversationFragment extends XmppFragment
                     binding.stickersButton.setBackgroundColor(0);
                     binding.stickersButton.setTypeface(null, Typeface.NORMAL);
                 }
+                if (binding.gifsview.getVisibility() == VISIBLE) {
+                    binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                    binding.gifsButton.setTypeface(null, Typeface.BOLD);
+                } else {
+                    binding.gifsButton.setBackgroundColor(0);
+                    binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+                }
             } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
                 LinearLayout emojipickerview = binding.emojisStickerLayout;
                 ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
@@ -748,6 +766,13 @@ public class ConversationFragment extends XmppFragment
                     binding.stickersButton.setBackgroundColor(0);
                     binding.stickersButton.setTypeface(null, Typeface.NORMAL);
                 }
+                if (binding.gifsview.getVisibility() == VISIBLE) {
+                    binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                    binding.gifsButton.setTypeface(null, Typeface.BOLD);
+                } else {
+                    binding.gifsButton.setBackgroundColor(0);
+                    binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+                }
             }
         }
     };
@@ -757,6 +782,7 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(VISIBLE);
             binding.stickers.setVisibility(GONE);
+            binding.gifsview.setVisibility(GONE);
             EmojiPickerView emojiPickerView = binding.emojiPicker;
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
@@ -779,6 +805,13 @@ public class ConversationFragment extends XmppFragment
                 binding.stickersButton.setBackgroundColor(0);
                 binding.stickersButton.setTypeface(null, Typeface.NORMAL);
             }
+            if (binding.gifsview.getVisibility() == VISIBLE) {
+                binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.gifsButton.setTypeface(null, Typeface.BOLD);
+            } else {
+                binding.gifsButton.setBackgroundColor(0);
+                binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+            }
         }
     };
 
@@ -787,6 +820,7 @@ public class ConversationFragment extends XmppFragment
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(GONE);
             binding.stickers.setVisibility(VISIBLE);
+            binding.gifsview.setVisibility(GONE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
 
@@ -803,6 +837,46 @@ public class ConversationFragment extends XmppFragment
             } else {
                 binding.stickersButton.setBackgroundColor(0);
                 binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+            }
+            if (binding.gifsview.getVisibility() == VISIBLE) {
+                binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.gifsButton.setTypeface(null, Typeface.BOLD);
+            } else {
+                binding.gifsButton.setBackgroundColor(0);
+                binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+            }
+        }
+    };
+
+    private final OnClickListener mgifsButtonListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            binding.emojiPicker.setVisibility(GONE);
+            binding.stickers.setVisibility(GONE);
+            binding.gifsview.setVisibility(VISIBLE);
+            backPressedLeaveEmojiPicker.setEnabled(true);
+            binding.textinput.requestFocus();
+
+            if (binding.emojiPicker.getVisibility() == VISIBLE) {
+                binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.emojisButton.setTypeface(null, Typeface.BOLD);
+            } else {
+                binding.emojisButton.setBackgroundColor(0);
+                binding.emojisButton.setTypeface(null, Typeface.NORMAL);
+            }
+            if (binding.stickers.getVisibility() == VISIBLE) {
+                binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.stickersButton.setTypeface(null, Typeface.BOLD);
+            } else {
+                binding.stickersButton.setBackgroundColor(0);
+                binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+            }
+            if (binding.gifsview.getVisibility() == VISIBLE) {
+                binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+                binding.gifsButton.setTypeface(null, Typeface.BOLD);
+            } else {
+                binding.gifsButton.setBackgroundColor(0);
+                binding.gifsButton.setTypeface(null, Typeface.NORMAL);
             }
         }
     };
@@ -1620,6 +1694,21 @@ public class ConversationFragment extends XmppFragment
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveVoiceRecorder);
+
+        File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+        if (!dirGifs.exists()) {
+            dirGifs.mkdir();
+        }
+        if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+            files = dirGifs.listFiles();
+            filesPaths = new String[files.length];
+            filesNames = new String[files.length];
+
+            for (int i = 0; i < files.length; i++) {
+                filesPaths[i] = files[i].getAbsolutePath();
+                filesNames[i] = files[i].getName();
+            }
+        }
     }
 
     @Override
@@ -1738,6 +1827,20 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
 
+        de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
+        // Create an object of CustomAdapter and set Adapter to GirdView
+        GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
+        // implement setOnItemClickListener event on GridView
+        GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (activity == null) return;
+                String filePath = filesPaths[position];
+                mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                toggleInputMethod();
+            }
+        });
+
         //Setting hide thread icon
         showThreadFeature();
 
@@ -1767,6 +1870,7 @@ public class ConversationFragment extends XmppFragment
         binding.emojiButton.setOnClickListener(this.memojiButtonListener);
         binding.emojisButton.setOnClickListener(this.memojisButtonListener);
         binding.stickersButton.setOnClickListener(this.mstickersButtonListener);
+        binding.gifsButton.setOnClickListener(this.mgifsButtonListener);
         binding.keyboardButton.setOnClickListener(this.mkeyboardButtonListener);
         binding.timer.setOnClickListener(this.mTimerClickListener);
         binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
@@ -3833,6 +3937,13 @@ public class ConversationFragment extends XmppFragment
         } else {
             binding.stickersButton.setBackgroundColor(0);
             binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+        }
+        if (binding.gifsview.getVisibility() == VISIBLE) {
+            binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
+            binding.gifsButton.setTypeface(null, Typeface.BOLD);
+        } else {
+            binding.gifsButton.setBackgroundColor(0);
+            binding.gifsButton.setTypeface(null, Typeface.NORMAL);
         }
         // TODO: Directly choose emojis from popup menu
     }

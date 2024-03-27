@@ -1425,4 +1425,5 @@
     <string name="webxdc_hint">To use WebXDC activate threads feature and send WebXDC unencrypted</string>
     <string name="open">Open</string>
     <string name="unencrypted">unencrypted</string>
+    <string name="gifs">GIFs</string>
 </resources>
