@@ -1426,4 +1426,5 @@
     <string name="open">Open</string>
     <string name="unencrypted">unencrypted</string>
     <string name="gifs">GIFs</string>
+    <string name="copy_GIFs_to_GIFs_folder">Copy GIFs to Documents/monocles chat/GIFs/</string>
 </resources>

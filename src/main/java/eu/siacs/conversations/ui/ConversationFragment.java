@@ -128,6 +128,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -148,6 +150,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
@@ -308,6 +311,8 @@ public class ConversationFragment extends XmppFragment
     private File[] files;
     private String[] filesPaths;
     private String[] filesNames;
+    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+
 
     protected OnClickListener clickToVerify = new OnClickListener() {
         @Override
@@ -848,6 +853,17 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+    public boolean isEmpty(Path path) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Files.isDirectory(path)) {
+                try (Stream<Path> entries = Files.list(path)) {
+                    return !entries.findFirst().isPresent();
+                }
+            }
+        }
+        return false;
+    }
+
     private final OnClickListener mgifsButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -856,7 +872,13 @@ public class ConversationFragment extends XmppFragment
             binding.gifsview.setVisibility(VISIBLE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
-
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirGifs.toPath())) {
+                    Toast.makeText(activity, R.string.copy_GIFs_to_GIFs_folder, Toast.LENGTH_LONG).show();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.emojisButton.setTypeface(null, Typeface.BOLD);
@@ -1810,22 +1832,24 @@ public class ConversationFragment extends XmppFragment
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
-        binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
+        binding.getRoot().setOnClickListener(null); //TODO why did we do this?
 
-        File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+
+        // Load and show GIFs
         if (!dirGifs.exists()) {
             dirGifs.mkdir();
         }
-        if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
-            files = dirGifs.listFiles();
-            filesPaths = new String[files.length];
-            filesNames = new String[files.length];
-            for (int i = 0; i < files.length; i++) {
-                filesPaths[i] = files[i].getAbsolutePath();
-                filesNames[i] = files[i].getName();
+        if (dirGifs.listFiles() != null) {
+            if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+                files = dirGifs.listFiles();
+                filesPaths = new String[files.length];
+                filesNames = new String[files.length];
+                for (int i = 0; i < files.length; i++) {
+                    filesPaths[i] = files[i].getAbsolutePath();
+                    filesNames[i] = files[i].getName();
+                }
             }
         }
-
         de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
         // Create an object of CustomAdapter and set Adapter to GirdView
         GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
