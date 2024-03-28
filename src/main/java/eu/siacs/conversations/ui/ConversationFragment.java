@@ -991,7 +991,7 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener mShareVoiceRecord = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            //binding.shareButton.setEnabled(false);
+            //binding.shareButton.setEnabled(false);        // TODO: Activate again
             //binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
             mHandler.postDelayed(() -> stopRecording(true), 100);
