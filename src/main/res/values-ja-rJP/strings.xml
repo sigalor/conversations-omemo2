@@ -3,12 +3,12 @@
     <string name="action_settings">設定</string>
     <string name="action_add">新しい会話</string>
     <string name="action_accounts">アカウントを管理</string>
-    <string name="action_end_conversation">この会話を終わらせる</string>
+    <string name="action_end_conversation">この会話をアーカイブする</string>
     <string name="action_contact_details">連絡先の詳細</string>
     <string name="action_secure">安全な会話</string>
     <string name="action_add_new_account">新規アカウントを追加</string>
     <string name="action_add_phone_book">アドレス帳に追加</string>
-    <string name="action_delete_contact">名簿から削除</string>
+    <string name="action_delete_contact">連絡先名簿から削除</string>
     <string name="action_block_contact">連絡先をブロック</string>
     <string name="action_unblock_contact">連絡先のブロックを解除</string>
     <string name="action_block_domain">ドメインをブロック</string>
@@ -37,7 +37,7 @@
     <string name="moderator">調停者</string>
     <string name="participant">参加者</string>
     <string name="visitor">訪問者</string>
-    <string name="remove_contact_text">あなたの名簿から %s を削除しますか？この連絡先に関する会話は削除されません。</string>
+    <string name="remove_contact_text">あなたの連絡先名簿から %s を削除しますか？この連絡先に関する会話は削除されません。</string>
     <string name="block_contact_text">%s があなたにメッセージを送るのをブロックしますか？</string>
     <string name="unblock_contact_text">%s のブロックを解除して、メッセージの送信を許可しますか？</string>
     <string name="block_domain_text">%s から全連絡先をブロックしますか？</string>
@@ -69,7 +69,7 @@
     <string name="problem_connecting_to_accounts">複数のアカウントに接続できません</string>
     <string name="touch_to_fix">ここに触れて、あなたのアカウントを管理する</string>
     <string name="attach_file">ファイルを添付</string>
-    <string name="not_in_roster">その連絡先はあなたの名簿にありません。名簿に追加しますか？</string>
+    <string name="not_in_roster">その連絡先はあなたの連絡先名簿にありません。名簿に追加しますか？</string>
     <string name="add_contact">連絡先を追加</string>
     <string name="send_failed">配信失敗</string>
     <string name="preparing_image">送信用画像の準備中</string>
@@ -80,11 +80,11 @@
 \n<b>警告:</b> これは、他のデバイスやサーバー上に残されている、これらのメッセージのコピーを削除しません。</string>
     <string name="also_end_conversation">この後、この会話を終了する</string>
     <string name="choose_presence">デバイスを選択</string>
-    <string name="send_unencrypted_message">暗号化されていないメッセージを送信</string>
+    <string name="send_unencrypted_message">暗号化されていないメッセージを送信…</string>
     <string name="send_message_to_x">メッセージを %s に送信</string>
-    <string name="send_omemo_message">OMEMOで暗号化されたメッセージを送信</string>
+    <string name="send_omemo_message">OMEMOで暗号化されたメッセージを送信…</string>
     <string name="send_omemo_x509_message">v\\OMEMOで暗号化されたメッセージを送信</string>
-    <string name="send_pgp_message">OpenPGPで暗号化されたメッセージを送信</string>
+    <string name="send_pgp_message">OpenPGPで暗号化されたメッセージを送信…</string>
     <string name="your_nick_has_been_changed">あなたのニックネームは変更されました。</string>
     <string name="send_unencrypted">暗号化せずに送信</string>
     <string name="decryption_failed">復号に失敗しました。適切な秘密鍵を持っていないのかもしれません。</string>
@@ -122,7 +122,7 @@
     <string name="pref_send_crash_summary">スタックトレースを送信すると、monocles chatの開発の継続を支援します</string>
     <string name="pref_confirm_messages">メッセージを確認</string>
     <string name="pref_confirm_messages_summary">あなたがメッセージを受信して読んだときに、連絡先に知らせます</string>
-    <string name="pref_ui_options">UI</string>
+    <string name="pref_ui_options">ユーザインタフェース</string>
     <string name="openpgp_error">OpenKeychainがエラーを報告しました</string>
     <string name="accept">受け入れる</string>
     <string name="error">エラーが発生</string>
@@ -203,8 +203,8 @@
     <string name="openpgp_messages_found">OpenPGPで暗号化されたメッセージが見つかりました</string>
     <string name="your_fingerprint">あなたの指紋</string>
     <string name="openpgp_key_id">OpenPGP鍵ID</string>
-    <string name="omemo_fingerprint">OMEMO指紋</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO指紋</string>
+    <string name="omemo_fingerprint">OMEMO指紋 - </string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO指紋 - </string>
     <string name="other_devices">他のデバイス</string>
     <string name="trust_omemo_fingerprints">OMEMO指紋を信用する</string>
     <string name="fetching_keys">鍵を取得中…</string>
@@ -1188,4 +1188,9 @@
     <string name="italic">斜体</string>
     <string name="monospace">等幅</string>
     <string name="strikethrough">取り消し線</string>
+    <string name="action_dialpad">ダイヤルパッド</string>
+    <string name="account_state_logged_out">ログアウト</string>
+    <string name="account_status_incompatible_client">互換性のないクライアント</string>
+    <string name="conference_technical_problems">技術的な理由で退室しました</string>
+    <string name="omemo_fingerprint_selected_message">OMEMO指紋（メッセージ発信元）</string>
 </resources>

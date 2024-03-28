@@ -267,7 +267,7 @@
     <string name="pref_use_indicate_received">请求消息回执</string>
     <string name="pref_use_send_button_to_indicate_status_summary">为发送按钮着色以指示联系人状态</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">为联系人名称着色以指示联系人状态</string>
-    <string name="pref_expert_options_other">其它</string>
+    <string name="pref_expert_options_other">行为</string>
     <string name="pref_autojoin">与书签同步</string>
     <string name="pref_autojoin_summary">根据书签中的“自动加入”标志加入或离开房间。</string>
     <string name="toast_message_omemo_fingerprint">OMEMO 指纹已复制到剪贴板 ！</string>
@@ -842,8 +842,8 @@
     <string name="autojoin_group_chat">自动加入此房间</string>
     <string name="pref_show_links_inside">在聊天中显示链接预览</string>
     <string name="pref_show_links_inside_summary">直接在聊天视图中显示链接预览，将建立与链接中指定的服务器的连接。</string>
-    <string name="pref_play_gif_inside">在聊天中播放 GIF 文件</string>
-    <string name="pref_play_gif_inside_summary">直接在聊天视图中播放 GIF 文件。</string>
+    <string name="pref_play_gif_inside">直接播放动画图片</string>
+    <string name="pref_play_gif_inside_summary">直接为头像、状态信息和图片信息播放动画图片。</string>
     <string name="open_with">打开为…</string>
     <string name="server_info_adhoc_invite">XEP-0050：Ad-Hoc 命令 (用户邀请)</string>
     <string name="choose_account">选择账号</string>
@@ -1472,7 +1472,7 @@
     <string name="stories">故事</string>
     <string name="pref_send_link_previews_summary">发送消息时附加有关链接的元数据。仅适用于未加密的消息。</string>
     <string name="report_spam_and_block">报告垃圾消息并屏蔽垃圾消息发送者</string>
-    <string name="pref_send_link_previews">发送链接预览</string>
+    <string name="pref_send_link_previews">显示图片链接预览</string>
     <string name="subject">话题</string>
     <string name="audiobook">有声读物</string>
     <string name="report_spam">报告垃圾消息</string>

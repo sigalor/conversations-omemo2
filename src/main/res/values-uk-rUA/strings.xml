@@ -142,7 +142,7 @@
     <string name="encryption_choice_unencrypted">Без шифрування</string>
     <string name="action_account">Редагувати обліковий запис</string>
     <string name="mgmt_account_delete">Вилучити обліковий запис</string>
-    <string name="mgmt_account_publish_avatar">Опублікувати піктограму користувача</string>
+    <string name="mgmt_account_publish_avatar">Опублікувати аватар</string>
     <string name="mgmt_account_publish_pgp">Опублікувати публічний ключ OpenPGP</string>
     <string name="unpublish_pgp">Вилучити публічний ключ OpenPGP</string>
     <string name="unpublish_pgp_message">Ви впевнені, що хочете вилучити свій публічний ключ OpenPGP з оголошення про присутність\?
@@ -165,7 +165,7 @@
     <string name="server_info_blocking">XEP-0191: Команди блокування</string>
     <string name="server_info_roster_version">XEP-0237: Зміни у списку розмов</string>
     <string name="server_info_stream_management">XEP-0198: Керування потоком</string>
-    <string name="server_info_pep">XEP-0163: Персональне (піктограми користувачів, OMEMO)</string>
+    <string name="server_info_pep">XEP-0163: Персональне (аватари користувачів, OMEMO)</string>
     <string name="server_info_http_upload">XEP-0363: Обмін файлами через HTTP</string>
     <string name="server_info_push">XEP-0357: Push-повідомлення</string>
     <string name="server_info_available">так</string>
@@ -209,13 +209,13 @@
     <string name="contact_added_you">Контакт додав Вас до свого списку контактів</string>
     <string name="add_back">Також додати</string>
     <string name="publish">Опублікувати</string>
-    <string name="touch_to_choose_picture">Торкніться піктограми користувача, щоб вибрати зображення з галереї</string>
+    <string name="touch_to_choose_picture">Торкніться аватара, щоб вибрати зображення з галереї</string>
     <string name="publishing">Публікація…</string>
     <string name="error_publish_avatar_server_reject">Сервер відхилив Вашу публікацію</string>
-    <string name="error_publish_avatar_converting">Щось пішло не так під час перетворення Вашого зображення</string>
-    <string name="error_saving_avatar">Неможливо зберегти піктограму користувача на пристрій</string>
+    <string name="error_publish_avatar_converting">Щось пішло не так під час обробки Вашого зображення</string>
+    <string name="error_saving_avatar">Неможливо зберегти аватар на пристрій</string>
     <string name="or_long_press_for_default">(Або натисніть і тримайте, щоб скинути до значення за замовчуванням)</string>
-    <string name="error_publish_avatar_no_server_support">Ваш сервер не підтримує публікацію піктограм користувачів</string>
+    <string name="error_publish_avatar_no_server_support">Ваш сервер не підтримує публікацію аватарів</string>
     <string name="private_message">шепоче</string>
     <string name="private_message_to">%s</string>
     <string name="send_private_message_to">Надіслати приватне повідомлення %s</string>
@@ -254,7 +254,7 @@
     <string name="pref_use_indicate_received">Надсилати сповіщення про доставку</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Змінювати колір клавіші надсилання на позначення статусу контакта</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Позначати імена користувачів кольоровим текстом згідно зі станом контакту</string>
-    <string name="pref_expert_options_other">Інше</string>
+    <string name="pref_expert_options_other">Поведінка</string>
     <string name="pref_autojoin">Синхронізувати із закладками</string>
     <string name="pref_autojoin_summary">Приєднуватися до груп і полишати їх відповідно до опції автоматичного приєднання, вибраної в закладках.</string>
     <string name="toast_message_omemo_fingerprint">Цифровий підпис OMEMO скопійовано!</string>
@@ -312,7 +312,7 @@
     <string name="pref_show_dynamic_tags_summary">Дозволити впорядкування за допомогою тегів</string>
     <string name="no_conference_server_found">Не знайдено сервер групи</string>
     <string name="conference_creation_failed">Не вдалося створити групу!</string>
-    <string name="account_image_description">Іконка облікового запису</string>
+    <string name="account_image_description">Зображення облікового запису</string>
     <string name="copy_omemo_clipboard_description">Копіювати цифровий підпис OMEMO</string>
     <string name="regenerate_omemo_key">Згенерувати ключ OMEMO</string>
     <string name="clear_other_devices">Стерти пристрої</string>
@@ -379,7 +379,7 @@
     <string name="pdf_document">документ PDF</string>
     <string name="apk">програма Android</string>
     <string name="vcard">Контакт</string>
-    <string name="avatar_has_been_published">Іконку користувача опубліковано!</string>
+    <string name="avatar_has_been_published">Аватар опубліковано!</string>
     <string name="sending_x_file">Надсилання %s</string>
     <string name="offering_x_file">Пропозиція %s</string>
     <string name="hide_offline">Сховати поза мережею</string>
@@ -553,7 +553,7 @@
     <string name="pref_delete_omemo_identities">Вилучити ідентифікаційні дані OMEMO</string>
     <string name="pref_delete_omemo_identities_summary">Створити наново ваші ключі OMEMO. Усі ваші контакти будуть змушені підтвердити вас знову. Використовуйте це, лише якщо немає іншого вибору.</string>
     <string name="delete_selected_keys">Вилучити вибрані ключі</string>
-    <string name="error_publish_avatar_offline">Потрібно підключення, щоб можна було опублікувати піктограму користувача.</string>
+    <string name="error_publish_avatar_offline">Потрібно підключення, щоб можна було опублікувати аватар.</string>
     <string name="copy_to_clipboard">Копіювати</string>
     <string name="message_copied_to_clipboard">Повідомлення скопійовано</string>
     <string name="message">Повідомлення</string>
@@ -754,9 +754,9 @@
     <string name="pref_start_search">Безпосередній пошук</string>
     <string name="pref_start_search_summary">На екрані початку розмови показувати клавіатуру та розміщувати курсор у полі пошуку</string>
     <string name="paste_as_quote">Вставити як цитату</string>
-    <string name="group_chat_avatar">Піктограма групи</string>
-    <string name="host_does_not_support_group_chat_avatars">Сервер не підтримує піктограми груп</string>
-    <string name="only_the_owner_can_change_group_chat_avatar">Лише власник може змінити піктограму групи</string>
+    <string name="group_chat_avatar">Зображення групи</string>
+    <string name="host_does_not_support_group_chat_avatars">Сервер не підтримує зображень груп</string>
+    <string name="only_the_owner_can_change_group_chat_avatar">Лише власник може змінити зображення групи</string>
     <string name="contact_name">Ім\'я контакту</string>
     <string name="nickname">Прізвисько для групи</string>
     <string name="group_chat_name">Ім\'я</string>
@@ -821,8 +821,8 @@
     <string name="autojoin_group_chat">Автоматично приєднуватися до цієї групи</string>
     <string name="pref_show_links_inside">Попередній перегляд посилань</string>
     <string name="pref_show_links_inside_summary">Показувати попередній перегляд посилань на сайти безпосередньо у вікні чату. Для цього буде встановлено з\'єднання з вебсайтом.</string>
-    <string name="pref_play_gif_inside">Програвати файли GIF у чаті</string>
-    <string name="pref_play_gif_inside_summary">Програвати файли GIF безпосередньо у вікні чату.</string>
+    <string name="pref_play_gif_inside">Відтворення анімованих зображень</string>
+    <string name="pref_play_gif_inside_summary">Безпосередньо відтворювати анімовані зображення аватарів, повідомлень про статус, а також отримані зображення.</string>
     <string name="open_with">Відкрити за допомогою…</string>
     <string name="server_info_adhoc_invite">XEP-0050: Команди ad-hoc: запрошення користувачів</string>
     <string name="choose_account">Виберіть обліковий запис</string>
@@ -832,8 +832,8 @@
     <string name="restore_warning">Не використовуйте відновлення з резервної копії з метою клонування застосунку (запускати одночасно ще один примірник). Відновлення з резервної копії призначене виключно для перенесення даних або на випадок втрати оригінального пристрою.</string>
     <string name="unable_to_restore_backup">Неможливо відновити з резервної копії.</string>
     <string name="unable_to_decrypt_backup">Неможливо розшифрувати резервну копію. Чи правильний пароль?</string>
-    <string name="pref_prefer_xmpp_avatar_summary">Використовувати піктограму користувача XMPP замість піктограми з адресної книги</string>
-    <string name="pref_prefer_xmpp_avatar">Віддавати перевагу піктограмі XMPP</string>
+    <string name="pref_prefer_xmpp_avatar_summary">Використовувати аватар користувача XMPP замість аватара з адресної книги</string>
+    <string name="pref_prefer_xmpp_avatar">Віддавати перевагу аватару XMPP</string>
     <plurals name="view_users">
         <item quantity="one">%1$d учасник</item>
         <item quantity="few">%1$d учасники</item>
@@ -940,7 +940,7 @@
     <string name="intro_chat_details">Деталі чату</string>
     <string name="intro_desc_chat_details">Бажаєте переглянути деталі чату\? Просто натисніть на назву чату у верхньому рядку меню.</string>
     <string name="intro_highlight_user">Підсвітити користувача</string>
-    <string name="intro_desc_highlight_user">Якщо ви бажаєте виділити користувача у груповому чаті, просто торкніться його піктограми у чаті. Якщо користувач відсутній, перейдіть до деталей групи та пошукайте користувача у списку учасників. Довге натискання на піктограму користувача виведе виринаюче меню з пропозицією позначити користувача.</string>
+    <string name="intro_desc_highlight_user">Якщо ви бажаєте виділити користувача у груповому чаті, просто торкніться його аватара в чаті. Якщо користувач відсутній, перейдіть до деталей групи та пошукайте користувача у списку учасників. Довге натискання на аватар користувача виведе виринаюче меню з пропозицією позначити користувача.</string>
     <string name="intro_desc_open_chat_details">Ви перейшли до деталей чату. Тут ви можете переглядати інформацію про чат, змінювати налаштування сповіщень для нових повідомлень, додавати чи вилучати чат з вашого списку контактів тощо.</string>
     <string name="pref_show_intro_summary">Показувати заставку повторно</string>
     <string name="pref_show_intro">Показати заставку повторно</string>
@@ -986,10 +986,10 @@
     <string name="pref_use_unicolored_chatbg">Однотипний колір тла</string>
     <string name="pref_alternative_voice_settings_summary">У разі проблем із записом голосу застосуйте це налаштування кодеку.</string>
     <string name="pref_alternative_voice_settings">Альтернативний метод запису голосу</string>
-    <string name="pref_use_colored_muc_names_summary">Розфарбовувати імена користувачів у групових чатах та каналах згідно з типовим кольором тла піктограми користувача.</string>
+    <string name="pref_use_colored_muc_names_summary">Розфарбовувати імена користувачів у групових чатах згідно з типовим кольором тла аватара.</string>
     <string name="pref_use_colored_muc_names">Кольоровий шрифт імен користувачів</string>
     <string name="show_videos_images_only">Лише зображення або відео</string>
-    <string name="show_avatar">Показати зображення</string>
+    <string name="show_avatar">Показати аватар</string>
     <string name="action_delete">Вилучити</string>
     <string name="attach_choose_video">Відео</string>
     <string name="please_enable_an_account">Будь ласка, активуйте обліковий запис</string>
@@ -1202,7 +1202,7 @@
     <string name="reconnecting_call">Повторний виклик</string>
     <string name="battery_optimizations_enabled_explained">Ваш пристрій застосовує до monocles chat інтенсивний режим енергозбереження, що може призвести до затримки сповіщень або навіть втрати повідомлень.
 \nРекомендуємо вимкнути режим енергозбереження.</string>
-    <string name="sync_with_contacts_long">monocles chat хоче зіставити Ваш список контактів XMPP з Вашими телефонними контактами, щоб показати їхні повні імена та піктограми.
+    <string name="sync_with_contacts_long">monocles chat хоче зіставити Ваш список контактів XMPP з Вашими телефонними контактами, щоб показати їхні повні імена й аватари.
 \n
 \nmonocles chat буде лише читати Ваші контакти і зіставляти їх локально, не завантажуючи їх на сервер.
 \n
@@ -1332,4 +1332,11 @@
     <string name="emojis">Емоджі</string>
     <string name="open">Відкрити</string>
     <string name="unencrypted">незашифрований</string>
+    <string name="pref_send_link_previews">Показувати перегляд посилань на зображення</string>
+    <string name="delete_avatar">Видалити свій аватар</string>
+    <string name="pref_set_round_avatars">Круглі аватари</string>
+    <string name="pref_show_less_avatars">Показувати менше аватарів у чатах</string>
+    <string name="pref_show_less_avatars_summary">У розмовах будуть показані лише необхідні аватари</string>
+    <string name="pref_set_round_avatars_summary">Зробити аватари користувачів круглими</string>
+    <string name="block_avatar">Заблокувати аватар</string>
 </resources>

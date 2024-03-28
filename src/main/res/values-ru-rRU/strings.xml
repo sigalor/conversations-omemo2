@@ -758,7 +758,7 @@
     <string name="pref_enter_is_send">Ввод для отправки</string>
     <string name="pref_enter_is_send_summary">Использовать клавишу Enter для отправки сообщения. Вы всегда можете использовать Ctrl+Enter для отправки сообщения, даже если эта опция отключена.</string>
     <string name="pref_expert_options">Продвинутые настройки</string>
-    <string name="pref_expert_options_other">Другие</string>
+    <string name="pref_expert_options_other">Поведение</string>
     <string name="pref_export_plain_text_logs">Экспортировать читабельный журнал чата</string>
     <string name="pref_export_plain_text_logs_summary">Включить экспорт журналов чатов в читабельные файлы</string>
     <string name="pref_font_size">Размер шрифта</string>
@@ -800,8 +800,8 @@
     <string name="pref_pause_voice_on_move_from_ear_summary">Приостановить воспроизведение голосового сообщения, при удалении устройство от уха.</string>
     <string name="pref_picture_quality">Качество изображения</string>
     <string name="pref_picture_quality_summary">Изменять размер и сжимать изображения</string>
-    <string name="pref_play_gif_inside">Воспроизведение GIF в чате</string>
-    <string name="pref_play_gif_inside_summary">Воспроизводить GIF прямо в окне чата.</string>
+    <string name="pref_play_gif_inside">Непосредственное воспроизведение анимированных изображений</string>
+    <string name="pref_play_gif_inside_summary">Непосредственное воспроизведение анимированных изображений для аватаров, сообщений о состоянии и графических сообщений.</string>
     <string name="pref_prefer_xmpp_avatar">Предпочитаемый аватар XMPP</string>
     <string name="pref_prefer_xmpp_avatar_summary">Предпочитать XMPP-аватар пользователя аватару из адресной книги</string>
     <string name="pref_presence_settings">Доступность</string>
@@ -1401,7 +1401,7 @@
 \nсвернуть"</string>
     <string name="show_more">"
 \nразвернуть"</string>
-    <string name="collapse_message_signs_summary">Установите максимальное количество знаков, чтобы свернуть сообщение</string>
+    <string name="collapse_message_signs_summary">Свернуть сообщения, содержащие более 7 строк</string>
     <string name="collapse_message_signs_title">Свернуть длинные текстовые сообщения</string>
     <string name="settings_restore_message_failure">Не удалось восстановить настройки: %s.</string>
     <string name="settings_restore_message_success">Настройки успешно восстановлены</string>
@@ -1504,7 +1504,7 @@
     <string name="blue">Синий</string>
     <string name="pref_send_link_previews_summary">Прикрепите метаданные о ссылках при отправке сообщения. Только для не зашифрованных сообщений.</string>
     <string name="report_spam_and_block">Сообщить о спаме и заблокировать спамера</string>
-    <string name="pref_send_link_previews">Отправить превью ссылок</string>
+    <string name="pref_send_link_previews">Показать превью ссылок на изображения</string>
     <string name="subject">Тема</string>
     <string name="audiobook">Аудиокнига</string>
     <string name="report_spam">Пожаловаться на спам</string>

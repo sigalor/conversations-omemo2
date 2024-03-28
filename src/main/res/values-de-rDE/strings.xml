@@ -115,7 +115,7 @@
     <string name="pref_accept_files_mobileroaming">Dateien im Roaming annehmen</string>
     <string name="pref_accept_files_summary_mobileroaming">Im mobilen Datennetz während des Roamings Dateien automatisch annehmen, die kleiner sind als …</string>
     <string name="pref_attachments">Anhänge</string>
-    <string name="pref_notification_settings">Benachrichtigung</string>
+    <string name="pref_notification_settings">Benachrichtigungen</string>
     <string name="pref_vibrate">Vibrieren</string>
     <string name="pref_vibrate_summary">Vibrieren bei Erhalt einer neuen Nachricht</string>
     <string name="pref_led">LED-Benachrichtigung</string>
@@ -285,7 +285,7 @@
     <string name="pref_use_indicate_received_summary">Empfangene Nachrichten werden mit einem Häkchen markiert. Bitte beachte, dass dies nicht in allen Fällen funktioniert</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Senden-Schaltfläche einfärben, um den Onlinestatus des Kontakts anzuzeigen</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Kontaktnamen einfärben, um den Onlinestatus des Kontakts anzuzeigen</string>
-    <string name="pref_expert_options_other">Sonstiges</string>
+    <string name="pref_expert_options_other">Verhalten</string>
     <string name="pref_autojoin">Mit Kontaktliste synchronisieren</string>
     <string name="pref_autojoin_summary">Räume beitreten oder verlassen gemäß der Kennzeichnung \"Automatisches Beitreten\" in deiner Kontaktliste.</string>
     <string name="toast_message_omemo_fingerprint">OMEMO-Fingerabdruck in die Zwischenablage kopiert!</string>
@@ -984,7 +984,7 @@
     <string name="add_anyway">Trotzdem hinzufügen</string>
     <string name="this_looks_like_channel">Dies sieht aus wie eine Raum-Adresse</string>
     <string name="no_backup_available">Keine Sicherung vorhanden</string>
-    <string name="pref_show_own_accounts_summary">Zeige eigenes Konto in Chats und Kontakten, falls du mehrere Konten nutzt.</string>
+    <string name="pref_show_own_accounts_summary">Zeige eigenen Kontonamen in Chats- und Kontakte-Ansicht, falls du mehrere Konten nutzt.</string>
     <string name="pref_show_own_accounts">Zeige eigenes Konto</string>
     <string name="message_encryption">Nachrichtenverschlüsselung</string>
     <string name="enable_message_encryption">Dieser Chat ist unverschlüsselt. Aus Sicherheitsgründen solltest du Nachrichtenverschlüsselung aktivieren, vorzugsweise OMEMO. Falls irgendetwas nicht funktioniert, kannst du die Nachrichtenverschlüsselung über das Schloss-Symbol wieder deaktivieren.</string>
@@ -1457,7 +1457,7 @@
     <string name="subject">Thema</string>
     <string name="add_subject">Thema anfügen</string>
     <string name="recent_threads">Letzte Threads</string>
-    <string name="webxdc_hint">Um WebXDC zu nutzen, bitte Threads aktivieren und WebXDC unverschlüsselt senden</string>
+    <string name="webxdc_hint">Um WebXDC zu nutzen, Threads aktivieren und WebXDC unverschlüsselt senden</string>
     <string name="open">Öffne</string>
     <string name="unencrypted">unverschlüsselt</string>
     <string name="pref_open_links_inapp">Öffne Links in der App</string>
@@ -1467,4 +1467,9 @@
     <string name="app_lock_forgot_password">Installiere die App neu und lade das Chat-Backup</string>
     <string name="new_message">Neue Nachricht</string>
     <string name="new_notification">Neue Benachrichtigung</string>
+    <string name="pref_send_link_previews">Zeige Bild-Links als Vorschau im Chat</string>
+    <string name="pref_use_green_blue_readmarkers_title">Verwende grün-blaue Lese-Markierungen</string>
+    <string name="pref_use_green_blue_readmarkers_summary">Verwende zweifarbe Lese-Markierungen. Blau für empfangen und grün für gelesen.</string>
+    <string name="pref_up_push_server_title">Push Server</string>
+    <string name="pref_send_link_previews_summary">Füge Metadaten zu Links hinzu. Gilt nur für unverschlüsselte Nachrichten.</string>
 </resources>

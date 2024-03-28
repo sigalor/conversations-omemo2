@@ -88,7 +88,7 @@
     <string name="send_pgp_message">Escribir mensaxe…</string>
     <string name="your_nick_has_been_changed">Modificouse o teu alcume</string>
     <string name="send_unencrypted">Enviar sen cifrar</string>
-    <string name="decryption_failed">Fallou o descifrado. Quizábeis non teñas a clave privada apropiada.</string>
+    <string name="decryption_failed">Fallou o descifraxe. Quizábeis non teñas a clave privada apropiada.</string>
     <string name="openkeychain_required">OpenKeychain</string>
     <string name="openkeychain_required_long">%1$s emprega unha aplicación de terceiros chamada <b>OpenKeychain</b> para cifrar e descifrar mensaxes e xestionar as túas claves públicas.
 \n
@@ -157,7 +157,7 @@
     <string name="account_status_policy_violation">Violación das normas</string>
     <string name="account_status_incompatible_server">Servidor incompatible</string>
     <string name="account_status_stream_error">Erro de fluxo</string>
-    <string name="encryption_choice_unencrypted">Non cifrado</string>
+    <string name="encryption_choice_unencrypted">Sen cifrar</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo">OMEMO</string>
@@ -225,8 +225,8 @@
     <string name="select">Selecionar</string>
     <string name="contact_already_exists">Xa existe o contacto</string>
     <string name="join">Unirse</string>
-    <string name="channel_full_jid_example">canle@conference.exemplo.com/nick</string>
-    <string name="channel_bare_jid_example">canle@conference.exemplo.com</string>
+    <string name="channel_full_jid_example">sala@conference.exemplo.com/nick</string>
+    <string name="channel_bare_jid_example">sala@conference.exemplo.com</string>
     <string name="save_as_bookmark">Gardar como marcador</string>
     <string name="delete_bookmark">Eliminar marcador</string>
     <string name="topic">Tema</string>
@@ -281,7 +281,7 @@
     <string name="pref_use_indicate_received_summary">Se o cliente o permite as mensaxes terán unha marca cando se reciban</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Botón de enviar de cor para indicar o estado do contacto</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Os nomes de contacto con cor para indicar o estado</string>
-    <string name="pref_expert_options_other">Outro</string>
+    <string name="pref_expert_options_other">Comportamento</string>
     <string name="pref_autojoin">Sincronizar cos marcadores</string>
     <string name="pref_autojoin_summary">Entrar e saír das salas en función da marca de automatización que teñas nos marcadores.</string>
     <string name="toast_message_omemo_fingerprint">Copiouse a impresión dixital OMEMO ao portapapeis!</string>
@@ -575,7 +575,7 @@
     <string name="import_text">Se hai unha copia de seguridade dispoñible, pode importala pulsando o botón de abaixo.</string>
     <string name="import_database">Importar copia de seguridade</string>
     <string name="invite_again">Invitar de novo</string>
-    <string name="inviteUser_Subject">convidoulle a través de</string>
+    <string name="inviteUser_Subject">cónvidate desde</string>
     <string name="InviteText">Ola,
 \n
 \na usuaria %s convidoute a monocles chat. Só tes que premer na seguinte ligazón…</string>
@@ -700,7 +700,7 @@
     <string name="send_failed_resend">fallou a entrega, reenviando…</string>
     <string name="pref_show_connection_options_summary">Mostar axustes de servidor e porto cando se configura unha conta</string>
     <string name="pref_show_connection_options">Axustes ampliados de conexión</string>
-    <string name="retry_decryption">Voltar a intentar o descifrado</string>
+    <string name="retry_decryption">Volver a intentar a descifraxe</string>
     <string name="session_failure">Fallo na sesión</string>
     <string name="sasl_downgrade">Mecanismo SASL desactualizado</string>
     <string name="action_take_photo">Tirar foto</string>
@@ -729,7 +729,7 @@
     <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s +%2$d máis leron ate este punto</string>
     <string name="conversation_unencrypted_hint">Esta conversa non está cifrada, por razóns de seguridade debes activar a cifraxe das mensaxes premendo na icona do cadeado. A cifraxe recomendada é OMEMO.</string>
     <string name="pref_warn_unencrypted_chat">Avisar se a conversa non está cifrada</string>
-    <string name="pref_warn_unencrypted_chat_summary">Se a encriptación de mensaxes está dispoñible, deberías usala. Se non utilizas o cifrado de mensaxes, mostra unha mensaxe de advertencia dentro do chat.</string>
+    <string name="pref_warn_unencrypted_chat_summary">Se a cifraxe de mensaxes está dispoñible, deberías usala. Se non utilizas a cifraxe das mensaxes, vese unha mensaxe de advertencia dentro do chat.</string>
     <string name="pref_use_bundled_emoji">Usar emojis integrados</string>
     <string name="pref_use_bundled_emoji_summary">Utiliza a biblioteca de emojis integrados en lugar de utilizar os dos teus dispositivos. Os cambios estarán dispoñibles despois de reabrir a aplicación.</string>
     <string name="invalid_muc_nick">Alcume non válido</string>
@@ -790,7 +790,7 @@
     <string name="medium">Mediano</string>
     <string name="large">Grande</string>
     <string name="create_shortcut">Crear atallo</string>
-    <string name="not_encrypted_for_this_device">A mensaxe non foi cifrado para este dispositivo.</string>
+    <string name="not_encrypted_for_this_device">A mensaxe non foi cifrada para este dispositivo.</string>
     <string name="no_microphone_permission">monocles chatnecesita acceso ó micrófono</string>
     <string name="search_messages">Buscar mensaxes</string>
     <string name="gif">GIF</string>
@@ -876,8 +876,8 @@
     <string name="autojoin_group_chat">Unirse automaticamente a esta sala</string>
     <string name="pref_show_links_inside">Mostra vista previa das ligazóns</string>
     <string name="pref_show_links_inside_summary">Mostrar vista previa das ligazóns web directamente dentro da vista da conversa, establecerase unha conexión co servidor especificado na ligazón.</string>
-    <string name="pref_play_gif_inside">Reproducir arquivos GIF na conversa</string>
-    <string name="pref_play_gif_inside_summary">Reproducir arquivos GIF directamente dentro da vista da conversa.</string>
+    <string name="pref_play_gif_inside">Reproducir automaticamente imaxes animadas</string>
+    <string name="pref_play_gif_inside_summary">Animar directamente as imaxes de avatares, mensaxes de estado e imaxes nas mensaxes.</string>
     <string name="open_with">Abrir con…</string>
     <string name="server_info_adhoc_invite">XEP-0050: Comandos Ad-Hoc: invitación ao usuario</string>
     <string name="choose_account">Seleccionar conta</string>
@@ -932,7 +932,7 @@
     <string name="destroy_channel_dialog">Queres destruír a canle %s\? Isto eliminará esta conversa na canle permanentemente.</string>
     <string name="destroy_channel_succeed">A canle foi destruida con éxito</string>
     <string name="destroy_channel_failed">A canle non puido ser destruida</string>
-    <string name="action_end_conversation_channel">Abandoar a canle</string>
+    <string name="action_end_conversation_channel">Saír da conversa</string>
     <string name="autojoin_channel">Unirse automaticamente a esta canle</string>
     <string name="no_attachments">Non hai adxuntos</string>
     <string name="notification_backup_created_title">Copia de seguridade realizada correctamente</string>
@@ -964,7 +964,7 @@
     <string name="no_backup_available">Ningunha copia de seguranza dispoñible</string>
     <string name="pref_show_own_accounts_summary">Mostrar as contas propias nas conversas e contactos se tes varias contas.</string>
     <string name="pref_show_own_accounts">Mostrar as contas propias</string>
-    <string name="message_encryption">Cifrado de mensaxes</string>
+    <string name="message_encryption">Cifraxe das mensaxes</string>
     <string name="enable_message_encryption">Este conversanon está cifrada. Por razóns de seguridade debería activar a encriptación das mensaxes, preferiblemente OMEMO. Se algo non funciona, pode desactivar a encriptación de mensaxes pulsando a icona de bloqueo de teclas.</string>
     <string name="hide_warning">Ocultar o aviso</string>
     <string name="change_password_in_next_step">Pode cambiar o contrasinal xerado no seguinte paso segundo as súas necesidades.</string>
@@ -1117,8 +1117,8 @@
     <string name="search_this_conversation">Esta conversa</string>
     <string name="your_avatar">O seu avatar</string>
     <string name="avatar_for_x">Avatar para %s</string>
-    <string name="encrypted_with_omemo">Cifrado con OMEMO</string>
-    <string name="encrypted_with_openpgp">Cifrado con OpenGPG</string>
+    <string name="encrypted_with_omemo">Cifrada con OMEMO</string>
+    <string name="encrypted_with_openpgp">Cifrada con OpenGPG</string>
     <string name="not_encrypted">Non cfrado</string>
     <string name="add_contact_or_create_or_join_group_chat">Engadir contacto, crear ou unirse a unha sala, ou descubrir salas</string>
     <plurals name="some_messages_could_not_be_delivered">
@@ -1284,7 +1284,7 @@
     <string name="pref_import_database_or_settings">Importar base de datos ou axustes</string>
     <string name="pref_resend_delay_summary">Adiamento do reenvío (MilsSecond), o tempo que se adía o reenvío.</string>
     <string name="title_activity_about_x">Acerca de %s</string>
-    <string name="close_format_text">Tes a certeza de querer pechar a barra de formato do texto\? Podes activar cando queiras a barra nos axustes.</string>
+    <string name="close_format_text">Tes a certeza de querer pechar a barra de formato do texto? Podes activala cando queiras nos axustes.</string>
     <string name="show_more">"
 \n
 \n... mostrar mais"</string>
@@ -1334,7 +1334,7 @@
     <string name="action_edit_contact">Editar contacto</string>
     <string name="undo">Desfacer</string>
     <string name="menuitem_create_backup_action">Crear copia de apoio</string>
-    <string name="collapse_message_signs_summary">Establecer o número máximo de marcas para pregar unha mensaxe</string>
+    <string name="collapse_message_signs_summary">Pregar mensaxes con máis de 7 liñas</string>
     <string name="vector_graphic">gráfico vectorial</string>
     <string name="action_fix_to_location">Fixar posición</string>
     <string name="pref_theme_custom">Personalizado</string>
@@ -1368,9 +1368,9 @@
     <string name="no_i2p_calls">Non se poden facer chamadas por I2P</string>
     <string name="pref_enable_otr">Activar cifraxe OTR (BETA)</string>
     <string name="pref_custom_theme_color_options_summary">Establecer combinación de cores propia</string>
-    <string name="delete_message_dialog_msg">Tes a certeza de querer eliminar esta mensaxe\?
+    <string name="delete_message_dialog_msg">Tes a certeza de querer eliminar esta mensaxe?
 \n
-\n<b>Aviso:</b> Non hai garantía de que isto elimine as copias desta mensaxe que están gardados en outros servidores ou dispositivos.</string>
+\n<b>Aviso:</b> Non hai garantía de que isto elimine as copias desta mensaxe que están gardadas en outros servidores ou dispositivos.</string>
     <string name="unified_push_distributor">Distribuidora UnifiedPush</string>
     <string name="bold">remarcar</string>
     <string name="rtp_state_content_add">Engadir pistas adicionais\?</string>
@@ -1482,7 +1482,7 @@
     <string name="blue">Azul</string>
     <string name="pref_send_link_previews_summary">Adxuntar metadatos acerca das ligazóns que envías na mensaxe. Só para mensaxes sen cifrar.</string>
     <string name="report_spam_and_block">Denunciar como spam e bloquear remitente</string>
-    <string name="pref_send_link_previews">Enviar vista previa das ligazóns</string>
+    <string name="pref_send_link_previews">Mostrar vista previa de ligazóns a imaxes</string>
     <string name="subject">Asunto</string>
     <string name="audiobook">Audiolibro</string>
     <string name="report_spam">Denunciar spam</string>

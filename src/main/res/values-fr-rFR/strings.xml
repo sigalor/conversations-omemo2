@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_settings">Paramètres</string>
-    <string name="action_add">Nouvelle conversation</string>
+    <string name="action_add">Nouvelle discussion</string>
     <string name="action_accounts">Gérer les comptes</string>
-    <string name="action_end_conversation">Archiver cette conversation</string>
+    <string name="action_end_conversation">Archiver cette discussion</string>
     <string name="action_contact_details">Détails du contact</string>
-    <string name="action_secure">Conversation sécurisée</string>
+    <string name="action_secure">Discussion sécurisée</string>
     <string name="action_add_new_account">Ajouter un nouveau compte</string>
     <string name="action_add_phone_book">Ajouter au carnet d’adresses</string>
     <string name="action_delete_contact">Supprimer des contacts</string>
@@ -17,8 +17,8 @@
     <string name="title_activity_settings">Paramètres</string>
     <string name="conference_details">Détails du salon</string>
     <string name="contact_details">Détails du contact</string>
-    <string name="title_activity_sharewith">Partager la conversation</string>
-    <string name="title_activity_start_conversation">Démarrer une conversation</string>
+    <string name="title_activity_sharewith">Partager la discussion</string>
+    <string name="title_activity_start_conversation">Commencer une discussion</string>
     <string name="title_activity_choose_contact">Choisir un contact</string>
     <string name="title_activity_choose_contacts">Choisir des contacts</string>
     <string name="title_activity_block_list">Bloquer la liste</string>
@@ -26,9 +26,9 @@
     <string name="minute_ago">Il y a 1 minute</string>
     <string name="minutes_ago">Il y a %d minutes</string>
     <plurals name="x_unread_conversations">
-        <item quantity="one">%d conversation non lue</item>
-        <item quantity="many">%d conversations non lues</item>
-        <item quantity="other">%d conversations non lues</item>
+        <item quantity="one">%d discussion non lue</item>
+        <item quantity="many">%d discussions non lues</item>
+        <item quantity="other">%d discussions non lues</item>
     </plurals>
     <string name="sending">envoi en cours…</string>
     <string name="message_decrypting">Déchiffrement du message en cours. Veuillez patienter…</string>
@@ -46,11 +46,11 @@
     <string name="unblock_domain_text">Débloquer tous les contacts de %s ?</string>
     <string name="contact_blocked">Contact bloqué</string>
     <string name="blocked">Bloqué</string>
-    <string name="remove_bookmark_text">Voulez-vous retirer %s des favoris ? La conversation associée à ce favori ne sera pas supprimée.</string>
+    <string name="remove_bookmark_text">Voulez-vous retirer %s des favoris ? La discussion associée à ce favori ne sera pas supprimée.</string>
     <string name="register_account">Créer un nouveau compte sur le serveur</string>
     <string name="change_password_on_server">Changer de mot de passe sur le serveur</string>
     <string name="share_with">Partager avec…</string>
-    <string name="start_conversation">Démarrer une conversation</string>
+    <string name="start_conversation">Commencer une discussion</string>
     <string name="invite_contact">Inviter des contacts</string>
     <string name="contacts">Contacts</string>
     <string name="cancel">Annuler</string>
@@ -63,7 +63,7 @@
     <string name="save">Enregistrer</string>
     <string name="ok">OK</string>
     <string name="crash_report_title">monocles chat s\'est planté</string>
-    <string name="crash_report_message">En envoyant des informations de débogage, vous aidez au développement en cours de monocles chat 
+    <string name="crash_report_message">En envoyant des informations de débogage, vous aidez au développement en cours de monocles chat.
 \n<b>Attention :</b> Votre compte XMPP sera utilisé pour envoyer les logs aux développeurs.</string>
     <string name="send_now">Envoyer</string>
     <string name="send_never">Ne plus demander</string>
@@ -76,26 +76,25 @@
     <string name="send_failed">échec de l’envoi</string>
     <string name="preparing_image">Préparation de l’image pour l\'envoi</string>
     <string name="action_clear_history">Vider l’historique</string>
-    <string name="clear_conversation_history">Vider l’historique de la conversation</string>
+    <string name="clear_conversation_history">Vider l’historique de la discussion</string>
     <string name="clear_histor_msg">Voulez-vous supprimer tous les messages de cette discussion ? 
 \n 
 \n<b>Attention :</b> Cela n\'effacera pas les copies des messages stockées dans des serveurs ou d\'autres appareils mais uniquement ceux dans votre appareil actuel.</string>
-    <string name="also_end_conversation">Fermer cette conversation ensuite</string>
+    <string name="also_end_conversation">Fermer cette discussion ensuite</string>
     <string name="choose_presence">Choisir un appareil</string>
-    <string name="send_unencrypted_message">Envoyer un message en clair</string>
+    <string name="send_unencrypted_message">Écrire un message…</string>
     <string name="send_message_to_x">Envoyer un message à %s</string>
-    <string name="send_omemo_message">Envoyer un message chiffré avec OMEMO</string>
+    <string name="send_omemo_message">Écrire un message…</string>
     <string name="send_omemo_x509_message">Envoyer un message chiffré avec v\\OMEMO</string>
-    <string name="send_pgp_message">Envoyer un message chiffré avec OpenPGP</string>
+    <string name="send_pgp_message">Écrire un message…</string>
     <string name="your_nick_has_been_changed">Votre pseudo a été modifié</string>
     <string name="send_unencrypted">Envoyer en clair</string>
     <string name="decryption_failed">Échec du déchiffrement. Avez-vous la bonne clef privée ?</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">%1$s utilise une application tierce appelée <b>OpenKeychain</b> pour chiffrer et déchiffrer les messages et gérer vos clefs publiques. 
-\n 
-\n 
-\nOpenKeychain est sous licence GPLv3 et disponible sur F-Droid et Google Play. 
-\n 
+    <string name="openkeychain_required_long">%1$s utilise une application tierce appelée <b>OpenKeychain</b> pour chiffrer et déchiffrer les messages et gérer vos clefs publiques. \u0020
+\n \u0020
+\nOpenKeychain est sous licence GPLv3 et disponible sur F-Droid et Google Play. \u0020
+\n \u0020
 \n<small>(Veuillez redémarrer %1$s ensuite)</small></string>
     <string name="restart">Redémarrer</string>
     <string name="install">Installer</string>
@@ -172,7 +171,7 @@
 \nVos contacts ne pourront plus vous envoyer de messages chiffrés avec OpenPGP.</string>
     <string name="openpgp_has_been_published">La clef publique OpenPGP a été publiée</string>
     <string name="mgmt_account_are_you_sure">Êtes-vous sûr·e ?</string>
-    <string name="mgmt_account_delete_confirm_message">Si vous supprimez votre compte, l\'historique complet de vos conversations sera perdu.
+    <string name="mgmt_account_delete_confirm_message">Si vous supprimez votre compte, l\'historique complet de vos discussions sera perdu.
 \n
 \nSi vous supprimez votre compte du serveur, votre compte sera entièrement supprimé, vous ne pourrez plus vous connecter jusqu\'à ce que vous ayez créé un nouveau compte.</string>
     <string name="attach_record_voice">Enregistrer un son</string>
@@ -216,7 +215,7 @@
     <string name="done">Terminé</string>
     <string name="verify">Vérifier</string>
     <string name="decrypt">Déchiffrer</string>
-    <string name="bookmarks">Salons</string>
+    <string name="bookmarks">Groupes</string>
     <string name="search">Rechercher</string>
     <string name="enter_contact">Ajouter contact</string>
     <string name="delete_contact">Supprimer le contact</string>
@@ -281,7 +280,7 @@
     <string name="pref_use_send_button_to_indicate_status">Bouton Envoyer indique le statut du contact</string>
     <string name="pref_use_colored_names_to_indicate_status">Noms colorés pour indiquer les statuts</string>
     <string name="pref_use_indicate_received">Accusés de réception</string>
-    <string name="pref_use_indicate_received_summary">Les messages reçus seront marqués d’une coche, si cela est possible</string>
+    <string name="pref_use_indicate_received_summary">Les messages reçus seront marqués d’une coche, si cela est possible.</string>
     <string name="pref_use_send_button_to_indicate_status_summary">La couleur du bouton Envoyer indique le statut du contact.</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Colorer les noms des contacts pour indiquer leurs statuts.</string>
     <string name="pref_expert_options_other">Autres</string>
@@ -338,7 +337,7 @@
     <string name="could_not_verify_fingerprint">Impossible de vérifier l’empreinte</string>
     <string name="manually_verify">Vérifier manuellement</string>
     <string name="pref_show_dynamic_tags">Afficher des tags dynamiques</string>
-    <string name="pref_show_dynamic_tags_summary">Affiche des tags en lecture seule sous les contacts.</string>
+    <string name="pref_show_dynamic_tags_summary">Organiser avec des tags.</string>
     <string name="no_conference_server_found">Aucun serveur de salons n’a été trouvé</string>
     <string name="conference_creation_failed">Échec de la création du salon !</string>
     <string name="account_image_description">Avatar du compte</string>
@@ -593,7 +592,7 @@
     <string name="this_device_is_no_longer_in_use">Cet appareil n\'est plus utilisé</string>
     <string name="please_wait">Veuillez patienter…</string>
     <string name="pref_export_plain_text_logs_summary">Active l\'exportation des journaux de discussion sous forme de fichiers texte lisibles par l\'utilisateur/trice.</string>
-    <string name="pref_export_plain_text_logs">Exporter les journaux des conversations dans un format lisible</string>
+    <string name="pref_export_plain_text_logs">Exporter les journaux des discussions dans un format lisible</string>
     <string name="payment_required">Paiement requis</string>
     <string name="missing_internet_permission">Permission Internet manquante</string>
     <string name="me">Moi</string>
@@ -627,7 +626,7 @@
     <string name="this_device_has_been_verified">Cet appareil a été vérifié</string>
     <string name="copy_fingerprint">Copier l’empreinte</string>
     <string name="all_omemo_keys_have_been_verified">Toutes les clefs OMEMO ont étés vérifiées</string>
-    <string name="barcode_does_not_contain_fingerprints_for_this_conversation">Le QR code ne contient pas d’empreintes pour cette conversation.</string>
+    <string name="barcode_does_not_contain_fingerprints_for_this_conversation">Le QR code ne contient pas d’empreintes pour cette discussions.</string>
     <string name="verified_fingerprints">Empreintes vérifiées</string>
     <string name="use_camera_icon_to_scan_barcode">Utilisez l’appareil photo pour scanner le QR code des contacts</string>
     <string name="please_wait_for_keys_to_be_fetched">Veuillez attendre que les clefs soient récupérées</string>
@@ -787,7 +786,7 @@
     <string name="pref_omemo_setting">Chiffrement avec OMEMO</string>
     <string name="pref_omemo_setting_summary_always">OMEMO sera toujours utilisé dans les discussions à deux et les salons privés.</string>
     <string name="pref_omemo_setting_summary_default_on">OMEMO sera utilisé par défaut dans les nouvelles discussions.</string>
-    <string name="pref_omemo_setting_summary_default_off">OMEMO devra être activé explicitement pour les nouvelles conversations.</string>
+    <string name="pref_omemo_setting_summary_default_off">OMEMO devra être activé explicitement pour les nouvelles discussions.</string>
     <string name="pref_omemo_setting_summary_always_off">OMEMO ne sera jamais utilisé.</string>
     <string name="default_on">Activé par défaut</string>
     <string name="default_off">Désactivé par défaut</string>
@@ -807,7 +806,7 @@
     <string name="no_microphone_permission">monocles chat a besoin d’accéder au micro</string>
     <string name="search_messages">Rechercher des messages</string>
     <string name="gif">GIF</string>
-    <string name="view_conversation">Afficher la conversation</string>
+    <string name="view_conversation">Voir la discussion</string>
     <string name="web_address">adresse Web</string>
     <string name="jabber_id_copied_to_clipboard">JID copié dans le presse-papiers</string>
     <string name="copy_jabber_id">Copier le JID</string>
@@ -818,7 +817,7 @@
     <string name="show_termsofuse">Conditions d’utilisation</string>
     <string name="p1_s3_filetransfer">Partage de fichiers via HTTP pour S3</string>
     <string name="pref_start_search">Recherche directe</string>
-    <string name="pref_start_search_summary">Ouvre le clavier et place le curseur sur le champs de recherche dans la fenêtre « Démarrer une conversation ».</string>
+    <string name="pref_start_search_summary">Ouvre le clavier et place le curseur sur le champs de recherche dans la fenêtre « Commencer une discussion ».</string>
     <string name="paste_as_quote">Coller comme une citation</string>
     <string name="group_chat_avatar">Avatar du salon</string>
     <string name="host_does_not_support_group_chat_avatars">L’hôte ne prend pas en charge les avatars</string>
@@ -842,7 +841,7 @@
     <string name="unable_to_save_recording">Impossible de sauvegarder l’enregistrement</string>
     <string name="foreground_service_channel_name">Service au premier plan</string>
     <string name="foreground_service_channel_description">Cette catégorie de notifications est utilisée pour afficher une notification permanente indiquant que monocles chat est en cours d\'exécution.</string>
-    <string name="notification_group_status_information">Information du statut</string>
+    <string name="notification_group_status_information">Information sur le statut</string>
     <string name="error_channel_name">Problèmes de connexion</string>
     <string name="error_channel_description">Cette catégorie de notifications est utilisée pour afficher une notification en cas de problème de connexion à un compte.</string>
     <string name="notification_group_messages">Messages</string>
@@ -969,10 +968,10 @@
     <string name="attach">Joindre</string>
     <string name="delete_from_server">Supprimer du serveur</string>
     <string name="go_online_to_delete">Vous devez activer et/ou aller en ligne avec le compte que vous voulez effacer du serveur.</string>
-    <string name="discover_channels">Découvrir des canaux</string>
-    <string name="search_channels">Rechercher des canaux</string>
+    <string name="discover_channels">Découvrir des salons</string>
+    <string name="search_channels">Rechercher des salons</string>
     <string name="channel_discovery_opt_in_title">Avis de confidentialité</string>
-    <string name="channel_discover_opt_in_message">La découverte de canaux utilise l’appel au service tiers &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;L’usage de cette fonction transmettra à ce service votre adresse IP et les termes recherchés. Consulter la &lt;a href=https://search.jabber.network/privacy&gt;politique de confidentialité&lt;/a&gt; correspondante pour plus d’informations.</string>
+    <string name="channel_discover_opt_in_message">La découverte de salons utilise l’appel au service tiers &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;L’usage de cette fonction transmettra à ce service votre adresse IP et les termes recherchés. Consulter la &lt;a href=https://search.jabber.network/privacy&gt;politique de confidentialité&lt;/a&gt; correspondante pour plus d’informations.</string>
     <string name="action_add_existing_account">Ajouter un compte existant</string>
     <string name="use_own_provider">Recourir à un fournisseur personnalisé</string>
     <string name="this_looks_like_a_domain">Il semble que ce soit une adresse de domaine</string>
@@ -988,7 +987,7 @@
     <string name="action_unblock_participant">Débloquer le/la participant⸱e</string>
     <string name="action_block_participant">Bloquer le/la participant⸱e</string>
     <string name="share_backup_files">Partager la sauvegarde</string>
-    <string name="conversations_backup">sauvegarder monocles chat</string>
+    <string name="conversations_backup">sauvegarde de monocles chat</string>
     <string name="event">Événement</string>
     <string name="pref_vibrate_in_chat_summary">Vibrer à l\'arrivée d\'un nouveau message dans une discussion ouverte.</string>
     <string name="pref_vibrate_in_chat">Vibrer dans une discussion ouverte</string>
@@ -1045,7 +1044,7 @@
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Serveur local</string>
     <string name="pref_channel_discovery_summary">La plupart des utilisateurs/trices devraient choisir « jabber.network » pour obtenir de meilleures suggestions de l\'ensemble de l\'écosystème XMPP public.</string>
-    <string name="pref_channel_discovery">Méthode de découverte de canaux</string>
+    <string name="pref_channel_discovery">Méthode de découverte de salons</string>
     <string name="gp_disable">Désactiver</string>
     <string name="gp_short">Court</string>
     <string name="gp_medium">Moyen</string>
@@ -1124,7 +1123,7 @@
     <string name="outgoing_call_timestamp">Appel sortant · %s</string>
     <string name="disable_tor_to_make_call">Désactiver Tor pour passer des appels ou utilisez Tor en mode VPN</string>
     <string name="help">Aide</string>
-    <string name="switch_to_conversation">Passer à la conversation</string>
+    <string name="switch_to_conversation">Passer à la discussion</string>
     <string name="only_one_call_at_a_time">Vous ne pouvez avoir qu\'un seul appel à la fois.</string>
     <string name="missed_call">Appel manqué</string>
     <string name="could_not_switch_camera">Impossible de changer de caméra</string>
@@ -1134,14 +1133,14 @@
     <string name="improperly_formatted_provisioning">Code de provisionnement mal formaté</string>
     <string name="gpx_track">Trace GPX</string>
     <string name="could_not_correct_message">Impossible de corriger le message</string>
-    <string name="search_all_conversations">Toutes les conversations</string>
-    <string name="search_this_conversation">Cette conversation</string>
+    <string name="search_all_conversations">Toutes les discussions</string>
+    <string name="search_this_conversation">Cette discussion</string>
     <string name="your_avatar">Votre avatar</string>
     <string name="avatar_for_x">Avatar de %s</string>
     <string name="encrypted_with_omemo">Chiffré avec OMEMO</string>
     <string name="encrypted_with_openpgp">Chiffré avec OpenPGP</string>
     <string name="not_encrypted">Non chiffré</string>
-    <string name="add_contact_or_create_or_join_group_chat">Ajouter un contact, créer ou rejoindre un salon, ou découvrir des salons</string>
+    <string name="add_contact_or_create_or_join_group_chat">Ajouter un contact, créer ou rejoindre un salon, ou découvrir des salons.</string>
     <plurals name="some_messages_could_not_be_delivered">
         <item quantity="one">Un message n\'a pas pu être délivré</item>
         <item quantity="many">Des messages n\'ont pas pu être délivrés</item>
@@ -1188,7 +1187,7 @@
     <string name="pref_mappreview_host_summary">Utiliser un serveur hôte pour visualiser la carte personnalisée.</string>
     <string name="pref_mappreview_host">Hôte pour aperçu de la carte</string>
     <string name="webview_not_available">Aperçu web non disponible sur votre appareil.</string>
-    <string name="pref_easy_downloader_summary">Télécharger automatiquement toutes les pièces jointes des canaux publics et des inconnus au lieu d\'un téléchargement manuel.</string>
+    <string name="pref_easy_downloader_summary">Télécharger automatiquement toutes les pièces jointes des salons publics et des inconnus au lieu d\'un téléchargement manuel.</string>
     <string name="pref_easy_downloader">Auto-téléchargement des pièces jointes</string>
     <string name="got_invitation_from">Vous avez été invité par %s à rejoindre le salon %s.</string>
     <string name="a_user">un·e utilisateur/trice</string>
@@ -1220,7 +1219,7 @@
     <string name="file_copied_to">Fichier copié vers %s</string>
     <string name="use_individual_notifications">Utiliser les notifications individuelles</string>
     <string name="pref_remove_all_individual_summary">Supprimez toutes les notifications individuelles de vos contacts et groupes.</string>
-    <string name="pref_remove_all_individual_notifications_title">Supprimez toutes les notifications individuelles</string>
+    <string name="pref_remove_all_individual_notifications_title">Supprimer les notifications individuelles</string>
     <string name="remove_individual_notifications">Supprimez les notifications individuelles</string>
     <string name="remove_individual_notifications_message">Voulez-vous vraiment supprimer cet ensemble de notifications individuelles pour %s ?</string>
     <string name="remove_all_individual_notifications_message">Voulez-vous vraiment supprimer tout l\'ensemble de notifications individuelles pour vos contacts et groupes ?</string>
@@ -1251,7 +1250,7 @@
     <string name="action_dialpad">Clavier</string>
     <string name="conference_technical_problems">Vous avez quitté ce salon pour des raisons techniques</string>
     <string name="pref_allow_message_retraction">Permettre la rétractation des messages</string>
-    <string name="pref_allow_message_retraction_summary">Permettre à vos contacts de se rétracter rétroactivement</string>
+    <string name="pref_allow_message_retraction_summary">Permettre à vos contacts de se rétracter rétroactivement.</string>
     <string name="receiving_file_x">Réception de %1$s (%2$s %)</string>
     <string name="sending_x_file_x">Envoi de %1$s (%2$s %)</string>
     <string name="account_status_i2p_unavailable">Réseau I2P non disponible</string>
@@ -1273,7 +1272,7 @@
     <string name="pref_dialler_integration_incoming">Utiliser les comptes téléphoniques pour les appels entrants</string>
     <string name="pref_dialler_integration_incoming_summary">Les appels entrants provenant de numéros de téléphone peuvent sonner avec le composeur de votre système au lieu des paramètres de notification de cette application.</string>
     <string name="choose_camera_app">Choisir l\'application caméra</string>
-    <string name="pref_choose_camera_summary">Choisir une application caméra personnalisée</string>
+    <string name="pref_choose_camera_summary">Choisir une application caméra personnalisée.</string>
     <string name="change_stickers_location">Changer l\'emplacement des autocollants</string>
     <string name="update_default_stickers">Mise à jour des autocollants par défaut</string>
     <string name="clear_blocked_media">Effacer les médias bloqués</string>
@@ -1282,11 +1281,11 @@
     <string name="pref_use_inner_storage">Utilisation de la mémoire interne pour stocker les médias</string>
     <string name="pref_use_inner_storage_summary">Les autres applications ne pourront pas lire le média à partir de la mémoire interne.</string>
     <string name="pref_import_database_or_settings">Importer une base de données ou des paramètres</string>
-    <string name="pref_import_database_or_settings_summary">Importer une sauvegarde de votre base de données ou d\'un fichier de paramètres</string>
-    <string name="pref_max_resend_time_title">Durée maximale du renvoi d\'un message</string>
-    <string name="pref_max_resend_time_summary">Lorsque l\'envoi d\'un message simple échoue, le temps maximum pour le renvoyer est indiqué. Lorsque le nombre de renvois est supérieur à la moitié du temps maximum, le message est retardé pour des raisons de trafic.</string>
+    <string name="pref_import_database_or_settings_summary">Importer une sauvegarde de votre base de données ou d\'un fichier de paramètres.</string>
+    <string name="pref_max_resend_time_title">Tentatives après échec d\'envoi</string>
+    <string name="pref_max_resend_time_summary">Indique le nombre maximum de tentatives de réexpéditions d\'un message non-distribué. Lorsque le nombre de tentatives est supérieur à la moitié du nombre maximum, le message est retardé pour des raisons de trafic.</string>
     <string name="pref_resend_delay_title">Délai du renvoi (en millisecondes)</string>
-    <string name="pref_resend_delay_summary">Délai de renvoi (en millisecondes), le temps de renvoi.</string>
+    <string name="pref_resend_delay_summary">Temps (en millisecondes) entre deux tentatives de renvoi.</string>
     <string name="unified_push_distributor">Distributeur UnifiedPush</string>
     <string name="pref_up_push_account_title">Compte</string>
     <string name="pref_up_push_account_summary">Le compte par lequel les messages push seront reçus.</string>
@@ -1297,7 +1296,7 @@
     <string name="pref_enable_otr">Activer le chiffrement OTR (BETA)</string>
     <string name="otr_warning">La prise en charge du chiffrement OTR est en version BETA. Cliquez sur lire plus pour obtenir plus d\'informations. Un lien s\'ouvrira dans un navigateur.</string>
     <string name="pref_use_i2p_summary">Tunnelise toutes les connexions à travers le réseau I2P. Nécessite un client I2P</string>
-    <string name="pref_enable_persistent_rooms_summary">Rendez les salons et les canaux publics persistants et ne les supprimez pas du serveur après que le dernier utilisateur a quitté la discussion.</string>
+    <string name="pref_enable_persistent_rooms_summary">Rendez les salons persistants et ne les supprimez pas du serveur après que le dernier utilisateur a quitté la discussion.</string>
     <string name="pref_enable_persistent_rooms_title">Salles persistantes</string>
     <string name="message_reaction">Envoyer une réaction</string>
     <string name="save_as_sticker">Enregistrer comme autocollant</string>
@@ -1366,14 +1365,14 @@
     <string name="new_contact">Nouveau contact</string>
     <string name="call">Appel</string>
     <string name="new_contact_or_group">Nouveau contact ou salon</string>
-    <string name="join_room">Rejoindre le salon</string>
+    <string name="join_room">Rejoindre un salon</string>
     <string name="please_be_patient">Veuillez patienter SVP…</string>
     <string name="chat_background">Arrière-plan des discussions</string>
     <string name="pref_chat_background_summary">Choisissez votre propre image d\'arrière-plan.</string>
     <string name="custom_background_set">Jeu d\'arrière-plans personnalisés</string>
     <string name="delete_background">Supprimer l\'arrière-plan de la discussion</string>
     <string name="import_own_stickers">Importer des autocollants</string>
-    <string name="pref_delete_background_summary">Supprimer votre image d\'arrière-plan</string>
+    <string name="pref_delete_background_summary">Supprimer votre image d\'arrière-plan.</string>
     <string name="no_background_set">Aucun jeu d\'arrière-plan personnalisé</string>
     <string name="sticker_saved">Autocollant sauvegardé</string>
     <string name="sticker_imported">Autocollant importé</string>
@@ -1407,12 +1406,12 @@
     <string name="i_am_snikket_user">J\'utilise Snikket</string>
     <string name="action_edit_contact">Modifier le contact</string>
     <string name="choose_sticker_location">Choisir l\'emplacement de l\'autocollant</string>
-    <string name="cleanup_conversations">Nettoyer les conversations</string>
+    <string name="cleanup_conversations">Nettoyer les discussions</string>
     <string name="create_background_failed">Échec lors de la création de l\'arrière-plan</string>
     <string name="italic">Italique</string>
-    <string name="help_format_text">Vous pouvez utiliser des options de style simples pour mettre en forme votre texte. Les marqueurs permettant d\'identifier le début et la fin d\'un formatage se trouvent exactement au début et à la fin du mot ou du groupe de mots. Il doit y avoir un espace avant le marqueur de début et un espace après le marqueur de fin, sinon le formatage ne sera pas reconnu.
+    <string name="help_format_text">Vous pouvez utiliser des options de style (gras, italique) pour mettre en forme votre texte. Les marqueurs pour appliquer une mise en forme sont à mettre au début et à la fin du mot ou du groupe de mots. Il doit y avoir un espace avant le marqueur de début et un espace après le marqueur de fin, sinon le formatage ne sera pas reconnu.
 \n
-\nVous pouvez utiliser les outils directement pendant que vous écrivez, en appuyant sur un outil, vous insérez le marqueur à la position du curseur. Vous pouvez également marquer un mot ou un groupe de mots et appuyer sur un bouton de formatage.</string>
+\nVous pouvez utiliser les outils de formatage tout en écrivant, en cliquant ou insérant directement le marqueur correspondant, ou bien, vous pouvez aussi marquer un mot ou un groupe de mots et appuyer sur un bouton formatage.</string>
     <string name="import_backup_description">Depuis Android 11, nous ne pouvons plus lister les fichiers stockés dans votre appareil. Vous pouvez essayer de naviguer vers un chemin de sauvegarde, qui se trouve généralement dans Documents/monocles chat/Database.</string>
     <string name="note_to_self">Note à soi-même</string>
     <string name="thread_marker">Marqueur de fil</string>
@@ -1433,11 +1432,11 @@
     <string name="action_complete">Action terminée</string>
     <string name="menuitem_create_backup_action">Créer une sauvegarde</string>
     <string name="pref_set_round_avatars">Avatars arrondis</string>
-    <string name="pref_set_round_avatars_summary">Les avatars sont affichés dans un cercle</string>
+    <string name="pref_set_round_avatars_summary">Les avatars sont affichés dans un cercle.</string>
     <string name="choose_emoji">Choisir un émoji</string>
     <string name="show_keyboard">Afficher le clavier</string>
     <string name="pref_show_thread_feature_summary">Afficher l\'icône du fil de discussion dans le champ de saisie et permettre la création et le suivi de fils de discussion.</string>
-    <string name="pref_show_thread_feature">Afficher l\'icône du fil de discussion</string>
+    <string name="pref_show_thread_feature">Activer la fonction fil de discussion</string>
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="edit_sytemaccount_or_xmppaccount">Éditer les contacts ?</string>
     <string name="edit_sytemaccount">Contact téléphonique</string>
@@ -1445,10 +1444,10 @@
     <string name="enter_user_name">Saisir un nom</string>
     <string name="account_color">Couleur du compte</string>
     <string name="pref_show_less_avatars">Montrer moins d\'avatars dans les discussions</string>
-    <string name="account_color_summary">Utilisé dans les listes de conversations et de contacts, ainsi que dans les notifications</string>
+    <string name="account_color_summary">Utilisé dans les listes de discussions et de contacts, ainsi que dans les notifications</string>
     <string name="notifications_enabled">Notifications activées</string>
     <string name="notifications_disabled">Notifications désactivées. Activer les SVP dans vos paramètres Android.</string>
-    <string name="pref_show_less_avatars_summary">Seuls les avatars nécessaires dans les discussions seront affichés.</string>
+    <string name="pref_show_less_avatars_summary">Seuls les avatars nécessaires dans les discussions sont affichés.</string>
     <string name="pref_set_text_collapsable">Réduire les longs textes</string>
     <string name="hide_notification">Cacher les notifications</string>
     <string name="log_out">Se déconnecter</string>
@@ -1465,7 +1464,7 @@
     <string name="input_field">Champ de saisie</string>
     <string name="dane_failed">Échec de DANE</string>
     <string name="pref_enforce_dane">Appliquer DANE</string>
-    <string name="pref_enforce_dane_summary">Se connecter à un compte uniquement après une vérification DANE</string>
+    <string name="pref_enforce_dane_summary">Se connecter à un compte uniquement après une vérification DANE.</string>
     <string name="pref_hide_donation_snackbar">Cacher l\'invitation aux dons</string>
     <string name="magic_create_text">Nous vous guiderons tout au long du processus de création d\'un compte avec un mot de passe aléatoire, que vous pourrez utiliser ou remplacer par votre propre mot de passe à la page suivante. \\nVous pourrez ensuite communiquer avec les utilisateurs de ce fournisseur et d\'autres fournisseurs en leur communiquant votre adresse XMPP complète.</string>
     <string name="use_monocles">Je préfère monocles</string>
@@ -1474,17 +1473,17 @@
     <string name="pref_create_compatible_backup_summary">Écrire les fichiers de sauvegarde universelle à l\'emplacement %s</string>
     <string name="green_and_blue">Vert et Bleu</string>
     <string name="pref_use_green_blue_readmarkers_title">Utiliser des marqueurs de lecture verts et bleus</string>
-    <string name="pref_readmarkers_summary">Modifier le style du marqueur de lecture</string>
+    <string name="pref_readmarkers_summary">Modifier le style du marqueur de lecture.</string>
     <string name="pref_readmarker_title">Style du marqueur de lecture</string>
     <string name="blue">Bleu</string>
     <string name="pref_send_link_previews">Envoyer des aperçus de liens</string>
-    <string name="pref_send_link_previews_summary">Attacher des métadonnées sur les liens lors de l\'envoi d\'un message</string>
+    <string name="pref_send_link_previews_summary">Attacher des métadonnées sur les liens lors de l\'envoi d\'un message. Uniquement pour les messages en clair.</string>
     <string name="report_spam">Signaler un spam</string>
     <string name="subject">Sujet</string>
     <string name="add_subject">Ajouter un sujet</string>
-    <string name="unified">Unifié</string>
+    <string name="unified">Toutes</string>
     <string name="chats">Chats</string>
-    <string name="pref_hide_donation_snackbar_summary">Cacher l\'invitation aux dons de façon permanente</string>
+    <string name="pref_hide_donation_snackbar_summary">Cacher l\'invitation aux dons de façon permanente.</string>
     <string name="no_media_permission">Permission non accordée</string>
     <string name="calls">Appels</string>
     <string name="stories">Histoires</string>
@@ -1492,7 +1491,7 @@
     <string name="settings_restore_message_success">Paramètres restaurés avec succès</string>
     <string name="security">Sécurité</string>
     <string name="verified_with_qr_code"> - vérifié par QR code</string>
-    <string name="pref_open_links_inapp_summary">Ouvrir des liens internet dans monocles chat</string>
+    <string name="pref_open_links_inapp_summary">Ouvrir des liens internet dans monocles chat.</string>
     <string name="pref_open_links_inapp">Ouvrir les liens dans l\'application</string>
     <string name="recent_threads">Fils récents</string>
     <string name="pref_app_lock_enable_title">Activer le verrouillage de l\'application (BETA)</string>
@@ -1508,7 +1507,7 @@
     <string name="snikket_login_activated">Connexion Snikket activée</string>
     <string name="app_lock_forgot_password">Réinstaller l\'application et charger la sauvegarde des chats</string>
     <string name="report_spam_and_block">Signaler un spam et bloquer l\'émetteur</string>
-    <string name="pref_set_text_collapsable_summary">Réduire les messages de plus de 230 caractères</string>
+    <string name="pref_set_text_collapsable_summary">Réduire les messages de plus de 230 caractères.</string>
     <string name="pref_use_green_blue_readmarkers_summary">Utilisez des marqueurs de lecture bicolores. Le bleu pour la réception et le vert pour la lecture.</string>
     <string name="pref_app_lock_enable_summary">Activez le verrouillage de l\'application. Sachez que vous ne pourrez plus ouvrir l\'application si vous avez oublié le code PIN.</string>
     <string name="webxdc_hint">Pour utiliser WebXDC, activez les fils de discussion et envoyez WebXDC en clair.</string>

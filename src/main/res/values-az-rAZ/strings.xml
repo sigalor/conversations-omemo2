@@ -544,7 +544,6 @@
     <string name="share_uri_with">URI paylaş…</string>
     <string name="mgmt_account_reconnect">Bağlantı yenidən qurulur</string>
     <string name="welcome_text">... azad və təhlükəsiz XMPP / Jabber müştərisidir.</string>
-
     <string name="your_full_jid_will_be">Sizin Jabber-İD: %s</string>
     <string name="create_account">Yeni hesab yarat</string>
     <string name="welcome_existing_account">Mənim hesabım var</string>

@@ -63,7 +63,7 @@
     <string name="ok">Oké</string>
     <string name="crash_report_title">monocles chat is vastgelopen</string>
     <string name="crash_report_message">Door het versturen van crashrapportages help je de ontwikkeling van monocles chat. 
-\n <b>Waarschuwing:</b> Deze app zal je XMPP-account gebruiken om de rapportage te versturen naar de ontwikkelaar.</string>
+\n<b>Waarschuwing:</b> Deze app zal je XMPP-account gebruiken om de rapportage te versturen naar de ontwikkelaar.</string>
     <string name="send_now">Nu versturen</string>
     <string name="send_never">Niet opnieuw vragen</string>
     <string name="problem_connecting_to_account">Verbinding maken met account mislukt</string>
@@ -91,9 +91,9 @@
     <string name="decryption_failed">Ontsleutelen mislukt. Misschien heb je niet de juiste private sleutel.</string>
     <string name="openkeychain_required">OpenKeychain</string>
     <string name="openkeychain_required_long">%1$s gebruikt een app genaamd <b>OpenKeychain</b> om berichten te versleutelen/ontsleutelen en om publieke sleutels te beheren. 
-\n 
+\n
 \nOpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en Google Play. 
-\n 
+\n
 \n<small>(Herstart %1$s na de installatie.)</small></string>
     <string name="restart">Herstarten</string>
     <string name="install">Installeren</string>
@@ -884,7 +884,7 @@
     <string name="autojoin_group_chat">Automatisch deelnemen aan dit groepsgesprek</string>
     <string name="pref_show_links_inside">Voorbeelden van links in gesprekken tonen</string>
     <string name="pref_show_links_inside_summary">Toon een voorbeeld van de website als er een link wordt gestuurd in een gesprek. 
-\n <b>Waarschuwing</b>: Voor iedere link die wordt gedeeld zal er vanaf dit apparaat een verbinding worden gemaakt met die website!</string>
+\n<b>Waarschuwing</b>: Voor iedere link die wordt gedeeld zal er vanaf dit apparaat een verbinding worden gemaakt met die website!</string>
     <string name="pref_play_gif_inside">GIF-animaties afspelen</string>
     <string name="pref_play_gif_inside_summary">Speel GIF-animaties direct in het gesprek af.</string>
     <string name="open_with">Open met…</string>

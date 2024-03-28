@@ -288,7 +288,7 @@
     <string name="pref_use_indicate_received_summary">Los mensajes recibidos serán marcados con una marca si está soportado</string>
     <string name="pref_use_send_button_to_indicate_status_summary">El color del botón enviar indica el estado del contacto</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Colorear el nombre del contacto para mostrar su estado en línea</string>
-    <string name="pref_expert_options_other">Otros</string>
+    <string name="pref_expert_options_other">Comportamiento</string>
     <string name="pref_autojoin">Sincronizar con marcadores</string>
     <string name="pref_autojoin_summary">Unirse y abandonar las salas de acuerdo con la configuración de unión automática en tus marcadores.</string>
     <string name="toast_message_omemo_fingerprint">¡Huella digital OMEMO copiada al portapapeles!</string>
@@ -901,8 +901,8 @@
     <string name="autojoin_group_chat">Unirse automáticamente a la sala</string>
     <string name="pref_show_links_inside">Mostrar previsualizaciones de enlaces web en el chat</string>
     <string name="pref_show_links_inside_summary">Mostrar previsualizaciones de enlaces web directamente en la vista de chat, se establecerá una conexión al servidor especificado en el enlace.</string>
-    <string name="pref_play_gif_inside">Reproducir archivos GIF en la conversación</string>
-    <string name="pref_play_gif_inside_summary">Ejecutar archivos GIF dentro de la vista de chat.</string>
+    <string name="pref_play_gif_inside">Reproducir imágenes animadas directamente</string>
+    <string name="pref_play_gif_inside_summary">Reproduzca directamente imágenes animadas para avatares, mensajes de estado y mensajes con imágenes.</string>
     <string name="open_with">Abrir con…</string>
     <string name="send_otr_message">Escribe un mensaje…</string>
     <string name="unknown_otr_fingerprint">Huella OTR desconocida</string>
@@ -1401,7 +1401,7 @@
     <string name="notify_only_when_highlighted_or_replied">Notificar para menciones y repuestas</string>
     <string name="show_less">\n\n... mostrar menos</string>
     <string name="show_more">\n\n... mostrar más</string>
-    <string name="collapse_message_signs_summary">Establecer el número máximo de signos para colapsar un mensaje</string>
+    <string name="collapse_message_signs_summary">Contraer mensajes con más de 7 líneas</string>
     <string name="collapse_message_signs_title">Colapsar texto de mensajes largos</string>
     <string name="action_complete">Acción completada</string>
     <string name="moderate_recent">¿Moderar mensajes?</string>
@@ -1500,7 +1500,7 @@
     <string name="blue">Azul</string>
     <string name="pref_send_link_previews_summary">Adjuntar metadatos sobre enlaces al enviar un mensaje. Solo para mensajes no cifrados.</string>
     <string name="report_spam_and_block">Informar de spam y bloquear al spamer</string>
-    <string name="pref_send_link_previews">Enviar previsualizaciones de enlaces</string>
+    <string name="pref_send_link_previews">Mostrar vistas previas de enlaces con imágenes</string>
     <string name="subject">Asunto</string>
     <string name="audiobook">Audiolibro</string>
     <string name="report_spam">Informar de spam</string>
@@ -1520,7 +1520,7 @@
     <string name="new_message">Nuevo mensaje</string>
     <string name="new_notification">Nueva notificación</string>
     <string name="stickers">Stickers</string>
-    <string name="emojis">Emojis</string>
+    <string name="emojis">Emoticonos</string>
     <string name="webxdc_hint">Para utilizar WebXDC active la función de hilos y envíe WebXDC sin encriptar</string>
     <string name="open">Abrir</string>
     <string name="unencrypted">sin encriptar</string>
