@@ -1336,10 +1336,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void onRosterUpdate() {
-        runOnUiThread(() -> {
             refreshForNewCaps = true;
             refreshUi();
-        });
     }
 
     @Override
