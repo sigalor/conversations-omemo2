@@ -303,7 +303,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
     @Override
     public void onRosterUpdate() {
-            refreshUi();
+        runOnUiThread(this::refreshUi);
     }
 
     @Override
