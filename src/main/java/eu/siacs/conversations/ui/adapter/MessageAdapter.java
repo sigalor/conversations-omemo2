@@ -1254,7 +1254,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             ToastCompat.makeText(activity, R.string.file_deleted, ToastCompat.LENGTH_SHORT).show();
             return;
         }
+        final String mime = file.getMimeType();
+        final boolean isGif = mime != null && mime.equals("image/gif");
         final int mediaRuntime = message.getFileParams().runtime;
+        if (isGif && mPlayGifInside) {
             showImages(true, mediaRuntime, true, viewHolder);
             Log.d(Config.LOGTAG, "Gif Image file");
             final FileParams params = message.getFileParams();
@@ -1277,11 +1280,32 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
             layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
             viewHolder.images.setLayoutParams(layoutParams);
-            viewHolder.image.setOnClickListener(v -> openDownloadable(message));
-        if (mPlayGifInside) {
             Glide.with(activity).load(file).into(viewHolder.image);
+            viewHolder.image.setOnClickListener(v -> openDownloadable(message));
         } else {
-            Glide.with(activity).asBitmap().load(file).into(viewHolder.image);
+            showImages(true, mediaRuntime, false, viewHolder);
+            FileParams params = message.getFileParams();
+            final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
+            final int scaledW;
+            final int scaledH;
+            if (Math.max(params.height, params.width) * metrics.density <= target) {
+                scaledW = (int) (params.width * metrics.density);
+                scaledH = (int) (params.height * metrics.density);
+            } else if (Math.max(params.height, params.width) <= target) {
+                scaledW = params.width;
+                scaledH = params.height;
+            } else if (params.width <= params.height) {
+                scaledW = (int) (params.width / ((double) params.height / target));
+                scaledH = (int) target;
+            } else {
+                scaledW = (int) target;
+                scaledH = (int) (params.height / ((double) params.width / target));
+            }
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
+            layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
+            viewHolder.images.setLayoutParams(layoutParams);
+            activity.loadBitmap(message, viewHolder.image);
+            viewHolder.image.setOnClickListener(v -> openDownloadable(message));
         }
     }
 
