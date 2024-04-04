@@ -3316,7 +3316,7 @@ public class ConversationFragment extends XmppFragment
             //mStartTime = SystemClock.elapsedRealtime();
             mHandler.postDelayed(mTickExecutor, 0);
             Log.d("Voice Recorder", "started recording to " + mOutputFile.getAbsolutePath());
-            return false;
+            return true;
         } catch (Exception e) {
             Log.e("Voice Recorder", "prepare() failed " + e.getMessage());
             return false;
