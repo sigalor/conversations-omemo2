@@ -244,7 +244,7 @@ public class ConversationFragment extends XmppFragment
     private int mStartTime = 0;
     private boolean recording = false;
 
-    private final CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
+    private CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
 
     private final Handler mHandler = new Handler();
     private final Runnable mTickExecutor = new Runnable() {
@@ -3291,19 +3291,19 @@ public class ConversationFragment extends XmppFragment
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
-            mRecorder.setAudioEncodingBitRate(96000);
-            mRecorder.setAudioSamplingRate(48000);
+            mRecorder.setAudioEncodingBitRate(96_000);
+            mRecorder.setAudioSamplingRate(48_000);
         } else {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             if (AAC_SENSITIVE_DEVICES.contains(Build.MODEL)) {
                 // Changing these three settings for AAC sensitive devices might lead to sporadically truncated (cut-off) voice messages.
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-                mRecorder.setAudioSamplingRate(24000);
-                mRecorder.setAudioEncodingBitRate(28000);
+                mRecorder.setAudioSamplingRate(24_000);
+                mRecorder.setAudioEncodingBitRate(28_000);
             } else {
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                mRecorder.setAudioSamplingRate(44100);
-                mRecorder.setAudioEncodingBitRate(96000);
+                mRecorder.setAudioSamplingRate(44_100);
+                mRecorder.setAudioEncodingBitRate(96_000);
             }
         }
         setupOutputFile();
@@ -3490,6 +3490,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setupFileObserver(final File directory) {
+        outputFileWrittenLatch = new CountDownLatch(1);
         mFileObserver = new FileObserver(directory.getAbsolutePath()) {
             @Override
             public void onEvent(int event, String s) {
