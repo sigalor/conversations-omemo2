@@ -2227,7 +2227,9 @@ public class ConversationFragment extends XmppFragment
             MenuItem showLog = menu.findItem(R.id.show_edit_log);
             MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
             MenuItem saveFile = menu.findItem(R.id.save_file);
-            onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
+            if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
+            }
             final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError = m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null && !Message.ERROR_MESSAGE_CANCELLED.equals(m.getErrorMessage());
             final Conversational conversational = m.getConversation();
