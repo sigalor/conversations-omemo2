@@ -13,19 +13,16 @@ import android.graphics.BitmapFactory;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.storage.StorageManager;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -38,15 +35,11 @@ import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
 
 import de.monocles.chat.DownloadDefaultStickers;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 
-import de.monocles.chat.SignUpPage;
-import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CameraUtils;
 
 import java.io.Closeable;
@@ -56,7 +49,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -67,7 +59,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import android.provider.MediaStore;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import eu.siacs.conversations.Config;
@@ -221,7 +212,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                         }
                     }
                     Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                    xmppConnectionService.forceRescanStickers();
+                    xmppConnectionService.LoadStickers();
                 } else if(data.getData() != null) {
                     Uri imageUri = data.getData();
                     //do something with the image (save it to some directory or whatever you need to do with it here)
@@ -254,7 +245,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 compressImageToSticker(newSticker, imageUri, 0);
                             }
                             Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                            xmppConnectionService.forceRescanStickers();
+                            xmppConnectionService.LoadStickers();
                         } catch (IOException exception) {
                             Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
                             Log.d(Config.LOGTAG, "Could not import sticker" + exception);

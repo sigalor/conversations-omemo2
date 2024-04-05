@@ -19,18 +19,17 @@ import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
 
 import android.content.pm.ServiceInfo;
-import android.graphics.drawable.AnimatedImageDrawable;
-import android.provider.DocumentsContract;
-import com.google.common.io.Files;
 
 import com.kedia.ogparser.JsoupProxy;
 import com.kedia.ogparser.OpenGraphCallback;
 import com.kedia.ogparser.OpenGraphParser;
 import com.kedia.ogparser.OpenGraphResult;
 
+import de.monocles.chat.GifsAdapter;
+import de.monocles.chat.StickerAdapter;
 import eu.siacs.conversations.ui.ConversationsActivity;
-import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
+import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.xmpp.OnGatewayResult;
 import eu.siacs.conversations.utils.Consumer;
 import java.net.URI;
@@ -70,7 +69,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Messenger;
-import android.os.Parcelable;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
@@ -85,6 +83,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
+import android.view.View;
+import android.widget.AdapterView;
+
 import net.java.otr4j.OtrException;
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionID;
@@ -105,7 +106,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
 
-import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.WebxdcUpdate;
 
 import org.conscrypt.Conscrypt;
@@ -191,7 +191,6 @@ import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
-import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ConversationsFileObserver;
 import eu.siacs.conversations.utils.CryptoHelper;
@@ -239,7 +238,6 @@ import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 import eu.siacs.conversations.xmpp.stanzas.PresencePacket;
 import io.ipfs.cid.Cid;
 import me.leolin.shortcutbadger.ShortcutBadger;
-import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
@@ -301,7 +299,6 @@ public class XmppConnectionService extends Service {
     private final ReplacingSerialSingleThreadExecutor mStickerScanExecutor = new ReplacingSerialSingleThreadExecutor("StickerScan");
     private long mLastActivity = 0;
     private long mLastMucPing = 0;
-    private long mLastStickerRescan = 0;
     public final FileBackend fileBackend = new FileBackend(this);
     private MemorizingTrustManager mMemorizingTrustManager;
     private final NotificationService mNotificationService = new NotificationService(this);
@@ -594,8 +591,53 @@ public class XmppConnectionService extends Service {
     private final BroadcastReceiver mInternalRestrictedEventReceiver = new RestrictedEventReceiver(Arrays.asList(TorServiceUtils.ACTION_STATUS));
 
     private final BroadcastReceiver mInternalScreenEventReceiver = new InternalEventReceiver();
-    private EmojiSearch emojiSearch = null;
 
+    //Stickerspaths
+    private File[] filesStickers;
+    private String[] filesPathsStickers;
+    private String[] filesNamesStickers;
+    File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
+    //Gifspaths
+    private File[] files;
+    private String[] filesPaths;
+    private String[] filesNames;
+    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+
+    public void LoadStickers() {
+        // Load and show Stickers
+        if (!dirStickers.exists()) {
+            dirStickers.mkdir();
+        }
+        if (dirStickers.listFiles() != null) {
+            if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
+                filesStickers = dirStickers.listFiles();
+                filesPathsStickers = new String[filesStickers.length];
+                filesNamesStickers = new String[filesStickers.length];
+                for (int i = 0; i < filesStickers.length; i++) {
+                    filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
+                    filesNamesStickers[i] = filesStickers[i].getName();
+                }
+            }
+        }
+    }
+
+    public void LoadGifs() {
+        // Load and show GIFs
+        if (!dirGifs.exists()) {
+            dirGifs.mkdir();
+        }
+        if (dirGifs.listFiles() != null) {
+            if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+                files = dirGifs.listFiles();
+                filesPaths = new String[files.length];
+                filesNames = new String[files.length];
+                for (int i = 0; i < files.length; i++) {
+                    filesPaths[i] = files[i].getAbsolutePath();
+                    filesNames[i] = files[i].getName();
+                }
+            }
+        }
+    }
 
     private static String generateFetchKey(Account account, final Avatar avatar) {
         return account.getJid().asBareJid() + "_" + avatar.owner + "_" + avatar.sha1sum;
@@ -791,79 +833,6 @@ public class XmppConnectionService extends Service {
                 callback.success(message);
             }
         });
-    }
-
-    private File stickerDir() {
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
-    }
-
-    public void rescanStickers() {
-        long msToRescan = (mLastStickerRescan + 600000L) - SystemClock.elapsedRealtime();
-        if (msToRescan > 0) return;
-        Log.d(Config.LOGTAG, "rescanStickers");
-
-        mLastStickerRescan = SystemClock.elapsedRealtime();
-        mStickerScanExecutor.execute(() -> {
-            try {
-                for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
-                    try {
-                        if (file.isFile() && file.canRead()) {
-                            DownloadableFile df = new DownloadableFile(file.getAbsolutePath());
-                            Drawable icon = fileBackend.getThumbnail(df, getResources(), (int) (getResources().getDisplayMetrics().density * 288), false);
-                            if (Build.VERSION.SDK_INT >= 28 && icon instanceof AnimatedImageDrawable) {
-                                // Animated drawable not working in spans for me yet
-                                // https://stackoverflow.com/questions/76870075/using-animatedimagedrawable-inside-imagespan-renders-wrong-size
-                                continue;
-                            }
-                            final String filename = Files.getNameWithoutExtension(df.getName());
-                            Cid[] cids = fileBackend.calculateCids(new FileInputStream(df));
-                            for (Cid cid : cids) {
-                                saveCid(cid, file);
-                            }
-                            emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
-                        }
-                    } catch (final Exception e) {
-                        Log.w(Config.LOGTAG, "rescanStickers: " + e);
-                    }
-                }
-            } catch (final Exception e) {
-                Log.w(Config.LOGTAG, "rescanStickers: " + e);
-            }
-        });
-    }
-
-    public void forceRescanStickers() {
-        mStickerScanExecutor.execute(() -> {
-            try {
-                for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
-                    try {
-                        if (file.isFile() && file.canRead()) {
-                            DownloadableFile df = new DownloadableFile(file.getAbsolutePath());
-                            Drawable icon = fileBackend.getThumbnail(df, getResources(), (int) (getResources().getDisplayMetrics().density * 288), false);
-                            if (Build.VERSION.SDK_INT >= 28 && icon instanceof AnimatedImageDrawable) {
-                                // Animated drawable not working in spans for me yet
-                                // https://stackoverflow.com/questions/76870075/using-animatedimagedrawable-inside-imagespan-renders-wrong-size
-                                continue;
-                            }
-                            final String filename = Files.getNameWithoutExtension(df.getName());
-                            Cid[] cids = fileBackend.calculateCids(new FileInputStream(df));
-                            for (Cid cid : cids) {
-                                saveCid(cid, file);
-                            }
-                            emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
-                        }
-                    } catch (final Exception e) {
-                        Log.w(Config.LOGTAG, "rescanStickers: " + e);
-                    }
-                }
-            } catch (final Exception e) {
-                Log.w(Config.LOGTAG, "rescanStickers: " + e);
-            }
-        });
-    }
-
-    public EmojiSearch emojiSearch() {
-        return emojiSearch;
     }
 
     public Conversation find(Bookmark bookmark) {
@@ -1696,7 +1665,6 @@ public class XmppConnectionService extends Service {
     @Override
     public void onCreate() {
         org.jxmpp.stringprep.libidn.LibIdnXmppStringprep.setup();
-        emojiSearch = new EmojiSearch(this);
         updateNotificationChannels();
         setTheme(ThemeHelper.find(this));
         ThemeHelper.applyCustomColors(this);
@@ -1816,7 +1784,6 @@ public class XmppConnectionService extends Service {
         toggleForegroundService();
         setupPhoneStateListener();
         internalPingExecutor.scheduleAtFixedRate(this::manageAccountConnectionStatesInternal,10,10,TimeUnit.SECONDS);
-        rescanStickers();
         //start export log service every day at given time
         ScheduleAutomaticExport();
         // cancel scheduled exporter

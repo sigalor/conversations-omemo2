@@ -40,7 +40,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -48,13 +47,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
@@ -82,7 +79,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -101,7 +97,6 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
@@ -148,12 +143,10 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import de.monocles.chat.BobTransfer;
-import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.StickerAdapter;
@@ -308,16 +301,16 @@ public class ConversationFragment extends XmppFragment
     private Toast messageLoaderToast;
     private static ConversationsActivity activity;
     private Menu mOptionsMenu;
-    //Gifspaths
-    private File[] files;
-    private String[] filesPaths;
-    private String[] filesNames;
-    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
     //Stickerspaths
     private File[] filesStickers;
     private String[] filesPathsStickers;
     private String[] filesNamesStickers;
     File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
+    //Gifspaths
+    private File[] files;
+    private String[] filesPaths;
+    private String[] filesNames;
+    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
 
 
 
@@ -333,7 +326,6 @@ public class ConversationFragment extends XmppFragment
     private boolean reInitRequiredOnStart = true;
     private int identiconWidth = -1;
     private File savingAsSticker = null;
-    private EmojiSearch emojiSearch = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
 
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
@@ -835,7 +827,13 @@ public class ConversationFragment extends XmppFragment
             binding.gifsview.setVisibility(GONE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
-
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirStickers.toPath())) {
+                    Toast.makeText(activity, R.string.update_default_stickers, Toast.LENGTH_LONG).show();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.emojisButton.setTypeface(null, Typeface.BOLD);
@@ -1841,63 +1839,8 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why did we do this?
 
-        // Load and show GIFs
-        if (!dirGifs.exists()) {
-            dirGifs.mkdir();
-        }
-        if (dirGifs.listFiles() != null) {
-            if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
-                files = dirGifs.listFiles();
-                filesPaths = new String[files.length];
-                filesNames = new String[files.length];
-                for (int i = 0; i < files.length; i++) {
-                    filesPaths[i] = files[i].getAbsolutePath();
-                    filesNames[i] = files[i].getName();
-                }
-            }
-        }
-        de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
-        // Create an object of CustomAdapter and set Adapter to GirdView
-        GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
-        // implement setOnItemClickListener event on GridView
-        GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity == null) return;
-                String filePath = filesPaths[position];
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                toggleInputMethod();
-            }
-        });
-
-        // Load and show Stickers
-        if (!dirStickers.exists()) {
-            dirStickers.mkdir();
-        }
-        if (dirStickers.listFiles() != null) {
-            if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
-                filesStickers = dirStickers.listFiles();
-                filesPathsStickers = new String[filesStickers.length];
-                filesNamesStickers = new String[filesStickers.length];
-                for (int i = 0; i < filesStickers.length; i++) {
-                    filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
-                    filesNamesStickers[i] = filesStickers[i].getName();
-                }
-            }
-        }
-        de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
-        // Create an object of CustomAdapter and set Adapter to GirdView
-        StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
-        // implement setOnItemClickListener event on GridView
-        StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity == null) return;
-                String filePath = filesPathsStickers[position];
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                toggleInputMethod();
-            }
-        });
+        LoadStickers();
+        LoadGifs();
 
         //Setting hide thread icon
         showThreadFeature();
@@ -1989,6 +1932,69 @@ public class ConversationFragment extends XmppFragment
 
         hasWriteAccessInMUC();
         return binding.getRoot();
+    }
+
+
+    public void LoadStickers() {
+        // Load and show Stickers
+        if (!dirStickers.exists()) {
+            dirStickers.mkdir();
+        }
+        if (dirStickers.listFiles() != null) {
+            if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
+                filesStickers = dirStickers.listFiles();
+                filesPathsStickers = new String[filesStickers.length];
+                filesNamesStickers = new String[filesStickers.length];
+                for (int i = 0; i < filesStickers.length; i++) {
+                    filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
+                    filesNamesStickers[i] = filesStickers[i].getName();
+                }
+            }
+        }
+        de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
+        // Create an object of CustomAdapter and set Adapter to GirdView
+        StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
+        // implement setOnItemClickListener event on GridView
+        StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (activity == null) return;
+                String filePath = filesPathsStickers[position];
+                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                toggleInputMethod();
+            }
+        });
+    }
+
+    public void LoadGifs() {
+        // Load and show GIFs
+        if (!dirGifs.exists()) {
+            dirGifs.mkdir();
+        }
+        if (dirGifs.listFiles() != null) {
+            if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+                files = dirGifs.listFiles();
+                filesPaths = new String[files.length];
+                filesNames = new String[files.length];
+                for (int i = 0; i < files.length; i++) {
+                    filesPaths[i] = files[i].getAbsolutePath();
+                    filesNames[i] = files[i].getName();
+                }
+            }
+        }
+        de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
+        // Create an object of CustomAdapter and set Adapter to GirdView
+        GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
+        // implement setOnItemClickListener event on GridView
+        GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (activity == null) return;
+                String filePath = filesPaths[position];
+                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                toggleInputMethod();
+            }
+        });
     }
 
     protected void newThreadTutorialToast(String s) {
@@ -3769,7 +3775,7 @@ public class ConversationFragment extends XmppFragment
                 out.close();
                 out = null;
                 Toast.makeText(activity,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                activity.xmppConnectionService.forceRescanStickers();
+                activity.xmppConnectionService.LoadStickers();
             } catch (IOException exception) {
                 Toast.makeText(activity,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
                 Log.d(Config.LOGTAG, "Could not import sticker" + exception);
