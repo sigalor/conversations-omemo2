@@ -415,7 +415,7 @@
                                 android:visibility="visible" />
 
                             <de.monocles.chat.GridView
-                                android:id="@+id/stickers"
+                                android:id="@+id/stickersview"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_marginLeft="4dp"
@@ -424,7 +424,7 @@
                                 android:layout_marginRight="4dp"
                                 android:layout_marginTop="4dp"
                                 android:divider="@android:color/transparent"
-                                android:numColumns="14"
+                                android:numColumns="12"
                                 android:dividerHeight="0dp"
                                 android:layout_weight="1"
                                 android:visibility="gone" />

@@ -156,6 +156,7 @@ import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
+import de.monocles.chat.StickerAdapter;
 import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -307,11 +308,17 @@ public class ConversationFragment extends XmppFragment
     private Toast messageLoaderToast;
     private static ConversationsActivity activity;
     private Menu mOptionsMenu;
-    GridView gridView;
+    //Gifspaths
     private File[] files;
     private String[] filesPaths;
     private String[] filesNames;
     File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+    //Stickerspaths
+    private File[] filesStickers;
+    private String[] filesPathsStickers;
+    private String[] filesNamesStickers;
+    File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
+
 
 
     protected OnClickListener clickToVerify = new OnClickListener() {
@@ -717,7 +724,6 @@ public class ConversationFragment extends XmppFragment
                     int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
                     binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
                 });
-                setupStickers();
 
                 if (binding.emojiPicker.getVisibility() == VISIBLE) {
                     binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
@@ -726,7 +732,7 @@ public class ConversationFragment extends XmppFragment
                     binding.emojisButton.setBackgroundColor(0);
                     binding.emojisButton.setTypeface(null, Typeface.NORMAL);
                 }
-                if (binding.stickers.getVisibility() == VISIBLE) {
+                if (binding.stickersview.getVisibility() == VISIBLE) {
                     binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                     binding.stickersButton.setTypeface(null, Typeface.BOLD);
                 } else {
@@ -757,7 +763,6 @@ public class ConversationFragment extends XmppFragment
                     int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
                     binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
                 });
-                setupStickers();
 
                 if (binding.emojiPicker.getVisibility() == VISIBLE) {
                     binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
@@ -766,7 +771,7 @@ public class ConversationFragment extends XmppFragment
                     binding.emojisButton.setBackgroundColor(0);
                     binding.emojisButton.setTypeface(null, Typeface.NORMAL);
                 }
-                if (binding.stickers.getVisibility() == VISIBLE) {
+                if (binding.stickersview.getVisibility() == VISIBLE) {
                     binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                     binding.stickersButton.setTypeface(null, Typeface.BOLD);
                 } else {
@@ -788,7 +793,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(VISIBLE);
-            binding.stickers.setVisibility(GONE);
+            binding.stickersview.setVisibility(GONE);
             binding.gifsview.setVisibility(GONE);
             EmojiPickerView emojiPickerView = binding.emojiPicker;
             backPressedLeaveEmojiPicker.setEnabled(true);
@@ -805,7 +810,7 @@ public class ConversationFragment extends XmppFragment
                 binding.emojisButton.setBackgroundColor(0);
                 binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
-            if (binding.stickers.getVisibility() == VISIBLE) {
+            if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
@@ -826,7 +831,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(GONE);
-            binding.stickers.setVisibility(VISIBLE);
+            binding.stickersview.setVisibility(VISIBLE);
             binding.gifsview.setVisibility(GONE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
@@ -838,7 +843,7 @@ public class ConversationFragment extends XmppFragment
                 binding.emojisButton.setBackgroundColor(0);
                 binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
-            if (binding.stickers.getVisibility() == VISIBLE) {
+            if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
@@ -870,7 +875,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(GONE);
-            binding.stickers.setVisibility(GONE);
+            binding.stickersview.setVisibility(GONE);
             binding.gifsview.setVisibility(VISIBLE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
@@ -888,7 +893,7 @@ public class ConversationFragment extends XmppFragment
                 binding.emojisButton.setBackgroundColor(0);
                 binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
-            if (binding.stickers.getVisibility() == VISIBLE) {
+            if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
@@ -1836,7 +1841,6 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why did we do this?
 
-
         // Load and show GIFs
         if (!dirGifs.exists()) {
             dirGifs.mkdir();
@@ -1861,6 +1865,35 @@ public class ConversationFragment extends XmppFragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (activity == null) return;
                 String filePath = filesPaths[position];
+                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                toggleInputMethod();
+            }
+        });
+
+        // Load and show Stickers
+        if (!dirStickers.exists()) {
+            dirStickers.mkdir();
+        }
+        if (dirStickers.listFiles() != null) {
+            if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
+                filesStickers = dirStickers.listFiles();
+                filesPathsStickers = new String[filesStickers.length];
+                filesNamesStickers = new String[filesStickers.length];
+                for (int i = 0; i < filesStickers.length; i++) {
+                    filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
+                    filesNamesStickers[i] = filesStickers[i].getName();
+                }
+            }
+        }
+        de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
+        // Create an object of CustomAdapter and set Adapter to GirdView
+        StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
+        // implement setOnItemClickListener event on GridView
+        StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (activity == null) return;
+                String filePath = filesPathsStickers[position];
                 mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
                 toggleInputMethod();
             }
@@ -1951,50 +1984,12 @@ public class ConversationFragment extends XmppFragment
         });
 
         final Pattern lastColonPattern = Pattern.compile("");
-        binding.stickers.setOnItemClickListener((parent, view, position, id) -> {
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickers.getAdapter());
-            Editable toInsert = adapter.getItem(position).toInsert();
-            toInsert.append(" ");
-            Editable s = binding.textinput.getText();
 
-            Matcher lastColonMatcher = lastColonPattern.matcher(s);
-            int lastColon = 0;
-            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
-        });
-
-        setupStickers();
         updateinputfield(canSendMeCommand());
 
         hasWriteAccessInMUC();
         return binding.getRoot();
     }
-
-    protected void setupStickers() {
-        if (emojiSearch == null && activity != null && activity.xmppConnectionService != null) {
-            emojiSearch = activity.xmppConnectionService.emojiSearch();
-        }
-        if (emojiSearch == null || binding.stickers == null) return;
-
-        binding.stickers.setAdapter(emojiSearch.makeAdapter(activity));
-
-        final Pattern lastColonPattern = Pattern.compile("");
-        Editable s = binding.textinput.getText();
-        Handler emojiDebounce = new Handler(Looper.getMainLooper());
-        emojiDebounce.removeCallbacksAndMessages(null);
-        emojiDebounce.postDelayed(() -> {
-            Matcher lastColonMatcher = lastColonPattern.matcher(s);
-            int lastColon = 0;
-            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-
-            final String q = s.toString().substring(lastColon);
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickers.getAdapter());
-            if (adapter != null) {
-                adapter.search(q);
-            }
-        }, 400L);
-    }
-
 
     protected void newThreadTutorialToast(String s) {
         if (activity == null) return;
@@ -3961,7 +3956,7 @@ public class ConversationFragment extends XmppFragment
             binding.emojisButton.setBackgroundColor(0);
             binding.emojisButton.setTypeface(null, Typeface.NORMAL);
         }
-        if (binding.stickers.getVisibility() == VISIBLE) {
+        if (binding.stickersview.getVisibility() == VISIBLE) {
             binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
             binding.stickersButton.setTypeface(null, Typeface.BOLD);
         } else {
@@ -5307,7 +5302,6 @@ public class ConversationFragment extends XmppFragment
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
         updateinputfield(canSendMeCommand());
-        setupStickers();
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
