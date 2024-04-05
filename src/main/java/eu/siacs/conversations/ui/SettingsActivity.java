@@ -190,13 +190,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                             InputStream in;
                             OutputStream out;
                             try {
-                                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "Custom");
+                                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
                                 //create output directory if it doesn't exist
                                 if (!stickerfolder.exists()) {
                                     stickerfolder.mkdirs();
                                 }
                                 String filename = getFileName(imageUri);
-                                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "Custom" + File.separator + filename);
+                                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + filename);
 
                                 in = getContentResolver().openInputStream(imageUri);
                                 out = new FileOutputStream(newSticker);
@@ -229,13 +229,13 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                         InputStream in;
                         OutputStream out;
                         try {
-                            File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "Custom");
+                            File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
                             //create output directory if it doesn't exist
                             if (!stickerfolder.exists()) {
                                 stickerfolder.mkdirs();
                             }
                             String filename = getFileName(imageUri);
-                            File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "Custom" + File.separator + filename);
+                            File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + filename);
 
                             in = getContentResolver().openInputStream(imageUri);
                             out = new FileOutputStream(newSticker);

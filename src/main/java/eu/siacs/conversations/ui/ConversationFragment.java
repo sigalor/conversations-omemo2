@@ -3746,14 +3746,14 @@ public class ConversationFragment extends XmppFragment
             InputStream in;
             OutputStream out;
             try {
-                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User");
+                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
                 //create output directory if it doesn't exist
                 if (!stickerfolder.exists()) {
                     stickerfolder.mkdirs();
                 }
 
                 String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
-                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User" + File.separator + filename + ".jpg");
+                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + filename + ".jpg");
 
                 in = activity.getContentResolver().openInputStream(imageUri);
                 out = new FileOutputStream(newSticker);

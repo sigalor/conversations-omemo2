@@ -103,7 +103,7 @@ public class DownloadDefaultStickers extends Service {
         Response r = http.newCall(new Request.Builder().url(sticker.getString("url")).build()).execute();
         File file = null;
         try {
-            file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
+            file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
             file.getParentFile().mkdirs();
             OutputStream os = new FileOutputStream(file);
             if (r.body() != null) {
