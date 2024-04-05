@@ -24,7 +24,11 @@ public class StickerAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return filesNamesStickers.length;
+        if (filesNamesStickers != null) {
+            return filesNamesStickers.length;
+        } else {
+            return 0;
+        }
     }
 
     @Override

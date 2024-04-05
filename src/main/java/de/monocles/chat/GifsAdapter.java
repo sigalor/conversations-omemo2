@@ -24,7 +24,11 @@ public class GifsAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return filesNames.length;
+        if (filesNames != null) {
+            return filesNames.length;
+        } else {
+            return 0;
+        }
     }
 
     @Override
