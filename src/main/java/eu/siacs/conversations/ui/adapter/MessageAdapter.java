@@ -87,6 +87,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -130,6 +131,7 @@ import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.GeoHelper;
 import eu.siacs.conversations.utils.MessageUtils;
+import eu.siacs.conversations.utils.MimeUtils;
 import eu.siacs.conversations.utils.RichPreview;
 import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.utils.ThemeHelper;
@@ -818,7 +820,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     StylingHelper.highlight(activity, body, highlightedTerm, StylingHelper.isDarkText(viewHolder.messageBody));
                 }
             }
-            if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true) && (isFirstImageQuote || isSecondImageQuote || isOmemoImageQuote) && containsLink(body.toString())) {
+            if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true) && (isFirstImageQuote || isSecondImageQuote || isOmemoImageQuote) && Objects.equals(MimeUtils.guessMimeTypeFromUri(activity, Uri.parse(body.toString())), "image/*") || Objects.equals(MimeUtils.guessMimeTypeFromUri(activity, Uri.parse(body.toString())), "video/*")) {
                 List<String> uri = extractUrls(body.toString());
                 for (String imageurl : uri) {
                     if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
