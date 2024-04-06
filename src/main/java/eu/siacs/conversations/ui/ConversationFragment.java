@@ -49,6 +49,7 @@ import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -1552,7 +1553,7 @@ public class ConversationFragment extends XmppFragment
             savingAsSticker = null;
             try {
                 activity.xmppConnectionService.getFileBackend().copyFileToDocumentFile(activity, f, df);
-                Toast.makeText(activity, "Sticker saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.sticker_saved, Toast.LENGTH_SHORT).show();
             } catch (final FileBackend.FileCopyException e) {
                 Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
             }
@@ -3747,41 +3748,31 @@ public class ConversationFragment extends XmppFragment
 
     private void saveAsSticker(final File file, final String name) {
         savingAsSticker = file;
-        Uri imageUri = Uri.fromFile(file);
-        //do something with the image (save it to some directory or whatever you need to do with it here)
-        if (imageUri != null) {
-            InputStream in;
-            OutputStream out;
-            try {
-                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
-                //create output directory if it doesn't exist
-                if (!stickerfolder.exists()) {
-                    stickerfolder.mkdirs();
-                }
 
-                String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
-                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + filename + ".jpg");
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
+        intent.putExtra(Intent.EXTRA_TITLE, name);
 
-                in = activity.getContentResolver().openInputStream(imageUri);
-                out = new FileOutputStream(newSticker);
-                byte[] buffer = new byte[4096];
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
-                }
-                in.close();
-                in = null;
-                // write the output file
-                out.flush();
-                out.close();
-                out = null;
-                Toast.makeText(activity,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                activity.xmppConnectionService.LoadStickers();
-            } catch (IOException exception) {
-                Toast.makeText(activity,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
-                Log.d(Config.LOGTAG, "Could not import sticker" + exception);
+        final String dir = "Stickers";
+        if (dir.startsWith("content://")) {
+            intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
+        } else {
+            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers").mkdirs();
+            Uri uri;
+            if (Build.VERSION.SDK_INT >= 29) {
+                Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
+                uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
+                uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
+            } else {
+                uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2F" + "monocles chat%2F" + dir);
             }
+            intent.putExtra("android.provider.extra.INITIAL_URI", uri);
+            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
         }
+
+        Toast.makeText(activity, R.string.choose_sticker_name, Toast.LENGTH_SHORT).show();
+        startActivityForResult(Intent.createChooser(intent, "Choose sticker name"), REQUEST_SAVE_STICKER);
     }
 
     private void deleteFile(final Message message) {
