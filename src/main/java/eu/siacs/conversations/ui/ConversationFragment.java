@@ -267,6 +267,7 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_START_AUDIO_CALL = 0x213;
     public static final int REQUEST_START_VIDEO_CALL = 0x214;
     public static final int REQUEST_SAVE_STICKER = 0x215;
+    public static final int REQUEST_SAVE_GIF = 0x216;
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
@@ -328,6 +329,7 @@ public class ConversationFragment extends XmppFragment
     private boolean reInitRequiredOnStart = true;
     private int identiconWidth = -1;
     private File savingAsSticker = null;
+    private File savingAsGif = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
 
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
@@ -1557,6 +1559,16 @@ public class ConversationFragment extends XmppFragment
             } catch (final FileBackend.FileCopyException e) {
                 Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
             }
+        } else if (requestCode == REQUEST_SAVE_GIF) {
+            final DocumentFile df = DocumentFile.fromSingleUri(activity, data.getData());
+            final File f = savingAsGif;
+            savingAsGif = null;
+            try {
+                activity.xmppConnectionService.getFileBackend().copyFileToDocumentFile(activity, f, df);
+                Toast.makeText(activity, R.string.gif_saved, Toast.LENGTH_SHORT).show();
+            } catch (final FileBackend.FileCopyException e) {
+                Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
+            }
         } else if (requestCode == REQUEST_TRUST_KEYS_TEXT) {
             sendMessage();
         } else if (requestCode == REQUEST_TRUST_KEYS_ATTACHMENTS) {
@@ -2225,6 +2237,7 @@ public class ConversationFragment extends XmppFragment
             MenuItem sendAgain = menu.findItem(R.id.send_again);
             MenuItem copyUrl = menu.findItem(R.id.copy_url);
             MenuItem saveAsSticker = menu.findItem(R.id.save_as_sticker);
+            MenuItem saveAsGif = menu.findItem(R.id.save_as_gif);
             MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
             MenuItem downloadFile = menu.findItem(R.id.download_file);
             MenuItem blockMedia = menu.findItem(R.id.block_media);
@@ -2305,7 +2318,12 @@ public class ConversationFragment extends XmppFragment
             if (m.isFileOrImage() && !fileDeleted && !cancelable) {
                 final String path = m.getRelativeFilePath();
                 Log.d(Config.LOGTAG, "Path = " + path);
-                if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
+                if ((path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) && Objects.equals(MimeUtils.guessMimeTypeFromUri(activity, Uri.parse(path)), "image/gif")) {
+                    saveAsGif.setVisible(true);
+                    blockMedia.setVisible(true);
+                    deleteFile.setVisible(true);
+                    deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
+                } else if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
                     saveAsSticker.setVisible(true);
                     blockMedia.setVisible(true);
                     deleteFile.setVisible(true);
@@ -2416,6 +2434,9 @@ public class ConversationFragment extends XmppFragment
             return true;
         } else if (itemId == R.id.save_as_sticker) {
             saveAsSticker(selectedMessage);
+            return true;
+        } else if (itemId == R.id.save_as_gif) {
+            saveAsGif(selectedMessage);
             return true;
         } else if (itemId == R.id.download_file) {
             startDownloadable(selectedMessage);
@@ -3763,7 +3784,9 @@ public class ConversationFragment extends XmppFragment
             if (Build.VERSION.SDK_INT >= 29) {
                 Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
                 uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
-                uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
+                if (uri != null) {
+                    uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
+                }
             } else {
                 uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2F" + "monocles chat%2F" + dir);
             }
@@ -3773,6 +3796,43 @@ public class ConversationFragment extends XmppFragment
 
         Toast.makeText(activity, R.string.choose_sticker_name, Toast.LENGTH_SHORT).show();
         startActivityForResult(Intent.createChooser(intent, "Choose sticker name"), REQUEST_SAVE_STICKER);
+    }
+
+    private void saveAsGif(final Message m) {
+        String existingName = m.getFileParams() != null && m.getFileParams().getName() != null ? m.getFileParams().getName() : "";
+        existingName = existingName.lastIndexOf(".") == -1 ? existingName : existingName.substring(0, existingName.lastIndexOf("."));
+        saveAsGif(activity.xmppConnectionService.getFileBackend().getFile(m), existingName);
+    }
+
+    private void saveAsGif(final File file, final String name) {
+        savingAsGif = file;
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
+        intent.putExtra(Intent.EXTRA_TITLE, name);
+
+        final String dir = "GIFs";
+        if (dir.startsWith("content://")) {
+            intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
+        } else {
+            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers").mkdirs();
+            Uri uri;
+            if (Build.VERSION.SDK_INT >= 29) {
+                Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
+                uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
+                if (uri != null) {
+                    uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
+                }
+            } else {
+                uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2F" + "monocles chat%2F" + dir);
+            }
+            intent.putExtra("android.provider.extra.INITIAL_URI", uri);
+            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
+        }
+
+        Toast.makeText(activity, R.string.choose_gif_name, Toast.LENGTH_SHORT).show();
+        startActivityForResult(Intent.createChooser(intent, "Choose sticker name"), REQUEST_SAVE_GIF);
     }
 
     private void deleteFile(final Message message) {

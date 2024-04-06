@@ -1428,4 +1428,7 @@
     <string name="gifs">GIFs</string>
     <string name="copy_GIFs_to_GIFs_folder">Copy GIFs to Documents/monocles chat/GIFs/</string>
     <string name="choose_sticker_name">Choose a sticker name without ending</string>
+    <string name="save_as_gif">Save as GIF</string>
+    <string name="choose_gif_name">Choose a name for the GIF</string>
+    <string name="gif_saved">GIF saved</string>
 </resources>
