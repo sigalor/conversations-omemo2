@@ -15,6 +15,7 @@ import static eu.siacs.conversations.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSAT
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
+import static eu.siacs.conversations.utils.Compatibility.hasStoragePermission;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.audioGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.cameraGranted;
@@ -1926,8 +1927,6 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
-        final Pattern lastColonPattern = Pattern.compile("");
-
         updateinputfield(canSendMeCommand());
 
         hasWriteAccessInMUC();
@@ -1936,6 +1935,7 @@ public class ConversationFragment extends XmppFragment
 
 
     public void LoadStickers() {
+        if (!hasStoragePermission(activity)) return;
         // Load and show Stickers
         if (!dirStickers.exists()) {
             dirStickers.mkdir();
@@ -1967,6 +1967,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void LoadGifs() {
+        if (!hasStoragePermission(activity)) return;
         // Load and show GIFs
         if (!dirGifs.exists()) {
             dirGifs.mkdir();

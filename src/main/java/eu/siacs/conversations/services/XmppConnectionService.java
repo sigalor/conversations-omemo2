@@ -14,6 +14,7 @@ import static eu.siacs.conversations.ui.SettingsActivity.ENABLE_MULTI_ACCOUNTS;
 import static eu.siacs.conversations.ui.SettingsActivity.INDICATE_RECEIVED;
 import static eu.siacs.conversations.ui.SettingsActivity.SHOW_OWN_ACCOUNTS;
 import static eu.siacs.conversations.ui.SettingsActivity.USE_INNER_STORAGE;
+import static eu.siacs.conversations.utils.Compatibility.hasStoragePermission;
 import static eu.siacs.conversations.utils.RichPreview.RICH_LINK_METADATA;
 import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
@@ -604,6 +605,7 @@ public class XmppConnectionService extends Service {
     File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
 
     public void LoadStickers() {
+        if (!hasStoragePermission(this)) return;
         // Load and show Stickers
         if (!dirStickers.exists()) {
             dirStickers.mkdir();
@@ -622,6 +624,7 @@ public class XmppConnectionService extends Service {
     }
 
     public void LoadGifs() {
+        if (!hasStoragePermission(this)) return;
         // Load and show GIFs
         if (!dirGifs.exists()) {
             dirGifs.mkdir();
