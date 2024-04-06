@@ -1000,7 +1000,7 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener mShareVoiceRecord = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            //binding.shareButton.setEnabled(false);        // TODO: Activate again
+            binding.shareButton.setEnabled(false);        // TODO: Activate again
             //binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
             mHandler.postDelayed(() -> stopRecording(true), 100);
@@ -3292,6 +3292,7 @@ public class ConversationFragment extends XmppFragment
 
     public void recordVoice() {
         this.binding.recordingVoiceActivity.setVisibility(View.VISIBLE);
+        this.binding.recordVoiceButton.setEnabled(false);
         if (!startRecording()) {
             this.binding.shareButton.setEnabled(false);
             this.binding.timer.setTextAppearance(activity, R.style.TextAppearance_Conversations_Title);
@@ -3359,6 +3360,8 @@ public class ConversationFragment extends XmppFragment
         } catch (Exception e) {
             e.printStackTrace();
         }
+        binding.recordVoiceButton.setEnabled(true);
+        binding.shareButton.setEnabled(true);
     }
 
     private void StartTimerAnimation() {
@@ -3423,6 +3426,8 @@ public class ConversationFragment extends XmppFragment
         }
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         activity.setRequestedOrientation(oldOrientation);
+        binding.recordVoiceButton.setEnabled(true);
+        binding.shareButton.setEnabled(true);
     }
 
     private class Finisher implements Runnable {
