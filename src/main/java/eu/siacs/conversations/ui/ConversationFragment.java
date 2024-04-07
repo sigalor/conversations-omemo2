@@ -41,6 +41,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.media.MediaRecorder;
+import android.media.MicrophoneDirection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -3347,6 +3348,12 @@ public class ConversationFragment extends XmppFragment
         activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mRecorder.setPreferredMicrophoneDirection(MicrophoneDirection.MIC_DIRECTION_TOWARDS_USER);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mRecorder.setPrivacySensitive(true);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
