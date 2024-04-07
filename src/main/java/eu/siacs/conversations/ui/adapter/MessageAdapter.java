@@ -1720,7 +1720,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             public void onOpen(SwipeLayout layout) {
                 swipeLayout.refreshDrawableState();
                 //when the BottomView totally show.
-                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
+                if (mOnMessageBoxSwipedListener != null) mOnMessageBoxSwipedListener.onContactPictureClicked(message);
                 swipeLayout.close(true);
                 swipeLayout.setClickToClose(true);
             }
