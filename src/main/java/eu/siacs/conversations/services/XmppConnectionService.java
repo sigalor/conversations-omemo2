@@ -6350,7 +6350,8 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean isOnboarding() {
-        return getAccounts().size() == 1 && getAccounts().get(0).getJid().getDomain().equals(Config.ONBOARDING_DOMAIN);
+        // return getAccounts().size() == 1 && getAccounts().get(0).getJid().getDomain().equals(Config.ONBOARDING_DOMAIN);
+        return false;
     }
 
     public interface OnMamPreferencesFetched {
