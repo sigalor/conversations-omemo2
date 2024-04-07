@@ -2071,15 +2071,17 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void showRecordVoiceButton() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        final boolean hideVoiceAndTakePicture = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
-        Log.d(Config.LOGTAG, "Recorder " + hideVoiceAndTakePicture);
-        if (!hideVoiceAndTakePicture || binding.textinput.getText().length() > 0) {
-            binding.recordVoiceButton.setVisibility(GONE);
-            binding.takePictureButton.setVisibility(GONE);
-        } else if (hideVoiceAndTakePicture && binding.textinput.getText().length() < 1) {
-            binding.recordVoiceButton.setVisibility(View.VISIBLE);
-            binding.takePictureButton.setVisibility(View.VISIBLE);
+        if (activity != null && binding != null) {
+            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
+            final boolean hideVoiceAndTakePicture = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
+            Log.d(Config.LOGTAG, "Recorder " + hideVoiceAndTakePicture);
+            if (!hideVoiceAndTakePicture || binding.textinput.getText().length() > 0) {
+                binding.recordVoiceButton.setVisibility(GONE);
+                binding.takePictureButton.setVisibility(GONE);
+            } else if (hideVoiceAndTakePicture && binding.textinput.getText().length() < 1) {
+                binding.recordVoiceButton.setVisibility(View.VISIBLE);
+                binding.takePictureButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
