@@ -14,7 +14,9 @@
                 android:name="page"
                 android:value="userinterface" />
         </intent>
-        <PreferenceCategory android:title="@string/pref_theme_options">
+        <PreferenceCategory
+            android:key="theme_category"
+            android:title="@string/pref_theme_options">
             <ListPreference
                 android:defaultValue="@string/theme"
                 android:entries="@array/themes"
