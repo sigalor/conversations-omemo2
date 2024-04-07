@@ -2158,9 +2158,9 @@ public class ConversationFragment extends XmppFragment
         if ((message.isFileOrImage() || message.isOOb()) && binding.imageReplyPreview != null) {
             binding.imageReplyPreview.setVisibility(VISIBLE);
             if (activity.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                Glide.with(activity).load(message.getRelativeFilePath()).placeholder(R.drawable.ic_image_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
+                Glide.with(activity).load(message.getRelativeFilePath()).placeholder(R.drawable.ic_file_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
             } else {
-                Glide.with(activity).asBitmap().load(message.getRelativeFilePath()).placeholder(R.drawable.ic_image_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
+                Glide.with(activity).asBitmap().load(message.getRelativeFilePath()).placeholder(R.drawable.ic_file_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
             }
         } else if (binding.imageReplyPreview != null) {
             Glide.with(activity).clear(binding.imageReplyPreview);
