@@ -135,8 +135,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     public static final int REQUEST_IMPORT_SETTINGS = 0xbf8703;
     public static final int REQUEST_IMPORT_BACKGROUND = 0xbf8704;
     public static final int REQUEST_IMPORT_STICKERS = 0xbf8705;
-    public static final int REQUEST_CODE_CREATE_LOCK = 0xbf8706;
-    public static final int REQUEST_CODE_DELETE_LOCK = 0xbf8707;
+    public static final int REQUEST_IMPORT_GIFS = 0xbf8706;
 
     Preference multiAccountPreference;
     Preference autoMessageExpiryPreference;
@@ -171,6 +170,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // Import and compress stickers
         if(requestCode == REQUEST_IMPORT_STICKERS) {
             if(resultCode == RESULT_OK) {
                 if(data.getClipData() != null) {
@@ -212,7 +212,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                         }
                     }
                     Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                    xmppConnectionService.LoadStickers();
+                    xmppConnectionService.LoadStickers();       //TODO: Check again if really needed
                 } else if(data.getData() != null) {
                     Uri imageUri = data.getData();
                     //do something with the image (save it to some directory or whatever you need to do with it here)
@@ -245,10 +245,89 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
                                 compressImageToSticker(newSticker, imageUri, 0);
                             }
                             Toast.makeText(this,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                            xmppConnectionService.LoadStickers();
+                            xmppConnectionService.LoadStickers();       //TODO: Check again if really needed
                         } catch (IOException exception) {
                             Toast.makeText(this,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
                             Log.d(Config.LOGTAG, "Could not import sticker" + exception);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Import GIFs
+        if(requestCode == REQUEST_IMPORT_GIFS) {
+            if(resultCode == RESULT_OK) {
+                if(data.getClipData() != null) {
+                    for(int i = 0; i < data.getClipData().getItemCount(); i++) {
+                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                        //do something with the image (save it to some directory or whatever you need to do with it here)
+                        if (imageUri != null) {
+                            InputStream in;
+                            OutputStream out;
+                            try {
+                                File gifsfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+                                //create output directory if it doesn't exist
+                                if (!gifsfolder.exists()) {
+                                    gifsfolder.mkdirs();
+                                }
+                                String filename = getFileName(imageUri);
+                                File newGif = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs" + File.separator + filename);
+
+                                in = getContentResolver().openInputStream(imageUri);
+                                out = new FileOutputStream(newGif);
+                                byte[] buffer = new byte[4096];
+                                int read;
+                                while ((read = in.read(buffer)) != -1) {
+                                    out.write(buffer, 0, read);
+                                }
+                                in.close();
+                                in = null;
+                                // write the output file
+                                out.flush();
+                                out.close();
+                                out = null;
+                            } catch (IOException exception) {
+                                Toast.makeText(this,R.string.import_gif_failed,Toast.LENGTH_LONG).show();
+                                Log.d(Config.LOGTAG, "Could not import GIF" + exception);
+                            }
+                        }
+                    }
+                    Toast.makeText(this,R.string.gif_imported,Toast.LENGTH_LONG).show();
+                    xmppConnectionService.LoadGifs();       //TODO: Check again if really needed
+                } else if(data.getData() != null) {
+                    Uri imageUri = data.getData();
+                    //do something with the image (save it to some directory or whatever you need to do with it here)
+                    if (imageUri != null) {
+                        InputStream in;
+                        OutputStream out;
+                        try {
+                            File gifsfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+                            //create output directory if it doesn't exist
+                            if (!gifsfolder.exists()) {
+                                gifsfolder.mkdirs();
+                            }
+                            String filename = getFileName(imageUri);
+                            File newGif = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs" + File.separator + filename);
+
+                            in = getContentResolver().openInputStream(imageUri);
+                            out = new FileOutputStream(newGif);
+                            byte[] buffer = new byte[4096];
+                            int read;
+                            while ((read = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, read);
+                            }
+                            in.close();
+                            in = null;
+                            // write the output file
+                            out.flush();
+                            out.close();
+                            out = null;
+                            Toast.makeText(this,R.string.gif_imported,Toast.LENGTH_LONG).show();
+                            xmppConnectionService.LoadGifs();       //TODO: Check again if really needed
+                        } catch (IOException exception) {
+                            Toast.makeText(this,R.string.import_gif_failed,Toast.LENGTH_LONG).show();
+                            Log.d(Config.LOGTAG, "Could not import gif" + exception);
                         }
                     }
                 }
@@ -1088,6 +1167,18 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
             );
         }
 
+        final Preference importOwnGifs = mSettingsFragment.findPreference("import_own_gifs");
+        if (importOwnGifs != null) {
+            importOwnGifs.setOnPreferenceClickListener(
+                preference -> {
+                    if (hasStoragePermission(REQUEST_IMPORT_GIFS)) {
+                        importGifs();
+                    }
+                    return true;
+                }
+            );
+        }
+
         final Preference clearBlockedMedia = mSettingsFragment.findPreference("clear_blocked_media");
         if (clearBlockedMedia != null) {
             clearBlockedMedia.setOnPreferenceClickListener((p) -> {
@@ -1108,8 +1199,16 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*"); //allows any image file type. Change * to specific extension to limit it
         //**These following line is the important one!
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);    //TODO: Change this to true as soon as it works
-        startActivityForResult(Intent.createChooser(intent, "Select an image"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select images"), REQUEST_IMPORT_STICKERS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
+    }
+
+    private void importGifs() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/gif"); //allows any image file type. Change * to specific extension to limit it
+        //**These following line is the important one!
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select GIFs"), REQUEST_IMPORT_GIFS); //REQUEST_IMPORT_STICKERS is simply a global int used to check the calling intent in onActivityResult
     }
 
     private void updateTheme() {

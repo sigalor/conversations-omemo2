@@ -7,7 +7,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.persistance.FileBackend.SENT_AUDIOS;
-import static eu.siacs.conversations.persistance.FileBackend.getFileType;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 import static eu.siacs.conversations.ui.SettingsActivity.WARN_UNENCRYPTED_CHAT;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -118,11 +117,10 @@ import net.java.otr4j.session.SessionStatus;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -1977,6 +1975,21 @@ public class ConversationFragment extends XmppFragment
                 toggleInputMethod();
             }
         });
+
+        StickersGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (activity != null && filesPathsStickers[position] != null) {
+                    File file = new File(filesPathsStickers[position]);
+                    if (file.delete()) {
+                        Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
+                    }
+                }
+                return true;
+            }
+        });
     }
 
     public void LoadGifs() {
@@ -2007,6 +2020,21 @@ public class ConversationFragment extends XmppFragment
                 String filePath = filesPaths[position];
                 mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
                 toggleInputMethod();
+            }
+        });
+
+        GifsGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (activity != null && filesPaths[position] != null) {
+                    File file = new File(filesPaths[position]);
+                    if (file.delete()) {
+                        Toast.makeText(activity, R.string.gif_deleted, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(activity, R.string.failed_to_delete_gif, Toast.LENGTH_LONG).show();
+                    }
+                }
+                return true;
             }
         });
     }
