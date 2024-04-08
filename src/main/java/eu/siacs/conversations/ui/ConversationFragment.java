@@ -1947,96 +1947,100 @@ public class ConversationFragment extends XmppFragment
 
 
     public void LoadStickers() {
-        if (!hasStoragePermission(activity)) return;
-        // Load and show Stickers
-        if (!dirStickers.exists()) {
-            dirStickers.mkdir();
-        }
-        if (dirStickers.listFiles() != null) {
-            if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
-                filesStickers = dirStickers.listFiles();
-                filesPathsStickers = new String[filesStickers.length];
-                filesNamesStickers = new String[filesStickers.length];
-                for (int i = 0; i < filesStickers.length; i++) {
-                    filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
-                    filesNamesStickers[i] = filesStickers[i].getName();
-                }
+        activity.runOnUiThread(() -> {
+            if (!hasStoragePermission(activity)) return;
+            // Load and show Stickers
+            if (!dirStickers.exists()) {
+                dirStickers.mkdir();
             }
-        }
-        de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
-        // Create an object of CustomAdapter and set Adapter to GirdView
-        StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
-        // implement setOnItemClickListener event on GridView
-        StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity == null) return;
-                String filePath = filesPathsStickers[position];
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                toggleInputMethod();
-            }
-        });
-
-        StickersGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity != null && filesPathsStickers[position] != null) {
-                    File file = new File(filesPathsStickers[position]);
-                    if (file.delete()) {
-                        Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
+            if (dirStickers.listFiles() != null) {
+                if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
+                    filesStickers = dirStickers.listFiles();
+                    filesPathsStickers = new String[filesStickers.length];
+                    filesNamesStickers = new String[filesStickers.length];
+                    for (int i = 0; i < filesStickers.length; i++) {
+                        filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
+                        filesNamesStickers[i] = filesStickers[i].getName();
                     }
                 }
-                return true;
             }
+            de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
+            // Create an object of CustomAdapter and set Adapter to GirdView
+            StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
+            // implement setOnItemClickListener event on GridView
+            StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity == null) return;
+                    String filePath = filesPathsStickers[position];
+                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                    toggleInputMethod();
+                }
+            });
+
+            StickersGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity != null && filesPathsStickers[position] != null) {
+                        File file = new File(filesPathsStickers[position]);
+                        if (file.delete()) {
+                            Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    return true;
+                }
+            });
         });
     }
 
     public void LoadGifs() {
-        if (!hasStoragePermission(activity)) return;
-        // Load and show GIFs
-        if (!dirGifs.exists()) {
-            dirGifs.mkdir();
-        }
-        if (dirGifs.listFiles() != null) {
-            if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
-                files = dirGifs.listFiles();
-                filesPaths = new String[files.length];
-                filesNames = new String[files.length];
-                for (int i = 0; i < files.length; i++) {
-                    filesPaths[i] = files[i].getAbsolutePath();
-                    filesNames[i] = files[i].getName();
-                }
+        activity.runOnUiThread(() -> {
+            if (!hasStoragePermission(activity)) return;
+            // Load and show GIFs
+            if (!dirGifs.exists()) {
+                dirGifs.mkdir();
             }
-        }
-        de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
-        // Create an object of CustomAdapter and set Adapter to GirdView
-        GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
-        // implement setOnItemClickListener event on GridView
-        GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity == null) return;
-                String filePath = filesPaths[position];
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                toggleInputMethod();
-            }
-        });
-
-        GifsGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity != null && filesPaths[position] != null) {
-                    File file = new File(filesPaths[position]);
-                    if (file.delete()) {
-                        Toast.makeText(activity, R.string.gif_deleted, Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(activity, R.string.failed_to_delete_gif, Toast.LENGTH_LONG).show();
+            if (dirGifs.listFiles() != null) {
+                if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+                    files = dirGifs.listFiles();
+                    filesPaths = new String[files.length];
+                    filesNames = new String[files.length];
+                    for (int i = 0; i < files.length; i++) {
+                        filesPaths[i] = files[i].getAbsolutePath();
+                        filesNames[i] = files[i].getName();
                     }
                 }
-                return true;
             }
+            de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
+            // Create an object of CustomAdapter and set Adapter to GirdView
+            GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
+            // implement setOnItemClickListener event on GridView
+            GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity == null) return;
+                    String filePath = filesPaths[position];
+                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                    toggleInputMethod();
+                }
+            });
+
+            GifsGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity != null && filesPaths[position] != null) {
+                        File file = new File(filesPaths[position]);
+                        if (file.delete()) {
+                            Toast.makeText(activity, R.string.gif_deleted, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(activity, R.string.failed_to_delete_gif, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    return true;
+                }
+            });
         });
     }
 
