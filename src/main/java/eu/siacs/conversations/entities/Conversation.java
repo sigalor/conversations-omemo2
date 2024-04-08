@@ -2958,7 +2958,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             } else {
                                 viewType = TYPE_CHECKBOX_FIELD;
                             }
-                        } else if (fieldType.equals("list-single")) {
                         } else if (
                                 range != null && range.getAttribute("min") != null && range.getAttribute("max") != null && (
                                         "xs:integer".equals(datatype) || "xs:int".equals(datatype) || "xs:long".equals(datatype) || "xs:short".equals(datatype) || "xs:byte".equals(datatype) ||
@@ -2967,6 +2966,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                         ) {
                             // has a range and is numeric, use a slider
                             viewType = TYPE_SLIDER_FIELD;
+                        } else if (fieldType.equals("list-single")) {
                             if (fillableFieldCount == 1 && actionsAdapter.countProceed() < 1 && Option.forField(el).size() < 50) {
                                 viewType = TYPE_BUTTON_GRID_FIELD;
                             } else if (Option.forField(el).size() > 9) {
@@ -3421,71 +3421,71 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
             @Override
             public ViewHolder onCreateViewHolder(ViewGroup container, int viewType) {
-                switch(viewType) {
-                    case TYPE_ERROR: {
+                return switch (viewType) {
+                    case TYPE_ERROR -> {
                         CommandNoteBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_note, container, false);
-                        return new ErrorViewHolder(binding);
+                        yield new ErrorViewHolder(binding);
                     }
-                    case TYPE_NOTE: {
+                    case TYPE_NOTE -> {
                         CommandNoteBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_note, container, false);
-                        return new NoteViewHolder(binding);
+                        yield new NoteViewHolder(binding);
                     }
-                    case TYPE_WEB: {
+                    case TYPE_WEB -> {
                         CommandWebviewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_webview, container, false);
-                        return new WebViewHolder(binding);
+                        yield new WebViewHolder(binding);
                     }
-                    case TYPE_RESULT_FIELD: {
+                    case TYPE_RESULT_FIELD -> {
                         CommandResultFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_result_field, container, false);
-                        return new ResultFieldViewHolder(binding);
+                        yield new ResultFieldViewHolder(binding);
                     }
-                    case TYPE_RESULT_CELL: {
+                    case TYPE_RESULT_CELL -> {
                         CommandResultCellBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_result_cell, container, false);
-                        return new ResultCellViewHolder(binding);
+                        yield new ResultCellViewHolder(binding);
                     }
-                    case TYPE_ITEM_CARD: {
+                    case TYPE_ITEM_CARD -> {
                         CommandItemCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_item_card, container, false);
-                        return new ItemCardViewHolder(binding);
+                        yield new ItemCardViewHolder(binding);
                     }
-                    case TYPE_CHECKBOX_FIELD: {
+                    case TYPE_CHECKBOX_FIELD -> {
                         CommandCheckboxFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_checkbox_field, container, false);
-                        return new CheckboxFieldViewHolder(binding);
+                        yield new CheckboxFieldViewHolder(binding);
                     }
-                    case TYPE_SEARCH_LIST_FIELD: {
+                    case TYPE_SEARCH_LIST_FIELD -> {
                         CommandSearchListFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_search_list_field, container, false);
-                        return new SearchListFieldViewHolder(binding);
+                        yield new SearchListFieldViewHolder(binding);
                     }
-                    case TYPE_RADIO_EDIT_FIELD: {
+                    case TYPE_RADIO_EDIT_FIELD -> {
                         CommandRadioEditFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_radio_edit_field, container, false);
-                        return new RadioEditFieldViewHolder(binding);
+                        yield new RadioEditFieldViewHolder(binding);
                     }
-                    case TYPE_SPINNER_FIELD: {
+                    case TYPE_SPINNER_FIELD -> {
                         CommandSpinnerFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_spinner_field, container, false);
-                        return new SpinnerFieldViewHolder(binding);
+                        yield new SpinnerFieldViewHolder(binding);
                     }
-                    case TYPE_BUTTON_GRID_FIELD: {
+                    case TYPE_BUTTON_GRID_FIELD -> {
                         CommandButtonGridFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_button_grid_field, container, false);
-                        return new ButtonGridFieldViewHolder(binding);
+                        yield new ButtonGridFieldViewHolder(binding);
                     }
-                    case TYPE_TEXT_FIELD: {
+                    case TYPE_TEXT_FIELD -> {
                         CommandTextFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_text_field, container, false);
-                        return new TextFieldViewHolder(binding);
+                        yield new TextFieldViewHolder(binding);
                     }
-                    case TYPE_SLIDER_FIELD: {
+                    case TYPE_SLIDER_FIELD -> {
                         CommandSliderFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_slider_field, container, false);
-                        return new SliderFieldViewHolder(binding);
+                        yield new SliderFieldViewHolder(binding);
                     }
-                    case TYPE_PROGRESSBAR: {
+                    case TYPE_PROGRESSBAR -> {
                         CommandProgressBarBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_progress_bar, container, false);
-                        return new ProgressBarViewHolder(binding);
+                        yield new ProgressBarViewHolder(binding);
                     }
-                    default:
+                    default -> {
                         if (expectingRemoval) {
                             CommandNoteBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_note, container, false);
-                            return new NoteViewHolder(binding);
+                            yield new NoteViewHolder(binding);
                         }
-
                         throw new IllegalArgumentException("Unknown viewType: " + viewType + " based on: " + response + ", " + responseElement + ", " + expectingRemoval);
-                }
+                    }
+                };
             }
 
             @Override
