@@ -70,7 +70,7 @@ dependencies {
     implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
     implementation 'org.gnu.inet:libidn:1.15'
     implementation 'com.google.zxing:core:3.5.0'
-    implementation 'org.minidns:minidns-hla:1.0.4'
+    implementation 'org.minidns:minidns-hla:1.0.5'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-android:2.6.2'
     implementation 'jetty:javax.servlet:5.1.12'
