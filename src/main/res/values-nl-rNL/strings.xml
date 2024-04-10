@@ -62,7 +62,7 @@
     <string name="save">Opslaan</string>
     <string name="ok">Oké</string>
     <string name="crash_report_title">monocles chat is vastgelopen</string>
-    <string name="crash_report_message">Door het versturen van crashrapportages help je de ontwikkeling van monocles chat. 
+    <string name="crash_report_message">Door het versturen van crashrapportages help je de ontwikkeling van monocles chat.
 \n<b>Waarschuwing:</b> Deze app zal je XMPP-account gebruiken om de rapportage te versturen naar de ontwikkelaar.</string>
     <string name="send_now">Nu versturen</string>
     <string name="send_never">Niet opnieuw vragen</string>
@@ -90,9 +90,9 @@
     <string name="send_unencrypted">Verstuur onversleuteld</string>
     <string name="decryption_failed">Ontsleutelen mislukt. Misschien heb je niet de juiste private sleutel.</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">%1$s gebruikt een app genaamd <b>OpenKeychain</b> om berichten te versleutelen/ontsleutelen en om publieke sleutels te beheren. 
+    <string name="openkeychain_required_long">%1$s gebruikt een app genaamd <b>OpenKeychain</b> om berichten te versleutelen/ontsleutelen en om publieke sleutels te beheren.
 \n
-\nOpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en Google Play. 
+\nOpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en Google Play.
 \n
 \n<small>(Herstart %1$s na de installatie.)</small></string>
     <string name="restart">Herstarten</string>
@@ -883,10 +883,10 @@
     <string name="no_name_set_instructions">Geen bijnaam ingevoerd.</string>
     <string name="autojoin_group_chat">Automatisch deelnemen aan dit groepsgesprek</string>
     <string name="pref_show_links_inside">Voorbeelden van links in gesprekken tonen</string>
-    <string name="pref_show_links_inside_summary">Toon een voorbeeld van de website als er een link wordt gestuurd in een gesprek. 
+    <string name="pref_show_links_inside_summary">Toon een voorbeeld van de website als er een link wordt gestuurd in een gesprek.
 \n<b>Waarschuwing</b>: Voor iedere link die wordt gedeeld zal er vanaf dit apparaat een verbinding worden gemaakt met die website!</string>
-    <string name="pref_play_gif_inside">GIF-animaties afspelen</string>
-    <string name="pref_play_gif_inside_summary">Speel GIF-animaties direct in het gesprek af.</string>
+    <string name="pref_play_gif_inside">GIF-animaties direct afspelen</string>
+    <string name="pref_play_gif_inside_summary">Speel GIF-animaties van avatars, statusberichten en gesprekken direct af.</string>
     <string name="open_with">Open met…</string>
     <string name="server_info_adhoc_invite">XEP-0050: Ad-Hoc Commands: user invite</string>
     <string name="choose_account">Account kiezen</string>
@@ -1436,7 +1436,7 @@
     <string name="grey">Grijs</string>
     <string name="blue">Blauw</string>
     <string name="green_and_blue">Blauw en groen</string>
-    <string name="pref_send_link_previews">Previews van links versturen</string>
+    <string name="pref_send_link_previews">Previews van links tonen</string>
     <string name="report_spam">Spam rapporteren</string>
     <string name="subject">Onderwerp</string>
     <string name="add_subject">Onderwerp toevoegen</string>
@@ -1492,8 +1492,8 @@
     <string name="you_may_sometimes_have_to">Soms moet de app geforceerd afgesloten worden om de wijzigingen toe te passen.</string>
     <string name="restore_warning_continued">Herstel alleen back-ups die je zelf hebt gemaakt!</string>
     <string name="collapse_message_signs_title">Lange tekstberichten samenvouwen</string>
-    <string name="collapse_message_signs_summary">Stel het maximum aantal tekens in voordat een bericht zal worden samengevouwen</string>
-    <string name="pref_set_text_collapsable_summary">Klap teksten in als ze bestaan uit meer dan 230 tekens</string>
+    <string name="collapse_message_signs_summary">Berichten met meer dan 7 regels worden samengevouwen</string>
+    <string name="pref_set_text_collapsable_summary">Teksten van meer dan 230 tekens worden samengevouwen</string>
     <string name="help_format_text">Je kunt eenvoudige opties gebruiken om je tekst op te maken. De tekens om het begin en het einde van een opmaak aan te geven staan precies aan het begin en het einde van het woord of de woordgroep. Er moet een spatie staan voor het beginteken en een spatie na het eindteken, anders wordt de opmaak niet herkend.
 \n
 \nJe kunt de werkbalk direct tijdens het schrijven gebruiken. Als je op een knop drukt, wordt het teken op de cursorpositie ingevoegd. Je kunt ook een woord of woordgroep selecteren en dan op een van de knoppen drukken.</string>
@@ -1501,4 +1501,18 @@
     <string name="new_notification">Nieuwe melding</string>
     <string name="emojis">Emoji\'s</string>
     <string name="stickers">Stickers</string>
+    <string name="gifs">GIF\'s</string>
+    <string name="copy_GIFs_to_GIFs_folder">Importeer eigen GIF\'s via de app-instellingen</string>
+    <string name="save_as_gif">Opslaan als GIF</string>
+    <string name="sticker_deleted">Sticker verwijderd</string>
+    <string name="gif_saved">GIF opgeslagen</string>
+    <string name="failed_to_delete_sticker">Sticker kon niet worden verwijderd</string>
+    <string name="gif_imported">GIF\'s geïmporteerd</string>
+    <string name="import_gif_failed">GIF\'s konden niet worden geïmporteerd</string>
+    <string name="failed_to_delete_gif">GIF kon niet worden verwijderd</string>
+    <string name="gif_deleted">GIF verwijderd</string>
+    <string name="import_own_gifs_summary">Importeer je eigen GIF\'s. Deze worden gesorteerd op bestandsnaam.</string>
+    <string name="import_own_gifs">Importeer eigen GIF\'s</string>
+    <string name="choose_gif_name">Kies een naam voor de GIF</string>
+    <string name="choose_sticker_name">Kies een naam voor de sticker</string>
 </resources>

@@ -267,7 +267,7 @@
     <string name="pref_use_indicate_received">请求消息回执</string>
     <string name="pref_use_send_button_to_indicate_status_summary">为发送按钮着色以指示联系人状态</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">为联系人名称着色以指示联系人状态</string>
-    <string name="pref_expert_options_other">行为</string>
+    <string name="pref_expert_options_other">其他</string>
     <string name="pref_autojoin">与书签同步</string>
     <string name="pref_autojoin_summary">根据书签中的“自动加入”标志加入或离开房间。</string>
     <string name="toast_message_omemo_fingerprint">OMEMO 指纹已复制到剪贴板 ！</string>
@@ -1280,7 +1280,7 @@
     <string name="action_edit_contact">编辑联系人</string>
     <string name="undo">撤销</string>
     <string name="menuitem_create_backup_action">创建备份</string>
-    <string name="collapse_message_signs_summary">设置折叠消息的最大标志数</string>
+    <string name="collapse_message_signs_summary">折叠超过 7 行的消息</string>
     <string name="vector_graphic">矢量图形</string>
     <string name="action_fix_to_location">固定位置</string>
     <string name="pref_theme_custom">自定义</string>
@@ -1423,7 +1423,7 @@
     <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证并阻止主动式中间人攻击。</string>
     <string name="media">媒体</string>
     <string name="security">安全</string>
-    <string name="reconnect_on_other_host">在其它主机上重新连接</string>
+    <string name="reconnect_on_other_host">在其他主机上重新连接</string>
     <string name="outdated_backup_file_format">您正尝试导入过时的备份文件格式</string>
     <string name="not_dnssec_verified">DNSSEC 未验证</string>
     <string name="dnssec_dane_verified">DNSSEC + DANE 已验证</string>
@@ -1500,4 +1500,17 @@
     <string name="unencrypted">未加密的</string>
     <string name="emojis">表情符号</string>
     <string name="stickers">贴纸</string>
+    <string name="gifs">GIF</string>
+    <string name="copy_GIFs_to_GIFs_folder">通过应用设置导入自己的 GIF</string>
+    <string name="choose_gif_name">选择 GIF 名称</string>
+    <string name="gif_saved">GIF 已保存</string>
+    <string name="failed_to_delete_gif">删除 GIF 失败</string>
+    <string name="failed_to_delete_sticker">删除贴纸失败</string>
+    <string name="import_gif_failed">导入 GIF 失败</string>
+    <string name="gif_imported">GIF 已导入</string>
+    <string name="import_own_gifs_summary">导入您自己的 GIF。它们将按文件名排序。</string>
+    <string name="save_as_gif">保存为 GIF</string>
+    <string name="gif_deleted">GIF 已删除</string>
+    <string name="import_own_gifs">导入自己的 GIF</string>
+    <string name="sticker_deleted">贴纸已删除</string>
 </resources>
