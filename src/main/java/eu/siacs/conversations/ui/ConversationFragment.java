@@ -744,7 +744,7 @@ public class ConversationFragment extends XmppFragment
             } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
                 LinearLayout emojipickerview = binding.emojisStickerLayout;
                 ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                params.height = 600;
+                params.height = 800;
                 emojipickerview.setLayoutParams(params);
                 binding.emojiButton.setVisibility(GONE);
                 binding.keyboardButton.setVisibility(VISIBLE);
@@ -4037,7 +4037,7 @@ public class ConversationFragment extends XmppFragment
         } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
             LinearLayout emojipickerview = binding.emojisStickerLayout;
             ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-            params.height = 600;
+            params.height = 800;
             emojipickerview.setLayoutParams(params);
             binding.emojiButton.setVisibility(GONE);
             binding.keyboardButton.setVisibility(VISIBLE);
@@ -4934,7 +4934,7 @@ public class ConversationFragment extends XmppFragment
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
                     binding.emojiButton.setVisibility(GONE);
-                    params.height = 600;
+                    params.height = 800;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
                     binding.emojiButton.setVisibility(GONE);
