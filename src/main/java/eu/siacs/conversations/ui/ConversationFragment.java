@@ -742,11 +742,9 @@ public class ConversationFragment extends XmppFragment
                     binding.gifsButton.setTypeface(null, Typeface.NORMAL);
                 }
             } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
-                DisplayMetrics displayMetrics = new DisplayMetrics();
-                activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
                 LinearLayout emojipickerview = binding.emojisStickerLayout;
                 ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                if (displayMetrics.heightPixels > 0) params.height = displayMetrics.heightPixels / 3;
+                params.height = 600;
                 emojipickerview.setLayoutParams(params);
                 binding.emojiButton.setVisibility(GONE);
                 binding.keyboardButton.setVisibility(VISIBLE);
@@ -4037,11 +4035,9 @@ public class ConversationFragment extends XmppFragment
                 binding.textinput.append(emojiViewItem.getEmoji());
             });
         } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
             LinearLayout emojipickerview = binding.emojisStickerLayout;
             ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-            if (displayMetrics.heightPixels > 0) params.height = displayMetrics.heightPixels / 3;
+            params.height = 600;
             emojipickerview.setLayoutParams(params);
             binding.emojiButton.setVisibility(GONE);
             binding.keyboardButton.setVisibility(VISIBLE);
@@ -4938,9 +4934,7 @@ public class ConversationFragment extends XmppFragment
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
                     binding.emojiButton.setVisibility(GONE);
-                    DisplayMetrics displayMetrics = new DisplayMetrics();
-                    activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                    if (displayMetrics.heightPixels > 0) params.height = displayMetrics.heightPixels / 3;
+                    params.height = 600;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
                     binding.emojiButton.setVisibility(GONE);
@@ -4977,9 +4971,7 @@ public class ConversationFragment extends XmppFragment
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
                     binding.emojiButton.setVisibility(GONE);
-                    DisplayMetrics displayMetrics = new DisplayMetrics();
-                    activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                    if (displayMetrics.heightPixels > 0) params.height = displayMetrics.heightPixels / 3;
+                    params.height = 600;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
                     binding.emojiButton.setVisibility(GONE);
