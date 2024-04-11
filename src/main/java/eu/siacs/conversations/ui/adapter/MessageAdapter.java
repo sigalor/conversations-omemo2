@@ -71,6 +71,9 @@ import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.bumptech.glide.Glide;
 import com.daimajia.swipe.SwipeLayout;
+import com.github.pgreze.reactions.ReactionPopup;
+import com.github.pgreze.reactions.ReactionsConfig;
+import com.github.pgreze.reactions.ReactionsConfigBuilder;
 import com.google.common.base.Strings;
 import com.lelloman.identicon.view.GithubIdenticonView;
 
@@ -1679,6 +1682,30 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             });
         }
+
+        ReactionsConfig config = new ReactionsConfigBuilder(activity)
+                .withReactions(new int[]{
+                        R.drawable.ic_fb_like,
+                        R.drawable.ic_fb_love,
+                        R.drawable.ic_fb_laugh,
+                        R.drawable.ic_fb_wow,
+                        R.drawable.ic_fb_sad,
+                        R.drawable.ic_fb_angry
+                })
+                .build();
+
+        ReactionPopup popup = new ReactionPopup(activity, config, (positionReact) -> {
+            return true; // true is closing popup, false is requesting a new selection
+        });
+
+        viewHolder.messageBody.setOnClickListener(v -> {
+            if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                MessageAdapter.this.mOnMessageBoxClickedListener
+                        .onContactPictureClicked(message);
+            }
+        });
+
+
         viewHolder.contact_picture.setOnClickListener(v -> {
             if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
                 MessageAdapter.this.mOnContactPictureClickedListener.onContactPictureClicked(message);
@@ -1747,14 +1774,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    MessageAdapter.this.mOnMessageBoxClickedListener
-                            .onContactPictureClicked(message);
+                    popup.onTouch(v, event);
                 }
             }
-
-
             return false;
         });
+
         viewHolder.contact_picture.setOnLongClickListener(v -> {
             if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
                 MessageAdapter.this.mOnContactPictureLongClickedListener.onContactPictureLongClicked(v, message);
