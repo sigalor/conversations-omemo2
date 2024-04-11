@@ -119,12 +119,10 @@ import net.java.otr4j.session.SessionStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -2157,7 +2155,7 @@ public class ConversationFragment extends XmppFragment
         return false;
     }
 
-    private void setThread(Element thread) {
+    public void setThread(Element thread) {
         if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             this.conversation.setThread(thread);
         }
@@ -2174,7 +2172,7 @@ public class ConversationFragment extends XmppFragment
         updateSendButton();
     }
 
-    private void setupReply(Message message) {
+    public void setupReply(Message message) {
         conversation.setReplyTo(message);
         if (message == null) {
             binding.contextPreview.setVisibility(GONE);
