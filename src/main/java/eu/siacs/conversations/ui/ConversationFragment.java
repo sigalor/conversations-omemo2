@@ -1381,7 +1381,7 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    private void sendMessage() {
+    public void sendMessage() {
         if (mediaPreviewAdapter.hasAttachments()) {
             commitAttachments();
             return;

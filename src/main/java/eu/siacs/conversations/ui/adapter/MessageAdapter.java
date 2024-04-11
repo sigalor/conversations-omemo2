@@ -1703,6 +1703,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 mConversationFragment.setThread(message[0].getThread());
                 mConversationFragment.getConversation().setUserSelectedThread(true);
                 mConversationFragment.binding.textinput.append("\uD83D\uDC4D");
+                mConversationFragment.sendMessage();
             } else if (position.equals(1)) {
                 mConversationFragment.setupReply(message[0]);
                 while (message[0].mergeable(message[0].next())) {
@@ -1711,6 +1712,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 mConversationFragment.setThread(message[0].getThread());
                 mConversationFragment.getConversation().setUserSelectedThread(true);
                 mConversationFragment.binding.textinput.append("❤\uFE0F");
+                mConversationFragment.sendMessage();
             } else if (position.equals(2)) {
                 mConversationFragment.setupReply(message[0]);
                 while (message[0].mergeable(message[0].next())) {
@@ -1719,6 +1721,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 mConversationFragment.setThread(message[0].getThread());
                 mConversationFragment.getConversation().setUserSelectedThread(true);
                 mConversationFragment.binding.textinput.append("\uD83D\uDE06");
+                mConversationFragment.sendMessage();
             } else if (position.equals(3)) {
                 mConversationFragment.setupReply(message[0]);
                 while (message[0].mergeable(message[0].next())) {
@@ -1727,6 +1730,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 mConversationFragment.setThread(message[0].getThread());
                 mConversationFragment.getConversation().setUserSelectedThread(true);
                 mConversationFragment.binding.textinput.append("\uD83D\uDE32");
+                mConversationFragment.sendMessage();
             } else if (position.equals(4)) {
                 mConversationFragment.setupReply(message[0]);
                 while (message[0].mergeable(message[0].next())) {
@@ -1735,6 +1739,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 mConversationFragment.setThread(message[0].getThread());
                 mConversationFragment.getConversation().setUserSelectedThread(true);
                 mConversationFragment.binding.textinput.append("\uD83D\uDE22");
+                mConversationFragment.sendMessage();
             } else if (position.equals(5)) {
                 mConversationFragment.setupReply(message[0]);
                 while (message[0].mergeable(message[0].next())) {
@@ -1743,7 +1748,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 mConversationFragment.setThread(message[0].getThread());
                 mConversationFragment.getConversation().setUserSelectedThread(true);
                 mConversationFragment.binding.textinput.append("\uD83D\uDE20");
-
+                mConversationFragment.sendMessage();
             }
             return true; // true is closing popup, false is requesting a new selection
         });
