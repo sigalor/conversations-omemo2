@@ -4,7 +4,7 @@
     <string name="action_add">Nouvelle discussion</string>
     <string name="action_accounts">Gérer les comptes</string>
     <string name="action_end_conversation">Archiver cette discussion</string>
-    <string name="action_contact_details">Détails du contact</string>
+    <string name="action_contact_details">Détails du/de la participant⸱e</string>
     <string name="action_secure">Discussion sécurisée</string>
     <string name="action_add_new_account">Ajouter un nouveau compte</string>
     <string name="action_add_phone_book">Ajouter au carnet d’adresses</string>
@@ -817,7 +817,7 @@
     <string name="show_termsofuse">Conditions d’utilisation</string>
     <string name="p1_s3_filetransfer">Partage de fichiers via HTTP pour S3</string>
     <string name="pref_start_search">Recherche directe</string>
-    <string name="pref_start_search_summary">Ouvre le clavier et place le curseur sur le champs de recherche dans la fenêtre « Commencer une discussion ».</string>
+    <string name="pref_start_search_summary">Ouvrir le clavier et placer le curseur sur le champs de recherche dans la fenêtre « Commencer une discussion ».</string>
     <string name="paste_as_quote">Coller comme une citation</string>
     <string name="group_chat_avatar">Avatar du salon</string>
     <string name="host_does_not_support_group_chat_avatars">L’hôte ne prend pas en charge les avatars</string>
@@ -891,8 +891,8 @@
     <string name="autojoin_group_chat">Rejoindre automatiquement ce salon</string>
     <string name="pref_show_links_inside">Montrer les aperçus des liens Web</string>
     <string name="pref_show_links_inside_summary">Affiche un aperçu des liens Web directement dans la discussion, une connexion au serveur correspondant est nécessaire.</string>
-    <string name="pref_play_gif_inside">Animer les images GIF</string>
-    <string name="pref_play_gif_inside_summary">Animer les images GIF directement dans les discussions.</string>
+    <string name="pref_play_gif_inside">Animer automatiquement les images animées</string>
+    <string name="pref_play_gif_inside_summary">Jouer automatiquement les images animées pour les avatars, les messages de statut et les messages d\'image.</string>
     <string name="open_with">Ouvrir avec…</string>
     <string name="server_info_adhoc_invite">XEP-0050 : Commandes ad-hoc : invitation utilisateur/trice</string>
     <string name="choose_account">Sélectionnez un compte</string>
@@ -979,7 +979,7 @@
     <string name="this_looks_like_channel">Il semble que ce soit une adresse de salon</string>
     <string name="no_backup_available">Aucune sauvegarde disponible</string>
     <string name="pref_show_own_accounts_summary">Si vous avez plusieurs comptes, affichez les dans les discussions et les contacts.</string>
-    <string name="pref_show_own_accounts">Affichez vos comptes</string>
+    <string name="pref_show_own_accounts">Afficher vos comptes</string>
     <string name="message_encryption">Chiffrement du message</string>
     <string name="enable_message_encryption">Cette discussion n\'est pas chiffrée. Pour des raisons de sécurité, il est préférable d\'activer le chiffrement des messages, de préférence OMEMO. En cas de difficultés, vous pouvez désactiver le chiffrement en appuyant sur l’icône du cadenas en haut de l\'écran.</string>
     <string name="hide_warning">Masquer l\'avertissement</string>
@@ -1194,11 +1194,11 @@
     <string name="pref_memory_management_summary">Afficher la taille mémoire du répertoire des médias</string>
     <string name="title_memory_management">Gestion de la mémoire</string>
     <string name="disk_storage">Stockage total des fichiers</string>
-    <string name="media_usage">Utilisation mémoire des médias</string>
-    <string name="pictures_usage">Utilisation mémoire des images</string>
-    <string name="videos_usage">Utilisation mémoire des vidéos</string>
-    <string name="files_usage">Utilisation mémoire des fichiers</string>
-    <string name="audios_usage">Utilisation mémoire des audios</string>
+    <string name="media_usage">Taille des médias</string>
+    <string name="pictures_usage">Taille des images</string>
+    <string name="videos_usage">Taille des vidéos</string>
+    <string name="files_usage">Taille des fichiers</string>
+    <string name="audios_usage">Taille des audios</string>
     <string name="delete_files_dialog">Supprimer les pièces jointes</string>
     <string name="delete_files_dialog_msg">Voulez-vous vraiment supprimer tous les %s ?</string>
     <string name="audios">audios</string>
@@ -1315,15 +1315,15 @@
     <string name="account_state_logged_out">Déconnecté</string>
     <string name="this_account_is_logged_out">Vous vous êtes déconnecté de ce compte</string>
     <string name="audiobook">Livre audio</string>
-    <string name="monocles_account_details">Cela comprend : 
-\n● Un stockage chiffré des salons, 
-\n● E-mail avec 2Go de stockage chiffré. 
-\n 
-\n En option : 
-\n● 5 Go de stockage dans le cloud (Nextcloud), 
-\n● Synchro de calendriers et contacts, 
-\n● Un outil de discussion sécurisé, 
-\n Et plus sur <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="monocles_account_details">Cela comprend : \u0020
+\n● Un stockage chiffré des salons, \u0020
+\n● E-mail avec 2Go de stockage chiffré. \u0020
+\n \u0020
+\n En option : \u0020
+\n● 5 Go de stockage dans le cloud (Nextcloud), \u0020
+\n● Synchro de calendriers et contacts, \u0020
+\n● Un outil de discussion sécurisé, \u0020
+\n Et plus encore sur <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="verify_otr">Vérifier OTR</string>
     <string name="unknown_otr_fingerprint">Empreinte OTR inconnue</string>
     <string name="otr_fingerprint">Empreinte OTR</string>
@@ -1435,7 +1435,7 @@
     <string name="pref_set_round_avatars_summary">Les avatars sont affichés dans un cercle.</string>
     <string name="choose_emoji">Choisir un émoji</string>
     <string name="show_keyboard">Afficher le clavier</string>
-    <string name="pref_show_thread_feature_summary">Afficher l\'icône du fil de discussion dans le champ de saisie et permettre la création et le suivi de fils de discussion.</string>
+    <string name="pref_show_thread_feature_summary">Activer l\'icône du fil de discussion dans le champ de saisie et permettre la création et le suivi de fils de discussion.</string>
     <string name="pref_show_thread_feature">Activer la fonction fil de discussion</string>
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="edit_sytemaccount_or_xmppaccount">Éditer les contacts ?</string>
@@ -1476,7 +1476,7 @@
     <string name="pref_readmarkers_summary">Modifier le style du marqueur de lecture.</string>
     <string name="pref_readmarker_title">Style du marqueur de lecture</string>
     <string name="blue">Bleu</string>
-    <string name="pref_send_link_previews">Envoyer des aperçus de liens</string>
+    <string name="pref_send_link_previews">Voir les aperçus de liens</string>
     <string name="pref_send_link_previews_summary">Attacher des métadonnées sur les liens lors de l\'envoi d\'un message. Uniquement pour les messages en clair.</string>
     <string name="report_spam">Signaler un spam</string>
     <string name="subject">Sujet</string>
@@ -1499,7 +1499,7 @@
     <string name="new_notification">Nouvelle notification</string>
     <string name="monocles_account_introduction">Inscrivez-vous maintenant et <b>obtenez un compte monocles sécurisé, alimenté par des énergies renouvelables</b> pour commencer à chatter directement.</string>
     <string name="restore_warning_continued">N\'essayez pas de restaurer des sauvegardes que vous n\'avez pas faîtes vous-même !</string>
-    <string name="collapse_message_signs_summary">Définir le nombre maximum de caractères pour réduire un message</string>
+    <string name="collapse_message_signs_summary">Réduire les messages de plus de 7 lignes</string>
     <string name="settings_restore_message_failure">Échec de la restauration des paramètres : %s</string>
     <string name="moderate_recent">Modérer les messages ?</string>
     <string name="collapse_message_signs_title">Réduire les long messages</string>
@@ -1516,4 +1516,17 @@
     <string name="emojis">Émojis</string>
     <string name="stickers">Autocollants</string>
     <string name="gifs">GIFs</string>
+    <string name="save_as_gif">Sauvegarder en GIF</string>
+    <string name="choose_gif_name">Choisissez un nom de GIF</string>
+    <string name="gif_saved">GIF sauvegardé</string>
+    <string name="choose_sticker_name">Choisissez un nom d\'autocollant sans fin</string>
+    <string name="sticker_deleted">Autocollant supprimé</string>
+    <string name="gif_deleted">GIF supprimé</string>
+    <string name="failed_to_delete_gif">Échec de la suppression du GIF</string>
+    <string name="failed_to_delete_sticker">Échec de la suppression de l\'autocollant</string>
+    <string name="import_gif_failed">Échec de l\'importation les GIFs</string>
+    <string name="gif_imported">GIFs importés</string>
+    <string name="import_own_gifs_summary">Importez vos propres GIFs. Ils seront triés par nom de fichier.</string>
+    <string name="import_own_gifs">Importer vos propres GIFs</string>
+    <string name="copy_GIFs_to_GIFs_folder">Importer ses propres GIFs dans les paramètres de l\'application.</string>
 </resources>

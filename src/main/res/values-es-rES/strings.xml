@@ -288,7 +288,7 @@
     <string name="pref_use_indicate_received_summary">Los mensajes recibidos serán marcados con una marca si está soportado</string>
     <string name="pref_use_send_button_to_indicate_status_summary">El color del botón enviar indica el estado del contacto</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Colorear el nombre del contacto para mostrar su estado en línea</string>
-    <string name="pref_expert_options_other">Comportamiento</string>
+    <string name="pref_expert_options_other">Otros</string>
     <string name="pref_autojoin">Sincronizar con marcadores</string>
     <string name="pref_autojoin_summary">Unirse y abandonar las salas de acuerdo con la configuración de unión automática en tus marcadores.</string>
     <string name="toast_message_omemo_fingerprint">¡Huella digital OMEMO copiada al portapapeles!</string>
@@ -1524,4 +1524,18 @@
     <string name="webxdc_hint">Para utilizar WebXDC active la función de hilos y envíe WebXDC sin encriptar</string>
     <string name="open">Abrir</string>
     <string name="unencrypted">sin encriptar</string>
+    <string name="save_as_gif">Guardar como GIF</string>
+    <string name="choose_gif_name">Seleccione un nombre para el GIF</string>
+    <string name="gif_saved">GIF guardado</string>
+    <string name="sticker_deleted">Sticker borrado</string>
+    <string name="gif_deleted">GIF borrado</string>
+    <string name="failed_to_delete_gif">No se ha podido eliminar el GIF</string>
+    <string name="failed_to_delete_sticker">No se ha podido eliminar el sticker</string>
+    <string name="import_gif_failed">Error al importar el GIF</string>
+    <string name="gif_imported">GIF importado</string>
+    <string name="import_own_gifs">Importa tus propios GIF</string>
+    <string name="import_own_gifs_summary">Importe tus propios GIF. Se ordenarán por el nombre del archivo.</string>
+    <string name="choose_sticker_name">Elige un nombre del sticker sin terminación</string>
+    <string name="gifs">GIFs</string>
+    <string name="copy_GIFs_to_GIFs_folder">Importa tus propios GIF a través de los ajustes de la aplicación</string>
 </resources>

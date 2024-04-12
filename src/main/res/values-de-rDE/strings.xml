@@ -1472,4 +1472,13 @@
     <string name="pref_use_green_blue_readmarkers_summary">Verwende zweifarbe Lese-Markierungen. Blau für empfangen und grün für gelesen.</string>
     <string name="pref_up_push_server_title">Push Server</string>
     <string name="pref_send_link_previews_summary">Füge Metadaten zu Links hinzu. Gilt nur für unverschlüsselte Nachrichten.</string>
+    <string name="gif_saved">GIF gespeichert</string>
+    <string name="gif_deleted">GIF gelöscht</string>
+    <string name="failed_to_delete_gif">Löschen der GIF-Datei fehlgeschlagen</string>
+    <string name="import_gif_failed">Fehler beim Importieren von GIFs</string>
+    <string name="gif_imported">GIFs wurden importiert</string>
+    <string name="import_own_gifs">Importiere eigene GIFs</string>
+    <string name="import_own_gifs_summary">Importiere eigene GIFs. Sie werden nach Dateinamen sortiert.</string>
+    <string name="save_as_gif">Als GIF speichern</string>
+    <string name="choose_gif_name">Name der GIF-Datei festlegen</string>
 </resources>
