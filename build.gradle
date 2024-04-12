@@ -65,12 +65,12 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
-    implementation 'im.conversations.webrtc:webrtc-android:119.0.0'
+    implementation 'im.conversations.webrtc:webrtc-android:119.0.1'
     implementation 'org.jitsi:org.otr4j:0.23'
     implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
     implementation 'org.gnu.inet:libidn:1.15'
     implementation 'com.google.zxing:core:3.5.0'
-    implementation 'org.minidns:minidns-hla:1.0.4'
+    implementation 'org.minidns:minidns-hla:1.0.5'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-android:2.6.2'
     implementation 'jetty:javax.servlet:5.1.12'
@@ -123,7 +123,6 @@ dependencies {
     implementation 'org.tomlj:tomlj:1.1.0'
     implementation 'org.jxmpp:jxmpp-stringprep-libidn:1.0.3'
     implementation 'com.tbuonomo:dotsindicator:4.2'
-    implementation 'me.xdrop:fuzzywuzzy:1.4.0'
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation "androidx.core:core-ktx:1.12.0"
@@ -153,8 +152,8 @@ android {
         targetSdkVersion 34
 
         // versionNameSuffix " -beta_(2023-10-26)" // " beta_(XXXX-XX-XX)" // activate for beta versions
-        versionCode 169
-        versionName "1.7.9.5.1"
+        versionCode 170
+        versionName "1.7.9.5.2"
         //resConfigs "en"
 
         archivesBaseName += "-$versionName"

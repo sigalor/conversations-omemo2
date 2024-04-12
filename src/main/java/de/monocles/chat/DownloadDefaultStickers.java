@@ -6,16 +6,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
-import android.provider.DocumentsContract;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -23,7 +18,6 @@ import androidx.core.app.NotificationCompat;
 import com.google.common.io.ByteStreams;
 
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
@@ -42,15 +36,8 @@ import okhttp3.Response;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.crypto.axolotl.SQLiteAxolotlStore;
-import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.entities.Conversation;
-import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
-import eu.siacs.conversations.persistance.FileBackend;
-import eu.siacs.conversations.utils.Compatibility;
-import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.utils.MimeUtils;
 
 public class DownloadDefaultStickers extends Service {
@@ -95,7 +82,7 @@ public class DownloadDefaultStickers extends Service {
         } else {
             Log.d(Config.LOGTAG, "DownloadDefaultStickers. ignoring start command because already running");
         }
-        xmppConnectionService.forceRescanStickers();
+        xmppConnectionService.LoadStickers();
         return START_NOT_STICKY;
     }
 
@@ -103,7 +90,7 @@ public class DownloadDefaultStickers extends Service {
         Response r = http.newCall(new Request.Builder().url(sticker.getString("url")).build()).execute();
         File file = null;
         try {
-            file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
+            file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
             file.getParentFile().mkdirs();
             OutputStream os = new FileOutputStream(file);
             if (r.body() != null) {

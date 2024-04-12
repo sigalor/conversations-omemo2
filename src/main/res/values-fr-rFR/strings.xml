@@ -583,7 +583,7 @@
     <string name="inviteUser_Subject">vous a invité·e via</string>
     <string name="InviteText">Bonjour,
 \n
-\nl\'utilisateur/trice %s vous invite sur monocles chat Cliquer simplement sur le lien suivant…</string>
+\nl\'utilisateur/trice %s vous invite sur monocles chat. Cliquer simplement sur le lien suivant, pour accepter l\'invitation…</string>
     <string name="pref_broadcast_last_activity">Diffuser la dernière action utilisateur/trice</string>
     <string name="pref_broadcast_last_activity_summary">Informer vos contacts quand vous utilisez monocles chat.</string>
     <string name="request_permissions_message">monocles chat vous demandera quelques permissions. Il est important que vous autorisiez toutes ces permissions afin de pouvoir utiliser toutes les fonctionnalités. Si vous refusez l\'une de ces permissions, l\'application se fermera d\'elle-même.</string>
@@ -1297,7 +1297,7 @@
     <string name="otr_warning">La prise en charge du chiffrement OTR est en version BETA. Cliquez sur lire plus pour obtenir plus d\'informations. Un lien s\'ouvrira dans un navigateur.</string>
     <string name="pref_use_i2p_summary">Tunnelise toutes les connexions à travers le réseau I2P. Nécessite un client I2P</string>
     <string name="pref_enable_persistent_rooms_summary">Rendez les salons persistants et ne les supprimez pas du serveur après que le dernier utilisateur a quitté la discussion.</string>
-    <string name="pref_enable_persistent_rooms_title">Salles persistantes</string>
+    <string name="pref_enable_persistent_rooms_title">Salons persistants</string>
     <string name="message_reaction">Envoyer une réaction</string>
     <string name="save_as_sticker">Enregistrer comme autocollant</string>
     <string name="block_media">Bloquer le média</string>
@@ -1515,4 +1515,5 @@
     <string name="unencrypted">en clair</string>
     <string name="emojis">Émojis</string>
     <string name="stickers">Autocollants</string>
+    <string name="gifs">GIFs</string>
 </resources>

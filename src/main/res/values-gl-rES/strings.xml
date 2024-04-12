@@ -281,7 +281,7 @@
     <string name="pref_use_indicate_received_summary">Se o cliente o permite as mensaxes terán unha marca cando se reciban</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Botón de enviar de cor para indicar o estado do contacto</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Os nomes de contacto con cor para indicar o estado</string>
-    <string name="pref_expert_options_other">Comportamento</string>
+    <string name="pref_expert_options_other">Outros</string>
     <string name="pref_autojoin">Sincronizar cos marcadores</string>
     <string name="pref_autojoin_summary">Entrar e saír das salas en función da marca de automatización que teñas nos marcadores.</string>
     <string name="toast_message_omemo_fingerprint">Copiouse a impresión dixital OMEMO ao portapapeis!</string>
@@ -1506,4 +1506,18 @@
     <string name="webxdc_hint">Para usar WebXDC actíva a ferramenta fíos e envía un WebXDC sen cifrar</string>
     <string name="open">Abrir</string>
     <string name="unencrypted">sen cifrar</string>
+    <string name="gifs">GIFs</string>
+    <string name="copy_GIFs_to_GIFs_folder">Importa os teus propios GIFs nos axustes da app</string>
+    <string name="save_as_gif">Gardar como GIF</string>
+    <string name="choose_gif_name">Elixe un nome para o GIF</string>
+    <string name="gif_saved">GIF gardado</string>
+    <string name="sticker_deleted">Adhesivo eliminado</string>
+    <string name="gif_deleted">GIF eliminado</string>
+    <string name="failed_to_delete_gif">Fallo ao eliminar o GIF</string>
+    <string name="import_gif_failed">Fallo ao importar GIFs</string>
+    <string name="gif_imported">GIFs importados</string>
+    <string name="import_own_gifs">Importa os teus GIFs</string>
+    <string name="import_own_gifs_summary">Importa os teus propios GIFs. Aparecerán ordeados por nome do ficheiro.</string>
+    <string name="failed_to_delete_sticker">Fallo ao eliminar o adhesivo</string>
+    <string name="choose_sticker_name">Dalle un nome ao adhesivo, sen extensión</string>
 </resources>

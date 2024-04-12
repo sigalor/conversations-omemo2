@@ -14,7 +14,9 @@
                 android:name="page"
                 android:value="userinterface" />
         </intent>
-        <PreferenceCategory android:title="@string/pref_theme_options">
+        <PreferenceCategory
+            android:key="theme_category"
+            android:title="@string/pref_theme_options">
             <ListPreference
                 android:defaultValue="@string/theme"
                 android:entries="@array/themes"
@@ -389,6 +391,10 @@
         <Preference
             android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />
+        <Preference
+            android:title="@string/import_own_gifs"
+            android:summary="@string/import_own_gifs_summary"
+            android:key="import_own_gifs" />
         <Preference
             android:title="@string/clear_blocked_media"
             android:key="clear_blocked_media" />

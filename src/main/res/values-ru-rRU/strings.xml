@@ -758,7 +758,7 @@
     <string name="pref_enter_is_send">Ввод для отправки</string>
     <string name="pref_enter_is_send_summary">Использовать клавишу Enter для отправки сообщения. Вы всегда можете использовать Ctrl+Enter для отправки сообщения, даже если эта опция отключена.</string>
     <string name="pref_expert_options">Продвинутые настройки</string>
-    <string name="pref_expert_options_other">Поведение</string>
+    <string name="pref_expert_options_other">Другой</string>
     <string name="pref_export_plain_text_logs">Экспортировать читабельный журнал чата</string>
     <string name="pref_export_plain_text_logs_summary">Включить экспорт журналов чатов в читабельные файлы</string>
     <string name="pref_font_size">Размер шрифта</string>
@@ -1532,4 +1532,18 @@
     <string name="webxdc_hint">Чтобы использовать WebXDC, активируйте функцию потоков и отправляйте WebXDC в не зашифрованном виде</string>
     <string name="open">Открыть</string>
     <string name="unencrypted">не зашифрованный</string>
+    <string name="gifs">Гифки</string>
+    <string name="copy_GIFs_to_GIFs_folder">Импортировать собственные GIF-файлы через настройки приложения</string>
+    <string name="choose_sticker_name">Выберите имя стикера без окончания</string>
+    <string name="save_as_gif">Сохранить как GIF</string>
+    <string name="choose_gif_name">Выбираем имя для GIF</string>
+    <string name="gif_saved">GIF сохранен</string>
+    <string name="sticker_deleted">Стикер удален</string>
+    <string name="gif_deleted">GIF удален</string>
+    <string name="failed_to_delete_sticker">Не удалось удалить стикер</string>
+    <string name="import_gif_failed">Не удалось импортировать GIF-файлы</string>
+    <string name="gif_imported">GIF-файлы импортированы</string>
+    <string name="import_own_gifs">Импортировать собственные GIF-файлы</string>
+    <string name="import_own_gifs_summary">Импортируйте свои собственные GIF-файлы. Они будут отсортированы по имени файла.</string>
+    <string name="failed_to_delete_gif">Не удалось удалить GIF</string>
 </resources>

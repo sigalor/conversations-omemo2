@@ -63,7 +63,6 @@ public class RichLinkView extends RelativeLayout {
         this.context = context;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public RichLinkView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         this.context = context;
@@ -91,7 +90,7 @@ public class RichLinkView extends RelativeLayout {
         quoteMessage = findViewById(R.id.quote_message);
         quoteMessage.setBackgroundColor(color);
         imageView.setAdjustViewBounds(true);
-        if (meta.getImageurl() != null && !meta.getImageurl().equals("") && !meta.getImageurl().isEmpty()) {
+        if (meta != null && meta.getImageurl() != null && !meta.getImageurl().equals("") && !meta.getImageurl().isEmpty() && imageView != null) {
             if (!dataSaverDisabled) {
                 Glide.with(this).load(R.drawable.ic_web_grey600_48).into(imageView);
             } else {
@@ -105,23 +104,19 @@ public class RichLinkView extends RelativeLayout {
                         .into(imageView);
             }
         } else {
-            imageView.setVisibility(VISIBLE);
-            Glide.with(this)
+            if (imageView != null) {
+                imageView.setVisibility(VISIBLE);
+                Glide.with(this)
                     .load(R.drawable.ic_web_grey600_48)
                     .into(imageView);
+            }
         }
-        if (meta.getTitle().isEmpty() || meta.getTitle().equals("")) {
+        if (meta != null && (meta.getTitle().isEmpty() || meta.getTitle().equals(""))) {
             textViewTitle.setVisibility(VISIBLE);
             textViewTitle.setText(meta.getUrl());
-        } else {
-            textViewTitle.setVisibility(VISIBLE);
-            textViewTitle.setText(meta.getTitle());
         }
-        if (meta.getDescription().isEmpty() || meta.getDescription().equals("")) {
+        if (meta != null && (meta.getDescription().isEmpty() || meta.getDescription().equals(""))) {
             textViewDesp.setVisibility(GONE);
-        } else {
-            textViewDesp.setVisibility(VISIBLE);
-            textViewDesp.setText(meta.getDescription());
         }
 
         linearLayout.setOnClickListener(view -> {

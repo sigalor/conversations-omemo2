@@ -1426,5 +1426,17 @@
     <string name="open">Open</string>
     <string name="unencrypted">unencrypted</string>
     <string name="gifs">GIFs</string>
-    <string name="copy_GIFs_to_GIFs_folder">Copy GIFs to Documents/monocles chat/GIFs/</string>
+    <string name="copy_GIFs_to_GIFs_folder">Import own GIFs through the app settings</string>
+    <string name="choose_sticker_name">Choose a sticker name without ending</string>
+    <string name="save_as_gif">Save as GIF</string>
+    <string name="choose_gif_name">Choose a name for the GIF</string>
+    <string name="gif_saved">GIF saved</string>
+    <string name="sticker_deleted">Sticker deleted</string>
+    <string name="gif_deleted">GIF deleted</string>
+    <string name="failed_to_delete_gif">Failed to delete GIF</string>
+    <string name="failed_to_delete_sticker">Failed to delete sticker</string>
+    <string name="import_gif_failed">Failed to import GIFs</string>
+    <string name="gif_imported">GIFs imported</string>
+    <string name="import_own_gifs">Import own GIFs</string>
+    <string name="import_own_gifs_summary">Import your own GIFs. They will be sorted by the filename.</string>
 </resources>

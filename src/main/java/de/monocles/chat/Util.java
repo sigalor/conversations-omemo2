@@ -17,9 +17,11 @@ public class Util {
         }
         ViewGroup vg = listView;
         int totalHeight = 0;
+        final int width = listView.getWidth() > 0 ? listView.getWidth() : listView.getContext().getResources().getDisplayMetrics().widthPixels;
+        final int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
         for (int i = 0; i < adapter.getCount(); i++) {
             View listItem = adapter.getView(i, null, vg);
-            listItem.measure(0, 0);
+            listItem.measure(widthSpec, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
 

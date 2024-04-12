@@ -639,9 +639,6 @@ public class FileBackend {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         try {
-            for (Cid cid : calculateCids(uri)) {
-                if (mXmppConnectionService.getUrlForCid(cid) != null) return true;
-            }
             final InputStream inputStream = mXmppConnectionService.getContentResolver().openInputStream(uri);
             BitmapFactory.decodeStream(inputStream, null, options);
             close(inputStream);
@@ -649,7 +646,7 @@ public class FileBackend {
                 return false;
             }
             return (options.outWidth <= mXmppConnectionService.getCompressImageResolutionPreference() && options.outHeight <= mXmppConnectionService.getCompressImageResolutionPreference() && options.outMimeType.contains(Config.IMAGE_FORMAT.name().toLowerCase()));
-        } catch (final IOException e) {
+        } catch (FileNotFoundException e) {
             Log.d(Config.LOGTAG, "unable to get image dimensions", e);
             return false;
         }
@@ -1838,20 +1835,7 @@ public class FileBackend {
         */
         Message.FileParams fileParams = message.getFileParams();
         if (fileParams == null) fileParams = new Message.FileParams();
-        Cid[] cids = new Cid[0];
-        try {
-            cids = calculateCids(new FileInputStream(file));
-            fileParams.setCids(List.of(cids));
-        } catch (final IOException | NoSuchAlgorithmException e) { }
-        if (url == null) {
-            for (Cid cid : cids) {
-                url = mXmppConnectionService.getUrlForCid(cid);
-                if (url != null) {
-                    fileParams.url = url;
-                    break;
-                }
-            }
-        } else {
+        if (url != null) {
             fileParams.url = url;
         }
         fileParams.setName(file.getName());
@@ -1928,10 +1912,11 @@ public class FileBackend {
         message.setType(privateMessage ? Message.TYPE_PRIVATE_FILE : (image ? Message.TYPE_IMAGE : Message.TYPE_FILE));
         if (updateCids) {
             try {
+                Cid[] cids = calculateCids(new FileInputStream(getFile(message)));
                 for (int i = 0; i < cids.length; i++) {
                     mXmppConnectionService.saveCid(cids[i], file);
                 }
-            } catch (XmppConnectionService.BlockedMediaException e) { }
+            } catch (final IOException | XmppConnectionService.BlockedMediaException e) { }
         }
     }
 
@@ -2314,8 +2299,6 @@ public class FileBackend {
         try {
             SVG svg = SVG.getFromInputStream(mXmppConnectionService.getContentResolver().openInputStream(uri));
             svg.setDocumentPreserveAspectRatio(com.caverock.androidsvg.PreserveAspectRatio.FULLSCREEN);
-            svg.setDocumentWidth("100%");
-            svg.setDocumentHeight("100%");
 
             float w = svg.getDocumentWidth();
             float h = svg.getDocumentHeight();
@@ -2325,6 +2308,9 @@ public class FileBackend {
             float left = (size - outWidth) / 2;
             float top = (size - outHeight) / 2;
             RectF target = new RectF(left, top, left + outWidth, top + outHeight);
+            if (svg.getDocumentViewBox() == null) svg.setDocumentViewBox(0, 0, w, h);
+            svg.setDocumentWidth("100%");
+            svg.setDocumentHeight("100%");
 
             Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(output);
@@ -2353,6 +2339,7 @@ public class FileBackend {
             float w = svg.getDocumentWidth();
             float h = svg.getDocumentHeight();
             Rect r = rectForSize(w < 1 ? size : (int) w, h < 1 ? size : (int) h, size);
+            if (svg.getDocumentViewBox() == null) svg.setDocumentViewBox(0, 0, w, h);
             svg.setDocumentWidth("100%");
             svg.setDocumentHeight("100%");
 

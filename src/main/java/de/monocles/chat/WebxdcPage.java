@@ -336,7 +336,9 @@ public class WebxdcPage implements ConversationPage {
     }
 
     public void refresh() {
-        binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
+        if (binding != null && binding.webview != null) {
+            binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
+        }
     }
 
     protected Jid selfJid() {

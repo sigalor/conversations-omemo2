@@ -11,21 +11,21 @@ import com.bumptech.glide.Glide;
 
 import eu.siacs.conversations.R;
 
-public class GifsAdapter extends BaseAdapter {
+public class StickerAdapter extends BaseAdapter {
     private Context ctx;
-    private final String[] filesNames;
-    private final String[] filesPaths;
+    private final String[] filesNamesStickers;
+    private final String[] filesPathsStickers;
 
-    public GifsAdapter(Context ctx, String[] filesNames, String[] filesPaths) {
+    public StickerAdapter(Context ctx, String[] filesNamesStickers, String[] filesPathsStickers) {
         this.ctx = ctx;
-        this.filesNames = filesNames;
-        this.filesPaths = filesPaths;
+        this.filesNamesStickers = filesNamesStickers;
+        this.filesPathsStickers = filesPathsStickers;
     }
 
     @Override
     public int getCount() {
-        if (filesNames != null) {
-            return filesNames.length;
+        if (filesNamesStickers != null) {
+            return filesNamesStickers.length;
         } else {
             return 0;
         }
@@ -45,12 +45,12 @@ public class GifsAdapter extends BaseAdapter {
         View v;
         if (convertView == null) {  // if it's not recycled, initialize some attributes
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(     Context.LAYOUT_INFLATER_SERVICE );
-            v = inflater.inflate(R.layout.activity_gridview_gifs, parent, false);
+            v = inflater.inflate(R.layout.activity_gridview_stickers, parent, false);
         } else {
             v = (View) convertView;
         }
         ImageView image = (ImageView)v.findViewById(R.id.grid_item);
-        Glide.with(ctx).load(filesPaths[position]).into(image);
+        Glide.with(ctx).load(filesPathsStickers[position]).into(image);
         return v;
     }
 

@@ -254,7 +254,7 @@
     <string name="pref_use_indicate_received">Надсилати сповіщення про доставку</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Змінювати колір клавіші надсилання на позначення статусу контакта</string>
     <string name="pref_use_colored_names_to_indicate_status_summary">Позначати імена користувачів кольоровим текстом згідно зі станом контакту</string>
-    <string name="pref_expert_options_other">Поведінка</string>
+    <string name="pref_expert_options_other">Інше</string>
     <string name="pref_autojoin">Синхронізувати із закладками</string>
     <string name="pref_autojoin_summary">Приєднуватися до груп і полишати їх відповідно до опції автоматичного приєднання, вибраної в закладках.</string>
     <string name="toast_message_omemo_fingerprint">Цифровий підпис OMEMO скопійовано!</string>

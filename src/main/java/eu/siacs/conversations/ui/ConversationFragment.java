@@ -7,7 +7,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.persistance.FileBackend.SENT_AUDIOS;
-import static eu.siacs.conversations.persistance.FileBackend.getFileType;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 import static eu.siacs.conversations.ui.SettingsActivity.WARN_UNENCRYPTED_CHAT;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -15,6 +14,7 @@ import static eu.siacs.conversations.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSAT
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
 import static eu.siacs.conversations.utils.CameraUtils.getCameraApp;
 import static eu.siacs.conversations.utils.CameraUtils.showCameraChooser;
+import static eu.siacs.conversations.utils.Compatibility.hasStoragePermission;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.audioGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.cameraGranted;
@@ -40,21 +40,20 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.media.MediaRecorder;
+import android.media.MicrophoneDirection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
+import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
@@ -82,7 +81,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -101,7 +99,6 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
@@ -121,11 +118,10 @@ import net.java.otr4j.session.SessionStatus;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -148,14 +144,13 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import de.monocles.chat.BobTransfer;
-import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
+import de.monocles.chat.StickerAdapter;
 import de.monocles.chat.WebxdcPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -244,7 +239,7 @@ public class ConversationFragment extends XmppFragment
     private int mStartTime = 0;
     private boolean recording = false;
 
-    private final CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
+    private CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
 
     private final Handler mHandler = new Handler();
     private final Runnable mTickExecutor = new Runnable() {
@@ -271,6 +266,7 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_START_AUDIO_CALL = 0x213;
     public static final int REQUEST_START_VIDEO_CALL = 0x214;
     public static final int REQUEST_SAVE_STICKER = 0x215;
+    public static final int REQUEST_SAVE_GIF = 0x216;
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
@@ -307,11 +303,17 @@ public class ConversationFragment extends XmppFragment
     private Toast messageLoaderToast;
     private static ConversationsActivity activity;
     private Menu mOptionsMenu;
-    GridView gridView;
+    //Stickerspaths
+    private File[] filesStickers;
+    private String[] filesPathsStickers;
+    private String[] filesNamesStickers;
+    File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
+    //Gifspaths
     private File[] files;
     private String[] filesPaths;
     private String[] filesNames;
     File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
+
 
 
     protected OnClickListener clickToVerify = new OnClickListener() {
@@ -326,7 +328,7 @@ public class ConversationFragment extends XmppFragment
     private boolean reInitRequiredOnStart = true;
     private int identiconWidth = -1;
     private File savingAsSticker = null;
-    private EmojiSearch emojiSearch = null;
+    private File savingAsGif = null;
     private MediaPreviewAdapter mediaPreviewAdapter;
 
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
@@ -717,7 +719,6 @@ public class ConversationFragment extends XmppFragment
                     int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
                     binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
                 });
-                setupStickers();
 
                 if (binding.emojiPicker.getVisibility() == VISIBLE) {
                     binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
@@ -726,7 +727,7 @@ public class ConversationFragment extends XmppFragment
                     binding.emojisButton.setBackgroundColor(0);
                     binding.emojisButton.setTypeface(null, Typeface.NORMAL);
                 }
-                if (binding.stickers.getVisibility() == VISIBLE) {
+                if (binding.stickersview.getVisibility() == VISIBLE) {
                     binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                     binding.stickersButton.setTypeface(null, Typeface.BOLD);
                 } else {
@@ -743,7 +744,7 @@ public class ConversationFragment extends XmppFragment
             } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
                 LinearLayout emojipickerview = binding.emojisStickerLayout;
                 ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-                params.height = 600;
+                params.height = 800;
                 emojipickerview.setLayoutParams(params);
                 binding.emojiButton.setVisibility(GONE);
                 binding.keyboardButton.setVisibility(VISIBLE);
@@ -755,7 +756,6 @@ public class ConversationFragment extends XmppFragment
                     int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
                     binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
                 });
-                setupStickers();
 
                 if (binding.emojiPicker.getVisibility() == VISIBLE) {
                     binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
@@ -764,7 +764,7 @@ public class ConversationFragment extends XmppFragment
                     binding.emojisButton.setBackgroundColor(0);
                     binding.emojisButton.setTypeface(null, Typeface.NORMAL);
                 }
-                if (binding.stickers.getVisibility() == VISIBLE) {
+                if (binding.stickersview.getVisibility() == VISIBLE) {
                     binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                     binding.stickersButton.setTypeface(null, Typeface.BOLD);
                 } else {
@@ -786,7 +786,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(VISIBLE);
-            binding.stickers.setVisibility(GONE);
+            binding.stickersview.setVisibility(GONE);
             binding.gifsview.setVisibility(GONE);
             EmojiPickerView emojiPickerView = binding.emojiPicker;
             backPressedLeaveEmojiPicker.setEnabled(true);
@@ -803,7 +803,7 @@ public class ConversationFragment extends XmppFragment
                 binding.emojisButton.setBackgroundColor(0);
                 binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
-            if (binding.stickers.getVisibility() == VISIBLE) {
+            if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
@@ -824,11 +824,17 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(GONE);
-            binding.stickers.setVisibility(VISIBLE);
+            binding.stickersview.setVisibility(VISIBLE);
             binding.gifsview.setVisibility(GONE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
-
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirStickers.toPath())) {
+                    Toast.makeText(activity, R.string.update_default_stickers, Toast.LENGTH_LONG).show();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.emojisButton.setTypeface(null, Typeface.BOLD);
@@ -836,7 +842,7 @@ public class ConversationFragment extends XmppFragment
                 binding.emojisButton.setBackgroundColor(0);
                 binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
-            if (binding.stickers.getVisibility() == VISIBLE) {
+            if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
@@ -868,7 +874,7 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.emojiPicker.setVisibility(GONE);
-            binding.stickers.setVisibility(GONE);
+            binding.stickersview.setVisibility(GONE);
             binding.gifsview.setVisibility(VISIBLE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
@@ -886,7 +892,7 @@ public class ConversationFragment extends XmppFragment
                 binding.emojisButton.setBackgroundColor(0);
                 binding.emojisButton.setTypeface(null, Typeface.NORMAL);
             }
-            if (binding.stickers.getVisibility() == VISIBLE) {
+            if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.stickersButton.setTypeface(null, Typeface.BOLD);
             } else {
@@ -991,7 +997,7 @@ public class ConversationFragment extends XmppFragment
     private final OnClickListener mShareVoiceRecord = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            //binding.shareButton.setEnabled(false);        // TODO: Activate again
+            binding.shareButton.setEnabled(false);        // TODO: Activate again
             //binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
             mHandler.postDelayed(() -> stopRecording(true), 100);
@@ -1546,7 +1552,17 @@ public class ConversationFragment extends XmppFragment
             savingAsSticker = null;
             try {
                 activity.xmppConnectionService.getFileBackend().copyFileToDocumentFile(activity, f, df);
-                Toast.makeText(activity, "Sticker saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.sticker_saved, Toast.LENGTH_SHORT).show();
+            } catch (final FileBackend.FileCopyException e) {
+                Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == REQUEST_SAVE_GIF) {
+            final DocumentFile df = DocumentFile.fromSingleUri(activity, data.getData());
+            final File f = savingAsGif;
+            savingAsGif = null;
+            try {
+                activity.xmppConnectionService.getFileBackend().copyFileToDocumentFile(activity, f, df);
+                Toast.makeText(activity, R.string.gif_saved, Toast.LENGTH_SHORT).show();
             } catch (final FileBackend.FileCopyException e) {
                 Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
             }
@@ -1834,35 +1850,8 @@ public class ConversationFragment extends XmppFragment
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); //TODO why did we do this?
 
-
-        // Load and show GIFs
-        if (!dirGifs.exists()) {
-            dirGifs.mkdir();
-        }
-        if (dirGifs.listFiles() != null) {
-            if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
-                files = dirGifs.listFiles();
-                filesPaths = new String[files.length];
-                filesNames = new String[files.length];
-                for (int i = 0; i < files.length; i++) {
-                    filesPaths[i] = files[i].getAbsolutePath();
-                    filesNames[i] = files[i].getName();
-                }
-            }
-        }
-        de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
-        // Create an object of CustomAdapter and set Adapter to GirdView
-        GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
-        // implement setOnItemClickListener event on GridView
-        GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (activity == null) return;
-                String filePath = filesPaths[position];
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                toggleInputMethod();
-            }
-        });
+        LoadStickers();
+        LoadGifs();
 
         //Setting hide thread icon
         showThreadFeature();
@@ -1948,51 +1937,110 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
-        final Pattern lastColonPattern = Pattern.compile("");
-        binding.stickers.setOnItemClickListener((parent, view, position, id) -> {
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickers.getAdapter());
-            Editable toInsert = adapter.getItem(position).toInsert();
-            toInsert.append(" ");
-            Editable s = binding.textinput.getText();
-
-            Matcher lastColonMatcher = lastColonPattern.matcher(s);
-            int lastColon = 0;
-            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
-        });
-
-        setupStickers();
         updateinputfield(canSendMeCommand());
 
         hasWriteAccessInMUC();
         return binding.getRoot();
     }
 
-    protected void setupStickers() {
-        if (emojiSearch == null && activity != null && activity.xmppConnectionService != null) {
-            emojiSearch = activity.xmppConnectionService.emojiSearch();
-        }
-        if (emojiSearch == null || binding.stickers == null) return;
 
-        binding.stickers.setAdapter(emojiSearch.makeAdapter(activity));
-
-        final Pattern lastColonPattern = Pattern.compile("");
-        Editable s = binding.textinput.getText();
-        Handler emojiDebounce = new Handler(Looper.getMainLooper());
-        emojiDebounce.removeCallbacksAndMessages(null);
-        emojiDebounce.postDelayed(() -> {
-            Matcher lastColonMatcher = lastColonPattern.matcher(s);
-            int lastColon = 0;
-            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-
-            final String q = s.toString().substring(lastColon);
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickers.getAdapter());
-            if (adapter != null) {
-                adapter.search(q);
+    public void LoadStickers() {
+        activity.runOnUiThread(() -> {
+            if (!hasStoragePermission(activity)) return;
+            // Load and show Stickers
+            if (!dirStickers.exists()) {
+                dirStickers.mkdir();
             }
-        }, 400L);
+            if (dirStickers.listFiles() != null) {
+                if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
+                    filesStickers = dirStickers.listFiles();
+                    filesPathsStickers = new String[filesStickers.length];
+                    filesNamesStickers = new String[filesStickers.length];
+                    for (int i = 0; i < filesStickers.length; i++) {
+                        filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
+                        filesNamesStickers[i] = filesStickers[i].getName();
+                    }
+                }
+            }
+            de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
+            // Create an object of CustomAdapter and set Adapter to GirdView
+            StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
+            // implement setOnItemClickListener event on GridView
+            StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity == null) return;
+                    String filePath = filesPathsStickers[position];
+                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                    toggleInputMethod();
+                }
+            });
+
+            StickersGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity != null && filesPathsStickers[position] != null) {
+                        File file = new File(filesPathsStickers[position]);
+                        if (file.delete()) {
+                            Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    return true;
+                }
+            });
+        });
     }
 
+    public void LoadGifs() {
+        activity.runOnUiThread(() -> {
+            if (!hasStoragePermission(activity)) return;
+            // Load and show GIFs
+            if (!dirGifs.exists()) {
+                dirGifs.mkdir();
+            }
+            if (dirGifs.listFiles() != null) {
+                if (dirGifs.isDirectory() && dirGifs.listFiles() != null) {
+                    files = dirGifs.listFiles();
+                    filesPaths = new String[files.length];
+                    filesNames = new String[files.length];
+                    for (int i = 0; i < files.length; i++) {
+                        filesPaths[i] = files[i].getAbsolutePath();
+                        filesNames[i] = files[i].getName();
+                    }
+                }
+            }
+            de.monocles.chat.GridView GifsGrid = binding.gifsview; // init GridView
+            // Create an object of CustomAdapter and set Adapter to GirdView
+            GifsGrid.setAdapter(new GifsAdapter(activity, filesNames, filesPaths));
+            // implement setOnItemClickListener event on GridView
+            GifsGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity == null) return;
+                    String filePath = filesPaths[position];
+                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
+                    toggleInputMethod();
+                }
+            });
+
+            GifsGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (activity != null && filesPaths[position] != null) {
+                        File file = new File(filesPaths[position]);
+                        if (file.delete()) {
+                            Toast.makeText(activity, R.string.gif_deleted, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(activity, R.string.failed_to_delete_gif, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    return true;
+                }
+            });
+        });
+    }
 
     protected void newThreadTutorialToast(String s) {
         if (activity == null) return;
@@ -2054,15 +2102,17 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void showRecordVoiceButton() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        final boolean hideVoiceAndTakePicture = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
-        Log.d(Config.LOGTAG, "Recorder " + hideVoiceAndTakePicture);
-        if (!hideVoiceAndTakePicture || binding.textinput.getText().length() > 0) {
-            binding.recordVoiceButton.setVisibility(GONE);
-            binding.takePictureButton.setVisibility(GONE);
-        } else if (hideVoiceAndTakePicture && binding.textinput.getText().length() < 1) {
-            binding.recordVoiceButton.setVisibility(View.VISIBLE);
-            binding.takePictureButton.setVisibility(View.VISIBLE);
+        if (activity != null && binding != null) {
+            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
+            final boolean hideVoiceAndTakePicture = p.getBoolean("show_record_voice_btn", activity.getResources().getBoolean(R.bool.show_record_voice_btn));
+            Log.d(Config.LOGTAG, "Recorder " + hideVoiceAndTakePicture);
+            if (!hideVoiceAndTakePicture || binding.textinput.getText().length() > 0) {
+                binding.recordVoiceButton.setVisibility(GONE);
+                binding.takePictureButton.setVisibility(GONE);
+            } else if (hideVoiceAndTakePicture && binding.textinput.getText().length() < 1) {
+                binding.recordVoiceButton.setVisibility(View.VISIBLE);
+                binding.takePictureButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -2139,9 +2189,9 @@ public class ConversationFragment extends XmppFragment
         if ((message.isFileOrImage() || message.isOOb()) && binding.imageReplyPreview != null) {
             binding.imageReplyPreview.setVisibility(VISIBLE);
             if (activity.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                Glide.with(activity).load(message.getRelativeFilePath()).placeholder(R.drawable.ic_image_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
+                Glide.with(activity).load(message.getRelativeFilePath()).placeholder(R.drawable.ic_file_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
             } else {
-                Glide.with(activity).asBitmap().load(message.getRelativeFilePath()).placeholder(R.drawable.ic_image_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
+                Glide.with(activity).asBitmap().load(message.getRelativeFilePath()).placeholder(R.drawable.ic_file_grey600_48dp).thumbnail(0.2f).into(binding.imageReplyPreview);
             }
         } else if (binding.imageReplyPreview != null) {
             Glide.with(activity).clear(binding.imageReplyPreview);
@@ -2220,6 +2270,7 @@ public class ConversationFragment extends XmppFragment
             MenuItem sendAgain = menu.findItem(R.id.send_again);
             MenuItem copyUrl = menu.findItem(R.id.copy_url);
             MenuItem saveAsSticker = menu.findItem(R.id.save_as_sticker);
+            MenuItem saveAsGif = menu.findItem(R.id.save_as_gif);
             MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
             MenuItem downloadFile = menu.findItem(R.id.download_file);
             MenuItem blockMedia = menu.findItem(R.id.block_media);
@@ -2227,7 +2278,9 @@ public class ConversationFragment extends XmppFragment
             MenuItem showLog = menu.findItem(R.id.show_edit_log);
             MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
             MenuItem saveFile = menu.findItem(R.id.save_file);
-            onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
+            if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+                onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
+            }
             final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError = m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null && !Message.ERROR_MESSAGE_CANCELLED.equals(m.getErrorMessage());
             final Conversational conversational = m.getConversation();
@@ -2298,7 +2351,12 @@ public class ConversationFragment extends XmppFragment
             if (m.isFileOrImage() && !fileDeleted && !cancelable) {
                 final String path = m.getRelativeFilePath();
                 Log.d(Config.LOGTAG, "Path = " + path);
-                if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
+                if ((path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) && Objects.equals(MimeUtils.guessMimeTypeFromUri(activity, Uri.parse(path)), "image/gif")) {
+                    saveAsGif.setVisible(true);
+                    blockMedia.setVisible(true);
+                    deleteFile.setVisible(true);
+                    deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
+                } else if (path == null || !path.startsWith("/") || path.contains(getConversationsDirectory(this.activity, "null").getAbsolutePath())) {
                     saveAsSticker.setVisible(true);
                     blockMedia.setVisible(true);
                     deleteFile.setVisible(true);
@@ -2409,6 +2467,9 @@ public class ConversationFragment extends XmppFragment
             return true;
         } else if (itemId == R.id.save_as_sticker) {
             saveAsSticker(selectedMessage);
+            return true;
+        } else if (itemId == R.id.save_as_gif) {
+            saveAsGif(selectedMessage);
             return true;
         } else if (itemId == R.id.download_file) {
             startDownloadable(selectedMessage);
@@ -3264,6 +3325,7 @@ public class ConversationFragment extends XmppFragment
 
     public void recordVoice() {
         this.binding.recordingVoiceActivity.setVisibility(View.VISIBLE);
+        this.binding.recordVoiceButton.setEnabled(false);
         if (!startRecording()) {
             this.binding.shareButton.setEnabled(false);
             this.binding.timer.setTextAppearance(activity, R.style.TextAppearance_Conversations_Title);
@@ -3288,22 +3350,28 @@ public class ConversationFragment extends XmppFragment
         activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mRecorder.setPreferredMicrophoneDirection(MicrophoneDirection.MIC_DIRECTION_TOWARDS_USER);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mRecorder.setPrivacySensitive(true);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && activity.xmppConnectionService.getBooleanPreference("alternative_voice_settings", R.bool.alternative_voice_settings)) {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
-            mRecorder.setAudioEncodingBitRate(96000);
-            mRecorder.setAudioSamplingRate(48000);
+            mRecorder.setAudioEncodingBitRate(96_000);
+            mRecorder.setAudioSamplingRate(48_000);
         } else {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             if (AAC_SENSITIVE_DEVICES.contains(Build.MODEL)) {
                 // Changing these three settings for AAC sensitive devices might lead to sporadically truncated (cut-off) voice messages.
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-                mRecorder.setAudioSamplingRate(24000);
-                mRecorder.setAudioEncodingBitRate(28000);
+                mRecorder.setAudioSamplingRate(24_000);
+                mRecorder.setAudioEncodingBitRate(28_000);
             } else {
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                mRecorder.setAudioSamplingRate(44100);
-                mRecorder.setAudioEncodingBitRate(96000);
+                mRecorder.setAudioSamplingRate(44_100);
+                mRecorder.setAudioEncodingBitRate(96_000);
             }
         }
         setupOutputFile();
@@ -3331,6 +3399,8 @@ public class ConversationFragment extends XmppFragment
         } catch (Exception e) {
             e.printStackTrace();
         }
+        binding.recordVoiceButton.setEnabled(true);
+        binding.shareButton.setEnabled(true);
     }
 
     private void StartTimerAnimation() {
@@ -3395,6 +3465,8 @@ public class ConversationFragment extends XmppFragment
         }
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         activity.setRequestedOrientation(oldOrientation);
+        binding.recordVoiceButton.setEnabled(true);
+        binding.shareButton.setEnabled(true);
     }
 
     private class Finisher implements Runnable {
@@ -3490,6 +3562,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setupFileObserver(final File directory) {
+        outputFileWrittenLatch = new CountDownLatch(1);
         mFileObserver = new FileObserver(directory.getAbsolutePath()) {
             @Override
             public void onEvent(int event, String s) {
@@ -3740,41 +3813,70 @@ public class ConversationFragment extends XmppFragment
 
     private void saveAsSticker(final File file, final String name) {
         savingAsSticker = file;
-        Uri imageUri = Uri.fromFile(file);
-        //do something with the image (save it to some directory or whatever you need to do with it here)
-        if (imageUri != null) {
-            InputStream in;
-            OutputStream out;
-            try {
-                File stickerfolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User");
-                //create output directory if it doesn't exist
-                if (!stickerfolder.exists()) {
-                    stickerfolder.mkdirs();
-                }
 
-                String filename = "user_" + getConversation().getName() + "_" + System.currentTimeMillis();
-                File newSticker = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers" + File.separator + "User" + File.separator + filename + ".jpg");
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
+        intent.putExtra(Intent.EXTRA_TITLE, name);
 
-                in = activity.getContentResolver().openInputStream(imageUri);
-                out = new FileOutputStream(newSticker);
-                byte[] buffer = new byte[4096];
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
+        final String dir = "Stickers";
+        if (dir.startsWith("content://")) {
+            intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
+        } else {
+            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers").mkdirs();
+            Uri uri;
+            if (Build.VERSION.SDK_INT >= 29) {
+                Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
+                uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
+                if (uri != null) {
+                    uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
                 }
-                in.close();
-                in = null;
-                // write the output file
-                out.flush();
-                out.close();
-                out = null;
-                Toast.makeText(activity,R.string.sticker_imported,Toast.LENGTH_LONG).show();
-                activity.xmppConnectionService.forceRescanStickers();
-            } catch (IOException exception) {
-                Toast.makeText(activity,R.string.import_sticker_failed,Toast.LENGTH_LONG).show();
-                Log.d(Config.LOGTAG, "Could not import sticker" + exception);
+            } else {
+                uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2F" + "monocles chat%2F" + dir);
             }
+            intent.putExtra("android.provider.extra.INITIAL_URI", uri);
+            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
         }
+
+        Toast.makeText(activity, R.string.choose_sticker_name, Toast.LENGTH_SHORT).show();
+        startActivityForResult(Intent.createChooser(intent, "Choose sticker name"), REQUEST_SAVE_STICKER);
+    }
+
+    private void saveAsGif(final Message m) {
+        String existingName = m.getFileParams() != null && m.getFileParams().getName() != null ? m.getFileParams().getName() : "";
+        existingName = existingName.lastIndexOf(".") == -1 ? existingName : existingName.substring(0, existingName.lastIndexOf("."));
+        saveAsGif(activity.xmppConnectionService.getFileBackend().getFile(m), existingName);
+    }
+
+    private void saveAsGif(final File file, final String name) {
+        savingAsGif = file;
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
+        intent.putExtra(Intent.EXTRA_TITLE, name);
+
+        final String dir = "GIFs";
+        if (dir.startsWith("content://")) {
+            intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
+        } else {
+            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers").mkdirs();
+            Uri uri;
+            if (Build.VERSION.SDK_INT >= 29) {
+                Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
+                uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
+                if (uri != null) {
+                    uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
+                }
+            } else {
+                uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2F" + "monocles chat%2F" + dir);
+            }
+            intent.putExtra("android.provider.extra.INITIAL_URI", uri);
+            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
+        }
+
+        Toast.makeText(activity, R.string.choose_gif_name, Toast.LENGTH_SHORT).show();
+        startActivityForResult(Intent.createChooser(intent, "Choose sticker name"), REQUEST_SAVE_GIF);
     }
 
     private void deleteFile(final Message message) {
@@ -3935,7 +4037,7 @@ public class ConversationFragment extends XmppFragment
         } else if (binding.emojiButton.getVisibility() == VISIBLE && binding.emojisStickerLayout.getHeight() < 70) {
             LinearLayout emojipickerview = binding.emojisStickerLayout;
             ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-            params.height = 600;
+            params.height = 800;
             emojipickerview.setLayoutParams(params);
             binding.emojiButton.setVisibility(GONE);
             binding.keyboardButton.setVisibility(VISIBLE);
@@ -3954,7 +4056,7 @@ public class ConversationFragment extends XmppFragment
             binding.emojisButton.setBackgroundColor(0);
             binding.emojisButton.setTypeface(null, Typeface.NORMAL);
         }
-        if (binding.stickers.getVisibility() == VISIBLE) {
+        if (binding.stickersview.getVisibility() == VISIBLE) {
             binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
             binding.stickersButton.setTypeface(null, Typeface.BOLD);
         } else {
@@ -4457,13 +4559,11 @@ public class ConversationFragment extends XmppFragment
         if (message != null) {
             startDownloadable(message);
         }
-        /*      //TODO: Add bridges registration later
         if (activity.xmppConnectionService.isOnboarding() && conversation.getJid().equals(Jid.of("cheogram.com"))) {
             if (!conversation.switchToSession("jabber:iq:register")) {
                 conversation.startCommand(commandFor(Jid.of("cheogram.com/CHEOGRAM%jabber:iq:register"), "jabber:iq:register"), activity.xmppConnectionService);
             }
         }
-         */
     }
 
     private Element commandFor(final Jid jid, final String node) {
@@ -4737,9 +4837,8 @@ public class ConversationFragment extends XmppFragment
         final boolean participating = conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating();
         if (this.conversation.getStatus() != Conversation.STATUS_ARCHIVED &&
                 participating &&
-                this.conversation.setNextMessage(msg) &&
-                Objects.nonNull(activity.xmppConnectionService)) {
-            this.activity.xmppConnectionService.updateConversation(this.conversation);
+                this.conversation.setNextMessage(msg) && activity != null) {
+            activity.xmppConnectionService.updateConversation(this.conversation);
             return true;
         }
         return false;
@@ -4835,7 +4934,7 @@ public class ConversationFragment extends XmppFragment
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight == 0) {
                     binding.emojiButton.setVisibility(GONE);
-                    params.height = 600;
+                    params.height = 800;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.keyboardButton.getVisibility() == VISIBLE && keyboardHeight > 70) {
                     binding.emojiButton.setVisibility(GONE);
@@ -5297,7 +5396,6 @@ public class ConversationFragment extends XmppFragment
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
         updateinputfield(canSendMeCommand());
-        setupStickers();
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
