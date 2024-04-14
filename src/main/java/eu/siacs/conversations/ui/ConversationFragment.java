@@ -1945,7 +1945,6 @@ public class ConversationFragment extends XmppFragment
 
 
     public void LoadStickers() {
-        activity.runOnUiThread(() -> {
             if (!hasStoragePermission(activity)) return;
             // Load and show Stickers
             if (!dirStickers.exists()) {
@@ -1990,11 +1989,9 @@ public class ConversationFragment extends XmppFragment
                     return true;
                 }
             });
-        });
     }
 
     public void LoadGifs() {
-        activity.runOnUiThread(() -> {
             if (!hasStoragePermission(activity)) return;
             // Load and show GIFs
             if (!dirGifs.exists()) {
@@ -2039,7 +2036,6 @@ public class ConversationFragment extends XmppFragment
                     return true;
                 }
             });
-        });
     }
 
     protected void newThreadTutorialToast(String s) {
