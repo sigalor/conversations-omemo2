@@ -1513,4 +1513,5 @@
     <string name="gif_deleted">GIF 已删除</string>
     <string name="import_own_gifs">导入自己的 GIF</string>
     <string name="sticker_deleted">贴纸已删除</string>
+    <string name="choose_sticker_name">选择没有结尾的贴纸名</string>
 </resources>
