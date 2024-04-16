@@ -2156,6 +2156,10 @@ public class XmppConnectionService extends Service {
 
         final boolean inProgressJoin = isJoinInProgress(conversation);
 
+        if (message.getCounterpart() == null && !message.isPrivateMessage()) {
+            message.setCounterpart(message.getConversation().getJid().asBareJid());
+        }
+
         boolean waitForPreview = false;
         if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading()) {
             final List<URI> links = message.getLinks();
