@@ -34,7 +34,7 @@
             android:layout_below="@+id/actions"
             android:orientation="vertical"
             android:visibility="visible"
-            android:animateLayoutChanges="true" >
+            >
 
             <androidx.emoji2.emojipicker.EmojiPickerView
                 android:id="@+id/emoji_picker"
@@ -64,7 +64,7 @@
                 android:layout_weight="1"
                 android:gravity="bottom|center_horizontal"
                 android:orientation="horizontal"
-                android:animateLayoutChanges="true" >
+                >
 
                 <TextView
                     android:id="@+id/emojis_button"
