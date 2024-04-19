@@ -56,6 +56,6 @@
             app:menu="@menu/bottom_navigation_menu_chat"
             android:state_checked="true"
             android:visibility="gone"
-            />
+            android:animateLayoutChanges="true" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

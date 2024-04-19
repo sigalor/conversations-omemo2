@@ -89,6 +89,6 @@
         app:labelVisibilityMode="labeled"
         app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
         app:menu="@menu/bottom_navigation_menu_accounts"
-        />
+        android:animateLayoutChanges="true" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

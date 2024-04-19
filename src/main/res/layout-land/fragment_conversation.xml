@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="false"
-        >
+        android:animateLayoutChanges="true" >
 
         <ImageView
             android:id="@+id/background_image"
@@ -55,7 +55,7 @@
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
                     tools:listitem="@layout/message_sent"
-                    />
+                    android:animateLayoutChanges="true" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/scroll_to_bottom_button"
@@ -70,7 +70,7 @@
                     app:backgroundTint="?attr/color_background_primary"
                     app:fabCustomSize="48dp"
                     app:useCompatPadding="true"
-                    />
+                    android:animateLayoutChanges="true" />
 
                 <eu.siacs.conversations.ui.widget.UnreadCountCustomView
                     android:id="@+id/unread_count_custom_view"
@@ -85,7 +85,7 @@
                     android:elevation="8dp"
                     android:visibility="gone"
                     app:backgroundColor="?attr/colorAccent"
-                    />
+                    android:animateLayoutChanges="true" />
 
                 <LinearLayout
                     android:id="@+id/input_area"
@@ -102,7 +102,7 @@
                     android:layout_marginLeft="8dp"
                     android:background="@drawable/input_bubble_light"
                     android:alpha="0.88"
-                    >
+                    android:animateLayoutChanges="true" >
 
                     <ListView
                         android:id="@+id/emoji"
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
                         android:visibility="gone"
-                        >
+                        android:animateLayoutChanges="true" >
 
                         <ImageView
                             android:id="@+id/cancel_button"
@@ -238,13 +238,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="4dp"
-                        >
+                        android:animateLayoutChanges="true" >
 
                         <RelativeLayout
                             android:id="@+id/message_input_box"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            >
+                            android:animateLayoutChanges="true" >
 
                             <RelativeLayout
                                 android:id="@+id/thread_identicon_layout"
@@ -405,7 +405,7 @@
                             android:layout_below="@+id/textformat"
                             android:orientation="vertical"
                             android:visibility="visible"
-                            >
+                            android:animateLayoutChanges="true" >
 
                             <androidx.emoji2.emojipicker.EmojiPickerView
                                 android:id="@+id/emoji_picker"
@@ -450,7 +450,7 @@
                                 android:layout_weight="1"
                                 android:gravity="bottom|center_horizontal"
                                 android:orientation="horizontal"
-                                >
+                                android:animateLayoutChanges="true" >
 
                                 <TextView
                                     android:id="@+id/emojis_button"
@@ -593,7 +593,7 @@
                     android:minHeight="48dp"
                     android:orientation="horizontal"
                     android:visibility="visible"
-                    >
+                    android:animateLayoutChanges="true" >
 
                     <TextView
                         android:id="@+id/snackbar_message"
@@ -607,7 +607,7 @@
                         android:paddingStart="24dp"
                         android:paddingLeft="24dp"
                         android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark"
-                        />
+                        android:animateLayoutChanges="true" />
 
                     <TextView
                         android:id="@+id/snackbar_action"
@@ -625,7 +625,7 @@
                         android:textAllCaps="true"
                         android:textAppearance="@style/TextAppearance.Conversations.Body1.OnDark"
                         android:textStyle="bold"
-                        />
+                        android:animateLayoutChanges="true" />
 
                 </RelativeLayout>
 
