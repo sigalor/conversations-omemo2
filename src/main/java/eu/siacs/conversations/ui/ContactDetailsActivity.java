@@ -589,7 +589,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             intent.putExtra("finishActivityOnSaveCompleted", true);
             try {
                 startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
             } catch (ActivityNotFoundException e) {
                 ToastCompat.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, ToastCompat.LENGTH_SHORT).show();
             }

@@ -341,7 +341,7 @@ public class ImportBackupActivity extends XmppActivity implements ServiceConnect
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        
         System.exit(0);
     }
 

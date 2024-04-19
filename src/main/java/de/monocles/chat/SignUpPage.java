@@ -111,9 +111,9 @@ public class SignUpPage extends RegisterMonoclesActivity {
                 intent.putExtra("existing", true);
                 //addInviteUri(intent);
                 startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
                 finish();
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

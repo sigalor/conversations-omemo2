@@ -188,9 +188,9 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
                         if (copyTextToClipboard(password, R.string.create_account)) {
                             StartConversationActivity.addInviteUri(intent, getIntent());
                             startActivity(intent);
-                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                            
                             finish();
-                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                            
                         }
                     });
                     builder.create().show();

@@ -463,7 +463,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 switch (item.getItemId()) {
                     case R.id.chats -> {
                         startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     }
                     case R.id.contactslist -> {
@@ -471,17 +471,17 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                     }
                     case R.id.manageaccounts -> {
                         startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     }
                         /* TODO:
                     case R.id.calls:
                         startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     case R.id.stories:
                         startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                          */
                     default ->
@@ -1413,7 +1413,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         intent.putExtra(ChooseContactActivity.EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
         intent.putExtra(ChooseContactActivity.EXTRA_TITLE_RES_ID, R.string.choose_participants);
         startActivityForResult(intent, REQUEST_CREATE_CONFERENCE);
-        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        
     }
 
     @Override

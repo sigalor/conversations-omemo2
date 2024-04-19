@@ -573,7 +573,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(body));
                 activity.startActivity(intent);
-                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
             } catch (Exception e) {
                 ToastCompat.makeText(activity, R.string.no_application_found_to_view_contact, ToastCompat.LENGTH_LONG).show();
             }
@@ -2013,7 +2013,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         for (Intent intent : GeoHelper.createGeoIntentsFromMessage(this.getContext(), message)) {
             if (intent.resolveActivity(getContext().getPackageManager()) != null) {
                 getContext().startActivity(intent);
-                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
                 return;
             }
         }

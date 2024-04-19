@@ -27,7 +27,7 @@ public class StartUI extends AppCompatActivity {
         Intent intent = new Intent(this, ConversationsActivity.class);
         intent.putExtra(PREF_FIRST_START, FirstStartTime);
         startActivity(intent);
-        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        
         finish();    }
 
 

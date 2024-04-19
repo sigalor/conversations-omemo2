@@ -251,7 +251,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 restartintent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 restartintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(restartintent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
                 System.exit(0);
             }
         }
@@ -309,7 +309,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             }
             runOnUiThread(() -> {
                 startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
                 if (noAnimation) {
                     overridePendingTransition(0, 0);
                 }
@@ -1001,22 +1001,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     }
                     case R.id.contactslist -> {
                         startActivity(new Intent(getApplicationContext(), StartConversationActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     }
                     case R.id.manageaccounts -> {
                         startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     }
                         /* TODO:
                     case R.id.calls:
                         startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     case R.id.stories:
                         startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                          */
                     default ->
@@ -1260,7 +1260,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     break;
             }
             startActivity(intent);
-            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            
             return true;
         });
         popup.show();

@@ -65,13 +65,13 @@ public class EnterNameActivity extends XmppActivity implements XmppConnectionSer
                 Intent intent = new Intent(this, SetSettingsActivity.class);
                 intent.putExtra("setup", true);
                 startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
             } else {
                 Intent intent = new Intent(this, PublishProfilePictureActivity.class);
                 intent.putExtra(PublishProfilePictureActivity.EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
                 intent.putExtra("setup", true);
                 startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
             }
         }
         finish();
@@ -88,7 +88,7 @@ public class EnterNameActivity extends XmppActivity implements XmppConnectionSer
             StartConversationActivity.addInviteUri(intent, getIntent());
             intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
             startActivity(intent);
-            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            
             finish();
         }
         finish();

@@ -90,17 +90,17 @@ public class CallsActivity extends XmppActivity {
                 {
                     case R.id.chats:
                         startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     case R.id.calls:
                         return true;
                     case R.id.contactslist:
                         startActivity(new Intent(getApplicationContext(),StartConversationActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                     case R.id.stories:
                         startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        
                         return true;
                 }
                 return false;
@@ -315,7 +315,7 @@ public class CallsActivity extends XmppActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        
         System.exit(0);
     }
 

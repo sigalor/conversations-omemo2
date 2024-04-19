@@ -648,7 +648,7 @@ public class ConversationFragment extends XmppFragment
             intent.putExtra(VerifyOTRActivity.EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
             intent.putExtra("mode", VerifyOTRActivity.MODE_ANSWER_QUESTION);
             startActivity(intent);
-            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            
         }
     };
 
@@ -2605,7 +2605,7 @@ public class ConversationFragment extends XmppFragment
             Intent intent1 = new Intent(activity, MucUsersActivity.class);
             intent1.putExtra("uuid", conversation.getUuid());
             startActivity(intent1);
-            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            
         } else if (itemId == R.id.action_contact_details) {
             activity.switchToContactDetails(conversation.getContact());
         } else if (itemId == R.id.action_mediabrowser) {
@@ -3301,10 +3301,10 @@ public class ConversationFragment extends XmppFragment
                 startActivityForResult(
                         Intent.createChooser(intent, getString(R.string.perform_action_with)),
                         attachmentChoice);
-                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
             } else {
                 startActivityForResult(intent, attachmentChoice);
-                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                
             }
         } catch (final ActivityNotFoundException e) {
 
@@ -4355,7 +4355,7 @@ public class ConversationFragment extends XmppFragment
                             intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
                             intent.putExtra("uuid", conversation.getUuid());
                             startActivity(intent);
-                            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                            
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
