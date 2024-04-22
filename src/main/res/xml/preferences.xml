@@ -489,6 +489,11 @@
             android:summary="@string/pref_broadcast_last_activity_summary"
             android:title="@string/pref_broadcast_last_activity" />
         <SwitchPreference
+            android:defaultValue="@bool/accept_invites_from_strangers"
+            android:key="accept_invites_from_strangers"
+            android:summary="@string/pref_accept_invites_from_strangers_summary"
+            android:title="@string/pref_accept_invites_from_strangers" />
+        <SwitchPreference
             android:defaultValue="@bool/send_link_previews"
             android:key="send_link_previews"
             android:summary="@string/pref_send_link_previews_summary"

@@ -310,6 +310,7 @@ public final class MucDetailsContextMenuHelper {
                 activity.privateMsgInMuc(conversation, user.getNick());
                 return true;
             case R.id.invite:
+                // TODO use direct invites for public conferences
                 if (user.getAffiliation().ranks(MucOptions.Affiliation.MEMBER)) {
                     activity.xmppConnectionService.directInvite(conversation, jid.asBareJid());
                 } else {
