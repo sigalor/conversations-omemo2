@@ -173,8 +173,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
     private String readmarkervalue;
     private ConversationFragment mConversationFragment = null;
-    private boolean expandable;
-    private boolean expand;
 
 
     public MessageAdapter(final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
@@ -1476,9 +1474,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
                     viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
                     viewHolder.secondQuoteLine = view.findViewById(R.id.second_quote_line);
-                    viewHolder.seeMore = view.findViewById(R.id.see_more);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
-                    viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
+                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    }
                     viewHolder.user = view.findViewById(R.id.message_user);
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
@@ -1515,9 +1516,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
                     viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
                     viewHolder.secondQuoteLine = view.findViewById(R.id.second_quote_line);
-                    viewHolder.seeMore = view.findViewById(R.id.see_more);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
-                    viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
+                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                        viewHolder.messageBody = view.findViewById(R.id.message_body);
+                    }
                     viewHolder.user = view.findViewById(R.id.message_user);
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
@@ -1552,28 +1556,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         if (viewHolder.messageBody != null) {
             viewHolder.messageBody.setCustomSelectionActionModeCallback(new MessageTextActionModeCallback(this, viewHolder.messageBody));
-
-            if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-                viewHolder.messageBody.setMaxLines(Integer.MAX_VALUE);//Message TextView
-                viewHolder.seeMore.setVisibility(GONE);
-            } else if (viewHolder.messageBody.getLineCount() > 7 && viewHolder.seeMore.getText().toString().equalsIgnoreCase(activity.getString(R.string.show_more))) {
-                viewHolder.seeMore.setVisibility(View.VISIBLE);
-                viewHolder.seeMore.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        if (viewHolder.seeMore.getText().toString().equalsIgnoreCase(activity.getString(R.string.show_more))) {
-                            viewHolder.messageBody.setMaxLines(Integer.MAX_VALUE);// Message TextView
-                            viewHolder.seeMore.setText(R.string.show_less);
-                        } else {
-                            viewHolder.messageBody.setMaxLines(7);//Message TextView
-                            viewHolder.seeMore.setText(R.string.show_more);
-                        }
-                    }
-                });
-            } else if (viewHolder.messageBody.getLineCount() <= 7) {
-                viewHolder.seeMore.setVisibility(GONE);
-            }
         }
 
         if (viewHolder.thread_identicon != null) {
@@ -2145,7 +2127,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected ImageView image;
         protected ImageView quotedImage;
         protected RelativeLayout quotedImageBox;
-        protected TextView seeMore;
         protected View secondQuoteLine;
         protected TextView mediaduration;
         protected RichLinkView richlinkview;

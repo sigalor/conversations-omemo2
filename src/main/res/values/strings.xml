@@ -1312,7 +1312,7 @@
     <string name="pref_follow_thread_in_channel_summary">Set the thread marker to match the message currently being looked at</string>
     <string name="show_less">\n\n... show less</string>
     <string name="show_more">\n\n... show more</string>
-    <string name="collapse_message_signs_summary">Collapse messages with more than 7 lines</string>
+    <string name="collapse_message_signs_summary">Set the maximum number of signs to collapse a message</string>
     <string name="collapse_message_signs_title">Collapse long text messages</string>
     <string name="action_complete">Action complete</string>
     <string name="moderate_recent">Moderate messages?</string>
