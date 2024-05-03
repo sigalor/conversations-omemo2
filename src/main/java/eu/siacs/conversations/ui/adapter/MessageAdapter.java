@@ -1740,6 +1740,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                    MessageAdapter.this.mOnMessageBoxClickedListener
+                            .onContactPictureClicked(message);
                 }
             }
             return false;
