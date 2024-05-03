@@ -6,13 +6,16 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Ints;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -20,12 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+//import de.gultsch.minidns.AndroidDNSClient;
 import org.minidns.AbstractDnsClient;
 import org.minidns.DnsCache;
 import org.minidns.DnsClient;
 import org.minidns.cache.LruCache;
 import org.minidns.dnsmessage.Question;
 import org.minidns.dnsname.DnsName;
+import org.minidns.dnssec.DnssecResultNotAuthenticException;
 import org.minidns.dnssec.DnssecValidationFailedException;
 import org.minidns.dnsserverlookup.AndroidUsingExec;
 import org.minidns.hla.DnssecResolverApi;
@@ -40,16 +45,9 @@ import org.minidns.record.InternetAddressRR;
 import org.minidns.record.Record;
 import org.minidns.record.SRV;
 import eu.siacs.conversations.Config;
-import eu.siacs.conversations.persistance.FileBackend;
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xmpp.Jid;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.net.InetAddresses;
-import com.google.common.primitives.Ints;
-import com.google.common.base.Strings;
-
 
 public class Resolver {
 
@@ -61,114 +59,114 @@ public class Resolver {
     private static XmppConnectionService SERVICE = null;
 
     private static List<String> DNSSECLESS_TLDS = Arrays.asList(
-        "ae",
-        "aero",
-        "ai",
-        "al",
-        "ao",
-        "aq",
-        "as",
-        "ba",
-        "bb",
-        "bd",
-        "bf",
-        "bi",
-        "bj",
-        "bn",
-        "bo",
-        "bs",
-        "bw",
-        "cd",
-        "cf",
-        "cg",
-        "ci",
-        "ck",
-        "cm",
-        "cu",
-        "cv",
-        "cw",
-        "dj",
-        "dm",
-        "do",
-        "ec",
-        "eg",
-        "eh",
-        "er",
-        "et",
-        "fj",
-        "fk",
-        "ga",
-        "ge",
-        "gf",
-        "gh",
-        "gm",
-        "gp",
-        "gq",
-        "gt",
-        "gu",
-        "hm",
-        "ht",
-        "im",
-        "ir",
-        "je",
-        "jm",
-        "jo",
-        "ke",
-        "kh",
-        "km",
-        "kn",
-        "kp",
-        "kz",
-        "ls",
-        "mg",
-        "mh",
-        "mk",
-        "ml",
-        "mm",
-        "mo",
-        "mp",
-        "mq",
-        "ms",
-        "mt",
-        "mu",
-        "mv",
-        "mw",
-        "mz",
-        "ne",
-        "ng",
-        "ni",
-        "np",
-        "nr",
-        "om",
-        "pa",
-        "pf",
-        "pg",
-        "pk",
-        "pn",
-        "ps",
-        "py",
-        "qa",
-        "rw",
-        "sd",
-        "sl",
-        "sm",
-        "so",
-        "sr",
-        "sv",
-        "sy",
-        "sz",
-        "tc",
-        "td",
-        "tg",
-        "tj",
-        "to",
-        "tr",
-        "va",
-        "vg",
-        "vi",
-        "ye",
-        "zm",
-        "zw"
+            "ae",
+            "aero",
+            "ai",
+            "al",
+            "ao",
+            "aq",
+            "as",
+            "ba",
+            "bb",
+            "bd",
+            "bf",
+            "bi",
+            "bj",
+            "bn",
+            "bo",
+            "bs",
+            "bw",
+            "cd",
+            "cf",
+            "cg",
+            "ci",
+            "ck",
+            "cm",
+            "cu",
+            "cv",
+            "cw",
+            "dj",
+            "dm",
+            "do",
+            "ec",
+            "eg",
+            "eh",
+            "er",
+            "et",
+            "fj",
+            "fk",
+            "ga",
+            "ge",
+            "gf",
+            "gh",
+            "gm",
+            "gp",
+            "gq",
+            "gt",
+            "gu",
+            "hm",
+            "ht",
+            "im",
+            "ir",
+            "je",
+            "jm",
+            "jo",
+            "ke",
+            "kh",
+            "km",
+            "kn",
+            "kp",
+            "kz",
+            "ls",
+            "mg",
+            "mh",
+            "mk",
+            "ml",
+            "mm",
+            "mo",
+            "mp",
+            "mq",
+            "ms",
+            "mt",
+            "mu",
+            "mv",
+            "mw",
+            "mz",
+            "ne",
+            "ng",
+            "ni",
+            "np",
+            "nr",
+            "om",
+            "pa",
+            "pf",
+            "pg",
+            "pk",
+            "pn",
+            "ps",
+            "py",
+            "qa",
+            "rw",
+            "sd",
+            "sl",
+            "sm",
+            "so",
+            "sr",
+            "sv",
+            "sy",
+            "sz",
+            "tc",
+            "td",
+            "tg",
+            "tj",
+            "to",
+            "tr",
+            "va",
+            "vg",
+            "vi",
+            "ye",
+            "zm",
+            "zw"
     );
 
     protected static final Map<String, String> knownSRV = ImmutableMap.of(
@@ -232,7 +230,7 @@ public class Resolver {
     }
 
     public static List<Result> resolve(final String domain) {
-        final  List<Result> ipResults = fromIpAddress(domain, DEFAULT_PORT_XMPP);
+        final  List<Result> ipResults = fromIpAddress(domain);
         if (ipResults.size() > 0) {
             return ipResults;
         }
@@ -264,7 +262,7 @@ public class Resolver {
             }
         });
         threads[2] = new Thread(() -> {
-            List<Result> list = resolveNoSrvRecords(DnsName.from(domain), DEFAULT_PORT_XMPP, true);
+            List<Result> list = resolveNoSrvRecords(DnsName.from(domain), true);
             synchronized (fallbackResults) {
                 fallbackResults.addAll(list);
             }
@@ -298,14 +296,14 @@ public class Resolver {
         }
     }
 
-    private static List<Result> fromIpAddress(String domain, int port) {
+    private static List<Result> fromIpAddress(String domain) {
         if (!IP.matches(domain)) {
             return Collections.emptyList();
         }
         try {
             Result result = new Result();
             result.ip = InetAddress.getByName(domain);
-            result.port = port;
+            result.port = DEFAULT_PORT_XMPP;
             result.authenticated = true;
             return Collections.singletonList(result);
         } catch (UnknownHostException e) {
@@ -372,25 +370,25 @@ public class Resolver {
         return list;
     }
 
-    private static List<Result> resolveNoSrvRecords(DnsName dnsName, int port, boolean withCnames) {
+    private static List<Result> resolveNoSrvRecords(DnsName dnsName, boolean withCnames) {
         final List<Result> results = new ArrayList<>();
         try {
             ResolverResult<A> aResult = resolveWithFallback(dnsName, A.class);
             for (A a : aResult.getAnswersOrEmptySet()) {
-                Result r = Result.createDefault(dnsName, a.getInetAddress(), port);
+                Result r = Result.createDefault(dnsName, a.getInetAddress());
                 r.authenticated = aResult.isAuthenticData();
                 results.add(r);
             }
             ResolverResult<AAAA> aaaaResult = resolveWithFallback(dnsName, AAAA.class);
             for (AAAA aaaa : aaaaResult.getAnswersOrEmptySet()) {
-                Result r = Result.createDefault(dnsName, aaaa.getInetAddress(), port);
+                Result r = Result.createDefault(dnsName, aaaa.getInetAddress());
                 r.authenticated = aaaaResult.isAuthenticData();
                 results.add(r);
             }
             if (results.size() == 0 && withCnames) {
                 ResolverResult<CNAME> cnameResult = resolveWithFallback(dnsName, CNAME.class);
                 for (CNAME cname : cnameResult.getAnswersOrEmptySet()) {
-                    for (Result r : resolveNoSrvRecords(cname.name, port, false)) {
+                    for (Result r : resolveNoSrvRecords(cname.name, false)) {
                         r.authenticated = r.authenticated && cnameResult.isAuthenticData();
                         results.add(r);
                     }
@@ -401,7 +399,7 @@ public class Resolver {
                 Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + "error resolving fallback records", throwable);
             }
         }
-        results.add(Result.createDefault(dnsName, port));
+        results.add(Result.createDefault(dnsName));
         return results;
     }
 
@@ -441,10 +439,6 @@ public class Resolver {
         private boolean directTls = false;
         private boolean authenticated = false;
         private int priority;
-        private long timeRequested;
-        private Socket socket;
-
-        private String logID = "";
 
         static Result fromRecord(SRV srv, boolean directTls) {
             Result result = new Result();
@@ -455,18 +449,32 @@ public class Resolver {
             return result;
         }
 
-        static Result createDefault(DnsName hostname, InetAddress ip, int port) {
+        static Result createDefault(DnsName hostname, InetAddress ip) {
             Result result = new Result();
-            result.timeRequested = System.currentTimeMillis();
-            result.port = port;
+            result.port = DEFAULT_PORT_XMPP;
             result.hostname = hostname;
             result.ip = ip;
-            result.directTls = useDirectTls(port);
             return result;
         }
 
-        static Result createDefault(DnsName hostname, int port) {
-            return createDefault(hostname, null, port);
+        static Result createDefault(DnsName hostname) {
+            return createDefault(hostname, null);
+        }
+
+        public static Result fromCursor(Cursor cursor) {
+            final Result result = new Result();
+            try {
+                result.ip = InetAddress.getByAddress(cursor.getBlob(cursor.getColumnIndex(IP)));
+            } catch (UnknownHostException e) {
+                result.ip = null;
+            }
+            final String hostname = cursor.getString(cursor.getColumnIndex(HOSTNAME));
+            result.hostname = hostname == null ? null : DnsName.from(hostname);
+            result.port = cursor.getInt(cursor.getColumnIndex(PORT));
+            result.priority = cursor.getInt(cursor.getColumnIndex(PRIORITY));
+            result.authenticated = cursor.getInt(cursor.getColumnIndex(AUTHENTICATED)) > 0;
+            result.directTls = cursor.getInt(cursor.getColumnIndex(DIRECT_TLS)) > 0;
+            return result;
         }
 
         @Override
@@ -515,62 +523,16 @@ public class Resolver {
             return authenticated;
         }
 
-        public boolean isOutdated() {
-            return (System.currentTimeMillis() - timeRequested) > 300_000;
-        }
-
-        public Socket getSocket() {
-            return socket;
-        }
-
-        @NotNull
         @Override
         public String toString() {
             return "Result{" +
                     "ip='" + (ip == null ? null : ip.getHostAddress()) + '\'' +
-                    ", hostname='" + (hostname == null ? null : hostname.toString()) + '\'' +
+                    ", hostame='" + (hostname == null ? null : hostname.toString()) + '\'' +
                     ", port=" + port +
                     ", directTls=" + directTls +
                     ", authenticated=" + authenticated +
                     ", priority=" + priority +
                     '}';
-        }
-
-        public void connect() {
-            if (this.socket != null) {
-                this.disconnect();
-            }
-            if (this.ip == null || this.port == 0) {
-                Log.d(Config.LOGTAG, "Resolver did not get IP:port (" + this.ip + ":" + this.port + ")");
-                return;
-            }
-            final InetSocketAddress addr = new InetSocketAddress(this.ip, this.port);
-            this.socket = new Socket();
-            try {
-                long time = System.currentTimeMillis();
-                this.socket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
-                time = System.currentTimeMillis() - time;
-                if (this.logID != null && !this.logID.isEmpty()) {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") connect: " + toString() + " after: " + time + " ms");
-                } else {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result connect: " + toString() + " after: " + time + " ms");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                this.disconnect();
-            }
-        }
-
-        public void disconnect() {
-            if (this.socket != null) {
-                FileBackend.close(this.socket);
-                this.socket = null;
-                if (this.logID != null && !this.logID.isEmpty()) {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result (" + this.logID + ") disconnect: " + toString());
-                } else {
-                    Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": Result disconnect: " + toString());
-                }
-            }
         }
 
         @Override
@@ -596,31 +558,6 @@ public class Resolver {
             }
         }
 
-        public Result call() throws Exception {
-            this.connect();
-            if (this.socket != null && this.socket.isConnected()) {
-                return this;
-            }
-            throw new Exception("Resolver.Result was not possible to connect - should be catched by executor");
-        }
-
-        public static Result fromCursor(Cursor cursor) {
-            final Result result = new Result();
-            try {
-                result.ip = InetAddress.getByAddress(cursor.getBlob(cursor.getColumnIndex(IP)));
-            } catch (UnknownHostException e) {
-                result.ip = null;
-            }
-            final String hostname = cursor.getString(cursor.getColumnIndex(HOSTNAME));
-            result.hostname = hostname == null ? null : DnsName.from(hostname);
-            result.port = cursor.getInt(cursor.getColumnIndex(PORT));
-            result.directTls = cursor.getInt(cursor.getColumnIndex(DIRECT_TLS)) > 0;
-            result.authenticated = cursor.getInt(cursor.getColumnIndex(AUTHENTICATED)) > 0;
-            result.priority = cursor.getInt(cursor.getColumnIndex(PRIORITY));
-            result.timeRequested = cursor.getLong(cursor.getColumnIndex(TIME_REQUESTED));
-            return result;
-        }
-
         public ContentValues toContentValues() {
             final ContentValues contentValues = new ContentValues();
             contentValues.put(IP, ip == null ? null : ip.getAddress());
@@ -629,7 +566,6 @@ public class Resolver {
             contentValues.put(PRIORITY, priority);
             contentValues.put(DIRECT_TLS, directTls ? 1 : 0);
             contentValues.put(AUTHENTICATED, authenticated ? 1 : 0);
-            contentValues.put(TIME_REQUESTED, timeRequested);
             return contentValues;
         }
 
@@ -692,4 +628,5 @@ public class Resolver {
             return result;
         }
     }
+
 }
