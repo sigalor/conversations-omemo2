@@ -1664,7 +1664,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             });
         }
-
         // Reactions popup
         ReactionsConfig config = new ReactionsConfigBuilder(activity)
                 .withReactions(new int[]{
@@ -1677,7 +1676,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 })
                 .build();
 
-        ReactionPopup reactionPopup = new ReactionPopup(activity, config, (position) -> {
+        ReactionPopup popup = new ReactionPopup(activity, config, (position) -> {
             if (position.equals(0)) {
                 mConversationFragment.setupReply(message[0]);
                 while (message[0].mergeable(message[0].next())) {
@@ -1803,12 +1802,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
         });
 
+
+
+
+
         // Treat touch-up as click so we don't have to touch twice
         // (touch twice is because it's waiting to see if you double-touch for text selection)
-        viewHolder.message_box.setOnTouchListener((v, event) -> {
+        viewHolder.messageBody.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    reactionPopup.onTouch(v, event);
+                    popup.onTouch(v, event);
                 }
             }
             return false;
