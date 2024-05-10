@@ -1536,10 +1536,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
                     if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                        viewHolder.status_message = view.findViewById(R.id.status_message);
                     } else {
                         viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
+                        // Update layout constraints because the textview would now reference the wrong ShapeableImageView
+                        // This should only be the case in MUC's where the participants can see the READ status
+                        TextView status_message = view.findViewById(R.id.status_message);
+                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) status_message.getLayoutParams();
+                        params.addRule(RelativeLayout.RIGHT_OF, R.id.message_photo_square);
+                        params.addRule(RelativeLayout.END_OF, R.id.message_photo_square);
+                        status_message.setLayoutParams(params);
+                        viewHolder.status_message = status_message;
                     }
-                    viewHolder.status_message = view.findViewById(R.id.status_message);
                     viewHolder.load_more_messages = view.findViewById(R.id.load_more_messages);
                     break;
                 default:
