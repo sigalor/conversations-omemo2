@@ -46,6 +46,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -211,30 +213,39 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         }
     };
 
-    private OnClickListener mChangeConferenceSettings = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (mConversation == null) {
-                return;
-            }
-            final MucOptions mucOptions = mConversation.getMucOptions();
-            final AlertDialog.Builder builder = new AlertDialog.Builder(ConferenceDetailsActivity.this);
-            MucConfiguration configuration = MucConfiguration.get(ConferenceDetailsActivity.this, mAdvancedMode, mucOptions);
-            builder.setTitle(configuration.title);
-            final boolean[] values = configuration.values;
-            builder.setMultiChoiceItems(configuration.names, values, (dialog, which, isChecked) -> values[which] = isChecked);
-            builder.setNegativeButton(R.string.cancel, null);
-            builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
-                final Bundle options = configuration.toBundle(values);
-                options.putString("muc#roomconfig_persistentroom", "1");
-                options.putString("{http://prosody.im/protocol/muc}roomconfig_allowmemberinvites", options.getString("muc#roomconfig_allowinvites"));
-                xmppConnectionService.pushConferenceConfiguration(mConversation,
-                        options,
-                        ConferenceDetailsActivity.this);
-            });
-            builder.create().show();
-        }
-    };
+    private final OnClickListener mChangeConferenceSettings =
+            new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final MucOptions mucOptions = mConversation.getMucOptions();
+                    final MaterialAlertDialogBuilder builder =
+                            new MaterialAlertDialogBuilder(ConferenceDetailsActivity.this);
+                    MucConfiguration configuration =
+                            MucConfiguration.get(
+                                    ConferenceDetailsActivity.this, mAdvancedMode, mucOptions);
+                    builder.setTitle(configuration.title);
+                    final boolean[] values = configuration.values;
+                    builder.setMultiChoiceItems(
+                            configuration.names,
+                            values,
+                            (dialog, which, isChecked) -> values[which] = isChecked);
+                    builder.setNegativeButton(R.string.cancel, null);
+                    builder.setPositiveButton(
+                            R.string.confirm,
+                            (dialog, which) -> {
+                                final Bundle options = configuration.toBundle(values);
+                                options.putString("muc#roomconfig_persistentroom", "1");
+                                if (options.containsKey("muc#roomconfig_allowinvites")) {
+                                    options.putString(
+                                            "{http://prosody.im/protocol/muc}roomconfig_allowmemberinvites",
+                                            options.getString("muc#roomconfig_allowinvites"));
+                                }
+                                xmppConnectionService.pushConferenceConfiguration(
+                                        mConversation, options, ConferenceDetailsActivity.this);
+                            });
+                    builder.create().show();
+                }
+            };
 
     @Override
     public void onConversationUpdate() {
