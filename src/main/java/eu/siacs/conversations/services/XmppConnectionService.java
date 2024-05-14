@@ -1700,7 +1700,7 @@ public class XmppConnectionService extends Service {
         this.mRandom = new SecureRandom();
         updateMemorizingTrustmanager();
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 10;
+        final int cacheSize = maxMemory / 15;
         ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
         this.mDrawableCache = new LruCache<String, Drawable>(cacheSize) {
             @Override
