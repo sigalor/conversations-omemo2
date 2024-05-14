@@ -1092,10 +1092,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     "SELECT * FROM " + Message.TABLENAME + " " +
                             "LEFT JOIN monocles." + Message.TABLENAME +
                             "  USING (" + Message.UUID + ")" +
-                            "WHERE " + Message.CONVERSATION + "=? AND " +
+                            " WHERE " + Message.UUID + " IN (" +
+                            "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
+                            " WHERE " + Message.CONVERSATION + "=? " +
                             Message.DELETED + "<?" +
                             "ORDER BY " + Message.TIME_SENT + " DESC " +
-                            "LIMIT " + String.valueOf(limit),
+                            "LIMIT " + String.valueOf(limit) + ") " +
+                            "ORDER BY " + Message.TIME_SENT + " DESC ",
                     selectionArgs
             );
         } else {
