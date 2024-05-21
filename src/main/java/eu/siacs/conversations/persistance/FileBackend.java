@@ -2622,7 +2622,9 @@ public class FileBackend {
         List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
         if (thumbs != null && !thumbs.isEmpty()) {
             for (Element thumb : thumbs) {
-                Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                final var uriS = thumb.getAttribute("uri");
+                if (uriS == null) continue;
+                Uri uri = Uri.parse(uriS);
                 if (uri.getScheme().equals("data")) {
                     String[] parts = uri.getSchemeSpecificPart().split(",", 2);
 
@@ -2692,7 +2694,9 @@ public class FileBackend {
                 List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
                 if (thumbs != null && !thumbs.isEmpty()) {
                     for (Element thumb : thumbs) {
-                        Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                        final var uriS = thumb.getAttribute("uri");
+                        if (uriS == null) continue;
+                        Uri uri = Uri.parse(uriS);
                         if (uri.getScheme().equals("data")) {
                             if (android.os.Build.VERSION.SDK_INT < 28) continue;
                             String[] parts = uri.getSchemeSpecificPart().split(",", 2);
