@@ -1,7 +1,8 @@
 package eu.siacs.conversations.xml;
 
+import androidx.annotation.NonNull;
+
 import java.util.Hashtable;
-import org.jetbrains.annotations.NotNull;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -46,18 +47,17 @@ public class Tag {
         return String.format("%s#%s", name, this.attributes.get("xmlns"));
     }
 
-    public String getAttribute(String attrName) {
+    public String getAttribute(final String attrName) {
         return this.attributes.get(attrName);
     }
 
-    public Tag setAttribute(String attrName, String attrValue) {
+    public Tag setAttribute(final String attrName, final String attrValue) {
         this.attributes.put(attrName, attrValue);
         return this;
     }
 
-    public Tag setAtttributes(Hashtable<String, String> attributes) {
+    public void setAttributes(final Hashtable<String, String> attributes) {
         this.attributes = attributes;
-        return this;
     }
 
     public boolean isStart(final String needle) {
@@ -66,6 +66,7 @@ public class Tag {
         }
         return (this.type == START) && (needle.equals(this.name));
     }
+
     public boolean isStart(final String name, final String namespace) {
         return isStart(name) && namespace != null && namespace.equals(this.getAttribute("xmlns"));
     }
@@ -79,7 +80,7 @@ public class Tag {
         return (this.type == NO);
     }
 
-    @NotNull
+    @NonNull
     public String toString() {
         final StringBuilder tagOutput = new StringBuilder();
         tagOutput.append('<');
