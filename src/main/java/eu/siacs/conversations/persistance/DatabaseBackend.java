@@ -10,10 +10,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import de.monocles.chat.WebxdcUpdate;
 
@@ -36,9 +39,11 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1082,7 +1087,18 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return getMessages(conversations, limit, -1);
     }
 
-    public Message getMessageFuzzyId(Conversation conversation, String id) {
+
+    public Map<String, Message> getMessageFuzzyIds(Conversation conversation, Collection<String> ids) {
+        final var result = new Hashtable<String, Message>();
+        if (ids.isEmpty()) return result;
+        final ArrayList<String> params = new ArrayList<>();
+        final ArrayList<String> template = new ArrayList<>();
+        for (final var id : ids) {
+            template.add("?");
+        }
+        params.addAll(ids);
+        params.addAll(ids);
+        params.addAll(ids);
         ArrayList<Message> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
@@ -1090,18 +1106,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 "SELECT * FROM " + Message.TABLENAME + " " +
                         "LEFT JOIN monocles." + Message.TABLENAME +
                         "  USING (" + Message.UUID + ")" +
-                        "WHERE " + Message.UUID + "=? OR " + Message.SERVER_MSG_ID + " =? OR " + Message.REMOTE_MSG_ID + " =?",
-                new String[]{id,id,id}
+                        "WHERE " + Message.UUID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.SERVER_MSG_ID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.REMOTE_MSG_ID + " IN (" + TextUtils.join(",", template) + ")",
+                params.toArray(new String[0])
         );
+
         while (cursor.moveToNext()) {
             try {
-                return Message.fromCursor(cursor, conversation);
+                final var m = Message.fromCursor(cursor, conversation);
+                if (ids.contains(m.getUuid())) result.put(m.getUuid(), m);
+                if (ids.contains(m.getServerMsgId())) result.put(m.getServerMsgId(), m);
+                if (ids.contains(m.getRemoteMsgId())) result.put(m.getRemoteMsgId(), m);
             } catch (Exception e) {
                 Log.e(Config.LOGTAG, "unable to restore message");
             }
         }
         cursor.close();
-        return null;
+        return result;
     }
 
     public ArrayList<Message> getMessages(Conversation conversation, int limit, long timestamp) {
@@ -1139,11 +1159,24 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             );
         }
         CursorUtils.upgradeCursorWindowSize(cursor);
+        final Multimap<String, Message> waitingForReplies = HashMultimap.create();
+        final var replyIds = new HashSet<String>();
         while (cursor.moveToNext()) {
             try {
-                list.add(0, Message.fromCursor(cursor, conversation));
+                final var m = Message.fromCursor(cursor, conversation);
+                final var reply = m.getReply();
+                if (reply != null) {
+                    replyIds.add(reply.getAttribute("id"));
+                    waitingForReplies.put(reply.getAttribute("id"), m);
+                }
+                list.add(0, m);
             } catch (Exception e) {
-                Log.e(Config.LOGTAG, "unable to restore message");
+                Log.e(Config.LOGTAG, "unable to restore message", e);
+            }
+        }
+        for (final var parent : getMessageFuzzyIds(conversation, replyIds).entrySet()) {
+            for (final var m : waitingForReplies.get(parent.getKey())) {
+                m.setInReplyTo(parent.getValue());
             }
         }
         cursor.close();

@@ -1,5 +1,6 @@
 package de.monocles.chat;
 
+import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
@@ -24,16 +25,35 @@ public class InlineImageSpan extends ImageSpan {
     public int getSize(final Paint paint, final CharSequence text, final int start, final int end, final Paint.FontMetricsInt fm) {
         paint.getFontMetricsInt(mTmpFontMetrics);
         final int fontHeight = Math.abs(mTmpFontMetrics.descent - mTmpFontMetrics.ascent);
-        float mRatio = fontHeight * 2f / dHeight;
-        int mHeight = (short) (dHeight * mRatio);
-        int mWidth = (short) (dWidth * mRatio);
-        getDrawable().setBounds(0, 0, mWidth, mHeight);
+        float mRatio = fontHeight * 1.0f / dHeight;
+        int mWidth = (int) (dWidth * mRatio);
+        getDrawable().setBounds(0, 0, (int) dWidth, (int) dHeight);
         if (fm != null) {
             fm.ascent = mTmpFontMetrics.ascent;
             fm.descent = mTmpFontMetrics.descent;
-            fm.top = mTmpFontMetrics.top * 2;
-            fm.bottom = mTmpFontMetrics.bottom * 2;
+            fm.top = mTmpFontMetrics.top;
+            fm.bottom = mTmpFontMetrics.bottom;
         }
         return mWidth;
+    }
+
+    @Override
+    public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+        paint.getFontMetricsInt(mTmpFontMetrics);
+        final int fontHeight = Math.abs(mTmpFontMetrics.descent - mTmpFontMetrics.ascent);
+        float mRatio = fontHeight * 1.0f / dHeight;
+
+        Drawable b = getDrawable();
+        canvas.save();
+
+        int transY = 0;
+        if (mVerticalAlignment == ALIGN_BASELINE) {
+            transY -= paint.getFontMetricsInt().descent;
+        }
+
+        canvas.translate(x, transY);
+        canvas.scale(mRatio, mRatio);
+        b.draw(canvas);
+        canvas.restore();
     }
 }
