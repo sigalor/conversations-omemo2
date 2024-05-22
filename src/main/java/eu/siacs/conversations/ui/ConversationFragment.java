@@ -1926,7 +1926,6 @@ public class ConversationFragment extends XmppFragment
             backPressedLeaveEmojiPicker.setEnabled(false);
         }
 
-        binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
         DisplayMetrics displayMetrics = new DisplayMetrics();
