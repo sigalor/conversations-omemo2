@@ -150,7 +150,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     protected Jid counterpart;
     protected Jid trueCounterpart;
     protected String body;
-    protected SpannableStringBuilder spannableBody = null;
     protected String encryptedBody;
     protected String subject;
 
@@ -705,7 +704,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         final Element oldHtml = getHtml(true);
         if (oldHtml != null) this.payloads.remove(oldHtml);
         if (html != null) addPayload(html);
-        this.spannableBody = null;
     }
 
     public synchronized void setBody(String body) {
@@ -715,7 +713,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         this.isWebUri = null;
         this.isEmojisOnly = null;
         this.treatAsDownloadable = null;
-        this.spannableBody = null;
     }
 
     public synchronized void appendBody(String append) {
@@ -723,7 +720,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         this.isGeoUri = null;
         this.isEmojisOnly = null;
         this.treatAsDownloadable = null;
-        this.spannableBody = null;
     }
 
     public String getSubject() {
@@ -1105,11 +1101,11 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public SpannableStringBuilder getSpannableBody(GetThumbnailForCid thumbnailer, Drawable fallbackImg) {
-        if (spannableBody != null) return new SpannableStringBuilder(spannableBody);
-
+        SpannableStringBuilder spannableBody;
         final Element html = getHtml();
         if (html == null || Build.VERSION.SDK_INT < 24) {
-            spannableBody = new SpannableStringBuilder(MessageUtils.filterLtrRtl(getBody()).trim());
+            spannableBody = new SpannableStringBuilder(MessageUtils.filterLtrRtl(getBody(getInReplyTo() != null)).trim());
+            // spannableBody.setSpan(PLAIN_TEXT_SPAN, 0, spannableBody.length(), 0); // Let adapter know it can do more formatting
         } else {
             boolean[] anyfallbackimg = new boolean[]{ false };
 
@@ -1163,7 +1159,24 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             if (anyfallbackimg[0]) return (SpannableStringBuilder) spannable.subSequence(0, i+1);
             spannableBody = (SpannableStringBuilder) spannable.subSequence(0, i+1);
         }
-        return new SpannableStringBuilder(spannableBody);
+
+        if (getInReplyTo() != null) {
+            final var quote = getInReplyTo().getSpannableBody(thumbnailer, fallbackImg);
+            if ((getInReplyTo().isFileOrImage() || getInReplyTo().isOOb()) && getInReplyTo().getFileParams() != null) {
+                quote.insert(0, "🖼️");
+                final var cid = getInReplyTo().getFileParams().getCids().get(0);
+                Drawable thumbnail = thumbnailer == null ? null : thumbnailer.getThumbnail(cid);
+                if (thumbnail == null) thumbnail = fallbackImg;
+                if (thumbnail != null) {
+                    quote.setSpan(new InlineImageSpan(thumbnail, cid.toString()), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+            quote.setSpan(new android.text.style.QuoteSpan(), 0, quote.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableBody.insert(0, "\n");
+            spannableBody.insert(0, quote);
+        }
+
+        return spannableBody;
     }
 
     public Element getHtml() {
