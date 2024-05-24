@@ -19,6 +19,7 @@ import androidx.annotation.ColorInt;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
 import java.math.BigInteger;
@@ -380,10 +381,19 @@ public class UIHelper {
                 Drawable fallbackImg = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_attach_photo, null);
                 fallbackImg.setBounds(0, 0, fallbackImg.getIntrinsicWidth(), fallbackImg.getIntrinsicHeight());
                 SpannableStringBuilder styledBody = message.getSpannableBody(null, fallbackImg);  //TODO: ADD message.getSpannableBody(null, fallbackImg); somehow (commit: Actually display images we already have inline in XHTML-IM)
-                if (textColor != 0) {
+                final var processMarkup = styledBody.getSpans(0, body.length(), Message.PlainTextSpan.class).length > 0;
+                if (textColor != 0 && processMarkup) {
                     StylingHelper.format(styledBody, 0, styledBody.length() - 1, textColor, true);
                 }
                 MyLinkify.addLinks(styledBody, message.getConversation().getAccount(), message.getConversation().getJid());
+
+                for (final android.text.style.QuoteSpan quote : Lists.reverse(Lists.newArrayList(styledBody.getSpans(0, styledBody.length(), android.text.style.QuoteSpan.class)))) {
+                    int start = styledBody.getSpanStart(quote);
+                    int end = styledBody.getSpanEnd(quote);
+                    styledBody.delete(start, end);
+                }
+                if (!processMarkup) return new Pair<>(styledBody, false);
+
                 SpannableStringBuilder builder = new SpannableStringBuilder();
                 for (CharSequence l : CharSequenceUtils.split(styledBody, '\n')) {
                     if (l.length() > 0) {

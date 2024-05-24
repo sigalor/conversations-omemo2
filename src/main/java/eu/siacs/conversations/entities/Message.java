@@ -192,6 +192,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private List<MucOptions.User> counterparts;
     private WeakReference<MucOptions.User> user;
 
+    public static final Object PLAIN_TEXT_SPAN = new PlainTextSpan();
 
     protected Message(Conversational conversation) {
         this.conversation = conversation;
@@ -1901,4 +1902,5 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return ++resendCount;
     }
 
+    public static class PlainTextSpan {}
 }
