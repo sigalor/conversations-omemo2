@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -194,6 +195,11 @@ public class MucOptions {
         } else {
             return false;
         }
+    }
+
+    public boolean allowPmRaw() {
+        final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowpm");
+        return  field == null || Arrays.asList("anyone","participants").contains(field.getValue());
     }
 
     public boolean participating() {
