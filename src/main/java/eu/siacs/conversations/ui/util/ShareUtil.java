@@ -83,7 +83,7 @@ public class ShareUtil {
         }
         try {
             activity.startActivity(Intent.createChooser(shareIntent, activity.getText(R.string.share_with)));
-            
+            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         } catch (ActivityNotFoundException e) {
             //This should happen only on faulty androids because normally chooser is always available
             ToastCompat.makeText(activity, R.string.no_application_found_to_open_file, ToastCompat.LENGTH_SHORT).show();

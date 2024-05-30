@@ -150,7 +150,7 @@ public class UpdaterActivity extends XmppActivity {
                                 List<ResolveInfo> infos = manager.queryIntentActivities(marketIntent, 0);
                                 if (infos.size() > 0) {
                                     startActivity(marketIntent);
-                                    
+                                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                                 } else {
                                     uri = Uri.parse("https://" + monocles());
                                     try {
@@ -436,7 +436,7 @@ public class UpdaterActivity extends XmppActivity {
                 installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 installIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(installIntent);
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 UpdaterActivity.this.finish();
             }
         }

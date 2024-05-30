@@ -101,7 +101,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 intent.putExtra("MUC_UUID", mConversation.getUuid());
                 Log.d(Config.LOGTAG, "Sending DESTROY intent for " + mConversation.getName());
                 startActivity(intent);
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 deleteBookmark();
                 finish();
             });
@@ -152,7 +152,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
         intent.putExtra("uuid", conversation.getUuid());
         activity.startActivity(intent);
-        
+        activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
     }
 
     private OnClickListener mNotifyStatusClickListener = new OnClickListener() {
@@ -767,7 +767,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 LeaveMucDialog.setPositiveButton(getString(R.string.action_end_conversation_muc),
                         (dialog, which) -> {
                             startActivity(new Intent(xmppConnectionService, ConversationsActivity.class));
-                            
+                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                             this.xmppConnectionService.archiveConversation(mConversation);
                             finish();
                         });

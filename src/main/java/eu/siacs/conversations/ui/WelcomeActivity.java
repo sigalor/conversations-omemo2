@@ -164,9 +164,9 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             intent.putExtra("existing", true);
             addInviteUri(intent);
             startActivity(intent);
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
             finish();
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         });
     }
 
@@ -185,6 +185,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         Intent intent = new Intent(activity, WelcomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.startActivity(intent);
+        activity.overridePendingTransition(0, 0);
     }
 
     @Override

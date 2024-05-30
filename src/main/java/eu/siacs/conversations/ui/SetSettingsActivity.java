@@ -99,7 +99,7 @@ public class SetSettingsActivity extends XmppActivity implements XmppConnectionS
             intent.putExtra(PublishProfilePictureActivity.EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
             intent.putExtra("setup", true);
             startActivity(intent);
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         }
         finish();
     }

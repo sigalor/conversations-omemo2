@@ -340,7 +340,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             Intent intent = new Intent(this, StartConversationActivity.class);
             StartConversationActivity.addInviteUri(intent, getIntent());
             startActivity(intent);
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
             finish();
         } else if (mInitMode && mAccount != null && mAccount.getStatus() == Account.State.ONLINE) {
             runOnUiThread(this::next);
@@ -357,7 +357,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
             intent.putExtra("existing", mExisting);
             startActivity(intent);
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
             finish();
         }
     }
@@ -400,7 +400,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             Intent intent = SignupUtils.getSignUpIntent(this, mForceRegister != null && mForceRegister);
             StartConversationActivity.addInviteUri(intent, getIntent());
             startActivity(intent);
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         }
     }
 
@@ -482,7 +482,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 final Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
                 intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toEscapedString());
                 startActivity(intent);
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
             }
         }
     };
@@ -507,7 +507,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             }
             StartConversationActivity.addInviteUri(intent, getIntent());
             startActivity(intent);
-            
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
             finish();
         });
     }
@@ -1022,7 +1022,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
                     startActivity(new Intent(this, ImportBackupActivity.class));
                 }
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 break;
             case R.id.action_add_account_with_cert:
                 addAccountFromKey();
@@ -1053,7 +1053,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                 final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
                 showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toEscapedString());
                 startActivity(showBlocklistIntent);
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 break;
             case R.id.action_server_info_show_more:
                 changeMoreTableVisibility(!item.isChecked());
@@ -1163,7 +1163,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         }
         this.newPassword = null;
         startActivity(changePasswordIntent);
-        
+        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
     }
 
     private void renewCertificate() {

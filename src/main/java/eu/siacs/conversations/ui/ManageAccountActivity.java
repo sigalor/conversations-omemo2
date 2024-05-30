@@ -171,12 +171,12 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 switch (item.getItemId()) {
                     case R.id.chats -> {
                         startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
                     case R.id.contactslist -> {
                         startActivity(new Intent(getApplicationContext(), StartConversationActivity.class));
-                        
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
                     case R.id.manageaccounts -> {
@@ -185,11 +185,11 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                         /* TODO:
                     case R.id.calls:
                         startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     case R.id.stories:
                         startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                          */
                     default ->
@@ -280,13 +280,13 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         switch (item.getItemId()) {
             case R.id.action_add_account:
                 startActivity(new Intent(this, EditAccountActivity.class));
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 break;
             case R.id.action_import_backup:
                 if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
                     startActivity(new Intent(this, ImportBackupActivity.class));
                 }
-                
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 break;
             case R.id.action_create_backup:
                 if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
@@ -400,7 +400,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 PublishProfilePictureActivity.class);
         intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
         startActivity(intent);
-        
+        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
     }
 
     //TODO: disable and enable all accounts function
@@ -548,7 +548,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         intent.putExtra("jid", account.getJid().asBareJid().toString());
         intent.putExtra("init", true);
         startActivity(intent);
-        
+        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
     }
 
     @Override
