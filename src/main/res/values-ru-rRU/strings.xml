@@ -758,7 +758,7 @@
     <string name="pref_enter_is_send">Ввод для отправки</string>
     <string name="pref_enter_is_send_summary">Использовать клавишу Enter для отправки сообщения. Вы всегда можете использовать Ctrl+Enter для отправки сообщения, даже если эта опция отключена.</string>
     <string name="pref_expert_options">Продвинутые настройки</string>
-    <string name="pref_expert_options_other">Другой</string>
+    <string name="pref_expert_options_other">Другое</string>
     <string name="pref_export_plain_text_logs">Экспортировать читабельный журнал чата</string>
     <string name="pref_export_plain_text_logs_summary">Включить экспорт журналов чатов в читабельные файлы</string>
     <string name="pref_font_size">Размер шрифта</string>
@@ -1401,7 +1401,7 @@
 \nсвернуть"</string>
     <string name="show_more">"
 \nразвернуть"</string>
-    <string name="collapse_message_signs_summary">Свернуть сообщения, содержащие более 7 строк</string>
+    <string name="collapse_message_signs_summary">Установите максимальное количество знаков, чтобы свернуть сообщение</string>
     <string name="collapse_message_signs_title">Свернуть длинные текстовые сообщения</string>
     <string name="settings_restore_message_failure">Не удалось восстановить настройки: %s.</string>
     <string name="settings_restore_message_success">Настройки успешно восстановлены</string>
@@ -1546,4 +1546,6 @@
     <string name="import_own_gifs">Импортировать собственные GIF-файлы</string>
     <string name="import_own_gifs_summary">Импортируйте свои собственные GIF-файлы. Они будут отсортированы по имени файла.</string>
     <string name="failed_to_delete_gif">Не удалось удалить GIF</string>
+    <string name="pref_accept_invites_from_strangers">Приглашения от незнакомцев</string>
+    <string name="pref_accept_invites_from_strangers_summary">Принимайте приглашения в групповые чаты от незнакомцев</string>
 </resources>

@@ -15,7 +15,7 @@
     <string name="action_unblock_domain">解除屏蔽域名</string>
     <string name="title_activity_manage_accounts">管理账号</string>
     <string name="title_activity_settings">设置</string>
-    <string name="conference_details">房间详情</string>
+    <string name="conference_details">群聊详情</string>
     <string name="contact_details">联系人详情</string>
     <string name="title_activity_sharewith">分享至对话</string>
     <string name="title_activity_start_conversation">开始对话</string>
@@ -61,8 +61,8 @@
     <string name="save">保存</string>
     <string name="ok">确定</string>
     <string name="crash_report_title">monocles chat 已崩溃</string>
-    <string name="crash_report_message">通过发送堆栈跟踪，您正在帮助 monocles chat 的持续开发
-\n<b>警告：</b>这将使用您的 XMPP 账号发送栈堆跟踪到开发者那里。</string>
+    <string name="crash_report_message">通过发送崩溃报告，您可以帮助 monocles chat 的持续开发 
+\n<b>警告：</b>这将使用您的 XMPP 账号向开发人员发送发送崩溃报告。</string>
     <string name="send_now">立即发送</string>
     <string name="send_never">不再询问</string>
     <string name="problem_connecting_to_account">无法连接到账号</string>
@@ -113,7 +113,7 @@
     <string name="pref_sound">铃声</string>
     <string name="pref_sound_summary">收到新消息时响铃</string>
     <string name="pref_send_crash">发送崩溃报告</string>
-    <string name="pref_send_crash_summary">通过发送堆栈跟踪，您正在帮助 monocles chat 的持续开发</string>
+    <string name="pref_send_crash_summary">通过发送崩溃报告，您可以帮助 monocles chat 的持续开发</string>
     <string name="pref_confirm_messages">确认消息</string>
     <string name="pref_confirm_messages_summary">让您的联系人知道您已收到并阅读了其消息</string>
     <string name="pref_ui_options">用户界面</string>
@@ -142,7 +142,7 @@
     <string name="account_status_not_found">服务器未找到</string>
     <string name="account_status_no_internet">无连接</string>
     <string name="account_status_regis_fail">注册失败</string>
-    <string name="account_status_regis_conflict">用户名已被使用</string>
+    <string name="account_status_regis_conflict">此用户名已在使用中</string>
     <string name="account_status_regis_success">注册已完成</string>
     <string name="account_status_regis_not_sup">服务器不支持注册</string>
     <string name="account_status_tls_error">TLS 协商失败</string>
@@ -178,8 +178,8 @@
     <string name="server_info_pep">XEP-0163：个人事件协议 (头像/OMEMO)</string>
     <string name="server_info_http_upload">XEP-0363：HTTP 文件上传</string>
     <string name="server_info_push">XEP-0357：推送</string>
-    <string name="server_info_available">可用的</string>
-    <string name="server_info_unavailable">不可用</string>
+    <string name="server_info_available">有效</string>
+    <string name="server_info_unavailable">无效</string>
     <string name="missing_public_keys">缺少公钥公布</string>
     <string name="last_seen_now">在线</string>
     <string name="last_seen_min">1 分钟前</string>
@@ -201,7 +201,7 @@
     <string name="done">完成</string>
     <string name="verify">验证</string>
     <string name="decrypt">解密</string>
-    <string name="bookmarks">房间</string>
+    <string name="bookmarks">群聊</string>
     <string name="search">搜索</string>
     <string name="enter_contact">输入联系人</string>
     <string name="delete_contact">删除联系人</string>
@@ -212,12 +212,12 @@
     <string name="select">选择</string>
     <string name="contact_already_exists">此联系人已存在</string>
     <string name="join">加入</string>
-    <string name="channel_full_jid_example">room@conference.example.com/nick</string>
+    <string name="channel_full_jid_example">room@conference.example.com/昵称</string>
     <string name="channel_bare_jid_example">room@conference.example.com</string>
     <string name="save_as_bookmark">保存为书签</string>
     <string name="delete_bookmark">删除书签</string>
     <string name="topic">话题</string>
-    <string name="joining_conference">正在加入房间…</string>
+    <string name="joining_conference">正在加入群聊…</string>
     <string name="leave">离开</string>
     <string name="contact_added_you">联系人已将您添加到联系人列表</string>
     <string name="add_back">添加对方</string>
@@ -239,7 +239,7 @@
     <string name="skip">跳过</string>
     <string name="disable_notifications">禁用通知</string>
     <string name="enable">启用</string>
-    <string name="conference_requires_password">房间需要密码</string>
+    <string name="conference_requires_password">群聊需要密码</string>
     <string name="enter_password">输入密码</string>
     <string name="request_presence_updates">请先向您的联系人请求在线状态更新。
 \n
@@ -269,12 +269,12 @@
     <string name="pref_use_colored_names_to_indicate_status_summary">为联系人名称着色以指示联系人状态</string>
     <string name="pref_expert_options_other">其他</string>
     <string name="pref_autojoin">与书签同步</string>
-    <string name="pref_autojoin_summary">根据书签中的“自动加入”标志加入或离开房间。</string>
+    <string name="pref_autojoin_summary">根据书签中的“自动加入”标志加入或离开群聊。</string>
     <string name="toast_message_omemo_fingerprint">OMEMO 指纹已复制到剪贴板 ！</string>
-    <string name="conference_banned">您已被此房间封禁</string>
-    <string name="conference_members_only">此房间仅成员进入</string>
-    <string name="conference_kicked">您已被此房间踢出</string>
-    <string name="conference_shutdown">此房间已关闭</string>
+    <string name="conference_banned">此群聊已将您封禁了</string>
+    <string name="conference_members_only">此群聊仅成员进入</string>
+    <string name="conference_kicked">此群聊已将您踢出了</string>
+    <string name="conference_shutdown">此群聊已关闭</string>
     <string name="using_account">正在使用账号 %s</string>
     <string name="checking_x">正在 HTTP 主机上检查 %s</string>
     <string name="not_connected_try_again">您没有连接。请稍后再试</string>
@@ -323,13 +323,13 @@
     <string name="manually_verify">手动验证</string>
     <string name="pref_show_dynamic_tags">显示动态标签</string>
     <string name="pref_show_dynamic_tags_summary">允许使用标签进行管理</string>
-    <string name="no_conference_server_found">房间服务器未找到</string>
-    <string name="conference_creation_failed">房间创建失败！</string>
+    <string name="no_conference_server_found">群聊服务器未找到</string>
+    <string name="conference_creation_failed">群聊创建失败！</string>
     <string name="account_image_description">账号头像</string>
     <string name="copy_omemo_clipboard_description">复制 OMEMO 指纹到剪贴板</string>
     <string name="regenerate_omemo_key">重新生成 OMEMO 密钥</string>
     <string name="clear_other_devices">清除设备</string>
-    <string name="clear_other_devices_desc">您确定要从 OMEMO 公布中清除所有其他设备吗？下次您的设备连接时，它们将会重新公布自己，但可能不会收到在此期间发送的消息。</string>
+    <string name="clear_other_devices_desc">您确定要从 OMEMO 公布中清除所有其他设备吗？下次您的设备连接时，OMEMO 将会重新公布，但可能不会收到在此期间发送的消息。</string>
     <string name="distrust_omemo_key">不再信任设备</string>
     <string name="distrust_omemo_key_text">您确定要移除此设备的验证吗？
 \n此设备和来自此设备的消息将被标记为不信任。</string>
@@ -364,21 +364,21 @@
     <string name="remove_membership">撤销成员权限</string>
     <string name="grant_admin_privileges">授予管理员权限</string>
     <string name="remove_admin_privileges">撤销管理员权限</string>
-    <string name="kick_from_room">从房间中踢出</string>
+    <string name="kick_from_room">从群聊中踢出</string>
     <string name="could_not_change_affiliation">无法更改 %s 的从属关系</string>
-    <string name="ban_from_conference">从房间中封禁</string>
-    <string name="kick_from_conference">从房间中踢出</string>
-    <string name="ban_from_public_conference_message">您正试图从公开房间中永远封禁 %s。</string>
-    <string name="ban_from_conference_message">您正试图从房间中永远封禁 %s</string>
-    <string name="kicking_from_public_conference">您正试图从公开房间中踢出 %s。</string>
-    <string name="kicking_from_conference">您正试图从房间中踢出 %s。</string>
+    <string name="ban_from_conference">从群聊中封禁</string>
+    <string name="kick_from_conference">从群聊中踢出</string>
+    <string name="ban_from_public_conference_message">您正试图从公开群聊中永远封禁 %s。</string>
+    <string name="ban_from_conference_message">您正试图从群聊中永远封禁 %s</string>
+    <string name="kicking_from_public_conference">您正试图从公开群聊中踢出 %s。</string>
+    <string name="kicking_from_conference">您正试图从群聊中踢出 %s。</string>
     <string name="ban_now">立即封禁</string>
     <string name="kick_now">立即踢出</string>
-    <string name="non_anonymous">使聊天地址对任何人可见</string>
-    <string name="moderated">对房间进行审核</string>
+    <string name="non_anonymous">公开用户的聊天地址</string>
+    <string name="moderated">开启群聊发言审核</string>
     <string name="you_are_not_participating">您没有参与</string>
-    <string name="modified_conference_options">已修改房间选项！</string>
-    <string name="could_not_modify_conference_options">无法修改房间选项</string>
+    <string name="modified_conference_options">已修改群聊配置！</string>
+    <string name="could_not_modify_conference_options">无法修改群聊配置</string>
     <string name="never">永不</string>
     <string name="until_further_notice">直至另行通知</string>
     <string name="pref_input_options">输入</string>
@@ -419,10 +419,10 @@
     <string name="none">无</string>
     <string name="recently_used">最近使用</string>
     <string name="search_contacts">搜索联系人</string>
-    <string name="search_bookmarks">搜索聊天室</string>
+    <string name="search_bookmarks">搜索群聊</string>
     <string name="choose_quick_action">选择快捷操作</string>
     <string name="send_private_message">发送私信</string>
-    <string name="user_has_left_conference">%1$s 已离开此房间！</string>
+    <string name="user_has_left_conference">%1$s 已离开此群聊！</string>
     <string name="username">用户名</string>
     <string name="username_hint">用户名</string>
     <string name="invalid_username">这不是有效的用户名</string>
@@ -444,7 +444,7 @@
     <string name="account_status_tor_unavailable">Tor 网络不可用</string>
     <string name="account_status_bind_failure">绑定失败</string>
     <string name="account_status_host_unknown">服务器不能为域名做出响应</string>
-    <string name="server_info_broken">损坏的</string>
+    <string name="server_info_broken">损坏</string>
     <string name="pref_presence_settings">在线状态</string>
     <string name="pref_away_when_screen_off">当设备锁定时离开</string>
     <string name="pref_away_when_screen_off_summary">当设备锁定时，标记您的状态为“暂时离开”</string>
@@ -504,12 +504,12 @@
     <string name="always">始终</string>
     <string name="always_off">始终关闭</string>
     <string name="battery_optimizations_enabled">电池优化已启用</string>
-    <string name="battery_optimizations_enabled_explained">您的设备正对 monocles chat 实施强力电池优化，这可能会导致通知延迟甚至消息丢失。
-\n建议禁用它们。</string>
+    <string name="battery_optimizations_enabled_explained">您的设备正对 monocles chat 使用重度电池优化，这可能会导致通知延迟甚至消息丢失。
+\n建议禁用此设置。</string>
     <string name="install_from_unknown_sources_disabled">禁用从未知来源安装</string>
-    <string name="install_from_unknown_sources_disabled_dialog">您的设备不允许未知来源应用安装。这将导致应用更新出现问题。
+    <string name="install_from_unknown_sources_disabled_dialog">您的设备配置为不允许安装来自未知来源的应用，Google Play 商店除外。这将导致应用更新出现问题。
 \n
-\n您现在将被要求允许安装未知来源应用。</string>
+\n现在将要求您允许从未知来源安装应用。</string>
     <string name="disable">禁用</string>
     <string name="cancel_update">取消更新吗？</string>
     <string name="yes">是</string>
@@ -518,7 +518,7 @@
     <string name="this_field_is_required">此字段是必需的</string>
     <string name="correct_message">更正消息</string>
     <string name="send_corrected_message">发送更正后的消息</string>
-    <string name="no_keys_just_confirm">您已信任此人的指纹。选择“完成”即表示您确认 %s 是此房间的一员。</string>
+    <string name="no_keys_just_confirm">您已信任此人的指纹。选择“完成”即表示您确认 %s 是此群聊的一员。</string>
     <string name="contacts_have_no_pgp_keys">monocles chat 无法加密您的消息，由于您的联系人未公布其公钥。
 \n
 \n</string>
@@ -545,13 +545,13 @@
     <string name="share_location">分享位置</string>
     <string name="location_sharing_disabled">在设置中已禁用位置共享</string>
     <string name="locating">正在定位…</string>
-    <string name="action_end_conversation_muc">离开房间</string>
-    <string name="leave_conference_warning">是否确定要离开此房间？再次加入房间之前，您不会收到新消息通知。</string>
+    <string name="action_end_conversation_muc">离开群聊</string>
+    <string name="leave_conference_warning">是否确定要离开此群聊？再次加入群聊之前，您不会收到新消息通知。</string>
     <string name="show_password">显示密码</string>
     <string name="registration_please_wait">注册失败：稍后再试</string>
     <string name="registration_password_too_weak">注册失败：密码太弱</string>
     <string name="choose_participants">选择参与者</string>
-    <string name="creating_conference">正在创建房间…</string>
+    <string name="creating_conference">正在创建群聊…</string>
     <string name="import_text">如果有可用的备份，您可以按下方按钮导入。</string>
     <string name="import_database">恢复备份</string>
     <string name="invite_again">再次邀请</string>
@@ -685,7 +685,7 @@
     <string name="error_no_keys_to_trust_presence">此联系人没有可用的密钥。
 \n请确保双方都有在线状态订阅。</string>
     <string name="mark_as_read">标记为已读</string>
-    <string name="server_info_partial">部分的</string>
+    <string name="server_info_partial">部分</string>
     <string name="pref_show_foreground_service_summary">一些 Android 设备会在一段时间后关闭一些应用，您将无法接收到新的消息。如果您遇到此类问题，请尝试激活前台服务。但请记住，选中此选项后，您将获得永久通知。</string>
     <string name="pref_show_foreground_service">使用前台服务</string>
     <string name="update_service">monocles chat 升级服务</string>
@@ -702,16 +702,16 @@
     <string name="pref_use_bundled_emoji_summary">使用内置的表情符号库而不是使用您设备的那个。重新打开应用后，将进行更改。</string>
     <string name="invalid_muc_nick">无效的昵称</string>
     <string name="title_activity_share_via_account">通过账号分享</string>
-    <string name="destroy_room">解散房间</string>
-    <string name="conference_unknown_error">您已不在这个房间</string>
-    <string name="destroy_room_dialog">您想解散房间 %s 吗？这将永久移除此房间。</string>
-    <string name="destroy_room_succeed">房间成功解散</string>
-    <string name="destroy_room_failed">房间无法解散</string>
-    <string name="no_write_access_in_public_muc">您没有参与此房间，所以现在没有写入权限。
-\n请按下 <b>确定</b>，进入房间详情，通过长按列表顶部/前面的成员名称之一，向主持人、管理员或所有者发送私信，以请求写入权限。</string>
+    <string name="destroy_room">解散群聊</string>
+    <string name="conference_unknown_error">您已不在此群聊</string>
+    <string name="destroy_room_dialog">您想解散群聊 %s 吗？这将永久移除此群聊。</string>
+    <string name="destroy_room_succeed">群聊成功解散</string>
+    <string name="destroy_room_failed">群聊无法解散</string>
+    <string name="no_write_access_in_public_muc">您没有参与此群聊，所以现在没有发言权。 
+\n请按下 <b>确定</b>，进入群聊详情，通过长按列表顶部/前面的成员名称之一，向主持人、管理员或所有者发送私信，以请求写入权限。</string>
     <string name="snooze">稍后提醒</string>
     <string name="huawei_protected_apps">受保护的应用</string>
-    <string name="huawei_protected_apps_summary">为了在屏幕关闭时也能收到消息提醒，您需要将 monocles chat 加入受保护的应用列表。</string>
+    <string name="huawei_protected_apps_summary">为了在屏幕关闭后继续接收通知，您需要将 monocles chat 加入受保护的应用列表。</string>
     <string name="pref_enable_multi_accounts_title">启用多个账号</string>
     <string name="pref_enable_multi_accounts_summary">您想使用多个账号吗？</string>
     <string name="mtm_accept_cert">接受未知证书吗？</string>
@@ -739,10 +739,10 @@
     <string name="disable_now">立即禁用</string>
     <string name="draft">草稿：</string>
     <string name="pref_omemo_setting">OMEMO 加密</string>
-    <string name="pref_omemo_setting_summary_always">OMEMO 加密将始终用于一对一和和私人房间聊天。</string>
-    <string name="pref_omemo_setting_summary_default_on">默认情况下，新对话将使用 OMEMO 加密。</string>
-    <string name="pref_omemo_setting_summary_default_off">对于新对话，必须明确地打开 OMEMO 加密。</string>
-    <string name="pref_omemo_setting_summary_always_off">OMEMO 加密将永远不会被使用。</string>
+    <string name="pref_omemo_setting_summary_always">OMEMO 将始终用于一对一聊天和和私人群聊。</string>
+    <string name="pref_omemo_setting_summary_default_on">新对话将默认使用 OMEMO。</string>
+    <string name="pref_omemo_setting_summary_default_off">新对话必须明确开启 OMEMO。</string>
+    <string name="pref_omemo_setting_summary_always_off">OMEMO 将永远不会使用。</string>
     <string name="default_on">默认开启</string>
     <string name="default_off">默认关闭</string>
     <string name="pref_theme_light">浅色</string>
@@ -773,18 +773,18 @@
     <string name="pref_start_search">直接搜索</string>
     <string name="pref_start_search_summary">在“开始对话”屏幕上打开键盘并将光标放在搜索栏中</string>
     <string name="paste_as_quote">粘贴为引用</string>
-    <string name="group_chat_avatar">房间头像</string>
-    <string name="host_does_not_support_group_chat_avatars">主机不支持房间头像</string>
+    <string name="group_chat_avatar">群聊头像</string>
+    <string name="host_does_not_support_group_chat_avatars">主机不支持群聊头像</string>
     <string name="only_the_owner_can_change_group_chat_avatar">只有所有者才能更改头像</string>
     <string name="contact_name">联系人名称</string>
-    <string name="nickname">在此房间的昵称</string>
+    <string name="nickname">在此群聊的昵称</string>
     <string name="group_chat_name">名称</string>
     <string name="providing_a_name_is_optional">提供名称是可选的</string>
-    <string name="create_dialog_group_chat_name">房间名称</string>
+    <string name="create_dialog_group_chat_name">群聊名</string>
     <string name="everyone_has_read_up_to_this_point">每个人都已阅读至此</string>
     <string name="conference_resource_constraint">资源限制</string>
     <string name="delete_message">删除消息</string>
-    <string name="conference_destroyed">此房间已被解散</string>
+    <string name="conference_destroyed">已解散此群聊</string>
     <string name="no_application_found_to_view_contact">未找到可以查看联系人的应用程序</string>
     <string name="welcome_server_info">我们建议使用 monocles 作为您的提供者。</string>
     <string name="no_location_permission">monocles chat 需要访问位置服务</string>
@@ -808,7 +808,7 @@
     <string name="video_compression_channel_name">视频压缩</string>
     <string name="backup_channel_name">备份 &amp; 恢复</string>
     <string name="app_update_channel_name">应用更新</string>
-    <string name="action_group_details">房间详情</string>
+    <string name="action_group_details">群聊详情</string>
     <string name="view_media">查看媒体</string>
     <string name="media_browser">媒体浏览器</string>
     <string name="account_status_stream_opening_error">流打开错误</string>
@@ -833,13 +833,13 @@
     <string name="install_orbot">安装 Orbot</string>
     <string name="start_orbot">启动 Orbot</string>
     <string name="no_market_app_installed">没有安装应用商店。</string>
-    <string name="group_chat_will_make_your_jabber_id_public">此房间将公开您的聊天地址</string>
+    <string name="group_chat_will_make_your_jabber_id_public">此群聊将公开您的聊天地址</string>
     <string name="ebook">电子书</string>
     <string name="your_name">您的名称</string>
     <string name="enter_your_name">输入您的名称</string>
     <string name="enter_your_name_instructions">请输入您的昵称，这将对您的联系人可见。</string>
     <string name="no_name_set_instructions">未设置昵称。</string>
-    <string name="autojoin_group_chat">自动加入此房间</string>
+    <string name="autojoin_group_chat">自动加入此群聊</string>
     <string name="pref_show_links_inside">在聊天中显示链接预览</string>
     <string name="pref_show_links_inside_summary">直接在聊天视图中显示链接预览，将建立与链接中指定的服务器的连接。</string>
     <string name="pref_play_gif_inside">直接播放动画图片</string>
@@ -861,44 +861,44 @@
     </plurals>
     <string name="group_chat_members">参与者</string>
     <string name="message_deleted">消息已删除</string>
-    <string name="channel_details">房间详情</string>
-    <string name="join_public_channel">加入公开房间</string>
-    <string name="create_private_group_chat">创建私人房间</string>
-    <string name="create_public_channel">创建公开房间</string>
-    <string name="create_dialog_channel_name">房间名称</string>
+    <string name="channel_details">群聊详情</string>
+    <string name="join_public_channel">加入公开群聊</string>
+    <string name="create_private_group_chat">创建私人群聊</string>
+    <string name="create_public_channel">创建公开群聊</string>
+    <string name="create_dialog_channel_name">群聊名</string>
     <string name="xmpp_address">XMPP 地址</string>
-    <string name="please_enter_name">请提供房间名称</string>
+    <string name="please_enter_name">请提供群聊名</string>
     <string name="please_enter_xmpp_address">请提供 XMPP 地址</string>
     <string name="this_is_an_xmpp_address">这是 XMPP 地址。请提供名称。</string>
-    <string name="creating_channel">正在创建公开房间…</string>
-    <string name="channel_already_exists">此房间已存在</string>
-    <string name="joined_an_existing_channel">您已加入现有房间</string>
-    <string name="unable_to_set_channel_configuration">无法设置房间配置</string>
+    <string name="creating_channel">正在创建公开群聊…</string>
+    <string name="channel_already_exists">此群聊已存在</string>
+    <string name="joined_an_existing_channel">您已加入现有群聊</string>
+    <string name="unable_to_set_channel_configuration">无法设置群聊配置</string>
     <string name="back">返回</string>
-    <string name="conference_options">私人房间配置</string>
-    <string name="channel_options">公开房间配置</string>
-    <string name="allow_participants_to_edit_subject">允许任何人编辑话题</string>
-    <string name="allow_participants_to_invite_others">允许任何人邀请别人</string>
-    <string name="anyone_can_edit_subject">任何人可以编辑话题。</string>
+    <string name="conference_options">私人群聊配置</string>
+    <string name="channel_options">公开群聊配置</string>
+    <string name="allow_participants_to_edit_subject">允许参与者（非访客）编辑话题</string>
+    <string name="allow_participants_to_invite_others">允许任何参与者邀请其他用户</string>
+    <string name="anyone_can_edit_subject">参与者（非访客）可以编辑话题。</string>
     <string name="owners_can_edit_subject">所有者可以编辑话题。</string>
     <string name="admins_can_edit_subject">管理员可以编辑话题。</string>
-    <string name="owners_can_invite_others">所有者可以邀请别人。</string>
-    <string name="anyone_can_invite_others">任何人可以邀请别人。</string>
-    <string name="jabber_ids_are_visible_to_admins">聊天地址对管理员可见。</string>
-    <string name="jabber_ids_are_visible_to_anyone">聊天地址对任何人可见。</string>
-    <string name="no_users_hint_channel">此公开房间没有参与者。邀请您的联系人或使用分享按钮分发其 XMPP 地址。</string>
-    <string name="no_users_hint_group_chat">此私人房间没有参与者。</string>
+    <string name="owners_can_invite_others">所有者可以邀请其他用户。</string>
+    <string name="anyone_can_invite_others">任何参与者可以邀请其他用户。</string>
+    <string name="jabber_ids_are_visible_to_admins">用户的聊天地址仅管理员可见。</string>
+    <string name="jabber_ids_are_visible_to_anyone">用户的聊天地址对任何人可见。</string>
+    <string name="no_users_hint_channel">此公开群聊没有参与者。邀请您的联系人或使用分享按钮分发群聊的 XMPP 地址。</string>
+    <string name="no_users_hint_group_chat">此私人群聊没有参与者。</string>
     <string name="grant_owner_privileges">授予所有者权限</string>
     <string name="remove_owner_privileges">撤销所有者权限</string>
-    <string name="remove_from_channel">从房间中移除</string>
-    <string name="ban_from_channel">从房间中封禁</string>
+    <string name="remove_from_channel">从群聊中移除</string>
+    <string name="ban_from_channel">从群聊中封禁</string>
     <string name="manage_permission">管理权限</string>
-    <string name="destroy_channel">解散房间</string>
-    <string name="destroy_channel_dialog">您想解散房间 %s 吗？这将永久移除此房间。</string>
-    <string name="destroy_channel_succeed">房间成功解散</string>
-    <string name="destroy_channel_failed">房间无法解散</string>
-    <string name="action_end_conversation_channel">离开房间</string>
-    <string name="autojoin_channel">自动加入此房间</string>
+    <string name="destroy_channel">解散群聊</string>
+    <string name="destroy_channel_dialog">您想解散群聊 %s 吗？这将永久移除此群聊。</string>
+    <string name="destroy_channel_succeed">群聊成功解散</string>
+    <string name="destroy_channel_failed">群聊无法解散</string>
+    <string name="action_end_conversation_channel">离开群聊</string>
+    <string name="autojoin_channel">自动加入此群聊</string>
     <string name="no_attachments">没有附件</string>
     <string name="notification_backup_created_title">备份成功</string>
     <string name="notification_backup_created_subtitle">备份文件已存储在 %s</string>
@@ -917,15 +917,15 @@
     <string name="attach">附加</string>
     <string name="delete_from_server">从服务器删除</string>
     <string name="go_online_to_delete">您要从服务器上删除账号必须启用和/或上线。</string>
-    <string name="discover_channels">发现房间</string>
-    <string name="search_channels">搜索房间</string>
+    <string name="discover_channels">发现群聊</string>
+    <string name="search_channels">搜索群聊</string>
     <string name="channel_discovery_opt_in_title">隐私声明</string>
-    <string name="channel_discover_opt_in_message">房间发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。请参阅其 &lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt; 以获取更多信息。</string>
+    <string name="channel_discover_opt_in_message">群聊发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。请参阅其 &lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt; 以获取更多信息。</string>
     <string name="action_add_existing_account">添加已有账号</string>
     <string name="use_own_provider">使用自己的提供者</string>
     <string name="this_looks_like_a_domain">这似乎是域名地址</string>
     <string name="add_anyway">无论如何都要添加</string>
-    <string name="this_looks_like_channel">这似乎是房间地址</string>
+    <string name="this_looks_like_channel">这似乎是群聊地址</string>
     <string name="no_backup_available">没有备份可用</string>
     <string name="pref_show_own_accounts_summary">如果您有多个账号，则在聊天和联系人中显示自己的账号。</string>
     <string name="pref_show_own_accounts">显示自己的账号</string>
@@ -952,7 +952,7 @@
     <string name="this_device">此设备</string>
     <string name="intro_desc_main">monocles chat 不只是另一个通讯应用… monocles chat 使用了官方的 IETF 标准。您可以随时切换应用，并与朋友保持联系。
 \n在这里，您是中心舞台上拥有选择权的主角。</string>
-    <string name="welcome_header">欢迎来到
+    <string name="welcome_header">欢迎使用
 \nmonocles chat</string>
     <string name="intro_required_permissions">需要的权限</string>
     <string name="intro_desc_required_permissions">在介绍结束时，如果您尚未授予存储权限，您将被要求授予存储权限（强制）。附加权限根据需要请求，为可选项。</string>
@@ -961,10 +961,10 @@
     <string name="intro_start_chatting">开始聊天</string>
     <string name="intro_desc_start_chatting">如果您已授予联系人权限，则已存在的 Jabber 联系人将自动显示在您的通讯录中。否则，只需添加聊天地址</string>
     <string name="intro_desc_open_chat">现在您可以开始和别人聊天，分享位置、文件、视频和图片或发送语音消息。</string>
-    <string name="intro_chat_details">聊天详情</string>
-    <string name="intro_desc_chat_details">您想打开聊天详情吗？只需在顶部的菜单栏中轻击聊天名称即可。</string>
+    <string name="intro_chat_details">群聊详情</string>
+    <string name="intro_desc_chat_details">您想打开群聊详情吗？只需在顶部的菜单栏中轻击群聊名即可打开详情。</string>
     <string name="intro_highlight_user">提及用户</string>
-    <string name="intro_desc_highlight_user">如果您想提及房间中的某个用户，只需在聊天中轻触此用户的头像即可。或者，特别是如果用户不在聊天中，请切换到聊天详情并在参与者列表中查找用户。长按用户头像会弹出一个菜单，您可以在其中提及此用户。</string>
+    <string name="intro_desc_highlight_user">如果您想提及群聊中的某个用户，只需在聊天中轻触此用户的头像即可。或者，特别是如果用户不在聊天中，请切换到群聊详情并在参与者列表中查找用户。长按用户头像会弹出一个菜单，您可以在其中提及此用户。</string>
     <string name="intro_desc_open_chat_details">您已经打开了聊天详情。在这里，您可以看到此聊天的详情，更改新的消息通知行为，从联系人列表中添加或移除聊天内容等等。</string>
     <string name="pref_show_intro_summary">再次显示介绍屏幕</string>
     <string name="pref_show_intro">再次显示介绍</string>
@@ -974,13 +974,13 @@
     <string name="intro_whats_xmpp">什么是 XMPP/Jabber/monocles chat？</string>
     <string name="intro_desc_optional_permissions">读取通讯录的权限用于从您的联系人中读取聊天地址（如果有）。联系人的内容不会被分享、上传或复制。</string>
     <string name="intro_desc_account2">您可以在 monocles chat 上创建一个新的账号，只需要输入一个昵称。</string>
-    <string name="open_join_dialog">加入公开房间…</string>
+    <string name="open_join_dialog">加入公开群聊…</string>
     <string name="intro_optional_permissions">可选权限</string>
     <string name="intro_desc_optional_permissions2">如果您想要分享您的位置，则需要您的位置权限。
 \n要分享语音消息，需要访问您的麦克风。</string>
     <string name="intro_desc_account3">您可以选择导入现有账号。
 \n如果有可用的备份文件，将显示它们。</string>
-    <string name="intro_desc_start_chatting2">您还可以添加、创建或加入多用户聊天，即所谓的房间。它们分为私人房间和公开房间。</string>
+    <string name="intro_desc_start_chatting2">您还可以添加、创建或加入群聊，分为私人群聊和公开群聊。</string>
     <string name="intro_desc_start_chatting3">祝贺！
 \n我们开始吧，用得开心…</string>
     <string name="intro_privacy">您的隐私
@@ -991,14 +991,14 @@
     <string name="sharing_application_not_grant_permission">共享应用程序未授予访问此文件的权限。</string>
     <string name="local_server">本地服务器</string>
     <string name="pref_channel_discovery_summary">大多数用户会选择“jabber.network”以便从公共 XMPP 生态系统获得更好的建议。</string>
-    <string name="pref_channel_discovery">房间发现方法</string>
+    <string name="pref_channel_discovery">群聊发现方法</string>
     <string name="gp_disable">禁用</string>
     <string name="gp_short">短</string>
     <string name="gp_medium">中</string>
     <string name="gp_long">长</string>
     <string name="pref_notification_grace_period">静默期</string>
     <string name="pref_notification_grace_period_summary">在您的某个其他设备上检测到活动之后，通知被静音的时间长度。</string>
-    <string name="ask_for_writeaccess">请申请写入权限</string>
+    <string name="ask_for_writeaccess">请申请发言权</string>
     <string name="pref_theme_blue">蓝色</string>
     <string name="pref_theme_orange">橙色</string>
     <string name="pref_theme_grey">灰色</string>
@@ -1016,7 +1016,7 @@
     <string name="pref_use_unicolored_chatbg">使用单色背景</string>
     <string name="pref_alternative_voice_settings_summary">如果您在语音录制过程中出现问题，使用此设置更改编解码器。</string>
     <string name="pref_alternative_voice_settings">备选语音录制方法</string>
-    <string name="pref_use_colored_muc_names_summary">为房间或房间中的昵称着色，就像默认头像背景一样。</string>
+    <string name="pref_use_colored_muc_names_summary">为群聊或群聊中的昵称着色，就像默认头像背景一样。</string>
     <string name="pref_use_colored_muc_names">着色昵称</string>
     <string name="show_videos_images_only">仅图片/视频</string>
     <string name="show_avatar">显示头像</string>
@@ -1038,7 +1038,7 @@
     <string name="rtp_state_incoming_video_call">视频来电</string>
     <string name="rtp_state_incoming_call">来电</string>
     <string name="dismiss_call">忽略</string>
-    <string name="answer_call">应答</string>
+    <string name="answer_call">接听</string>
     <string name="ongoing_call">正在进行的通话</string>
     <string name="ongoing_video_call">正在进行的视频通话</string>
     <string name="hang_up">挂断</string>
@@ -1081,9 +1081,9 @@
     <string name="pref_mappreview_host_summary">使用自定义的地图预览主机</string>
     <string name="pref_mappreview_host">地图预览主机</string>
     <string name="webview_not_available">您的设备上无法使用 Webview。</string>
-    <string name="pref_easy_downloader_summary">自动下载公开房间和陌生人发来的所有附件，而不是显示手动下载按钮。</string>
+    <string name="pref_easy_downloader_summary">自动下载公开群聊和陌生人发来的所有附件，而不是显示手动下载按钮。</string>
     <string name="pref_easy_downloader">自动下载所有附件</string>
-    <string name="got_invitation_from">您已被 %s 邀请加入聊天室 %s。</string>
+    <string name="got_invitation_from">您已被 %s 邀请加入群聊 %s。</string>
     <string name="a_user">1 位用户</string>
     <string name="pref_memory_management_summary">显示媒体目录的储存使用情况</string>
     <string name="title_memory_management">储存管理</string>
@@ -1106,21 +1106,21 @@
     <string name="save_x_file">保存 %s</string>
     <string name="file_copied_to">文件已复制到 %s</string>
     <string name="use_individual_notifications">使用单独的通知</string>
-    <string name="pref_remove_all_individual_summary">移除联系人和房间的所有单独通知。</string>
+    <string name="pref_remove_all_individual_summary">移除联系人和群聊的所有单独通知。</string>
     <string name="pref_remove_all_individual_notifications_title">移除所有单独通知</string>
     <string name="remove_individual_notifications">移除单独通知</string>
     <string name="remove_individual_notifications_message">是否确定要移除 %s 的单个通知设置？</string>
-    <string name="remove_all_individual_notifications_message">是否确定要移除为您的联系人和房间设置的所有单独通知？</string>
+    <string name="remove_all_individual_notifications_message">是否确定要移除为您的联系人和群聊设置的所有单独通知？</string>
     <string name="exit">退出</string>
     <string name="record_voice_mail">录制语音消息</string>
     <string name="pref_up_push_server_summary">用户选择的推送服务器，通过 XMPP 将推送消息转送至您的设备。</string>
-    <string name="moderate_message">审核</string>
+    <string name="moderate_message">撤回消息</string>
     <string name="or_use_another">… 或在下面选择另一个</string>
     <string name="pref_use_inner_storage_summary">其他应用将无法从内部存储空间读取媒体</string>
     <string name="pref_use_indicate_received_summary">如果支持，接收到的消息将被打勾</string>
     <string name="block_media">屏蔽媒体文件</string>
     <string name="no_xmpp_adddress_found">未找到 XMPP 地址</string>
-    <string name="add_contact_or_create_or_join_group_chat">添加联系人，创建或加入房间，或发现房间</string>
+    <string name="add_contact_or_create_or_join_group_chat">添加联系人，创建或加入群聊，或发现群聊</string>
     <string name="close">关闭</string>
     <string name="otr_session_not_started">发送消息以开始加密聊天</string>
     <string name="account_status_temporary_auth_failure">验证暂时失败</string>
@@ -1134,19 +1134,19 @@
     <string name="toast_message_otr_fingerprint">OTR 指纹已复制到剪贴板！</string>
     <string name="pref_theme_White">白色</string>
     <string name="copy_otr_clipboard_description">将 OTR 指纹复制到剪贴板</string>
-    <string name="pref_enable_persistent_rooms_summary">让房间持久存在，当最后一位用户离开聊天后不要从服务器上删除它们。</string>
-    <string name="pref_follow_thread_in_channel">在房间中自动跟踪线程</string>
+    <string name="pref_enable_persistent_rooms_summary">让群聊持续存在，当最后一位用户离开聊天后不要从服务器上删除群聊。</string>
+    <string name="pref_follow_thread_in_channel">在群聊中自动跟踪线程</string>
     <string name="user">用户</string>
     <string name="pref_allow_message_retraction">允许消息撤回</string>
     <string name="otr_warning">对 OTR 加密的支持正处于 beta 阶段。单击阅读更多以获取更多信息。将在浏览器中打开链接。</string>
     <string name="pref_use_blue_readmarkers_title">使用蓝色的阅读标记</string>
-    <string name="pref_enable_persistent_rooms_title">持久房间</string>
+    <string name="pref_enable_persistent_rooms_title">持久群聊</string>
     <string name="pref_use_blue_readmarkers_summary">使用蓝色的阅读标记，而不是白色或黑色</string>
     <string name="plain_text_document">纯文本文档</string>
     <string name="account_status_i2p_unavailable">I2P 网络不可用</string>
     <string name="orbot_not_found">Orbot 未找到</string>
     <string name="pref_enable_otr_summary">启用 OTR 加密进行消息加密。OTR 仍很不稳定，请在了解自己的操作后再使用。</string>
-    <string name="moderate_recent">审核消息吗？</string>
+    <string name="moderate_recent">撤回消息吗？</string>
     <string name="easy_invite_share_text">加入 %1$s 和我聊天：%2$s</string>
     <string name="updated_to_monocles">我们已成功将 Monocles Messenger 更新为 monocles chat
 \n
@@ -1154,7 +1154,7 @@
 \n
 \n您可以期待什么：
 \n- 功能范围保持不变
-\n- 支持聊天室已合并
+\n- 支持群聊已合并
 \n- 颜色和徽标都与 monocles 相适应
 \n- 此应用仍可在 F-Droid Store 免费下载
 \n
@@ -1181,7 +1181,7 @@
     <string name="tags">标签</string>
     <string name="grant">授予</string>
     <string name="rtp_state_security_error">验证问题</string>
-    <string name="conference_technical_problems">由于技术原因，您离开了此房间</string>
+    <string name="conference_technical_problems">由于技术原因，您离开了此群聊</string>
     <string name="jabber_network">jabber.network</string>
     <string name="encryption_choice_omemo">OMEMO</string>
     <string name="data_successfully_moved">您的数据已经成功移动。</string>
@@ -1237,7 +1237,7 @@
     <string name="pref_set_round_avatars_summary">将用户头像调整成圆形</string>
     <string name="no_otr_session_found">未找到有效的 OTR 会话！</string>
     <string name="related_chats">相关的聊天</string>
-    <string name="new_contact_or_group">新的联系人或房间</string>
+    <string name="new_contact_or_group">新的联系人或群聊</string>
     <string name="receiving_x_file">正在接收 %1$s (%2$d%% 已完成)</string>
     <string name="pref_import_settings">导入应用设置</string>
     <string name="are_you_sure_verify_fingerprint">您确定要验证您的联系人 OTR 指纹吗？</string>
@@ -1245,7 +1245,7 @@
     <string name="custom_primary_color">自定义主色调</string>
     <string name="account_status_incompatible_client">不兼容的客户端</string>
     <string name="no_account_deactivated">无 (已停用)</string>
-    <string name="unable_to_moderate">不能审核</string>
+    <string name="unable_to_moderate">无法撤回</string>
     <string name="collapse_message_signs_title">折叠长文本消息</string>
     <string name="participants">参与者</string>
     <string name="optimize_database">优化数据库… 请稍等…</string>
@@ -1265,7 +1265,7 @@
 \n
 \n您应该启用自动附件删除或手动删除存储的媒体。您的设备将耗尽内部存储空间！</string>
     <string name="outgoing_call_duration_timestamp">去电 (%s) · %s</string>
-    <string name="moderate_reason">审核原因</string>
+    <string name="moderate_reason">撤回原因</string>
     <string name="download_failed_invalid_file">下载失败：无效文件</string>
     <string name="avatar_for_x">%s 的头像</string>
     <string name="no_application_found">未找到应用程序</string>
@@ -1276,11 +1276,11 @@
     <string name="choose_sticker_location">选择贴纸位置</string>
     <string name="thread_locked">线程锁定</string>
     <string name="continue_btn">继续</string>
-    <string name="title_undo_swipe_out_group_chat">撤销移除房间</string>
+    <string name="title_undo_swipe_out_group_chat">撤销移除群聊</string>
     <string name="action_edit_contact">编辑联系人</string>
     <string name="undo">撤销</string>
     <string name="menuitem_create_backup_action">创建备份</string>
-    <string name="collapse_message_signs_summary">折叠超过 7 行的消息</string>
+    <string name="collapse_message_signs_summary">设置折叠消息的最大字符数</string>
     <string name="vector_graphic">矢量图形</string>
     <string name="action_fix_to_location">固定位置</string>
     <string name="pref_theme_custom">自定义</string>
@@ -1296,7 +1296,7 @@
     </plurals>
     <string name="gpx_track">GPX 轨迹</string>
     <string name="settings_restore_message_success">设置成功恢复</string>
-    <string name="message_reaction">发送反应</string>
+    <string name="message_reaction">发送回应</string>
     <string name="switch_to_video">切换到视频</string>
     <string name="only_this_thread">只显示此线程</string>
     <string name="updated_to_monocles_google">我们很抱歉无法直接更新 monocles chat。通过以下链接，您将了解如何将您的所有账号从 Monocles Messenger 转移到 monocles chat 的说明。通过单击移动数据，我们试图将所有发送和接收的文件从 Monocles Messenger 移动到 monocles chat。迁移成功后，请记住从您的设备中卸载 Monocles Messenger。</string>
@@ -1328,9 +1328,9 @@
 \n
 \n<b>警告：</b>不能保证这将删除存储在其他设备或服务器上的此消息副本。</string>
     <string name="could_not_correct_message">无法更正消息</string>
-    <string name="battery_optimizations_enabled_dialog">您的设备正对 monocles chat 实施强力电池优化，这可能会导致通知延迟甚至消息丢失。
+    <string name="battery_optimizations_enabled_dialog">您的设备正对 monocles chat 使用重度电池优化，这可能会导致通知延迟甚至消息丢失。
 \n
-\n现在将要求您禁用它们。</string>
+\n现在将要求您禁用此设置。</string>
     <string name="unified_push_distributor">UnifiedPush 分发程序</string>
     <string name="unable_to_enable_video">无法启用视频。</string>
     <string name="bold">加粗</string>
@@ -1340,12 +1340,12 @@
         <item quantity="other">一些消息无法传递</item>
     </plurals>
     <string name="rtp_state_content_add">添加额外轨道吗？</string>
-    <string name="title_undo_swipe_out_channel">撤销移除房间</string>
+    <string name="title_undo_swipe_out_channel">撤销移除群聊</string>
     <string name="not_encrypted">未加密</string>
     <string name="title_undo_swipe_out_conversation">撤销移除聊天</string>
     <string name="pref_up_push_account_summary">接收推送消息的账号。</string>
     <string name="pref_pause_voice_on_move_from_ear_summary">当您把设备从耳朵边移开时，暂停当前的语音信息。</string>
-    <string name="join_room">进入房间</string>
+    <string name="join_room">进入群聊</string>
     <string name="show_less">"
 \n
 \n… 显示更少"</string>
@@ -1370,7 +1370,7 @@
     <string name="your_server">您的提供者</string>
     <string name="tap_share_button_send_invite">轻击分享按钮，向您的联系人发送加入 %1$s 的邀请。</string>
     <string name="search_this_conversation">此对话</string>
-    <string name="account_settings_example_jabber_id">username@monocles.eu</string>
+    <string name="account_settings_example_jabber_id">用户名@monocles.eu</string>
     <string name="italic">倾斜</string>
     <string name="receiving_file_x">正在接收 %1$s (%2$s %)</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
@@ -1397,7 +1397,7 @@
     <string name="account_color">账号颜色</string>
     <string name="app_title" formatted="true">monocles chat</string>
     <string name="pref_set_text_collapsable">折叠长文本</string>
-    <string name="notifications_disabled">通知已禁用。请在您的 Android 设置中激活它们。</string>
+    <string name="notifications_disabled">通知已禁用。请在您的 Android 设置中激活通知。</string>
     <string name="no_media_permission">未授予权限</string>
     <string name="edit_sytemaccount">电话联系人</string>
     <string name="edit_chat_contact">聊天联系人</string>
@@ -1438,7 +1438,7 @@
     <string name="no_background_set">未设置自定义背景</string>
     <string name="input_field">输入框</string>
     <string name="import_own_stickers">导入贴纸</string>
-    <string name="import_own_stickers_summary">导入自己的贴纸。并使用它们的原始文件名。</string>
+    <string name="import_own_stickers_summary">导入自己的贴纸，并使用贴纸的原始文件名。</string>
     <string name="pref_enforce_dane_summary">只有在成功验证 DANE 后才连接账号</string>
     <string name="dane_failed">DANE 失败</string>
     <string name="pref_enforce_dane">执行 DANE</string>
@@ -1508,10 +1508,12 @@
     <string name="failed_to_delete_sticker">删除贴纸失败</string>
     <string name="import_gif_failed">导入 GIF 失败</string>
     <string name="gif_imported">GIF 已导入</string>
-    <string name="import_own_gifs_summary">导入您自己的 GIF。它们将按文件名排序。</string>
+    <string name="import_own_gifs_summary">导入自己的 GIF，将按文件名排序 GIF。</string>
     <string name="save_as_gif">保存为 GIF</string>
     <string name="gif_deleted">GIF 已删除</string>
     <string name="import_own_gifs">导入自己的 GIF</string>
     <string name="sticker_deleted">贴纸已删除</string>
     <string name="choose_sticker_name">选择没有结尾的贴纸名</string>
+    <string name="pref_accept_invites_from_strangers">来自陌生人的邀请</string>
+    <string name="pref_accept_invites_from_strangers_summary">接受来自陌生人的群聊邀请</string>
 </resources>

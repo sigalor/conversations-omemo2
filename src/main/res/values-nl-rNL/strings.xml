@@ -1492,7 +1492,7 @@
     <string name="you_may_sometimes_have_to">Soms moet de app geforceerd afgesloten worden om de wijzigingen toe te passen.</string>
     <string name="restore_warning_continued">Herstel alleen back-ups die je zelf hebt gemaakt!</string>
     <string name="collapse_message_signs_title">Lange tekstberichten samenvouwen</string>
-    <string name="collapse_message_signs_summary">Berichten met meer dan 7 regels worden samengevouwen</string>
+    <string name="collapse_message_signs_summary">Stel het maximum aantal tekens in voordat berichten worden ingeklapt</string>
     <string name="pref_set_text_collapsable_summary">Teksten van meer dan 230 tekens worden samengevouwen</string>
     <string name="help_format_text">Je kunt eenvoudige opties gebruiken om je tekst op te maken. De tekens om het begin en het einde van een opmaak aan te geven staan precies aan het begin en het einde van het woord of de woordgroep. Er moet een spatie staan voor het beginteken en een spatie na het eindteken, anders wordt de opmaak niet herkend.
 \n
@@ -1515,4 +1515,6 @@
     <string name="import_own_gifs">Importeer eigen GIF\'s</string>
     <string name="choose_gif_name">Kies een naam voor de GIF</string>
     <string name="choose_sticker_name">Kies een naam voor de sticker</string>
+    <string name="pref_accept_invites_from_strangers">Uitnodigingen van onbekenden</string>
+    <string name="pref_accept_invites_from_strangers_summary">Accepteer uitnodigingen van onbekenden voor groepsgesprekken</string>
 </resources>

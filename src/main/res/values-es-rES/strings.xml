@@ -1401,7 +1401,7 @@
     <string name="notify_only_when_highlighted_or_replied">Notificar para menciones y repuestas</string>
     <string name="show_less">\n\n... mostrar menos</string>
     <string name="show_more">\n\n... mostrar más</string>
-    <string name="collapse_message_signs_summary">Contraer mensajes con más de 7 líneas</string>
+    <string name="collapse_message_signs_summary">Establecer el número máximo de caracteres antes de comprimir el mensaje</string>
     <string name="collapse_message_signs_title">Colapsar texto de mensajes largos</string>
     <string name="action_complete">Acción completada</string>
     <string name="moderate_recent">¿Moderar mensajes?</string>
@@ -1538,4 +1538,6 @@
     <string name="choose_sticker_name">Elige un nombre del sticker sin terminación</string>
     <string name="gifs">GIFs</string>
     <string name="copy_GIFs_to_GIFs_folder">Importa tus propios GIF a través de los ajustes de la aplicación</string>
+    <string name="pref_accept_invites_from_strangers">Invitaciones de extraños</string>
+    <string name="pref_accept_invites_from_strangers_summary">Aceptar invitaciones a chats con extraños</string>
 </resources>
