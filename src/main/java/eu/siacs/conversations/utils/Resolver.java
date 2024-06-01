@@ -233,7 +233,7 @@ public class Resolver {
 
     public static List<Result> resolve(final String domain) {
         final  List<Result> ipResults = fromIpAddress(domain, DEFAULT_PORT_XMPP);
-        if (ipResults.size() > 0) {
+        if (!ipResults.isEmpty()) {
             return ipResults;
         }
         final List<Result> results = new ArrayList<>();
@@ -275,7 +275,7 @@ public class Resolver {
         try {
             threads[0].join();
             threads[1].join();
-            if (results.size() > 0) {
+            if (!results.isEmpty()) {
                 threads[2].interrupt();
                 synchronized (results) {
                     Collections.sort(results);
@@ -326,7 +326,7 @@ public class Resolver {
             final boolean authentic = result.isAuthenticData() || record.target.toString().equals(knownSRV.get(dnsNameS));
             threads.add(new Thread(() -> {
                 final List<Result> ipv4s = resolveIp(record, A.class, authentic, directTls);
-                if (ipv4s.size() == 0) {
+                if (ipv4s.isEmpty()) {
                     Result resolverResult = Result.fromRecord(record, directTls);
                     resolverResult.authenticated = result.isAuthenticData();
                     ipv4s.add(resolverResult);
@@ -387,7 +387,7 @@ public class Resolver {
                 r.authenticated = aaaaResult.isAuthenticData();
                 results.add(r);
             }
-            if (results.size() == 0 && withCnames) {
+            if (results.isEmpty() && withCnames) {
                 ResolverResult<CNAME> cnameResult = resolveWithFallback(dnsName, CNAME.class);
                 for (CNAME cname : cnameResult.getAnswersOrEmptySet()) {
                     for (Result r : resolveNoSrvRecords(cname.name, port, false)) {
