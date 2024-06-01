@@ -546,6 +546,13 @@
         </xmpp:SupportedXep>
     </implements>
         <implements>
+            <xmpp:SupportedXep>
+                <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0490.html"/>
+                <xmpp:status>complete</xmpp:status>
+                <xmpp:version>0.1.0</xmpp:version>
+            </xmpp:SupportedXep>
+        </implements>
+        <implements>
         <xmpp:SupportedXep>
             <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0364.html"/>
             <xmpp:status>partial</xmpp:status>
@@ -556,9 +563,9 @@
 
     <release>
         <Version>
-            <revision>1.4.2</revision>
-            <created>2021-12-04</created>
-            <file-release rdf:resource="https://codeberg.org/Arne/monocles_chat/archive/v1.4.2.tar.gz"/>
+            <revision>1.7.10</revision>
+            <created>2024-06-01</created>
+            <file-release rdf:resource="https://codeberg.org/monocles/monocles_chat/releases/tag/v1.7.10"/>
         </Version>
     </release>
 </Project>
