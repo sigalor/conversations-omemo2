@@ -1094,7 +1094,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                             "  USING (" + Message.UUID + ")" +
                             " WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
-                            " WHERE " + Message.CONVERSATION + "=? " +
+                            " WHERE " + Message.CONVERSATION + "=? AND " +
                             Message.DELETED + "<?" +
                             "ORDER BY " + Message.TIME_SENT + " DESC " +
                             "LIMIT " + String.valueOf(limit) + ") " +
