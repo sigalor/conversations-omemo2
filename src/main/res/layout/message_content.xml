@@ -2,51 +2,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <RelativeLayout
-        android:id="@+id/image_quote_box"
-        android:layout_width="84dp"
-        android:layout_height="78dp"
-        android:clickable="true"
-        android:background="@drawable/quote_bubble"
-        app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare"
-        android:visibility="gone" >
-
-
-        <View
-            android:layout_height="52dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_width="1dp"
-            android:layout_centerVertical="true"
-            android:background="?attr/text_Color_Main"
-            android:orientation="vertical"/>
-
-        <View
-            android:id="@+id/second_quote_line"
-            android:layout_height="52dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_width="1dp"
-            android:layout_centerVertical="true"
-            android:background="?attr/text_Color_Main"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/image_quote_preview"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
-
-    </RelativeLayout>
-
     <TextView
         android:id="@+id/message_body"
         android:layout_width="wrap_content"

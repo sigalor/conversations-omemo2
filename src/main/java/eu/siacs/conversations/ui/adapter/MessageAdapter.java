@@ -697,8 +697,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.transfer.setVisibility(GONE);
         viewHolder.audioPlayer.setVisibility(GONE);
         viewHolder.messageBody.setVisibility(GONE);
-        viewHolder.quotedImageBox.setVisibility(GONE);
-        viewHolder.secondQuoteLine.setVisibility(GONE);
         if (darkBackground) {
             viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_OnDark);
         } else {
@@ -735,15 +733,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     return fallbackImg;
                 }
             }, fallbackImg)));
-            boolean isFirstImageQuote = body.toString().startsWith("> https://");
-            boolean isSecondImageQuote = body.toString().startsWith(">> https://");
-            boolean isOmemoImageQuote = body.toString().startsWith("> aesgcm://") || body.toString().startsWith(">> aesgcm://");
             if (message.getBody().equals(DELETED_MESSAGE_BODY)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY.length(), activity.getString(R.string.message_deleted));
             } else if (message.getBody().equals(DELETED_MESSAGE_BODY_OLD)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY_OLD.length(), activity.getString(R.string.message_deleted));
             } else {
-                viewHolder.quotedImageBox.setVisibility(GONE);
                 boolean hasMeCommand = message.hasMeCommand();
                 if (hasMeCommand) {
                     body = body.replace(0, Message.ME_COMMAND.length(), nick);
@@ -818,57 +812,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     StylingHelper.highlight(activity, body, highlightedTerm, StylingHelper.isDarkText(viewHolder.messageBody));
                 }
             }
-            if (activity.xmppConnectionService.getPreferences().getBoolean("send_link_previews", true) && (isFirstImageQuote || isSecondImageQuote || isOmemoImageQuote) && containsLink(body.toString())) {
-                List<String> uri = extractUrls(body.toString());
-                for (String imageurl : uri) {
-                    if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                        Glide.with(activity)
-                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
-                                .thumbnail(0.2f).error(imageurl)
-                                .into(viewHolder.quotedImage);
-                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
-                    } else {
-                        Glide.with(activity).asBitmap()
-                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
-                                .thumbnail(0.2f).error(imageurl)
-                                .into(viewHolder.quotedImage);
-                        viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
-                    }
-                    if (isSecondImageQuote) {
-                        viewHolder.secondQuoteLine.setVisibility(View.VISIBLE);
-                    }
-                    viewHolder.quotedImageBox.setOnClickListener(v -> {
-                        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("open_links_inapp", R.bool.open_links_inapp)) {
-                            try {
-                                CustomTab.openTab(activity, Uri.parse(imageurl), ThemeHelper.isDark(ThemeHelper.find(activity)));
-                            } catch (ActivityNotFoundException e) {
-                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(imageurl));
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                            //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-                            try {
-                                activity.startActivity(intent);
-                            } catch (ActivityNotFoundException e) {
-                                ToastCompat.makeText(activity, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                    try {
-                        int start = 0;
-                        int end = imageurl.length() + 2;
-                        body = body.replace(start, end, "");
-                    } catch (Exception e) {
-                        Log.d("Error", "Can't replace link");
-                    }
-                }
-            }
             if (message.isWebUri() || message.getWebUri() != null) {
                 displayRichLinkMessage(viewHolder, message, darkBackground);
             }
             MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
-
             viewHolder.messageBody.setText(body);
             viewHolder.messageBody.setAutoLinkMask(0);
             BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
@@ -1470,9 +1417,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.images = view.findViewById(R.id.images);
                     viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
-                    viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
-                    viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
-                    viewHolder.secondQuoteLine = view.findViewById(R.id.second_quote_line);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -1512,9 +1456,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.images = view.findViewById(R.id.images);
                     viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
-                    viewHolder.quotedImage = view.findViewById(R.id.image_quote_preview);
-                    viewHolder.quotedImageBox = view.findViewById(R.id.image_quote_box);
-                    viewHolder.secondQuoteLine = view.findViewById(R.id.second_quote_line);
                     viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
                     if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                         viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
@@ -2066,10 +2007,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected Button resend_button;
         protected ImageButton answer_button;
         protected ImageView image;
-        protected ImageView quotedImage;
-        protected RelativeLayout quotedImageBox;
-        protected TextView seeMore;
-        protected View secondQuoteLine;
         protected TextView mediaduration;
         protected RichLinkView richlinkview;
         protected ImageView indicator;
@@ -2155,87 +2092,5 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (isCancelled()) return;
             activity.xmppConnectionService.updateConversationUi();
         }
-    }
-
-    public static boolean containsLink(String input) {
-        boolean result = false;
-
-        String[] parts = input.split("\\s+");
-
-        for (String item : parts) {
-            if (android.util.Patterns.WEB_URL.matcher(item).matches()) {
-                result = true;
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    public static List<String> extractUrls(String input)
-    {
-        List<String> result = new ArrayList<String>();
-
-        String[] words = input.split("\\s+");
-
-
-        Pattern pattern = Patterns.WEB_URL;
-        for(String word : words)
-        {
-            if(pattern.matcher(word).find())
-            {
-                if(!word.toLowerCase().contains("http://") && !word.toLowerCase().contains("https://"))
-                {
-                    word = "http://" + word;
-                }
-                result.add(word);
-            }
-        }
-
-        return result;
-    }
-
-    String WebUri = null;
-    private Boolean isWebUri = null;
-    public synchronized String getWebUri(String thisbody) {
-        final Pattern urlPattern = Pattern.compile(
-                "(?:(?:https?):\\/\\/|www\\.)(?:\\([-A-Z0-9+&@#\\/%=~_|$?!:,.]*\\)|[-A-Z0-9+&@#\\/%=~_|$?!:,.])*(?:\\([-A-Z0-9+&@#\\/%=~_|$?!:,.]*\\)|[A-Z0-9+&@#\\/%=~_|$])",
-                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-        Matcher m = urlPattern.matcher(thisbody);
-        while (m.find()) {
-            if (WebUri == null) {
-                WebUri = m.group(0);
-                Log.d(Config.LOGTAG, "Weburi Message: " + WebUri);
-                return WebUri;
-            }
-        }
-        return WebUri;
-    }
-
-    public synchronized boolean isWebUri(String thisbody) {
-        if (isWebUri == null) {
-            isWebUri = Patterns.WEB_URL.matcher(thisbody).matches();
-        }
-        return isWebUri;
-    }
-
-    public synchronized boolean isImageUri(String thisbody) {
-        final AtomicBoolean b = new AtomicBoolean(false);
-        Thread imageDataThread = new Thread(() -> {
-            try {
-                URLConnection connection = new URL(thisbody).openConnection();
-                String contentType = connection.getHeaderField("Content-Type");
-                if (contentType.startsWith("image/") || contentType.startsWith("video/")) b.set(true);
-            } catch (IOException pExc) {
-                pExc.printStackTrace();
-            }
-        });
-        imageDataThread.start();
-        try {
-            imageDataThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return b.get();
     }
 }
