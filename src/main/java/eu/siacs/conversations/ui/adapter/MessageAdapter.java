@@ -823,13 +823,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 for (String imageurl : uri) {
                     if (activity.xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
                         Glide.with(activity)
-                                .load(imageurl).placeholder(R.drawable.ic_file_grey600_48dp)
+                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
                                 .thumbnail(0.2f).error(imageurl)
                                 .into(viewHolder.quotedImage);
                         viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
                     } else {
                         Glide.with(activity).asBitmap()
-                                .load(imageurl).placeholder(R.drawable.ic_file_grey600_48dp)
+                                .load(imageurl).placeholder(R.drawable.ic_image_grey600_48dp)
                                 .thumbnail(0.2f).error(imageurl)
                                 .into(viewHolder.quotedImage);
                         viewHolder.quotedImageBox.setVisibility(View.VISIBLE);
