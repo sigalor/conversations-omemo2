@@ -113,7 +113,7 @@ dependencies {
     implementation 'com.github.woltapp:blurhash:master'
     implementation 'org.tomlj:tomlj:1.1.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
-    implementation 'io.michaelrocks:libphonenumber-android:8.13.17'
+    implementation 'io.michaelrocks:libphonenumber-android:8.13.28'
     implementation 'io.github.nishkarsh:android-permissions:2.1.6'
     implementation 'com.github.singpolyma:TokenAutoComplete:bfa93780e0'
     implementation 'com.github.singpolyma:android-identicons:3361281bd4'
