@@ -182,6 +182,7 @@ public class XmppConnection implements Runnable {
     private boolean inSmacksSession = false;
     private boolean quickStartInProgress = false;
     private boolean isBound = false;
+    private boolean offlineMessagesRetrieved = false;
     private Element streamFeatures;
     private Element boundStreamFeatures;
     private StreamId streamId = null;
@@ -2294,6 +2295,7 @@ public class XmppConnection implements Runnable {
     }
 
     private void finalizeBind() {
+        this.offlineMessagesRetrieved = false;
         if (bindListener != null) {
             bindListener.onBind(account);
         }
@@ -2894,6 +2896,28 @@ public class XmppConnection implements Runnable {
 
     private IqGenerator getIqGenerator() {
         return mXmppConnectionService.getIqGenerator();
+    }
+
+    public void trackOfflineMessageRetrieval(boolean trackOfflineMessageRetrieval) {
+        if (trackOfflineMessageRetrieval) {
+            final IqPacket iqPing = new IqPacket(IqPacket.TYPE.GET);
+            iqPing.addChild("ping", Namespace.PING);
+            this.sendIqPacket(
+                    iqPing,
+                    (a, response) -> {
+                        Log.d(
+                                Config.LOGTAG,
+                                account.getJid().asBareJid()
+                                        + ": received ping response after sending initial presence");
+                        XmppConnection.this.offlineMessagesRetrieved = true;
+                    });
+        } else {
+            this.offlineMessagesRetrieved = true;
+        }
+    }
+
+    public boolean isOfflineMessagesRetrieved() {
+        return this.offlineMessagesRetrieved;
     }
 
     private class MyKeyManager implements X509KeyManager {

@@ -59,7 +59,7 @@ public class CallManager {
         }
 
         final Contact contact = conversation.getContact();
-        if (contact.getPresences().anySupport(Namespace.JINGLE_MESSAGE)) {
+        if (RtpCapability.jmiSupport(contact)) {
             triggerRtpSession(contact.getAccount(), contact.getJid().asBareJid(), action, activity);
         } else {
             final RtpCapability.Capability capability;

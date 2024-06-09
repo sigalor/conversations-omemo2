@@ -2793,7 +2793,7 @@ public class ConversationFragment extends XmppFragment
             activity.xmppConnectionService.updateAccount(account);
         }
         final Contact contact = conversation.getContact();
-        if (contact.getPresences().anySupport(Namespace.JINGLE_MESSAGE)) {
+        if (Config.USE_JINGLE_DIRECT_INIT && RtpCapability.jmiSupport(contact)) {
             triggerRtpSession(contact.getAccount(), contact.getJid().asBareJid(), action);
         } else {
             final RtpCapability.Capability capability;
@@ -2802,21 +2802,18 @@ public class ConversationFragment extends XmppFragment
             } else {
                 capability = RtpCapability.Capability.AUDIO;
             }
-            PresenceSelector.selectFullJidForDirectRtpConnection(activity, contact, capability, fullJid -> {
-                triggerRtpSession(contact.getAccount(), fullJid, action);
-            });
+            PresenceSelector.selectFullJidForDirectRtpConnection(
+                    activity,
+                    contact,
+                    capability,
+                    fullJid -> {
+                        triggerRtpSession(contact.getAccount(), fullJid, action);
+                    });
         }
     }
 
     private void triggerRtpSession(final Account account, final Jid with, final String action) {
         CallIntegrationConnectionService.placeCall(requireActivity(),account,with,RtpSessionActivity.actionToMedia(action));
-        /*final Intent intent = new Intent(activity, RtpSessionActivity.class);
-        intent.setAction(action);
-        intent.putExtra(RtpSessionActivity.EXTRA_ACCOUNT, account.getJid().toEscapedString());
-        intent.putExtra(RtpSessionActivity.EXTRA_WITH, with.toEscapedString());
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);*/
     }
 
     private void handleAttachmentSelection(MenuItem item) {

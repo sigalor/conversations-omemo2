@@ -77,7 +77,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 
     private static final List<String> JINGLE_MESSAGE_ELEMENT_NAMES =
-            Arrays.asList("accept", "propose", "proceed", "reject", "retract", "ringing");
+            Arrays.asList("accept", "propose", "proceed", "reject", "retract", "ringing", "finish");
 
     public MessageParser(XmppConnectionService service) {
         super(service);
@@ -508,6 +508,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         final Element result = MessageArchiveService.Version.findResult(original);
         final String queryId = result == null ? null : result.getAttribute("queryid");
         final MessageArchiveService.Query query = queryId == null ? null : mXmppConnectionService.getMessageArchiveService().findQuery(queryId);
+        final boolean offlineMessagesRetrieved = account.getXmppConnection().isOfflineMessagesRetrieved();
         if (query != null && query.validFrom(original.getFrom())) {
             final Pair<MessagePacket, Long> f = original.getForwardedMessagePacket("result", query.version.namespace);
             if (f == null) {
@@ -1246,7 +1247,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                         if (sessionId == null) {
                             break;
                         }
-                        if (query == null) {
+                        if (query == null && offlineMessagesRetrieved) {
                             if (serverMsgId == null) {
                                 serverMsgId = extractStanzaId(account, packet);
                             }
@@ -1267,7 +1268,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                                     && contact.showInContactList()) {
                                 processMessageReceipts(account, packet, remoteMsgId, null);
                             }
-                        } else if (query.isCatchup()) {
+                        } else if ((query != null && query.isCatchup()) || !offlineMessagesRetrieved) {
                             if ("propose".equals(action)) {
                                 final Element description = child.findChild("description");
                                 final String namespace = description == null ? null : description.getNamespace();
@@ -1307,6 +1308,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                                     Log.d(Config.LOGTAG, "unable to find original rtp session message for received propose");
                                 }
 
+                            } else if ("finish".equals(action)) {
+                                Log.d(Config.LOGTAG,"received JMI 'finish' during MAM catch-up. Can be used to update success/failure and duration");
                             }
                         } else {
                             //MAM reloads (non catchups
