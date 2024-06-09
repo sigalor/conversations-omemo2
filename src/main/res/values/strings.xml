@@ -1446,4 +1446,5 @@
     <string name="allow_private_messages">Allow private messages</string>
     <string name="mute_locally">Mute Locally</string>
     <string name="unmute_locally">Unmute Locally</string>
+    <string name="call_integration_not_available">Call integration not available!</string>
 </resources>
