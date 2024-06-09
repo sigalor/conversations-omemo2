@@ -180,11 +180,10 @@ public class ConnectionService extends android.telecom.ConnectionService {
 
 	@Override
 	public Connection onCreateIncomingConnection(PhoneAccountHandle handle, ConnectionRequest request) {
-		final var extras = request.getExtras();
-		final var extraExtras = extras.getBundle(TelecomManager.EXTRA_INCOMING_CALL_EXTRAS);
-		final var accountJid = extraExtras == null ? null : extraExtras.getString("account");
-		final var withJid = extraExtras == null ? null : extraExtras.getString("with");
-		final String sessionId = extraExtras == null ? null : extraExtras.getString(CallIntegrationConnectionService.EXTRA_SESSION_ID);
+		Bundle extras = request.getExtras();
+		String accountJid = extras.getString("account");
+		String withJid = extras.getString("with");
+		String sessionId = extras.getString("sessionId");
 
 		if (xmppConnectionService == null) {
 			return Connection.createFailedConnection(

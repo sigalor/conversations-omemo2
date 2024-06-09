@@ -88,7 +88,7 @@ public class RtpSessionActivity extends XmppActivity
 
     private static final int CALL_DURATION_UPDATE_INTERVAL = 333;
 
-    private static final List<RtpEndUserState> END_CARD =
+    public static final List<RtpEndUserState> END_CARD =
             Arrays.asList(
                     RtpEndUserState.APPLICATION_ERROR,
                     RtpEndUserState.SECURITY_ERROR,
