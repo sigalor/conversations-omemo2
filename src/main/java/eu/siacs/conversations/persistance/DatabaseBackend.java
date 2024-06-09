@@ -928,7 +928,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public Multimap<String, String> loadMutedMucUsers() {
         Multimap<String, String> result = HashMultimap.create();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("cheogram.muted_participants", new String[]{"muc_jid", "occupant_id"}, null, null, null, null, null);
+        Cursor cursor = db.query("monocles.muted_participants", new String[]{"muc_jid", "occupant_id"}, null, null, null, null, null);
         while (cursor.moveToNext()) {
             result.put(cursor.getString(0), cursor.getString(1));
         }
@@ -944,7 +944,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         cv.put("muc_jid", user.getMuc().toString());
         cv.put("occupant_id", user.getOccupantId());
         cv.put("nick", user.getNick());
-        db.insertWithOnConflict("cheogram.muted_participants", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict("monocles.muted_participants", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
         return true;
     }
@@ -955,7 +955,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String where = "muc_jid=? AND occupant_id=?";
         String[] whereArgs = {user.getMuc().toString(), user.getOccupantId()};
-        db.delete("cheogram.muted_participants", where, whereArgs);
+        db.delete("monocles.muted_participants", where, whereArgs);
 
         return true;
     }
