@@ -357,6 +357,14 @@ public class PresenceParser extends AbstractParser implements
             }
             mXmppConnectionService.onContactStatusChanged.onContactStatusChanged(contact, false);
         } else if (type.equals("subscribe")) {
+            if (contact.isBlocked()) {
+                Log.d(
+                        Config.LOGTAG,
+                        account.getJid().asBareJid()
+                                + ": ignoring 'subscribe' presence from blocked "
+                                + from);
+                return;
+            }
             if (contact.setPresenceName(packet.findChildContent("nick", Namespace.NICK))) {
                 mXmppConnectionService.syncRoster(account);
                 mXmppConnectionService.getAvatarService().clear(contact);
