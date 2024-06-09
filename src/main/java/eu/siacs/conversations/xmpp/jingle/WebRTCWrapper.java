@@ -708,12 +708,12 @@ public class WebRTCWrapper {
     }
 
     public boolean applyDtmfTone(String tone) {
-        if (toneManager == null || peerConnection == null || localAudioTrack == null) {
+        //if (toneManager == null || peerConnection == null || localAudioTrack == null) {
             return false;
-        }
-        localAudioTrack.rtpSender.dtmf().insertDtmf(tone, TONE_DURATION, 100);
-        toneManager.startTone(TONE_CODES.get(tone), TONE_DURATION);
-        return true;
+        //}
+        //localAudioTrack.rtpSender.dtmf().insertDtmf(tone, TONE_DURATION, 100);
+        //toneManager.startTone(TONE_CODES.get(tone), TONE_DURATION);
+        //return true;
     }
 
     @Nonnull

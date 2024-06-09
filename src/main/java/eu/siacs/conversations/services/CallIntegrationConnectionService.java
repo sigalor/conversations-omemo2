@@ -228,7 +228,7 @@ public class CallIntegrationConnectionService extends ConnectionService {
         }
     }
 
-    private static void registerPhoneAccount(final Context context, final Account account) {
+    static void registerPhoneAccount(final Context context, final Account account) {
         try {
             registerPhoneAccountOrThrow(context, account);
         } catch (final IllegalArgumentException e) {
