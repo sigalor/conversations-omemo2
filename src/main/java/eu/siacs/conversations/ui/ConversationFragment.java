@@ -3711,6 +3711,17 @@ public class ConversationFragment extends XmppFragment
         return null;
     }
 
+    public void jumpTo(final Message message) {
+        if (message.getUuid() == null) return;
+        for (int i = 0; i < messageList.size(); i++) {
+            final var m = messageList.get(i);
+            if (m == null) continue;
+            if (message.getUuid().equals(m.getUuid())) {
+                binding.messagesView.setSelection(i);
+                return;
+            }
+        }
+    }
 
     private void openWith(final Message message) {
         if (message.isGeoUri()) {
