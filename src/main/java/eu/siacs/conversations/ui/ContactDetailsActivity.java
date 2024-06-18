@@ -720,7 +720,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             });
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (getPreferences().getBoolean("send_link_previews", true)) {
-                if (statusMessages.size() == 0) {
+                if (statusMessages.isEmpty()) {
                     binding.statusMessage.setVisibility(View.GONE);
                     binding.statusBox.setVisibility(View.GONE);
                 } else if (statusMessages.size() == 1) {
@@ -801,7 +801,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 
                 }
             } else {
-                if (statusMessages.size() == 0) {
+                if (statusMessages.isEmpty()) {
                     binding.statusBox.setVisibility(View.GONE);
                     binding.statusMessage.setVisibility(View.GONE);
                 } else if (statusMessages.size() == 1) {
@@ -828,7 +828,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 }
             }
             String resources = contact.getPresences().getMostAvailableResource();
-            if (resources.length() == 0) {
+            if (resources.isEmpty()) {
                 binding.resource.setVisibility(View.GONE);
             } else {
                 binding.resource.setVisibility(View.VISIBLE);
@@ -991,7 +991,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         binding.keysWrapper.setVisibility(hasKeys ? View.VISIBLE : View.GONE);
 
         List<ListItem.Tag> tagList = contact.getTags(this);
-        if (tagList.size() == 0 || !this.showDynamicTags) {
+        if (tagList.isEmpty() || !this.showDynamicTags) {
             binding.tags.setVisibility(View.GONE);
         } else {
             binding.tags.setVisibility(View.VISIBLE);
