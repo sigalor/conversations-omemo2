@@ -39,6 +39,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.style.URLSpan;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.Toast;
 
@@ -85,14 +86,14 @@ public class FixedURLSpan extends URLSpan {
         final boolean candidateToProcessDirectly = "xmpp".equals(uri.getScheme()) || ("https".equals(uri.getScheme()) && Config.inviteHostURL.equals(uri.getHost()) && uri.getPathSegments().size() > 1 && Arrays.asList("j", "i").contains(uri.getPathSegments().get(0)));
         if (candidateToProcessDirectly && context instanceof ConversationsActivity) {
             if (((ConversationsActivity) context).onXmppUriClicked(uri)) {
-                widget.playSoundEffect(0);
+                widget.playSoundEffect(SoundEffectConstants.CLICK);
                 return;
             }
         }
 
         if (("sms".equals(uri.getScheme()) || "tel".equals(uri.getScheme())) && context instanceof ConversationsActivity) {
             if (((ConversationsActivity) context).onTelUriClicked(uri, account)) {
-                widget.playSoundEffect(0);
+                widget.playSoundEffect(SoundEffectConstants.CLICK);
                 return;
             }
         }
@@ -100,7 +101,7 @@ public class FixedURLSpan extends URLSpan {
         if (p.getBoolean("open_links_inapp", context.getResources().getBoolean(R.bool.open_links_inapp))) {
             try {
                 CustomTab.openTab(context, uri, ThemeHelper.isDark(ThemeHelper.find(context)));
-                widget.playSoundEffect(0);
+                widget.playSoundEffect(SoundEffectConstants.CLICK);
             } catch (ActivityNotFoundException e) {
                 ToastCompat.makeText(context, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
             }
@@ -110,7 +111,7 @@ public class FixedURLSpan extends URLSpan {
             //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
             try {
                 context.startActivity(intent);
-                widget.playSoundEffect(0);
+                widget.playSoundEffect(SoundEffectConstants.CLICK);
             } catch (ActivityNotFoundException e) {
                 ToastCompat.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
             }
