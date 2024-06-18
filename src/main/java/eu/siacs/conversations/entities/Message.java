@@ -1119,7 +1119,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         final Element html = getHtml();
         if (html == null || Build.VERSION.SDK_INT < 24) {
             spannableBody = new SpannableStringBuilder(MessageUtils.filterLtrRtl(getBody(getInReplyTo() != null)).trim());
-            // spannableBody.setSpan(PLAIN_TEXT_SPAN, 0, spannableBody.length(), 0); // Let adapter know it can do more formatting
+            spannableBody.setSpan(PLAIN_TEXT_SPAN, 0, spannableBody.length(), 0); // Let adapter know it can do more formatting
         } else {
             boolean[] anyfallbackimg = new boolean[]{ false };
 
@@ -1178,7 +1178,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             final var quote = getInReplyTo().getSpannableBody(thumbnailer, fallbackImg);
             if ((getInReplyTo().isFileOrImage() || getInReplyTo().isOOb()) && getInReplyTo().getFileParams() != null) {
                 quote.insert(0, "🖼️");
-                final var cid = getInReplyTo().getFileParams().getCids().size() < 1 ? null : getInReplyTo().getFileParams().getCids().get(0);
+                final var cid = getInReplyTo().getFileParams().getCids().isEmpty() ? null : getInReplyTo().getFileParams().getCids().get(0);
                 Drawable thumbnail = thumbnailer == null || cid == null ? null : thumbnailer.getThumbnail(cid);
                 if (thumbnail == null) thumbnail = fallbackImg;
                 if (thumbnail != null) {
