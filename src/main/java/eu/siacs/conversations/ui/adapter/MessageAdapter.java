@@ -668,7 +668,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private SpannableStringBuilder getSpannableBody(final Message message) {
         Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
-        return message.getMergedBody((cid) -> {
+        return replaceYoutube(activity.getApplicationContext(), message.getMergedBody((cid) -> {
             try {
                 DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
                 if (f == null || !f.canRead()) {
@@ -688,7 +688,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } catch (final IOException e) {
                 return null;
             }
-        }, fallbackImg);
+        }, fallbackImg));
     }
 
     private void displayTextMessage(final ViewHolder viewHolder, final Message message, boolean darkBackground, int type) {
@@ -711,29 +711,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final SpannableString nick = UIHelper.getColoredUsername(activity.xmppConnectionService, message);
             Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
             fallbackImg.setBounds(FileBackend.rectForSize(fallbackImg.getIntrinsicWidth(), fallbackImg.getIntrinsicHeight(), (int) (metrics.density * 32)));
-            SpannableStringBuilder body =  new SpannableStringBuilder(replaceYoutube(activity.getApplicationContext(), message.getMergedBody((cid) -> {
-                try {
-                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                    if (f == null || !f.canRead()) {
-                        if (!message.trusted() && !message.getConversation().canInferPresence()) return null;
-
-                        try {
-                            new BobTransfer(BobTransfer.uri(cid), message.getConversation().getAccount(), message.getCounterpart(), activity.xmppConnectionService).start();
-                        } catch (final NoSuchAlgorithmException | URISyntaxException e) { }
-                        return null;
-                    }
-                    Drawable d = activity.xmppConnectionService.getFileBackend().getThumbnail(f, activity.getResources(), (int) (metrics.density * 288), true);
-                    if (d == null) {
-                        new ThumbnailTask().execute(f);
-                    } else {
-                        d = d.getConstantState().newDrawable();
-                        d.setBounds(FileBackend.rectForSize(d.getIntrinsicWidth(), d.getIntrinsicHeight(), (int) (metrics.density * 32)));
-                    }
-                    return d;
-                } catch (final IOException e) {
-                    return fallbackImg;
-                }
-            }, fallbackImg)));
+            SpannableStringBuilder body =  getSpannableBody(message);
             if (message.getBody().equals(DELETED_MESSAGE_BODY)) {
                 body = body.replace(0, DELETED_MESSAGE_BODY.length(), activity.getString(R.string.message_deleted));
             } else if (message.getBody().equals(DELETED_MESSAGE_BODY_OLD)) {
