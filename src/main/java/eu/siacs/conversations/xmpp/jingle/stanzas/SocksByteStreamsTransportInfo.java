@@ -64,7 +64,7 @@ public class SocksByteStreamsTransportInfo extends GenericTransportInfo {
     public List<SocksByteStreamsTransport.Candidate> getCandidates() {
         final ImmutableList.Builder<SocksByteStreamsTransport.Candidate> candidateBuilder =
                 new ImmutableList.Builder<>();
-        for (final Element child : this.children) {
+        for (final Element child : this.getChildren()) {
             if ("candidate".equals(child.getName())
                     && Namespace.JINGLE_TRANSPORTS_S5B.equals(child.getNamespace())) {
                 try {

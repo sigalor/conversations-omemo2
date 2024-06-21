@@ -117,7 +117,7 @@ public class Content extends Element {
 
     public XmppAxolotlMessage getSecurity(final Jid from) {
         final String contentName = this.getContentName();
-        for (final Element child : this.children) {
+        for (final Element child : getChildren()) {
             if ("security".equals(child.getName())
                     && Namespace.JINGLE_ENCRYPTED_TRANSPORT.equals(child.getNamespace())) {
                 final String name = child.getAttribute("name");
