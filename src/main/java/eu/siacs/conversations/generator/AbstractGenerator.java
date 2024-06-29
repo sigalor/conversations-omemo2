@@ -50,7 +50,7 @@ public abstract class AbstractGenerator {
             "urn:xmpp:message-correct:0"
     };
     private final String[] MESSAGE_RETRACTION_FEATURES = {
-            "urn:xmpp:message-retract:0"
+            Namespace.URN_MESSAGE_RETRACT
     };
     private final String[] PRIVACY_SENSITIVE = {
             "urn:xmpp:time" //XEP-0202: Entity Time leaks time zone
