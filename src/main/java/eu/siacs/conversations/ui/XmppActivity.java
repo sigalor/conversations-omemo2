@@ -923,13 +923,18 @@ public abstract class XmppActivity extends ActionBarActivity {
         quickEdit(previousValue, callback, hint, password, permitEmpty, false);
     }
 
+    protected void quickEdit(final String previousValue, final OnValueEdited callback, final @StringRes int hint, boolean password, boolean permitEmpty, boolean alwaysCallback) {
+        quickEdit(previousValue, callback, hint, password, permitEmpty, alwaysCallback, false);
+    }
+
     @SuppressLint("InflateParams")
     protected void quickEdit(final String previousValue,
                              final OnValueEdited callback,
                              final @StringRes int hint,
                              boolean password,
                              boolean permitEmpty,
-                             boolean alwaysCallback) {
+                             boolean alwaysCallback,
+                             boolean startSelected) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         DialogQuickeditBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_quickedit, null, false);
         if (password) {
@@ -948,6 +953,9 @@ public abstract class XmppActivity extends ActionBarActivity {
         final AlertDialog dialog = builder.create();
         dialog.setOnShowListener(d -> SoftKeyboardUtils.showKeyboard(binding.inputEditText));
         dialog.show();
+        if (startSelected) {
+            binding.inputEditText.selectAll();
+        }
         View.OnClickListener clickListener = v -> {
             String value = binding.inputEditText.getText().toString();
             if ((alwaysCallback || !value.equals(previousValue)) && (!value.trim().isEmpty() || permitEmpty)) {

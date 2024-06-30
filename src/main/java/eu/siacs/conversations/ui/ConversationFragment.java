@@ -2468,7 +2468,7 @@ public class ConversationFragment extends XmppFragment
             activity.quickEdit("Spam", (reason) -> {
                 activity.xmppConnectionService.moderateMessage(conversation.getAccount(), selectedMessage, reason);
                 return null;
-            }, R.string.moderate_reason, false, false, true);
+            }, R.string.moderate_reason, false, false, true, true);
             return true;
         } else if (itemId == R.id.copy_message) {
             ShareUtil.copyToClipboard(activity, selectedMessage);
