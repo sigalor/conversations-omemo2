@@ -1174,7 +1174,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             spannableBody = (SpannableStringBuilder) spannable.subSequence(0, i+1);
         }
 
-        if (getInReplyTo() != null) {
+        if (getInReplyTo() != null && getModerated() == null) {
             final var quote = getInReplyTo().getSpannableBody(thumbnailer, fallbackImg);
             if ((getInReplyTo().isFileOrImage() || getInReplyTo().isOOb()) && getInReplyTo().getFileParams() != null) {
                 quote.insert(0, "🖼️");
