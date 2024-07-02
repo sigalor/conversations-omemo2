@@ -228,19 +228,6 @@ public class FileBackend {
         message.setFileParams(fileParams);
     }
 
-    private void createNoMedia(File diretory) {
-        final File noMedia = new File(diretory, ".nomedia");
-        if (!noMedia.exists()) {
-            try {
-                if (!noMedia.createNewFile()) {
-                    Log.d(Config.LOGTAG, "created nomedia file " + noMedia.getAbsolutePath());
-                }
-            } catch (Exception e) {
-                Log.d(Config.LOGTAG, "could not create nomedia file");
-            }
-        }
-    }
-
     public static void updateMediaScanner(XmppConnectionService mXmppConnectionService, File file) {
         updateMediaScanner(mXmppConnectionService, file, null);
     }
@@ -808,9 +795,9 @@ public class FileBackend {
         if ("ogg".equals(extension) && type != null && type.startsWith("audio/")) {
             extension = "oga";
         }
-        String filename = "Sent" + File.separator + fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
         try {
-            setupRelativeFilePath(message, uri, extension);
+            String filename = "Sent" + File.separator + fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
+            setupRelativeFilePath(message, String.format("%s.%s", filename, extension));
             copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
             final String name = getDisplayNameFromUri(uri);
             if (name != null) {
