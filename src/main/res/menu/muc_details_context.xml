@@ -67,6 +67,11 @@
         android:title="@string/action_block_participant"
         android:visible="false" />
     <item
+        android:id="@+id/share_contact_details"
+        android:orderInCategory="100"
+        android:title="@string/invite_to_start_chat"
+        android:visible="false" />
+    <item
         android:id="@+id/manage_permissions"
         android:orderInCategory="100"
         android:title="@string/manage_permission"
