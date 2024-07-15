@@ -76,6 +76,7 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.ListItem;
 import eu.siacs.conversations.services.NotificationService;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.services.XmppConnectionService.OnRosterUpdate;
 import eu.siacs.conversations.ui.adapter.MediaAdapter;
@@ -89,6 +90,7 @@ import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.Emoticons;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.IrregularUnicodeDetector;
 import eu.siacs.conversations.utils.MenuDoubleTabUtil;
 import eu.siacs.conversations.utils.TimeFrameUtils;
@@ -257,7 +259,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     };
 
     @Override
-    public void onRosterUpdate() {
+    public void onRosterUpdate(final XmppConnectionService.UpdateRosterReason reason, final Contact contact) {
         refreshUi();
     }
 

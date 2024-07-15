@@ -4399,8 +4399,11 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    public void refreshForNewCaps() {
-        refreshCommands(true);
+    @Override
+    public void refreshForNewCaps(final Set<Jid> newCapsJids) {
+        if (newCapsJids.isEmpty() || newCapsJids.contains(conversation.getJid().asBareJid())) {
+            refreshCommands(true);
+        }
     }
 
     protected void refreshCommands(boolean delayShow) {
