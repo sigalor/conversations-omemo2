@@ -39,6 +39,7 @@ import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.MucUsersActivity;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.xmpp.Jid;
+import eu.siacs.conversations.xml.Element;
 
 public final class MucDetailsContextMenuHelper {
     private static final int ACTION_BAN = 0;
@@ -132,6 +133,7 @@ public final class MucDetailsContextMenuHelper {
             title.setVisible(false);
         }
         MenuItem sendPrivateMessage = menu.findItem(R.id.send_private_message);
+        MenuItem shareContactDetails = menu.findItem(R.id.share_contact_details);
         MenuItem blockAvatar = menu.findItem(R.id.action_block_avatar);
         if (user != null && user.getAvatar() != null) {
             blockAvatar.setVisible(true);
@@ -201,11 +203,13 @@ public final class MucDetailsContextMenuHelper {
             managePermissions.setVisible(managePermissionsVisible);
             sendPrivateMessage.setVisible(true);
             sendPrivateMessage.setEnabled(mucOptions.allowPm());
+            shareContactDetails.setVisible(user.isOnline() && !isGroupChat && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
             blockUnblockMUCUser.setVisible(true);
         } else {
             sendPrivateMessage.setVisible(true);
             sendPrivateMessage.setEnabled(user != null && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
             blockUnblockMUCUser.setVisible(user != null);
+            shareContactDetails.setVisible(user != null && user.isOnline() && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
         }
     }
 

@@ -850,7 +850,7 @@ public class MucOptions {
         private ChatState chatState = Config.DEFAULT_CHAT_STATE;
         protected Set<Hat> hats;
         protected String occupantId;
-
+        protected boolean online = true;
 
         public User(MucOptions options, Jid fullJid, final String occupantId, final String nick, final Set<Hat> hats) {
             this.options = options;
@@ -1041,6 +1041,14 @@ public class MucOptions {
         @Override
         public String getAvatarName() {
             return getConversation().getName().toString();
+        }
+
+        public void setOnline(final boolean o) {
+            online = o;
+        }
+
+        public boolean isOnline() {
+            return fullJid != null && online;
         }
     }
 }
