@@ -677,6 +677,11 @@
                 android:key="follow_thread_in_channel"
                 android:summary="@string/pref_follow_thread_in_channel_summary"
                 android:title="@string/pref_follow_thread_in_channel" />
+            <SwitchPreference
+                android:defaultValue="@bool/jump_to_commands_tab"
+                android:key="jump_to_commands_tab"
+                android:summary="@string/pref_jump_to_commands_tab_summary"
+                android:title="@string/pref_jump_to_commands_tab" />
             <!-- TODO: add it later again?
             <SwitchPreference
                 android:defaultValue="@bool/show_date_in_quotes"

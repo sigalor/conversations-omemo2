@@ -217,6 +217,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     protected boolean userSelectedThread = false;
     protected Message replyTo = null;
     protected HashMap<String, Thread> threads = new HashMap<>();
+    protected XmppConnectionService xmppConnectionService;
 
     public Conversation(final String name, final Account account, final Jid contactJid,
                         final int mode) {
@@ -1682,13 +1683,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     }
 
     public int getCurrentTab() {
-        if (mCurrentTab >= 0) return mCurrentTab;
+        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("jump_to_commands_tab", R.bool.jump_to_commands_tab)) {
+            if (mCurrentTab >= 0) return mCurrentTab;
 
-        if (!isRead() || getContact().resourceWhichSupport(Namespace.COMMANDS) == null) {
-            return 0;
-        }
+            if (!isRead() || getContact().resourceWhichSupport(Namespace.COMMANDS) == null) {
+                return 0;
+            }
 
-        return 1;
+            return 1;
+        } else return 0;
     }
 
     public void refreshSessions() {

@@ -1447,5 +1447,7 @@
     <string name="mute_locally">Mute Locally</string>
     <string name="unmute_locally">Unmute Locally</string>
     <string name="call_integration_not_available">Call integration not available!</string>
+    <string name="pref_jump_to_commands_tab_summary">Automatically jump to commands tab to list and use ad-hoc commands</string>
+    <string name="pref_jump_to_commands_tab">Jump to commands tab</string>
     <string name="invite_to_start_chat">Invite to start chat</string>
 </resources>
