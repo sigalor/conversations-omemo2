@@ -735,6 +735,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 for (final android.text.style.QuoteSpan quote : body.getSpans(0, body.length(), android.text.style.QuoteSpan.class)) {
                     int start = body.getSpanStart(quote);
                     int end = body.getSpanEnd(quote);
+                    if (start < 0 || end < 0) continue;
                     body.removeSpan(quote);
                     applyQuoteSpan(body, start, end, darkBackground);
                 }
