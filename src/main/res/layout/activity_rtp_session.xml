@@ -55,6 +55,8 @@
                 android:layout_marginRight="16dp"
                 android:textColor="?attr/text_Color_Main"
                 android:textSize="50sp"
+                android:maxLines="3"
+                android:ellipsize="end"
                 tools:text="Juliet Capulet" />
             <TextView
                 android:id="@+id/with_jid"
