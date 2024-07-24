@@ -1469,4 +1469,6 @@
     <string name="collapse_message_signs_summary">メッセージを折りたたむ最大字数を設定</string>
     <string name="webxdc_hint">WebXDCを使用するには、スレッド機能を有効にして、暗号化されていないWebXDCを送信します</string>
     <string name="unencrypted">暗号化なし</string>
+    <string name="action_execute">実行</string>
+    <string name="no_permission_to_place_call">電話をかけて繋ぐ権限がありません</string>
 </resources>

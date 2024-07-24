@@ -99,7 +99,7 @@
     <string name="no_pgp_keys">未找到 OpenPGP 密钥</string>
     <string name="pref_general">常规</string>
     <string name="pref_accept_files_wifi">使用 WiFi 时接收文件</string>
-    <string name="pref_accept_files_summary_wifi">当连接到 Wifi 时自动接收小于此大小的文件…</string>
+    <string name="pref_accept_files_summary_wifi">当连接到 WiFi 时自动接收小于此大小的文件…</string>
     <string name="pref_accept_files_mobile">使用移动数据时接收文件</string>
     <string name="pref_accept_files_summary_mobile">当连接到移动数据时，自动接收小于此大小的文件…</string>
     <string name="pref_accept_files_mobileroaming">在移动漫游连接中接收文件</string>
@@ -376,7 +376,7 @@
     <string name="kick_now">立即踢出</string>
     <string name="non_anonymous">公开用户的聊天地址</string>
     <string name="moderated">开启群聊发言审核</string>
-    <string name="you_are_not_participating">您没有参与</string>
+    <string name="you_are_not_participating">您未参与</string>
     <string name="modified_conference_options">已修改群聊配置！</string>
     <string name="could_not_modify_conference_options">无法修改群聊配置</string>
     <string name="never">永不</string>
@@ -526,7 +526,7 @@
     <string name="no_application_to_share_uri">未找到可以分享 URI 的应用程序</string>
     <string name="share_uri_with">分享 URI 至…</string>
     <string name="mgmt_account_reconnect">重新连接</string>
-    <string name="welcome_text">monocles chat 是一款尊重隐私和安全的聊天客户端。</string>
+    <string name="welcome_text">monocles chat 是尊重隐私和安全的聊天客户端。</string>
     <string name="your_full_jid_will_be">您的聊天地址将是：%s</string>
     <string name="create_account">创建新账号</string>
     <string name="welcome_existing_account">我已有账号</string>
@@ -707,8 +707,8 @@
     <string name="destroy_room_dialog">您想解散群聊 %s 吗？这将永久移除此群聊。</string>
     <string name="destroy_room_succeed">群聊成功解散</string>
     <string name="destroy_room_failed">群聊无法解散</string>
-    <string name="no_write_access_in_public_muc">您没有参与此群聊，所以现在没有发言权。 
-\n请按下 <b>确定</b>，进入群聊详情，通过长按列表顶部/前面的成员名称之一，向主持人、管理员或所有者发送私信，以请求写入权限。</string>
+    <string name="no_write_access_in_public_muc">您未参与此群聊，所以现在没有发言权。 \u0020
+\n请按下<b>确定</b>，进入群聊详情，通过长按列表顶部/前面的成员名称之一，向主持人、管理员或所有者发送私信，以请求发言权。</string>
     <string name="snooze">稍后提醒</string>
     <string name="huawei_protected_apps">受保护的应用</string>
     <string name="huawei_protected_apps_summary">为了在屏幕关闭后继续接收通知，您需要将 monocles chat 加入受保护的应用列表。</string>
@@ -790,7 +790,7 @@
     <string name="no_location_permission">monocles chat 需要访问位置服务</string>
     <string name="pref_show_record_voice_btn_summary">在输入框中显示录制语音按钮和拍照按钮作为快捷操作</string>
     <string name="pref_show_record_voice_btn">显示录制语音按钮和拍照按钮</string>
-    <string name="pref_use_quick_share_attachment_choice_summary">如果没有输入信息，则用附件选择代替发送按钮。否则将显示快捷操作，可在以下设置中进行配置。</string>
+    <string name="pref_use_quick_share_attachment_choice_summary">如果没有输入消息，则用附件选择代替发送按钮。否则将显示快捷操作，可在以下设置中进行配置。</string>
     <string name="pref_quick_share_attachment_choice">附件选择</string>
     <string name="unable_to_save_recording">无法保存录制</string>
     <string name="foreground_service_channel_name">前台服务</string>
@@ -843,7 +843,7 @@
     <string name="pref_show_links_inside">在聊天中显示链接预览</string>
     <string name="pref_show_links_inside_summary">直接在聊天视图中显示链接预览，将建立与链接中指定的服务器的连接。</string>
     <string name="pref_play_gif_inside">直接播放动画图片</string>
-    <string name="pref_play_gif_inside_summary">直接为头像、状态信息和图片信息播放动画图片。</string>
+    <string name="pref_play_gif_inside_summary">直接为头像、状态信息和图片消息播放动画图片。</string>
     <string name="open_with">打开为…</string>
     <string name="server_info_adhoc_invite">XEP-0050：Ad-Hoc 命令 (用户邀请)</string>
     <string name="choose_account">选择账号</string>
@@ -961,10 +961,10 @@
     <string name="intro_start_chatting">开始聊天</string>
     <string name="intro_desc_start_chatting">如果您已授予联系人权限，则已存在的 Jabber 联系人将自动显示在您的通讯录中。否则，只需添加聊天地址</string>
     <string name="intro_desc_open_chat">现在您可以开始和别人聊天，分享位置、文件、视频和图片或发送语音消息。</string>
-    <string name="intro_chat_details">群聊详情</string>
-    <string name="intro_desc_chat_details">您想打开群聊详情吗？只需在顶部的菜单栏中轻击群聊名即可打开详情。</string>
+    <string name="intro_chat_details">聊天详情</string>
+    <string name="intro_desc_chat_details">您想打开聊天详情吗？只需在顶部的菜单栏中轻击聊天名称即可打开详情。</string>
     <string name="intro_highlight_user">提及用户</string>
-    <string name="intro_desc_highlight_user">如果您想提及群聊中的某个用户，只需在聊天中轻触此用户的头像即可。或者，特别是如果用户不在聊天中，请切换到群聊详情并在参与者列表中查找用户。长按用户头像会弹出一个菜单，您可以在其中提及此用户。</string>
+    <string name="intro_desc_highlight_user">如果您想提及群聊中的某个用户，只需在聊天中轻触此用户的头像即可。或者，特别是如果用户不在聊天中，请切换到聊天详情并在参与者列表中查找用户。长按用户头像会弹出一个菜单，您可以在其中提及此用户。</string>
     <string name="intro_desc_open_chat_details">您已经打开了聊天详情。在这里，您可以看到此聊天的详情，更改新的消息通知行为，从联系人列表中添加或移除聊天内容等等。</string>
     <string name="pref_show_intro_summary">再次显示介绍屏幕</string>
     <string name="pref_show_intro">再次显示介绍</string>
@@ -1288,7 +1288,7 @@
     <string name="action_execute">去</string>
     <string name="server_does_not_support_easy_onboarding_invites">服务器不支持生成邀请</string>
     <string name="notify_only_when_highlighted_or_replied">通知提及和回复</string>
-    <string name="pref_chat_background_summary">选择一个自己的图片文件作为聊天背景。</string>
+    <string name="pref_chat_background_summary">选择一个图片文件作为聊天背景。</string>
     <string name="pref_dialler_integration_incoming_summary">来自电话号码的来电可能会通过系统拨号器响铃，而不是通过本应用的通知设置</string>
     <string name="block_avatar">屏蔽头像</string>
     <plurals name="n_missed_calls">
@@ -1344,7 +1344,7 @@
     <string name="not_encrypted">未加密</string>
     <string name="title_undo_swipe_out_conversation">撤销移除聊天</string>
     <string name="pref_up_push_account_summary">接收推送消息的账号。</string>
-    <string name="pref_pause_voice_on_move_from_ear_summary">当您把设备从耳朵边移开时，暂停当前的语音信息。</string>
+    <string name="pref_pause_voice_on_move_from_ear_summary">将设备从耳边移开时暂停当前语音消息。</string>
     <string name="join_room">进入群聊</string>
     <string name="show_less">"
 \n
@@ -1516,4 +1516,13 @@
     <string name="choose_sticker_name">选择没有结尾的贴纸名</string>
     <string name="pref_accept_invites_from_strangers">来自陌生人的邀请</string>
     <string name="pref_accept_invites_from_strangers_summary">接受来自陌生人的群聊邀请</string>
+    <string name="allow_private_messages">允许私信</string>
+    <string name="rtp_state_contact_offline">没有可以通话的在线资源</string>
+    <string name="no_permission_to_place_call">没有拨打电话的权限</string>
+    <string name="mute_locally">本地静音</string>
+    <string name="unmute_locally">本地取消静音</string>
+    <string name="call_integration_not_available">呼叫集成不可用！</string>
+    <string name="pref_jump_to_commands_tab_summary">自动跳转到命令标签页以列出和使用 ad-hoc 命令</string>
+    <string name="pref_jump_to_commands_tab">跳转到命令标签页</string>
+    <string name="invite_to_start_chat">邀请开始聊天</string>
 </resources>

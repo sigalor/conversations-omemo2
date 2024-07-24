@@ -1517,4 +1517,13 @@
     <string name="choose_sticker_name">Kies een naam voor de sticker</string>
     <string name="pref_accept_invites_from_strangers">Uitnodigingen van onbekenden</string>
     <string name="pref_accept_invites_from_strangers_summary">Accepteer uitnodigingen van onbekenden voor groepsgesprekken</string>
+    <string name="allow_private_messages">Privéberichten toestaan</string>
+    <string name="rtp_state_contact_offline">Contact is offline</string>
+    <string name="no_permission_to_place_call">Geen toestemming om te bellen</string>
+    <string name="unmute_locally">Lokaal niet dempen</string>
+    <string name="mute_locally">Lokaal dempen</string>
+    <string name="call_integration_not_available">Belintegratie niet beschikbaar!</string>
+    <string name="pref_jump_to_commands_tab">Naar tab Opdrachten springen</string>
+    <string name="invite_to_start_chat">Uitnodigen om chat te starten</string>
+    <string name="pref_jump_to_commands_tab_summary">Spring automatisch naar het tabblad Opdrachten om ad-hocopdrachten te gebruiken</string>
 </resources>

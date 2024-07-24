@@ -1522,4 +1522,10 @@
     <string name="choose_sticker_name">Dalle un nome ao adhesivo, sen extensión</string>
     <string name="pref_accept_invites_from_strangers">Convites de descoñecidas</string>
     <string name="pref_accept_invites_from_strangers_summary">Aceptar o convite de persoas descoñecidas para grupos</string>
+    <string name="allow_private_messages">Permitir mensaxes privadas</string>
+    <string name="rtp_state_contact_offline">Sen recurso en liña ao que acceder</string>
+    <string name="mute_locally">Acalar localmente</string>
+    <string name="unmute_locally">Reactivar localmente</string>
+    <string name="call_integration_not_available">Non está dispoñible a integración de chamadas!</string>
+    <string name="no_permission_to_place_call">Non hai permiso para facer chamadas</string>
 </resources>

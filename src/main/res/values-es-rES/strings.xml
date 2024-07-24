@@ -1540,4 +1540,13 @@
     <string name="copy_GIFs_to_GIFs_folder">Importa tus propios GIF a través de los ajustes de la aplicación</string>
     <string name="pref_accept_invites_from_strangers">Invitaciones de extraños</string>
     <string name="pref_accept_invites_from_strangers_summary">Aceptar invitaciones a chats con extraños</string>
+    <string name="allow_private_messages">Permitir mensajes privados</string>
+    <string name="rtp_state_contact_offline">No hay recursos en línea para llamar</string>
+    <string name="unmute_locally">Dejar de silenciar localmente</string>
+    <string name="no_permission_to_place_call">Sin permiso para realizar llamadas telefónicas</string>
+    <string name="mute_locally">Silenciar localmente</string>
+    <string name="call_integration_not_available">¡La integración de llamadas no está disponible!</string>
+    <string name="pref_jump_to_commands_tab_summary">Saltar automáticamente a la pestaña de comandos para enumerar y usar comandos ad-hoc</string>
+    <string name="pref_jump_to_commands_tab">Saltar a la pestaña de comandos</string>
+    <string name="invite_to_start_chat">Invitar para iniciar el chat</string>
 </resources>
