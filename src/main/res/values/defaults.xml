@@ -40,7 +40,7 @@
     <bool name="send_crashreport">false</bool>
     <bool name="use_invidious">false</bool>
     <bool name="use_inner_storage">false</bool>
-    <string name="invidious_host">monocles.live</string>
+    <string name="invidious_host">piped-material.%E0%A7%A7.net</string>
     <bool name="plain_text_logs">false</bool>
     <bool name="show_foreground_service">true</bool>
     <bool name="warn_unencrypted_chat">true</bool>
