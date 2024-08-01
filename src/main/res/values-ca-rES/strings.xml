@@ -580,7 +580,7 @@
     <string name="pref_broadcast_last_activity">Informar de la teva última interacció</string>
     <string name="pref_broadcast_last_activity_summary">Avisa a tots els teus contactes quan usis monocles chat</string>
     <string name="request_permissions_message">monocles chat li demanarà que permetis alguns permisos. És important que permeti tots aquests permisos per a utilitzar totes les funcions d\'aquest missatger. Si denega algun d\'aquests permisos, l\'aplicació es tancarà sola.</string>
-    <string name="request_permissions_message_again">S\'han denegat alguns o tots els permisos necessaris per a monocles chat. Vol anar a la configuració i concedir aquests permisos\? Si denega algun d\'aquests permisos, l\'aplicació es tancarà sola.</string>
+    <string name="request_permissions_message_again">S\'han denegat alguns o tots els permisos necessaris per a monocles chat. Vol anar a la configuració i concedir aquests permisos? Si denega algun d\'aquests permisos, l\'aplicació es tancarà sola.</string>
     <string name="unable_to_connect_to_keychain">No s\'ha pogut connectar a OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">Aquest dispositiu ja no està en ús</string>
     <string name="please_wait">Espera, si us plau…</string>

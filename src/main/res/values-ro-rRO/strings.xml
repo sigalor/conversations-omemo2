@@ -590,7 +590,7 @@
     <string name="pref_broadcast_last_activity">Anunță ultima interacțiune</string>
     <string name="pref_broadcast_last_activity_summary">Lasă-ți toate contactele să știe când folosești monocles chat</string>
     <string name="request_permissions_message">monocles chat vă va cere să acordați câteva permisiuni. Este important să permiteți toate aceste permisiuni pentru a utiliza toate caracteristicile acestui messenger. Dacă refuzați oricare dintre aceste permisiuni, aplicația se va închide singură.</string>
-    <string name="request_permissions_message_again">Ați refuzat unele sau toate permisiunile necesare pentru monocles chat. Doriți să treceți la setări și să permiteți aceste permisiuni\? Dacă refuzați oricare dintre aceste permisiuni, aplicația se va închide singură.</string>
+    <string name="request_permissions_message_again">Ați refuzat unele sau toate permisiunile necesare pentru monocles chat. Doriți să treceți la setări și să permiteți aceste permisiuni? Dacă refuzați oricare dintre aceste permisiuni, aplicația se va închide singură.</string>
     <string name="unable_to_connect_to_keychain">Nu s-a putut contacta OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">Acest dispozitiv nu mai este in uz</string>
     <string name="please_wait">Vă rugăm să așteptați...</string>

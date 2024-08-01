@@ -594,7 +594,7 @@
 \nel usuario %s te ha invitado a monocles chat. Haz click en el siguiente enlace…</string>
     <string name="pref_broadcast_last_activity">Informar de tu última interacción</string>
     <string name="request_permissions_message">monocles chat te pedirá que concedas algunos permisos. Es importante que permitas que todos estos permisos para usar todas las características de este mensajero. Si deniegas cualquiera de estos permisos, la aplicación se cerrará sola.</string>
-    <string name="request_permissions_message_again">Has denegado uno o todos los permisos requeridos para monocles chat. ¿Deseas ir a la configuración para permitir estos permisos\? Si rechazas uno de estos permisos, la aplicación se cerrará.</string>
+    <string name="request_permissions_message_again">Has denegado uno o todos los permisos requeridos para monocles chat. ¿Deseas ir a la configuración para permitir estos permisos? Si rechazas uno de estos permisos, la aplicación se cerrará.</string>
     <string name="unable_to_connect_to_keychain">No se ha podido conectar a OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">Este dispositivo ya no está en uso</string>
     <string name="please_wait">Espere, por favor…</string>

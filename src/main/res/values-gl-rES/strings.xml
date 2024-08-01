@@ -582,7 +582,7 @@
     <string name="pref_broadcast_last_activity">Emitir a última interacción coa usuaria</string>
     <string name="pref_broadcast_last_activity_summary">Permitir que os contactos saiban cando usas monocles chat</string>
     <string name="request_permissions_message">monocles chatpedirache que permitas algúns permisos. É importante que permitas todos estes permisos para utilizar todas as funcións deste mensaxeiro. Se denegas algún destes permisos, a aplicación pecharase soa.</string>
-    <string name="request_permissions_message_again">Denegou algúns ou todos os permisos necesarios para monocles chat. Quere ir á configuración e permitir estes permisos\? Se denega algún destes permisos, a aplicación pecharase soa.</string>
+    <string name="request_permissions_message_again">Denegou algúns ou todos os permisos necesarios para monocles chat. Quere ir á configuración e permitir estes permisos? Se denega algún destes permisos, a aplicación pecharase soa.</string>
     <string name="unable_to_connect_to_keychain">Non se puido conectar con OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">Este dispositivo xa non está en uso</string>
     <string name="please_wait">Agarda, por favor…</string>
@@ -1394,7 +1394,7 @@
     <string name="italic">cursiva</string>
     <string name="pref_choose_camera_summary">Elixe a app de cámara que queiras usar</string>
     <string name="rtp_state_content_add_video">Cambiar a chamada de vídeo\?</string>
-    <string name="confirm_delete_attachment_summary">Queres omitir a confirmación cando eliminas un ficheiro local nunha conversa\?</string>
+    <string name="confirm_delete_attachment_summary">Queres omitir a confirmación cando eliminas un ficheiro local nunha conversa?</string>
     <string name="pref_max_resend_time_summary">Tempo máixmo para reenvíar unha mensaxe simple que fallou. Cando a conta do reenvío sexa maior que a metade do tempo máximo a mensaxe será adiada por razóns de tráfico.</string>
     <string name="pref_allowmergemessages">Unir mensaxes</string>
     <string name="sticker_name">Nome do Adhesivo</string>
@@ -1528,4 +1528,7 @@
     <string name="unmute_locally">Reactivar localmente</string>
     <string name="call_integration_not_available">Non está dispoñible a integración de chamadas!</string>
     <string name="no_permission_to_place_call">Non hai permiso para facer chamadas</string>
+    <string name="pref_jump_to_commands_tab_summary">Ir automaticamente á pestana de ordes para ver e usar ordes personalizadas</string>
+    <string name="pref_jump_to_commands_tab">Ir á pestana de ordes</string>
+    <string name="invite_to_start_chat">Convida para iniciar chat</string>
 </resources>

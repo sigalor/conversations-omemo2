@@ -980,7 +980,7 @@
     <string name="pref_manually_change_presence_summary">Defina sua disponibilidade ao editar sua mensagem de status</string>
     <string name="import_text">Se houver um backup disponível, você pode importá-lo pressionando o botão abaixo.</string>
     <string name="pref_broadcast_last_activity">Mostrar a última interação do usuário</string>
-    <string name="request_permissions_message_again">Você negou algumas ou todas as permissões necessárias para o Monocles Chat. Gostaria de pular para as configurações e permitir essas permissões\? Se você negar qualquer uma dessas permissões, o aplicativo será fechado.</string>
+    <string name="request_permissions_message_again">Você negou algumas ou todas as permissões necessárias para o Monocles Chat. Gostaria de pular para as configurações e permitir essas permissões? Se você negar qualquer uma dessas permissões, o aplicativo será fechado.</string>
     <string name="pref_export_plain_text_logs_summary">Habilitar uma exportação de logs de bate-papo como arquivos de texto legíveis por humanos</string>
     <string name="report_jid_as_spammer">Relate este JID como envio de mensagens indesejadas.</string>
     <string name="add_to_contact_list">Adicionar à lista de contatos</string>
@@ -1410,7 +1410,7 @@
 \n... mostrar menos"</string>
     <string name="chat_background">Papel de parede</string>
     <string name="restore_warning_continued">Não tente restaurar backups que você mesmo não criou!</string>
-    <string name="confirm_delete_attachment_summary">Deseja pular a confirmação se você excluir um arquivo local de conversa\?</string>
+    <string name="confirm_delete_attachment_summary">Deseja pular a confirmação se você excluir um arquivo local de conversa?</string>
     <string name="custom_background">Papel de parede personalizado</string>
     <string name="pref_set_round_avatars_summary">Formato redondo nos avatares de usuário</string>
     <string name="pref_custom_theme_color_options_summary">Defina suas próprias cores de tema</string>

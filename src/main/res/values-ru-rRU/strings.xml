@@ -964,7 +964,7 @@
     <string name="report_jid_as_spammer">Пометить этот JID, как отправляющий нежелательные сообщения.</string>
     <string name="request_now">Запросить сейчас</string>
     <string name="request_permissions_message">monocles chat запросит у Вас несколько разрешений. Они необходимы, чтобы пользоваться всеми возможностями мессенджера. Если какое-либо разрешение не будет получено, приложение будет закрыто.</string>
-    <string name="request_permissions_message_again">Вы отказались от некоторых разрешений, необходимых для monocles chat. Вы бы хотели перейти к настройкам и предоставить эти разрешения\? Если какое-либо разрешение не будет получено, приложение будет закрыто.</string>
+    <string name="request_permissions_message_again">Вы отказались от некоторых разрешений, необходимых для monocles chat. Вы бы хотели перейти к настройкам и предоставить эти разрешения? Если вы откажетесь от любого из этих разрешений, приложение закроется.</string>
     <string name="request_presence_updates">Пожалуйста, сначала запросите обновления присутствия Вашего контакта.
 \n
 \n<small>Это будет использоваться для определения того, какой клиент использует ваш контакт.</small></string>
@@ -1430,7 +1430,7 @@
     <string name="related_chats">Похожие конференции</string>
     <string name="action_complete">Действие завершено</string>
     <string name="moderate_recent">Модерировать сообщения\?</string>
-    <string name="confirm_delete_attachment_summary">Хотите пропустить подтверждение при удалении локального файла из чата\?</string>
+    <string name="confirm_delete_attachment_summary">Хотите пропустить подтверждение, если удалите локальный файл из чата?</string>
     <string name="pref_confirm_delete_attachment">Пропустить подтверждение удаления файлов из чатов</string>
     <string name="menuitem_create_backup_action">Создать резервную копию</string>
     <string name="pref_use_blue_readmarkers_title">Используйте синие маркеры чтения</string>

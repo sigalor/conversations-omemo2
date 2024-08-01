@@ -586,7 +586,7 @@
     <string name="pref_broadcast_last_activity">Laatste gebruikersinteractie uitzenden</string>
     <string name="pref_broadcast_last_activity_summary">Laat alle contacten weten wanneer je monocles chat gebruikt</string>
     <string name="request_permissions_message">monocles chat zal om enkele machtigingen vragen.</string>
-    <string name="request_permissions_message_again">Je hebt sommige of alle machtigingen die nodig zijn voor monocles chat geweigerd. Wil je naar de instellingen om deze machtigingen toe te staan\? Als je een van deze toestemmingen weigert, zal de app zichzelf sluiten.</string>
+    <string name="request_permissions_message_again">Je hebt sommige of alle machtigingen die nodig zijn voor monocles chat geweigerd. Wil je naar de instellingen om deze machtigingen toe te staan? Als je een van deze toestemmingen weigert, zal de app zichzelf sluiten.</string>
     <string name="unable_to_connect_to_keychain">Verbinden met OpenKeychain mislukt</string>
     <string name="this_device_is_no_longer_in_use">Dit apparaat wordt niet meer gebruikt</string>
     <string name="please_wait">Even geduld…</string>

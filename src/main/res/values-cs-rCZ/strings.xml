@@ -588,7 +588,7 @@
     <string name="pref_broadcast_last_activity">Odeslat poslední uživatelskou interakci</string>
     <string name="pref_broadcast_last_activity_summary">Dát vědět svým kontaktům, kdy používáte monocles chat</string>
     <string name="request_permissions_message">monocles chat Vás požádá o udělení několika oprávnění. Je důležité povolit všechny, abyste mohli používat všechny funkce této aplikace. Pokud některé neudělíte, aplikace bude ukončena.</string>
-    <string name="request_permissions_message_again">Neudělili jste některá oprávnění potřebná pro monocles chat. Chcete přeskočit do nastavení a tato oprávnění udělit\? Pokud některé z nich neudělíte, aplikace bude zavřena.</string>
+    <string name="request_permissions_message_again">Neudělili jste některá oprávnění potřebná pro monocles chat. Chcete přeskočit do nastavení a tato oprávnění udělit? Pokud některé z nich neudělíte, aplikace bude zavřena.</string>
     <string name="unable_to_connect_to_keychain">Nelze se spojit s OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">Tento přístoj již není používán</string>
     <string name="please_wait">Počkejte prosím…</string>

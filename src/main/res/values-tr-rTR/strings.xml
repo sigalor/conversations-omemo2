@@ -580,7 +580,7 @@
     <string name="pref_broadcast_last_activity">Son kullanıcı etkileşimlerini yayınla</string>
     <string name="pref_broadcast_last_activity_summary">monocles chat kullandığınızı kişilerinize bildirin</string>
     <string name="request_permissions_message">monocles chat birkaç izin vermenizi isteyecektir. Tüm bu izinlerin bu mesajlaşma aracının tüm özelliklerine sahip olmasına izin vermeniz önemlidir. Bu izinlerden herhangi birini reddederseniz, uygulama kendiliğinden kapanacaktır.</string>
-    <string name="request_permissions_message_again">Bunun için gereken izinlerin bir kısmını veya tamamını reddettiniz. monocles chat ayarlarına gitmek ve bu izinlere izinleri vermek ister misiniz\? Bu izinlerden herhangi birini reddederseniz, uygulama kendiliğinden kapanacaktır.</string>
+    <string name="request_permissions_message_again">Bunun için gereken izinlerin bir kısmını veya tamamını reddettiniz. monocles chat ayarlarına gitmek ve bu izinlere izinleri vermek ister misiniz? Bu izinlerden herhangi birini reddederseniz, uygulama kendiliğinden kapanacaktır.</string>
     <string name="unable_to_connect_to_keychain">OpenKeyChain\'e bağlanılamıyor</string>
     <string name="this_device_is_no_longer_in_use">Bu cihaz artık kullanılmıyor</string>
     <string name="please_wait">Lütfen bekleyin…</string>

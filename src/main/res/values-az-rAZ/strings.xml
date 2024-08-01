@@ -579,7 +579,7 @@
     <string name="pref_broadcast_last_activity">Son istifadəçinin qarşılıqlı əlaqəsi</string>
     <string name="pref_broadcast_last_activity_summary">monocles chat-i istifadə etdiyiniz zaman bütün kontaktlarınızı bildirin</string>
     <string name="request_permissions_message">monocles chatr bir neçə icazə verməyinizi xahiş edəcəkdir. Bütün bu icazələrin bu mesenjerin bütün xüsusiyyətlərindən istifadə etməsinə icazə verməyiniz vacibdir. Bu icazələrin hər hansı birini inkar etsəniz, tətbiq özünü bağlayacaqdır.</string>
-    <string name="request_permissions_message_again">monocles chat üçün lazım olan bəzi və ya bütün icazələri rədd etmisiniz. Parametrlərə tullanmaq və bu icazələrə icazə vermək istərdinizmi\? Bu icazələrin hər hansı birini inkar etsəniz, tətbiq özünü bağlayacaqdır.</string>
+    <string name="request_permissions_message_again">monocles chat üçün lazım olan bəzi və ya bütün icazələri rədd etmisiniz. Parametrlərə tullanmaq və bu icazələrə icazə vermək istərdinizmi? Bu icazələrin hər hansı birini inkar etsəniz, tətbiq özünü bağlayacaqdır.</string>
     <string name="unable_to_connect_to_keychain">OpenKeychain-ə qoşulmaq olmur</string>
     <string name="this_device_is_no_longer_in_use">Bu cihaz artıq istifadə edilmir</string>
     <string name="please_wait">Zəhmət olmasa gözləyin…</string>
