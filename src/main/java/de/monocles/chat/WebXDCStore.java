@@ -1,47 +1,40 @@
 package de.monocles.chat;
 
 import static android.view.View.VISIBLE;
-import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.ui.ActionBarActivity.configureActionBar;
-import static eu.siacs.conversations.ui.StartConversationActivity.addInviteUri;
 import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.view.MenuItem;
 import android.webkit.DownloadListener;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
-import java.io.File;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
-import eu.siacs.conversations.ui.adapter.MediaPreviewAdapter;
-import eu.siacs.conversations.ui.util.Attachment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 
 import android.annotation.SuppressLint;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.File;
+
 public class WebXDCStore extends AppCompatActivity {
-    private MediaPreviewAdapter mediaPreviewAdapter;
-    public Context context;
+    private int mFileDownloadedId = -1;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -78,19 +71,29 @@ public class WebXDCStore extends AppCompatActivity {
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 dm.enqueue(request);
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                        Uri uri = Uri.parse(Environment.DIRECTORY_DOWNLOADS + filename);
-                        sharingIntent.setType("application/xdc+zip");
-                        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                        startActivity(Intent.createChooser(sharingIntent, "Share WebXDC"));
+
+                BroadcastReceiver receiver = new BroadcastReceiver() {
+
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String action = intent.getAction();
+                        if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ){
+                            Uri uri = Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + filename);
+                            intent = new Intent(Intent.ACTION_SEND);
+                            // Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
+                            // intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
+                            intent.setType("application/xdc+zip");
+                            intent.putExtra(Intent.EXTRA_STREAM, uri);
+                            startActivity(Intent.createChooser(intent, "Share WebXDC"));
+                        }
                     }
-                }, 10000);
+                };
+                registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
             }
         });
     }
+
+
 
     protected void onStart() {
         super.onStart();
