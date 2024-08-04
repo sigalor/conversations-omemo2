@@ -1450,4 +1450,5 @@
     <string name="pref_jump_to_commands_tab_summary">Automatically jump to commands tab to list and use ad-hoc commands</string>
     <string name="pref_jump_to_commands_tab">Jump to commands tab</string>
     <string name="invite_to_start_chat">Invite to start chat</string>
+    <string name="webxdcs">WebXDCs</string>
 </resources>

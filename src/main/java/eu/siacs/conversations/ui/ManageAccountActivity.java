@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import de.monocles.chat.WebXDCStore;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Contact;
@@ -180,6 +181,11 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                         return true;
                     }
                     case R.id.manageaccounts -> {
+                        return true;
+                    }
+                    case R.id.webxdc -> {
+                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
                         /* TODO:

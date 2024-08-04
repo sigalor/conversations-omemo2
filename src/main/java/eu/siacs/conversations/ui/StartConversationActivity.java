@@ -53,7 +53,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import de.monocles.chat.ui.CallsActivity;
+import de.monocles.chat.WebXDCStore;
 import eu.siacs.conversations.utils.UIHelper;
 
 import androidx.annotation.MenuRes;
@@ -471,6 +471,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                     }
                     case R.id.manageaccounts -> {
                         startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
+                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                        return true;
+                    }
+                    case R.id.webxdc -> {
+                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }

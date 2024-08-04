@@ -12,13 +12,11 @@
         android:id="@+id/manageaccounts"
         android:icon="?attr/icon_account"
         android:title="@string/accounts"/>
-
-    <!-- TODO: Later -->
     <item
-        android:id="@+id/calls"
-        android:icon="?attr/icon_call"
-        android:title="@string/notification_group_calls"
-        android:visible="false" />
+        android:id="@+id/webxdc"
+        android:icon="?attr/icon_webxdcs"
+        android:title="@string/webxdcs"/>
+    <!-- TODO: Later -->
     <item
         android:id="@+id/stories"
         android:icon="@drawable/ic_stories_black_24dp"

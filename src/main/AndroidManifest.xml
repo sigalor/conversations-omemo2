@@ -358,14 +358,16 @@
                 <data android:pathPrefix="/apps/registration/" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="de.monocles.chat.WebXDCStore"
+            android:label="@string/webxdcs"
+            android:launchMode="singleTask"
+            android:exported="true" />
+
         <activity
             android:name="de.monocles.chat.RegisterMonoclesActivity"
             android:label="@string/create_account"
-            android:exported="false"
-            android:launchMode="singleTask" />
-        <activity
-            android:name="de.monocles.chat.ui.CallsActivity"
-            android:label="@string/calls"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
