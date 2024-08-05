@@ -106,7 +106,7 @@ public class WebXDCStore extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.contactslist);
+        bottomNavigationView.setSelectedItemId(R.id.webxdc);
 
         // Perform item selected listener
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -124,12 +124,12 @@ public class WebXDCStore extends AppCompatActivity {
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
+                    case R.id.webxdc -> {
+                        return true;
+                    }
                     case R.id.manageaccounts -> {
                         startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
-                    case R.id.webxdc -> {
                         return true;
                     }
                         /* TODO:

@@ -9,13 +9,14 @@
         android:icon="?attr/icon_group_unselected"
         android:title="@string/contacts"/>
     <item
-        android:id="@+id/manageaccounts"
-        android:icon="?attr/icon_accounts_selected"
-        android:title="@string/accounts"/>
-    <item
         android:id="@+id/webxdc"
         android:icon="?attr/icon_webxdcs"
         android:title="@string/webxdcs"/>
+    <item
+        android:id="@+id/manageaccounts"
+        android:icon="?attr/icon_accounts_selected"
+        android:title="@string/accounts"/>
+
     <!-- TODO: Later -->
     <item
         android:id="@+id/stories"

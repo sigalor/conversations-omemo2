@@ -1011,13 +1011,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
-                    case R.id.manageaccounts -> {
-                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
+                    case R.id.webxdc -> {
+                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
-                    case R.id.webxdc -> {
-                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
+                    case R.id.manageaccounts -> {
+                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
