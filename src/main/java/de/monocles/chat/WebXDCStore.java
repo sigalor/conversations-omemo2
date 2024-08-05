@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.view.MenuItem;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -53,6 +54,8 @@ public class WebXDCStore extends AppCompatActivity {
         String URL = "https://webxdc.org/apps/";
         webView.loadUrl(URL);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
