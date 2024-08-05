@@ -80,6 +80,7 @@
     <attr name="icon_chat_selected" format="reference" />
     <attr name="icon_account" format="reference" />
     <attr name="icon_webxdcs" format="reference" />
+    <attr name="icon_webxdcs_selected" format="reference" />
     <attr name="icon_accounts_selected" format="reference" />
     <attr name="icon_qr_code" format="reference" />
     <attr name="icon_navigate" format="reference" />

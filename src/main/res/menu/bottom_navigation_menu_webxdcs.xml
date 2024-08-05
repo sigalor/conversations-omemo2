@@ -14,7 +14,7 @@
         android:title="@string/accounts"/>
     <item
         android:id="@+id/webxdc"
-        android:icon="?attr/icon_webxdcs"
+        android:icon="?attr/icon_webxdcs_selected"
         android:title="@string/webxdcs"/>
     <!-- TODO: Later -->
     <item
