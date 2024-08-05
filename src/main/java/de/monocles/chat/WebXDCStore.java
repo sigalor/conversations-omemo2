@@ -1,7 +1,6 @@
 package de.monocles.chat;
 
 import static android.view.View.VISIBLE;
-import static eu.siacs.conversations.persistance.FileBackend.getAuthority;
 import static eu.siacs.conversations.ui.ActionBarActivity.configureActionBar;
 import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
@@ -16,13 +15,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.MenuItem;
 import android.webkit.DownloadListener;
-import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
 import eu.siacs.conversations.utils.MimeUtils;
@@ -30,14 +27,11 @@ import eu.siacs.conversations.utils.MimeUtils;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 
 import android.annotation.SuppressLint;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.io.File;
 
 public class WebXDCStore extends AppCompatActivity {
     private long mFileDownloadedId = -1;
@@ -46,7 +40,7 @@ public class WebXDCStore extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_webview);
+        setContentView(R.layout.activity_webxdc_store);
         setSupportActionBar(findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar == null) {
