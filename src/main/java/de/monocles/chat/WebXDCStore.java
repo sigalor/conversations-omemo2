@@ -1,6 +1,7 @@
 package de.monocles.chat;
 
 import static android.view.View.VISIBLE;
+import static eu.siacs.conversations.persistance.FileBackend.getAuthority;
 import static eu.siacs.conversations.ui.ActionBarActivity.configureActionBar;
 import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
@@ -20,21 +21,25 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
+import eu.siacs.conversations.utils.MimeUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.annotation.SuppressLint;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 
 public class WebXDCStore extends AppCompatActivity {
-    private int mFileDownloadedId = -1;
+    private long mFileDownloadedId = -1;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -66,25 +71,29 @@ public class WebXDCStore extends AppCompatActivity {
                 DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                 request.setMimeType(mimeType);
                 request.allowScanningByMediaScanner();
-                String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(url);
-                String filename = URLUtil.guessFileName(url, contentDisposition, fileExtenstion);
+                String extension = MimeUtils.guessMimeTypeFromUri(getApplicationContext(), Uri.parse(url));
+                String filename = URLUtil.guessFileName(url, contentDisposition, extension);
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 dm.enqueue(request);
-
+                mFileDownloadedId = dm.enqueue(request);
+                Toast.makeText(getApplicationContext(), R.string.download_started, Toast.LENGTH_LONG).show();
                 BroadcastReceiver receiver = new BroadcastReceiver() {
-
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        String action = intent.getAction();
-                        if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ){
-                            Uri uri = Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + filename);
-                            intent = new Intent(Intent.ACTION_SEND);
-                            // Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
-                            // intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
-                            intent.setType("application/xdc+zip");
-                            intent.putExtra(Intent.EXTRA_STREAM, uri);
-                            startActivity(Intent.createChooser(intent, "Share WebXDC"));
+                        long downloadedID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                        if (downloadedID == mFileDownloadedId) {
+                            String action = intent.getAction();
+                            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                                Uri uri = dm.getUriForDownloadedFile(mFileDownloadedId);
+                                intent = new Intent(Intent.ACTION_SEND);
+                                // Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
+                                // intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
+                                intent.setType("application/xdc+zip");
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                startActivity(Intent.createChooser(intent, "Share WebXDC"));
+                            }
                         }
                     }
                 };
