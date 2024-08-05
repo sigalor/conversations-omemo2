@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.MenuItem;
@@ -97,12 +98,12 @@ public class WebXDCStore extends AppCompatActivity {
                         }
                     }
                 };
-                registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+                }
             }
         });
     }
-
-
 
     protected void onStart() {
         super.onStart();
