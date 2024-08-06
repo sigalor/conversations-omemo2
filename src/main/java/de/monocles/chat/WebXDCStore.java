@@ -23,18 +23,18 @@ import android.webkit.WebViewClient;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
+import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.utils.MimeUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class WebXDCStore extends AppCompatActivity {
+public class WebXDCStore extends XmppActivity {
     private long mFileDownloadedId = -1;
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -53,6 +53,9 @@ public class WebXDCStore extends AppCompatActivity {
         WebView webView = findViewById(R.id.web);
         String URL = "https://webxdc.org/apps/";
         webView.loadUrl(URL);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            webView.setForceDarkAllowed(true);
+        }
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
@@ -102,8 +105,17 @@ public class WebXDCStore extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void refreshUiReal() {
+
+    }
+
     protected void onStart() {
         super.onStart();
+        final int theme = findTheme();
+        if (this.mTheme != theme) {
+            recreate();
+        }
 
         // Initialize and assign variable
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -151,5 +163,10 @@ public class WebXDCStore extends AppCompatActivity {
             }
         });
         bottomNavigationView.setVisibility(VISIBLE);
+    }
+
+    @Override
+    protected void onBackendConnected() {
+
     }
 }
