@@ -67,7 +67,7 @@ dependencies {
     }
     implementation 'im.conversations.webrtc:webrtc-android:119.0.1'
     implementation 'org.jitsi:org.otr4j:0.23'
-    implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
+    implementation 'org.bouncycastle:bcmail-jdk18on:1.78.1'
     implementation 'org.gnu.inet:libidn:1.15'
     implementation 'com.google.zxing:core:3.5.0'
     implementation 'org.minidns:minidns-hla:1.0.5'
@@ -184,7 +184,7 @@ android {
 
     packagingOptions {
         resources {
-            excludes += ['META-INF/BCKEY.DSA', 'META-INF/BCKEY.SF']
+            excludes += ['META-INF/BCKEY.DSA', 'META-INF/BCKEY.SF', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
         }
     }
 
