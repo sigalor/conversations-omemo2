@@ -342,6 +342,10 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
+            android:name="p32929.easypasscodelock.Activities.LockscreenActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
             android:name="de.monocles.chat.SignUpPage"
             android:label="@string/create_account"
             android:launchMode="singleTask"
