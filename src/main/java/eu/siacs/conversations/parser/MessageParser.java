@@ -27,6 +27,7 @@ import io.ipfs.cid.Cid;
 
 import android.os.Build;
 import android.text.Html;
+import android.widget.Toast;
 
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionStatus;
@@ -854,8 +855,12 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 }
                 if (el.getName().equals("reply") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:reply:0")) {
                     message.addPayload(el);
-                    for (final var parent : mXmppConnectionService.getMessageFuzzyIds(conversation, List.of(el.getAttribute("id"))).entrySet()) {
-                        message.setInReplyTo(parent.getValue());
+                    try {
+                        for (final var parent : mXmppConnectionService.getMessageFuzzyIds(conversation, List.of(el.getAttribute("id"))).entrySet()) {
+                            message.setInReplyTo(parent.getValue());
+                        }
+                    } catch (NullPointerException nullPointerException) {
+                        Log.d("NullPointerException", "Null");
                     }
                 }
                 if (el.getName().equals("attention") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:attention:0")) {
