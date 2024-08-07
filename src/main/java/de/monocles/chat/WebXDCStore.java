@@ -48,6 +48,8 @@ public class WebXDCStore extends XmppActivity {
             return;
         }
         configureActionBar(actionBar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         WebView webView = findViewById(R.id.web);
         String URL = "https://webxdc.org/apps/";
         webView.loadUrl(URL);
