@@ -95,6 +95,8 @@ import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.pep.Avatar;
 import me.drakeet.support.toast.ToastCompat;
 import okhttp3.HttpUrl;
+import com.google.common.base.Strings;
+
 
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
         OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched {
@@ -1139,8 +1141,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         startActivity(Intent.createChooser(intent, getText(R.string.share_with)));
     }
 
-    private void changeMoreTableVisibility(boolean visible) {
+    private void changeMoreTableVisibility(final boolean visible) {
         binding.serverInfoMore.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.serverInfoLoginMechanism.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void gotoChangePassword(String newPassword) {
@@ -1406,7 +1409,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         this.binding.yourNameBox.setVisibility(mInitMode ? View.GONE : View.VISIBLE);
         this.binding.yourStatusBox.setVisibility(mInitMode ? View.GONE : View.VISIBLE);
         if (this.mAccount.isOnlineAndConnected() && !this.mFetchingAvatar) {
-            Features features = this.mAccount.getXmppConnection().getFeatures();
+            final Features features = this.mAccount.getXmppConnection().getFeatures();
             this.binding.stats.setVisibility(View.VISIBLE);
             boolean showBatteryWarning = isOptimizingBattery();
             boolean showDataSaverWarning = isAffectedByDataSaver();
@@ -1452,6 +1455,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             } else {
                 this.binding.serverInfoEasyInvite.setText(R.string.server_info_unavailable);
             }
+            if (features.bind2()) {
+                this.binding.serverInfoBind2.setText(R.string.server_info_available);
+            } else {
+                this.binding.serverInfoBind2.setText(R.string.server_info_unavailable);
+            }
+            if (features.sasl2()) {
+                this.binding.serverInfoSasl2.setText(R.string.server_info_available);
+            } else {
+                this.binding.serverInfoSasl2.setText(R.string.server_info_unavailable);
+            }
+            this.binding.loginMechanism.setText(Strings.nullToEmpty(features.loginMechanism()));
             if (features.pep()) {
                 AxolotlService axolotlService = this.mAccount.getAxolotlService();
                 if (axolotlService != null && axolotlService.isPepBroken()) {
@@ -1531,7 +1545,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
                     showUnverifiedWarning = true;
                 }
             }
-            if (hasKeys && Config.supportOmemo()) { //TODO: either the button should be visible if we print an active device or the device list should be fed with reactived devices
+            if (hasKeys
+                    && Config.supportOmemo()) { // TODO: either the button should be visible if we
+                // print an active device or the device list should
+                // be fed with reactived devices
                 this.binding.otherDeviceKeysCard.setVisibility(View.VISIBLE);
                 Set<Integer> otherDevices = mAccount.getAxolotlService().getOwnDeviceIds();
                 if (otherDevices == null || otherDevices.isEmpty()) {

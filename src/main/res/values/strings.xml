@@ -1464,4 +1464,7 @@
     <string name="enter_your_password_txt">Enter Your Password</string>
     <string name="clear_txt">Clear</string>
     <string name="forgot_password_txt">Forgot password ?</string>
+    <string name="server_info_bind2">XEP-0386: Bind 2</string>
+    <string name="server_info_sasl2">XEP-0388: Extensible SASL Profile</string>
+    <string name="server_info_login_mechanism">Login mechanism</string>
 </resources>
