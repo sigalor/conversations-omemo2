@@ -53,4 +53,10 @@
     <dimen name="actionbar_text_size">20sp</dimen>
     <dimen name="material_input_text_to_prefix_suffix_padding">0dp</dimen>
     <dimen name="muc_avatar_actionbar">38dp</dimen>
+
+    <!--Lockscreen-->
+
+    <dimen name="forgot_password_margin_bottom">13.6dp</dimen>
+    <dimen name="number_pad_margin_top">7.3dp</dimen>
+    <dimen name="number_pad_parent_margin">14.5dp</dimen>
 </resources>

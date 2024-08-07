@@ -111,7 +111,7 @@ import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import me.drakeet.support.toast.ToastCompat;
-import p32929.easypasscodelock.Utils.FayazSP;
+import p32929.easypasscodelock.Utils.EasylockSP;
 import pl.droidsonroids.gif.GifDrawable;
 import android.util.Pair;
 import net.java.otr4j.session.SessionID;
@@ -498,7 +498,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     @SuppressLint("UnsupportedChromeOsCameraSystemFeature")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        FayazSP.init(getApplicationContext());
+        EasylockSP.init(getApplicationContext());
         super.onCreate(savedInstanceState);
         this.mTheme = findTheme();
         setTheme(this.mTheme);
