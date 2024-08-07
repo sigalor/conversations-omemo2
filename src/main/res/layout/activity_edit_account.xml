@@ -595,14 +595,16 @@ android:fontFamily="notosansregular"
                                     android:ellipsize="end"
                                     android:singleLine="true"
                                     android:text="@string/server_info_login_mechanism"
-                                    android:textAppearance="?textAppearanceBodyMedium" />
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
                                 <TextView
                                     android:id="@+id/login_mechanism"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="end"
-                                    android:textAppearance="?textAppearanceBodyMedium" />
+                                    android:paddingStart="4dp"
+                                    android:paddingLeft="4dp"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
                             </TableRow>
 
                         </TableLayout>
@@ -870,14 +872,17 @@ android:fontFamily="notosansregular"
                                     android:ellipsize="end"
                                     android:singleLine="true"
                                     android:text="@string/server_info_bind2"
-                                    android:textAppearance="?textAppearanceBodyMedium" />
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
                                 <TextView
                                     android:id="@+id/server_info_bind2"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="end"
-                                    android:textAppearance="?textAppearanceBodyMedium" />
+                                    android:paddingStart="4dp"
+                                    android:paddingLeft="4dp"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
+
                             </TableRow>
 
                             <TableRow
@@ -890,14 +895,16 @@ android:fontFamily="notosansregular"
                                     android:ellipsize="end"
                                     android:singleLine="true"
                                     android:text="@string/server_info_sasl2"
-                                    android:textAppearance="?textAppearanceBodyMedium" />
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
 
                                 <TextView
                                     android:id="@+id/server_info_sasl2"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="end"
-                                    android:textAppearance="?textAppearanceBodyMedium" />
+                                    android:paddingStart="4dp"
+                                    android:paddingLeft="4dp"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body1" />
                             </TableRow>
 
                         </TableLayout>
