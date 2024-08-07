@@ -808,7 +808,6 @@ public class FileBackend {
         if ("ogg".equals(extension) && type != null && type.startsWith("audio/")) {
             extension = "oga";
         }
-        String filename = "Sent" + File.separator + fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
         try {
             setupRelativeFilePath(message, uri, extension);
             copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
