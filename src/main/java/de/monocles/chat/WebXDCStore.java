@@ -22,6 +22,7 @@ import android.webkit.WebViewClient;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.ui.ConversationsActivity;
+import eu.siacs.conversations.ui.ShareWithActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.utils.MimeUtils;
@@ -87,7 +88,8 @@ public class WebXDCStore extends XmppActivity {
                             String action = intent.getAction();
                             if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                                 Uri uri = dm.getUriForDownloadedFile(mFileDownloadedId);
-                                intent = new Intent(Intent.ACTION_SEND);
+                                intent = new Intent(context, ShareWithActivity.class);
+                                intent.setAction(Intent.ACTION_SEND);
                                 // Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
                                 // intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
                                 intent.setType("application/xdc+zip");
