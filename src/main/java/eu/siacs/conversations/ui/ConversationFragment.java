@@ -4937,7 +4937,7 @@ public class ConversationFragment extends XmppFragment
         if (identiconWidth < 0) identiconWidth = params.width;
         if (hasAttachments || binding.textinput.getText().toString().replaceFirst("^(\\w|[, ])+:\\s*", "").length() > 0) {
             binding.conversationViewPager.setCurrentItem(0);
-            params.width = conversation.getThread() == null ? 0 : identiconWidth;
+            // params.width = conversation.getThread() == null ? 0 : identiconWidth; // TODO: Clean this up
         } else {
             params.width = identiconWidth;
         }
