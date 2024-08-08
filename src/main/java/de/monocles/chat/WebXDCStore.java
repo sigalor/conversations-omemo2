@@ -2,6 +2,8 @@ package de.monocles.chat;
 
 import static android.view.View.VISIBLE;
 import static eu.siacs.conversations.ui.ActionBarActivity.configureActionBar;
+import static eu.siacs.conversations.ui.SettingsActivity.HIDE_DONATION_SNACKBAR;
+import static eu.siacs.conversations.ui.SettingsActivity.HIDE_WEBXDC_STORE_HINT;
 import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
 import android.app.DownloadManager;
@@ -9,10 +11,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -21,6 +26,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.services.ChannelDiscoveryService;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.ShareWithActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
@@ -29,8 +35,10 @@ import eu.siacs.conversations.utils.MimeUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 
 import android.annotation.SuppressLint;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -119,6 +127,26 @@ public class WebXDCStore extends XmppActivity {
             recreate();
         }
 
+        // Show warning to use WebXDC unencrypted
+        if (xmppConnectionService != null && !xmppConnectionService.getBooleanPreference("hide_webxdc_store_hint", R.bool.hide_webxdc_store_hint)) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.webxdc_store_hint_title);
+            builder.setMessage(Html.fromHtml(getString(R.string.webxdc_store_hint_summary)));
+            builder.setNegativeButton(R.string.ok, (dialog, which) -> finish());
+            builder.setPositiveButton(R.string.hide_warning, (dialog, which) -> HideWarning());
+            builder.setOnCancelListener(dialog -> finish());
+            final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(d -> {
+                final TextView textView = dialog.findViewById(android.R.id.message);
+                if (textView == null) {
+                    return;
+                }
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
+            });
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }
+
         // Initialize and assign variable
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -170,5 +198,10 @@ public class WebXDCStore extends XmppActivity {
     @Override
     protected void onBackendConnected() {
 
+    }
+
+    private void HideWarning() {
+        SharedPreferences preferences = xmppConnectionService.getPreferences();
+        preferences.edit().putBoolean(HIDE_WEBXDC_STORE_HINT, true).apply();
     }
 }

@@ -16,4 +16,5 @@
     <bool name="app_lock_enabled">false</bool>
     <bool name="open_links_inapp">true</bool>
     <bool name="accept_invites_from_strangers">false</bool>
+    <bool name="hide_webxdc_store_hint">false</bool>
 </resources>
