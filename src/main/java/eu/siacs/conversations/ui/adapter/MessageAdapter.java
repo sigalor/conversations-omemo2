@@ -1827,8 +1827,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         if (type == RECEIVED || type == SENT) {
             String subject = message.getSubject();
-            if (subject == null && message.getThread() != null && ((Conversation) message.getConversation()).getThread(message.getThread().getContent()).getSubject() != null) {
-                subject = ((Conversation) message.getConversation()).getThread(message.getThread().getContent()).getSubject();
+            if (subject == null && message.getThread() != null) {
+                final var thread = ((Conversation) message.getConversation()).getThread(message.getThread().getContent());
+                if (thread != null) subject = thread.getSubject();
             }
             if (muted || subject == null) {
                 viewHolder.subject.setVisibility(View.GONE);
