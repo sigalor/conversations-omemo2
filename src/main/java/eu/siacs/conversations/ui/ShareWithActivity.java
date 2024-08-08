@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +24,8 @@ import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.ConversationAdapter;
 import eu.siacs.conversations.xmpp.Jid;
 import me.drakeet.support.toast.ToastCompat;
+import p32929.easypasscodelock.Utils.EasyLock;
+import p32929.easypasscodelock.Utils.EasylockSP;
 
 public class ShareWithActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate {
 
@@ -83,6 +87,17 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Check if lock is set
+        if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+            EasyLock.setBackgroundColor(getColor(R.color.primary_black));
+            EasyLock.checkPassword(this);
+            EasyLock.forgotPassword(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(ShareWithActivity.this, R.string.app_lock_forgot_password, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_with);
         setSupportActionBar(findViewById(R.id.toolbar));
