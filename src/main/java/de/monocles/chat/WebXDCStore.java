@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,58 +63,61 @@ public class WebXDCStore extends XmppActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         WebView webView = findViewById(R.id.web);
         String URL = "https://webxdc.org/apps/";
-        webView.loadUrl(URL);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            webView.setForceDarkAllowed(true);
-        }
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
+        if (isNetworkAvailable(this)) {
+            webView.loadUrl(URL);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                webView.setForceDarkAllowed(true);
             }
-        });
-        webView.setDownloadListener(new DownloadListener() {
-            @Override
-            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
-                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                request.setMimeType(mimeType);
-                request.allowScanningByMediaScanner();
-                String extension = MimeUtils.guessMimeTypeFromUri(getApplicationContext(), Uri.parse(url));
-                String filename = URLUtil.guessFileName(url, contentDisposition, extension);
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(request);
-                mFileDownloadedId = dm.enqueue(request);
-                Toast.makeText(getApplicationContext(), R.string.download_started, Toast.LENGTH_LONG).show();
-                BroadcastReceiver receiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        long downloadedID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                        if (downloadedID == mFileDownloadedId) {
-                            String action = intent.getAction();
-                            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
-                                Uri uri = dm.getUriForDownloadedFile(mFileDownloadedId);
-                                intent = new Intent(context, ShareWithActivity.class);
-                                intent.setAction(Intent.ACTION_SEND);
-                                // Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
-                                // intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
-                                intent.setType("application/xdc+zip");
-                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                intent.putExtra(Intent.EXTRA_STREAM, uri);
-                                startActivity(Intent.createChooser(intent, "Share WebXDC"));
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setDomStorageEnabled(true);
+            webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+                    return true;
+                }
+            });
+            webView.setDownloadListener(new DownloadListener() {
+                @Override
+                public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                    request.setMimeType(mimeType);
+                    request.allowScanningByMediaScanner();
+                    String extension = MimeUtils.guessMimeTypeFromUri(getApplicationContext(), Uri.parse(url));
+                    String filename = URLUtil.guessFileName(url, contentDisposition, extension);
+                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
+                    DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                    dm.enqueue(request);
+                    mFileDownloadedId = dm.enqueue(request);
+                    Toast.makeText(getApplicationContext(), R.string.download_started, Toast.LENGTH_LONG).show();
+                    BroadcastReceiver receiver = new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            long downloadedID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                            if (downloadedID == mFileDownloadedId) {
+                                String action = intent.getAction();
+                                if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                                    Uri uri = dm.getUriForDownloadedFile(mFileDownloadedId);
+                                    intent = new Intent(context, ShareWithActivity.class);
+                                    intent.setAction(Intent.ACTION_SEND);
+                                    // Intent intent = new Intent(getApplicationContext(), ConversationsActivity.class);
+                                    // intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
+                                    intent.setType("application/xdc+zip");
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                    startActivity(Intent.createChooser(intent, "Share WebXDC"));
+                                }
                             }
                         }
+                    };
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
                     }
-                };
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
                 }
-            }
-        });
+            });
+        } else {
+            Toast.makeText(this, R.string.account_status_no_internet, Toast.LENGTH_LONG).show();        }
     }
 
     @Override
@@ -132,7 +137,7 @@ public class WebXDCStore extends XmppActivity {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.webxdc_store_hint_title);
             builder.setMessage(Html.fromHtml(getString(R.string.webxdc_store_hint_summary)));
-            builder.setNegativeButton(R.string.ok, (dialog, which) -> finish());
+            builder.setNegativeButton(R.string.ok, (dialog, which) -> dialog.dismiss());
             builder.setPositiveButton(R.string.hide_warning, (dialog, which) -> HideWarning());
             builder.setOnCancelListener(dialog -> finish());
             final AlertDialog dialog = builder.create();
@@ -203,5 +208,21 @@ public class WebXDCStore extends XmppActivity {
     private void HideWarning() {
         SharedPreferences preferences = xmppConnectionService.getPreferences();
         preferences.edit().putBoolean(HIDE_WEBXDC_STORE_HINT, true).apply();
+    }
+
+    //check for internet connection
+    private boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (NetworkInfo anInfo : info) {
+                    if (anInfo.getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
