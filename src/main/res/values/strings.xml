@@ -1423,7 +1423,7 @@
     <string name="new_message">New message</string>
     <string name="emojis">Emojis</string>
     <string name="stickers">Stickers</string>
-    <string name="webxdc_hint">To use WebXDC activate threads feature and send WebXDC unencrypted</string>
+    <string name="webxdc_hint">To use WebXDC send it unencrypted again</string>
     <string name="open">Open</string>
     <string name="unencrypted">unencrypted</string>
     <string name="gifs">GIFs</string>
