@@ -1448,7 +1448,7 @@
     <string name="accounts">Accounts</string>
     <string name="chats">Gesprekken</string>
     <string name="pref_hide_donation_snackbar_summary">Verberg de donatiemelding permanent</string>
-    <string name="webxdc_hint">Om WebXDC te kunnen gebruiken moet de threads-functie geactiveerd zijn en moet de WebXDC-app onversleuteld worden verstuurd</string>
+    <string name="webxdc_hint">Stuur de WebXDC-app onversleuteld door om het te kunnen gebruiken</string>
     <string name="unencrypted">onversleuteld</string>
     <string name="open">Openen</string>
     <string name="pref_open_links_inapp">Links in-app openen</string>
@@ -1526,4 +1526,20 @@
     <string name="pref_jump_to_commands_tab">Naar tab Opdrachten springen</string>
     <string name="invite_to_start_chat">Uitnodigen om chat te starten</string>
     <string name="pref_jump_to_commands_tab_summary">Spring automatisch naar het tabblad Opdrachten om ad-hocopdrachten te gebruiken</string>
+    <string name="webxdcs">WebXDCs</string>
+    <string name="server_info_sasl2">XEP-0388: Extensible SASL Profile</string>
+    <string name="confirm_password_txt">Bevestig wachtwoord</string>
+    <string name="password_changed_txt">Wachtwoord gewijzigd</string>
+    <string name="please_enter_a_new_password_again_txt">Voer weer een nieuw wachtwoord in</string>
+    <string name="max_8_characters_txt">Maximaal 8 tekens</string>
+    <string name="please_enter_current_password_txt">Voer het huidige wachtwoord in</string>
+    <string name="password_is_set_txt">Wachtwoord is ingesteld</string>
+    <string name="password_disabled_txt">Wachtwoord uitgeschakeld</string>
+    <string name="enter_your_password_txt">Voer je wachtwoord in</string>
+    <string name="clear_txt">Wissen</string>
+    <string name="forgot_password_txt">Wachtwoord vergeten?</string>
+    <string name="server_info_bind2">XEP-0386: Bind 2</string>
+    <string name="server_info_login_mechanism">Inlogmechanisme</string>
+    <string name="enter_a_new_password_txt">Voer een nieuw wachtwoord in</string>
+    <string name="incorrect_password_txt">Onjuist wachtwoord</string>
 </resources>

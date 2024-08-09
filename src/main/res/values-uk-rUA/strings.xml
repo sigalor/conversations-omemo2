@@ -1438,4 +1438,21 @@
     <string name="pref_jump_to_commands_tab_summary">Автоматично переходити на вкладку команд для перегляду та використання команд ad-hoc</string>
     <string name="pref_jump_to_commands_tab">Перехід на вкладку команд</string>
     <string name="invite_to_start_chat">Запросити до чату</string>
+    <string name="webxdcs">Додатки WebXDC</string>
+    <string name="server_info_bind2">XEP-0386: Bind 2</string>
+    <string name="password_changed_txt">Пароль змінено</string>
+    <string name="please_enter_a_new_password_again_txt">Введіть новий пароль ще раз</string>
+    <string name="server_info_sasl2">XEP-0388: Розширюваний профіль SASL</string>
+    <string name="server_info_login_mechanism">Механізм авторизації</string>
+    <string name="forgot_password_txt">Забули пароль?</string>
+    <string name="clear_txt">Очистити</string>
+    <string name="incorrect_password_txt">Неправильний пароль</string>
+    <string name="password_is_set_txt">Пароль встановлено</string>
+    <string name="enter_a_new_password_txt">Введіть новий пароль</string>
+    <string name="confirm_password_txt">Підтвердження пароля</string>
+    <string name="max_8_characters_txt">Не більше 8 символів</string>
+    <string name="please_enter_current_password_txt">Введіть поточний пароль</string>
+    <string name="password_disabled_txt">Пароль вимкнено</string>
+    <string name="enter_your_password_txt">Введіть пароль</string>
+    <string name="webxdc_hint">Щоб використовувати WebXDC, надішліть його знову в незашифрованому вигляді</string>
 </resources>

@@ -1481,4 +1481,18 @@
     <string name="import_own_gifs_summary">Importiere eigene GIFs. Sie werden nach Dateinamen sortiert.</string>
     <string name="save_as_gif">Als GIF speichern</string>
     <string name="choose_gif_name">Name der GIF-Datei festlegen</string>
+    <string name="max_8_characters_txt">Max. 8 Zeichen</string>
+    <string name="password_changed_txt">Passwort geändert</string>
+    <string name="confirm_password_txt">Bestätige Passwort</string>
+    <string name="clear_txt">Lösche</string>
+    <string name="server_info_login_mechanism">Login Mechanismus</string>
+    <string name="forgot_password_txt">Passwort vergessen?</string>
+    <string name="enter_your_password_txt">Gebe dein Passwort ein</string>
+    <string name="password_disabled_txt">Passwort deaktiviert</string>
+    <string name="incorrect_password_txt">Falsches Passwort</string>
+    <string name="password_is_set_txt">Passwort gesetzt</string>
+    <string name="webxdc_store_hint_summary">Um WebXDC apps mit Synchronisation zu nutzen, deaktiviere die Verschlüsselung vor dem Senden des WebXDC. Bitte aktiviere sie anschließend wieder.</string>
+    <string name="webxdc_store_hint_title">WebXDC Nutzung</string>
+    <string name="please_enter_current_password_txt">Bitte gebe dein aktuelles Passwort ein</string>
+    <string name="please_enter_a_new_password_again_txt">Bitte gebe noch einmal ein neues Passwort ein</string>
 </resources>

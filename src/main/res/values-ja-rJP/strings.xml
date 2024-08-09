@@ -1471,4 +1471,12 @@
     <string name="unencrypted">暗号化なし</string>
     <string name="action_execute">実行</string>
     <string name="no_permission_to_place_call">電話をかけて繋ぐ権限がありません</string>
+    <string name="pref_accept_invites_from_strangers_summary">見知らぬ人からの部屋への招待を許可</string>
+    <string name="allow_private_messages">非公開メッセージを許可</string>
+    <string name="call_integration_not_available">電話統合化が使用できません!</string>
+    <string name="invite_to_start_chat">会話を開始するために招待</string>
+    <string name="pref_jump_to_commands_tab">コマンドタブに飛ぶ</string>
+    <string name="pref_jump_to_commands_tab_summary">コマンドタブに自動的に飛び、アドホックコマンドを一覧表示して使用します</string>
+    <string name="use_monocles">monoclesを選択</string>
+    <string name="colors">色</string>
 </resources>

@@ -239,7 +239,7 @@
     <string name="skip">跳过</string>
     <string name="disable_notifications">禁用通知</string>
     <string name="enable">启用</string>
-    <string name="conference_requires_password">群聊需要密码</string>
+    <string name="conference_requires_password">进入群聊需要输入密码</string>
     <string name="enter_password">输入密码</string>
     <string name="request_presence_updates">请先向您的联系人请求在线状态更新。
 \n
@@ -271,9 +271,9 @@
     <string name="pref_autojoin">与书签同步</string>
     <string name="pref_autojoin_summary">根据书签中的“自动加入”标志加入或离开群聊。</string>
     <string name="toast_message_omemo_fingerprint">OMEMO 指纹已复制到剪贴板 ！</string>
-    <string name="conference_banned">此群聊已将您封禁了</string>
+    <string name="conference_banned">禁止您进入此群聊</string>
     <string name="conference_members_only">此群聊仅成员进入</string>
-    <string name="conference_kicked">此群聊已将您踢出了</string>
+    <string name="conference_kicked">已从群聊中踢出了您</string>
     <string name="conference_shutdown">此群聊已关闭</string>
     <string name="using_account">正在使用账号 %s</string>
     <string name="checking_x">正在 HTTP 主机上检查 %s</string>
@@ -324,7 +324,7 @@
     <string name="pref_show_dynamic_tags">显示动态标签</string>
     <string name="pref_show_dynamic_tags_summary">允许使用标签进行管理</string>
     <string name="no_conference_server_found">群聊服务器未找到</string>
-    <string name="conference_creation_failed">群聊创建失败！</string>
+    <string name="conference_creation_failed">无法创建群聊！</string>
     <string name="account_image_description">账号头像</string>
     <string name="copy_omemo_clipboard_description">复制 OMEMO 指纹到剪贴板</string>
     <string name="regenerate_omemo_key">重新生成 OMEMO 密钥</string>
@@ -377,7 +377,7 @@
     <string name="non_anonymous">公开用户的聊天地址</string>
     <string name="moderated">开启群聊发言审核</string>
     <string name="you_are_not_participating">您未参与</string>
-    <string name="modified_conference_options">已修改群聊配置！</string>
+    <string name="modified_conference_options">群聊配置修改成功！</string>
     <string name="could_not_modify_conference_options">无法修改群聊配置</string>
     <string name="never">永不</string>
     <string name="until_further_notice">直至另行通知</string>
@@ -703,7 +703,7 @@
     <string name="invalid_muc_nick">无效的昵称</string>
     <string name="title_activity_share_via_account">通过账号分享</string>
     <string name="destroy_room">解散群聊</string>
-    <string name="conference_unknown_error">您已不在此群聊</string>
+    <string name="conference_unknown_error">您已不在群聊中</string>
     <string name="destroy_room_dialog">您想解散群聊 %s 吗？这将永久移除此群聊。</string>
     <string name="destroy_room_succeed">群聊成功解散</string>
     <string name="destroy_room_failed">群聊无法解散</string>
@@ -784,7 +784,7 @@
     <string name="everyone_has_read_up_to_this_point">每个人都已阅读至此</string>
     <string name="conference_resource_constraint">资源限制</string>
     <string name="delete_message">删除消息</string>
-    <string name="conference_destroyed">已解散此群聊</string>
+    <string name="conference_destroyed">此群聊已经解散了</string>
     <string name="no_application_found_to_view_contact">未找到可以查看联系人的应用程序</string>
     <string name="welcome_server_info">我们建议使用 monocles 作为您的提供者。</string>
     <string name="no_location_permission">monocles chat 需要访问位置服务</string>
@@ -1037,7 +1037,7 @@
     <string name="incoming_calls_channel_name">来电铃声</string>
     <string name="rtp_state_incoming_video_call">视频来电</string>
     <string name="rtp_state_incoming_call">来电</string>
-    <string name="dismiss_call">忽略</string>
+    <string name="dismiss_call">拒接</string>
     <string name="answer_call">接听</string>
     <string name="ongoing_call">正在进行的通话</string>
     <string name="ongoing_video_call">正在进行的视频通话</string>
@@ -1495,7 +1495,7 @@
     <string name="pref_open_links_inapp_summary">在 monocles chat 中打开网络链接</string>
     <string name="new_notification">新通知</string>
     <string name="new_message">新消息</string>
-    <string name="webxdc_hint">要使用 WebXDC，请激活线程功能并发送未加密的 WebXDC</string>
+    <string name="webxdc_hint">要使用 WebXDC，请再次以未加密的方式发送</string>
     <string name="open">打开</string>
     <string name="unencrypted">未加密的</string>
     <string name="emojis">表情符号</string>
@@ -1525,4 +1525,20 @@
     <string name="pref_jump_to_commands_tab_summary">自动跳转到命令标签页以列出和使用 ad-hoc 命令</string>
     <string name="pref_jump_to_commands_tab">跳转到命令标签页</string>
     <string name="invite_to_start_chat">邀请开始聊天</string>
+    <string name="webxdcs">WebXDC 应用</string>
+    <string name="please_enter_current_password_txt">请输入当前密码</string>
+    <string name="server_info_login_mechanism">登录机制</string>
+    <string name="enter_a_new_password_txt">输入新密码</string>
+    <string name="confirm_password_txt">确认密码</string>
+    <string name="password_changed_txt">密码已更改</string>
+    <string name="please_enter_a_new_password_again_txt">请再次输入新密码</string>
+    <string name="max_8_characters_txt">最多 8 个数字</string>
+    <string name="password_is_set_txt">密码已设置</string>
+    <string name="incorrect_password_txt">密码不正确</string>
+    <string name="password_disabled_txt">密码已禁用</string>
+    <string name="enter_your_password_txt">请输入您的密码</string>
+    <string name="clear_txt">清除</string>
+    <string name="forgot_password_txt">忘记密码？</string>
+    <string name="server_info_bind2">XEP-0386：绑定 2</string>
+    <string name="server_info_sasl2">XEP-0388：可扩展 SASL 配置文件</string>
 </resources>

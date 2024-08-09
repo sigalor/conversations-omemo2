@@ -964,7 +964,7 @@
     <string name="report_jid_as_spammer">Пометить этот JID, как отправляющий нежелательные сообщения.</string>
     <string name="request_now">Запросить сейчас</string>
     <string name="request_permissions_message">monocles chat запросит у Вас несколько разрешений. Они необходимы, чтобы пользоваться всеми возможностями мессенджера. Если какое-либо разрешение не будет получено, приложение будет закрыто.</string>
-    <string name="request_permissions_message_again">Вы отказались от некоторых разрешений, необходимых для monocles chat. Вы бы хотели перейти к настройкам и предоставить эти разрешения? Если вы откажетесь от любого из этих разрешений, приложение закроется.</string>
+    <string name="request_permissions_message_again">Вы запретили некоторые или все разрешения, необходимые для чата в монокле. Хотите перейти к настройкам и разрешить эти разрешения? Если вы откажете в любом из этих разрешений, приложение закроется.</string>
     <string name="request_presence_updates">Пожалуйста, сначала запросите обновления присутствия Вашего контакта.
 \n
 \n<small>Это будет использоваться для определения того, какой клиент использует ваш контакт.</small></string>
@@ -1430,7 +1430,7 @@
     <string name="related_chats">Похожие конференции</string>
     <string name="action_complete">Действие завершено</string>
     <string name="moderate_recent">Модерировать сообщения\?</string>
-    <string name="confirm_delete_attachment_summary">Хотите пропустить подтверждение, если удалите локальный файл из чата?</string>
+    <string name="confirm_delete_attachment_summary">Хотите пропустить подтверждение при удалении локального файла из чата?</string>
     <string name="pref_confirm_delete_attachment">Пропустить подтверждение удаления файлов из чатов</string>
     <string name="menuitem_create_backup_action">Создать резервную копию</string>
     <string name="pref_use_blue_readmarkers_title">Используйте синие маркеры чтения</string>
@@ -1549,7 +1549,7 @@
     <string name="new_message">Новое сообщение</string>
     <string name="emojis">Смайлы</string>
     <string name="stickers">Стикеры</string>
-    <string name="webxdc_hint">Чтобы использовать WebXDC, активируйте функцию потоков и отправляйте WebXDC в не зашифрованном виде</string>
+    <string name="webxdc_hint">Чтобы использовать WebXDC, отправьте его еще раз в не зашифрованном виде</string>
     <string name="open">Открыть</string>
     <string name="unencrypted">не зашифрованный</string>
     <string name="gifs">Гифки</string>
@@ -1577,4 +1577,20 @@
     <string name="pref_jump_to_commands_tab">Перейти на вкладку команд</string>
     <string name="invite_to_start_chat">Пригласить начать чат</string>
     <string name="pref_jump_to_commands_tab_summary">Автоматический переход на вкладку команд для просмотра и использования специальных команд</string>
+    <string name="webxdcs">WebXDCs</string>
+    <string name="confirm_password_txt">Подтвердите пароль</string>
+    <string name="password_changed_txt">Пароль изменен</string>
+    <string name="enter_a_new_password_txt">Введите новый пароль</string>
+    <string name="please_enter_a_new_password_again_txt">Пожалуйста, введите новый пароль еще раз</string>
+    <string name="max_8_characters_txt">Максимум 8 символов</string>
+    <string name="please_enter_current_password_txt">Пожалуйста введите текущий пароль</string>
+    <string name="password_is_set_txt">Пароль установлен</string>
+    <string name="incorrect_password_txt">Неверный пароль</string>
+    <string name="password_disabled_txt">Пароль удален</string>
+    <string name="enter_your_password_txt">Введите ваш пароль</string>
+    <string name="clear_txt">Очистить</string>
+    <string name="forgot_password_txt">Забыли пароль ?</string>
+    <string name="server_info_bind2">XEP-0386: Привязка 2</string>
+    <string name="server_info_sasl2">XEP-0388: Расширяемый профиль SASL</string>
+    <string name="server_info_login_mechanism">Механизм входа</string>
 </resources>

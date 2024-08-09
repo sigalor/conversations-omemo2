@@ -1503,7 +1503,7 @@
     <string name="new_message">Nova mensaxe</string>
     <string name="emojis">Emojis</string>
     <string name="stickers">Adhesivos</string>
-    <string name="webxdc_hint">Para usar WebXDC actíva a ferramenta fíos e envía un WebXDC sen cifrar</string>
+    <string name="webxdc_hint">Para usar WebXDC envíao outra vez sen cifrar</string>
     <string name="open">Abrir</string>
     <string name="unencrypted">sen cifrar</string>
     <string name="gifs">GIFs</string>
@@ -1531,4 +1531,20 @@
     <string name="pref_jump_to_commands_tab_summary">Ir automaticamente á pestana de ordes para ver e usar ordes personalizadas</string>
     <string name="pref_jump_to_commands_tab">Ir á pestana de ordes</string>
     <string name="invite_to_start_chat">Convida para iniciar chat</string>
+    <string name="webxdcs">WebXDCs</string>
+    <string name="enter_a_new_password_txt">Escribe o Novo Contrasinal</string>
+    <string name="confirm_password_txt">Confirma o Contrasinal</string>
+    <string name="password_changed_txt">Anovouse o contrasinal</string>
+    <string name="please_enter_a_new_password_again_txt">Escribe o Novo Contrasinal outra vez</string>
+    <string name="max_8_characters_txt">Máx. 8 caracteres</string>
+    <string name="please_enter_current_password_txt">Escribe o Contrasinal actual</string>
+    <string name="password_is_set_txt">Estableceuse o contrasinal</string>
+    <string name="incorrect_password_txt">Contrasinal incorrecto</string>
+    <string name="password_disabled_txt">Contrasinal desactivado</string>
+    <string name="enter_your_password_txt">Escribe o Contrasinal</string>
+    <string name="clear_txt">Limpar</string>
+    <string name="forgot_password_txt">Esqueceches o contrasinal?</string>
+    <string name="server_info_bind2">XEP-0386: Bind 2</string>
+    <string name="server_info_sasl2">XEP-0388: Extensible SASL Profile</string>
+    <string name="server_info_login_mechanism">Método de acceso</string>
 </resources>
