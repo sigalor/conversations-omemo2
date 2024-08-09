@@ -583,7 +583,7 @@ public class UIHelper {
         } else if (mime.equals("application/gpx+xml")) {
             return context.getString(R.string.gpx_track);
         } else if (mime.equals("application/xdc+zip")) {
-            return "Widget";
+            return "WebXDC";
         } else if (mime.equals("text/plain")) {
             return context.getString(R.string.plain_text_document);
         } else {
