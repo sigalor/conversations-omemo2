@@ -132,26 +132,6 @@ public class WebXDCStore extends XmppActivity {
             recreate();
         }
 
-        // Show warning to use WebXDC unencrypted
-        if (xmppConnectionService != null && !xmppConnectionService.getBooleanPreference("hide_webxdc_store_hint", R.bool.hide_webxdc_store_hint)) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.webxdc_store_hint_title);
-            builder.setMessage(Html.fromHtml(getString(R.string.webxdc_store_hint_summary)));
-            builder.setNegativeButton(R.string.ok, (dialog, which) -> dialog.dismiss());
-            builder.setPositiveButton(R.string.hide_warning, (dialog, which) -> HideWarning());
-            builder.setOnCancelListener(dialog -> finish());
-            final AlertDialog dialog = builder.create();
-            dialog.setOnShowListener(d -> {
-                final TextView textView = dialog.findViewById(android.R.id.message);
-                if (textView == null) {
-                    return;
-                }
-                textView.setMovementMethod(LinkMovementMethod.getInstance());
-            });
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.show();
-        }
-
         // Initialize and assign variable
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -202,7 +182,7 @@ public class WebXDCStore extends XmppActivity {
 
     @Override
     protected void onBackendConnected() {
-
+        WebXDCWarning();
     }
 
     private void HideWarning() {
@@ -224,5 +204,27 @@ public class WebXDCStore extends XmppActivity {
             }
         }
         return false;
+    }
+
+    private void WebXDCWarning() {
+        // Show warning to use WebXDC unencrypted
+        if (xmppConnectionService != null && !xmppConnectionService.getBooleanPreference("hide_webxdc_store_hint", R.bool.hide_webxdc_store_hint)) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.webxdc_store_hint_title);
+            builder.setMessage(Html.fromHtml(getString(R.string.webxdc_store_hint_summary)));
+            builder.setNegativeButton(R.string.ok, (dialog, which) -> dialog.dismiss());
+            builder.setPositiveButton(R.string.hide_warning, (dialog, which) -> HideWarning());
+            builder.setOnCancelListener(dialog -> finish());
+            final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(d -> {
+                final TextView textView = dialog.findViewById(android.R.id.message);
+                if (textView == null) {
+                    return;
+                }
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
+            });
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }
     }
 }
