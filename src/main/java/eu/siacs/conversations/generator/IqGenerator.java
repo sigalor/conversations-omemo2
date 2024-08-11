@@ -479,7 +479,7 @@ public class IqGenerator extends AbstractGenerator {
                 packet.addChild("apply-to", "urn:xmpp:fasten:0")
                         .setAttribute("id", m.getServerMsgId())
                         .addChild("moderate", "urn:xmpp:message-moderate:0");
-        moderate.addChild("retract", Namespace.URN_MESSAGE_RETRACT);
+        moderate.addChild("retract", "urn:xmpp:message-retract:0");
         moderate.addChild("reason", "urn:xmpp:message-moderate:0").setContent(reason);
         return packet;
     }

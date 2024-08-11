@@ -571,7 +571,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         if (replacementId == null) {
             final Element fasten = packet.findChild("apply-to", "urn:xmpp:fasten:0");
             if (fasten != null) {
-                replaceElement = fasten.findChild("retract", Namespace.URN_MESSAGE_RETRACT);
+                replaceElement = fasten.findChild("retract", "urn:xmpp:message-retract:0");
                 if (replaceElement == null) replaceElement = fasten.findChild("moderated", "urn:xmpp:message-moderate:0");
                 if (replaceElement != null) {
                     final String reason = replaceElement.findChildContent("reason", "urn:xmpp:message-moderate:0");
@@ -581,7 +581,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             }
         }
         final Element applyToElement = packet.findChild("apply-to", "urn:xmpp:fasten:0");
-        final String retractId = applyToElement != null && applyToElement.findChild("retract", Namespace.URN_MESSAGE_RETRACT) != null ? applyToElement.getAttribute("id") : null;
+        final String retractId = applyToElement != null && applyToElement.findChild("retract", "urn:xmpp:message-retract:0") != null ? applyToElement.getAttribute("id") : null;
 
         if (packet.getBody() == null && retractId != null) {   //It's RECOMMENDED that you include a Fallback Indication (XEP-0428) [6] tag with fallback text in the <body/>, so that older clients can still indicate the intent to retract and so that older servers will archive the retraction.
             //Otherwhise the following code will not execute the retraction, because it searchs for body content!
