@@ -7,6 +7,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static eu.siacs.conversations.persistance.FileBackend.APP_DIRECTORY;
 import static eu.siacs.conversations.persistance.FileBackend.SENT_AUDIOS;
+import static eu.siacs.conversations.ui.SettingsActivity.HIDE_WEBXDC_STORE_HINT;
 import static eu.siacs.conversations.ui.SettingsActivity.HIDE_YOU_ARE_NOT_PARTICIPATING;
 import static eu.siacs.conversations.ui.SettingsActivity.WARN_UNENCRYPTED_CHAT;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -53,9 +54,11 @@ import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
@@ -84,6 +87,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
@@ -1286,7 +1290,6 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         final String subject = binding.textinputSubject.getText().toString();
-        if (type == "application/xdc+zip") newSubThread();
         final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_file), ToastCompat.LENGTH_SHORT);
         activity.delegateUriPermissionsToService(uri);
         activity.xmppConnectionService.attachFileToConversation(conversation, uri, type, subject, new UiInformableCallback<Message>() {
@@ -1659,6 +1662,33 @@ public class ConversationFragment extends XmppFragment
                 } else if (attachment.getType() == Attachment.Type.IMAGE) {
                     Log.d(Config.LOGTAG, "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
                     attachImageToConversation(conversation, attachment.getUri(), attachment.getMime());
+                } else if (attachment.getMime().equals("application/xdc+zip")) {
+                    Log.d(Config.LOGTAG, "ConversationsActivity.commitAttachments() - attaching WebXDC to conversations. CHOOSE_FILE");
+                    newSubThread();
+                    if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL || conversation.getNextEncryption() == Message.ENCRYPTION_PGP || conversation.getNextEncryption() == Message.ENCRYPTION_OTR) {
+                        // Show warning to use WebXDC unencrypted
+                        if (activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("hide_webxdc_store_hint", R.bool.hide_webxdc_store_hint)) {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                            builder.setTitle(R.string.webxdc_store_hint_title);
+                            builder.setMessage(Html.fromHtml(getString(R.string.webxdc_store_hint_summary)));
+                            builder.setNegativeButton(R.string.send_unencrypted, (dialog, which) -> disableMessageEncryption());
+                            builder.setPositiveButton(R.string.send_encrypted, (dialog, which) -> enableMessageEncryption());
+                            builder.setNeutralButton(R.string.hide_warning, (dialog, which) -> HideWarning());
+                            builder.setOnDismissListener(dialog -> attachFileToConversation(conversation, attachment.getUri(), attachment.getMime()));
+                            final AlertDialog dialog = builder.create();
+                            dialog.setOnShowListener(d -> {
+                                final TextView textView = dialog.findViewById(android.R.id.message);
+                                if (textView == null) {
+                                    return;
+                                }
+                                textView.setMovementMethod(LinkMovementMethod.getInstance());
+                            });
+                            dialog.setCanceledOnTouchOutside(true);
+                            dialog.show();
+                        }
+                    } else {
+                        attachFileToConversation(conversation, attachment.getUri(), attachment.getMime());
+                    }
                 } else {
                     Log.d(Config.LOGTAG, "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
                     attachFileToConversation(conversation, attachment.getUri(), attachment.getMime());
@@ -1678,6 +1708,10 @@ public class ConversationFragment extends XmppFragment
         setupReply(null);
     }
 
+    private void HideWarning() {
+        SharedPreferences preferences = activity.xmppConnectionService.getPreferences();
+        preferences.edit().putBoolean(HIDE_WEBXDC_STORE_HINT, true).apply();
+    }
 
     private static boolean anyNeedsExternalStoragePermission(final Collection<Attachment> attachments) {
         for (final Attachment attachment : attachments) {
@@ -3618,6 +3652,7 @@ public class ConversationFragment extends XmppFragment
         disableEncrpytionForExceptions();
         binding.messagesView.post(this::fireReadEvent);
     }
+
     private void disableEncrpytionForExceptions() {
         if (isEncryptionDisabledException()) {
             disableMessageEncryption();
