@@ -1683,7 +1683,7 @@ public class ConversationFragment extends XmppFragment
                                 }
                                 textView.setMovementMethod(LinkMovementMethod.getInstance());
                             });
-                            dialog.setCanceledOnTouchOutside(true);
+                            dialog.setCanceledOnTouchOutside(false);
                             dialog.show();
                         }
                     } else {
