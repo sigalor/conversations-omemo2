@@ -5,6 +5,7 @@ window.webxdc = (() => {
 	let setUpdateListenerPromise = null
 	var update_listener = () => {};
 	var last_serial = 0;
+	var realtime_listener = (data) => {};
 
 	window.__webxdcUpdate = () => {
 		var updates = JSON.parse(InternalJSApi.getStatusUpdates(last_serial));
@@ -16,6 +17,10 @@ window.webxdc = (() => {
 			setUpdateListenerPromise();
 			setUpdateListenerPromise = null;
 		}
+	};
+
+	window.__webxdcRealtimeData = (data) => {
+		realtime_listener(Uint8Array.from(atob(data), c => c.charCodeAt(0)));
 	};
 
 	return {
@@ -112,5 +117,21 @@ window.webxdc = (() => {
 				return Promise.reject(errorMsg);
 			}
 		},
+
+		joinRealtimeChannel: () => {
+			return {
+				leave: () => {},
+				send: (data) => {
+					if (!(data instanceof Uint8Array)) {
+						throw new Error('realtime listener data must be a Uint8Array')
+					}
+					InternalJSApi.sendRealtime(data);
+				},
+				setListener: (listener) => {
+					realtime_listener = listener;
+				}
+			};
+		},
+
 	};
 })();

@@ -682,16 +682,24 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     webxdcSender = counterpart;
                 }
             }
-            mXmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
-                    conversation,
-                    remoteMsgId,
-                    counterpart,
-                    thread,
-                    body == null ? null : body.content,
-                    webxdc.findChildContent("document", "urn:xmpp:webxdc:0"),
-                    webxdc.findChildContent("summary", "urn:xmpp:webxdc:0"),
-                    webxdc.findChildContent("json", "urn:xmpp:json:0")
-            ));
+            final var document = webxdc.findChildContent("document", "urn:xmpp:webxdc:0");
+            final var summary = webxdc.findChildContent("summary", "urn:xmpp:webxdc:0");
+            final var payload = webxdc.findChildContent("json", "urn:xmpp:json:0");
+            if (document != null || summary != null || payload != null) {
+                mXmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
+                        conversation,
+                        remoteMsgId,
+                        counterpart,
+                        thread,
+                        body == null ? null : body.content,
+                        document,
+                        summary,
+                        payload
+                ));
+            }
+
+            final var realtime = webxdc.findChildContent("data", "urn:xmpp:webxdc:0");
+            if (realtime != null) conversation.webxdcRealtimeData(thread, realtime);
 
             mXmppConnectionService.updateConversationUi();
         }

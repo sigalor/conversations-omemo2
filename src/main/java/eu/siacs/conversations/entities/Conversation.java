@@ -1702,6 +1702,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         pagerAdapter.startWebxdc(page);
     }
 
+    public void webxdcRealtimeData(final Element thread, final String base64) {
+        pagerAdapter.webxdcRealtimeData(thread, base64);
+    }
+
     public void startCommand(Element command, XmppConnectionService xmppConnectionService) {
         pagerAdapter.startCommand(command, xmppConnectionService);
     }
@@ -1832,6 +1836,18 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
             for (ConversationPage session : sessions) {
                 session.refresh();
+            }
+        }
+
+        public void webxdcRealtimeData(final Element thread, final String base64) {
+            if (sessions == null) return;
+
+            for (ConversationPage session : sessions) {
+                if (session instanceof WebxdcPage) {
+                    if (((WebxdcPage) session).threadMatches(thread)) {
+                        ((WebxdcPage) session).realtimeData(base64);
+                    }
+                }
             }
         }
 

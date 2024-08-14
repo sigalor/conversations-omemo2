@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -37,6 +38,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.common.io.ByteStreams;
 
 import io.ipfs.cid.Cid;
@@ -146,6 +148,13 @@ public class WebxdcPage implements ConversationPage {
 
     public String getNode() {
         return "webxdc\0" + source.getUuid();
+    }
+
+    public boolean threadMatches(final Element thread) {
+        if (thread == null) return false;
+        if (thread.getContent() == null) return false;
+        if (source.getThread() == null) return false;
+        return thread.getContent().equals(source.getThread().getContent());
     }
 
     public boolean openUri(Uri uri) {
@@ -301,7 +310,7 @@ public class WebxdcPage implements ConversationPage {
                 TextView tv = (TextView) v.findViewById(android.R.id.text1);
                 tv.setGravity(Gravity.CENTER);
                 tv.setTextColor(ContextCompat.getColor(context, R.color.white));
-                tv.setBackgroundColor(UIHelper.getColorForName(getItem(position)));
+                tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(activity.get(),UIHelper.getColorForName(getItem(position))));
                 return v;
             }
         });
@@ -323,6 +332,7 @@ public class WebxdcPage implements ConversationPage {
                 }
                 ShortcutManagerCompat.requestPinShortcut(xmppConnectionService, builder.build(), null);
             } else {
+                binding.webview.loadUrl("about:blank");
                 remover.accept(WebxdcPage.this);
             }
         });
@@ -336,9 +346,11 @@ public class WebxdcPage implements ConversationPage {
     }
 
     public void refresh() {
-        if (binding != null && binding.webview != null) {
-            binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
-        }
+        binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
+    }
+
+    public void realtimeData(String base64) {
+        binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcRealtimeData('" + base64.replace("'", "").replace("\\", "").replace("+", "%2B") + "');"));
     }
 
     protected Jid selfJid() {
@@ -353,6 +365,11 @@ public class WebxdcPage implements ConversationPage {
     protected class InternalJSApi {
         @JavascriptInterface
         public String selfAddr() {
+            final Conversation conversation = (Conversation) source.getConversation();
+            if (conversation.getMode() == Conversation.MODE_MULTI && !conversation.getMucOptions().nonanonymous()) {
+                final var occupantId = conversation.getMucOptions().getSelf().getOccupantId();
+                if (occupantId != null) return occupantId;
+            }
             return "xmpp:" + Uri.encode(selfJid().toEscapedString(), "@/+");
         }
 
@@ -461,6 +478,21 @@ public class WebxdcPage implements ConversationPage {
                 e.printStackTrace();
                 return e.toString();
             }
+        }
+
+        @JavascriptInterface
+        public void sendRealtime(byte[] data) {
+            Message message = new Message(source.getConversation(), null, Message.ENCRYPTION_NONE);
+            message.addPayload(new Element("no-store", "urn:xmpp:hints"));
+            Element webxdc = new Element("x", "urn:xmpp:webxdc:0");
+            message.addPayload(webxdc);
+            webxdc.addChild("data").setContent(Base64.encodeToString(data, Base64.NO_WRAP));
+            message.setThread(source.getThread());
+            if (source.isPrivateMessage()) {
+                Message.configurePrivateMessage(message, source.getCounterpart());
+            }
+            message.setBody((String) null);
+            xmppConnectionService.sendMessage(message);
         }
     }
 }
