@@ -800,7 +800,7 @@ public class XmppConnectionService extends Service {
         if (!compressPictures
                 || getFileBackend().useImageAsIs(uri)
                 || (mimeType != null && mimeType.endsWith("/gif"))
-                || getFileBackend().unusualBounds(uri)) {
+                || getFileBackend().unusualBounds(uri) || "data".equals(uri.getScheme())) {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": not compressing picture. sending as file");
             attachFileToConversation(conversation, uri, mimeType, subject, callback);
             return;
