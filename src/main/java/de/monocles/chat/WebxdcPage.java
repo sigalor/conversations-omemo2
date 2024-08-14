@@ -478,7 +478,11 @@ public class WebxdcPage implements ConversationPage {
                 intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
                 intent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, ((Conversation) source.getConversation()).getUuid());
                 if (text != null) intent.putExtra(Intent.EXTRA_TEXT, text);
-                if (data != null) intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("data:application/octet-stream;base64," + data));
+                if (data != null) {
+                    var mimeType = name == null ? null : MimeUtils.guessFromPath(name);
+                    if (mimeType == null) mimeType = "application/octet-stream";
+                    intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("data:" + mimeType + ";base64," + data));
+                }
                 activity.get().startActivity(intent);
                 return null;
             } catch (Exception e) {
