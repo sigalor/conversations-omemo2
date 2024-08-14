@@ -63,6 +63,8 @@ import com.google.common.io.ByteStreams;
 
 import com.wolt.blurhashkt.BlurHashDecoder;
 
+import org.tomlj.Toml;
+
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.ThumbHash;
 
@@ -99,6 +101,8 @@ import java.util.Locale;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -1946,6 +1950,19 @@ public class FileBackend {
             } else if (apk) {
              //   body.append("|0|0|0|") // 3, 4, 5
              //           .append(getAPK(file, mXmppConnectionService.getApplicationContext())); // 6  TODO: Add apk later again
+            }
+            if ("application/xdc+zip".equals(mime)) {
+                try {
+                    final var zip = new ZipFile(file);
+                    final ZipEntry manifestEntry = zip == null ? null : zip.getEntry("manifest.toml");
+                    if (manifestEntry != null) {
+                        final var manifest = Toml.parse(zip.getInputStream(manifestEntry));
+                        if (manifest != null) {
+                            final var name = manifest.getString("name");
+                            if (name != null) fileParams.setName(name);
+                        }
+                    }
+                } catch (final IOException e2) { }
             }
         }
         message.setFileParams(fileParams);
