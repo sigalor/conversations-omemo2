@@ -571,6 +571,11 @@ public final class MimeUtils {
     }
 
     public static String guessMimeTypeFromUri(final Context context, final Uri uri) {
+        if ("data".equals(uri.getScheme())) {
+            String[] parts = uri.getSchemeSpecificPart().split(",", 2);
+            String[] parts2 = parts[0].split(";", 2);
+            if (parts2.length > 0) return parts2[0];
+        }
         final String mimeTypeContentResolver = guessFromContentResolver(context, uri);
         final String mimeTypeFromQueryParameter = uri.isHierarchical() ? uri.getQueryParameter("mimeType") : null;
         final String name = "content".equals(uri.getScheme()) ? getDisplayName(context, uri) : null;
