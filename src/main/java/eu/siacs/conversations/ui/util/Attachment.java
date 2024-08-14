@@ -127,7 +127,7 @@ public class Attachment implements Parcelable {
 
     public static boolean canBeSendInband(final List<Attachment> attachments) {
         for (Attachment attachment : attachments) {
-            if (attachment.type != Type.LOCATION) {
+            if (attachment.type != Type.LOCATION && !"https".equals(attachment.uri.getScheme())) {
                 return false;
             }
         }

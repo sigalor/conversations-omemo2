@@ -43,6 +43,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
     private final Message message;
     private final Conversation conversation;
     private final Uri uri;
+    private final String mimeType;
     private final String type;
     private final UiCallback<Message> callback;
     private final long maxUploadSize;
@@ -59,7 +60,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
         this.conversation = conversation;
         this.callback = callback;
         this.maxUploadSize = maxUploadSize;
-        final String mimeType = MimeUtils.guessMimeTypeFromUriAndMime(mXmppConnectionService, uri, type);
+        mimeType = MimeUtils.guessMimeTypeFromUriAndMime(mXmppConnectionService, uri, type);
         this.originalFileSize = FileBackend.getFileSize(mXmppConnectionService, uri);
         this.isVideoMessage = !getFileBackend().useFileAsIs(uri)
                 && (mimeType != null && mimeType.startsWith("video/"))
@@ -73,7 +74,16 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
 
     private void processAsFile() {
         final String path = mXmppConnectionService.getFileBackend().getOriginalPath(uri);
-        if (path != null && !FileBackend.isPathBlacklisted(path)) {
+        if ("https".equals(uri.getScheme())) {
+            message.getFileParams().url = uri.toString();
+            message.getFileParams().setMediaType(mimeType);
+            final int encryption = message.getEncryption();
+            mXmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
+                message.setEncryption(encryption);
+                mXmppConnectionService.sendMessage(message);
+                callback.success(message);
+            });
+        } else if (path != null && !FileBackend.isPathBlacklisted(path)) {
             message.setRelativeFilePath(path);
             mXmppConnectionService.getFileBackend().updateFileParams(message);
             if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
