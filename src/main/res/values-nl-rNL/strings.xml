@@ -1542,4 +1542,7 @@
     <string name="server_info_login_mechanism">Inlogmechanisme</string>
     <string name="enter_a_new_password_txt">Voer een nieuw wachtwoord in</string>
     <string name="incorrect_password_txt">Onjuist wachtwoord</string>
+    <string name="webxdc_store_hint_title">WebXDC gebruiken</string>
+    <string name="webxdc_store_hint_summary">Om WebXDC-apps met statusupdates te gebruiken, moet je de versleuteling uitschakelen voordat je de WebXDC verstuurt. Schakel de versleuteling daarna weer in.</string>
+    <string name="send_encrypted">Versleuteld versturen</string>
 </resources>

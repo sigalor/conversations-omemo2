@@ -1593,4 +1593,7 @@
     <string name="server_info_bind2">XEP-0386: Привязка 2</string>
     <string name="server_info_sasl2">XEP-0388: Расширяемый профиль SASL</string>
     <string name="server_info_login_mechanism">Механизм входа</string>
+    <string name="webxdc_store_hint_title">Использование WebXDC</string>
+    <string name="webxdc_store_hint_summary">Чтобы использовать приложения WebXDC с обновлениями статуса, вам необходимо отключить шифрование при отправке WebXDC. Пожалуйста, включите шифрование позже снова.</string>
+    <string name="send_encrypted">Отправить зашифрованное</string>
 </resources>

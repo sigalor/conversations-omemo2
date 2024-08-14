@@ -1547,4 +1547,7 @@
     <string name="server_info_bind2">XEP-0386: Bind 2</string>
     <string name="server_info_sasl2">XEP-0388: Extensible SASL Profile</string>
     <string name="server_info_login_mechanism">Método de acceso</string>
+    <string name="webxdc_store_hint_title">Uso de WebXDC</string>
+    <string name="webxdc_store_hint_summary">Para usar apps tipo WebXDC con actualizacións do estado debes desactivar a cifraxe ao enviar o WebXDC. Volve activar a cifraxe outra vez despois do envío.</string>
+    <string name="send_encrypted">Enviouse cifrada</string>
 </resources>

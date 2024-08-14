@@ -87,7 +87,7 @@
     <string name="send_omemo_x509_message">v\\OMEMO-verschlüsselte Nachricht senden</string>
     <string name="send_pgp_message">Nachricht schreiben…</string>
     <string name="your_nick_has_been_changed">Dein Nickname wurde geändert</string>
-    <string name="send_unencrypted">Normal verschicken</string>
+    <string name="send_unencrypted">Unverschlüsselt verschicken</string>
     <string name="decryption_failed">Entschlüsselung fehlgeschlagen. Vielleicht hast du nicht den richtigen privaten Schlüssel.</string>
     <string name="openkeychain_required">OpenKeychain</string>
     <string name="openkeychain_required_long">%1$s benutzt eine Drittanwendung namens <b>OpenKeychain</b>, um Nachrichten zu ver- und entschlüsseln und um deine Schlüssel zu verwalten.

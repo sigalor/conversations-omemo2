@@ -1541,4 +1541,7 @@
     <string name="forgot_password_txt">忘记密码？</string>
     <string name="server_info_bind2">XEP-0386：绑定 2</string>
     <string name="server_info_sasl2">XEP-0388：可扩展 SASL 配置文件</string>
+    <string name="webxdc_store_hint_title">WebXDC 使用</string>
+    <string name="webxdc_store_hint_summary">要使用带有状态更新的 WebXDC 应用，您需要在发送 WebXDC 时禁用加密。之后请再次启用加密。</string>
+    <string name="send_encrypted">加密发送</string>
 </resources>

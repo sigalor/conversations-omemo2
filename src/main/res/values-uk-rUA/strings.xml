@@ -1455,4 +1455,7 @@
     <string name="password_disabled_txt">Пароль вимкнено</string>
     <string name="enter_your_password_txt">Введіть пароль</string>
     <string name="webxdc_hint">Щоб використовувати WebXDC, надішліть його знову в незашифрованому вигляді</string>
+    <string name="webxdc_store_hint_summary">Щоб використовувати додатки WebXDC з оновленнями стану, вимкніть шифрування під час надсилання WebXDC. Не забудьте увімкнути шифрування після цього знову.</string>
+    <string name="webxdc_store_hint_title">Використання WebXDC</string>
+    <string name="send_encrypted">Надіслати зашифрованим</string>
 </resources>
