@@ -936,6 +936,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }).start();
         } else {
+            viewHolder.images.setVisibility(View.VISIBLE);
             viewHolder.image.setVisibility(View.VISIBLE);
             viewHolder.image.setImageDrawable(d);
         }
