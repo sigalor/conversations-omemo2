@@ -1289,6 +1289,7 @@ public class ConversationFragment extends XmppFragment
         if (conversation == null) {
             return;
         }
+        if (Objects.equals(type, "application/xdc+zip")) newSubThread();
         final String subject = binding.textinputSubject.getText().toString();
         final Toast prepareFileToast = ToastCompat.makeText(getActivity(), getText(R.string.preparing_file), ToastCompat.LENGTH_SHORT);
         activity.delegateUriPermissionsToService(uri);
