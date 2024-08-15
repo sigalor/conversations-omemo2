@@ -4522,11 +4522,13 @@ public class ConversationFragment extends XmppFragment
         final String text = extras.getString(Intent.EXTRA_TEXT);
         final String nick = extras.getString(ConversationsActivity.EXTRA_NICK);
         final String node = extras.getString(ConversationsActivity.EXTRA_NODE);
-        final String postInitAction = extras.getString(ConversationsActivity.EXTRA_POST_INIT_ACTION);
+        final String postInitAction =
+                extras.getString(ConversationsActivity.EXTRA_POST_INIT_ACTION);
         final boolean asQuote = extras.getBoolean(ConversationsActivity.EXTRA_AS_QUOTE);
         final String user = extras.getString(ConversationsActivity.EXTRA_USER);
         final boolean pm = extras.getBoolean(ConversationsActivity.EXTRA_IS_PRIVATE_MESSAGE, false);
-        final boolean doNotAppend = extras.getBoolean(ConversationsActivity.EXTRA_DO_NOT_APPEND, false);
+        final boolean doNotAppend =
+                extras.getBoolean(ConversationsActivity.EXTRA_DO_NOT_APPEND, false);
         final String type = extras.getString(ConversationsActivity.EXTRA_TYPE);
 
         final String thread = extras.getString(ConversationsActivity.EXTRA_THREAD);
@@ -4540,10 +4542,12 @@ public class ConversationFragment extends XmppFragment
         final List<Uri> uris = extractUris(extras);
         if (uris != null && uris.size() > 0) {
             if (uris.size() == 1 && "geo".equals(uris.get(0).getScheme())) {
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), uris.get(0), Attachment.Type.LOCATION));
+                mediaPreviewAdapter.addMediaPreviews(
+                        Attachment.of(getActivity(), uris.get(0), Attachment.Type.LOCATION));
             } else {
                 final List<Uri> cleanedUris = cleanUris(new ArrayList<>(uris));
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), cleanedUris, type));
+                mediaPreviewAdapter.addMediaPreviews(
+                        Attachment.of(getActivity(), cleanedUris, type));
             }
             toggleInputMethod();
             return;
@@ -4555,7 +4559,7 @@ public class ConversationFragment extends XmppFragment
                     Jid next = Jid.of(jid.getLocal(), jid.getDomain(), nick);
                     privateMessageWith(next);
                 } catch (final IllegalArgumentException ignored) {
-                    //do nothing
+                    // do nothing
                 }
             } else {
                 final MucOptions mucOptions = conversation.getMucOptions();
@@ -4565,7 +4569,8 @@ public class ConversationFragment extends XmppFragment
             }
         } else {
             if (text != null && GeoHelper.GEO_URI.matcher(text).matches()) {
-                mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.parse(text), Attachment.Type.LOCATION));
+                mediaPreviewAdapter.addMediaPreviews(
+                        Attachment.of(getActivity(), Uri.parse(text), Attachment.Type.LOCATION));
                 toggleInputMethod();
                 return;
             } else if (text != null && asQuote) {
@@ -4603,13 +4608,14 @@ public class ConversationFragment extends XmppFragment
                     final Jid discoJid = conversation.getContact().resourceWhichSupport(Namespace.COMMANDS);
                     if (discoJid != null) commandJid = discoJid;
                 }
-                if (node != null && commandJid != null) {
+                if (node != null && commandJid != null && activity != null) {
                     conversation.startCommand(commandFor(commandJid, node), activity.xmppConnectionService);
                 }
             });
             return;
         }
-        Message message = downloadUuid == null ? null : conversation.findMessageWithFileAndUuid(downloadUuid);
+        Message message =
+                downloadUuid == null ? null : conversation.findMessageWithFileAndUuid(downloadUuid);
         if ("webxdc".equals(postInitAction)) {
             if (message == null) {
                 message = activity.xmppConnectionService.getMessage(conversation, downloadUuid);
