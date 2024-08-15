@@ -59,6 +59,7 @@ import android.util.SparseBooleanArray;
 import java.text.DecimalFormat;
 import java.util.Collection;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.Optional;
@@ -1768,7 +1769,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         protected View page2 = null;
         protected boolean mOnboarding = false;
 
-
         public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
             mPager = pager;
             mTabs = tabs;
@@ -1895,7 +1895,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             notifyDataSetChanged();
             if (mPager != null) mPager.setCurrentItem(getCount() - 1);
         }
-
 
         public void startMucConfig(XmppConnectionService xmppConnectionService) {
             MucConfigSession session = new MucConfigSession(xmppConnectionService);
@@ -2258,7 +2257,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     Cell cell = (Cell) item;
 
                     if (cell.el == null) {
-                        binding.text.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Subhead);
+                        binding.text.setTextAppearance(binding.getRoot().getContext(), com.google.android.material.R.style.TextAppearance_Material3_TitleMedium);
                         setTextOrHide(binding.text, cell.reported.getLabel());
                     } else {
                         Element validate = cell.reported.el.findChild("validate", "http://jabber.org/protocol/xdata-validate");
@@ -2275,7 +2274,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             } catch (final IllegalArgumentException | NumberParseException | NullPointerException e) { }
                         }
 
-                        binding.text.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Body1);
+                        binding.text.setTextAppearance(binding.getRoot().getContext(), com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
                         binding.text.setText(text);
 
                         BetterLinkMovementMethod method = BetterLinkMovementMethod.newInstance();
@@ -2361,6 +2360,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 protected ArrayAdapter<Option> adapter;
                 protected boolean open;
                 protected boolean multi;
+                protected int textColor = -1;
 
                 @Override
                 public void bind(Item item) {
@@ -2377,12 +2377,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     setTextOrHide(binding.label, field.getLabel());
                     setTextOrHide(binding.desc, field.getDesc());
 
+                    if (textColor == -1) textColor = binding.desc.getCurrentTextColor();
                     if (field.error != null) {
                         binding.desc.setVisibility(View.VISIBLE);
                         binding.desc.setText(field.error);
-                        binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Design_Error);
+                        binding.desc.setTextColor(com.google.android.material.R.attr.colorError);
                     } else {
-                        binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Status);
+                        binding.desc.setTextColor(textColor);
                     }
 
                     Element validate = field.el.findChild("validate", "http://jabber.org/protocol/xdata-validate");
@@ -2467,6 +2468,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 }
                 protected Element mValue = null;
                 protected ArrayAdapter<Option> options;
+                protected int textColor = -1;
 
                 @Override
                 public void bind(Item item) {
@@ -2474,12 +2476,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     setTextOrHide(binding.label, field.getLabel());
                     setTextOrHide(binding.desc, field.getDesc());
 
+                    if (textColor == -1) textColor = binding.desc.getCurrentTextColor();
                     if (field.error != null) {
                         binding.desc.setVisibility(View.VISIBLE);
                         binding.desc.setText(field.error);
-                        binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Design_Error);
+                        binding.desc.setTextColor(com.google.android.material.R.attr.colorError);
                     } else {
-                        binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Status);
+                        binding.desc.setTextColor(textColor);
                     }
 
                     mValue = field.getValue();
@@ -2615,6 +2618,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 protected ArrayAdapter<Option> options;
                 protected Option defaultOption = null;
                 protected boolean mediaSelector = false;
+                protected int textColor = -1;
 
                 @Override
                 public void bind(Item item) {
@@ -2622,12 +2626,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     setTextOrHide(binding.label, field.getLabel());
                     setTextOrHide(binding.desc, field.getDesc());
 
+                    if (textColor == -1) textColor = binding.desc.getCurrentTextColor();
                     if (field.error != null) {
                         binding.desc.setVisibility(View.VISIBLE);
                         binding.desc.setText(field.error);
-                        binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Design_Error);
+                        binding.desc.setTextColor(com.google.android.material.R.attr.colorError);
                     } else {
-                        binding.desc.setTextAppearance(binding.getRoot().getContext(), R.style.TextAppearance_Conversations_Status);
+                        binding.desc.setTextColor(textColor);
                     }
 
                     mValue = field.getValue();
@@ -2820,7 +2825,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     });
                 }
             }
-
 
             class WebViewHolder extends ViewHolder<CommandWebviewBinding> {
                 public WebViewHolder(CommandWebviewBinding binding) { super(binding); }
@@ -3068,8 +3072,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     tv.setText(getItem(position).second);
                     int resId = ctx.getResources().getIdentifier("action_" + getItem(position).first, "string" , ctx.getPackageName());
                     if (resId != 0 && getItem(position).second.equals(getItem(position).first)) tv.setText(ctx.getResources().getString(resId));
-                    tv.setTextColor(ContextCompat.getColor(ctx, R.color.white));
-                    tv.setBackgroundColor(UIHelper.getColorForName(getItem(position).first));
+                    final var colors = MaterialColors.getColorRoles(ctx, UIHelper.getColorForName(getItem(position).first));
+                    tv.setTextColor(colors.getOnAccent());
+                    tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(ctx, colors.getAccent()));
                     return v;
                 }
 
@@ -3137,7 +3142,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             protected List<Field> reported = null;
             protected SparseArray<Item> items = new SparseArray<>();
             protected XmppConnectionService xmppConnectionService;
-            protected ActionsAdapter actionsAdapter;
+            protected ActionsAdapter actionsAdapter = null;
             protected GridLayoutManager layoutManager;
             protected WebView actionToWebview = null;
             protected int fillableFieldCount = 0;
@@ -3150,18 +3155,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 mNode = node;
                 this.xmppConnectionService = xmppConnectionService;
                 if (mPager != null) setupLayoutManager(mPager.getContext());
-                actionsAdapter = new ActionsAdapter(xmppConnectionService);
-                actionsAdapter.registerDataSetObserver(new DataSetObserver() {
-                    @Override
-                    public void onChanged() {
-                        if (mBinding == null) return;
-
-                        mBinding.actions.setNumColumns(actionsAdapter.getCount() > 1 ? 2 : 1);
-                    }
-
-                    @Override
-                    public void onInvalidated() {}
-                });
             }
 
             public String getTitle() {
@@ -3243,12 +3236,14 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             eu.siacs.conversations.xmpp.forms.Field fillableField = null;
                             for (eu.siacs.conversations.xmpp.forms.Field field : form.getFields()) {
                                 if ((field.getType() == null || (!field.getType().equals("hidden") && !field.getType().equals("fixed"))) && field.getFieldName() != null && !field.getFieldName().equals("http://jabber.org/protocol/commands#actions")) {
-                                    fillableField = field;
+                                    final var validate = field.findChild("validate", "http://jabber.org/protocol/xdata-validate");
+                                    final var range = validate == null ? null : validate.findChild("range", "http://jabber.org/protocol/xdata-validate");
+                                    fillableField = range == null ? field : null;
                                     fillableFieldCount++;
                                 }
                             }
 
-                            if (fillableFieldCount == 1 && actionsAdapter.countProceed() < 2 && (("list-single".equals(fillableField.getType()) && Option.forField(fillableField).size() < 50) || ("boolean".equals(fillableField.getType()) && fillableField.getValue() == null))) {
+                            if (fillableFieldCount == 1 && fillableField != null && actionsAdapter.countProceed() < 2 && (("list-single".equals(fillableField.getType()) && Option.forField(fillableField).size() < 50) || ("boolean".equals(fillableField.getType()) && fillableField.getValue() == null))) {
                                 actionsCleared = true;
                                 actionsAdapter.clearProceed();
                             }
@@ -3460,71 +3455,71 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
             @Override
             public ViewHolder onCreateViewHolder(ViewGroup container, int viewType) {
-                return switch (viewType) {
-                    case TYPE_ERROR -> {
+                switch(viewType) {
+                    case TYPE_ERROR: {
                         CommandNoteBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_note, container, false);
-                        yield new ErrorViewHolder(binding);
+                        return new ErrorViewHolder(binding);
                     }
-                    case TYPE_NOTE -> {
+                    case TYPE_NOTE: {
                         CommandNoteBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_note, container, false);
-                        yield new NoteViewHolder(binding);
+                        return new NoteViewHolder(binding);
                     }
-                    case TYPE_WEB -> {
+                    case TYPE_WEB: {
                         CommandWebviewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_webview, container, false);
-                        yield new WebViewHolder(binding);
+                        return new WebViewHolder(binding);
                     }
-                    case TYPE_RESULT_FIELD -> {
+                    case TYPE_RESULT_FIELD: {
                         CommandResultFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_result_field, container, false);
-                        yield new ResultFieldViewHolder(binding);
+                        return new ResultFieldViewHolder(binding);
                     }
-                    case TYPE_RESULT_CELL -> {
+                    case TYPE_RESULT_CELL: {
                         CommandResultCellBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_result_cell, container, false);
-                        yield new ResultCellViewHolder(binding);
+                        return new ResultCellViewHolder(binding);
                     }
-                    case TYPE_ITEM_CARD -> {
+                    case TYPE_ITEM_CARD: {
                         CommandItemCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_item_card, container, false);
-                        yield new ItemCardViewHolder(binding);
+                        return new ItemCardViewHolder(binding);
                     }
-                    case TYPE_CHECKBOX_FIELD -> {
+                    case TYPE_CHECKBOX_FIELD: {
                         CommandCheckboxFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_checkbox_field, container, false);
-                        yield new CheckboxFieldViewHolder(binding);
+                        return new CheckboxFieldViewHolder(binding);
                     }
-                    case TYPE_SEARCH_LIST_FIELD -> {
+                    case TYPE_SEARCH_LIST_FIELD: {
                         CommandSearchListFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_search_list_field, container, false);
-                        yield new SearchListFieldViewHolder(binding);
+                        return new SearchListFieldViewHolder(binding);
                     }
-                    case TYPE_RADIO_EDIT_FIELD -> {
+                    case TYPE_RADIO_EDIT_FIELD: {
                         CommandRadioEditFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_radio_edit_field, container, false);
-                        yield new RadioEditFieldViewHolder(binding);
+                        return new RadioEditFieldViewHolder(binding);
                     }
-                    case TYPE_SPINNER_FIELD -> {
+                    case TYPE_SPINNER_FIELD: {
                         CommandSpinnerFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_spinner_field, container, false);
-                        yield new SpinnerFieldViewHolder(binding);
+                        return new SpinnerFieldViewHolder(binding);
                     }
-                    case TYPE_BUTTON_GRID_FIELD -> {
+                    case TYPE_BUTTON_GRID_FIELD: {
                         CommandButtonGridFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_button_grid_field, container, false);
-                        yield new ButtonGridFieldViewHolder(binding);
+                        return new ButtonGridFieldViewHolder(binding);
                     }
-                    case TYPE_TEXT_FIELD -> {
+                    case TYPE_TEXT_FIELD: {
                         CommandTextFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_text_field, container, false);
-                        yield new TextFieldViewHolder(binding);
+                        return new TextFieldViewHolder(binding);
                     }
-                    case TYPE_SLIDER_FIELD -> {
+                    case TYPE_SLIDER_FIELD: {
                         CommandSliderFieldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_slider_field, container, false);
-                        yield new SliderFieldViewHolder(binding);
+                        return new SliderFieldViewHolder(binding);
                     }
-                    case TYPE_PROGRESSBAR -> {
+                    case TYPE_PROGRESSBAR: {
                         CommandProgressBarBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_progress_bar, container, false);
-                        yield new ProgressBarViewHolder(binding);
+                        return new ProgressBarViewHolder(binding);
                     }
-                    default -> {
+                    default:
                         if (expectingRemoval) {
                             CommandNoteBinding binding = DataBindingUtil.inflate(LayoutInflater.from(container.getContext()), R.layout.command_note, container, false);
-                            yield new NoteViewHolder(binding);
+                            return new NoteViewHolder(binding);
                         }
+
                         throw new IllegalArgumentException("Unknown viewType: " + viewType + " based on: " + response + ", " + responseElement + ", " + expectingRemoval);
-                    }
-                };
+                }
             }
 
             @Override
@@ -3727,6 +3722,22 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 });
                 mBinding.form.setLayoutManager(setupLayoutManager(mBinding.getRoot().getContext()));
                 mBinding.form.setAdapter(this);
+
+                if (actionsAdapter == null) {
+                    actionsAdapter = new ActionsAdapter(mBinding.getRoot().getContext());
+                    actionsAdapter.registerDataSetObserver(new DataSetObserver() {
+                        @Override
+                        public void onChanged() {
+                            if (mBinding == null) return;
+
+                            mBinding.actions.setNumColumns(actionsAdapter.getCount() > 1 ? 2 : 1);
+                        }
+
+                        @Override
+                        public void onInvalidated() {}
+                    });
+                }
+
                 mBinding.actions.setAdapter(actionsAdapter);
                 mBinding.actions.setOnItemClickListener((parent, v, pos, id) -> {
                     if (execute(pos)) {
