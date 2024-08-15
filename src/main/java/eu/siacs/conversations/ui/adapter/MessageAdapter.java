@@ -1718,7 +1718,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayMediaPreviewMessage(viewHolder, message, darkBackground, type);
             } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
                 displayAudioMessage(viewHolder, message, darkBackground, type);
-            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty() && message.getEncryption() == ENCRYPTION_NONE) {
+            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty()) {
                 if (message.getThread() == null) {
                     Element thread = new Element("thread", "jabber:client");
                     thread.setContent(UUID.randomUUID().toString());
