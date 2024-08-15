@@ -4,7 +4,6 @@ import static eu.siacs.conversations.entities.Bookmark.printableValue;
 
 import android.content.Intent;
 
-import de.monocles.chat.MonoclesViewPager;
 import eu.siacs.conversations.databinding.CommandSliderFieldBinding;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.ui.UriHandlerActivity;
@@ -124,6 +123,7 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -1718,7 +1718,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return pagerAdapter.switchToSession(node);
     }
 
-    public void setupViewPager(MonoclesViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
+    public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
         pagerAdapter.setupViewPager(pager, tabs, onboarding, oldConversation);
     }
 
@@ -1761,7 +1761,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     }
 
     public class ConversationPagerAdapter extends PagerAdapter {
-        protected MonoclesViewPager mPager = null;
+        protected ViewPager mPager = null;
         protected TabLayout mTabs = null;
         ArrayList<ConversationPage> sessions = null;
         protected View page1 = null;
@@ -1769,7 +1769,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         protected boolean mOnboarding = false;
 
 
-        public void setupViewPager(MonoclesViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
+        public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
             mPager = pager;
             mTabs = tabs;
             mOnboarding = onboarding;
@@ -1803,9 +1803,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             tabs.setupWithViewPager(mPager);
             pager.post(() -> pager.setCurrentItem(getCurrentTab()));
 
-            mPager.setSwipeLocked(true);
-
-            mPager.addOnPageChangeListener(new MonoclesViewPager.OnPageChangeListener() {
+            mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 public void onPageScrollStateChanged(int state) { }
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
