@@ -1663,7 +1663,7 @@ public class ConversationFragment extends XmppFragment
                 } else if (attachment.getType() == Attachment.Type.IMAGE) {
                     Log.d(Config.LOGTAG, "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
                     attachImageToConversation(conversation, attachment.getUri(), attachment.getMime());
-                } else if (attachment.getMime().equals("application/xdc+zip")) {
+                } else if (attachment.getMime() != null && attachment.getMime().equals("application/xdc+zip")) {
                     Log.d(Config.LOGTAG, "ConversationsActivity.commitAttachments() - attaching WebXDC to conversations. CHOOSE_FILE");
                     newSubThread();
                     if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL || conversation.getNextEncryption() == Message.ENCRYPTION_PGP || conversation.getNextEncryption() == Message.ENCRYPTION_OTR) {
