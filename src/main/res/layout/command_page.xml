@@ -15,7 +15,7 @@
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
 
-        <GridView
+        <de.monocles.chat.GridView
             android:id="@+id/actions"
             android:background="@color/primary_monocles"
             android:layout_width="match_parent"
