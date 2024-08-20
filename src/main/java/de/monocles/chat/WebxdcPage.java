@@ -5,6 +5,7 @@ package de.monocles.chat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
@@ -306,14 +307,14 @@ public class WebxdcPage implements ConversationPage {
 
         binding.webview.loadUrl(baseUrl + "/index.html");
 
-        binding.actions.setAdapter(new ArrayAdapter<String>(context, R.layout.simple_list_item, new String[]{"Add to Home Screen", "Close"}) {
+        binding.actions.setAdapter(new ArrayAdapter<String>(context, R.layout.simple_list_item, new String[]{activity.get().getString(R.string.add_to_home_screen), activity.get().getString(R.string.close)}) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
                 TextView tv = (TextView) v.findViewById(android.R.id.text1);
                 tv.setGravity(Gravity.CENTER);
-                tv.setTextColor(ContextCompat.getColor(context, R.color.white));
-                tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(activity.get(),UIHelper.getColorForName(getItem(position))));
+                tv.setTextColor(ContextCompat.getColor(context, R.color.realwhite));
+                tv.setBackgroundColor(MaterialColors.getColor(context, R.attr.colorAccent, Color.BLACK));
                 return v;
             }
         });
