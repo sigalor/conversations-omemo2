@@ -67,7 +67,7 @@
 * Unify tone generator invocations 
 * Catch rare race conditions when pressing switch to earpiece
 * Catch establishing call when last call is shutting down
-* New option to invite MUC participant to chat 
+* New option to invite MUC participant to chat (experimentall)
 * Only refresh commands if update was for this contact 
 * Disable automatically jump to commands tab and add setting. Fixes empty chat screen
 * Remove unused caching logic
