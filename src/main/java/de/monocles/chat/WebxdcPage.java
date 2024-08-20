@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.util.Base64;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -215,7 +216,9 @@ public class WebxdcPage implements ConversationPage {
             binding.webview.loadUrl("javascript:__webxdcUpdate();");
             return getView();
         }
-
+        if (activity != null) {
+            activity.get().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
         binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.webxdc_page, null, false);
         binding.webview.setWebViewClient(new WebViewClient() {
             // `shouldOverrideUrlLoading()` is called when the user clicks a URL,
@@ -346,6 +349,9 @@ public class WebxdcPage implements ConversationPage {
     }
 
     public void refresh() {
+        if (activity != null) {
+            activity.get().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
         binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
     }
 

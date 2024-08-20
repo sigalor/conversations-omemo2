@@ -4302,6 +4302,9 @@ public class ConversationFragment extends XmppFragment
 
     private void reInit(Conversation conversation) {
         reInit(conversation, false);
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
     }
 
     private boolean reInit(final Conversation conversation, final boolean hasExtras) {
@@ -4315,6 +4318,9 @@ public class ConversationFragment extends XmppFragment
             return false;
         }
         updateinputfield(canSendMeCommand());
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
         if (!activity.xmppConnectionService.isConversationStillOpen(this.conversation)) {
             activity.onConversationArchived(this.conversation);
             return false;
@@ -4843,6 +4849,9 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void refresh() {
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
         if (this.binding == null) {
             Log.d(Config.LOGTAG, "ConversationFragment.refresh() skipped updated because view binding was null");
             return;
@@ -5470,6 +5479,7 @@ public class ConversationFragment extends XmppFragment
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
         String uuid = pendingConversationsUuid.pop();
+
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
                 return;
