@@ -1994,8 +1994,6 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
-        updateinputfield(canSendMeCommand());
-
         hasWriteAccessInMUC();
         return binding.getRoot();
     }
@@ -4316,7 +4314,7 @@ public class ConversationFragment extends XmppFragment
         if (this.activity == null || this.binding == null) {
             return false;
         }
-
+        updateinputfield(canSendMeCommand());
         if (!activity.xmppConnectionService.isConversationStillOpen(this.conversation)) {
             activity.onConversationArchived(this.conversation);
             return false;
@@ -5471,7 +5469,6 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onBackendConnected() {
         Log.d(Config.LOGTAG, "ConversationFragment.onBackendConnected()");
-        updateinputfield(canSendMeCommand());
         String uuid = pendingConversationsUuid.pop();
         if (uuid != null) {
             if (!findAndReInitByUuidOrArchive(uuid)) {
