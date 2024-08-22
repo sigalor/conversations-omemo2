@@ -97,7 +97,7 @@ public class WebXDCStore extends XmppActivity {
                             long downloadedID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
                             if (downloadedID == mFileDownloadedId) {
                                 String action = intent.getAction();
-                                if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                                if (action != null && action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                                     Uri uri = dm.getUriForDownloadedFile(mFileDownloadedId);
                                     intent = new Intent(context, ShareWithActivity.class);
                                     intent.setAction(Intent.ACTION_SEND);
@@ -111,8 +111,10 @@ public class WebXDCStore extends XmppActivity {
                             }
                         }
                     };
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+                    if (Build.VERSION.SDK_INT >= 34 && xmppConnectionService.getApplicationInfo().targetSdkVersion >= 34) {
+                        xmppConnectionService.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+                        } else {
+                        xmppConnectionService.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
                     }
                 }
             });
