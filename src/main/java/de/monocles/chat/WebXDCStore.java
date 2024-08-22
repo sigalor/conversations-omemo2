@@ -11,15 +11,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -28,7 +25,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.services.ChannelDiscoveryService;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.ShareWithActivity;
 import eu.siacs.conversations.ui.StartConversationActivity;
@@ -37,10 +33,8 @@ import eu.siacs.conversations.utils.MimeUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 
 import android.annotation.SuppressLint;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
