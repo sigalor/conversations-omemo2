@@ -2003,27 +2003,20 @@ public class ConversationFragment extends XmppFragment
 
 
     public void LoadStickers() {
+        final Pattern lastColonPattern = Pattern.compile("");
+        binding.stickersview.setOnItemClickListener((parent, view, position, id) -> {
+            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
+            Editable toInsert = adapter.getItem(position).toInsert();
+            toInsert.append(" ");
+            Editable s = binding.textinput.getText();
 
-                    final Pattern lastColonPattern = Pattern.compile("");
-                    Editable s = binding.textinput.getText();
-                    Handler emojiDebounce = new Handler(Looper.getMainLooper());
-                    emojiDebounce.removeCallbacksAndMessages(null);
-                    emojiDebounce.postDelayed(() -> {
-                        Matcher lastColonMatcher = lastColonPattern.matcher(s);
-                        int lastColon = 0;
-                        while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-                        if (lastColon < 0) {
-                            binding.stickersview.setVisibility(GONE);
-                            return;
-                        }
-                        final String q = s.toString().substring(lastColon);
-                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
-                        if (adapter != null) {
-                            adapter.search(q);
-                        }
-                    }, 400L);
+            Matcher lastColonMatcher = lastColonPattern.matcher(s);
+            int lastColon = 0;
+            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
+            if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
+        });
 
-
+        setupEmojiSearch();
     }
 
     public void LoadGifs() {
@@ -2071,23 +2064,6 @@ public class ConversationFragment extends XmppFragment
                     return true;
                 }
             });
-
-
-
-        final Pattern lastColonPattern = Pattern.compile("");
-        binding.stickersview.setOnItemClickListener((parent, view, position, id) -> {
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
-            Editable toInsert = adapter.getItem(position).toInsert();
-            toInsert.append(" ");
-            Editable s = binding.textinput.getText();
-
-            Matcher lastColonMatcher = lastColonPattern.matcher(s);
-            int lastColon = 0;
-            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
-        });
-
-        setupEmojiSearch();
     }
 
     protected void setupEmojiSearch() {
@@ -2097,6 +2073,25 @@ public class ConversationFragment extends XmppFragment
         if (emojiSearch == null || binding.stickersview == null) return;
 
         binding.stickersview.setAdapter(emojiSearch.makeAdapter(activity));
+
+        final Pattern lastColonPattern = Pattern.compile("");
+        Editable s = binding.textinput.getText();
+        Handler emojiDebounce = new Handler(Looper.getMainLooper());
+        emojiDebounce.removeCallbacksAndMessages(null);
+        emojiDebounce.postDelayed(() -> {
+            Matcher lastColonMatcher = lastColonPattern.matcher(s);
+            int lastColon = 0;
+            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
+            if (lastColon < 0) {
+                binding.stickersview.setVisibility(GONE);
+                return;
+            }
+            final String q = s.toString().substring(lastColon);
+            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
+            if (adapter != null) {
+                adapter.search(q);
+            }
+        }, 400L);
     }
 
     protected void newThreadTutorialToast(String s) {
@@ -5501,6 +5496,7 @@ public class ConversationFragment extends XmppFragment
         if (activityResult != null) {
             handleActivityResult(activityResult);
         }
+        setupEmojiSearch();
         clearPending();
     }
 
