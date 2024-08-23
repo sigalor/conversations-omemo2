@@ -2013,7 +2013,10 @@ public class ConversationFragment extends XmppFragment
             Matcher lastColonMatcher = lastColonPattern.matcher(s);
             int lastColon = 0;
             while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
+            if (lastColon >= 0) {
+                int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
+                binding.textinput.getText().insert(start, toInsert); //this will get the text and insert the emoji into   the current position
+            }
         });
 
         setupEmojiSearch();
@@ -2082,10 +2085,7 @@ public class ConversationFragment extends XmppFragment
             Matcher lastColonMatcher = lastColonPattern.matcher(s);
             int lastColon = 0;
             while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon < 0) {
-                binding.stickersview.setVisibility(GONE);
-                return;
-            }
+
             final String q = s.toString().substring(lastColon);
             EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
             if (adapter != null) {
