@@ -334,6 +334,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             openBatteryOptimizationDialogIfNeeded();
             new showMemoryWarning(this).execute();
             showOutdatedVersionWarning();
+            xmppConnectionService.rescanStickers();
         }
 
     }

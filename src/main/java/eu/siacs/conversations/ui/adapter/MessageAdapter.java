@@ -796,6 +796,15 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (message.isWebUri() || message.getWebUri() != null) {
                 displayRichLinkMessage(viewHolder, message, darkBackground);
             }
+            // Make custom emoji bigger too, to match emoji
+            for (final var span : body.getSpans(0, body.length(), de.monocles.chat.InlineImageSpan.class)) {
+                body.setSpan(
+                        new RelativeSizeSpan(1.2f),
+                        body.getSpanStart(span),
+                        body.getSpanEnd(span),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
             MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
             viewHolder.messageBody.setText(body);
             viewHolder.messageBody.setAutoLinkMask(0);

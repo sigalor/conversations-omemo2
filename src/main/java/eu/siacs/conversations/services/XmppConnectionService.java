@@ -21,16 +21,19 @@ import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
 
 import android.content.pm.ServiceInfo;
 
+import com.google.common.io.Files;
 import com.kedia.ogparser.JsoupProxy;
 import com.kedia.ogparser.OpenGraphCallback;
 import com.kedia.ogparser.OpenGraphParser;
 import com.kedia.ogparser.OpenGraphResult;
 
+import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.StickerAdapter;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.ui.util.Attachment;
+import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.xmpp.OnGatewayResult;
 import eu.siacs.conversations.utils.Consumer;
 import java.net.URI;
@@ -76,6 +79,7 @@ import android.os.SystemClock;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.DocumentsContract;
 import android.security.KeyChain;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -275,6 +279,7 @@ public class XmppConnectionService extends Service {
     public static final String FDroid = "org.fdroid.fdroid";
     public static final String PlayStore = "com.android.vending";
     private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
+    private EmojiSearch emojiSearch = null;
 
     public final CountDownLatch restoredFromDatabaseLatch = new CountDownLatch(1);
     private final static Executor FILE_OBSERVER_EXECUTOR = Executors.newSingleThreadExecutor();
@@ -309,6 +314,7 @@ public class XmppConnectionService extends Service {
     private final ReplacingSerialSingleThreadExecutor mStickerScanExecutor = new ReplacingSerialSingleThreadExecutor("StickerScan");
     private long mLastActivity = 0;
     private long mLastMucPing = 0;
+    private long mLastStickerRescan = 0;
     public final FileBackend fileBackend = new FileBackend(this);
     private MemorizingTrustManager mMemorizingTrustManager;
     private final NotificationService mNotificationService = new NotificationService(this);
@@ -1700,6 +1706,7 @@ public class XmppConnectionService extends Service {
     @Override
     public void onCreate() {
         org.jxmpp.stringprep.libidn.LibIdnXmppStringprep.setup();
+        emojiSearch = new EmojiSearch(this);
         updateNotificationChannels();
         setTheme(ThemeHelper.find(this));
         ThemeHelper.applyCustomColors(this);
@@ -1822,6 +1829,7 @@ public class XmppConnectionService extends Service {
                 ContextCompat.RECEIVER_EXPORTED);
         mForceDuringOnCreate.set(false);
         toggleForegroundService();
+        rescanStickers();
         internalPingExecutor.scheduleAtFixedRate(this::manageAccountConnectionStatesInternal,120,120,TimeUnit.SECONDS);
         //start export log service every day at given time
         ScheduleAutomaticExport();
@@ -6761,5 +6769,47 @@ public class XmppConnectionService extends Service {
         AVATAR,
         PUSH,
         PRESENCE
+    }
+
+
+    private File stickerDir() {
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
+    }
+
+    public void rescanStickers() {
+        long msToRescan = (mLastStickerRescan + 600000L) - SystemClock.elapsedRealtime();
+        if (msToRescan > 0) return;
+        Log.d(Config.LOGTAG, "rescanStickers");
+
+        mLastStickerRescan = SystemClock.elapsedRealtime();
+        mStickerScanExecutor.execute(() -> {
+            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+            try {
+                for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
+                    try {
+                        if (file.isFile() && file.canRead()) {
+                            DownloadableFile df = new DownloadableFile(file.getAbsolutePath());
+                            Drawable icon = fileBackend.getThumbnail(df, getResources(), (int) (getResources().getDisplayMetrics().density * 288), false);
+                            final String filename = Files.getNameWithoutExtension(df.getName());
+                            Cid[] cids = fileBackend.calculateCids(new FileInputStream(df));
+                            for (Cid cid : cids) {
+                                saveCid(cid, file);
+                            }
+                            if (file.length() < 129000) {
+                                emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
+                            }
+                        }
+                    } catch (final Exception e) {
+                        Log.w(Config.LOGTAG, "rescanStickers: " + e);
+                    }
+                }
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "rescanStickers: " + e);
+            }
+        });
+    }
+
+    public EmojiSearch emojiSearch() {
+        return emojiSearch;
     }
 }

@@ -49,6 +49,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
@@ -148,10 +149,12 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import de.monocles.chat.BobTransfer;
+import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.StickerAdapter;
@@ -318,7 +321,7 @@ public class ConversationFragment extends XmppFragment
     private String[] filesPaths;
     private String[] filesNames;
     File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "GIFs");
-
+    private EmojiSearch emojiSearch = null;
 
 
     protected OnClickListener clickToVerify = new OnClickListener() {
@@ -2000,50 +2003,27 @@ public class ConversationFragment extends XmppFragment
 
 
     public void LoadStickers() {
-            if (!hasStoragePermission(activity)) return;
-            // Load and show Stickers
-            if (!dirStickers.exists()) {
-                dirStickers.mkdir();
-            }
-            if (dirStickers.listFiles() != null) {
-                if (dirStickers.isDirectory() && dirStickers.listFiles() != null) {
-                    filesStickers = dirStickers.listFiles();
-                    filesPathsStickers = new String[filesStickers.length];
-                    filesNamesStickers = new String[filesStickers.length];
-                    for (int i = 0; i < filesStickers.length; i++) {
-                        filesPathsStickers[i] = filesStickers[i].getAbsolutePath();
-                        filesNamesStickers[i] = filesStickers[i].getName();
-                    }
-                }
-            }
-            de.monocles.chat.GridView StickersGrid = binding.stickersview; // init GridView
-            // Create an object of CustomAdapter and set Adapter to GirdView
-            StickersGrid.setAdapter(new StickerAdapter(activity, filesNamesStickers, filesPathsStickers));
-            // implement setOnItemClickListener event on GridView
-            StickersGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (activity == null) return;
-                    String filePath = filesPathsStickers[position];
-                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                    toggleInputMethod();
-                }
-            });
 
-            StickersGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (activity != null && filesPathsStickers[position] != null) {
-                        File file = new File(filesPathsStickers[position]);
-                        if (file.delete()) {
-                            Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
+                    final Pattern lastColonPattern = Pattern.compile("");
+                    Editable s = binding.textinput.getText();
+                    Handler emojiDebounce = new Handler(Looper.getMainLooper());
+                    emojiDebounce.removeCallbacksAndMessages(null);
+                    emojiDebounce.postDelayed(() -> {
+                        Matcher lastColonMatcher = lastColonPattern.matcher(s);
+                        int lastColon = 0;
+                        while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
+                        if (lastColon < 0) {
+                            binding.stickersview.setVisibility(GONE);
+                            return;
                         }
-                    }
-                    return true;
-                }
-            });
+                        final String q = s.toString().substring(lastColon);
+                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
+                        if (adapter != null) {
+                            adapter.search(q);
+                        }
+                    }, 400L);
+
+
     }
 
     public void LoadGifs() {
@@ -2091,6 +2071,32 @@ public class ConversationFragment extends XmppFragment
                     return true;
                 }
             });
+
+
+
+        final Pattern lastColonPattern = Pattern.compile("");
+        binding.stickersview.setOnItemClickListener((parent, view, position, id) -> {
+            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) binding.stickersview.getAdapter());
+            Editable toInsert = adapter.getItem(position).toInsert();
+            toInsert.append(" ");
+            Editable s = binding.textinput.getText();
+
+            Matcher lastColonMatcher = lastColonPattern.matcher(s);
+            int lastColon = 0;
+            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
+            if (lastColon >= 0) s.replace(lastColon, s.length(), toInsert, 0, toInsert.length());
+        });
+
+        setupEmojiSearch();
+    }
+
+    protected void setupEmojiSearch() {
+        if (emojiSearch == null && activity != null && activity.xmppConnectionService != null) {
+            emojiSearch = activity.xmppConnectionService.emojiSearch();
+        }
+        if (emojiSearch == null || binding.stickersview == null) return;
+
+        binding.stickersview.setAdapter(emojiSearch.makeAdapter(activity));
     }
 
     protected void newThreadTutorialToast(String s) {
