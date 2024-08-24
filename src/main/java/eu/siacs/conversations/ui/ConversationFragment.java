@@ -157,8 +157,8 @@ import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
-import de.monocles.chat.StickerAdapter;
 import de.monocles.chat.WebxdcPage;
+import de.monocles.chat.WebxdcStore;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
@@ -275,6 +275,7 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_START_VIDEO_CALL = 0x214;
     public static final int REQUEST_SAVE_STICKER = 0x215;
     public static final int REQUEST_SAVE_GIF = 0x216;
+    public static final int REQUEST_WEBXDC_STORE = 0x217;
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
@@ -1173,7 +1174,7 @@ public class ConversationFragment extends XmppFragment
         ConversationMenuConfigurator.configureQuickShareAttachmentMenu(conversation, menu, hideVoiceAndTakePicture);
         popup.setOnMenuItemClickListener(attachmentItem -> {
             int itemId = attachmentItem.getItemId();
-            if (itemId == R.id.attach_choose_picture || itemId == R.id.attach_choose_video || itemId == R.id.attach_take_picture || itemId == R.id.attach_record_video || itemId == R.id.attach_choose_file || itemId == R.id.attach_record_voice || itemId == R.id.attach_subject || itemId == R.id.attach_location) {
+            if (itemId == R.id.attach_choose_picture || itemId == R.id.attach_choose_video || itemId == R.id.attach_take_picture || itemId == R.id.attach_record_video || itemId == R.id.attach_choose_file || itemId == R.id.attach_record_voice || itemId == R.id.attach_subject || itemId == R.id.attach_webxdc || itemId == R.id.attach_location) {
                 handleAttachmentSelection(attachmentItem);
             }
             return false;
@@ -1575,7 +1576,10 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void handlePositiveActivityResult(int requestCode, final Intent data) {
-        if (requestCode == REQUEST_SAVE_STICKER) {
+        if (requestCode == REQUEST_WEBXDC_STORE) {
+            mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, data.getData(), Attachment.Type.FILE));
+            toggleInputMethod();
+        } else if (requestCode == REQUEST_SAVE_STICKER) {
             final DocumentFile df = DocumentFile.fromSingleUri(activity, data.getData());
             final File f = savingAsSticker;
             savingAsSticker = null;
@@ -2638,7 +2642,11 @@ public class ConversationFragment extends XmppFragment
         int itemId = item.getItemId();
         if (itemId == R.id.encryption_choice_axolotl || itemId == R.id.encryption_choice_otr || itemId == R.id.encryption_choice_pgp || itemId == R.id.encryption_choice_none) {
             handleEncryptionSelection(item);
-        } else if (itemId == R.id.attach_choose_picture || itemId == R.id.attach_choose_video || itemId == R.id.attach_take_picture || itemId == R.id.attach_record_video || itemId == R.id.attach_choose_file || itemId == R.id.attach_record_voice || itemId == R.id.attach_location || itemId == R.id.attach_subject) {
+        } else if (itemId == R.id.attach_choose_picture || itemId == R.id.attach_choose_video || itemId == R.id.attach_take_picture || itemId == R.id.attach_record_video || itemId == R.id.attach_choose_file || itemId == R.id.attach_record_voice || itemId == R.id.attach_location) {
+            handleAttachmentSelection(item);
+        } else if (itemId == R.id.attach_webxdc) {
+            handleAttachmentSelection(item);
+        } else if (itemId == R.id.attach_subject) {
             handleAttachmentSelection(item);
         } else if (itemId == R.id.action_search) {
             startSearch();
@@ -2879,6 +2887,10 @@ public class ConversationFragment extends XmppFragment
             attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
         } else if (itemId == R.id.attach_record_voice) {
             attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+        } else if (itemId == R.id.attach_webxdc) {
+            final Intent intent2 = new Intent(getActivity(), WebxdcStore.class);
+            startActivityForResult(intent2, REQUEST_WEBXDC_STORE);
+            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
         } else if (itemId == R.id.attach_location) {
             attachFile(ATTACHMENT_CHOICE_LOCATION);
         } else if (itemId == R.id.attach_subject) {

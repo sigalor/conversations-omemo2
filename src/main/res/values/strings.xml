@@ -1470,4 +1470,5 @@
     <string name="webxdc_store_hint_title">WebXDC usage</string>
     <string name="webxdc_store_hint_summary">To use WebXDC apps with status updates you need to disable encryption when sending the WebXDC. Please enable encryption afterwards again.</string>
     <string name="send_encrypted">Send encrypted</string>
+    <string name="choose_webxdc">Choose WebXDC</string>
 </resources>

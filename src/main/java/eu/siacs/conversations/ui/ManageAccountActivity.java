@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import de.monocles.chat.WebXDCStore;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Contact;
@@ -172,11 +171,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 switch (item.getItemId()) {
                     case R.id.chats -> {
                         startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
-                    case R.id.webxdc -> {
-                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }

@@ -53,7 +53,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import de.monocles.chat.WebXDCStore;
 import eu.siacs.conversations.utils.UIHelper;
 
 import androidx.annotation.MenuRes;

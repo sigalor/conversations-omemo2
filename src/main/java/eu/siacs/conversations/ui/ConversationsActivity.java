@@ -86,7 +86,6 @@ import androidx.databinding.DataBindingUtil;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
-import de.monocles.chat.WebXDCStore;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.Compatibility;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
@@ -1005,11 +1004,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
                 switch (item.getItemId()) {
                     case R.id.chats -> {
-                        return true;
-                    }
-                    case R.id.webxdc -> {
-                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                         return true;
                     }
                     case R.id.manageaccounts -> {
