@@ -1007,11 +1007,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     case R.id.chats -> {
                         return true;
                     }
-                    case R.id.contactslist -> {
-                        startActivity(new Intent(getApplicationContext(), StartConversationActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
                     case R.id.webxdc -> {
                         startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
                         overridePendingTransition(R.animator.fade_in, R.animator.fade_out);

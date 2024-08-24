@@ -20,6 +20,19 @@
       "filters": [
         {
           "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 17404,
+      "versionName": "1.7.11",
+      "outputFile": "monocles chat-1.7.11-git-arm64-v8a-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
           "value": "x86"
         }
       ],
@@ -27,19 +40,6 @@
       "versionCode": 17402,
       "versionName": "1.7.11",
       "outputFile": "monocles chat-1.7.11-git-x86-release.apk"
-    },
-    {
-      "type": "ONE_OF_MANY",
-      "filters": [
-        {
-          "filterType": "ABI",
-          "value": "x86_64"
-        }
-      ],
-      "attributes": [],
-      "versionCode": 17403,
-      "versionName": "1.7.11",
-      "outputFile": "monocles chat-1.7.11-git-x86_64-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -59,13 +59,13 @@
       "filters": [
         {
           "filterType": "ABI",
-          "value": "arm64-v8a"
+          "value": "x86_64"
         }
       ],
       "attributes": [],
-      "versionCode": 17404,
+      "versionCode": 17403,
       "versionName": "1.7.11",
-      "outputFile": "monocles chat-1.7.11-git-arm64-v8a-release.apk"
+      "outputFile": "monocles chat-1.7.11-git-x86_64-release.apk"
     }
   ],
   "elementType": "File",
@@ -75,10 +75,10 @@
       "maxApi": 30,
       "baselineProfiles": [
         "baselineProfiles/1/monocles chat-1.7.11-git-universal-release.dm",
+        "baselineProfiles/1/monocles chat-1.7.11-git-arm64-v8a-release.dm",
         "baselineProfiles/1/monocles chat-1.7.11-git-x86-release.dm",
-        "baselineProfiles/1/monocles chat-1.7.11-git-x86_64-release.dm",
         "baselineProfiles/1/monocles chat-1.7.11-git-armeabi-v7a-release.dm",
-        "baselineProfiles/1/monocles chat-1.7.11-git-arm64-v8a-release.dm"
+        "baselineProfiles/1/monocles chat-1.7.11-git-x86_64-release.dm"
       ]
     },
     {
@@ -86,10 +86,10 @@
       "maxApi": 2147483647,
       "baselineProfiles": [
         "baselineProfiles/0/monocles chat-1.7.11-git-universal-release.dm",
+        "baselineProfiles/0/monocles chat-1.7.11-git-arm64-v8a-release.dm",
         "baselineProfiles/0/monocles chat-1.7.11-git-x86-release.dm",
-        "baselineProfiles/0/monocles chat-1.7.11-git-x86_64-release.dm",
         "baselineProfiles/0/monocles chat-1.7.11-git-armeabi-v7a-release.dm",
-        "baselineProfiles/0/monocles chat-1.7.11-git-arm64-v8a-release.dm"
+        "baselineProfiles/0/monocles chat-1.7.11-git-x86_64-release.dm"
       ]
     }
   ],

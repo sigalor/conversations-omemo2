@@ -2,10 +2,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <com.leinardi.android.speeddial.SpeedDialOverlayLayout
             android:id="@+id/overlay"
@@ -18,26 +17,25 @@
             layout="@layout/toolbar" />
 
         <com.google.android.material.tabs.TabLayout
-            android:visibility="visible"
+            android:visibility="gone"
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="34dp"
-            android:layout_marginTop="?attr/actionBarSize"
-            android:background="?attr/color_background_secondary"
-            android:elevation="2dp"
-            android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbar"
+            android:background="?attr/colorPrimary"
+            android:elevation="@dimen/toolbar_elevation"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
             app:tabGravity="fill"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="?attr/text_Color_Main"
-            app:tabTextColor="?attr/button_text_color_disabled" />
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/white70" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/start_conversation_view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignTop="@id/toolbar"
-            android:layout_marginTop="98dp"
-            android:layout_marginBottom="70dp"
+            android:layout_below="@id/tab_layout"
             android:background="?attr/color_background_secondary" />
 
         <com.leinardi.android.speeddial.SpeedDialView
@@ -52,21 +50,8 @@
             app:sdMainFabClosedSrc="@drawable/ic_add_white_24dp"
             app:sdMainFabOpenedBackgroundColor="?attr/colorAccent"
             app:sdOverlayLayout="@id/overlay"
-            android:layout_gravity="end|bottom"
             app:sdUseReverseAnimationOnClose="true"
-            android:layout_marginBottom="70dp"
             app:tint="@color/realwhite" />
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_gravity="end|bottom"
-            android:layout_below="@+id/start_conversation_view_pager"
-            android:background="?attr/color_background_secondary"
-            app:labelVisibilityMode="labeled"
-            app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
-            app:menu="@menu/bottom_navigation_menu_contacts"
-            android:animateLayoutChanges="true" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </RelativeLayout>
 </layout>

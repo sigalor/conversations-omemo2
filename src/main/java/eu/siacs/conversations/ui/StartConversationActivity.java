@@ -74,7 +74,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
@@ -317,7 +316,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             return;
         }
         configureActionBar(actionBar);
-        actionBar.setDisplayHomeAsUpEnabled(false);
 
         inflateFab(binding.speedDial, R.menu.start_conversation_fab_submenu);
         binding.tabLayout.setupWithViewPager(binding.startConversationViewPager);
@@ -447,54 +445,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         mConferenceAdapter.refreshSettings();
         mContactsAdapter.refreshSettings();
-
-
-        // Initialize and assign variable
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.contactslist);
-
-        // Perform item selected listener
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                switch (item.getItemId()) {
-                    case R.id.chats -> {
-                        startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
-                    case R.id.contactslist -> {
-                        return true;
-                    }
-                    case R.id.webxdc -> {
-                        startActivity(new Intent(getApplicationContext(), WebXDCStore.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
-                    case R.id.manageaccounts -> {
-                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
-                        /* TODO:
-                    case R.id.calls:
-                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                         */
-                    default ->
-                            throw new IllegalStateException("Unexpected value: " + item.getItemId());
-                }
-            }
-        });
-        bottomNavigationView.setVisibility(VISIBLE);
     }
 
     @Override

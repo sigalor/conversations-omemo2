@@ -5,10 +5,6 @@
         android:icon="?attr/icon_chat_unselected"
         android:title="@string/chats"/>
     <item
-        android:id="@+id/contactslist"
-        android:icon="?attr/icon_group_unselected"
-        android:title="@string/contacts"/>
-    <item
         android:id="@+id/webxdc"
         android:icon="?attr/icon_webxdcs_selected"
         android:title="@string/webxdcs"/>
