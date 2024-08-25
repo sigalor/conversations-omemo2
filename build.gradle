@@ -53,7 +53,7 @@ dependencies {
     implementation "androidx.core:core:1.13.1"
     implementation 'androidx.viewpager:viewpager:1.0.0'
 
-    playstoreImplementation('com.google.firebase:firebase-messaging:24.0.0') {
+    playstoreImplementation('com.google.firebase:firebase-messaging:24.0.1') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
