@@ -6,11 +6,16 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
+import android.provider.DocumentsContract;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -25,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONArray;
@@ -36,8 +42,15 @@ import okhttp3.Response;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.crypto.axolotl.SQLiteAxolotlStore;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
+import eu.siacs.conversations.persistance.FileBackend;
+import eu.siacs.conversations.utils.Compatibility;
+import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.utils.MimeUtils;
 
 public class DownloadDefaultStickers extends Service {
@@ -48,7 +61,7 @@ public class DownloadDefaultStickers extends Service {
     private NotificationManager notificationManager;
     private File mStickerDir;
     private OkHttpClient http = null;
-    private HashSet<Uri> pendingPacks = new HashSet<Uri>();
+    private final HashSet<Uri> pendingPacks = new HashSet<Uri>();
     public final XmppConnectionService xmppConnectionService = new XmppConnectionService();
 
 
@@ -90,8 +103,8 @@ public class DownloadDefaultStickers extends Service {
         Response r = http.newCall(new Request.Builder().url(sticker.getString("url")).build()).execute();
         File file = null;
         try {
-            file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
-            file.getParentFile().mkdirs();
+            file = new File(mStickerDir.getAbsolutePath() + "/" + sticker.getString("pack") + "/" + sticker.getString("name") + "." + MimeUtils.guessExtensionFromMimeType(r.headers().get("content-type")));
+            Objects.requireNonNull(file.getParentFile()).mkdirs();
             OutputStream os = new FileOutputStream(file);
             if (r.body() != null) {
                 ByteStreams.copy(r.body().byteStream(), os);
@@ -107,7 +120,6 @@ public class DownloadDefaultStickers extends Service {
             Cid cid = Cid.decode(cids.getString(i));
             mDatabaseBackend.saveCid(cid, file, sticker.getString("url"));
         }
-
 
         if (file != null) {
             MediaScannerConnection.scanFile(
@@ -175,7 +187,15 @@ public class DownloadDefaultStickers extends Service {
     }
 
     private File stickerDir() {
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + "Stickers");
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final String dir = p.getString("sticker_directory", "Stickers");
+        if (dir.startsWith("content://")) {
+            Uri uri = Uri.parse(dir);
+            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+            return new File(FileUtils.getPath(getBaseContext(), uri));
+        } else {
+            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + APP_DIRECTORY + File.separator + dir);
+        }
     }
 
     @Override
