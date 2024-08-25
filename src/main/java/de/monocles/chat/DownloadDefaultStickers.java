@@ -112,7 +112,7 @@ public class DownloadDefaultStickers extends Service {
             os.close();
         } catch (final Exception e) {
             file = null;
-            e.printStackTrace();
+            Log.d(de.monocles.chat.Config.LOGTAG, Objects.requireNonNull(e.getMessage()));
         }
 
         JSONArray cids = sticker.getJSONArray("cids");
