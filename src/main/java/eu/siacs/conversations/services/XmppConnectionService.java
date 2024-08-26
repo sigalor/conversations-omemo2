@@ -5359,8 +5359,8 @@ public class XmppConnectionService extends Service {
                     message.setSubject(subject);
                     message.setThread(thread);
                     if (attachments != null && attachments.isEmpty()) {
-                        message.setFileParams(null);
                         message.setRelativeFilePath(null);
+                        message.resetFileParams();
                     }
                     markMessage(message, status, null, true);
                 } else {

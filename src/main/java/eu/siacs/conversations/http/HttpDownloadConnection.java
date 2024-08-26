@@ -339,7 +339,7 @@ public class HttpDownloadConnection implements Transferable {
             FileBackend.updateFileParams(message, fileParams.url, size);
             mXmppConnectionService.databaseBackend.updateMessage(message, true);
             file.setExpectedSize(size);
-            message.resetFileParams();
+            message.setFileParams(null);
             if (mHttpConnectionManager.hasStoragePermission()
                     && size <= mHttpConnectionManager.getAutoAcceptFileSize()
                     && mXmppConnectionService.isDataSaverDisabled()) {
