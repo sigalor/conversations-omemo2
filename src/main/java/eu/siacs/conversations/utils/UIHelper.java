@@ -383,7 +383,7 @@ public class UIHelper {
                 SpannableStringBuilder styledBody = message.getSpannableBody(null, fallbackImg);  //TODO: ADD message.getSpannableBody(null, fallbackImg); somehow (commit: Actually display images we already have inline in XHTML-IM)
                 final var processMarkup = styledBody.getSpans(0, body.length(), Message.PlainTextSpan.class).length > 0;
                 if (textColor != 0 && processMarkup) {
-                    StylingHelper.format(styledBody, 0, styledBody.length() - 1, textColor, true);
+                    StylingHelper.format(styledBody, 0, styledBody.length() - 1, textColor, false);
                 }
                 MyLinkify.addLinks(styledBody, message.getConversation().getAccount(), message.getConversation().getJid());
 

@@ -76,28 +76,27 @@ public class StylingHelper {
         }
     }
 
-    public static void format(final Editable editable, int start, int end, @ColorInt int textColor, boolean hideStylingKeywords) {
+    public static void format(final Editable editable, int start, int end, @ColorInt int textColor, final boolean composing) {
         for (ImStyleParser.Style style : ImStyleParser.parse(editable, start, end)) {
             final int keywordLength = style.getKeyword().length();
-            final float size = 0f;
-            editable.setSpan(createSpanForStyle(style), style.getStart() + keywordLength, style.getEnd() - keywordLength + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            if (hideStylingKeywords) {
-                editable.setSpan(new RelativeSizeSpan(size), style.getStart(), style.getStart() + keywordLength, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                editable.setSpan(new RelativeSizeSpan(size), style.getEnd() - keywordLength + 1, style.getEnd() + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            makeKeywordOpaque(editable, style.getStart(), style.getStart() + keywordLength, textColor);
-            makeKeywordOpaque(editable, style.getEnd() - keywordLength + 1, style.getEnd() + 1, textColor);
+            editable.setSpan(createSpanForStyle(style), style.getStart() + keywordLength, style.getEnd() - keywordLength + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (composing ? 1 << Spanned.SPAN_USER_SHIFT : 0));
+            makeKeywordOpaque(editable, style.getStart(), style.getStart() + keywordLength, textColor, composing);
+            makeKeywordOpaque(editable, style.getEnd() - keywordLength + 1, style.getEnd() + 1, textColor, composing);
         }
     }
 
-    public static void format(final Editable editable, @ColorInt int textColor, boolean hideStylingKeywords) {
+    public static void format(final Editable editable, @ColorInt int textColor) {
+        format(editable, textColor, false);
+    }
+
+    public static void format(final Editable editable, @ColorInt int textColor, final boolean composing) {
         int end = 0;
         Message.MergeSeparator[] spans = editable.getSpans(0, editable.length() - 1, Message.MergeSeparator.class);
         for (Message.MergeSeparator span : spans) {
-            format(editable, end, editable.getSpanStart(span), textColor, hideStylingKeywords);
+            format(editable, end, editable.getSpanStart(span), textColor, composing);
             end = editable.getSpanEnd(span);
         }
-        format(editable, end, editable.length() - 1, textColor, hideStylingKeywords);
+        format(editable, end, editable.length() - 1, textColor, composing);
     }
 
     public static void highlight(final Context context, final Editable editable, List<String> needles, boolean dark) {
@@ -202,11 +201,11 @@ public class StylingHelper {
         }
     }
 
-    private static void makeKeywordOpaque(final Editable editable, int start, int end, @ColorInt int fallbackTextColor) {
+    private static void makeKeywordOpaque(final Editable editable, int start, int end, @ColorInt int fallbackTextColor, final boolean composing) {
         QuoteSpan[] quoteSpans = editable.getSpans(start, end, QuoteSpan.class);
         @ColorInt int textColor = quoteSpans.length > 0 ? quoteSpans[0].getColor() : fallbackTextColor;
         @ColorInt int keywordColor = transformColor(textColor);
-        editable.setSpan(new ForegroundColorSpan(keywordColor), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        editable.setSpan(new ForegroundColorSpan(keywordColor), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (composing ? 1 << Spanned.SPAN_USER_SHIFT : 0));
     }
 
     private static
@@ -255,7 +254,7 @@ public class StylingHelper {
         @Override
         public void afterTextChanged(Editable editable) {
             clear(editable);
-            format(editable, mEditText.getCurrentTextColor(), false);
+            format(editable, mEditText.getCurrentTextColor(), true);
         }
     }
 }
