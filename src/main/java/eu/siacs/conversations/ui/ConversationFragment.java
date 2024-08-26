@@ -1959,6 +1959,10 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnInlineImageLongClicked(this);
         messageListAdapter.setConversationFragment(this);
         binding.messagesView.setAdapter(messageListAdapter);
+
+        binding.textinput.addTextChangedListener(
+                new StylingHelper.MessageEditorStyler(binding.textinput, messageListAdapter));
+
         registerForContextMenu(binding.messagesView);
         registerForContextMenu(binding.textSendButton);
 
@@ -2252,7 +2256,7 @@ public class ConversationFragment extends XmppFragment
             Glide.with(activity).clear(binding.imageReplyPreview);
             binding.imageReplyPreview.setVisibility(GONE);
         }
-        messageListAdapter.handleTextQuotes(body, activity.isDarkTheme());
+        messageListAdapter.handleTextQuotes(binding.contextPreviewText, body, activity.isDarkTheme());
         binding.contextPreviewText.setText(body);
         binding.contextPreview.setVisibility(View.VISIBLE);
     }
