@@ -182,10 +182,7 @@ public class Contact implements ListItem, Blockable {
             return this.serverName;
         }
 
-        ListItem bookmark = account.getBookmark(jid);
-        if (bookmark != null) {
-            return bookmark.getDisplayName();
-        } else if (!TextUtils.isEmpty(this.presenceName)) {
+        if (!TextUtils.isEmpty(this.presenceName)) {
             return this.presenceName + (mutualPresenceSubscription() ? "" : " (" + jid + ")");
         } else if (jid.getLocal() != null) {
             return JidHelper.localPartOrFallback(jid);

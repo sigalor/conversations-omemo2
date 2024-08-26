@@ -456,13 +456,13 @@ public class XmppConnectionService extends Service {
             mQuickConversationsService.considerSyncBackground(false);
             fetchRosterFromServer(account);
             final XmppConnection connection = account.getXmppConnection();
-            if (connection.getFeatures().bookmarks2()) {
+            if (connection != null && connection.getFeatures().bookmarks2()) {
                 fetchBookmarks2(account);
             } else if (!account.getXmppConnection().getFeatures().bookmarksConversion()) {
                 fetchBookmarks(account);
             }
 
-            if (connection.getFeatures().mds()) {
+            if (connection != null && connection.getFeatures().mds()) {
                 fetchMessageDisplayedSynchronization(account);
             } else {
                 Log.d(Config.LOGTAG,account.getJid()+": server has no support for mds");

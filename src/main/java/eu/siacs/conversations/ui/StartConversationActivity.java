@@ -120,7 +120,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     private final PendingItem<Intent> pendingViewIntent = new PendingItem<>();
     private final PendingItem<String> mInitialSearchValue = new PendingItem<>();
     private final AtomicBoolean oneShotKeyboardSuppress = new AtomicBoolean();
-    public ListItem contextItem;
+    public int conference_context_id;
+    public int contact_context_id;
     private ListPagerAdapter mListPagerAdapter;
     private final List<ListItem> contacts = new ArrayList<>();
     private ListItemAdapter mContactsAdapter;
@@ -234,7 +235,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             int pos = binding.startConversationViewPager.getCurrentItem();
             if (pos == 0) {
                 if (contacts.size() == 1) {
-                    openConversation(contacts.get(0));
+                    openConversationForContact((Contact) contacts.get(0));
                     return true;
                 } else if (contacts.size() == 0 && conferences.size() == 1) {
                     openConversationsForBookmark((Bookmark) conferences.get(0));
@@ -245,7 +246,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                     openConversationsForBookmark((Bookmark) conferences.get(0));
                     return true;
                 } else if (conferences.size() == 0 && contacts.size() == 1) {
-                    openConversation(contacts.get(0));
+                    openConversationForContact((Contact) contacts.get(0));
                     return true;
                 }
             }
@@ -458,15 +459,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     }
 
     protected void openConversationForContact(int position) {
-        openConversation(contacts.get(position));
-    }
-
-    protected void openConversation(ListItem item) {
-        if (item instanceof Contact) {
-            openConversationForContact((Contact) item);
-        } else {
-            openConversationsForBookmark((Bookmark) item);
-        }
+        Contact contact = (Contact) contacts.get(position);
+        openConversationForContact(contact);
     }
 
     protected void openConversationForContact(Contact contact) {
@@ -481,7 +475,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     }
 
     protected void shareBookmarkUri() {
-        shareAsChannel(this, contextItem.getJid().asBareJid().toEscapedString());
+        shareBookmarkUri(conference_context_id);
     }
 
     protected void shareBookmarkUri(int position) {
@@ -518,19 +512,24 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     }
 
     protected void openDetailsForContact() {
-        switchToContactDetails((Contact) contextItem);
+        int position = contact_context_id;
+        Contact contact = (Contact) contacts.get(position);
+        switchToContactDetails(contact);
     }
 
     protected void showQrForContact() {
-        showQrCode("xmpp:" + contextItem.getJid().asBareJid().toEscapedString());
+        int position = contact_context_id;
+        Contact contact = (Contact) contacts.get(position);
+        showQrCode("xmpp:" + contact.getJid().asBareJid().toEscapedString());
     }
 
     protected void toggleContactBlock() {
-        BlockContactDialog.show(this, (Contact) contextItem);
+        final int position = contact_context_id;
+        BlockContactDialog.show(this, (Contact) contacts.get(position));
     }
-
     protected void deleteContact() {
-        final Contact contact = (Contact) contextItem;
+        final int position = contact_context_id;
+        final Contact contact = (Contact) contacts.get(position);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setTitle(R.string.action_delete_contact);
@@ -543,8 +542,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     }
 
     protected void deleteConference() {
-        final Bookmark bookmark = (Bookmark) contextItem;
-
+        int position = conference_context_id;
+        final Bookmark bookmark = (Bookmark) conferences.get(position);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setTitle(R.string.delete_bookmark);
@@ -1159,7 +1158,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         this.contacts.clear();
         ArrayList<ListItem.Tag> tags = new ArrayList<>();
         final List<Account> accounts = xmppConnectionService.getAccounts();
-        boolean foundSupport = false;
         boolean foundWhatsapp = false;
         boolean foundSignal = false;
         boolean foundTelegram = false;
@@ -1173,7 +1171,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                             || (needle != null && !needle.trim().isEmpty())
                             || s.compareTo(Presence.Status.OFFLINE) < 0)) {
                         this.contacts.add(contact);
-                        tags.addAll(contact.getTags(this));
+                        if (binding.startConversationViewPager.getCurrentItem() == 0) {
+                            tags.addAll(contact.getTags(this));
+                        }
                     }
                 }
 
@@ -1181,16 +1181,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 self.setSystemName(getString(R.string.note_to_self));
                 if (self.match(this, needle)) {
                     this.contacts.add(self);
-                }
-
-                for (Bookmark bookmark : account.getBookmarks()) {
-                    if (bookmark.match(this, needle)) {
-                        if (bookmark.getJid().toString().equals("support@conference.monocles.eu")) {
-                            foundSupport = true;
-                        }
-                        this.contacts.add(bookmark);
-                        tags.addAll(bookmark.getTags(this));
-                    }
                 }
 
                 /* //TODO: Add bridges as default contacts?
@@ -1221,31 +1211,19 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
                 */
             }
         }
-
-        Comparator<Map.Entry<ListItem.Tag,Integer>> sortTagsBy = Map.Entry.comparingByValue(Comparator.reverseOrder());
-        sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
-
-        mTagsAdapter.setTags(
-                tags.stream()
-                        .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
-                        .entrySet().stream()
-                        .sorted(sortTagsBy)
-                        .map(e -> e.getKey()).collect(Collectors.toList())
-        );
-        Collections.sort(this.contacts);
-
-        //MONOCLES SUPPORT ROOM
-        final boolean supportDeleted = getPreferences().getBoolean("monocles_support_bookmark_deleted", false);
-
-        if (!supportDeleted && !foundSupport && (needle == null || needle.equals("")) && xmppConnectionService.getAccounts().size() > 0) {
-            Bookmark bookmark = new Bookmark(
-                    xmppConnectionService.getAccounts().get(0),
-                    Jid.of("support@conference.monocles.eu")
+        if (binding.startConversationViewPager.getCurrentItem() == 0) {
+            Comparator<Map.Entry<ListItem.Tag, Integer>> sortTagsBy = Map.Entry.comparingByValue(Comparator.reverseOrder());
+            sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
+            mTagsAdapter.setTags(
+                    tags.stream()
+                            .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
+                            .entrySet().stream()
+                            .sorted(sortTagsBy)
+                            .map(e -> e.getKey()).collect(Collectors.toList())
             );
-            bookmark.setBookmarkName("monocles support room");
-            bookmark.addChild("group").setContent("support");
-            this.contacts.add(0, bookmark);
         }
+
+            Collections.sort(this.contacts);
 /*                              //TODO: Make bridges deletable
         //Whatsapp bridge
         final boolean whatsappDeleted = getPreferences().getBoolean("whatsapp_bridge_bookmark_deleted", false);
@@ -1305,16 +1283,50 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
     protected void filterConferences(String needle) {
         this.conferences.clear();
+        boolean foundSupport = false;
+        ArrayList<ListItem.Tag> tags = new ArrayList<>();
         for (final Account account : xmppConnectionService.getAccounts()) {
             if (account.isEnabled()) {
-                for (final Bookmark bookmark : account.getBookmarks()) {
+                for (Bookmark bookmark : account.getBookmarks()) {
                     if (bookmark.match(this, needle)) {
+                        if (bookmark.getJid().toString().equals("support@conference.monocles.eu")) {
+                            foundSupport = true;
+                        }
                         this.conferences.add(bookmark);
+                        if (binding.startConversationViewPager.getCurrentItem() == 1) {
+                            tags.addAll(bookmark.getTags(this));
+                        }
                     }
                 }
             }
         }
         Collections.sort(this.conferences);
+
+        if (binding.startConversationViewPager.getCurrentItem() == 1) {
+            // Tag navigation UI
+            Comparator<Map.Entry<ListItem.Tag, Integer>> sortTagsBy = Map.Entry.comparingByValue(Comparator.reverseOrder());
+            sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
+            mTagsAdapter.setTags(
+                    tags.stream()
+                            .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
+                            .entrySet().stream()
+                            .sorted(sortTagsBy)
+                            .map(e -> e.getKey()).collect(Collectors.toList())
+            );
+        }
+
+        //MONOCLES SUPPORT ROOM
+        final boolean supportDeleted = getPreferences().getBoolean("monocles_support_bookmark_deleted", false);
+        if (!supportDeleted && !foundSupport && (needle == null || needle.equals("")) && xmppConnectionService.getAccounts().size() > 0) {
+            Bookmark bookmark = new Bookmark(
+                    xmppConnectionService.getAccounts().get(0),
+                    Jid.of("support@conference.monocles.eu")
+            );
+            bookmark.setBookmarkName("monocles support room");
+            bookmark.addChild("group").setContent("support");
+            this.conferences.add(0, bookmark);
+        }
+
         mConferenceAdapter.notifyDataSetChanged();
     }
 
@@ -1517,22 +1529,17 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             if (activity == null) {
                 return;
             }
+            activity.getMenuInflater().inflate(mResContextMenu, menu);
             final AdapterView.AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) menuInfo;
-            activity.contextItem = null;
-            if (mResContextMenu == R.menu.contact_context) {
-                activity.contextItem = activity.contacts.get(acmi.position);
-            } else if (mResContextMenu == R.menu.conference_context) {
-                activity.contextItem = activity.conferences.get(acmi.position);
-            }
-            if (activity.contextItem instanceof Bookmark) {
-                activity.getMenuInflater().inflate(R.menu.conference_context, menu);
-                final Bookmark bookmark = (Bookmark) activity.contextItem;
+            if (mResContextMenu == R.menu.conference_context) {
+                activity.conference_context_id = acmi.position;
+                final Bookmark bookmark = (Bookmark) activity.conferences.get(acmi.position);
                 final Conversation conversation = bookmark.getConversation();
                 final MenuItem share = menu.findItem(R.id.context_share_uri);
                 share.setVisible(conversation == null || !conversation.isPrivateAndNonAnonymous());
-            } else if (activity.contextItem instanceof Contact) {
-                activity.getMenuInflater().inflate(R.menu.contact_context, menu);
-                final Contact contact = (Contact) activity.contextItem;
+            } else if (mResContextMenu == R.menu.contact_context) {
+                activity.contact_context_id = acmi.position;
+                final Contact contact = (Contact) activity.contacts.get(acmi.position);
                 final MenuItem blockUnblockItem = menu.findItem(R.id.context_contact_block_unblock);
                 final MenuItem showContactDetailsItem = menu.findItem(R.id.context_contact_details);
                 final MenuItem deleteContactMenuItem = menu.findItem(R.id.context_delete_contact);
@@ -1634,7 +1641,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getResources().getString(R.string.unified);
+                    return getResources().getString(R.string.contacts);
                 case 1:
                     return getResources().getString(R.string.bookmarks);
                 default:
