@@ -1447,9 +1447,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.transfer = view.findViewById(R.id.transfer);
                     viewHolder.progressBar = view.findViewById(R.id.progressBar);
                     viewHolder.cancel_transfer = view.findViewById(R.id.cancel_transfer);
-                    if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-                        viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
-                    }
+                    viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
                     break;
                 case RECEIVED:
                     view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
@@ -1753,11 +1751,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
                 displayAudioMessage(viewHolder, message, darkBackground, type);
             } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty()) {
-                if (message.getThread() == null) {
-                    Element thread = new Element("thread", "jabber:client");
-                    thread.setContent(UUID.randomUUID().toString());
-                    message.setThread(thread);
-                }
                 displayWebxdcMessage(viewHolder, message, darkBackground, type);
             } else {
                 displayOpenableMessage(viewHolder, message, darkBackground, type);
