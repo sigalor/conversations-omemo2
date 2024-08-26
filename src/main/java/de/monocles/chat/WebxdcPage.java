@@ -350,6 +350,7 @@ public class WebxdcPage implements ConversationPage {
     }
 
     public void refresh() {
+        if (binding == null) return;
         if (activity != null) {
             activity.get().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
@@ -357,6 +358,7 @@ public class WebxdcPage implements ConversationPage {
     }
 
     public void realtimeData(String base64) {
+        if (binding == null) return;
         binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcRealtimeData('" + base64.replace("'", "").replace("\\", "").replace("+", "%2B") + "');"));
     }
 
