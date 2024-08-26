@@ -705,10 +705,11 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public String getBody(final boolean removeQuoteFallbacks) {
         if (body == null) return "";
 
-        Pair<StringBuilder, Boolean> result =
-                removeQuoteFallbacks
-                        ? bodyMinusFallbacks("http://jabber.org/protocol/address", Namespace.OOB, "urn:xmpp:reply:0")
-                        : bodyMinusFallbacks("http://jabber.org/protocol/address", Namespace.OOB);
+        List<String> fallbacksToRemove = new ArrayList<>();
+        fallbacksToRemove.add("http://jabber.org/protocol/address");
+        if (getOob() != null || isGeoUri()) fallbacksToRemove.add(Namespace.OOB);
+        if (removeQuoteFallbacks) fallbacksToRemove.add("urn:xmpp:reply:0");
+        Pair<StringBuilder, Boolean> result = bodyMinusFallbacks(fallbacksToRemove.toArray(new String[0]));
         StringBuilder body = result.first;
 
         final String aesgcm = MessageUtils.aesgcmDownloadable(body.toString());
