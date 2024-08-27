@@ -757,13 +757,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     int end = body.getSpanEnd(mergeSeparator);
                     body.setSpan(new DividerSpan(true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
+                final boolean startsWithQuote = handleTextQuotes(viewHolder.messageBody, body, darkBackground, true);
                 for (final android.text.style.QuoteSpan quote : body.getSpans(0, body.length(), android.text.style.QuoteSpan.class)) {
                     int start = body.getSpanStart(quote);
                     int end = body.getSpanEnd(quote);
                     body.removeSpan(quote);
                     applyQuoteSpan(viewHolder.messageBody, body, start, end, darkBackground, true);
                 }
-                final boolean startsWithQuote = handleTextQuotes(viewHolder.messageBody, body, darkBackground, true);
                 if (!message.isPrivateMessage()) {
                     if (hasMeCommand) {
                         body.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, nick.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
