@@ -1,6 +1,7 @@
 package eu.siacs.conversations.xmpp.jingle;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.util.Log;
@@ -62,6 +63,7 @@ public class WebRTCWrapper {
             Executors.newSingleThreadExecutor();
 
     private static final int TONE_DURATION = 500;
+    private static final int DEFAULT_TONE_VOLUME = 60;
     private static final Map<String,Integer> TONE_CODES;
     static {
         ImmutableMap.Builder<String,Integer> builder = new ImmutableMap.Builder<>();
@@ -708,12 +710,22 @@ public class WebRTCWrapper {
     }
 
     public boolean applyDtmfTone(String tone) {
-        //if (toneManager == null || peerConnection == null || localAudioTrack == null) {
+        if (localAudioTrack == null || localAudioTrack.rtpSender == null) return false;
+
+        try {
+            localAudioTrack.rtpSender.dtmf().insertDtmf(tone, TONE_DURATION, 100);
+        } catch (final IllegalStateException e) {
+            // Race condition, DtmfSender has been disposed
             return false;
-        //}
-        //localAudioTrack.rtpSender.dtmf().insertDtmf(tone, TONE_DURATION, 100);
-        //toneManager.startTone(TONE_CODES.get(tone), TONE_DURATION);
-        //return true;
+        }
+        final var handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.post(() -> {
+            final var toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, DEFAULT_TONE_VOLUME);
+            toneGenerator.startTone(TONE_CODES.get(tone), TONE_DURATION);
+            handler.postDelayed(() -> toneGenerator.release(), TONE_DURATION+2);
+        });
+
+        return true;
     }
 
     @Nonnull

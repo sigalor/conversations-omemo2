@@ -280,7 +280,12 @@ public class RtpSessionActivity extends XmppActivity
             retractSessionProposal();
             finish();
         } else {
-            requireRtpConnection().endCall();
+            try {
+                requireRtpConnection().endCall();
+            } catch (final IllegalStateException e) {
+                // No call, already done
+                finish();
+            }
         }
     }
 
