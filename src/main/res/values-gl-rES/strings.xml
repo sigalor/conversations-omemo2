@@ -546,7 +546,7 @@
     <string name="no_application_to_share_uri">Non se atopou un aplicativo para compartir URI</string>
     <string name="share_uri_with">Compartir URI con…</string>
     <string name="mgmt_account_reconnect">Volverse a conectar</string>
-    <string name="welcome_text">...é un cliente seguro para chat e que respecta a túa privacidade.</string>
+    <string name="welcome_text">...é un cliente seguro para charlas que respecta a túa privacidade.</string>
     <string name="your_full_jid_will_be">O seu ID Jabber será: %s</string>
     <string name="create_account">Crear nova conta</string>
     <string name="welcome_existing_account">Teño unha conta</string>
@@ -586,8 +586,8 @@
     <string name="unable_to_connect_to_keychain">Non se puido conectar con OpenKeychain</string>
     <string name="this_device_is_no_longer_in_use">Este dispositivo xa non está en uso</string>
     <string name="please_wait">Agarda, por favor…</string>
-    <string name="pref_export_plain_text_logs_summary">Habilitar unha exportación dos rexistros de chat como arquivos de texto lexible para as persoas</string>
-    <string name="pref_export_plain_text_logs">Exportación de rexistros de chat lexible por humanos</string>
+    <string name="pref_export_plain_text_logs_summary">Habilitar unha exportación dos rexistros da charla como arquivos de texto lexible para as persoas</string>
+    <string name="pref_export_plain_text_logs">Exportación de rexistros da charla lexible por humanos</string>
     <string name="payment_required">Pagamento requerido</string>
     <string name="missing_internet_permission">Sen permiso de internet</string>
     <string name="me">Eu</string>
@@ -729,7 +729,7 @@
     <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s +%2$d máis leron ate este punto</string>
     <string name="conversation_unencrypted_hint">Esta conversa non está cifrada, por razóns de seguridade debes activar a cifraxe das mensaxes premendo na icona do cadeado. A cifraxe recomendada é OMEMO.</string>
     <string name="pref_warn_unencrypted_chat">Avisar se a conversa non está cifrada</string>
-    <string name="pref_warn_unencrypted_chat_summary">Se a cifraxe de mensaxes está dispoñible, deberías usala. Se non utilizas a cifraxe das mensaxes, vese unha mensaxe de advertencia dentro do chat.</string>
+    <string name="pref_warn_unencrypted_chat_summary">Se a cifraxe de mensaxes está dispoñible, deberías usala. Se non utilizas a cifraxe das mensaxes, vese unha mensaxe de advertencia dentro da charla.</string>
     <string name="pref_use_bundled_emoji">Usar emojis integrados</string>
     <string name="pref_use_bundled_emoji_summary">Utiliza a biblioteca de emojis integrados en lugar de utilizar os dos teus dispositivos. Os cambios estarán dispoñibles despois de reabrir a aplicación.</string>
     <string name="invalid_muc_nick">Alcume non válido</string>
@@ -756,14 +756,14 @@
     <string name="qr_code_scanner_needs_access_to_camera">O escáner de códigos QR necesita acceso á cámara</string>
     <string name="pref_scroll_to_bottom_summary">Desprazarse cara abaixo despois de enviar unha mensaxe</string>
     <string name="pref_scroll_to_bottom">Desprazarse ata o final</string>
-    <string name="no_camera_permission">monocles chatnecesita acceso á cámara</string>
+    <string name="no_camera_permission">monocles chat necesita acceso á cámara</string>
     <string name="edit_status_message_title">Editar mensaxe de estado</string>
     <string name="pref_automatically_delete_messages_description">Elimina automaticamente as mensaxes deste dispositivo que son máis antigos que o tempo configurado.</string>
     <string name="pref_automatically_delete_messages">Eliminación automática de mensaxes</string>
     <string name="pref_automatically_delete_attachments_description">Eliminar automaticamente os arquivos adxuntos deste dispositivo que sexan máis antigos que o prazo configurado.</string>
     <string name="pref_automatically_delete_files">Eliminación automática de arquivos adxuntos</string>
     <string name="disable_encryption">Desactivar a encriptación</string>
-    <string name="error_trustkey_general">monocles chatnon pode enviar mensaxes encriptados a %1$s. Isto pode deberse a que o seu contacto utiliza un servidor ou cliente obsoleto que non pode manexar OMEMO.</string>
+    <string name="error_trustkey_general">monocles chat non pode enviar mensaxes cifradas a %1$s. Isto pode deberse a que o contacto utiliza un servidor ou cliente obsoleto que non pode xestionar OMEMO.</string>
     <string name="error_trustkey_device_list">Non se pode obter a lista de dispositivos</string>
     <string name="error_trustkey_bundle">Non se poden recuperar os paquetes do dispositivo</string>
     <string name="error_trustkey_hint_mutual">Suxestión: Nalgúns casos isto pódese arranxar engadindo cada un as súas listas de contactos.</string>
@@ -791,7 +791,7 @@
     <string name="large">Grande</string>
     <string name="create_shortcut">Crear atallo</string>
     <string name="not_encrypted_for_this_device">A mensaxe non foi cifrada para este dispositivo.</string>
-    <string name="no_microphone_permission">monocles chatnecesita acceso ó micrófono</string>
+    <string name="no_microphone_permission">monocles chat necesita acceso ao micrófono</string>
     <string name="search_messages">Buscar mensaxes</string>
     <string name="gif">GIF</string>
     <string name="view_conversation">Ver conversa</string>
@@ -821,14 +821,14 @@
     <string name="conference_destroyed">A sala foi eliminada</string>
     <string name="no_application_found_to_view_contact">Non se atopou ningunha aplicación para ver este contacto</string>
     <string name="welcome_server_info">Recomendamos o uso de monocles chat como provedor.</string>
-    <string name="no_location_permission">monocles chatnecesita acceso a los servicios de localización</string>
+    <string name="no_location_permission">monocles chat necesita acceso aos servicios de localización</string>
     <string name="pref_show_record_voice_btn_summary">Mostrar o botón de gravación de voz e botón da cámara no editor como acción rápida</string>
     <string name="pref_show_record_voice_btn">Mostrar o botóns de gravación de voz e cámara</string>
     <string name="pref_use_quick_share_attachment_choice_summary">Se non hai nada escrito, substituír o botón enviar co de adxuntar elementos. Se non, mostrará accións rápidas que poden configurarse no axuste seguinte.</string>
     <string name="pref_quick_share_attachment_choice">Selección de adxuntos</string>
     <string name="unable_to_save_recording">Non se pode gardar a gravación</string>
     <string name="foreground_service_channel_name">Servizo en primeiro plano</string>
-    <string name="foreground_service_channel_description">Esta categoría de notificación utilízase para mostrar unha notificación permanente que indica que monocles chat está a executarse.</string>
+    <string name="foreground_service_channel_description">Esta categoría de notificación utilízase para mostrar unha notificación permanente que indica que monocles chat está a funcionar.</string>
     <string name="notification_group_status_information">Información de estado</string>
     <string name="error_channel_name">Problemas de conexión</string>
     <string name="error_channel_description">Esta categoría de notificación utilízase para mostrar unha notificación no caso de que haxa un problema de conexión a unha conta.</string>
@@ -881,7 +881,7 @@
     <string name="open_with">Abrir con…</string>
     <string name="server_info_adhoc_invite">XEP-0050: Comandos Ad-Hoc: invitación ao usuario</string>
     <string name="choose_account">Seleccionar conta</string>
-    <string name="set_profile_picture">Foto de perfil de monocles chat</string>
+    <string name="set_profile_picture">Foto de perfil en monocles chat</string>
     <string name="restore_backup">Restablecer copia de apoio</string>
     <string name="restore">Restaurar</string>
     <string name="enter_password_to_restore">Introduza o contrasinal da conta %s para restaurar a copia de seguridade.</string>
@@ -945,7 +945,7 @@
     <string name="password_forgotten_title">Contrasinal esquecido</string>
     <string name="password_forgotten_text">Esqueceu o contrasinal da súa conta\? Agora tentaremos abrir o sitio web de soporte do seu provedor.</string>
     <string name="set_settings_intro">Aquí podes establecer algúns axustes de privacidade importantes segundo as túas necesidades. Todos os axustes tamén poden ser modificados posteriormente.</string>
-    <string name="pref_show_mappreview_inside_summary">Mostrar vistas previas de mapas directamente dentro da vista de chat, establecerase unha conexión co servidor monocles chat.</string>
+    <string name="pref_show_mappreview_inside_summary">Mostrar vistas previas de mapas directamente dentro da vista da charla, establecerase unha conexión co servidor monocles chat.</string>
     <string name="pref_show_mappreview_inside">Mostrar vistas previas dos lugares na conversa</string>
     <string name="pref_use_internal_updater_summary">Deixa que o mensaxeiro busque novas actualizacións da aplicación unha vez ao día</string>
     <string name="pref_use_internal_updater">Comprobar actualizacións</string>
@@ -971,12 +971,12 @@
     <string name="action_unblock_participant">Desbloquear participante</string>
     <string name="action_block_participant">Bloquear participante</string>
     <string name="share_backup_files">Compartir arquivos de copia de seguridade</string>
-    <string name="conversations_backup">Copia de seguridade de monocles chat</string>
+    <string name="conversations_backup">Copia de apoio de monocles chat</string>
     <string name="event">Evento</string>
-    <string name="pref_vibrate_in_chat_summary">Vibrar cando chega unha nova mensaxe nun chat aberto</string>
-    <string name="pref_vibrate_in_chat">Vibrar nun chat aberto</string>
+    <string name="pref_vibrate_in_chat_summary">Vibrar cando chega unha nova mensaxe nunha charla aberta</string>
+    <string name="pref_vibrate_in_chat">Vibrar nunha charla aberta</string>
     <string name="open_backup">Abrir copia de seguridade</string>
-    <string name="not_a_backup_file">O arquivo seleccionado non é unha copia de seguridade de monocles chat</string>
+    <string name="not_a_backup_file">O arquivo seleccionado non é unha copia de apoio de monocles chat</string>
     <string name="account_already_setup">Esta conta xa está configurada</string>
     <string name="please_enter_password">Por favor introduza a contrasinal para esta conta</string>
     <string name="unable_to_perform_this_action">Non se pode realizar esta acción</string>
@@ -985,30 +985,30 @@
     <string name="pref_use_invidious">Substituír ligazóns a YouTube por Invidious</string>
     <string name="pref_use_invidious_summary">Invidious é unha alternativa a YouTube que respecta a privacidade</string>
     <string name="this_device">Este dispositivo</string>
-    <string name="intro_desc_main">monocles chat non é outro mensaxeir máis... monocles chat usa un estándar oficial da IETF. Podes cambiar de app cando queiras e seguir en contacto coas túas amizades.
+    <string name="intro_desc_main">monocles chat non é unha aplicación máis para mensaxes... monocles chat usa un estándar oficial da IETF. Podes cambiar de app cando queiras e seguir en contacto coas túas amizades.
 \nAquí ti decides quen ten o protagonismo e toma as decisións.</string>
     <string name="welcome_header">Benvida a
 \n monocles chat</string>
     <string name="intro_required_permissions">Permisos necesarios</string>
     <string name="intro_desc_required_permissions">Ao rematar a presentación ímosche pedir permiso de almacenaxe (obrigatorio), se aínda non o concedeches. Os permisos adicionais pediranse cando sexan necesarios e son optativos.</string>
     <string name="intro_account">A súa conta</string>
-    <string name="intro_desc_account">Si xa ten unha conta, só ten que conectarse coa súa chat addressE e o seu contrasinal</string>
+    <string name="intro_desc_account">Se xa tes unha conta, só tes que acceder coas túas credenciais</string>
     <string name="intro_start_chatting">Empezar a conversar</string>
-    <string name="intro_desc_start_chatting">Si deu os permisos de contacto, os contactos Jabber xa existentes móstranse automaticamente no seu caderno de direccións. Pola contra, só ten que engadir chat addresses</string>
+    <string name="intro_desc_start_chatting">Se concedeches os permisos de contacto, os contactos Jabber xa existentes móstranse automaticamente no caderno de direccións. Se non simplemente engade enderezos de charlas</string>
     <string name="intro_desc_open_chat">Agora pode empezar a conversar, compartir localizacións, arquivos, vídeos e imaxes ou enviar mensaxes de voz.</string>
     <string name="intro_chat_details">Detalles da conversa</string>
-    <string name="intro_desc_chat_details">Quere abrir os detalles do chat\? Só ten que pulsar o nome do chat na barra de menú da parte superior.</string>
+    <string name="intro_desc_chat_details">Queres abrir os detalles da charla? Só tes que premer o nome da charla na barra de menú da parte superior.</string>
     <string name="intro_highlight_user">Mencionar usuario</string>
-    <string name="intro_desc_highlight_user">Si queres mencionar a unha persoa nunha sala, só tes que tocar o avatar da persoa no chat. Alternativamente, especialmente se a usuaria non está no chat, vai aos detalles do chat e busca á persoa na lista de participantes. Un toque prolongado no avatar da usuaria mostrará un menú emerxente no que podes mencionar a esa persoa.</string>
-    <string name="intro_desc_open_chat_details">Abriches os detalles do chat. Aquí tes os detalles da conversa, cambia o comportamento das notificacións, engadir ou retirar a conversa da túa lista de contactos e moito máis.</string>
+    <string name="intro_desc_highlight_user">Se queres mencionar a unha persoa nunha charla, só tes que tocar o avatar da persoa na charla. Alternativamente, especialmente se a usuaria non está na charla, vai aos detalles da charla e busca á persoa na lista de participantes. Un toque prolongado no avatar da usuaria mostrará un menú emerxente no que podes mencionar a esa persoa.</string>
+    <string name="intro_desc_open_chat_details">Abriches os detalles da charla. Aquí tes o seu detalle, cambia o comportamento das notificacións, engadir ou retirar a conversa da túa lista de contactos e moito máis.</string>
     <string name="pref_show_intro_summary">Mostrar de novo as pantallas de presentación</string>
     <string name="pref_show_intro">Mostrar a presentación de novo</string>
     <string name="show_intro_again">As pantallas de presentación mostraranse de novo</string>
     <string name="show_intro_again_failed">Fallou o restablecemento da presentación. Inténtao outra vez…</string>
     <string name="intro_desc_whats_xmpp">XMPP é o estándar de Internet para mensaxería instantánea. Igual que no correo electrónico, tes un enderezo para comunicarte. Darémosche máis info.</string>
     <string name="intro_whats_xmpp">Que é XMPP / Jabber / monocles chat\?</string>
-    <string name="intro_desc_optional_permissions">Os permisos para ler o seu caderno de direccións son necesarios para ler as chat addresses (si hainos) dos seus contactos. Os contactos nunca se comparten, cargan ou copian.</string>
-    <string name="intro_desc_account2">Pode crear un novo perfil en monocles chat simplemente introducindo un alcume.</string>
+    <string name="intro_desc_optional_permissions">Os permisos para ler o caderno de direccións son necesarios para ler os enderezos de charla (se os hai) dos seus contactos. Os contactos nunca se comparten, cargan ou copian.</string>
+    <string name="intro_desc_account2">Podes crear unha nova conta en monocles chat simplemente escribindo un alcume.</string>
     <string name="open_join_dialog">Unirse á canle pública…</string>
     <string name="intro_optional_permissions">Permisos opcionais</string>
     <string name="intro_desc_optional_permissions2">Os permisos para a túa localización son necesarios se queres compartir a túa localización.
@@ -1037,7 +1037,7 @@
     <string name="ask_for_writeaccess">Solicite permiso de escritura</string>
     <string name="pref_theme_blue">Azul</string>
     <string name="pref_theme_orange">Laranxa</string>
-    <string name="pref_theme_monocles">monocles chat</string>
+    <string name="pref_theme_monocles">monocles</string>
     <string name="pref_theme_grey">Gris</string>
     <string name="pref_theme_pink">Rosa</string>
     <string name="pref_theme_black">Negro (AMOLED)</string>
@@ -1139,7 +1139,7 @@
 \n
 \nOu que podes esperar:
 \n- A gama de funcións segue sendo a mesma
-\n- As salas de chat de apoio fusiónanse
+\n- As salas de charla de apoio fusiónanse
 \n- As cores e vos logotipos adáptanse a monocles chat
 \n- A aplicación segue estando dispoñible de forma @gratuíto en Google Play Store e F-Droid Store
 \n
@@ -1157,7 +1157,7 @@
     <string name="tap_share_button_send_invite">Pulse o botón de compartir para enviar ao seu contacto unha invitación a %1$s.</string>
     <string name="invite">Convidar</string>
     <string name="if_contact_is_nearby_use_qr">Se o teu contacto está preto, tamén pode escanear o código de abaixo para aceptar a túa invitación.</string>
-    <string name="easy_invite_share_text">Únete a %1$s e chatea comigo: %2$s</string>
+    <string name="easy_invite_share_text">Únete a %1$s e conversa comigo: %2$s</string>
     <string name="share_invite_with">Compartir a invitación con…</string>
     <string name="no_active_accounts_support_this">Ningunha conta activa admite esta función</string>
     <string name="server_info_easy_invite">XEP-0401: Fácil incorporación de usuarios</string>
@@ -1166,7 +1166,7 @@
     <string name="webview_not_available">A vista web non está dispoñible no seu dispositivo.</string>
     <string name="pref_easy_downloader_summary">Descarga automaticamente todos os arquivos adxuntos nas canles públicas e de descoñecidos no lugar de mostrar un botón para unha descarga manual.</string>
     <string name="pref_easy_downloader">Descarga automática de todos os arquivos adxuntos</string>
-    <string name="got_invitation_from">Foi convidado por %s á sala de chat %s.</string>
+    <string name="got_invitation_from">%s convidoute á sala de conversa %s.</string>
     <string name="a_user">un usuario</string>
     <string name="pref_memory_management_summary">Mostrar o uso da memoria do directorio de medios</string>
     <string name="title_memory_management">Xestión da memoria</string>
@@ -1191,7 +1191,7 @@
 \nDebería activar o borrado automático dos arquivos adxuntos ou borrar manualmente os medios almacenados. ¡O seu dispositivo quedará sen memoria!</string>
     <string name="open_settings">Abrir axustes</string>
     <string name="oldAndroidVersion">Versión antiga de Android</string>
-    <string name="oldAndroidVersionMessage">Está a utilizar unha versión antiga de Android que xa non será soportada en futuras actualizacións. A partir da versión 1.0 de monocles chat só admítense dispositivos con Android 5 ou superior. Por favor, actualice o firmware do teu dispositivo.</string>
+    <string name="oldAndroidVersionMessage">Estás a usar unha versión antiga de Android que xa non será compatible en futuras actualizacións. A partir da versión 1.0 de monocles chat só se admiten dispositivos con Android 5 ou superior. Por favor, actualiza o software do teu dispositivo.</string>
     <string name="save_x_file">Gardar %s</string>
     <string name="file_copied_to">Arquivo copiado en %s</string>
     <string name="use_individual_notifications">Utilizar notificacións individuais</string>
@@ -1209,7 +1209,7 @@
     <string name="delete_recording_dialog_message">Realmente quere cancelar e borrar ou gravación\?</string>
     <string name="pref_pause_voice_on_move_from_ear">Pór en pausa a mensaxe de voz automaticamente</string>
     <string name="pref_pause_voice_on_move_from_ear_summary">Pór en pausa a mensaxe de voz actual cando afaste o dispositivo do seu oído.</string>
-    <string name="pref_import_settings_summary">Importe a configuración da aplicación desde o arquivo settings.dat dentro do directorio de copia de seguridade de monocles chat.</string>
+    <string name="pref_import_settings_summary">Importa a configuración da aplicación desde o arquivo settings.dat dentro do directorio de copia de apoio de monocles chat.</string>
     <string name="pref_import_settings">Importar a configuración da aplicación</string>
     <string name="success_import_settings">Configuración importada con éxito.</string>
     <string name="error_import_settings">Erro ao importar a configuración.</string>
@@ -1410,15 +1410,15 @@
     <string name="notifications_disabled">Notificacións desactivadas. Actívaas nos axustes do teu android.</string>
     <string name="no_media_permission">Permiso non concedido</string>
     <string name="edit_sytemaccount">Contácto do teléfono</string>
-    <string name="edit_chat_contact">Contacto de chat</string>
-    <string name="pref_show_less_avatars">Mostar menos avatares nos chats</string>
+    <string name="edit_chat_contact">Contacto de charla</string>
+    <string name="pref_show_less_avatars">Mostar menos avatares nas charlas</string>
     <string name="pref_show_thread_feature">Activar a ferramenta de fío</string>
     <string name="account_color_summary">Usado na conversa, listas de contactos e notificacións</string>
     <string name="enter_user_name">Escribe o nome</string>
     <string name="notifications_enabled">Notificacións activadas</string>
     <string name="pref_set_text_collapsable_summary">Prega os textos de máis de 230 caracteres</string>
     <string name="pref_show_thread_feature_summary">Activar a icona de fío no campo de entrada para permitir a creación e seguimento de fíos</string>
-    <string name="edit_sytemaccount_or_xmppaccount">Editar o contacto do chat ou do teléfono\?</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Editar o contacto da charla ou do teléfono?</string>
     <string name="pref_show_less_avatars_summary">Só se mostrarán os avatares necesarios nas conversas</string>
     <string name="account_state_logged_out">Sesión pechada</string>
     <string name="hide_notification">Agochar notificación</string>
@@ -1465,7 +1465,7 @@
     <string name="thanks">Grazas por usar monocles chat! Por favor, considera axudar ao desenvolvemento cunha pequena doazón.❤️</string>
     <string name="donate">Doar</string>
     <string name="pref_enforce_dane">Forzar DANE</string>
-    <string name="chats">Chats</string>
+    <string name="chats">Conversas</string>
     <string name="unified">Unificado</string>
     <string name="stories">Historias</string>
     <string name="accounts">Contas</string>
@@ -1530,7 +1530,7 @@
     <string name="no_permission_to_place_call">Non hai permiso para facer chamadas</string>
     <string name="pref_jump_to_commands_tab_summary">Ir automaticamente á pestana de ordes para ver e usar ordes personalizadas</string>
     <string name="pref_jump_to_commands_tab">Ir á pestana de ordes</string>
-    <string name="invite_to_start_chat">Convida para iniciar chat</string>
+    <string name="invite_to_start_chat">Convida para iniciar charla</string>
     <string name="webxdcs">WebXDCs</string>
     <string name="enter_a_new_password_txt">Escribe o Novo Contrasinal</string>
     <string name="confirm_password_txt">Confirma o Contrasinal</string>
@@ -1550,4 +1550,5 @@
     <string name="webxdc_store_hint_title">Uso de WebXDC</string>
     <string name="webxdc_store_hint_summary">Para usar apps tipo WebXDC con actualizacións do estado debes desactivar a cifraxe ao enviar o WebXDC. Volve activar a cifraxe outra vez despois do envío.</string>
     <string name="send_encrypted">Enviouse cifrada</string>
+    <string name="choose_webxdc">Escoller WebXDC</string>
 </resources>

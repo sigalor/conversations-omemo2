@@ -1239,10 +1239,10 @@
     <string name="your_server">Ваш сервер</string>
     <string name="your_server_invitation">Ваше приглашение на сервер</string>
     <plurals name="view_users">
-        <item quantity="one">Посмотреть %1$d участника</item>
-        <item quantity="few">Посмотреть %1$d участника</item>
-        <item quantity="many">Посмотреть %1$d участников</item>
-        <item quantity="other">Посмотреть %1$d участников</item>
+        <item quantity="one">Посмотреть %1$d</item>
+        <item quantity="few">Посмотреть %1$d</item>
+        <item quantity="many">Посмотреть %1$d</item>
+        <item quantity="other">Посмотреть %1$d</item>
     </plurals>
     <string name="your_status">Ваш статус</string>
     <plurals name="toast_delete_certificates">
@@ -1596,4 +1596,5 @@
     <string name="webxdc_store_hint_title">Использование WebXDC</string>
     <string name="webxdc_store_hint_summary">Чтобы использовать приложения WebXDC с обновлениями статуса, вам необходимо отключить шифрование при отправке WebXDC. Пожалуйста, включите шифрование позже снова.</string>
     <string name="send_encrypted">Отправить зашифрованное</string>
+    <string name="choose_webxdc">Выберите WebXDC</string>
 </resources>

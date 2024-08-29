@@ -1479,4 +1479,16 @@
     <string name="pref_jump_to_commands_tab_summary">コマンドタブに自動的に飛び、アドホックコマンドを一覧表示して使用します</string>
     <string name="use_monocles">monoclesを選択</string>
     <string name="colors">色</string>
+    <string name="please_enter_a_new_password_again_txt">新規パスワードを再び入力してください</string>
+    <string name="password_disabled_txt">パスワードが無効化されました</string>
+    <string name="enter_a_new_password_txt">新規パスワードを入力</string>
+    <string name="confirm_password_txt">パスワードを確認</string>
+    <string name="password_changed_txt">パスワードが変更されました</string>
+    <string name="max_8_characters_txt">最大8字</string>
+    <string name="please_enter_current_password_txt">現在のパスワードを入力してください</string>
+    <string name="password_is_set_txt">パスワードが設定されました</string>
+    <string name="incorrect_password_txt">不正なパスワード</string>
+    <string name="enter_your_password_txt">あなたのパスワードを入力</string>
+    <string name="clear_txt">消去</string>
+    <string name="forgot_password_txt">パスワードを忘れましたか</string>
 </resources>

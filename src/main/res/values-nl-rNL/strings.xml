@@ -1545,4 +1545,5 @@
     <string name="webxdc_store_hint_title">WebXDC gebruiken</string>
     <string name="webxdc_store_hint_summary">Om WebXDC-apps met statusupdates te gebruiken, moet je de versleuteling uitschakelen voordat je de WebXDC verstuurt. Schakel de versleuteling daarna weer in.</string>
     <string name="send_encrypted">Versleuteld versturen</string>
+    <string name="choose_webxdc">WebXDC kiezen</string>
 </resources>

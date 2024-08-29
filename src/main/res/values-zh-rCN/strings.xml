@@ -947,7 +947,7 @@
     <string name="unable_to_perform_this_action">无法执行此操作</string>
     <string name="waiting_for_transfer">等待传输</string>
     <string name="your_status">您的状态</string>
-    <string name="pref_use_invidious">用 Invidio 代替 Youtube 链接</string>
+    <string name="pref_use_invidious">用 Invidious 代替 YouTube 链接</string>
     <string name="pref_use_invidious_summary">Invidious 是 YouTube 的隐私友好的替代品</string>
     <string name="this_device">此设备</string>
     <string name="intro_desc_main">monocles chat 不只是另一个通讯应用… monocles chat 使用了官方的 IETF 标准。您可以随时切换应用，并与朋友保持联系。
@@ -1125,7 +1125,7 @@
     <string name="otr_session_not_started">发送消息以开始加密聊天</string>
     <string name="account_status_temporary_auth_failure">验证暂时失败</string>
     <string name="pref_invidious_host">Invidious 主机</string>
-    <string name="pref_invidious_host_summary">使用自定义 invidious 主机</string>
+    <string name="pref_invidious_host_summary">使用自定义 Invidious 主机</string>
     <string name="import_backup_description">自 Android 11 以来，我们无法列出存储上的文件。您可以尝试导航到备份路径，通常在 Documents/monocles chat/Database 中。</string>
     <string name="error_security_exception">您用来分享此文件的应用没有提供足够的权限。</string>
     <string name="help_format_text">您可以使用简单的样式选项来格式化文本。识别格式的开始和结束的键就在单词或单词组的开始和结束处。开始键前必须有一个空格，结束键后必须有一个空格，否则将无法识别格式。
@@ -1544,4 +1544,5 @@
     <string name="webxdc_store_hint_title">WebXDC 使用</string>
     <string name="webxdc_store_hint_summary">要使用带有状态更新的 WebXDC 应用，您需要在发送 WebXDC 时禁用加密。之后请再次启用加密。</string>
     <string name="send_encrypted">加密发送</string>
+    <string name="choose_webxdc">选择 WebXDC</string>
 </resources>
