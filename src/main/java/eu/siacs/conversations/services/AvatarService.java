@@ -186,7 +186,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 
 	private static Bitmap getRoundLauncherIcon(Resources resources) {
 
-		final Drawable drawable = ResourcesCompat.getDrawable(resources, R.mipmap.new_launcher_round,null);
+		final Drawable drawable = ResourcesCompat.getDrawable(resources, R.mipmap.ic_launcher_round,null);
 		if (drawable == null) {
 			return null;
 		}
