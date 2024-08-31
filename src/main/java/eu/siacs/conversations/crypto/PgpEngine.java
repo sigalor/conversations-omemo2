@@ -37,8 +37,8 @@ import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.utils.AsciiArmor;
 
 public class PgpEngine {
-    private OpenPgpApi api;
-    private XmppConnectionService mXmppConnectionService;
+    private final OpenPgpApi api;
+    private final XmppConnectionService mXmppConnectionService;
 
     public PgpEngine(OpenPgpApi api, XmppConnectionService service) {
         this.api = api;
@@ -97,6 +97,7 @@ public class PgpEngine {
                         } catch (IOException e) {
                             callback.error(R.string.openpgp_error, message);
                         }
+
                         break;
                     case OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED:
                         callback.userInputRequired(result.getParcelableExtra(OpenPgpApi.RESULT_INTENT), message);

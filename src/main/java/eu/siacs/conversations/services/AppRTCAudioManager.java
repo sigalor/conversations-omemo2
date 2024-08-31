@@ -88,15 +88,18 @@ public class AppRTCAudioManager {
         AppRTCUtils.logDeviceInfo(Config.LOGTAG);
     }
 
+    public void setAudioManagerEvents(final AudioManagerEvents audioManagerEvents) {
+        this.audioManagerEvents = audioManagerEvents;
+    }
+
     @SuppressWarnings("deprecation")
-    public void start(final AudioManagerEvents audioManagerEvents) {
+    public void start() {
         Log.d(Config.LOGTAG, AppRTCAudioManager.class.getName() + ".start()");
         ThreadUtils.checkIsOnMainThread();
         if (amState == AudioManagerState.RUNNING) {
             Log.e(Config.LOGTAG, "AudioManager is already active");
             return;
         }
-        this.audioManagerEvents = audioManagerEvents;
         amState = AudioManagerState.RUNNING;
         // Store current audio state so we can restore it when stop() is called.
         savedIsSpeakerPhoneOn = audioManager.isSpeakerphoneOn();
@@ -185,7 +188,11 @@ public class AppRTCAudioManager {
         // Restore previously stored audio states.
         setSpeakerphoneOn(savedIsSpeakerPhoneOn);
         setMicrophoneMute(savedIsMicrophoneMute);
-        audioManager.setMode(AudioManager.MODE_NORMAL);
+        try {
+            audioManager.setMode(AudioManager.MODE_NORMAL);
+        } catch (final SecurityException e) {
+            Log.e(Config.LOGTAG, "Could not set mode on audio manager: " + audioManager);
+        }
         // Abandon audio focus. Gives the previous focus owner, if any, focus.
         audioManager.abandonAudioFocus(audioFocusChangeListener);
         audioFocusChangeListener = null;

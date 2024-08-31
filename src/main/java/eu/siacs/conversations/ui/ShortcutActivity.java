@@ -30,23 +30,25 @@ public class ShortcutActivity extends AbstractSearchableListItemActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getListView().setOnItemClickListener((parent, view, position, id) -> {
+
             final ComponentName callingActivity = getCallingActivity();
+
             final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getSearchEditText().getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
 
             ListItem listItem = getListItems().get(position);
             final boolean legacy = BLACKLISTED_ACTIVITIES.contains(callingActivity == null ? null : callingActivity.getClassName());
             Intent shortcut = xmppConnectionService.getShortcutService().createShortcut(((Contact) listItem), legacy);
-            setResult(RESULT_OK, shortcut);
+            setResult(RESULT_OK,shortcut);
             finish();
         });
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         ActionBar bar = getSupportActionBar();
-        if (bar != null) {
+        if(bar != null){
             bar.setTitle(R.string.create_shortcut);
         }
     }

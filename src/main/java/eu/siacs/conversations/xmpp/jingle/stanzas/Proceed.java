@@ -3,9 +3,8 @@ package eu.siacs.conversations.xmpp.jingle.stanzas;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
-
+import eu.siacs.conversations.xml.Namespace;
 
 public class Proceed extends Element {
     private Proceed() {

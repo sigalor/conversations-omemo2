@@ -26,6 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package eu.siacs.conversations.ui.interfaces;
 
 import androidx.annotation.StringRes;
@@ -33,7 +34,6 @@ import androidx.annotation.StringRes;
 public interface OnAvatarPublication {
 
     void onAvatarPublicationSucceeded();
-
     void onAvatarPublicationFailed(@StringRes int res);
 
 }

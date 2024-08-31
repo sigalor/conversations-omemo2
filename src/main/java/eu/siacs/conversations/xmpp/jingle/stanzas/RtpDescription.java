@@ -15,13 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.SessionDescription;
 
 public class RtpDescription extends GenericDescription {
-
 
     private RtpDescription(final String media) {
         super("description", Namespace.JINGLE_APPS_RTP);
@@ -72,9 +71,7 @@ public class RtpDescription extends GenericDescription {
     public List<Source> getSources() {
         final ImmutableList.Builder<Source> builder = new ImmutableList.Builder<>();
         for (final Element child : getChildren()) {
-            if ("source".equals(child.getName())
-                    && Namespace.JINGLE_RTP_SOURCE_SPECIFIC_MEDIA_ATTRIBUTES.equals(
-                    child.getNamespace())) {
+            if ("source".equals(child.getName()) && Namespace.JINGLE_RTP_SOURCE_SPECIFIC_MEDIA_ATTRIBUTES.equals(child.getNamespace())) {
                 builder.add(Source.upgrade(child));
             }
         }
@@ -84,9 +81,7 @@ public class RtpDescription extends GenericDescription {
     public List<SourceGroup> getSourceGroups() {
         final ImmutableList.Builder<SourceGroup> builder = new ImmutableList.Builder<>();
         for (final Element child : getChildren()) {
-            if ("ssrc-group".equals(child.getName())
-                    && Namespace.JINGLE_RTP_SOURCE_SPECIFIC_MEDIA_ATTRIBUTES.equals(
-                    child.getNamespace())) {
+            if ("ssrc-group".equals(child.getName()) && Namespace.JINGLE_RTP_SOURCE_SPECIFIC_MEDIA_ATTRIBUTES.equals(child.getNamespace())) {
                 builder.add(SourceGroup.upgrade(child));
             }
         }
@@ -187,7 +182,6 @@ public class RtpDescription extends GenericDescription {
             return builder.build();
         }
     }
-
 
     // XEP-0294: Jingle RTP Header Extensions Negotiation
     // maps to `extmap:$id $uri`
@@ -293,7 +287,7 @@ public class RtpDescription extends GenericDescription {
             final String channels = this.getAttribute("channels");
             if (channels == null) {
                 return 1; // The number of channels; if omitted, it MUST be assumed to contain one
-                // channel
+                          // channel
             }
             try {
                 return Integer.parseInt(channels);
@@ -517,7 +511,6 @@ public class RtpDescription extends GenericDescription {
                 return parameter;
             }
         }
-
     }
 
     public static class SourceGroup extends Element {
@@ -647,5 +640,4 @@ public class RtpDescription extends GenericDescription {
         }
         return rtpDescription;
     }
-
 }

@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Throwables;
 
+import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.CryptoFailedException;
 import eu.siacs.conversations.xmpp.jingle.RtpContentMap;
 

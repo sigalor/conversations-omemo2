@@ -29,6 +29,8 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
+
 import com.google.zxing.ResultPoint;
 
 import java.util.HashMap;
@@ -40,7 +42,6 @@ import eu.siacs.conversations.R;
 /**
  * @author Andreas Schildbach
  */
-
 public class ScannerView extends View {
     private static final long LASER_ANIMATION_DELAY_MS = 100l;
     private static final int DOT_OPACITY = 0xa0;
@@ -49,40 +50,39 @@ public class ScannerView extends View {
     private final Paint maskPaint;
     private final Paint laserPaint;
     private final Paint dotPaint;
+    private boolean isResult;
     private final int maskColor, maskResultColor;
     private final int laserColor;
     private final int dotColor, dotResultColor;
     private final Map<float[], Long> dots = new HashMap<float[], Long>(16);
-    private final Matrix matrix = new Matrix();
-    private boolean isResult;
     private Rect frame;
+    private final Matrix matrix = new Matrix();
 
     public ScannerView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
-
-        final Resources res = getResources();
-        maskColor = res.getColor(R.color.black54);
-        maskResultColor = res.getColor(R.color.black87);
-        laserColor = res.getColor(R.color.red500);
-        dotColor = res.getColor(R.color.orange500);
-        dotResultColor = res.getColor(R.color.scan_result_dots);
+        final Resources resources = context.getResources();
+        maskColor = ContextCompat.getColor(context, R.color.black54);
+        maskResultColor = ContextCompat.getColor(context, R.color.black87);
+        laserColor = ContextCompat.getColor(context, R.color.red_500);
+        dotColor = ContextCompat.getColor(context, R.color.orange_500);
+        dotResultColor = ContextCompat.getColor(context, R.color.green_500);
 
         maskPaint = new Paint();
         maskPaint.setStyle(Style.FILL);
 
         laserPaint = new Paint();
-        laserPaint.setStrokeWidth(res.getDimensionPixelSize(R.dimen.scan_laser_width));
+        laserPaint.setStrokeWidth(resources.getDimensionPixelSize(R.dimen.scan_laser_width));
         laserPaint.setStyle(Style.STROKE);
 
         dotPaint = new Paint();
         dotPaint.setAlpha(DOT_OPACITY);
         dotPaint.setStyle(Style.STROKE);
-        dotPaint.setStrokeWidth(res.getDimension(R.dimen.scan_dot_size));
+        dotPaint.setStrokeWidth(resources.getDimension(R.dimen.scan_dot_size));
         dotPaint.setAntiAlias(true);
     }
 
     public void setFraming(final Rect frame, final RectF framePreview, final int displayRotation,
-                           final int cameraRotation, final boolean cameraFlip) {
+            final int cameraRotation, final boolean cameraFlip) {
         this.frame = frame;
         matrix.setRectToRect(framePreview, new RectF(frame), ScaleToFit.FILL);
         matrix.postRotate(-displayRotation, frame.exactCenterX(), frame.exactCenterY());
@@ -99,7 +99,7 @@ public class ScannerView extends View {
     }
 
     public void addDot(final ResultPoint dot) {
-        dots.put(new float[]{dot.getX(), dot.getY()}, System.currentTimeMillis());
+        dots.put(new float[] { dot.getX(), dot.getY() }, System.currentTimeMillis());
 
         invalidate();
     }
@@ -142,7 +142,7 @@ public class ScannerView extends View {
         canvas.drawRect(frame, laserPaint);
 
         // draw points
-        for (final Iterator<Map.Entry<float[], Long>> i = dots.entrySet().iterator(); i.hasNext(); ) {
+        for (final Iterator<Map.Entry<float[], Long>> i = dots.entrySet().iterator(); i.hasNext();) {
             final Map.Entry<float[], Long> entry = i.next();
             final long age = now - entry.getValue();
             if (age < DOT_TTL_MS) {

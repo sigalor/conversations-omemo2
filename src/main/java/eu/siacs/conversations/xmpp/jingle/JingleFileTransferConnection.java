@@ -216,7 +216,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     rawContent.setSecurity(xmppAxolotlMessage);
                 }
             }
-            Log.d(Config.LOGTAG, "--> " + jinglePacket.toString());
             jinglePacket.setTo(id.with);
             xmppConnectionService.sendIqPacket(
                     id.account,
@@ -239,7 +238,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     }
 
     private void receiveSessionAccept(final JinglePacket jinglePacket) {
-        Log.d(Config.LOGTAG, "receive session accept " + jinglePacket);
+        Log.d(Config.LOGTAG, "receive file transfer session accept");
         if (isResponder()) {
             receiveOutOfOrderAction(jinglePacket, JinglePacket.Action.SESSION_ACCEPT);
             return;
@@ -294,7 +293,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
             return true;
         } else if (transport instanceof SocksByteStreamsTransport socksBytestreamsTransport
                 && transportInfo
-                instanceof SocksByteStreamsTransportInfo socksBytestreamsTransportInfo) {
+                        instanceof SocksByteStreamsTransportInfo socksBytestreamsTransportInfo) {
             socksBytestreamsTransport.setTheirCandidates(
                     socksBytestreamsTransportInfo.getCandidates());
             return true;
@@ -456,7 +455,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         setLocalContentMap(contentMap);
         final var jinglePacket =
                 contentMap.toJinglePacket(JinglePacket.Action.SESSION_ACCEPT, id.sessionId);
-        Log.d(Config.LOGTAG, "--> " + jinglePacket.toString());
         send(jinglePacket);
         // this needs to come after session-accept or else our candidate-error might arrive first
         this.transport.connect();
@@ -544,7 +542,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     }
 
     private void receiveSessionInfo(final JinglePacket jinglePacket) {
-        Log.d(Config.LOGTAG, "<-- " + jinglePacket);
         respondOk(jinglePacket);
         final var sessionInfo = FileTransferDescription.getSessionInfo(jinglePacket);
         if (sessionInfo instanceof FileTransferDescription.Checksum checksum) {
@@ -563,6 +560,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     }
 
     private void receiveSessionTerminate(final JinglePacket jinglePacket) {
+        respondOk(jinglePacket);
         final JinglePacket.ReasonWrapper wrapper = jinglePacket.getReason();
         final State previous = this.state;
         Log.d(
@@ -659,11 +657,11 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         final var transport = this.transport;
         if (transport instanceof SocksByteStreamsTransport socksBytestreamsTransport
                 && transportInfo
-                instanceof SocksByteStreamsTransportInfo socksBytestreamsTransportInfo) {
+                        instanceof SocksByteStreamsTransportInfo socksBytestreamsTransportInfo) {
             receiveTransportInfo(socksBytestreamsTransport, socksBytestreamsTransportInfo);
         } else if (transport instanceof WebRTCDataChannelTransport webRTCDataChannelTransport
                 && transportInfo
-                instanceof WebRTCDataChannelTransportInfo webRTCDataChannelTransportInfo) {
+                        instanceof WebRTCDataChannelTransportInfo webRTCDataChannelTransportInfo) {
             receiveTransportInfo(
                     Iterables.getOnlyElement(contentMap.contents.keySet()),
                     webRTCDataChannelTransport,
@@ -732,7 +730,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
             receiveOutOfOrderAction(jinglePacket, JinglePacket.Action.TRANSPORT_REPLACE);
             return;
         }
-        Log.d(Config.LOGTAG, "receive transport replace " + jinglePacket);
         final GenericTransportInfo transportInfo;
         try {
             transportInfo = FileTransferContentMap.of(jinglePacket).requireOnlyTransportInfo();
@@ -756,16 +753,29 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     private void receiveTransportReplace(
             final JinglePacket jinglePacket, final GenericTransportInfo transportInfo) {
         respondOk(jinglePacket);
-        final Transport transport;
+        final Transport currentTransport = this.transport;
+        if (currentTransport != null) {
+            Log.d(
+                    Config.LOGTAG,
+                    "terminating "
+                            + currentTransport.getClass().getSimpleName()
+                            + " upon receiving transport-replace");
+            currentTransport.setTransportCallback(null);
+            currentTransport.terminate();
+        }
+        final Transport nextTransport;
         try {
-            transport = setupTransport(transportInfo);
+            nextTransport = setupTransport(transportInfo);
         } catch (final RuntimeException e) {
             sendSessionTerminate(Reason.of(e), e.getMessage());
             return;
         }
-        this.transport = transport;
+        this.transport = nextTransport;
+        Log.d(
+                Config.LOGTAG,
+                "replacing transport with " + nextTransport.getClass().getSimpleName());
         this.transport.setTransportCallback(this);
-        final var transportInfoFuture = transport.asTransportInfo();
+        final var transportInfoFuture = nextTransport.asTransportInfo();
         Futures.addCallback(
                 transportInfoFuture,
                 new FutureCallback<>() {
@@ -790,7 +800,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                 contentMap
                         .transportInfo()
                         .toJinglePacket(JinglePacket.Action.TRANSPORT_ACCEPT, id.sessionId);
-        Log.d(Config.LOGTAG, "sending transport accept " + jinglePacket);
         send(jinglePacket);
         transport.connect();
     }
@@ -977,7 +986,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                 new JinglePacket(JinglePacket.Action.SESSION_INFO, this.id.sessionId);
         jinglePacket.addJingleChild(sessionInfo.asElement());
         jinglePacket.setTo(this.id.with);
-        Log.d(Config.LOGTAG, "--> " + jinglePacket);
         send(jinglePacket);
     }
 
@@ -1003,6 +1011,9 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         transport.terminate();
         if (isInitiator()) {
             this.transport = setupLastResortTransport();
+            Log.d(
+                    Config.LOGTAG,
+                    "replacing transport with " + this.transport.getClass().getSimpleName());
             this.transport.setTransportCallback(this);
             final var transportInfoFuture = this.transport.asTransportInfo();
             Futures.addCallback(
@@ -1032,7 +1043,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                 contentMap
                         .transportInfo()
                         .toJinglePacket(JinglePacket.Action.TRANSPORT_REPLACE, id.sessionId);
-        Log.d(Config.LOGTAG, "sending transport replace " + jinglePacket);
         send(jinglePacket);
     }
 
@@ -1060,7 +1070,6 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         }
         final JinglePacket jinglePacket =
                 transportInfo.toJinglePacket(JinglePacket.Action.TRANSPORT_INFO, id.sessionId);
-        Log.d(Config.LOGTAG, "--> " + jinglePacket);
         send(jinglePacket);
     }
 
@@ -1166,9 +1175,9 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
             case NULL, SESSION_INITIALIZED, SESSION_INITIALIZED_PRE_APPROVED -> Transferable
                     .STATUS_OFFER;
             case TERMINATED_APPLICATION_FAILURE,
-                 TERMINATED_CONNECTIVITY_ERROR,
-                 TERMINATED_DECLINED_OR_BUSY,
-                 TERMINATED_SECURITY_ERROR -> Transferable.STATUS_FAILED;
+                    TERMINATED_CONNECTIVITY_ERROR,
+                    TERMINATED_DECLINED_OR_BUSY,
+                    TERMINATED_SECURITY_ERROR -> Transferable.STATUS_FAILED;
             case TERMINATED_CANCEL_OR_TIMEOUT -> Transferable.STATUS_CANCELLED;
             case SESSION_ACCEPTED -> Transferable.STATUS_DOWNLOADING;
             default -> Transferable.STATUS_UNKNOWN;
@@ -1236,7 +1245,10 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
             // IOException and turn it into a connectivity error
 
             if (isInitiator() && reason == Reason.CANCEL) {
-                this.message.setErrorMessage(Message.ERROR_MESSAGE_CANCELLED);
+                // message hooks have already run so we need to mark to persist the 'cancelled'
+                // status
+                xmppConnectionService.markMessage(
+                        message, Message.STATUS_SEND_FAILED, Message.ERROR_MESSAGE_CANCELLED);
             }
             terminateTransport();
             final JinglePacket jinglePacket =

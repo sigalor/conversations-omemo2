@@ -2,11 +2,6 @@ package eu.siacs.conversations.parser;
 
 import android.util.Log;
 
-import org.openintents.openpgp.util.OpenPgpUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.PgpEngine;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
@@ -28,15 +23,22 @@ import eu.siacs.conversations.xmpp.OnPresencePacketReceived;
 import eu.siacs.conversations.xmpp.pep.Avatar;
 import eu.siacs.conversations.xmpp.stanzas.PresencePacket;
 
-public class PresenceParser extends AbstractParser implements
-        OnPresencePacketReceived {
+import org.openintents.openpgp.util.OpenPgpUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PresenceParser extends AbstractParser implements OnPresencePacketReceived {
 
     public PresenceParser(XmppConnectionService service) {
         super(service);
     }
 
     public void parseConferencePresence(PresencePacket packet, Account account) {
-        final Conversation conversation = packet.getFrom() == null ? null : mXmppConnectionService.find(account, packet.getFrom().asBareJid());
+        final Conversation conversation =
+                packet.getFrom() == null
+                        ? null
+                        : mXmppConnectionService.find(account, packet.getFrom().asBareJid());
         if (conversation != null) {
             final MucOptions mucOptions = conversation.getMucOptions();
             boolean before = mucOptions.online();
@@ -47,7 +49,8 @@ public class PresenceParser extends AbstractParser implements
             if (!tileUserAfter.equals(tileUserBefore)) {
                 mXmppConnectionService.getAvatarService().clear(mucOptions);
             }
-            if (before != mucOptions.online() || (mucOptions.online() && count != mucOptions.getUserCount())) {
+            if (before != mucOptions.online()
+                    || (mucOptions.online() && count != mucOptions.getUserCount())) {
                 mXmppConnectionService.updateConversationUi();
             } else if (mucOptions.online()) {
                 mXmppConnectionService.updateMucRosterUi();
@@ -56,6 +59,8 @@ public class PresenceParser extends AbstractParser implements
     }
 
     private void processConferencePresence(PresencePacket packet, Conversation conversation) {
+
+
         final Account account = conversation.getAccount();
         final MucOptions mucOptions = conversation.getMucOptions();
         final Jid jid = conversation.getAccount().getJid();
@@ -83,14 +88,15 @@ public class PresenceParser extends AbstractParser implements
                                 mXmppConnectionService.getAvatarService().clear(mucOptions);
                             }
                             if (mucOptions.setSelf(user)) {
-                                Log.d(Config.LOGTAG, "role or affiliation changed");
+                                Log.d(Config.LOGTAG,"role or affiliation changed");
                                 mXmppConnectionService.databaseBackend.updateConversation(conversation);
                             }
                             mXmppConnectionService.persistSelfNick(user);
                             invokeRenameListener(mucOptions, true);
                         }
                         boolean isNew = mucOptions.updateUser(user);
-                        final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+                        final AxolotlService axolotlService =
+                                conversation.getAccount().getAxolotlService();
                         Contact contact = user.getContact();
                         if (isNew
                                 && user.getRealJid() != null
@@ -99,12 +105,16 @@ public class PresenceParser extends AbstractParser implements
                                 && axolotlService.hasEmptyDeviceList(user.getRealJid())) {
                             axolotlService.fetchDeviceIds(user.getRealJid());
                         }
-                        if (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED) && mucOptions.autoPushConfiguration()) {
-                            Log.d(Config.LOGTAG, account.getJid().asBareJid()
-                                    + ": room '"
-                                    + mucOptions.getConversation().getJid().asBareJid()
-                                    + "' created. pushing default configuration");
-                            mXmppConnectionService.pushConferenceConfiguration(mucOptions.getConversation(),
+                        if (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED)
+                                && mucOptions.autoPushConfiguration()) {
+                            Log.d(
+                                    Config.LOGTAG,
+                                    account.getJid().asBareJid()
+                                            + ": room '"
+                                            + mucOptions.getConversation().getJid().asBareJid()
+                                            + "' created. pushing default configuration");
+                            mXmppConnectionService.pushConferenceConfiguration(
+                                    mucOptions.getConversation(),
                                     IqGenerator.defaultChannelConfiguration(),
                                     null);
                         }
@@ -113,7 +123,13 @@ public class PresenceParser extends AbstractParser implements
                             if (signed != null) {
                                 Element status = packet.findChild("status");
                                 String msg = status == null ? "" : status.getContent();
-                                long keyId = mXmppConnectionService.getPgpEngine().fetchKeyId(mucOptions.getAccount(), msg, signed.getContent());
+                                long keyId =
+                                        mXmppConnectionService
+                                                .getPgpEngine()
+                                                .fetchKeyId(
+                                                        mucOptions.getAccount(),
+                                                        msg,
+                                                        signed.getContent());
                                 if (keyId != 0) {
                                     user.setPgpKeyId(keyId);
                                 }
@@ -126,7 +142,11 @@ public class PresenceParser extends AbstractParser implements
                                     mXmppConnectionService.getAvatarService().clear(user);
                                 }
                                 if (user.getRealJid() != null) {
-                                    final Contact c = conversation.getAccount().getRoster().getContact(user.getRealJid());
+                                    final Contact c =
+                                            conversation
+                                                    .getAccount()
+                                                    .getRoster()
+                                                    .getContact(user.getRealJid());
                                     c.setAvatar(avatar);
                                     mXmppConnectionService.syncRoster(conversation.getAccount());
                                     mXmppConnectionService.getAvatarService().clear(c);
@@ -142,10 +162,18 @@ public class PresenceParser extends AbstractParser implements
                 final boolean fullJidMatches = from.equals(mucOptions.getSelf().getFullJid());
                 if (x.hasChild("destroy") && fullJidMatches) {
                     Element destroy = x.findChild("destroy");
-                    final Jid alternate = destroy == null ? null : InvalidJid.getNullForInvalid(destroy.getAttributeAsJid("jid"));
+                    final Jid alternate =
+                            destroy == null
+                                    ? null
+                                    : InvalidJid.getNullForInvalid(
+                                            destroy.getAttributeAsJid("jid"));
                     mucOptions.setError(MucOptions.Error.DESTROYED);
                     if (alternate != null) {
-                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": muc destroyed. alternate location " + alternate);
+                        Log.d(
+                                Config.LOGTAG,
+                                account.getJid().asBareJid()
+                                        + ": muc destroyed. alternate location "
+                                        + alternate);
                     }
                 } else if (codes.contains(MucOptions.STATUS_CODE_SHUTDOWN) && fullJidMatches) {
                     mucOptions.setError(MucOptions.Error.SHUTDOWN);
@@ -180,10 +208,10 @@ public class PresenceParser extends AbstractParser implements
                 } else if (!from.isBareJid()) {
                     Element item = x.findChild("item");
                     if (item != null) {
-                        mucOptions.updateUser(parseItem(conversation, item, from, occupantId, nick == null ? null : nick.getContent(), hats));
+						mucOptions.updateUser(parseItem(conversation, item, from, occupantId, nick == null ? null : nick.getContent(), hats));
                     }
                     MucOptions.User user = mucOptions.deleteUser(from);
-                    if (user != null) {
+                    if (user != null && occupantId == null) {
                         mXmppConnectionService.getAvatarService().clear(user);
                     }
                 }
@@ -223,7 +251,11 @@ public class PresenceParser extends AbstractParser implements
                     }
                     mucOptions.setError(MucOptions.Error.DESTROYED);
                     if (alternate != null) {
-                        Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": muc destroyed. alternate location " + alternate);
+                        Log.d(
+                                Config.LOGTAG,
+                                conversation.getAccount().getJid().asBareJid()
+                                        + ": muc destroyed. alternate location "
+                                        + alternate);
                     }
                 } else {
                     final String text = error.findChildContent("text");
@@ -278,7 +310,8 @@ public class PresenceParser extends AbstractParser implements
         final Contact contact = account.getRoster().getContact(from);
         if (type == null) {
             final String resource = from.isBareJid() ? "" : from.getResource();
-            Avatar avatar = Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
+            final Avatar avatar =
+                    Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
             if (avatar != null && (!contact.isSelf() || account.getAvatar() == null)) {
                 avatar.owner = from.asBareJid();
                 if (mXmppConnectionService.getFileBackend().isAvatarCached(avatar)) {
@@ -303,7 +336,8 @@ public class PresenceParser extends AbstractParser implements
             if (mXmppConnectionService.isMuc(account, from)) {
                 return;
             }
-            int sizeBefore = contact.getPresences().size();
+
+            final int sizeBefore = contact.getPresences().size();
 
             final String show = packet.findChildContent("show");
             final Element caps = packet.findChild("c", "http://jabber.org/protocol/caps");
@@ -331,13 +365,19 @@ public class PresenceParser extends AbstractParser implements
                 }
             }
 
-            PgpEngine pgp = mXmppConnectionService.getPgpEngine();
-            Element x = packet.findChild("x", "jabber:x:signed");
+            final PgpEngine pgp = mXmppConnectionService.getPgpEngine();
+            final Element x = packet.findChild("x", "jabber:x:signed");
             if (pgp != null && x != null) {
                 final String status = packet.findChildContent("status");
                 final long keyId = pgp.fetchKeyId(account, status, x.getContent());
                 if (keyId != 0 && contact.setPgpKeyId(keyId)) {
-                    Log.d(Config.LOGTAG,account.getJid().asBareJid()+": found OpenPGP key id for "+contact.getJid()+" "+OpenPgpUtils.convertKeyIdToHex(keyId));
+                    Log.d(
+                            Config.LOGTAG,
+                            account.getJid().asBareJid()
+                                    + ": found OpenPGP key id for "
+                                    + contact.getJid()
+                                    + " "
+                                    + OpenPgpUtils.convertKeyIdToHex(keyId));
                     mXmppConnectionService.syncRoster(account);
                 }
             }
@@ -370,22 +410,23 @@ public class PresenceParser extends AbstractParser implements
                 mXmppConnectionService.getAvatarService().clear(contact);
             }
             if (contact.getOption(Contact.Options.PREEMPTIVE_GRANT)) {
-                mXmppConnectionService.sendPresencePacket(account,
-                        mPresenceGenerator.sendPresenceUpdatesTo(contact));
+                mXmppConnectionService.sendPresencePacket(
+                        account, mPresenceGenerator.sendPresenceUpdatesTo(contact));
             } else {
                 contact.setOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
-                final Conversation conversation = mXmppConnectionService.findOrCreateConversation(
-                        account, contact.getJid().asBareJid(), false, false);
+                final Conversation conversation =
+                        mXmppConnectionService.findOrCreateConversation(
+                                account, contact.getJid().asBareJid(), false, false);
                 final String statusMessage = packet.findChildContent("status");
                 if (statusMessage != null
                         && !statusMessage.isEmpty()
                         && conversation.countMessages() == 0) {
-                    conversation.add(new Message(
-                            conversation,
-                            statusMessage,
-                            Message.ENCRYPTION_NONE,
-                            Message.STATUS_RECEIVED
-                    ));
+                    conversation.add(
+                            new Message(
+                                    conversation,
+                                    statusMessage,
+                                    Message.ENCRYPTION_NONE,
+                                    Message.STATUS_RECEIVED));
                 }
             }
         }
@@ -398,11 +439,11 @@ public class PresenceParser extends AbstractParser implements
             this.parseConferencePresence(packet, account);
         } else if (packet.hasChild("x", "http://jabber.org/protocol/muc")) {
             this.parseConferencePresence(packet, account);
-        } else if ("error".equals(packet.getAttribute("type")) && mXmppConnectionService.isMuc(account, packet.getFrom())) {
+        } else if ("error".equals(packet.getAttribute("type"))
+                && mXmppConnectionService.isMuc(account, packet.getFrom())) {
             this.parseConferencePresence(packet, account);
         } else {
             this.parseContactPresence(packet, account);
         }
     }
-
 }

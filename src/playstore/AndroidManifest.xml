@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <application tools:ignore="GoogleAppIndexingWarning">
+    <!-- Remove this line if Google Play Store is giving you a hard time -->
+    <!-- <uses-permission android:name="android.permission.READ_CONTACTS"/> -->
+
+    <application android:icon="@mipmap/new_launcher">
 
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
@@ -20,12 +19,12 @@
             android:exported="true"
             android:permission="android.permission.CHANGE_CONFIGURATION">
             <intent-filter>
-                <action android:name="${applicationId}.RENEW_INSTANCE_ID" />
+                <action android:name="eu.siacs.conversations.RENEW_INSTANCE_ID" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name=".services.PushMessageReceiver"
+            android:name=".receiver.PushMessageReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

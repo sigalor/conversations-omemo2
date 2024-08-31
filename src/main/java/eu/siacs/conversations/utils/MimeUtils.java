@@ -20,31 +20,31 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Log;
-import com.google.common.collect.ImmutableList;
+
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Arrays;
-import java.util.Collection;
 
 import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Transferable;
-import eu.siacs.conversations.services.ExportBackupService;
+import eu.siacs.conversations.worker.ExportBackupWorker;
 
 /**
  * Utilities for dealing with MIME types.
  * Used to implement java.net.URLConnection and android.webkit.MimeTypeMap.
  */
 public final class MimeUtils {
+
     public static final List<String> AMBIGUOUS_CONTAINER_FORMATS = ImmutableList.of(
             "application/ogg",
             "video/3gpp", // .3gp files can contain audio, video or both
@@ -76,6 +76,7 @@ public final class MimeUtils {
         add("application/mathematica", "nb");
         add("application/msaccess", "mdb");
         add("application/oda", "oda");
+        add("application/ogg", "ogg");
         add("application/pdf", "pdf");
         add("application/pgp-keys", "key");
         add("application/pgp-signature", "pgp");
@@ -85,14 +86,12 @@ public final class MimeUtils {
         add("application/rdf+xml", "rdf");
         add("application/rss+xml", "rss");
         add("application/zip", "zip");
-        add("application/gzip", "gz");
-        add("application/gzip", "tgz");
         add("application/vnd.amazon.mobi8-ebook", "azw3");
         add("application/vnd.amazon.mobi8-ebook", "azw");
         add("application/vnd.amazon.mobi8-ebook", "kfx");
         add("application/vnd.android.package-archive", "apk");
         add("application/vnd.cinderella", "cdy");
-        add(ExportBackupService.MIME_TYPE, "ceb");
+        add(ExportBackupWorker.MIME_TYPE, "ceb");
         add("application/vnd.ms-pki.stl", "stl");
         add("application/vnd.oasis.opendocument.database", "odb");
         add("application/vnd.oasis.opendocument.formula", "odf");
@@ -251,6 +250,7 @@ public final class MimeUtils {
         add("audio/amr-wb", "awb");
         add("audio/basic", "snd");
         add("audio/flac", "flac");
+        add("application/x-flac", "flac");
         add("audio/imelody", "imy");
         add("audio/midi", "mid");
         add("audio/midi", "midi");
@@ -267,9 +267,9 @@ public final class MimeUtils {
         add("audio/mp4", "m4a");
         add("audio/x-m4b", "m4b");
         add("audio/mpegurl", "m3u");
-        add("audio/ogg", "ogg");
         add("audio/ogg", "oga");
-        add("audio/opus", "opus");
+        add("audio/ogg; codecs=opus", "opus"); // opus in ogg container
+        add("audio/opus", "opus"); // audio/opus for containerless opus
         add("audio/prs.sid", "sid");
         add("audio/x-aiff", "aif");
         add("audio/x-aiff", "aiff");
@@ -330,6 +330,8 @@ public final class MimeUtils {
         add("image/x-xbitmap", "xbm");
         add("image/x-xpixmap", "xpm");
         add("image/x-xwindowdump", "xwd");
+        add("message/rfc822","eml");
+        add("message/rfc822","mime");
         add("model/iges", "igs");
         add("model/iges", "iges");
         add("model/mesh", "msh");
@@ -351,7 +353,6 @@ public final class MimeUtils {
         add("text/plain", "text");
         add("text/plain", "diff");
         add("text/plain", "po");     // reserve "pot" for vnd.ms-powerpoint
-        add("text/plain", "ass");
         add("text/richtext", "rtx");
         add("text/rtf", "rtf");
         add("text/text", "phps");
@@ -399,7 +400,6 @@ public final class MimeUtils {
         add("video/mpeg", "mpg");
         add("video/mpeg", "mpe");
         add("video/mp4", "mp4");
-        add("video/mp4", "gifv");
         add("video/mpeg", "VOB");
         add("video/quicktime", "qt");
         add("video/quicktime", "mov");
@@ -421,15 +421,6 @@ public final class MimeUtils {
         add("x-epoc/x-sisx-app", "sisx");
         applyOverrides();
     }
-
-    private static final List<String> DOCUMENT_MIMES = Arrays.asList(
-            "application/pdf",
-            "application/vnd.oasis.opendocument.text",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "text/x-tex",
-            "text/plain"
-    );
 
     // mime types that are more reliant by path
     private static final Collection<String> PATH_PRECEDENCE_MIME_TYPE = Arrays.asList("audio/x-m4b");
@@ -520,7 +511,7 @@ public final class MimeUtils {
      * Returns the MIME type for the given extension.
      *
      * @param extension A file extension without the leading '.'
-     * @return The MIME type for the given extension or null if there is none.
+     * @return The MIME type for the given extension or null iff there is none.
      */
     public static String guessMimeTypeFromExtension(String extension) {
         if (extension == null || extension.isEmpty()) {
@@ -533,7 +524,7 @@ public final class MimeUtils {
      * Returns true if the given extension has a registered MIME type.
      *
      * @param extension A file extension without the leading '.'
-     * @return True if there is an extension entry in the map.
+     * @return True iff there is an extension entry in the map.
      */
     public static boolean hasExtension(String extension) {
         if (extension == null || extension.isEmpty()) {
@@ -548,7 +539,7 @@ public final class MimeUtils {
      * common extension for the given MIME type.
      *
      * @param mimeType A MIME type (i.e. text/plain)
-     * @return The extension for the given MIME type or null if there is none.
+     * @return The extension for the given MIME type or null iff there is none.
      */
     public static String guessExtensionFromMimeType(String mimeType) {
         if (mimeType == null || mimeType.isEmpty()) {
@@ -664,35 +655,5 @@ public final class MimeUtils {
         } else {
             return input;
         }
-    }
-
-    public static String getMimeTypeEmoji(Context context, String mime){
-        String lm;
-        if (mime == null) {
-            lm = context.getString(R.string.unknown);
-        } else if (mime.startsWith("audio/")) {
-            lm = "\uD83C\uDF99"; // studio microphone emoji
-        } else if (mime.equals("text/calendar") || (mime.equals("text/x-vcalendar"))) {
-            lm = "\uD83D\uDCC6"; // tear-off calendar emoji
-        } else if (mime.equals("text/x-vcard")) {
-            lm = "\uD83D\uDC64"; // silhouette emoji
-        } else if (mime.equals("application/vnd.android.package-archive")) {
-            lm = "\uD83D\uDCF1"; // cell phone emoji
-        } else if (mime.equals("application/zip") || mime.equals("application/rar")) {
-            lm = "\uD83D\uDDC4️"; // filing cabinet emoji
-        } else if (mime.equals("application/epub+zip") || mime.equals("application/vnd.amazon.mobi8-ebook")) {
-            lm = "\uD83D\uDCD6"; // open book emoji
-        } else if (mime.equals(ExportBackupService.MIME_TYPE)) {
-            lm = "\uD83D\uDCBE"; // diskette emoji
-        } else if (DOCUMENT_MIMES.contains(mime)) {
-            lm = "\uD83D\uDCC4"; // page emoji
-        } else if (mime.startsWith("image/")) {
-            lm = "\uD83D\uDDBC️"; // painting emoji
-        } else if (mime.startsWith("video/")) {
-            lm = "\uD83C\uDFAC"; // clapper board emoji
-        } else {
-            lm = "\uD83D\uDCC4"; // page emoji
-        }
-        return lm;
     }
 }

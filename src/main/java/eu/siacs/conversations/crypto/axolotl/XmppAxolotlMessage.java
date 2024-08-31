@@ -114,8 +114,7 @@ public class XmppAxolotlMessage {
             generator.init(128);
             return generator.generateKey().getEncoded();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(Config.LOGTAG, e.getMessage());
-            return null;
+            throw new IllegalStateException(e);
         }
     }
 
@@ -147,10 +146,12 @@ public class XmppAxolotlMessage {
     }
 
     void encrypt(final String plaintext) throws CryptoFailedException {
+        if (plaintext == null) return;
+
         try {
             SecretKey secretKey = new SecretKeySpec(innerKey, KEYTYPE);
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            Cipher cipher = Compatibility.runsTwentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
+            Cipher cipher = Compatibility.twentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
             this.ciphertext = cipher.doFinal(Config.OMEMO_PADDING ? getPaddedBytes(plaintext) : plaintext.getBytes());
             if (Config.PUT_AUTH_TAG_INTO_KEY && this.ciphertext != null) {
@@ -255,7 +256,7 @@ public class XmppAxolotlMessage {
                 ciphertext = newCipherText;
                 key = newKey;
 
-                final Cipher cipher = Compatibility.runsTwentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
+                final Cipher cipher = Compatibility.twentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
                 SecretKeySpec keySpec = new SecretKeySpec(key, KEYTYPE);
                 IvParameterSpec ivSpec = new IvParameterSpec(iv);
 

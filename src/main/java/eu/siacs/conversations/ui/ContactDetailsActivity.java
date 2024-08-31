@@ -1,7 +1,5 @@
 package eu.siacs.conversations.ui;
 
-import static eu.siacs.conversations.ui.util.IntroHelper.showIntro;
-
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -10,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,37 +16,36 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Intents;
-import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
-import android.util.Patterns;
 import android.util.TypedValue;
+import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 import androidx.databinding.DataBindingUtil;
 
-import com.bumptech.glide.Glide;
-import com.google.common.base.Optional;
+import de.monocles.chat.Util;
+
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
@@ -57,11 +55,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import de.monocles.chat.Util;
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
@@ -69,13 +65,13 @@ import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlSession;
 import eu.siacs.conversations.databinding.ActivityContactDetailsBinding;
 import eu.siacs.conversations.databinding.CommandRowBinding;
-import eu.siacs.conversations.databinding.ThreadRowBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Contact;
-import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.ListItem;
-import eu.siacs.conversations.services.NotificationService;
+import eu.siacs.conversations.entities.Presence;
+import eu.siacs.conversations.services.AbstractQuickConversationsService;
+import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.services.XmppConnectionService.OnRosterUpdate;
@@ -83,18 +79,18 @@ import eu.siacs.conversations.ui.adapter.MediaAdapter;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
 import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
-import eu.siacs.conversations.ui.util.CallManager;
 import eu.siacs.conversations.ui.util.GridManager;
 import eu.siacs.conversations.ui.util.JidDialog;
+import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
+import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.Emoticons;
-import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.IrregularUnicodeDetector;
-import eu.siacs.conversations.utils.MenuDoubleTabUtil;
-import eu.siacs.conversations.utils.TimeFrameUtils;
+import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
 import eu.siacs.conversations.utils.UIHelper;
+import eu.siacs.conversations.utils.XEP0392Helper;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -102,30 +98,24 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
-import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
-import eu.siacs.conversations.xmpp.jingle.RtpCapability;
-import me.drakeet.support.toast.ToastCompat;
 
 public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated, OnMediaLoaded {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
     private final int REQUEST_SYNC_CONTACTS = 0x28cf;
-    private Contact contact;
-    private Conversation mConversation;
-    private ConversationFragment mConversationFragment;
     ActivityContactDetailsBinding binding;
     private MediaAdapter mMediaAdapter;
     protected MenuItem edit = null;
     protected MenuItem save = null;
-    private boolean mIndividualNotifications = false;
-    private DialogInterface.OnClickListener removeFromRoster = new DialogInterface.OnClickListener() {
+
+    private Contact contact;
+    private final DialogInterface.OnClickListener removeFromRoster = new DialogInterface.OnClickListener() {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
             xmppConnectionService.deleteContactOnServer(contact);
-            recreate();
         }
     };
-    private OnCheckedChangeListener mOnSendCheckedChange = new OnCheckedChangeListener() {
+    private final OnCheckedChangeListener mOnSendCheckedChange = new OnCheckedChangeListener() {
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -141,18 +131,14 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             }
         }
     };
-    private OnCheckedChangeListener mOnReceiveCheckedChange = new OnCheckedChangeListener() {
+    private final OnCheckedChangeListener mOnReceiveCheckedChange = new OnCheckedChangeListener() {
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked) {
-                xmppConnectionService.sendPresencePacket(contact.getAccount(),
-                        xmppConnectionService.getPresenceGenerator()
-                                .requestPresenceUpdatesFrom(contact));
+                xmppConnectionService.sendPresencePacket(contact.getAccount(), xmppConnectionService.getPresenceGenerator().requestPresenceUpdatesFrom(contact));
             } else {
-                xmppConnectionService.sendPresencePacket(contact.getAccount(),
-                        xmppConnectionService.getPresenceGenerator()
-                                .stopPresenceUpdatesFrom(contact));
+                xmppConnectionService.sendPresencePacket(contact.getAccount(), xmppConnectionService.getPresenceGenerator().stopPresenceUpdatesFrom(contact));
             }
         }
     };
@@ -162,19 +148,17 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     private boolean showLastSeen = false;
     private boolean showInactiveOmemo = false;
     private String messageFingerprint;
-    private TextView mNotifyStatusText;
-    private ImageButton mNotifyStatusButton;
 
     private void checkContactPermissionAndShowAddDialog() {
         if (hasContactsPermission()) {
             showAddToPhoneBookDialog();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        } else if (QuickConversationsService.isContactListIntegration(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
         }
     }
 
     private boolean hasContactsPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (QuickConversationsService.isContactListIntegration(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
         } else {
             return true;
@@ -182,81 +166,40 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     }
 
     private void showAddToPhoneBookDialog() {
-        //TODO check if isQuicksy and contact is on quicksy.im domain
-        // store in final boolean. show different message. use phone number for add
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final Jid jid = contact.getJid();
+        final boolean quicksyContact = AbstractQuickConversationsService.isQuicksy()
+                && Config.QUICKSY_DOMAIN.equals(jid.getDomain())
+                && jid.getLocal() != null;
+        final String value;
+        if (quicksyContact) {
+            value = PhoneNumberUtilWrapper.toFormattedPhoneNumber(this, jid);
+        } else {
+            value = jid.toEscapedString();
+        }
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(getString(R.string.action_add_phone_book));
-        builder.setMessage(getString(R.string.add_phone_book_text, contact.getJid().toEscapedString()));
+        builder.setMessage(getString(R.string.add_phone_book_text, value));
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setPositiveButton(getString(R.string.add), (dialog, which) -> {
             final Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
             intent.setType(Contacts.CONTENT_ITEM_TYPE);
-            intent.putExtra(Intents.Insert.IM_HANDLE, contact.getJid().toEscapedString());
-            intent.putExtra(Intents.Insert.IM_PROTOCOL, CommonDataKinds.Im.PROTOCOL_JABBER);
-            //TODO for modern use we want PROTOCOL_CUSTOM and an extra field with a value of 'XMPP'
-            // however we don’t have such a field and thus have to use the legacy PROTOCOL_JABBER
+            if (quicksyContact) {
+                intent.putExtra(Intents.Insert.PHONE, value);
+            } else {
+                intent.putExtra(Intents.Insert.IM_HANDLE, value);
+                intent.putExtra(Intents.Insert.IM_PROTOCOL, CommonDataKinds.Im.PROTOCOL_JABBER);
+                //TODO for modern use we want PROTOCOL_CUSTOM and an extra field with a value of 'XMPP'
+                // however we don’t have such a field and thus have to use the legacy PROTOCOL_JABBER
+            }
             intent.putExtra("finishActivityOnSaveCompleted", true);
             try {
                 startActivityForResult(intent, 0);
             } catch (ActivityNotFoundException e) {
-                ToastCompat.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, ToastCompat.LENGTH_SHORT).show();
+                Toast.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, Toast.LENGTH_SHORT).show();
             }
         });
         builder.create().show();
     }
-
-    private OnClickListener mNotifyStatusClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(ContactDetailsActivity.this);
-            builder.setTitle(R.string.pref_notification_settings);
-            String[] choices = {
-                    getString(R.string.notify_on_all_messages),
-                    getString(R.string.notify_never)
-            };
-            final AtomicInteger choice;
-            if (mConversation.alwaysNotify()) {
-                choice = new AtomicInteger(0);
-            } else {
-                choice = new AtomicInteger(1);
-            }
-            builder.setSingleChoiceItems(choices, choice.get(), (dialog, which) -> choice.set(which));
-            builder.setNegativeButton(R.string.cancel, null);
-            builder.setPositiveButton(R.string.ok, (DialogInterface.OnClickListener) (dialog, which) -> {
-                if (choice.get() == 1) {
-                    final AlertDialog.Builder builder1 = new AlertDialog.Builder(ContactDetailsActivity.this);
-                    builder1.setTitle(R.string.disable_notifications);
-                    final int[] durations = getResources().getIntArray(R.array.mute_options_durations);
-                    final CharSequence[] labels = new CharSequence[durations.length];
-                    for (int i = 0; i < durations.length; ++i) {
-                        if (durations[i] == -1) {
-                            labels[i] = getString(R.string.until_further_notice);
-                        } else {
-                            labels[i] = TimeFrameUtils.resolve(ContactDetailsActivity.this, 1000L * durations[i]);
-                        }
-                    }
-                    builder1.setItems(labels, (dialog1, which1) -> {
-                        final long till;
-                        if (durations[which1] == -1) {
-                            till = Long.MAX_VALUE;
-                        } else {
-                            till = System.currentTimeMillis() + (durations[which1] * 1000);
-                        }
-                        mConversation.setMutedTill(till);
-                        xmppConnectionService.updateConversation(mConversation);
-                        populateView();
-                    });
-                    builder1.create().show();
-                } else {
-                    mConversation.setMutedTill(0);
-                    mConversation.setAttribute(Conversation.ATTRIBUTE_ALWAYS_NOTIFY, String.valueOf(choice.get() == 0));
-                }
-                xmppConnectionService.updateConversation(mConversation);
-                populateView();
-            });
-            builder.create().show();
-        }
-    };
 
     @Override
     public void onRosterUpdate(final XmppConnectionService.UpdateRosterReason reason, final Contact contact) {
@@ -281,7 +224,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     @Override
     protected String getShareableUri(boolean http) {
         if (http) {
-            return "https://monocles.chat/chat/" + XmppUri.lameUrlEncode(contact.getJid().asBareJid().toEscapedString());
+            return "https://conversations.im/i/" + XmppUri.lameUrlEncode(contact.getJid().asBareJid().toEscapedString());
         } else {
             return "xmpp:" + Uri.encode(contact.getJid().asBareJid().toEscapedString(), "@/+");
         }
@@ -303,24 +246,19 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         this.messageFingerprint = getIntent().getStringExtra("fingerprint");
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_contact_details);
-        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
+
+        setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
         binding.showInactiveDevices.setOnClickListener(v -> {
             showInactiveOmemo = !showInactiveOmemo;
             populateView();
         });
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
-        this.mNotifyStatusButton = findViewById(R.id.notification_status_button);
-        this.mNotifyStatusButton.setOnClickListener(this.mNotifyStatusClickListener);
-        this.mNotifyStatusText = findViewById(R.id.notification_status_text);
+
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
-        this.binding.recentThreads.setOnItemClickListener((a0, v, pos, a3) -> {
-            final Conversation.Thread thread = (Conversation.Thread) binding.recentThreads.getAdapter().getItem(pos);
-            switchToConversation(mConversation, null, false, null, false, true, null, thread.getThreadId());
-        });
-        showIntro(this, false);
     }
 
     @Override
@@ -332,20 +270,15 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     @Override
     public void onStart() {
         super.onStart();
-        final int theme = findTheme();
-        if (this.mTheme != theme) {
-            recreate();
-        } else {
-            final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, getResources().getBoolean(R.bool.show_dynamic_tags));
-            this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
-        }
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.showDynamicTags = preferences.getBoolean(AppSettings.SHOW_DYNAMIC_TAGS, false);
+        this.showLastSeen = preferences.getBoolean("last_activity", false);
         binding.mediaWrapper.setVisibility(Compatibility.hasStoragePermission(this) ? View.VISIBLE : View.GONE);
         mMediaAdapter.setAttachments(Collections.emptyList());
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0)
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -375,26 +308,23 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setNegativeButton(getString(R.string.cancel), null);
         switch (menuItem.getItemId()) {
             case android.R.id.home:
                 finish();
-                break;
-            case R.id.action_audio_call:
-                CallManager.checkPermissionAndTriggerAudioCall(this, mConversation);
-                break;
-            case R.id.action_video_call:
-                CallManager.checkPermissionAndTriggerVideoCall(this, mConversation);
-                break;
-            case R.id.action_ongoing_call:
-                CallManager.returnToOngoingCall(this, mConversation);
                 break;
             case R.id.action_share_http:
                 shareLink(true);
                 break;
             case R.id.action_share_uri:
                 shareLink(false);
+                break;
+            case R.id.action_delete_contact:
+                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+                builder.setNegativeButton(getString(R.string.cancel), null);
+                builder.setTitle(getString(R.string.action_delete_contact))
+                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().toEscapedString()))
+                        .setPositiveButton(getString(R.string.delete),
+                                removeFromRoster).create().show();
                 break;
             case R.id.action_save:
                 saveEdits();
@@ -432,85 +362,29 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
 
                     ArrayAdapter<ListItem.Tag> adapter = new ArrayAdapter<>(
-                            this,
-                            android.R.layout.simple_list_item_1,
-                            tags.stream()
-                                    .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
-                                    .entrySet().stream()
-                                    .sorted(sortTagsBy)
-                                    .map(e -> e.getKey()).collect(Collectors.toList())
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        tags.stream()
+                        .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
+                        .entrySet().stream()
+                       .sorted(sortTagsBy)
+                       .map(e -> e.getKey()).collect(Collectors.toList())
                     );
                     binding.editTags.setAdapter(adapter);
                     if (showDynamicTags) binding.editTags.setVisibility(View.VISIBLE);
                     if (save != null) save.setVisible(true);
                 } else {
-                    final AlertDialog.Builder EditConactbuilder = new AlertDialog.Builder(ContactDetailsActivity.this);
-                    EditConactbuilder.setTitle(R.string.action_edit_contact);
-                    EditConactbuilder.setMessage(R.string.edit_sytemaccount_or_xmppaccount);
-                    //EditConactbuilder.setIcon(R.drawable.ic_mode_edit_black_18dp);
-                    EditConactbuilder.setPositiveButton(R.string.edit_sytemaccount, new DialogInterface.OnClickListener() {
+                    menuItem.collapseActionView();
+                    if (save != null) save.setVisible(false);
+                    Intent intent = new Intent(Intent.ACTION_EDIT);
+                    intent.setDataAndType(systemAccount, Contacts.CONTENT_ITEM_TYPE);
+                    intent.putExtra("finishActivityOnSaveCompleted", true);
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, Toast.LENGTH_SHORT).show();
+                    }
 
-                        public void onClick(DialogInterface EditContactdialog, int whichButton) {
-
-                            menuItem.collapseActionView();
-                            if (save != null) save.setVisible(false);
-                            Intent intent = new Intent(Intent.ACTION_EDIT);
-                            intent.setDataAndType(systemAccount, Contacts.CONTENT_ITEM_TYPE);
-                            intent.putExtra("finishActivityOnSaveCompleted", true);
-                            try {
-                                startActivity(intent);
-                            } catch (ActivityNotFoundException e) {
-                                Toast.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, Toast.LENGTH_SHORT).show();
-                            }
-                        }});
-                    EditConactbuilder.setNegativeButton(R.string.edit_chat_contact, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface EditContactdialog, int whichButton) {
-                            menuItem.expandActionView();
-                            EditText text = menuItem.getActionView().findViewById(R.id.search_field);
-                            text.setOnEditorActionListener((v, actionId, event) -> {
-                                saveEdits();
-                                return true;
-                            });
-                            text.setText(contact.getServerName());
-                            text.requestFocus();
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            if (imm != null) {
-                                imm.showSoftInput(text, InputMethodManager.SHOW_IMPLICIT);
-                            }
-                            binding.tags.setVisibility(View.GONE);
-                            binding.editTags.clearSync();
-                            for (final ListItem.Tag group : contact.getGroupTags()) {
-                                binding.editTags.addObjectSync(group);
-                            }
-                            ArrayList<ListItem.Tag> tags = new ArrayList<>();
-                            contact.getAccount();
-                            for (final Account account : xmppConnectionService.getAccounts()) {
-                                for (Contact contact : account.getRoster().getContacts()) {
-                                    tags.addAll(contact.getTags(ContactDetailsActivity.this));
-                                }
-                                for (Bookmark bookmark : account.getBookmarks()) {
-                                    tags.addAll(bookmark.getTags(ContactDetailsActivity.this));
-                                }
-                            }
-                            Comparator<Map.Entry<ListItem.Tag,Integer>> sortTagsBy = Map.Entry.comparingByValue(Comparator.reverseOrder());
-                            sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
-
-                            ArrayAdapter<ListItem.Tag> adapter = new ArrayAdapter<>(
-                                    ContactDetailsActivity.this,
-                                    android.R.layout.simple_list_item_1,
-                                    tags.stream()
-                                            .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
-                                            .entrySet().stream()
-                                            .sorted(sortTagsBy)
-                                            .map(e -> e.getKey()).collect(Collectors.toList())
-                            );
-                            binding.editTags.setAdapter(adapter);
-                            if (showDynamicTags) binding.editTags.setVisibility(View.VISIBLE);
-                            if (save != null) save.setVisible(true);
-                        }
-                    });
-                    AlertDialog EditContactdialog = EditConactbuilder.create();
-                    EditContactdialog.show();
                 }
                 break;
             case R.id.action_block:
@@ -519,134 +393,22 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             case R.id.action_unblock:
                 BlockContactDialog.show(this, contact);
                 break;
-            case R.id.action_activate_individual_notifications:
-                if (!menuItem.isChecked()) {
-                    this.mIndividualNotifications = true;
-                } else {
-                    if (Compatibility.runsTwentySix()) {
-                        final AlertDialog.Builder removeIndividualNotificationDialog = new AlertDialog.Builder(ContactDetailsActivity.this);
-                        removeIndividualNotificationDialog.setTitle(getString(R.string.remove_individual_notifications));
-                        removeIndividualNotificationDialog.setMessage(JidDialog.style(this, R.string.remove_individual_notifications_message, contact.getJid().toEscapedString()));
-                        removeIndividualNotificationDialog.setPositiveButton(R.string.yes, (dialog, which) -> {
-                            this.mIndividualNotifications = false;
-                            try {
-                                xmppConnectionService.getNotificationService().cleanNotificationChannels(this, mConversation.getUuid());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            menuItem.setChecked(this.mIndividualNotifications);
-                            xmppConnectionService.setIndividualNotificationPreference(mConversation, !mIndividualNotifications);
-                            xmppConnectionService.updateNotificationChannels();
-                            invalidateOptionsMenu();
-                            refreshUi();
-                        });
-                        removeIndividualNotificationDialog.setNegativeButton(R.string.no, (dialog, which) -> {
-                            this.mIndividualNotifications = true;
-                        });
-                        removeIndividualNotificationDialog.create().show();
-                    }
-                }
-                menuItem.setChecked(this.mIndividualNotifications);
-                xmppConnectionService.setIndividualNotificationPreference(mConversation, !mIndividualNotifications);
-                xmppConnectionService.updateNotificationChannels();
-                invalidateOptionsMenu();
-                refreshUi();
-                break;
-            case R.id.action_message_notifications:
-                Intent messageNotificationIntent = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    final String time = String.valueOf(xmppConnectionService.getIndividualNotificationPreference(mConversation));
-                    messageNotificationIntent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                            .putExtra(Settings.EXTRA_APP_PACKAGE, this.getPackageName())
-                            .putExtra(Settings.EXTRA_CHANNEL_ID, NotificationService.INDIVIDUAL_NOTIFICATION_PREFIX + NotificationService.MESSAGES_CHANNEL_ID + "_" + mConversation.getUuid() + "_" + time);
-                }
-                startActivity(messageNotificationIntent);
-                break;
-            case R.id.action_call_notifications:
-                Intent callNotificationIntent = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    final String time = String.valueOf(xmppConnectionService.getIndividualNotificationPreference(mConversation));
-                    callNotificationIntent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                            .putExtra(Settings.EXTRA_APP_PACKAGE, this.getPackageName())
-                            .putExtra(Settings.EXTRA_CHANNEL_ID, NotificationService.INDIVIDUAL_NOTIFICATION_PREFIX + NotificationService.INCOMING_CALLS_CHANNEL_ID + "_" + mConversation.getUuid() + "_" + time);
-                }
-                startActivity(callNotificationIntent);
-                break;
         }
         return super.onOptionsItemSelected(menuItem);
-    }
-
-    private void editContact() {
-        Uri systemAccount = contact.getSystemAccount();
-        if (systemAccount == null) {
-            quickEdit(contact.getServerName(), R.string.contact_name, value -> {
-                contact.setServerName(value);
-                ContactDetailsActivity.this.xmppConnectionService.pushContactToServer(contact);
-                populateView();
-                return null;
-            }, true);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_EDIT);
-            intent.setDataAndType(systemAccount, Contacts.CONTENT_ITEM_TYPE);
-            intent.putExtra("finishActivityOnSaveCompleted", true);
-            try {
-                startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-            } catch (ActivityNotFoundException e) {
-                ToastCompat.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, ToastCompat.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuItemIndividualNotifications = menu.findItem(R.id.action_activate_individual_notifications);
-        menuItemIndividualNotifications.setChecked(mIndividualNotifications);
-        menuItemIndividualNotifications.setVisible(Compatibility.runsTwentySix());
-        if (mConversation == null) {
-            return true;
-        }
-        return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.contact_details, menu);
-        final MenuItem block = menu.findItem(R.id.action_block);
-        final MenuItem unblock = menu.findItem(R.id.action_unblock);
-        final MenuItem menuCall = menu.findItem(R.id.action_call);
-        final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
-        final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
-        final MenuItem menuMessageNotification = menu.findItem(R.id.action_message_notifications);
-        final MenuItem menuCallNotification = menu.findItem(R.id.action_call_notifications);
+        AccountUtils.showHideMenuItems(menu);
         edit = menu.findItem(R.id.action_edit_contact);
         save = menu.findItem(R.id.action_save);
+        MenuItem block = menu.findItem(R.id.action_block);
+        MenuItem unblock = menu.findItem(R.id.action_unblock);
+        MenuItem edit = menu.findItem(R.id.action_edit_contact);
+        MenuItem delete = menu.findItem(R.id.action_delete_contact);
         if (contact == null) {
             return true;
-        }
-        if (this.mConversation != null) {
-            if (xmppConnectionService.hasInternetConnection()) {
-                menuCall.setVisible(false);
-                menuOngoingCall.setVisible(false);
-            } else {
-                final Optional<OngoingRtpSession> ongoingRtpSession = xmppConnectionService.getJingleConnectionManager().getOngoingRtpConnection(this.mConversation.getContact());
-                if (ongoingRtpSession.isPresent()) {
-                    menuOngoingCall.setVisible(true);
-                    menuCall.setVisible(false);
-                } else {
-                    menuOngoingCall.setVisible(false);
-                    final RtpCapability.Capability rtpCapability = RtpCapability.check(this.mConversation.getContact());
-                    menuCall.setVisible(rtpCapability != RtpCapability.Capability.NONE);
-                    menuVideoCall.setVisible(rtpCapability == RtpCapability.Capability.VIDEO);
-                }
-            }
-            if (Compatibility.runsTwentySix()) {
-                menuCallNotification.setVisible(xmppConnectionService.hasIndividualNotification(mConversation));
-                menuMessageNotification.setVisible(xmppConnectionService.hasIndividualNotification(mConversation));
-            } else {
-                menuCallNotification.setVisible(false);
-                menuMessageNotification.setVisible(false);
-            }
         }
         final XmppConnection connection = contact.getAccount().getXmppConnection();
         if (connection != null && connection.getFeatures().blocking()) {
@@ -661,6 +423,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         if (!contact.showInRoster()) {
             edit.setVisible(false);
+            delete.setVisible(false);
         }
         edit.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
@@ -683,159 +446,39 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             return;
         }
         if (binding.editTags.getVisibility() != View.GONE) return;
-        int ic_notifications = getThemeResource(R.attr.icon_notifications, R.drawable.ic_notifications_black_24dp);
-        int ic_notifications_off = getThemeResource(R.attr.icon_notifications_off, R.drawable.ic_notifications_off_black_24dp);
-        int ic_notifications_paused = getThemeResource(R.attr.icon_notifications_paused, R.drawable.ic_notifications_paused_black_24dp);
-        long mutedTill = mConversation.getLongAttribute(Conversation.ATTRIBUTE_MUTED_TILL, 0);
-        if (mutedTill == Long.MAX_VALUE) {
-            mNotifyStatusText.setText(R.string.notify_never);
-            mNotifyStatusButton.setImageResource(ic_notifications_off);
-        } else if (System.currentTimeMillis() < mutedTill) {
-            mNotifyStatusText.setText(R.string.notify_paused);
-            mNotifyStatusButton.setImageResource(ic_notifications_paused);
-        } else {
-            mNotifyStatusButton.setImageResource(ic_notifications);
-            mNotifyStatusText.setText(R.string.notify_on_all_messages);
-        }
-
-        TextView abtitle = binding.detailsContactName;
-        abtitle.setText(contact.getDisplayName());
-        abtitle.setSelected(true);
-        abtitle.setClickable(false);
-
         invalidateOptionsMenu();
+        setTitle(contact.getDisplayName());
         if (contact.showInRoster()) {
             binding.detailsSendPresence.setVisibility(View.VISIBLE);
-            binding.detailsSendPresence.setOnCheckedChangeListener(null);
             binding.detailsReceivePresence.setVisibility(View.VISIBLE);
+            binding.addContactButton.setVisibility(View.GONE);
+            binding.detailsSendPresence.setOnCheckedChangeListener(null);
             binding.detailsReceivePresence.setOnCheckedChangeListener(null);
-            binding.addContactButton.setVisibility(View.VISIBLE);
-            binding.addContactButton.setText(getString(R.string.action_delete_contact));
-            binding.addContactButton.getBackground().setTint(getWarningButtonColor());
-            binding.addContactButton.setTextColor(getWarningTextColor());
-            binding.addContactButton.setOnClickListener(view -> {
-                final AlertDialog.Builder deleteFromRosterDialog = new AlertDialog.Builder(ContactDetailsActivity.this);
-                deleteFromRosterDialog.setNegativeButton(getString(R.string.cancel), null)
-                        .setTitle(getString(R.string.action_delete_contact))
-                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().toEscapedString()))
-                        .setPositiveButton(getString(R.string.delete), removeFromRoster).create().show();
-            });
+
             List<String> statusMessages = contact.getPresences().getStatusMessages();
-            if (getPreferences().getBoolean("send_link_previews", true)) {
-                if (statusMessages.isEmpty()) {
-                    binding.statusMessage.setVisibility(View.GONE);
-                    binding.statusBox.setVisibility(View.GONE);
-                } else if (statusMessages.size() == 1) {
-                    final String message = statusMessages.get(0);
-                    binding.statusBox.setVisibility(View.VISIBLE);
-                    binding.statusMessage.setVisibility(View.VISIBLE);
-                    binding.statusImage.setVisibility(View.VISIBLE);
-                    final Spannable span = new SpannableString(message);
-                    if (Emoticons.isOnlyEmoji(message)) {
-                        span.setSpan(new RelativeSizeSpan(3.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                    binding.statusMessage.setText(span);
-
-                    //find and show images from links
-                    int size = statusMessages.size();
-                    for (int i = 0; i < size; ++i) {
-                        if (containsLink(statusMessages.get(i))) {
-                            List<String> url = extractUrls(statusMessages.get(i));
-                            for (int j = 0; j < url.size(); j++) {
-                                if (this != null && xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                                    Glide.with(this).load(url.get(j)).into(binding.statusImage);
-                                } else {
-                                    Glide.with(this).asBitmap().load(url.get(j)).into(binding.statusImage);
-                                }
-                                binding.statusImage.setOnClickListener(new View.OnClickListener() {
-                                    public void onClick(View v) {
-                                        Intent intent = new Intent();
-                                        intent.setAction(Intent.ACTION_VIEW);
-                                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                                        intent.setData(Uri.parse(url.get(0)));
-                                        startActivity(intent);
-                                    }
-                                });
-                                binding.statusImage.setOnLongClickListener(v -> {
-                                    ShowStatusImagePopup(ContactDetailsActivity.this, url.get(0));
-                                    return true;
-                                });
-                            }
-                        }
-                    }
-                } else {
-                    StringBuilder builder = new StringBuilder();
-                    binding.statusBox.setVisibility(View.VISIBLE);
-                    binding.statusMessage.setVisibility(View.VISIBLE);
-                    binding.statusImage.setVisibility(View.VISIBLE);
-                    int s = statusMessages.size();
-                    for (int i = 0; i < s; ++i) {
-                        builder.append(statusMessages.get(i));
-                        if (i < s - 1) {
-                            if (containsLink(statusMessages.get(i))) {
-                                List<String> url = extractUrls(statusMessages.get(i));
-                                for (int j = 0; j < url.size(); j++) {
-                                    if (this != null && xmppConnectionService.getBooleanPreference("play_gif_inside", R.bool.play_gif_inside)) {
-                                        Glide.with(this).load(url.get(j)).into(binding.statusImage);
-                                    } else {
-                                        Glide.with(this).asBitmap().load(url.get(j)).into(binding.statusImage);
-                                    }
-                                    binding.statusImage.setOnClickListener(new View.OnClickListener() {
-                                        public void onClick(View v) {
-                                            Intent intent = new Intent();
-                                            intent.setAction(Intent.ACTION_VIEW);
-                                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                                            intent.setData(Uri.parse(url.get(0)));
-                                            startActivity(intent);
-                                        }
-                                    });
-                                    binding.statusImage.setOnLongClickListener(v -> {
-                                        ShowStatusImagePopup(ContactDetailsActivity.this, url.get(0));
-                                        return true;
-                                    });
-                                }
-                            }
-                            builder.append("\n");
-                        }
-                    }
-                    binding.statusMessage.setText(builder);
-
-
+            if (statusMessages.size() == 0) {
+                binding.statusMessage.setVisibility(View.GONE);
+            } else if (statusMessages.size() == 1) {
+                final String message = statusMessages.get(0);
+                binding.statusMessage.setVisibility(View.VISIBLE);
+                final Spannable span = new SpannableString(message);
+                if (Emoticons.isOnlyEmoji(message)) {
+                    span.setSpan(new RelativeSizeSpan(2.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
+                binding.statusMessage.setText(span);
             } else {
-                if (statusMessages.isEmpty()) {
-                    binding.statusBox.setVisibility(View.GONE);
-                    binding.statusMessage.setVisibility(View.GONE);
-                } else if (statusMessages.size() == 1) {
-                    final String message = statusMessages.get(0);
-                    binding.statusBox.setVisibility(View.VISIBLE);
-                    binding.statusMessage.setVisibility(View.VISIBLE);
-                    final Spannable span = new SpannableString(message);
-                    if (Emoticons.isOnlyEmoji(message)) {
-                        span.setSpan(new RelativeSizeSpan(3.0f), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                StringBuilder builder = new StringBuilder();
+                binding.statusMessage.setVisibility(View.VISIBLE);
+                int s = statusMessages.size();
+                for (int i = 0; i < s; ++i) {
+                    builder.append(statusMessages.get(i));
+                    if (i < s - 1) {
+                        builder.append("\n");
                     }
-                    binding.statusMessage.setText(span);
-                } else {
-                    StringBuilder builder = new StringBuilder();
-                    binding.statusBox.setVisibility(View.VISIBLE);
-                    binding.statusMessage.setVisibility(View.VISIBLE);
-                    int s = statusMessages.size();
-                    for (int i = 0; i < s; ++i) {
-                        builder.append(statusMessages.get(i));
-                        if (i < s - 1) {
-                            builder.append("\n");
-                        }
-                    }
-                    binding.statusMessage.setText(builder);
                 }
+                binding.statusMessage.setText(builder);
             }
-            String resources = contact.getPresences().getMostAvailableResource();
-            if (resources.isEmpty()) {
-                binding.resource.setVisibility(View.GONE);
-            } else {
-                binding.resource.setVisibility(View.VISIBLE);
-                binding.resource.setText(resources);
-            }
+
             if (contact.getOption(Contact.Options.FROM)) {
                 binding.detailsSendPresence.setText(R.string.send_presence_updates);
                 binding.detailsSendPresence.setChecked(true);
@@ -844,22 +487,14 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.detailsSendPresence.setText(R.string.send_presence_updates);
             } else {
                 binding.detailsSendPresence.setText(R.string.preemptively_grant);
-                if (contact.getOption(Contact.Options.PREEMPTIVE_GRANT)) {
-                    binding.detailsSendPresence.setChecked(true);
-                } else {
-                    binding.detailsSendPresence.setChecked(false);
-                }
+                binding.detailsSendPresence.setChecked(contact.getOption(Contact.Options.PREEMPTIVE_GRANT));
             }
             if (contact.getOption(Contact.Options.TO)) {
                 binding.detailsReceivePresence.setText(R.string.receive_presence_updates);
                 binding.detailsReceivePresence.setChecked(true);
             } else {
                 binding.detailsReceivePresence.setText(R.string.ask_for_presence_updates);
-                if (contact.getOption(Contact.Options.ASKING)) {
-                    binding.detailsReceivePresence.setChecked(true);
-                } else {
-                    binding.detailsReceivePresence.setChecked(false);
-                }
+                binding.detailsReceivePresence.setChecked(contact.getOption(Contact.Options.ASKING));
             }
             if (contact.getAccount().isOnlineAndConnected()) {
                 binding.detailsReceivePresence.setEnabled(true);
@@ -872,10 +507,6 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
         } else {
             binding.addContactButton.setVisibility(View.VISIBLE);
-            binding.addContactButton.setText(getString(R.string.add_contact));
-            binding.addContactButton.getBackground().clearColorFilter();
-            binding.addContactButton.setTextColor(getDefaultButtonTextColor());
-            binding.addContactButton.setOnClickListener(view -> showAddToRosterDialog(contact));
             binding.detailsSendPresence.setVisibility(View.GONE);
             binding.detailsReceivePresence.setVisibility(View.GONE);
             binding.statusMessage.setVisibility(View.GONE);
@@ -885,7 +516,9 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.detailsLastseen.setVisibility(View.VISIBLE);
             binding.detailsLastseen.setText(R.string.contact_blocked);
         } else {
-            if (showLastSeen && contact.getLastseen() > 0 && contact.getPresences().allOrNonSupport(Namespace.IDLE)) {
+            if (showLastSeen
+                    && contact.getLastseen() > 0
+                    && contact.getPresences().allOrNonSupport(Namespace.IDLE)) {
                 binding.detailsLastseen.setVisibility(View.VISIBLE);
                 binding.detailsLastseen.setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
             } else {
@@ -893,40 +526,15 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             }
         }
 
-        binding.jid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
-        String account;
-        if (Config.DOMAIN_LOCK != null) {
-            account = contact.getAccount().getJid().getEscapedLocal();
-        } else {
-            account = contact.getAccount().getJid().asBareJid().toEscapedString();
-        }
+        binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
+        final String account = contact.getAccount().getJid().asBareJid().toEscapedString();
         binding.detailsAccount.setText(getString(R.string.using_account, account));
-        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-            AvatarWorkerTask.loadAvatar(contact, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);
-            binding.detailsContactBadge.setVisibility(View.VISIBLE);
-        } else {
-            AvatarWorkerTask.loadAvatar(contact, binding.detailsContactBadgeSquare, R.dimen.avatar_on_details_screen_size);
-            binding.detailsContactBadgeSquare.setVisibility(View.VISIBLE);
-        }
+        AvatarWorkerTask.loadAvatar(contact, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);
         binding.detailsContactBadge.setOnClickListener(this::onBadgeClick);
-        binding.detailsContactBadgeSquare.setOnClickListener(this::onBadgeClick);
-        binding.detailsContactBadgeSquare.setOnLongClickListener(v -> {
-            ShowAvatarPopup(ContactDetailsActivity.this, contact);
-            return true;
-        });
-        binding.detailsContactBadge.setOnLongClickListener(v -> {
-            ShowAvatarPopup(ContactDetailsActivity.this, contact);
-            return true;
-        });
-        if (xmppConnectionService.multipleAccounts()) {
-            binding.detailsAccount.setVisibility(View.VISIBLE);
-        } else {
-            binding.detailsAccount.setVisibility(View.GONE);
-        }
 
         binding.detailsContactKeys.removeAllViews();
         boolean hasKeys = false;
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final LayoutInflater inflater = getLayoutInflater();
         final AxolotlService axolotlService = contact.getAccount().getAxolotlService();
         if (Config.supportOmemo() && axolotlService != null) {
             final Collection<XmppAxolotlSession> sessions = axolotlService.findSessionsForContact(contact);
@@ -981,7 +589,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             TextView keyType = view.findViewById(R.id.key_type);
             keyType.setText(R.string.openpgp_key_id);
             if ("pgp".equals(messageFingerprint)) {
-                keyType.setTextColor(ContextCompat.getColor(this, R.color.accent));
+                keyType.setTextColor(MaterialColors.getColor(keyType, com.google.android.material.R.attr.colorPrimaryVariant));
             }
             key.setText(OpenPgpUtils.convertKeyIdToHex(contact.getPgpKeyId()));
             final OnClickListener openKey = v -> launchOpenKeyChain(contact.getPgpKeyId());
@@ -992,74 +600,97 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         binding.keysWrapper.setVisibility(hasKeys ? View.VISIBLE : View.GONE);
 
-        List<ListItem.Tag> tagList = contact.getTags(this);
-        if (tagList.isEmpty() || !this.showDynamicTags) {
+        final List<ListItem.Tag> tagList = contact.getTags(this);
+        final boolean hasMetaTags = contact.isBlocked() || contact.getShownStatus() != Presence.Status.OFFLINE;
+        if ((tagList.isEmpty() && !hasMetaTags) || !this.showDynamicTags) {
             binding.tags.setVisibility(View.GONE);
         } else {
             binding.tags.setVisibility(View.VISIBLE);
-            binding.tags.removeAllViewsInLayout();
+            binding.tags.removeViews(1, binding.tags.getChildCount() - 1);
+            final ImmutableList.Builder<Integer> viewIdBuilder = new ImmutableList.Builder<>();
             for (final ListItem.Tag tag : tagList) {
+                final String name = tag.getName();
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
-                String upperString = tag.getName().substring(0, 1).toUpperCase() + tag.getName().substring(1).toLowerCase();
-                tv.setText(upperString);
-                Drawable unwrappedDrawable = AppCompatResources.getDrawable(this, R.drawable.rounded_tag);
-                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-                DrawableCompat.setTint(wrappedDrawable, tag.getColor());
-                tv.setBackgroundResource(R.drawable.rounded_tag);
+                tv.setText(name);
+                tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(this,XEP0392Helper.rgbFromNick(name))));
+                final int id = ViewCompat.generateViewId();
+                tv.setId(id);
+                viewIdBuilder.add(id);
                 binding.tags.addView(tv);
             }
-        }
-
-        final List<Conversation.Thread> recentThreads = mConversation.recentThreads();
-        if (recentThreads.isEmpty()) {
-            this.binding.recentThreadsWrapper.setVisibility(View.GONE);
-        } else {
-            final ContactDetailsActivity.ThreadAdapter threads = new ContactDetailsActivity.ThreadAdapter();
-            threads.addAll(recentThreads);
-            this.binding.recentThreads.setAdapter(threads);
-            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-                this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+            if (contact.isBlocked()) {
+                final TextView tv =
+                        (TextView)
+                                inflater.inflate(
+                                        R.layout.list_item_tag, binding.tags, false);
+                tv.setText(R.string.blocked);
+                tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(tv.getContext(), ContextCompat.getColor(tv.getContext(),R.color.gray_800))));
+                final int id = ViewCompat.generateViewId();
+                tv.setId(id);
+                viewIdBuilder.add(id);
+                binding.tags.addView(tv);
             } else {
-                this.binding.recentThreadsWrapper.setVisibility(View.GONE);
+                final Presence.Status status = contact.getShownStatus();
+                if (status != Presence.Status.OFFLINE) {
+                    final TextView tv =
+                            (TextView)
+                                    inflater.inflate(
+                                            R.layout.list_item_tag, binding.tags, false);
+                    UIHelper.setStatus(tv, status);
+                    final int id = ViewCompat.generateViewId();
+                    tv.setId(id);
+                    viewIdBuilder.add(id);
+                    binding.tags.addView(tv);
+                }
             }
-            Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
+            binding.flowWidget.setReferencedIds(Ints.toArray(viewIdBuilder.build()));
         }
-
     }
 
-    private void onBadgeClick(View view) {
-        final Uri systemAccount = contact.getSystemAccount();
-        if (systemAccount == null) {
-            checkContactPermissionAndShowAddDialog();
-        } else {
-            final Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(systemAccount);
-            try {
-                startActivity(intent);
-            } catch (final ActivityNotFoundException e) {
-                ToastCompat.makeText(this, R.string.no_application_found_to_view_contact, ToastCompat.LENGTH_SHORT).show();
+    private void onBadgeClick(final View view) {
+        if (QuickConversationsService.isContactListIntegration(this)) {
+            final Uri systemAccount = contact.getSystemAccount();
+            if (systemAccount == null) {
+                checkContactPermissionAndShowAddDialog();
+            } else {
+                final Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(systemAccount);
+                try {
+                    startActivity(intent);
+                } catch (final ActivityNotFoundException e) {
+                    Toast.makeText(
+                                    this,
+                                    R.string.no_application_found_to_view_contact,
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
+        } else {
+            Toast.makeText(
+                            this,
+                            R.string.contact_list_integration_not_available,
+                            Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
     public void onBackendConnected() {
-        if (accountJid != null && contactJid != null && this != null) {
+        if (accountJid != null && contactJid != null) {
             Account account = xmppConnectionService.findAccountByJid(accountJid);
             if (account == null) {
                 return;
             }
-            this.mConversation = xmppConnectionService.findConversation(account, contactJid, false);
             this.contact = account.getRoster().getContact(contactJid);
             if (mPendingFingerprintVerificationUri != null) {
                 processFingerprintVerification(mPendingFingerprintVerificationUri);
                 mPendingFingerprintVerificationUri = null;
             }
+
             if (Compatibility.hasStoragePermission(this)) {
                 final int limit = GridManager.getCurrentColumnCount(this.binding.media);
                 xmppConnectionService.getAttachments(account, contact.getJid().asBareJid(), limit, this);
                 this.binding.showMedia.setOnClickListener((v) -> MediaBrowserActivity.launch(this, contact));
             }
-            this.mIndividualNotifications = xmppConnectionService.hasIndividualNotification(mConversation);
 
             final VcardAdapter items = new VcardAdapter();
             binding.profileItems.setAdapter(items);
@@ -1094,8 +725,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             });
             xmppConnectionService.fetchVcard4(account, contact, (vcard4) -> {
                 if (vcard4 == null) return;
+
                 runOnUiThread(() -> {
-                    binding.profile.setVisibility(View.VISIBLE);
                     for (Element el : vcard4.getChildren()) {
                         if (el.findChildEnsureSingle("uri", Namespace.VCARD4) != null || el.findChildEnsureSingle("text", Namespace.VCARD4) != null) {
                             items.add(el);
@@ -1104,6 +735,14 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     Util.justifyListViewHeightBasedOnChildren(binding.profileItems);
                 });
             });
+
+            final var conversation = xmppConnectionService.findOrCreateConversation(account, contact.getJid(), false, true);
+            binding.storeInCache.setChecked(conversation.storeInCache());
+            binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
+                conversation.setStoreInCache(checked);
+                xmppConnectionService.updateConversation(conversation);
+            });
+
             populateView();
         }
     }
@@ -1117,10 +756,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     protected void processFingerprintVerification(XmppUri uri) {
         if (contact != null && contact.getJid().asBareJid().equals(uri.getJid()) && uri.hasFingerprints()) {
             if (xmppConnectionService.verifyFingerprints(contact, uri.getFingerprints())) {
-                ToastCompat.makeText(this, R.string.verified_fingerprints, ToastCompat.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.verified_fingerprints, Toast.LENGTH_SHORT).show();
             }
         } else {
-            ToastCompat.makeText(this, R.string.invalid_barcode, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.invalid_barcode, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1131,15 +770,14 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             mMediaAdapter.setAttachments(attachments.subList(0, Math.min(limit, attachments.size())));
             binding.mediaWrapper.setVisibility(attachments.size() > 0 ? View.VISIBLE : View.GONE);
         });
+
     }
 
     class VcardAdapter extends ArrayAdapter<Element> {
         VcardAdapter() { super(ContactDetailsActivity.this, 0); }
 
-        private Drawable getDrawable(int attr) {
-            final TypedValue typedvalueattr = new TypedValue();
-            getTheme().resolveAttribute(attr, typedvalueattr, true);
-            return getResources().getDrawable(typedvalueattr.resourceId);
+        private Drawable getDrawable(int d) {
+            return ContactDetailsActivity.this.getDrawable(d);
         }
 
         @Override
@@ -1148,13 +786,13 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             final Element item = getItem(position);
 
             if (item.getName().equals("org")) {
-                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_org), null, null, null);
+                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_business_24dp), null, null, null);
                 binding.command.setCompoundDrawablePadding(20);
             } else if (item.getName().equals("impp")) {
-                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_chat), null, null, null);
+                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_chat_black_24dp), null, null, null);
                 binding.command.setCompoundDrawablePadding(20);
             } else if (item.getName().equals("url")) {
-                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_link), null, null, null);
+                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_link_24dp), null, null, null);
                 binding.command.setCompoundDrawablePadding(20);
             }
 
@@ -1162,23 +800,22 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (uri != null && uri.getScheme() != null) {
                 if (uri.getScheme().equals("xmpp")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getResources().getDrawable(R.drawable.xmpp_logo), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.jabber), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("tel")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_call), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_call_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("mailto")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_email), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_email_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                     binding.command.setText(uri.toString());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.attr.icon_link), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_link_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else {
                     binding.command.setText(uri.toString());
-                    binding.command.setPadding(0,0 ,0, 20);
                 }
             } else {
                 final String text = item.findChildContent("text", Namespace.VCARD4);
@@ -1195,60 +832,5 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (item.getName().equals("email")) return Uri.parse("mailto:" + item.findChildContent("text", Namespace.VCARD4));
             return null;
         }
-    }
-
-    class ThreadAdapter extends ArrayAdapter<Conversation.Thread> {
-        ThreadAdapter() { super(ContactDetailsActivity.this, 0); }
-
-        @Override
-        public View getView(int position, View view, @NonNull ViewGroup parent) {
-            final ThreadRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.thread_row, parent, false);
-            final Conversation.Thread item = getItem(position);
-
-            binding.threadIdenticon.setColor(UIHelper.getColorForName(item.getThreadId()));
-            binding.threadIdenticon.setHash(UIHelper.identiconHash(item.getThreadId()));
-
-            binding.threadSubject.setText(item.getDisplay());
-
-            return binding.getRoot();
-        }
-    }
-
-    public static boolean containsLink(String input) {
-        boolean result = false;
-
-        String[] parts = input.split("\\s+");
-
-        for (String item : parts) {
-            if (android.util.Patterns.WEB_URL.matcher(item).matches()) {
-                result = true;
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    public static List<String> extractUrls(String input)
-    {
-        List<String> result = new ArrayList<String>();
-
-        String[] words = input.split("\\s+");
-
-
-        Pattern pattern = Patterns.WEB_URL;
-        for(String word : words)
-        {
-            if(pattern.matcher(word).find())
-            {
-                if(!word.toLowerCase().contains("http://") && !word.toLowerCase().contains("https://"))
-                {
-                    word = "http://" + word;
-                }
-                result.add(word);
-            }
-        }
-
-        return result;
     }
 }

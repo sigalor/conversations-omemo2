@@ -2,6 +2,9 @@ package eu.siacs.conversations.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.AnimatedImageDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -14,12 +17,11 @@ import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.AnimatedImageDrawable;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.databinding.DataBindingUtil;
 
 import com.canhub.cropper.CropImage;
 
@@ -27,12 +29,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.databinding.ActivityPublishProfilePictureBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.utils.PhoneHelper;
-import me.drakeet.support.toast.ToastCompat;
 
 public class PublishProfilePictureActivity extends XmppActivity implements XmppConnectionService.OnAccountUpdate, OnAvatarPublication {
 
@@ -48,8 +50,8 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     private Account account;
     private boolean support = false;
     private boolean publishing = false;
-    private AtomicBoolean handledExternalUri = new AtomicBoolean(false);
-    private OnLongClickListener backToDefaultListener = new OnLongClickListener() {
+    private final AtomicBoolean handledExternalUri = new AtomicBoolean(false);
+    private final OnLongClickListener backToDefaultListener = new OnLongClickListener() {
 
         @Override
         public boolean onLongClick(View v) {
@@ -66,13 +68,13 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             if (mInitialAccountSetup) {
                 Intent intent = new Intent(getApplicationContext(), StartConversationActivity.class);
                 StartConversationActivity.addInviteUri(intent, getIntent());
-                intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
                 intent.putExtra("init", true);
+                intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
                 startActivity(intent);
             }
-            ToastCompat.makeText(PublishProfilePictureActivity.this,
+            Toast.makeText(PublishProfilePictureActivity.this,
                     R.string.avatar_has_been_published,
-                    ToastCompat.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
             finish();
         });
     }
@@ -81,7 +83,6 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     public void onAvatarPublicationFailed(int res) {
         runOnUiThread(() -> {
             hintOrWarning.setText(res);
-            hintOrWarning.setTextAppearance(this, R.style.TextAppearance_Conversations_Body1_Warning);
             hintOrWarning.setVisibility(View.VISIBLE);
             publishing = false;
             togglePublishButton(true, R.string.publish);
@@ -91,8 +92,12 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_publish_profile_picture);
-        setSupportActionBar(findViewById(R.id.toolbar));
+
+        ActivityPublishProfilePictureBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_publish_profile_picture);
+
+        setSupportActionBar(binding.toolbar);
+
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
 
         this.avatar = findViewById(R.id.account_image);
         this.cancelButton = findViewById(R.id.cancel_button);
@@ -126,11 +131,13 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         this.defaultUri = PhoneHelper.getProfilePictureUri(getApplicationContext());
         if (savedInstanceState != null) {
             this.avatarUri = savedInstanceState.getParcelable("uri");
-            this.handledExternalUri.set(savedInstanceState.getBoolean("handle_external_uri", false));
+            this.handledExternalUri.set(savedInstanceState.getBoolean("handle_external_uri",false));
         }
     }
+
+    @Override
     public boolean onCreateOptionsMenu(@NonNull final Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_publish_avatar, menu);
+        getMenuInflater().inflate(R.menu.activity_publish_profile_picture, menu);
         return true;
     }
 
@@ -155,6 +162,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         super.onSaveInstanceState(outState);
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -168,7 +176,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
                 if (error != null) {
-                    ToastCompat.makeText(this, error.getMessage(), ToastCompat.LENGTH_SHORT).show();
+                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         } else if (requestCode == REQUEST_CHOOSE_PICTURE) {
@@ -218,14 +226,14 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         final Intent intent = getIntent();
         this.mInitialAccountSetup = intent != null && intent.getBooleanExtra("setup", false);
 
         final Uri uri = intent != null ? intent.getData() : null;
 
-        if (uri != null && handledExternalUri.compareAndSet(false, true)) {
+        if (uri != null && handledExternalUri.compareAndSet(false,true)) {
             cropUri(uri);
             return;
         }
@@ -251,7 +259,6 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
                 .start(this);
     }
 
-
     protected void loadImageIntoPreview(Uri uri) {
 
         Drawable bm = null;
@@ -261,13 +268,13 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             try {
                 bm = xmppConnectionService.getFileBackend().cropCenterSquareDrawable(uri, (int) getResources().getDimension(R.dimen.publish_avatar_size));
             } catch (Exception e) {
-                Log.d(Config.LOGTAG, "unable to load avatar into image view", e);
+                Log.d(Config.LOGTAG, "unable to load bitmap into image view", e);
             }
         }
+
         if (bm == null) {
             togglePublishButton(false, R.string.publish);
             this.hintOrWarning.setVisibility(View.VISIBLE);
-            this.hintOrWarning.setTextAppearance(this, R.style.TextAppearance_Conversations_Body1_Warning);
             this.hintOrWarning.setText(R.string.error_publish_avatar_converting);
             return;
         }
@@ -281,7 +288,6 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         } else {
             togglePublishButton(false, R.string.publish);
             this.hintOrWarning.setVisibility(View.VISIBLE);
-            this.hintOrWarning.setTextAppearance(this, R.style.TextAppearance_Conversations_Body1_Warning);
             if (account.getStatus() == Account.State.ONLINE) {
                 this.hintOrWarning.setText(R.string.error_publish_avatar_no_server_support);
             } else {

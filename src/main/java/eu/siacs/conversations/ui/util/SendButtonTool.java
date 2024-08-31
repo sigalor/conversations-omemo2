@@ -30,33 +30,40 @@
 package eu.siacs.conversations.ui.util;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
-import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.content.res.Configuration;
 import android.preference.PreferenceManager;
+import android.view.View;
 
-import androidx.appcompat.content.res.AppCompatResources;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
+
+import com.google.android.material.color.MaterialColors;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Presence;
+import eu.siacs.conversations.ui.Activities;
 import eu.siacs.conversations.ui.ConversationFragment;
-import eu.siacs.conversations.ui.SettingsActivity;
 import eu.siacs.conversations.utils.UIHelper;
 
 public class SendButtonTool {
 
-    public static SendButtonAction getAction(final Activity activity, final Conversation c, final String text, final String subject) {
+    public static SendButtonAction getAction(
+            final Activity activity, final Conversation c, final String text, final String subject) {
         if (activity == null) {
             return SendButtonAction.TEXT;
         }
-        final boolean empty = text.length() == 0;
+        final SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(activity);
+        final boolean empty = text.isEmpty();
         final boolean conference = c.getMode() == Conversation.MODE_MULTI;
-        if (c.getCorrectingMessage() != null && (empty || (text.equals(c.getCorrectingMessage().getBody()) && (subject.equals(c.getCorrectingMessage().getSubject())) && (c.getThread() == c.getCorrectingMessage().getThread() || (c.getThread() != null && c.getThread().equals(c.getCorrectingMessage().getThread())))))) {
+        if (c.getCorrectingMessage() != null
+		          && (empty || (text.equals(c.getCorrectingMessage().getBody()) && (subject.equals(c.getCorrectingMessage().getSubject())) && (c.getThread() == c.getCorrectingMessage().getThread() || (c.getThread() != null && c.getThread().equals(c.getCorrectingMessage().getThread())))))) {
             return SendButtonAction.CANCEL;
         } else if (conference && !c.getAccount().httpUploadAvailable()) {
             if (empty && c.getNextCounterpart() != null) {
@@ -65,26 +72,26 @@ public class SendButtonTool {
                 return SendButtonAction.TEXT;
             }
         } else {
-            if (empty && (c.getThread() == null || subject.length() == 0)) {
-                final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+			   if (empty && (c.getThread() == null || subject.length() == 0)) {
                 if (conference && c.getNextCounterpart() != null) {
                     return SendButtonAction.CANCEL;
                 } else {
-                    String setting = preferences.getString("quick_action", activity.getResources().getString(R.string.quick_action));
-                    if (quickShareChoice(activity) && AttachmentsVisible(c)) {
-                        return SendButtonAction.CHOOSE_ATTACHMENT;
-                    } else if (quickShareChoice(activity) && !AttachmentsVisible(c)) {
-                        return SendButtonAction.TEXT;
+                    String setting =
+                            preferences.getString(
+                                    "quick_action",
+                                    activity.getResources().getString(R.string.quick_action));
+                    if (!"none".equals(setting)
+                            && UIHelper.receivedLocationQuestion(c.getLatestMessage())) {
+                        return SendButtonAction.SEND_LOCATION;
                     } else {
-                        if (!"none".equals(setting) && UIHelper.receivedLocationQuestion(c.getLatestMessage())) {
-                            return SendButtonAction.SEND_LOCATION;
+                        if ("recent".equals(setting)) {
+                            setting =
+                                    preferences.getString(
+                                            ConversationFragment.RECENTLY_USED_QUICK_ACTION,
+                                            SendButtonAction.TEXT.toString());
+                            return SendButtonAction.valueOfOrDefault(setting);
                         } else {
-                            if ("recent".equals(setting)) {
-                                setting = preferences.getString(ConversationFragment.RECENTLY_USED_QUICK_ACTION, SendButtonAction.TEXT.toString());
-                                return SendButtonAction.valueOfOrDefault(setting);
-                            } else {
-                                return SendButtonAction.valueOfOrDefault(setting);
-                            }
+                            return SendButtonAction.valueOfOrDefault(setting);
                         }
                     }
                 }
@@ -94,144 +101,40 @@ public class SendButtonTool {
         }
     }
 
-    public static boolean AttachmentsVisible(Conversation conversation) {
-        final boolean visible;
-        visible = conversation.getMode() != Conversation.MODE_MULTI || conversation.getAccount().httpUploadAvailable() && conversation.getMucOptions().participating();
-        return visible;
+    public @DrawableRes static int getSendButtonImageResource(final SendButtonAction action, final boolean canSend) {
+        return switch (action) {
+            case TEXT -> canSend ? R.drawable.ic_send_24dp : R.drawable.ic_attach_file_24dp;
+            case TAKE_PHOTO -> R.drawable.ic_camera_alt_24dp;
+            case SEND_LOCATION -> R.drawable.ic_location_pin_24dp;
+            case CHOOSE_PICTURE -> R.drawable.ic_image_24dp;
+            case RECORD_VIDEO -> R.drawable.ic_videocam_24dp;
+            case RECORD_VOICE -> R.drawable.ic_mic_24dp;
+            case CANCEL -> R.drawable.ic_cancel_24dp;
+        };
     }
 
-    public static int getSendButtonImageResource(Activity activity, SendButtonAction action, Presence.Status status) {
-        switch (action) {
-            case TEXT:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_text_online;
-                    case AWAY:
-                        return R.drawable.ic_send_text_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_text_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_text_offline_white);
-                        return R.drawable.ic_send_text_offline_white;
-                }
-            case RECORD_VIDEO:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_videocam_online;
-                    case AWAY:
-                        return R.drawable.ic_send_videocam_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_videocam_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_videocam_offline_white);
-                        return R.drawable.ic_send_videocam_offline_white;                }
-            case TAKE_PHOTO:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_photo_online;
-                    case AWAY:
-                        return R.drawable.ic_send_photo_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_photo_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_photo_offline_white);
-                        return R.drawable.ic_send_photo_offline_white;                }
-            case RECORD_VOICE:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_voice_online;
-                    case AWAY:
-                        return R.drawable.ic_send_voice_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_voice_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_voice_offline_white);
-                        return R.drawable.ic_send_voice_offline_white;                }
-            case SEND_LOCATION:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_location_online;
-                    case AWAY:
-                        return R.drawable.ic_send_location_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_location_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_location_offline_white);
-                        return R.drawable.ic_send_location_offline_white;                }
-            case CANCEL:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_cancel_online;
-                    case AWAY:
-                        return R.drawable.ic_send_cancel_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_cancel_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_cancel_offline_white);
-                        return R.drawable.ic_send_cancel_offline_white;                }
-            case CHOOSE_PICTURE:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_picture_online;
-                    case AWAY:
-                        return R.drawable.ic_send_picture_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_picture_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_picture_offline_white);
-                        return R.drawable.ic_send_picture_offline_white;                }
-
-            case CHOOSE_ATTACHMENT:
-                switch (status) {
-                    case CHAT:
-                    case ONLINE:
-                        return R.drawable.ic_send_attachment_online;
-                    case AWAY:
-                        return R.drawable.ic_send_attachment_away;
-                    case XA:
-                    case DND:
-                        return R.drawable.ic_send_attachment_dnd;
-                    default:
-                        setSendButtonColor(activity, R.drawable.ic_send_attachment_offline_white);
-                        return R.drawable.ic_send_attachment_offline_white;                }
-        }
-        return getThemeResource(activity, R.attr.ic_send_text_offline, R.drawable.ic_send_text_offline);
-    }
-
-    private static int getThemeResource(Activity activity, int r_attr_name, int r_drawable_def) {
-        int[] attrs = {r_attr_name};
-        TypedArray ta = activity.getTheme().obtainStyledAttributes(attrs);
-
-        int res = ta.getResourceId(0, r_drawable_def);
-        ta.recycle();
-
-        return res;
-    }
-
-    private static void setSendButtonColor(Activity activity, int ic_send_button_offline_white)
-    {
-        // takes a white drawable, and fills accent color in it
-        Drawable unwrappedDrawable = AppCompatResources.getDrawable(activity.getBaseContext(), ic_send_button_offline_white);
-        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-        DrawableCompat.setTint(wrappedDrawable, StyledAttributes.getColor(activity, R.attr.colorAccent));
-    }
-
-    public static boolean quickShareChoice(Activity activity) {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        return preferences.getBoolean(SettingsActivity.QUICK_SHARE_ATTACHMENT_CHOICE, activity.getResources().getBoolean(R.bool.quick_share_attachment_choice));
+    public @ColorInt static int getSendButtonColor(final View view, final Presence.Status status) {
+        final boolean nightMode = Activities.isNightMode(view.getContext());
+        return switch (status) {
+            case OFFLINE -> MaterialColors.getColor(
+                    view, com.google.android.material.R.attr.colorOnSurface);
+            case ONLINE, CHAT -> MaterialColors.harmonizeWithPrimary(
+                    view.getContext(),
+                    ContextCompat.getColor(
+                            view.getContext(), nightMode ? R.color.green_300 : R.color.green_800));
+            case AWAY -> MaterialColors.harmonizeWithPrimary(
+                    view.getContext(),
+                    ContextCompat.getColor(
+                            view.getContext(), nightMode ? R.color.amber_300 : R.color.amber_800));
+            case XA -> MaterialColors.harmonizeWithPrimary(
+                    view.getContext(),
+                    ContextCompat.getColor(
+                            view.getContext(),
+                            nightMode ? R.color.orange_300 : R.color.orange_800));
+            case DND -> MaterialColors.harmonizeWithPrimary(
+                    view.getContext(),
+                    ContextCompat.getColor(
+                            view.getContext(), nightMode ? R.color.red_300 : R.color.red_800));
+        };
     }
 }

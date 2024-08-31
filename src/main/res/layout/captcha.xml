@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="?dialogPreferredPadding">
 
     <ImageView
         android:id="@+id/captcha"
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />
 
-    <eu.siacs.conversations.ui.widget.TextInputEditText
+    <EditText
         android:id="@+id/input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,6 +20,6 @@
         android:inputType="textNoSuggestions">
 
         <requestFocus />
-    </eu.siacs.conversations.ui.widget.TextInputEditText>
+    </EditText>
 
 </LinearLayout>

@@ -33,9 +33,8 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
+import android.os.Build;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.style.URLSpan;
@@ -43,78 +42,82 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.Toast;
 
+import de.monocles.chat.BrowserHelper;
+
 import java.util.Arrays;
 
-import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.ui.ConversationsActivity;
-import eu.siacs.conversations.ui.util.CustomTab;
-import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.entities.Account;
-
-import me.drakeet.support.toast.ToastCompat;
+import eu.siacs.conversations.ui.ConversationsActivity;
+import eu.siacs.conversations.ui.ShowLocationActivity;
 
 @SuppressLint("ParcelCreator")
 public class FixedURLSpan extends URLSpan {
-    protected XmppConnectionService mXmppConnectionService;
 
-    protected final Account account;
+	protected final Account account;
 
-    public FixedURLSpan(String url) {
-        this(url, null);
-    }
+	public FixedURLSpan(String url) {
+		this(url, null);
+	}
 
-    public FixedURLSpan(String url, Account account) {
-        super(url);
-        this.account = account;
-    }
+	public FixedURLSpan(String url, Account account) {
+		super(url);
+		this.account = account;
+	}
 
     public static void fix(final Editable editable) {
         for (final URLSpan urlspan : editable.getSpans(0, editable.length() - 1, URLSpan.class)) {
             final int start = editable.getSpanStart(urlspan);
             final int end = editable.getSpanEnd(urlspan);
             editable.removeSpan(urlspan);
-            editable.setSpan(new FixedURLSpan(urlspan.getURL()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            editable.setSpan(
+                    new FixedURLSpan(urlspan.getURL()),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
-    @Override
-    public void onClick(View widget) {
-        final Uri uri = Uri.parse(getURL());
-        final Context context = widget.getContext();
-        final boolean candidateToProcessDirectly = "xmpp".equals(uri.getScheme()) || ("https".equals(uri.getScheme()) && Config.inviteHostURL.equals(uri.getHost()) && uri.getPathSegments().size() > 1 && Arrays.asList("j", "i").contains(uri.getPathSegments().get(0)));
-        if (candidateToProcessDirectly && context instanceof ConversationsActivity) {
-            if (((ConversationsActivity) context).onXmppUriClicked(uri)) {
-                widget.playSoundEffect(SoundEffectConstants.CLICK);
-                return;
-            }
-        }
+	@Override
+	public void onClick(View widget) {
+		final Uri uri = Uri.parse(getURL());
+		final Context context = widget.getContext();
+		final boolean candidateToProcessDirectly = "xmpp".equals(uri.getScheme()) || ("https".equals(uri.getScheme()) && "conversations.im".equals(uri.getHost()) && uri.getPathSegments().size() > 1 && Arrays.asList("j","i").contains(uri.getPathSegments().get(0)));
+		if (candidateToProcessDirectly && context instanceof ConversationsActivity) {
+			if (((ConversationsActivity) context).onXmppUriClicked(uri)) {
+				widget.playSoundEffect(SoundEffectConstants.CLICK);
+				return;
+			}
+		}
 
-        if (("sms".equals(uri.getScheme()) || "tel".equals(uri.getScheme())) && context instanceof ConversationsActivity) {
-            if (((ConversationsActivity) context).onTelUriClicked(uri, account)) {
-                widget.playSoundEffect(SoundEffectConstants.CLICK);
-                return;
-            }
-        }
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
-        if (p.getBoolean("open_links_inapp", context.getResources().getBoolean(R.bool.open_links_inapp))) {
-            try {
-                CustomTab.openTab(context, uri, ThemeHelper.isDark(ThemeHelper.find(context)));
-                widget.playSoundEffect(SoundEffectConstants.CLICK);
-            } catch (ActivityNotFoundException e) {
-                ToastCompat.makeText(context, R.string.no_application_found_to_open_link, ToastCompat.LENGTH_SHORT).show();
-            }
-        } else {
-            final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            //intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-            try {
-                context.startActivity(intent);
-                widget.playSoundEffect(SoundEffectConstants.CLICK);
-            } catch (ActivityNotFoundException e) {
-                ToastCompat.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+		if (("sms".equals(uri.getScheme()) || "tel".equals(uri.getScheme())) && context instanceof ConversationsActivity) {
+			if (((ConversationsActivity) context).onTelUriClicked(uri, account)) {
+				widget.playSoundEffect(SoundEffectConstants.CLICK);
+				return;
+			}
+		}
+
+		if ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme())) {
+			try {
+				BrowserHelper.launchUri(context, uri);
+				widget.playSoundEffect(SoundEffectConstants.CLICK);
+			} catch (ActivityNotFoundException e) {
+				Toast.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+			}
+			return;
+		}
+
+		final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+		if ("geo".equalsIgnoreCase(uri.getScheme())) {
+			intent.setClass(context, ShowLocationActivity.class);
+		} else {
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+		}
+		try {
+			context.startActivity(intent);
+			widget.playSoundEffect(SoundEffectConstants.CLICK);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+		}
+	}
 }

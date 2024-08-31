@@ -32,64 +32,64 @@ import org.minidns.util.PlatformDetection;
  */
 public class AndroidUsingExecLowPriority extends AbstractDnsServerLookupMechanism {
 
-    public static final DnsServerLookupMechanism INSTANCE = new AndroidUsingExecLowPriority();
-    public static final int PRIORITY = AndroidUsingReflection.PRIORITY + 1;
+	public static final DnsServerLookupMechanism INSTANCE = new AndroidUsingExecLowPriority();
+	public static final int PRIORITY = AndroidUsingReflection.PRIORITY + 1;
 
-    private AndroidUsingExecLowPriority() {
-        super(AndroidUsingExecLowPriority.class.getSimpleName(), PRIORITY);
-    }
+	private AndroidUsingExecLowPriority() {
+		super(AndroidUsingExecLowPriority.class.getSimpleName(), PRIORITY);
+	}
 
-    @Override
-    public List<String> getDnsServerAddresses() {
-        try {
-            Process process = Runtime.getRuntime().exec("getprop");
-            InputStream inputStream = process.getInputStream();
-            LineNumberReader lnr = new LineNumberReader(
-                    new InputStreamReader(inputStream));
-            String line;
-            HashSet<String> server = new HashSet<>(6);
-            while ((line = lnr.readLine()) != null) {
-                int split = line.indexOf("]: [");
-                if (split == -1) {
-                    continue;
-                }
-                String property = line.substring(1, split);
-                String value = line.substring(split + 4, line.length() - 1);
+	@Override
+	public List<String> getDnsServerAddresses() {
+		try {
+			Process process = Runtime.getRuntime().exec("getprop");
+			InputStream inputStream = process.getInputStream();
+			LineNumberReader lnr = new LineNumberReader(
+					new InputStreamReader(inputStream));
+			String line;
+			HashSet<String> server = new HashSet<>(6);
+			while ((line = lnr.readLine()) != null) {
+				int split = line.indexOf("]: [");
+				if (split == -1) {
+					continue;
+				}
+				String property = line.substring(1, split);
+				String value = line.substring(split + 4, line.length() - 1);
 
-                if (value.isEmpty()) {
-                    continue;
-                }
+				if (value.isEmpty()) {
+					continue;
+				}
 
-                if (property.endsWith(".dns") || property.endsWith(".dns1") ||
-                        property.endsWith(".dns2") || property.endsWith(".dns3") ||
-                        property.endsWith(".dns4")) {
+				if (property.endsWith(".dns") || property.endsWith(".dns1") ||
+						property.endsWith(".dns2") || property.endsWith(".dns3") ||
+						property.endsWith(".dns4")) {
 
-                    // normalize the address
+					// normalize the address
 
-                    InetAddress ip = InetAddress.getByName(value);
+					InetAddress ip = InetAddress.getByName(value);
 
-                    if (ip == null) continue;
+					if (ip == null) continue;
 
-                    value = ip.getHostAddress();
+					value = ip.getHostAddress();
 
-                    if (value == null) continue;
-                    if (value.length() == 0) continue;
+					if (value == null) continue;
+					if (value.length() == 0) continue;
 
-                    server.add(value);
-                }
-            }
-            if (server.size() > 0) {
-                return new ArrayList<>(server);
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Exception in findDNSByExec", e);
-        }
-        return null;
-    }
+					server.add(value);
+				}
+			}
+			if (server.size() > 0) {
+				return new ArrayList<>(server);
+			}
+		} catch (IOException e) {
+			LOGGER.log(Level.WARNING, "Exception in findDNSByExec", e);
+		}
+		return null;
+	}
 
-    @Override
-    public boolean isAvailable() {
-        return PlatformDetection.isAndroid();
-    }
+	@Override
+	public boolean isAvailable() {
+		return PlatformDetection.isAndroid();
+	}
 
 }

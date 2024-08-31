@@ -71,7 +71,7 @@ public abstract class AbstractJingleConnection {
                         State.TERMINATED_SECURITY_ERROR,
                         State.TERMINATED_CONNECTIVITY_ERROR // only used when the xmpp connection
                         // rebinds
-                ));
+                        ));
         transitionBuilder.put(
                 State.PROCEED,
                 ImmutableList.of(
@@ -83,7 +83,7 @@ public abstract class AbstractJingleConnection {
                         State.TERMINATED_SECURITY_ERROR,
                         State.TERMINATED_CONNECTIVITY_ERROR // at this state used for error
                         // bounces of the proceed message
-                ));
+                        ));
         transitionBuilder.put(
                 State.SESSION_INITIALIZED,
                 ImmutableList.of(

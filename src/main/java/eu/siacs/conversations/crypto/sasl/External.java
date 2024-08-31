@@ -5,9 +5,12 @@ import android.util.Base64;
 import javax.net.ssl.SSLSocket;
 
 import eu.siacs.conversations.entities.Account;
+
 public class External extends SaslMechanism {
 
-    public static final String MECHANISM = "EXTERNAL";public External(final Account account) {
+    public static final String MECHANISM = "EXTERNAL";
+
+    public External(final Account account) {
         super(account);
     }
 

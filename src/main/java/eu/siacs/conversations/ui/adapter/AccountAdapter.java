@@ -6,24 +6,25 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 import androidx.core.graphics.ColorUtils;
+import androidx.databinding.DataBindingUtil;
 
-import java.util.List;
+import com.google.android.material.color.MaterialColors;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.databinding.AccountRowBinding;
+import eu.siacs.conversations.databinding.ItemAccountBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
-import eu.siacs.conversations.ui.util.StyledAttributes;
 import eu.siacs.conversations.utils.UIHelper;
+
+import java.util.List;
 
 public class AccountAdapter extends ArrayAdapter<Account> {
 
-    private XmppActivity activity;
-    private boolean showStateButton;
+    private final XmppActivity activity;
+    private final boolean showStateButton;
 
     public AccountAdapter(XmppActivity activity, List<Account> objects, boolean showStateButton) {
         super(activity, 0, objects);
@@ -37,40 +38,33 @@ public class AccountAdapter extends ArrayAdapter<Account> {
         this.showStateButton = true;
     }
 
+    @NonNull
     @Override
     public View getView(int position, View view, @NonNull ViewGroup parent) {
         final Account account = getItem(position);
         final ViewHolder viewHolder;
         if (view == null) {
-            AccountRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.account_row, parent, false);
+            ItemAccountBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_account, parent, false);
             view = binding.getRoot();
             viewHolder = new ViewHolder(binding);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
         }
-        if (Config.DOMAIN_LOCK != null) {
-            viewHolder.binding.accountJid.setText(account.getJid().getLocal());
-        } else {
-            viewHolder.binding.accountJid.setText(account.getJid().asBareJid().toEscapedString());
-        }
-        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-            AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImage, R.dimen.avatar);
-        } else {
-            AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImageSquare, R.dimen.avatar);
-        }
+        viewHolder.binding.accountJid.setText(account.getJid().asBareJid().toEscapedString());
+        AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImage, R.dimen.avatar);
         viewHolder.binding.accountStatus.setText(getContext().getString(account.getStatus().getReadableId()));
         switch (account.getStatus()) {
             case ONLINE:
-                viewHolder.binding.accountStatus.setTextColor(StyledAttributes.getColor(activity, R.attr.TextColorOnline));
+                viewHolder.binding.accountStatus.setTextColor(MaterialColors.getColor(viewHolder.binding.accountStatus, com.google.android.material.R.attr.colorPrimary));
                 break;
             case DISABLED:
             case LOGGED_OUT:
             case CONNECTING:
-                viewHolder.binding.accountStatus.setTextColor(StyledAttributes.getColor(activity, android.R.attr.textColorSecondary));
+                viewHolder.binding.accountStatus.setTextColor(MaterialColors.getColor(viewHolder.binding.accountStatus, com.google.android.material.R.attr.colorOnSurfaceVariant));
                 break;
             default:
-                viewHolder.binding.accountStatus.setTextColor(StyledAttributes.getColor(activity, R.attr.TextColorError));
+                viewHolder.binding.accountStatus.setTextColor(MaterialColors.getColor(viewHolder.binding.accountStatus, com.google.android.material.R.attr.colorError));
                 break;
         }
         if (account.isOnlineAndConnected()) {
@@ -101,21 +95,23 @@ public class AccountAdapter extends ArrayAdapter<Account> {
             }
         });
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
-            viewHolder.binding.frame.setBackgroundColor(account.getColor(activity.isDarkTheme()));
+            viewHolder.binding.frame.setBackgroundColor(account.getColor(activity.isDark()));
         }
         return view;
     }
 
     private static class ViewHolder {
-        private final AccountRowBinding binding;
+        private final ItemAccountBinding binding;
 
-        private ViewHolder(AccountRowBinding binding) {
+        private ViewHolder(ItemAccountBinding binding) {
             this.binding = binding;
         }
     }
 
 
+
     public interface OnTglAccountState {
         void onClickTglAccountState(Account account, boolean state);
     }
+
 }

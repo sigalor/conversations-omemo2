@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
@@ -35,7 +36,6 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
-import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeoutException;
 public class CallIntegrationConnectionService extends ConnectionService {
 
     private static final String EXTRA_ADDRESS = "eu.siacs.conversations.address";
-    private static final String EXTRA_SESSION_ID = "eu.siacs.conversations.sid";
+    public static final String EXTRA_SESSION_ID = "eu.siacs.conversations.sid";
 
     private static final ExecutorService ACCOUNT_REGISTRATION_EXECUTOR =
             Executors.newSingleThreadExecutor();
@@ -126,17 +126,9 @@ public class CallIntegrationConnectionService extends ConnectionService {
                 // actually attempted
                 // sendJingleFinishMessage(service, contact, Reason.CONNECTIVITY_ERROR);
             } else {
-                final JingleConnectionManager.RtpSessionProposal proposal;
-                try {
-                    proposal =
-                            service.getJingleConnectionManager()
-                                    .proposeJingleRtpSession(account, with, media);
-                } catch (final IllegalStateException e) {
-                    return Connection.createFailedConnection(
-                            new DisconnectCause(
-                                    DisconnectCause.ERROR,
-                                    "Phone is busy. Probably race condition. Try again in a moment"));
-                }
+                final var proposal =
+                        service.getJingleConnectionManager()
+                                .proposeJingleRtpSession(account, with, media);
                 if (proposal == null) {
                     // TODO instead of just null checking try to get the sessionID
                     return Connection.createFailedConnection(
@@ -257,10 +249,10 @@ public class CallIntegrationConnectionService extends ConnectionService {
         }
     }
 
-    static void registerPhoneAccount(final Context context, final Account account) {
+    private static void registerPhoneAccount(final Context context, final Account account) {
         try {
             registerPhoneAccountOrThrow(context, account);
-        } catch (final IllegalArgumentException e) {
+        } catch (final IllegalArgumentException | SecurityException e) {
             Log.w(
                     Config.LOGTAG,
                     "could not register phone account for " + account.getJid().asBareJid(),
@@ -308,7 +300,7 @@ public class CallIntegrationConnectionService extends ConnectionService {
             if (account.isEnabled()) {
                 try {
                     registerPhoneAccountOrThrow(context, account);
-                } catch (final IllegalArgumentException e) {
+                } catch (final IllegalArgumentException | SecurityException e) {
                     Log.w(
                             Config.LOGTAG,
                             "could not register phone account for " + account.getJid().asBareJid(),
@@ -371,27 +363,64 @@ public class CallIntegrationConnectionService extends ConnectionService {
             }
             try {
                 service.getSystemService(TelecomManager.class).placeCall(address, extras);
+                return;
             } catch (final SecurityException e) {
                 Log.e(Config.LOGTAG, "call integration not available", e);
-                Toast.makeText(service, R.string.call_integration_not_available, Toast.LENGTH_LONG)
-                        .show();
-            }
-        } else {
-            final var connection = createOutgoingRtpConnection(service, account, with, media);
-            if (connection != null) {
-                Log.d(
-                        Config.LOGTAG,
-                        "not adding outgoing call to TelecomManager on Android "
-                                + Build.VERSION.RELEASE
-                                + " ("
-                                + Build.DEVICE
-                                + ")");
             }
         }
+
+        final var connection = createOutgoingRtpConnection(service, account, with, media);
+        if (connection != null) {
+            Log.d(
+                    Config.LOGTAG,
+                    "not adding outgoing call to TelecomManager on Android "
+                            + Build.VERSION.RELEASE
+                            + " ("
+                            + Build.DEVICE
+                            + ")");
+        }
+    }
+
+    private static PhoneAccountHandle findPhoneAccount(final Context context, final AbstractJingleConnection.Id id) {
+        final var def = CallIntegrationConnectionService.getHandle(context, id.account);
+        if (Build.VERSION.SDK_INT < 23) return def;
+
+        final var prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!prefs.getBoolean("dialler_integration_incoming", true)) return def;
+
+        if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            // We cannot request audio permission in Dialer UI
+            // when Dialer is shown over keyguard, the user cannot even necessarily
+            // see notifications.
+            return def;
+        }
+
+        /* Are video calls really coming in from a PSTN gateway?
+        if (media.size() != 1 || !media.contains(Media.AUDIO)) {
+            // Currently our ConnectionService only handles single audio calls
+            Log.w(Config.LOGTAG, "only audio calls can be handled by cheogram connection service");
+            return def;
+        }*/
+
+        for (Contact contact : id.account.getRoster().getContacts()) {
+            if (!contact.getJid().getDomain().equals(id.with.getDomain())) {
+                continue;
+            }
+
+            if (!contact.getPresences().anyIdentity("gateway", "pstn")) {
+                continue;
+            }
+
+            final var handle = contact.phoneAccountHandle();
+            if (handle != null) return handle;
+        }
+
+        return def;
     }
 
     public static boolean addNewIncomingCall(
             final Context context, final AbstractJingleConnection.Id id) {
+        if (NotificationService.isQuietHours(context, id.getContact().getAccount())) return true;
         if (CallIntegration.notSelfManaged(context)) {
             Log.d(
                     Config.LOGTAG,
@@ -402,14 +431,15 @@ public class CallIntegrationConnectionService extends ConnectionService {
                             + ")");
             return true;
         }
-        final var phoneAccountHandle =
-                CallIntegrationConnectionService.getHandle(context, id.account);
+        final var phoneAccountHandle = findPhoneAccount(context, id);
         final var bundle = new Bundle();
         bundle.putString(
                 TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
                 CallIntegration.address(id.with).toString());
         final var extras = new Bundle();
         extras.putString(EXTRA_SESSION_ID, id.sessionId);
+        extras.putString("account", id.account.getJid().toString());
+        extras.putString("with", id.with.toString());
         bundle.putBundle(TelecomManager.EXTRA_INCOMING_CALL_EXTRAS, extras);
         try {
             context.getSystemService(TelecomManager.class)

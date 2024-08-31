@@ -62,7 +62,7 @@ public class WebRTCWrapper {
     private final ExecutorService localDescriptionExecutorService =
             Executors.newSingleThreadExecutor();
 
-    private static final int TONE_DURATION = 500;
+    private static final int TONE_DURATION = 400;
     private static final int DEFAULT_TONE_VOLUME = 60;
     private static final Map<String,Integer> TONE_CODES;
     static {
@@ -538,26 +538,33 @@ public class WebRTCWrapper {
         }
     }
 
-    boolean setMicrophoneEnabled(final boolean enabled) {
-        Optional<AudioTrack> audioTrack = null;
+    boolean setMicrophoneEnabledOrThrow(final boolean enabled) {
+        final Optional<AudioTrack> audioTrack =
+                TrackWrapper.get(peerConnection, this.localAudioTrack);
+        if (audioTrack.isPresent()) {
+            return setEnabled(audioTrack.get(), enabled);
+
+        } else {
+            throw new IllegalStateException("Local audio track does not exist (yet)");
+        }
+    }
+
+    private static boolean setEnabled(final AudioTrack audioTrack, final boolean enabled) {
         try {
-            audioTrack = TrackWrapper.get(peerConnection, this.localAudioTrack);
+            audioTrack.setEnabled(enabled);
+            return true;
         } catch (final IllegalStateException e) {
-            Log.d(Config.LOGTAG, "unable to toggle microphone", e);
-            // ignoring race condition in case sender has been disposed
+            Log.d(Config.LOGTAG, "unable to toggle audio track", e);
+            // ignoring race condition in case MediaStreamTrack has been disposed
             return false;
         }
+    }
+
+    void setMicrophoneEnabled(final boolean enabled) {
+        final Optional<AudioTrack> audioTrack =
+                TrackWrapper.get(peerConnection, this.localAudioTrack);
         if (audioTrack.isPresent()) {
-            try {
-                audioTrack.get().setEnabled(enabled);
-                return true;
-            } catch (final IllegalStateException e) {
-                Log.d(Config.LOGTAG, "unable to toggle microphone", e);
-                // ignoring race condition in case MediaStreamTrack has been disposed
-                return false;
-            }
-        } else {
-            return false;
+            setEnabled(audioTrack.get(), enabled);
         }
     }
 
@@ -579,6 +586,7 @@ public class WebRTCWrapper {
         }
         throw new IllegalStateException("Local video track does not exist");
     }
+
     synchronized ListenableFuture<SessionDescription> setLocalDescription(
             final boolean waitForCandidates) {
         this.setIsReadyToReceiveIceCandidates(false);
@@ -637,7 +645,6 @@ public class WebRTCWrapper {
                 },
                 MoreExecutors.directExecutor());
     }
-
 
     private ListenableFuture<SessionDescription> getLocalDescriptionFuture() {
         return Futures.submit(
@@ -790,6 +797,7 @@ public class WebRTCWrapper {
     }
 
     public abstract static class SetSdpObserver implements SdpObserver {
+
         @Override
         public void onCreateSuccess(org.webrtc.SessionDescription sessionDescription) {
             throw new IllegalStateException("Not able to use SetSdpObserver");

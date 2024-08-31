@@ -17,9 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import eu.siacs.conversations.Config;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class XmppUri {
@@ -31,13 +29,13 @@ public class XmppUri {
     public static final String PARAMETER_PRE_AUTH = "preauth";
     public static final String PARAMETER_IBR = "ibr";
     private static final String OMEMO_URI_PARAM = "omemo-sid-";
-    private static final String OTR_URI_PARAM = "otr-fingerprint";
-    public static Pattern XMPP_URI = Patterns.XMPP_PATTERN;
     protected Uri uri;
     protected String jid;
     private List<Fingerprint> fingerprints = new ArrayList<>();
     private Map<String, String> parameters = Collections.emptyMap();
     private boolean safeSource = true;
+
+    public static final String INVITE_DOMAIN = "conversations.im";
 
     public XmppUri(final String uri) {
         try {
@@ -106,15 +104,13 @@ public class XmppUri {
     }
 
     public static String getFingerprintUri(final String base, final List<XmppUri.Fingerprint> fingerprints, char separator) {
-        StringBuilder builder = new StringBuilder(base);
+        final StringBuilder builder = new StringBuilder(base);
         builder.append('?');
         for (int i = 0; i < fingerprints.size(); ++i) {
             XmppUri.FingerprintType type = fingerprints.get(i).type;
             if (type == XmppUri.FingerprintType.OMEMO) {
                 builder.append(XmppUri.OMEMO_URI_PARAM);
                 builder.append(fingerprints.get(i).deviceId);
-            } else if (type == XmppUri.FingerprintType.OTR) {
-                builder.append(XmppUri.OTR_URI_PARAM);
             }
             builder.append('=');
             builder.append(fingerprints.get(i).fingerprint);
@@ -145,7 +141,7 @@ public class XmppUri {
         final String scheme = uri.getScheme();
         final String host = uri.getHost();
         List<String> segments = uri.getPathSegments();
-        if ("https".equalsIgnoreCase(scheme) && Config.INVITE_DOMAIN.equalsIgnoreCase(host)) {
+        if ("https".equalsIgnoreCase(scheme) && INVITE_DOMAIN.equalsIgnoreCase(host)) {
             if (segments.size() >= 2 && segments.get(1).contains("@")) {
                 // sample : https://conversations.im/i/foo@bar.com
                 try {
@@ -235,6 +231,7 @@ public class XmppUri {
     public String getParameter(String key) {
         return this.parameters.get(key);
     }
+
     public String parameterString() {
         final StringBuilder s = new StringBuilder();
         for (Map.Entry<String, String> param : parameters.entrySet()) {
@@ -271,18 +268,13 @@ public class XmppUri {
     }
 
     public enum FingerprintType {
-        OMEMO,
-        OTR
+        OMEMO
     }
 
     public static class Fingerprint {
         public final FingerprintType type;
         public final String fingerprint;
         final int deviceId;
-
-        public Fingerprint(FingerprintType type, String fingerprint) {
-            this(type, fingerprint, 0);
-        }
 
         public Fingerprint(FingerprintType type, String fingerprint, int deviceId) {
             this.type = type;

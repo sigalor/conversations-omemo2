@@ -29,12 +29,8 @@
 
 package eu.siacs.conversations.ui;
 
-import static de.monocles.chat.ui.PermissionsActivity.permissions;
+
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
-import static eu.siacs.conversations.ui.SettingsActivity.HIDE_MEMORY_WARNING;
-import static eu.siacs.conversations.ui.SettingsActivity.MIN_ANDROID_SDK21_SHOWN;
-import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
-import static eu.siacs.conversations.utils.StorageHelper.getAppMediaDirectory;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -46,55 +42,40 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.TypefaceSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import de.monocles.chat.DownloadDefaultStickers;
-
-import net.java.otr4j.session.SessionStatus;
-import androidx.appcompat.widget.PopupMenu;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+
+import de.monocles.chat.DownloadDefaultStickers;
+import de.monocles.chat.FinishOnboarding;
+
+import com.google.common.collect.ImmutableList;
+
+import io.michaelrocks.libphonenumber.android.NumberParseException;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
-import eu.siacs.conversations.ui.util.AvatarWorkerTask;
-import eu.siacs.conversations.utils.Compatibility;
-import io.michaelrocks.libphonenumber.android.NumberParseException;
-
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -106,62 +87,40 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
-import eu.siacs.conversations.entities.MucOptions;
-import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.ui.interfaces.OnConversationArchived;
 import eu.siacs.conversations.ui.interfaces.OnConversationRead;
 import eu.siacs.conversations.ui.interfaces.OnConversationSelected;
 import eu.siacs.conversations.ui.interfaces.OnConversationsListItemUpdated;
-import eu.siacs.conversations.ui.util.ActionBarUtil;
 import eu.siacs.conversations.ui.util.ActivityResult;
-import eu.siacs.conversations.ui.util.IntroHelper;
+import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
+import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PendingItem;
-import eu.siacs.conversations.ui.util.StyledAttributes;
-import eu.siacs.conversations.ui.util.UpdateHelper;
+import eu.siacs.conversations.ui.util.ToolbarUtils;
 import eu.siacs.conversations.utils.ExceptionHelper;
-import eu.siacs.conversations.utils.MenuDoubleTabUtil;
-import eu.siacs.conversations.xml.Namespace;
-import eu.siacs.conversations.utils.SignupUtils;
-import eu.siacs.conversations.utils.UIHelper;
-import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
+import eu.siacs.conversations.utils.SignupUtils;
+import eu.siacs.conversations.utils.ThemeHelper;
+import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
-import eu.siacs.conversations.xmpp.chatstate.ChatState;
-import me.drakeet.support.toast.ToastCompat;
-import eu.siacs.conversations.utils.ThemeHelper;
-import p32929.easypasscodelock.Utils.EasyLock;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged {
 
-
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnRoomDestroy {
-
-    public static final String ACTION_VIEW_CONVERSATION = "eu.siacs.conversations.VIEW";
+    public static final String ACTION_VIEW_CONVERSATION = "eu.siacs.conversations.action.VIEW";
     public static final String EXTRA_CONVERSATION = "conversationUuid";
     public static final String EXTRA_DOWNLOAD_UUID = "eu.siacs.conversations.download_uuid";
     public static final String EXTRA_AS_QUOTE = "eu.siacs.conversations.as_quote";
     public static final String EXTRA_NICK = "nick";
-    public static final String EXTRA_USER = "user";
     public static final String EXTRA_IS_PRIVATE_MESSAGE = "pm";
     public static final String EXTRA_DO_NOT_APPEND = "do_not_append";
     public static final String EXTRA_POST_INIT_ACTION = "post_init_action";
     public static final String POST_ACTION_RECORD_VOICE = "record_voice";
-    public static final String ACTION_DESTROY_MUC = "eu.siacs.conversations.DESTROY_MUC";
-    public static final int REQUEST_OPEN_MESSAGE = 0x9876;
-    public static final int REQUEST_PLAY_PAUSE = 0x5432;
-    public static final int REQUEST_MICROPHONE = 0x5432f;
-    public static final int DIALLER_INTEGRATION = 0x5432ff;
-    public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
-    public static final int REQUEST_CODE_ULOCK = 0xbf8706;
     public static final String EXTRA_THREAD = "threadId";
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_NODE = "node";
     public static final String EXTRA_JID = "jid";
-
-    public static BottomNavigationView bottomNavigationView;
 
     private static final List<String> VIEW_AND_SHARE_ACTIONS = Arrays.asList(
             ACTION_VIEW_CONVERSATION,
@@ -169,12 +128,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             Intent.ACTION_SEND_MULTIPLE
     );
 
-    private boolean showLastSeen;
+    public static final int REQUEST_OPEN_MESSAGE = 0x9876;
+    public static final int REQUEST_PLAY_PAUSE = 0x5432;
+    public static final int REQUEST_MICROPHONE = 0x5432f;
+    public static final int DIALLER_INTEGRATION = 0x5432ff;
+    public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
-    AlertDialog memoryWarningDialog;
-
-    long FirstStartTime = -1;
-    String PREF_FIRST_START = "FirstStart";
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -183,11 +142,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
     private ActivityConversationsBinding binding;
     private boolean mActivityPaused = true;
-    private AtomicBoolean mRedirectInProcess = new AtomicBoolean(false);
+    private final AtomicBoolean mRedirectInProcess = new AtomicBoolean(false);
     private boolean refreshForNewCaps = false;
     private Set<Jid> newCapsJids = new HashSet<>();
     private int mRequestCode = -1;
-
 
     private static boolean isViewOrShareIntent(Intent i) {
         Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
@@ -203,7 +161,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     protected void refreshUiReal() {
-        invalidateActionBarTitle();
         invalidateOptionsMenu();
         for (@IdRes int id : FRAGMENT_ID_NOTIFICATION_ORDER) {
             refreshFragment(id);
@@ -217,57 +174,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (performRedirectIfNecessary(true)) {
             return;
         }
-        Log.d(Config.LOGTAG, "ConversationsActivity onBackendConnected(): setIsInForeground = true");
         xmppConnectionService.getNotificationService().setIsInForeground(true);
-
-        final Intent FirstStartIntent = getIntent();
-        final Bundle extras = FirstStartIntent.getExtras();
-        if (extras != null && extras.containsKey(PREF_FIRST_START)) {
-            FirstStartTime = extras.getLong(PREF_FIRST_START);
-            Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
-        }
-
         final Intent intent = pendingViewIntent.pop();
         if (intent != null) {
             if (processViewIntent(intent)) {
                 if (binding.secondaryFragment != null) {
                     notifyFragmentOfBackendConnected(R.id.main_fragment);
                 }
+                invalidateActionBarTitle();
                 return;
             }
         }
-
-        if (FirstStartTime == 0) {
-            Log.d(Config.LOGTAG, "First start time: " + FirstStartTime + ", restarting App");
-            //write first start timestamp to file
-            FirstStartTime = System.currentTimeMillis();
-            SharedPreferences FirstStart = getApplicationContext().getSharedPreferences(PREF_FIRST_START, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = FirstStart.edit();
-            editor.putLong(PREF_FIRST_START, FirstStartTime);
-            editor.commit();
-            // restart if storage not accessable
-            if (FileBackend.getDiskSize() > 0) {
-                return;
-            } else {
-                Intent restartintent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
-                restartintent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                restartintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(restartintent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                System.exit(0);
-            }
-        }
-
-        if (useInternalUpdater()) {
-            if (xmppConnectionService.getAccounts().size() != 0) {
-                if (xmppConnectionService.hasInternetConnection()) {
-                    if (xmppConnectionService.isWIFI() || (xmppConnectionService.isMobile() && !xmppConnectionService.isMobileRoaming())) {
-                        AppUpdate(xmppConnectionService.installedFrom());
-                    }
-                }
-            }
-        }
-
         for (@IdRes int id : FRAGMENT_ID_NOTIFICATION_ORDER) {
             notifyFragmentOfBackendConnected(id);
         }
@@ -277,21 +194,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             handleActivityResult(activityResult);
         }
 
+        invalidateActionBarTitle();
         if (binding.secondaryFragment != null && ConversationFragment.getConversation(this) == null) {
             Conversation conversation = ConversationsOverviewFragment.getSuggestion(this);
             if (conversation != null) {
                 openConversation(conversation, null);
             }
         }
-
-        // SDK >= 33 permissions
-        if (Compatibility.runsThirtyThree()) {
-            ActivityCompat.requestPermissions(this,
-                    permissions(),
-                    1);
-        }
-
-        invalidateActionBarTitle();
         showDialogsIfMainIsOverview();
     }
 
@@ -303,6 +212,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (xmppConnectionService == null) {
             return false;
         }
+
         boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
         if (isConversationsListEmpty && mRedirectInProcess.compareAndSet(false, true)) {
             final Intent intent = SignupUtils.getRedirectionIntent(this);
@@ -311,7 +221,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             }
             runOnUiThread(() -> {
                 startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 if (noAnimation) {
                     overridePendingTransition(0, 0);
                 }
@@ -321,43 +230,25 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     private void showDialogsIfMainIsOverview() {
-        if (xmppConnectionService == null) {
+        Pair<Account, Account> incomplete = null;
+        if (xmppConnectionService != null && (incomplete = xmppConnectionService.onboardingIncomplete()) != null) {
+            FinishOnboarding.finish(xmppConnectionService, this, incomplete.first, incomplete.second);
+        }
+        if (xmppConnectionService == null || xmppConnectionService.isOnboarding()) {
             return;
         }
         final Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
         if (fragment instanceof ConversationsOverviewFragment) {
-
             if (ExceptionHelper.checkForCrash(this)) return;
             if (offerToSetupDiallerIntegration()) return;
             if (offerToDownloadStickers()) return;
             openBatteryOptimizationDialogIfNeeded();
-            new showMemoryWarning(this).execute();
-            showOutdatedVersionWarning();
             xmppConnectionService.rescanStickers();
         }
-
-    }
-
-    private void showOutdatedVersionWarning() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP || getPreferences().getBoolean(MIN_ANDROID_SDK21_SHOWN, false)) {
-            Log.d(Config.LOGTAG, "Device is running Android >= SDK 21");
-            return;
-        }
-        Log.d(Config.LOGTAG, "Device is running Android < SDK 21");
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.oldAndroidVersion);
-        builder.setMessage(R.string.oldAndroidVersionMessage);
-        builder.setPositiveButton(R.string.ok, (dialog, which) -> {
-            getPreferences().edit().putBoolean(MIN_ANDROID_SDK21_SHOWN, true).apply();
-        });
-        final AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
     }
 
     private String getBatteryOptimizationPreferenceKey() {
-        @SuppressLint("HardwareIds")
-        String device = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        @SuppressLint("HardwareIds") String device = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         return "show_battery_optimization" + (device == null ? "" : device);
     }
 
@@ -365,21 +256,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         getPreferences().edit().putBoolean(getBatteryOptimizationPreferenceKey(), false).apply();
     }
 
-    public boolean getAttachmentChoicePreference() {
-        return getBooleanPreference(SettingsActivity.QUICK_SHARE_ATTACHMENT_CHOICE, R.bool.quick_share_attachment_choice);
-    }
-
-    public boolean warnUnecryptedChat() {
-        return getBooleanPreference(SettingsActivity.WARN_UNENCRYPTED_CHAT, R.bool.warn_unencrypted_chat);
-    }
-
-    private void openBatteryOptimizationDialogIfNeeded() {
-        if (isOptimizingBattery()
-                && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                && getPreferences().getBoolean(getBatteryOptimizationPreferenceKey(), true)) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    private boolean openBatteryOptimizationDialogIfNeeded() {
+        if (isOptimizingBattery() && getPreferences().getBoolean(getBatteryOptimizationPreferenceKey(), true)) {
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setTitle(R.string.battery_optimizations_enabled);
-            builder.setMessage(R.string.battery_optimizations_enabled_dialog);
+            builder.setMessage(getString(R.string.battery_optimizations_enabled_dialog, getString(R.string.app_name)));
             builder.setPositiveButton(R.string.next, (dialog, which) -> {
                 final Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                 final Uri uri = Uri.parse("package:" + getPackageName());
@@ -387,13 +268,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 try {
                     startActivityForResult(intent, REQUEST_BATTERY_OP);
                 } catch (ActivityNotFoundException e) {
-                    ToastCompat.makeText(this, R.string.device_does_not_support_battery_op, ToastCompat.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.device_does_not_support_battery_op, Toast.LENGTH_SHORT).show();
                 }
             });
             builder.setOnDismissListener(dialog -> setNeverAskForBatteryOptimizationsAgain());
             final AlertDialog dialog = builder.create();
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
+            return true;
+        }
+        return false;
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION);
         }
     }
 
@@ -403,8 +292,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         getPreferences().edit().putInt("default_stickers_offered", 1).apply();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.download_sticker);
-        builder.setMessage(R.string.download_sticker_summary);
+        builder.setTitle("Download Stickers?");
+        builder.setMessage("Would you like to download some default sticker packs?");
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
                 downloadStickers();
@@ -450,7 +339,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Dialler Integration");
-        builder.setMessage("monocles chat is able to integrate with your system's dialler app to allow dialling calls via your configured gateway " + String.join(", ", pstnGateways) + ".\n\nEnabling this integration will require granting microphone permission to the app.  Would you like to enable it now?");
+        builder.setMessage("monocles Android is able to integrate with your system's dialler app to allow dialling calls via your configured gateway " + String.join(", ", pstnGateways) + ".\n\nEnabling this integration will require granting microphone permission to the app.  Would you like to enable it now?");
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             final String[] permissions;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -469,94 +358,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         return true;
     }
 
-    public class showMemoryWarning extends AsyncTask<Void, Void, Void> {
-
-        ConversationsActivity activity;
-        long totalMemory = 0;
-        long mediaUsage = 0;
-        double relativeUsage = 0;
-        String percentUsage = "0%";
-        boolean force = false;
-        // normal warning: more or equals 20 % or 10 GiB and automatic file deletion is disabled
-        double normalWarningRelative = 0.2f; // 20%
-        double normalWarningAbsolute = 10f * 1024 * 1024 * 1024; // 10 GiB
-        // force warning: usage is more than 50%
-        double forceWarningRelative = 0.5f; // 50%
-
-        public showMemoryWarning(ConversationsActivity conversationsActivity) {
-            activity = conversationsActivity;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                totalMemory = FileBackend.getDiskSize();
-                mediaUsage = FileBackend.getDirectorySize(new File(getAppMediaDirectory(activity, null)));
-                relativeUsage = ((double) mediaUsage / (double) totalMemory);
-                try {
-                    percentUsage = String.format(Locale.getDefault(),"%.2f", relativeUsage * 100) + " %";
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    percentUsage = String.format(Locale.ENGLISH,"%.2f", relativeUsage * 100) + " %";
-                }
-                force = relativeUsage > forceWarningRelative;
-            }   catch (Exception e) {
-                e.printStackTrace();
-                relativeUsage = 0;
-            }
-            return null;
-        }
-
-        private boolean showWarning(boolean force) {
-            if (force) {
-                SharedPreferences preferences = getPreferences();
-                preferences.edit().putBoolean(HIDE_MEMORY_WARNING, false).apply();
-                return true;
-            }
-            return !xmppConnectionService.hideMemoryWarning() && (relativeUsage > normalWarningRelative || mediaUsage >= normalWarningAbsolute) & xmppConnectionService.getAutomaticAttachmentDeletionDate() == 0;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            Log.d(Config.LOGTAG, "Memory management: using " + UIHelper.filesizeToString(mediaUsage) + " from " + UIHelper.filesizeToString(totalMemory) + " (" + percentUsage + ")");
-            if (showWarning(force) && activity != null) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setPositiveButton(R.string.open_settings, (dialog, which) -> {
-                    try {
-                        final Intent intent = new Intent(activity, SettingsActivity.class);
-                        intent.setAction(Intent.ACTION_VIEW);
-                        intent.addCategory("android.intent.category.PREFERENCE");
-                        intent.putExtra("page", "security");
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                });
-                if (!force) {
-                    builder.setNeutralButton(R.string.hide_warning, (dialog, which) -> {
-                        SharedPreferences preferences = getPreferences();
-                        preferences.edit().putBoolean(HIDE_MEMORY_WARNING, true).apply();
-                    });
-                }
-                memoryWarningDialog = builder.create();
-                memoryWarningDialog.setTitle(R.string.title_memory_management);
-                if (force) {
-                    memoryWarningDialog.setMessage(getResources().getString(R.string.memory_warning_force, UIHelper.filesizeToString(mediaUsage), percentUsage));
-                } else {
-                    memoryWarningDialog.setMessage(getResources().getString(R.string.memory_warning, UIHelper.filesizeToString(mediaUsage), percentUsage));
-                }
-                memoryWarningDialog.setCanceledOnTouchOutside(false);
-                memoryWarningDialog.show();
-            }
-        }
-    }
-
     private void notifyFragmentOfBackendConnected(@IdRes int id) {
         final Fragment fragment = getFragmentManager().findFragmentById(id);
         if (fragment instanceof OnBackendConnected) {
@@ -573,7 +374,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     private boolean processViewIntent(Intent intent) {
-        Log.d(Config.LOGTAG, "process view intent");
         final String uuid = intent.getStringExtra(EXTRA_CONVERSATION);
         final Conversation conversation = uuid != null ? xmppConnectionService.findConversationByUuid(uuid) : null;
         if (conversation == null) {
@@ -601,8 +401,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     case REQUEST_MICROPHONE:
                         Intent intent = new Intent();
                         intent.setComponent(new ComponentName("com.android.server.telecom",
-                                "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
-                        startActivityForResult(intent, DIALLER_INTEGRATION);
+                            "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
+                        try {
+                            startActivityForResult(intent, DIALLER_INTEGRATION);
+                        } catch (ActivityNotFoundException e) {
+                            displayToast("Dialler integration not available on your OS");
+                        }
                         break;
                     case REQUEST_DOWNLOAD_STICKERS:
                         downloadStickers();
@@ -619,7 +423,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private void downloadStickers() {
         Intent intent = new Intent(this, DownloadDefaultStickers.class);
         intent.putExtra("tor", xmppConnectionService.useTorToConnect());
-        intent.putExtra("i2p", xmppConnectionService.useI2PToConnect());
         ContextCompat.startForegroundService(this, intent);
         displayToast("Sticker download started");
         showDialogsIfMainIsOverview();
@@ -660,12 +463,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
     }
 
-    private void requestNotificationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION);
-        }
-    }
-
     private void handleNegativeActivityResult(int requestCode) {
         Conversation conversation = ConversationFragment.getConversationReliable(this);
         switch (requestCode) {
@@ -682,7 +479,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     private void handlePositiveActivityResult(int requestCode, final Intent data) {
-        Log.d(Config.LOGTAG, "positive activity result");
         Conversation conversation = ConversationFragment.getConversationReliable(this);
         if (conversation == null) {
             Log.d(Config.LOGTAG, "conversation not found");
@@ -709,21 +505,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        // Check if lock is set
-        if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
-            EasyLock.setBackgroundColor(getColor(R.color.primary_black));
-            EasyLock.checkPassword(this);
-            EasyLock.forgotPassword(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(ConversationsActivity.this, R.string.app_lock_forgot_password, Toast.LENGTH_LONG).show();
-                }
-            });
-        }
         super.onCreate(savedInstanceState);
+        ConversationMenuConfigurator.reloadFeatures(this);
         OmemoSetting.load(this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
-        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
+        setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
         this.getFragmentManager().addOnBackStackChangedListener(this::invalidateActionBarTitle);
         this.getFragmentManager().addOnBackStackChangedListener(this::showDialogsIfMainIsOverview);
@@ -739,19 +526,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             pendingViewIntent.push(intent);
             setIntent(createLauncherIntent(this));
         }
-
-        UpdateHelper.showPopup(this);
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_conversations, menu);
         final MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
-        final MenuItem menuEditProfiles = menu.findItem(R.id.action_accounts);
-        final MenuItem inviteUser = menu.findItem(R.id.action_invite_user);
         if (qrCodeScanMenuItem != null) {
-            if (isCameraFeatureAvailable()) {
+            if (isCameraFeatureAvailable() && (xmppConnectionService == null || !xmppConnectionService.isOnboarding())) {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
                 boolean visible = getResources().getBoolean(R.bool.show_qr_code_scan)
                         && fragment instanceof ConversationsOverviewFragment;
@@ -760,17 +542,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 qrCodeScanMenuItem.setVisible(false);
             }
         }
-        if (xmppConnectionServiceBound && xmppConnectionService.getAccounts().size() == 1 && !xmppConnectionService.multipleAccounts()) {
-            menuEditProfiles.setTitle(R.string.action_account);
-        } else {
-            menuEditProfiles.setTitle(R.string.action_accounts);
-        }
-        if (xmppConnectionServiceBound && xmppConnectionService.getAccounts().size() > 0) {
-            inviteUser.setVisible(true);
-        } else {
-            inviteUser.setVisible(false);
-        }
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -791,36 +562,32 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     private void displayToast(final String msg) {
-        runOnUiThread(() -> ToastCompat.makeText(ConversationsActivity.this, msg, ToastCompat.LENGTH_SHORT).show());
+        runOnUiThread(() -> Toast.makeText(ConversationsActivity.this, msg, Toast.LENGTH_SHORT).show());
     }
 
     @Override
     public void onAffiliationChangedSuccessful(Jid jid) {
+
     }
 
     @Override
     public void onAffiliationChangeFailed(Jid jid, int resId) {
-        displayToast(getString(resId, jid.asBareJid().toEscapedString()));
+        displayToast(getString(resId, jid.asBareJid().toString()));
     }
 
     private void openConversation(Conversation conversation, Bundle extras) {
         final FragmentManager fragmentManager = getFragmentManager();
         executePendingTransactions(fragmentManager);
         ConversationFragment conversationFragment = (ConversationFragment) fragmentManager.findFragmentById(R.id.secondary_fragment);
-        xmppConnectionService.updateNotificationChannels();
         final boolean mainNeedsRefresh;
         if (conversationFragment == null) {
             mainNeedsRefresh = false;
-            Fragment mainFragment = getFragmentManager().findFragmentById(R.id.main_fragment);
+            final Fragment mainFragment = fragmentManager.findFragmentById(R.id.main_fragment);
             if (mainFragment instanceof ConversationFragment) {
                 conversationFragment = (ConversationFragment) mainFragment;
             } else {
                 conversationFragment = new ConversationFragment();
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(
-                        R.animator.fade_right_in, R.animator.fade_right_out,
-                        R.animator.fade_right_in, R.animator.fade_right_out
-                );
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.main_fragment, conversationFragment);
                 fragmentTransaction.addToBackStack(null);
                 try {
@@ -837,13 +604,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         conversationFragment.reInit(conversation, extras == null ? new Bundle() : extras);
         if (mainNeedsRefresh) {
             refreshFragment(R.id.main_fragment);
-        } else {
-            invalidateActionBarTitle();
         }
-        IntroHelper.showIntro(this, conversation.getMode() == Conversational.MODE_MULTI);
+        invalidateActionBarTitle();
     }
 
-    static void executePendingTransactions(final FragmentManager fragmentManager) {
+    private static void executePendingTransactions(final FragmentManager fragmentManager) {
         try {
             fragmentManager.executePendingTransactions();
         } catch (final Exception e) {
@@ -943,16 +708,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 intent.putExtra(SearchActivity.EXTRA_CONVERSATION_UUID, conversation.getUuid());
                 startActivity(intent);
                 return true;
-            case R.id.action_check_updates:
-                if (xmppConnectionService.hasInternetConnection()) {
-                    openInstallFromUnknownSourcesDialogIfNeeded(true);
-                } else {
-                    ToastCompat.makeText(this, R.string.account_status_no_internet, ToastCompat.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.action_invite_user:
-                inviteUser();
-                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -976,56 +731,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
-        final int theme = findTheme();
-        if (this.mTheme != theme || !this.mCustomColors.equals(ThemeHelper.applyCustomColors(this))) {
-            this.mSkipBackgroundBinding = true;
-            recreate();
-        } else {
-            this.mSkipBackgroundBinding = false;
-        }
         mRedirectInProcess.set(false);
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
-        
-
-
-        // Initialize and assign variable
-        bottomNavigationView=findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.chats);
-
-        // Perform item selected listener
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                switch (item.getItemId()) {
-                    case R.id.chats -> {
-                        return true;
-                    }
-                    case R.id.manageaccounts -> {
-                        startActivity(new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    }
-                        /* TODO:
-                    case R.id.calls:
-                        startActivity(new Intent(getApplicationContext(), CallsActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                    case R.id.stories:
-                        startActivity(new Intent(getApplicationContext(),MediaBrowserActivity.class));
-                        overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                        return true;
-                         */
-                    default ->
-                            throw new IllegalStateException("Unexpected value: " + item.getItemId());
-                }
-            }
-        });
     }
 
     @Override
@@ -1038,62 +746,35 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             } else {
                 pendingViewIntent.push(intent);
             }
-        } else if (intent != null && ACTION_DESTROY_MUC.equals(intent.getAction())) {
-            try {
-                final Bundle extras = intent.getExtras();
-                if (extras != null && extras.containsKey("MUC_UUID")) {
-                    Log.d(Config.LOGTAG, "Get " + intent.getAction() + " intent for " + extras.getString("MUC_UUID"));
-                    Conversation conversation = xmppConnectionService.findConversationByUuid(extras.getString("MUC_UUID"));
-                    ConversationsActivity.this.xmppConnectionService.clearConversationHistory(conversation);
-                    xmppConnectionService.destroyRoom(conversation, ConversationsActivity.this);
-                    endConversation(conversation);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         setIntent(createLauncherIntent(this));
-    }
-
-    public void endConversation(Conversation conversation) {
-        xmppConnectionService.archiveConversation(conversation);
-        onConversationArchived(conversation);
     }
 
     @Override
     public void onPause() {
         this.mActivityPaused = true;
         super.onPause();
-        hideMemoryWarningDialog();
-    }
-
-    private void hideMemoryWarningDialog() {
-        if (memoryWarningDialog != null && memoryWarningDialog.isShowing()) {
-            memoryWarningDialog.cancel();
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        invalidateActionBarTitle();
         this.mActivityPaused = false;
     }
 
     private void initializeFragments() {
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        Fragment mainFragment = getFragmentManager().findFragmentById(R.id.main_fragment);
-        Fragment secondaryFragment = getFragmentManager().findFragmentById(R.id.secondary_fragment);
+        final FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        final Fragment mainFragment = fragmentManager.findFragmentById(R.id.main_fragment);
+        final Fragment secondaryFragment = fragmentManager.findFragmentById(R.id.secondary_fragment);
         if (mainFragment != null) {
-            Log.d(Config.LOGTAG, "initializeFragment(). main fragment exists");
             if (binding.secondaryFragment != null) {
                 if (mainFragment instanceof ConversationFragment) {
-                    Log.d(Config.LOGTAG, "gained secondary fragment. moving...");
                     getFragmentManager().popBackStack();
                     transaction.remove(mainFragment);
                     transaction.commit();
-                    getFragmentManager().executePendingTransactions();
-                    transaction = getFragmentManager().beginTransaction();
+                    fragmentManager.executePendingTransactions();
+                    transaction = fragmentManager.beginTransaction();
                     transaction.replace(R.id.secondary_fragment, mainFragment);
                     transaction.replace(R.id.main_fragment, new ConversationsOverviewFragment());
                     transaction.commit();
@@ -1101,11 +782,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 }
             } else {
                 if (secondaryFragment instanceof ConversationFragment) {
-                    Log.d(Config.LOGTAG, "lost secondary fragment. moving...");
                     transaction.remove(secondaryFragment);
                     transaction.commit();
                     getFragmentManager().executePendingTransactions();
-                    transaction = getFragmentManager().beginTransaction();
+                    transaction = fragmentManager.beginTransaction();
                     transaction.replace(R.id.main_fragment, secondaryFragment);
                     transaction.addToBackStack(null);
                     transaction.commit();
@@ -1115,7 +795,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         } else {
             transaction.replace(R.id.main_fragment, new ConversationsOverviewFragment());
         }
-
         if (binding.secondaryFragment != null && secondaryFragment == null) {
             transaction.replace(R.id.secondary_fragment, new ConversationFragment());
         }
@@ -1129,104 +808,31 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
         final FragmentManager fragmentManager = getFragmentManager();
         final Fragment mainFragment = fragmentManager.findFragmentById(R.id.main_fragment);
-        if (mainFragment instanceof ConversationFragment) {
-            final Conversation conversation = ((ConversationFragment) mainFragment).getConversation();
+        if (mainFragment instanceof ConversationFragment conversationFragment) {
+            final Conversation conversation = conversationFragment.getConversation();
             if (conversation != null) {
-                actionBar.setDisplayHomeAsUpEnabled(true);
-                final View view = getLayoutInflater().inflate(R.layout.ab_title, null);
-                getSupportActionBar().setCustomView(view);
-                actionBar.setIcon(null);
-                actionBar.setBackgroundDrawable(new ColorDrawable(StyledAttributes.getColor(this, R.attr.color_background_secondary)));
-                actionBar.setDisplayShowCustomEnabled(true);
-                TextView abtitle = findViewById(android.R.id.text1);
-                TextView absubtitle = findViewById(android.R.id.text2);
-                final View avatartoolbarround = view.findViewById(R.id.toolbar_avatar);
-                final View avatartoolbarsquare = view.findViewById(R.id.toolbar_avatar_square);
-                abtitle.setText(conversation.getName());
-                abtitle.setSelected(true);
-                if (conversation.getMode() == Conversation.MODE_SINGLE) {
-                    if (!conversation.withSelf()) {
-                        ChatState state = conversation.getIncomingChatState();
-                        if (state == ChatState.COMPOSING) {
-                            absubtitle.setText(getString(R.string.is_typing));
-                            absubtitle.setVisibility(View.VISIBLE);
-                            absubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
-                            absubtitle.setSelected(true);
-                        } else {
-                            if (showLastSeen && conversation.getContact().getLastseen() > 0 && conversation.getContact().getPresences().allOrNonSupport(Namespace.IDLE)) {
-                                absubtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
-                                absubtitle.setVisibility(View.VISIBLE);
-                            } else {
-                                absubtitle.setText(null);
-                                absubtitle.setVisibility(View.GONE);
-                            }
-                            absubtitle.setSelected(true);
-                        }
-                    } else {
-                        absubtitle.setText(null);
-                        absubtitle.setVisibility(View.GONE);
-                    }
-                } else {
-                    ChatState state = ChatState.COMPOSING;
-                    List<MucOptions.User> userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
-                    if (userWithChatStates.size() == 0) {
-                        state = ChatState.PAUSED;
-                        userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
-                    }
-                    List<MucOptions.User> users = conversation.getMucOptions().getUsers(true);
-                    if (state == ChatState.COMPOSING) {
-                        if (userWithChatStates.size() > 0) {
-                            if (userWithChatStates.size() == 1) {
-                                MucOptions.User user = userWithChatStates.get(0);
-                                absubtitle.setText(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
-                                absubtitle.setVisibility(View.VISIBLE);
-                            } else {
-                                StringBuilder builder = new StringBuilder();
-                                for (MucOptions.User user : userWithChatStates) {
-                                    if (builder.length() != 0) {
-                                        builder.append(", ");
-                                    }
-                                    builder.append(UIHelper.getDisplayName(user));
-                                }
-                                absubtitle.setText(getString(R.string.contacts_are_typing, builder.toString()));
-                                absubtitle.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    } else {
-                        if (users.size() == 0) {
-                            absubtitle.setText(getString(R.string.one_participant));
-                            absubtitle.setVisibility(View.VISIBLE);
-                        } else {
-                            int size = users.size() + 1;
-                            absubtitle.setText(getString(R.string.more_participants, size));
-                            absubtitle.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    absubtitle.setSelected(true);
-                }
-                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                    AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarround, R.dimen.muc_avatar_actionbar);
-                    findViewById(R.id.toolbar_avatar).setVisibility(View.VISIBLE);
-                } else {
-                    AvatarWorkerTask.loadAvatar(conversation, (ImageView) avatartoolbarsquare, R.dimen.muc_avatar_actionbar);
-                    findViewById(R.id.toolbar_avatar_square).setVisibility(View.VISIBLE);
-                }
-                ActionBarUtil.setCustomActionBarOnClickListener(
-                        binding.toolbar.getRoot(),
-                        (v) -> openConversationDetails(conversation)
+                actionBar.setTitle(conversation.getName());
+                actionBar.setDisplayHomeAsUpEnabled(!xmppConnectionService.isOnboarding() || !conversation.getJid().equals(Jid.of("cheogram.com")));
+                ToolbarUtils.setActionBarOnClickListener(
+                        binding.toolbar,
+                        (v) -> { if(!xmppConnectionService.isOnboarding()) openConversationDetails(conversation); }
                 );
                 return;
             }
         }
-        Typeface font = ResourcesCompat.getFont(this, R.font.notosanssemibold);
-        SpannableStringBuilder app_title = new SpannableStringBuilder("monocles chat");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            app_title.setSpan (new TypefaceSpan(font), 0, 13, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        final Fragment secondaryFragment = fragmentManager.findFragmentById(R.id.secondary_fragment);
+        if (secondaryFragment instanceof ConversationFragment conversationFragment) {
+            final Conversation conversation = conversationFragment.getConversation();
+            if (conversation != null) {
+                actionBar.setTitle(conversation.getName());
+            } else {
+                actionBar.setTitle(R.string.app_name);
+            }
+        } else {
+            actionBar.setTitle(R.string.app_name);
         }
-        actionBar.setDisplayShowCustomEnabled(false);
-        actionBar.setTitle(app_title);
         actionBar.setDisplayHomeAsUpEnabled(false);
-        ActionBarUtil.resetCustomActionBarOnClickListeners(binding.toolbar.getRoot());
+        ToolbarUtils.resetActionBarOnClickListeners(binding.toolbar);
     }
 
     private void openConversationDetails(final Conversation conversation) {
@@ -1241,32 +847,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             }
         }
     }
-    public void verifyOtrSessionDialog(final Conversation conversation, View view) {
-        if (!conversation.hasValidOtrSession() || conversation.getOtrSession().getSessionStatus() != SessionStatus.ENCRYPTED) {
-            ToastCompat.makeText(this, R.string.otr_session_not_started, Toast.LENGTH_LONG).show();
-            return;
-        }
-        if (view == null) {
-            return;
-        }
-        PopupMenu popup = new PopupMenu(this, view);
-        popup.inflate(R.menu.verification_choices);
-        popup.setOnMenuItemClickListener(menuItem -> {
-            Intent intent = new Intent(ConversationsActivity.this, VerifyOTRActivity.class);
-            intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
-            intent.putExtra("contact", conversation.getContact().getJid().asBareJid().toString());
-            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
-            switch (menuItem.getItemId()) {
-                case R.id.ask_question:
-                    intent.putExtra("mode", VerifyOTRActivity.MODE_ASK_QUESTION);
-                    break;
-            }
-            startActivity(intent);
-            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-            return true;
-        });
-        popup.show();
-    }
+
     @Override
     public void onConversationArchived(Conversation conversation) {
         if (performRedirectIfNecessary(conversation, false)) {
@@ -1310,10 +891,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void onConversationRead(Conversation conversation, String upToUuid) {
-        if (xmppConnectionService != null && !mActivityPaused && pendingViewIntent.peek() == null) {
+        if (!mActivityPaused && pendingViewIntent.peek() == null) {
             xmppConnectionService.sendReadMarker(conversation, upToUuid);
         } else {
-            Log.d(Config.LOGTAG, "ignoring read callback. mActivityPaused=" + Boolean.toString(mActivityPaused));
+            Log.d(Config.LOGTAG, "ignoring read callback. mActivityPaused=" + mActivityPaused);
         }
     }
 
@@ -1347,37 +928,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void onShowErrorToast(int resId) {
-        runOnUiThread(() -> ToastCompat.makeText(this, resId, ToastCompat.LENGTH_SHORT).show());
-    }
-
-    protected void AppUpdate(String Store) {
-        String PREFS_NAME = "UpdateTimeStamp";
-        SharedPreferences UpdateTimeStamp = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        long lastUpdateTime = UpdateTimeStamp.getLong("lastUpdateTime", 0);
-        Log.d(Config.LOGTAG, "AppUpdater: LastUpdateTime: " + lastUpdateTime);
-        if ((lastUpdateTime + (Config.UPDATE_CHECK_TIMER * 1000)) < System.currentTimeMillis()) {
-            lastUpdateTime = System.currentTimeMillis();
-            SharedPreferences.Editor editor = UpdateTimeStamp.edit();
-            editor.putLong("lastUpdateTime", lastUpdateTime);
-            editor.apply();
-            Log.d(Config.LOGTAG, "AppUpdater: CurrentTime: " + lastUpdateTime);
-            openInstallFromUnknownSourcesDialogIfNeeded(false);
-        } else {
-            Log.d(Config.LOGTAG, "AppUpdater stopped");
-        }
-    }
-
-    @Override
-    public void onRoomDestroySucceeded() {
-        Conversation conversation = ConversationFragment.getConversationReliable(this);
-        final boolean groupChat = conversation != null && conversation.isPrivateAndNonAnonymous();
-        displayToast(getString(groupChat ? R.string.destroy_room_succeed : R.string.destroy_channel_succeed));
-    }
-
-    @Override
-    public void onRoomDestroyFailed() {
-        Conversation conversation = ConversationFragment.getConversationReliable(this);
-        final boolean groupChat = conversation != null && conversation.isPrivateAndNonAnonymous();
-        displayToast(getString(groupChat ? R.string.destroy_room_failed : R.string.destroy_channel_failed));
+        runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
     }
 }

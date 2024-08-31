@@ -4,14 +4,13 @@
 
     <item
         android:id="@+id/action_search"
-        android:icon="?attr/icon_search"
+        android:icon="@drawable/ic_search_24dp"
         android:title="@string/search"
         app:actionLayout="@layout/actionview_search"
         app:showAsAction="collapseActionView|always" />
-
     <item
         android:id="@+id/action_scan_qr_code"
-        android:icon="?attr/icon_scan_qr_code"
+        android:icon="@drawable/ic_qr_code_scanner_24dp"
         android:title="@string/scan_qr_code"
         app:showAsAction="always" />
 
@@ -25,9 +24,19 @@
     <item
         android:id="@+id/action_accounts"
         android:orderInCategory="90"
+        android:title="@string/action_accounts"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_account"
+        android:orderInCategory="90"
         android:title="@string/action_account"
-        app:showAsAction="never"
-        android:visible="false" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_privacy_policy"
+        android:orderInCategory="98"
+        android:title="@string/privacy_policy"
+        android:visible="false"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

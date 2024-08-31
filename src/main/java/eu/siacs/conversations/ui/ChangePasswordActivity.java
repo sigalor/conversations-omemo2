@@ -3,126 +3,120 @@ package eu.siacs.conversations.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.textfield.TextInputLayout;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.databinding.ActivityChangePasswordBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.widget.DisabledActionModeCallback;
-import eu.siacs.conversations.ui.widget.TextInputEditText;
-import me.drakeet.support.toast.ToastCompat;
 
 public class ChangePasswordActivity extends XmppActivity implements XmppConnectionService.OnAccountPasswordChanged {
 
-    private Button mChangePasswordButton;
-    private View.OnClickListener mOnChangePasswordButtonClicked = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mAccount != null) {
-                final String currentPassword = mCurrentPassword.getText().toString();
-                final String newPassword = mNewPassword.getText().toString();
-                if (!(mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || didUnlock) && !currentPassword.equals(mAccount.getPassword())) {
-                    mCurrentPassword.requestFocus();
-                    mCurrentPasswordLayout.setError(getString(R.string.account_status_unauthorized));
-                    removeErrorsOnAllBut(mCurrentPasswordLayout);
-                } else if (newPassword.trim().isEmpty()) {
-                    mNewPassword.requestFocus();
-                    mNewPasswordLayout.setError(getString(R.string.password_should_not_be_empty));
-                    removeErrorsOnAllBut(mNewPasswordLayout);
-                } else {
-                    mCurrentPasswordLayout.setError(null);
-                    mNewPasswordLayout.setError(null);
-                    xmppConnectionService.updateAccountPasswordOnServer(mAccount, newPassword, ChangePasswordActivity.this);
-                    mChangePasswordButton.setEnabled(false);
-                    mChangePasswordButton.setText(R.string.updating);
-                }
-            }
-        }
-    };
-    private TextInputEditText mCurrentPassword;
-    private TextInputEditText mNewPassword;
-    private TextInputLayout mNewPasswordLayout;
-    private TextInputLayout mCurrentPasswordLayout;
-    private Account mAccount;
-    private boolean didUnlock = false;
+	private ActivityChangePasswordBinding binding;
+
+	private final View.OnClickListener mOnChangePasswordButtonClicked = new View.OnClickListener() {
+		@Override
+		public void onClick(final View view) {
+			final var account = mAccount;
+			if (account == null) {
+				return;
+			}
+			final String currentPassword = binding.currentPassword.getText().toString();
+			final String newPassword = binding.newPassword.getText().toString();
+			if (!account.isOptionSet(Account.OPTION_MAGIC_CREATE) && !didUnlock && !currentPassword.equals(account.getPassword())) {
+				binding.currentPassword.requestFocus();
+				binding.currentPasswordLayout.setError(getString(R.string.account_status_unauthorized));
+				removeErrorsOnAllBut(binding.currentPasswordLayout);
+			} else if (newPassword.trim().isEmpty()) {
+				binding.newPassword.requestFocus();
+				binding.newPasswordLayout.setError(getString(R.string.password_should_not_be_empty));
+				removeErrorsOnAllBut(binding.newPasswordLayout);
+			} else {
+				binding.currentPasswordLayout.setError(null);
+				binding.newPasswordLayout.setError(null);
+				xmppConnectionService.updateAccountPasswordOnServer(account, newPassword, ChangePasswordActivity.this);
+				binding.changePasswordButton.setEnabled(false);
+				binding.changePasswordButton.setText(R.string.updating);
+			}
+		}
+	};
 
 
-    @Override
+
+	private Account mAccount;
+	private boolean didUnlock = false;
+
+	@Override
     protected void onBackendConnected() {
-        this.mAccount = extractAccount(getIntent());
-        if (this.mAccount != null && (this.mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || didUnlock)) {
-            this.mCurrentPasswordLayout.setVisibility(View.GONE);
-        } else {
-            this.mCurrentPassword.setVisibility(View.VISIBLE);
-        }
-    }
+		this.mAccount = extractAccount(getIntent());
+		if (this.mAccount != null && (this.mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || didUnlock)) {
+			this.binding.currentPasswordLayout.setVisibility(View.GONE);
+		} else {
+			this.binding.currentPasswordLayout.setVisibility(View.VISIBLE);
+		}
+	}
 
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_change_password);
-        setSupportActionBar(findViewById(R.id.toolbar));
-        configureActionBar(getSupportActionBar());
-        Button mCancelButton = findViewById(R.id.left_button);
-        mCancelButton.setOnClickListener(view -> finish());
-        this.mChangePasswordButton = findViewById(R.id.right_button);
-        this.mChangePasswordButton.setOnClickListener(this.mOnChangePasswordButtonClicked);
-        this.mCurrentPassword = findViewById(R.id.current_password);
-        this.mCurrentPassword.setCustomSelectionActionModeCallback(new DisabledActionModeCallback());
-        this.mNewPassword = findViewById(R.id.new_password);
-        this.mNewPassword.setCustomSelectionActionModeCallback(new DisabledActionModeCallback());
-        this.mCurrentPasswordLayout = findViewById(R.id.current_password_layout);
-        this.mNewPasswordLayout = findViewById(R.id.new_password_layout);
-    }
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_change_password);
+		Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
+		setSupportActionBar(binding.toolbar);
+		configureActionBar(getSupportActionBar());
+		binding.cancelButton.setOnClickListener(view -> finish());
+		binding.changePasswordButton.setOnClickListener(this.mOnChangePasswordButtonClicked);
+		binding.currentPassword.setCustomSelectionActionModeCallback(new DisabledActionModeCallback());
+		binding.newPassword.setCustomSelectionActionModeCallback(new DisabledActionModeCallback());
+	}
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = getIntent();
-        this.didUnlock = intent.getBooleanExtra("did_unlock", false);
-        String password = intent != null ? intent.getStringExtra("password") : null;
-        if (password != null) {
-            this.mNewPassword.getEditableText().clear();
-            this.mNewPassword.getEditableText().append(password);
-        }
-    }
+	@Override
+	public void onStart() {
+		super.onStart();
+		Intent intent = getIntent();
+		this.didUnlock = intent.getBooleanExtra("did_unlock", false);
+		String password = intent != null ? intent.getStringExtra("password") : null;
+		if (password != null) {
+			binding.newPassword.getEditableText().clear();
+			binding.newPassword.getEditableText().append(password);
+		}
+	}
 
-    @Override
-    public void onPasswordChangeSucceeded() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ToastCompat.makeText(ChangePasswordActivity.this, R.string.password_changed, ToastCompat.LENGTH_LONG).show();
-                finish();
-            }
-        });
-    }
+	@Override
+	public void onPasswordChangeSucceeded() {
+		runOnUiThread(() -> {
+			Toast.makeText(ChangePasswordActivity.this,R.string.password_changed,Toast.LENGTH_LONG).show();
+			finish();
+		});
+	}
 
-    @Override
-    public void onPasswordChangeFailed() {
-        runOnUiThread(() -> {
-            mNewPasswordLayout.setError(getString(R.string.could_not_change_password));
-            mChangePasswordButton.setEnabled(true);
-            mChangePasswordButton.setText(R.string.change_password);
-        });
+	@Override
+	public void onPasswordChangeFailed() {
+		runOnUiThread(() -> {
+			binding.newPasswordLayout.setError(getString(R.string.could_not_change_password));
+			binding.changePasswordButton.setEnabled(true);
+			binding.changePasswordButton.setText(R.string.change_password);
+		});
 
-    }
+	}
 
-    private void removeErrorsOnAllBut(TextInputLayout exception) {
-        if (this.mCurrentPasswordLayout != exception) {
-            this.mCurrentPasswordLayout.setErrorEnabled(false);
-            this.mCurrentPasswordLayout.setError(null);
-        }
-        if (this.mNewPasswordLayout != exception) {
-            this.mNewPasswordLayout.setErrorEnabled(false);
-            this.mNewPasswordLayout.setError(null);
-        }
+	private void removeErrorsOnAllBut(TextInputLayout exception) {
+		if (this.binding.currentPasswordLayout != exception) {
+			this.binding.currentPasswordLayout.setErrorEnabled(false);
+			this.binding.currentPasswordLayout.setError(null);
+		}
+		if (this.binding.newPasswordLayout != exception) {
+			this.binding.newPasswordLayout.setErrorEnabled(false);
+			this.binding.newPasswordLayout.setError(null);
+		}
 
-    }
+	}
 
-    public void refreshUiReal() {
+	public void refreshUiReal() {
 
-    }
+	}
 }

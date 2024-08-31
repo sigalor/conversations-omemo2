@@ -1,3 +1,1 @@
-include ':libs:AXML'
-include ':libs:xmpp-addr'
-rootProject.name = 'monocles chat'
+rootProject.name = 'Conversations'

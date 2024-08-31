@@ -31,20 +31,18 @@ package eu.siacs.conversations.ui;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.StringRes;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
-import android.os.Build;
-
-import com.canhub.cropper.CropImage;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -53,12 +51,12 @@ import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.ui.util.PendingItem;
-import me.drakeet.support.toast.ToastCompat;
 
 import static eu.siacs.conversations.ui.PublishProfilePictureActivity.REQUEST_CHOOSE_PICTURE;
 
-public class PublishGroupChatProfilePictureActivity extends XmppActivity implements OnAvatarPublication {
+import com.canhub.cropper.CropImage;
 
+public class PublishGroupChatProfilePictureActivity extends XmppActivity implements OnAvatarPublication {
     private final PendingItem<String> pendingConversationUuid = new PendingItem<>();
     private ActivityPublishProfilePictureBinding binding;
     private Conversation conversation;
@@ -82,7 +80,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     }
 
     private void reloadAvatar() {
-        final int size = getPixel(Config.AVATAR_SIZE);
+        final int size = (int) getResources().getDimension(R.dimen.publish_avatar_size);
         Drawable bitmap;
         if (uri == null) {
             bitmap = xmppConnectionService.getAvatarService().get(conversation, size);
@@ -101,7 +99,8 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_publish_profile_picture);
-        setSupportActionBar((Toolbar) this.binding.toolbar.getRoot());
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
+        setSupportActionBar(this.binding.toolbar);
         configureActionBar(getSupportActionBar());
         this.binding.cancelButton.setOnClickListener((v) -> this.finish());
         this.binding.secondaryHint.setVisibility(View.GONE);
@@ -135,7 +134,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
                 if (error != null) {
-                    ToastCompat.makeText(this, error.getMessage(), ToastCompat.LENGTH_SHORT).show();
+                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         } else if (requestCode == REQUEST_CHOOSE_PICTURE) {
@@ -163,7 +162,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     @Override
     public void onAvatarPublicationSucceeded() {
         runOnUiThread(() -> {
-            ToastCompat.makeText(this, R.string.avatar_has_been_published, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.avatar_has_been_published, Toast.LENGTH_SHORT).show();
             finish();
         });
     }
@@ -171,7 +170,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     @Override
     public void onAvatarPublicationFailed(@StringRes int res) {
         runOnUiThread(() -> {
-            ToastCompat.makeText(this, res, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
             this.binding.publishButton.setText(R.string.publish);
             this.binding.publishButton.setEnabled(true);
         });

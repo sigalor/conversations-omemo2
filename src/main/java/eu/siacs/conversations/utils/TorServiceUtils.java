@@ -32,7 +32,6 @@ public class TorServiceUtils {
         }
     }
 
-
     public static void downloadOrbot(Activity activity, int requestCode) {
         try {
             activity.startActivityForResult(INSTALL_INTENT, requestCode);

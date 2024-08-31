@@ -26,6 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package eu.siacs.conversations.ui.util;
 
 import android.app.Activity;
@@ -36,35 +37,35 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
+
+
 public class SoftKeyboardUtils {
 
-    public static void hideSoftKeyboard(final Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) {
-            return;
-        }
-        View view = activity.getCurrentFocus();
-        if (view == null) {
-            view = new View(activity);
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-    }
+	public static void hideSoftKeyboard(final Activity activity) {
+		InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (imm == null) {
+			return;
+		}
+		View view = activity.getCurrentFocus();
+		if (view == null) {
+			view = new View(activity);
+		}
+		imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+	}
 
-    public static void hideSoftKeyboard(@NonNull  final EditText editText) {
-        InputMethodManager imm = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) {
-            return;
-        }
-        imm.hideSoftInputFromWindow(editText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-    }
+	public static void hideSoftKeyboard(@NonNull  final EditText editText) {
+		InputMethodManager imm = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (imm == null) {
+			return;
+		}
+		imm.hideSoftInputFromWindow(editText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+	}
 
-    public static void showKeyboard(EditText editText) {
-        editText.requestFocus();
-        try {
-            final InputMethodManager inputMethodManager = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	public static void showKeyboard(EditText editText) {
+		editText.requestFocus();
+		InputMethodManager inputMethodManager = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null) {
+			inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+		}
+	}
 }

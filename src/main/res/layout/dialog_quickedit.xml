@@ -10,24 +10,21 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout"
-            style="@style/Widget.Conversations.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:errorEnabled="true"
-            app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error"
-            app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint">
+            app:errorEnabled="true">
 
-            <eu.siacs.conversations.ui.widget.TextInputEditText
+            <EditText
+                android:padding="16dp"
                 android:id="@+id/input_edit_text"
-                style="@style/Widget.Material3.TextInputEditText.FilledBox"
-android:fontFamily="notosansregular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:textColor="?attr/text_Color_Main">
+                android:inputType="textPersonName">
+
                 <requestFocus />
-            </eu.siacs.conversations.ui.widget.TextInputEditText>
+            </EditText>
+
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </layout>

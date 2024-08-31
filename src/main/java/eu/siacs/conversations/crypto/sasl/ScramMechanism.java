@@ -132,6 +132,7 @@ abstract class ScramMechanism extends SaslMechanism {
                 Base64.NO_WRAP);
     }
 
+    @Override
     public String getResponse(final String challenge, final SSLSocket socket)
             throws AuthenticationException {
         switch (state) {
@@ -203,10 +204,10 @@ abstract class ScramMechanism extends SaslMechanism {
 
                 final byte[] authMessage =
                         (clientFirstMessageBare
-                                + ','
-                                + new String(serverFirstMessage)
-                                + ','
-                                + clientFinalMessageWithoutProof)
+                                        + ','
+                                        + new String(serverFirstMessage)
+                                        + ','
+                                        + clientFinalMessageWithoutProof)
                                 .getBytes();
 
                 final KeyPair keys;

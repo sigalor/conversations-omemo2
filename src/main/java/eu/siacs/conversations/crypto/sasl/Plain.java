@@ -9,7 +9,10 @@ import javax.net.ssl.SSLSocket;
 import eu.siacs.conversations.entities.Account;
 
 public class Plain extends SaslMechanism {
-    public static final String MECHANISM = "PLAIN";public Plain(final Account account) {
+
+    public static final String MECHANISM = "PLAIN";
+
+    public Plain(final Account account) {
         super(account);
     }
 

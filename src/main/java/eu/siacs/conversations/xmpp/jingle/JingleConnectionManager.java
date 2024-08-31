@@ -1,5 +1,6 @@
 package eu.siacs.conversations.xmpp.jingle;
 
+import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.util.Base64;
 import android.util.Log;
@@ -147,6 +148,9 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     }
 
     private void addNewIncomingCall(final JingleRtpConnection rtpConnection) {
+        if (true) {
+            return; // We do this inside the startRinging in the rtpConnection now so that fallback is possible
+        }
         if (rtpConnection.isTerminated()) {
             Log.d(
                     Config.LOGTAG,
@@ -185,10 +189,10 @@ public class JingleConnectionManager extends AbstractConnectionManager {
             }
         }
         synchronized (this.rtpSessionProposals) {
-            return this.rtpSessionProposals.containsValue(DeviceDiscoveryState.DISCOVERED)
-                    || this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING)
-                    || this.rtpSessionProposals.containsValue(
-                    DeviceDiscoveryState.SEARCHING_ACKNOWLEDGED);
+            if (this.rtpSessionProposals.containsValue(DeviceDiscoveryState.DISCOVERED)) return true;
+            if (this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING)) return true;
+            if (this.rtpSessionProposals.containsValue(DeviceDiscoveryState.SEARCHING_ACKNOWLEDGED)) return true;
+            return false;
         }
     }
 
@@ -228,8 +232,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         return Optional.absent();
     }
 
-    private boolean hasMatchingRtpSession(
-            final Account account, final Jid with, final Set<Media> media) {
+    private String hasMatchingRtpSession(final Account account, final Jid with, final Set<Media> media) {
         for (AbstractJingleConnection connection : this.connections.values()) {
             if (connection instanceof JingleRtpConnection rtpConnection) {
                 if (rtpConnection.isTerminated()) {
@@ -238,11 +241,11 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                 if (rtpConnection.getId().account == account
                         && rtpConnection.getId().with.asBareJid().equals(with.asBareJid())
                         && rtpConnection.getMedia().equals(media)) {
-                    return true;
+                    return rtpConnection.getId().sessionId;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     private boolean isWithStrangerAndStrangerNotificationsAreOff(final Account account, Jid with) {
@@ -289,7 +292,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         if (sessionId == null) {
             return;
         }
-        if ("accept".equals(message.getName())) {
+        if ("accept".equals(message.getName()) || "reject".equals(message.getName())) {
             for (AbstractJingleConnection connection : connections.values()) {
                 if (connection instanceof JingleRtpConnection rtpConnection) {
                     final AbstractJingleConnection.Id id = connection.getId();
@@ -299,7 +302,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                     }
                 }
             }
-            return;
+            if ("accept".equals(message.getName())) return;
         }
         final boolean fromSelf = from.asBareJid().equals(account.getJid().asBareJid());
         // XEP version 0.6.0 sends proceed, reject, ringing to bare jid
@@ -385,11 +388,11 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                     final String ourSessionId = matchingSessionProposal.get().sessionId;
                     final String theirSessionId = id.sessionId;
                     if (ComparisonChain.start()
-                            .compare(ourSessionId, theirSessionId)
-                            .compare(
-                                    account.getJid().toEscapedString(),
-                                    id.with.toEscapedString())
-                            .result()
+                                    .compare(ourSessionId, theirSessionId)
+                                    .compare(
+                                            account.getJid().toEscapedString(),
+                                            id.with.toEscapedString())
+                                    .result()
                             > 0) {
                         Log.d(
                                 Config.LOGTAG,
@@ -648,6 +651,18 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         return Optional.absent();
     }
 
+    public JingleRtpConnection getOngoingRtpConnection() {
+        for (final AbstractJingleConnection jingleConnection : this.connections.values()) {
+            if (jingleConnection instanceof JingleRtpConnection jingleRtpConnection) {
+                if (jingleRtpConnection.isTerminated()) {
+                    continue;
+                }
+                return jingleRtpConnection;
+            }
+        }
+        return null;
+    }
+
     void finishConnectionOrThrow(final AbstractJingleConnection connection) {
         final AbstractJingleConnection.Id id = connection.getId();
         if (this.connections.remove(id) == null) {
@@ -724,6 +739,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         final JingleRtpConnection rtpConnection =
                 new JingleRtpConnection(this, id, account.getJid());
         rtpConnection.setProposedMedia(media);
+        rtpConnection.getCallIntegration().startAudioRouting();
         this.connections.put(id, rtpConnection);
         rtpConnection.sendSessionInitiate();
         return rtpConnection;
@@ -747,15 +763,14 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                 }
             }
             if (isBusy()) {
-                if (hasMatchingRtpSession(account, with, media)) {
+                if (hasMatchingRtpSession(account, with, media) != null) {
                     Log.d(
                             Config.LOGTAG,
                             "ignoring request to propose jingle session because the other party already created one for us");
                     // TODO return something that we can parse the connection of of
                     return null;
                 }
-                throw new IllegalStateException(
-                        "There is already a running RTP session. This should have been caught by the UI");
+                throw new IllegalStateException("There is already a running RTP session");
             }
             final CallIntegration callIntegration =
                     new CallIntegration(mXmppConnectionService.getApplicationContext());
@@ -763,7 +778,13 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                     Media.audioOnly(media)
                             ? VideoProfile.STATE_AUDIO_ONLY
                             : VideoProfile.STATE_BIDIRECTIONAL);
+            callIntegration.setAddress(
+                    CallIntegration.address(with.asBareJid()), TelecomManager.PRESENTATION_ALLOWED);
+            final var contact = account.getRoster().getContact(with);
+            callIntegration.setCallerDisplayName(
+                    contact.getDisplayName(), TelecomManager.PRESENTATION_ALLOWED);
             callIntegration.setInitialAudioDevice(CallIntegration.initialAudioDevice(media));
+            callIntegration.startAudioRouting();
             final RtpSessionProposal proposal =
                     RtpSessionProposal.of(account, with.asBareJid(), media, callIntegration);
             callIntegration.setCallback(new ProposalStateCallback(proposal));
@@ -972,10 +993,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                 this.rtpSessionProposals.remove(sessionProposal);
                 sessionProposal.getCallIntegration().error();
                 mXmppConnectionService.notifyJingleRtpConnectionUpdate(
-                        account,
-                        sessionProposal.with,
-                        sessionProposal.sessionId,
-                        endUserState);
+                        account, sessionProposal.with, sessionProposal.sessionId, endUserState);
                 return;
             }
 
@@ -1212,5 +1230,13 @@ public class JingleConnectionManager extends AbstractConnectionManager {
 
         @Override
         public void onCallIntegrationSilence() {}
+
+        @Override
+        public void onCallIntegrationMicrophoneEnabled(boolean enabled) {}
+
+        @Override
+        public boolean applyDtmfTone(final String dtmf) {
+            return false;
+        }
     }
 }

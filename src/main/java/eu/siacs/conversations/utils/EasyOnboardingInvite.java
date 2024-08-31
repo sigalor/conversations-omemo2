@@ -61,6 +61,7 @@ public class EasyOnboardingInvite implements Parcelable {
             return false;
         }
         return getSupportingAccounts(service).size() > 0;
+
     }
 
     public static List<Account> getSupportingAccounts(final XmppConnectionService service) {
@@ -75,19 +76,12 @@ public class EasyOnboardingInvite implements Parcelable {
         return supportingAccountsBuilder.build();
     }
 
-    public static boolean hasAccountSupport(final Account account) {
-        final XmppConnection xmppConnection = account.getXmppConnection();
-        if (xmppConnection != null && xmppConnection.getFeatures().easyOnboardingInvites()) {
-            return true;
-        }
-        return false;
-    }
 
     public String getShareableLink() {
         return Strings.isNullOrEmpty(landingUrl) ? uri : landingUrl;
     }
 
-    public String getShareableUri() {
+    public String getUri() {
         return uri;
     }
 

@@ -11,20 +11,16 @@ public class Edit {
 
     private final String editedId;
     private final String serverMsgId;
-    private String body;
-    private final long timeSent;
 
-    Edit(String editedId, String serverMsgId, String body, long timeSent) {
+    Edit(String editedId, String serverMsgId) {
         this.editedId = editedId;
         this.serverMsgId = serverMsgId;
-        this.body = body;
-        this.timeSent = timeSent;
     }
 
-    static String toJson(List<Edit> edits, boolean hidebody) throws JSONException {
+    static String toJson(List<Edit> edits) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         for (Edit edit : edits) {
-            jsonArray.put(edit.toJson(hidebody));
+            jsonArray.put(edit.toJson());
         }
         return jsonArray.toString();
     }
@@ -50,9 +46,7 @@ public class Edit {
     private static Edit fromJson(JSONObject jsonObject) throws JSONException {
         String edited = jsonObject.has("edited_id") ? jsonObject.getString("edited_id") : null;
         String serverMsgId = jsonObject.has("server_msg_id") ? jsonObject.getString("server_msg_id") : null;
-        String body = jsonObject.has("body") ? jsonObject.getString("body") : null;
-        long timeSent = jsonObject.has("timeSent") ? jsonObject.getLong("timeSent") : null;
-        return new Edit(edited, serverMsgId, body, timeSent);
+        return new Edit(edited, serverMsgId);
     }
 
     static List<Edit> fromJson(String input) {
@@ -71,13 +65,15 @@ public class Edit {
         }
     }
 
-    private JSONObject toJson(boolean hidebody) throws JSONException {
+    private JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("edited_id", editedId);
         jsonObject.put("server_msg_id", serverMsgId);
-        jsonObject.put("body", hidebody ? "" : body);
-        jsonObject.put("timeSent", timeSent);
         return jsonObject;
+    }
+
+    String getEditedId() {
+        return editedId;
     }
 
     @Override
@@ -97,19 +93,5 @@ public class Edit {
         int result = editedId != null ? editedId.hashCode() : 0;
         result = 31 * result + (serverMsgId != null ? serverMsgId.hashCode() : 0);
         return result;
-    }
-
-    public String getServerMsgId() {
-        return serverMsgId;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public String getEditedId() { return editedId; }
-
-    public long getTimeSent() {
-        return timeSent;
     }
 }

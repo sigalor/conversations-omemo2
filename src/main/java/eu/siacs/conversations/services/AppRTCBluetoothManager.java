@@ -137,8 +137,8 @@ public class AppRTCBluetoothManager {
                     Config.LOGTAG,
                     "HEADSET profile state: "
                             + stateToString(
-                            bluetoothAdapter.getProfileConnectionState(
-                                    BluetoothProfile.HEADSET)));
+                                    bluetoothAdapter.getProfileConnectionState(
+                                            BluetoothProfile.HEADSET)));
         }
         Log.d(Config.LOGTAG, "Bluetooth proxy for headset profile has started");
         bluetoothState = State.HEADSET_UNAVAILABLE;
@@ -306,7 +306,7 @@ public class AppRTCBluetoothManager {
     protected boolean hasBluetoothConnectPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return ActivityCompat.checkSelfPermission(
-                    apprtcContext, Manifest.permission.BLUETOOTH_CONNECT)
+                            apprtcContext, Manifest.permission.BLUETOOTH_CONNECT)
                     == PackageManager.PERMISSION_GRANTED;
         } else {
             return true;

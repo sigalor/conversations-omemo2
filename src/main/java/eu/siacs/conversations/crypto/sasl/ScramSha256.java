@@ -10,7 +10,10 @@ import org.bouncycastle.crypto.macs.HMac;
 import eu.siacs.conversations.entities.Account;
 
 public class ScramSha256 extends ScramMechanism {
-    public static final String MECHANISM = "SCRAM-SHA-256";public ScramSha256(final Account account) {
+
+    public static final String MECHANISM = "SCRAM-SHA-256";
+
+    public ScramSha256(final Account account) {
         super(account, ChannelBinding.NONE);
     }
 

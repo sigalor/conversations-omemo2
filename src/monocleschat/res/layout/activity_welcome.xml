@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/slideshow_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/gl_SlidePage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            android:src="@drawable/main_logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="center"
+            android:fontFamily="@font/archivoblack"
+            android:textColor="?colorOnSecondaryContainer"
+            android:textSize="18sp"
+            android:text="Welcome to monocles chat" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="@font/poppins"
+            android:text="monocles chat is an app that connects you to a global network called Jabber.  This network includes services, called gateways, for chatting with other networks such as SMS, IRC, Matrix, and more." />
+
+        <com.wefika.flowlayout.FlowLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.caverock.androidsvg.SVGImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                app:svg="@raw/jmp" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/android_messages" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_call_24dp" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_email_48dp" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/irc" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/matrix" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/jabber" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/snikket" />
+
+            <com.caverock.androidsvg.SVGImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                app:svg="@raw/xmpp" />
+
+        </com.wefika.flowlayout.FlowLayout>
+
+    </LinearLayout>
+    </ScrollView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:weightSum="1"
+        android:padding="15dp">
+
+        <ImageView
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            android:src="@drawable/jabber" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="center"
+            android:fontFamily="@font/archivoblack"
+            android:textColor="?colorOnSecondaryContainer"
+            android:textSize="18sp"
+            android:text="How the Jabber network works" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="@font/poppins"
+            android:text="The Jabber network is powered by a protocol called XMPP. It is a decentralized network, which means no one owns or controls the whole thing. It is a federated network which means anyone can run a Jabber service. Messages to other Jabber users can be end-to-end encrypted by enabling OMEMO for the conversation.\n\nAddresses are called Jabber IDs and look similar to email addresses:" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_gravity="center"
+            android:fontFamily="@font/archivoblack"
+            android:textColor="?colorOnSecondaryContainer"
+            android:textSize="18sp"
+            android:text="username@service.com" />
+
+        <com.caverock.androidsvg.SVGImageView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_weight="1"
+           android:layout_gravity="center"
+           app:svg="@raw/federation_diagram" />
+    </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="vertical"
+                android:background="?colorSurface">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_above="@+id/linearLayout"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:padding="8dp"
+                        android:src="@drawable/main_logo" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingBottom="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/register_new_account"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textAllCaps="false"
+                        android:textSize="20sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_gravity="center"
+                        android:drawableLeft="@drawable/getjid"
+                        android:fontFamily="@font/poppins"
+                        android:text="@string/create_new_account" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/use_existing"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textAllCaps="false"
+                        android:textSize="20sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_gravity="center"
+                        android:drawableLeft="@drawable/havejid"
+                        android:fontFamily="@font/poppins"
+                        android:text="@string/i_already_have_an_account" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/use_snikket"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textAllCaps="false"
+                        android:textSize="20sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:drawableLeft="@drawable/snikket"
+                        android:fontFamily="@font/poppins"
+                        android:text="@string/i_am_snikket_user" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/use_backup"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textAllCaps="false"
+                        android:textSize="20sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:drawableLeft="@drawable/restore"
+                        android:fontFamily="@font/poppins"
+                        android:text="@string/restore_backup" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    </androidx.viewpager.widget.ViewPager>
+
+   <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_SlidePage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="130dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:background="?colorPrimaryContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gl_SlidePage">
+
+        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+            android:id="@+id/dots_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp"
+            app:dotsColor="?colorTertiary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:selectedDotColor="#FFFFFF" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginBottom="32dp"
+            android:text="Next"
+            android:textColor="?colorOnTertiary"
+            app:backgroundTint="?colorTertiary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dots_indicator" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_privacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginBottom="32dp"
+            android:text="View Privacy Policy"
+            android:textColor="?colorOnTertiary"
+            android:visibility="gone"
+            app:backgroundTint="?colorTertiary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dots_indicator" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

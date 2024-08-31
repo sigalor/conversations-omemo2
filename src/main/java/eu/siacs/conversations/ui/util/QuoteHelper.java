@@ -4,8 +4,6 @@ import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
 
 import eu.siacs.conversations.Config;
-import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.utils.UIHelper;
 
 public class QuoteHelper {
@@ -17,11 +15,11 @@ public class QuoteHelper {
     public static final char QUOTE_ALT_END_CHAR = '«';
 
     public static boolean isRelativeSizeSpanned(Spanned body, int pos) {
-        for (final var span : body.getSpans(pos, pos, RelativeSizeSpan.class)) {
-            if (body.getSpanEnd(span) != pos) return true;
-        }
+       for (final var span : body.getSpans(pos, pos, RelativeSizeSpan.class)) {
+           if (body.getSpanEnd(span) != pos) return true;
+       }
 
-        return false;
+       return false;
     }
 
     public static boolean isPositionQuoteCharacter(CharSequence body, int pos) {
@@ -123,16 +121,6 @@ public class QuoteHelper {
         return text;
     }
 
-    public static boolean isMessageQuoteable(Message m){
-        if (m.isTypeText() && MessageUtils.prepareQuote(m).length() > 0) {
-            return true;
-        }
-        if (m.isFileOrImage()){
-            return true;
-        }
-        return false;
-    }
-
     public static String quote(String text) {
         text = replaceAltQuoteCharsInText(text);
         return text
@@ -141,6 +129,6 @@ public class QuoteHelper {
                 .replaceAll("(^|\n)(" + QUOTE_CHAR + ")", "$1$2$2")
                 // then find all other lines and have them start with a '> '
                 .replaceAll("(^|\n)(?!" + QUOTE_CHAR + ")(.*)", "$1> $2")
-                ;
+        ;
     }
 }

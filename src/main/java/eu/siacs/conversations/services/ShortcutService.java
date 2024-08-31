@@ -29,6 +29,7 @@ import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class ShortcutService {
+
     private final XmppConnectionService xmppConnectionService;
     private final ReplacingSerialSingleThreadExecutor replacingSerialSingleThreadExecutor = new ReplacingSerialSingleThreadExecutor(ShortcutService.class.getSimpleName());
 
@@ -63,21 +64,21 @@ public class ShortcutService {
     @TargetApi(25)
     private void refreshImpl(boolean forceUpdate) {
         List<FrequentContact> frequentContacts = xmppConnectionService.databaseBackend.getFrequentContacts(30);
-        HashMap<String, Account> accounts = new HashMap<>();
-        for (Account account : xmppConnectionService.getAccounts()) {
-            accounts.put(account.getUuid(), account);
+        HashMap<String,Account> accounts = new HashMap<>();
+        for(Account account : xmppConnectionService.getAccounts()) {
+            accounts.put(account.getUuid(),account);
         }
         List<Contact> contacts = new ArrayList<>();
-        for (FrequentContact frequentContact : frequentContacts) {
+        for(FrequentContact frequentContact : frequentContacts) {
             Account account = accounts.get(frequentContact.account);
             if (account != null) {
                 contacts.add(account.getRoster().getContact(frequentContact.contact));
             }
         }
         ShortcutManager shortcutManager = xmppConnectionService.getSystemService(ShortcutManager.class);
-        boolean needsUpdate = forceUpdate || contactsChanged(contacts, shortcutManager.getDynamicShortcuts());
+        boolean needsUpdate = forceUpdate || contactsChanged(contacts,shortcutManager.getDynamicShortcuts());
         if (!needsUpdate) {
-            Log.d(Config.LOGTAG, "skipping shortcut update");
+            Log.d(Config.LOGTAG,"skipping shortcut update");
             return;
         }
         List<ShortcutInfo> newDynamicShortCuts = new ArrayList<>();
@@ -86,7 +87,7 @@ public class ShortcutService {
             newDynamicShortCuts.add(shortcut);
         }
         if (shortcutManager.setDynamicShortcuts(newDynamicShortCuts)) {
-            Log.d(Config.LOGTAG, "updated dynamic shortcuts");
+            Log.d(Config.LOGTAG,"updated dynamic shortcuts");
         } else {
             Log.d(Config.LOGTAG, "unable to update dynamic shortcuts");
         }
@@ -94,38 +95,30 @@ public class ShortcutService {
 
     public ShortcutInfoCompat getShortcutInfoCompat(Contact contact) {
         return new ShortcutInfoCompat.Builder(xmppConnectionService, getShortcutId(contact))
-                .setShortLabel(contact.getDisplayName())
-                .setIntent(getShortcutIntent(contact))
-                .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(contact)))
-                .setIsConversation()
-                .build();
+                        .setShortLabel(contact.getDisplayName())
+                        .setIntent(getShortcutIntent(contact))
+                        .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(contact)))
+                        .setIsConversation()
+                        .build();
     }
 
     public ShortcutInfoCompat getShortcutInfoCompat(final MucOptions mucOptions) {
-        final ShortcutInfoCompat.Builder builder =
-                new ShortcutInfoCompat.Builder(xmppConnectionService, getShortcutId(mucOptions))
+        return new ShortcutInfoCompat.Builder(xmppConnectionService, getShortcutId(mucOptions))
                         .setShortLabel(mucOptions.getConversation().getName())
                         .setIntent(getShortcutIntent(mucOptions))
-                        .setIsConversation();
-        builder.setIcon(
-                IconCompat.createFromIcon(
-                        xmppConnectionService,
-                        Icon.createWithBitmap(
-                                xmppConnectionService
-                                        .getAvatarService()
-                                        .getRoundedShortcut(mucOptions))));
-        return builder.build();
+                        .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(mucOptions)))
+                        .setIsConversation()
+                        .build();
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
-    private ShortcutInfo getShortcutInfo(Contact contact) {
+    private ShortcutInfo getShortcutInfo(final Contact contact) {
         return getShortcutInfoCompat(contact).toShortcutInfo();
     }
 
-
     private static boolean contactsChanged(List<Contact> needles, List<ShortcutInfo> haystack) {
-        for (Contact needle : needles) {
-            if (!contactExists(needle, haystack)) {
+        for(Contact needle : needles) {
+            if(!contactExists(needle,haystack)) {
                 return true;
             }
         }
@@ -134,7 +127,7 @@ public class ShortcutService {
 
     @TargetApi(25)
     private static boolean contactExists(Contact needle, List<ShortcutInfo> haystack) {
-        for (ShortcutInfo shortcutInfo : haystack) {
+        for(ShortcutInfo shortcutInfo : haystack) {
             if (getShortcutId(needle).equals(shortcutInfo.getId()) && needle.getDisplayName().equals(shortcutInfo.getShortLabel())) {
                 return true;
             }
@@ -143,8 +136,9 @@ public class ShortcutService {
     }
 
     private static String getShortcutId(Contact contact) {
-        return contact.getAccount().getJid().asBareJid().toEscapedString() + "#" + contact.getJid().asBareJid().toEscapedString();
+        return contact.getAccount().getJid().asBareJid().toEscapedString()+"#"+contact.getJid().asBareJid().toEscapedString();
     }
+
     private static String getShortcutId(final MucOptions mucOptions) {
         final Account account = mucOptions.getAccount();
         final Jid jid = mucOptions.getConversation().getJid();
@@ -215,4 +209,5 @@ public class ShortcutService {
             this.contact = contact;
         }
     }
+
 }

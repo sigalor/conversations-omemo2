@@ -1,29 +1,19 @@
 package eu.siacs.conversations.entities;
 
 import android.content.ComponentName;
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.telecom.PhoneAccount;
+import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.text.TextUtils;
-import android.os.Bundle;
-import android.telecom.PhoneAccount;
-import android.telecom.PhoneAccountHandle;
-import android.telecom.TelecomManager;
-import android.graphics.drawable.Icon;
-import eu.siacs.conversations.services.AvatarService;
-import eu.siacs.conversations.services.XmppConnectionService;
-
-import android.os.Bundle;
-import android.telecom.PhoneAccount;
-import android.telecom.PhoneAccountHandle;
-import android.telecom.TelecomManager;
-import android.content.ComponentName;
 import android.util.Log;
-
 
 import androidx.annotation.NonNull;
 
@@ -40,18 +30,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.android.AbstractPhoneContact;
 import eu.siacs.conversations.android.JabberIdContact;
+import eu.siacs.conversations.persistance.FileBackend;
+import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.services.QuickConversationsService;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.JidHelper;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import eu.siacs.conversations.xmpp.pep.Avatar;
-import eu.siacs.conversations.persistance.FileBackend;
 
 public class Contact implements ListItem, Blockable {
     public static final String TABLENAME = "contacts";
@@ -82,7 +75,6 @@ public class Contact implements ListItem, Blockable {
     private final JSONObject keys;
     private JSONArray groups = new JSONArray();
     private JSONArray systemTags = new JSONArray();
-
     private final Presences presences = new Presences();
     protected Account account;
     protected Avatar avatar;
@@ -136,7 +128,6 @@ public class Contact implements ListItem, Blockable {
         this.keys = new JSONObject();
     }
 
-    @SuppressLint("Range")
     public static Contact fromCursor(final Cursor cursor) {
         final Jid jid;
         try {
@@ -182,18 +173,16 @@ public class Contact implements ListItem, Blockable {
             return this.serverName;
         }
 
-        if (!TextUtils.isEmpty(this.presenceName)) {
+        ListItem bookmark = account.getBookmark(jid);
+        if (bookmark != null) {
+            return bookmark.getDisplayName();
+        } else if (!TextUtils.isEmpty(this.presenceName)) {
             return this.presenceName + (mutualPresenceSubscription() ? "" : " (" + jid + ")");
         } else if (jid.getLocal() != null) {
             return JidHelper.localPartOrFallback(jid);
         } else {
             return jid.getDomain().toEscapedString();
         }
-    }
-
-    @Override
-    public int getOffline() {
-        return 0;
     }
 
     public String getPublicDisplayName() {
@@ -217,7 +206,7 @@ public class Contact implements ListItem, Blockable {
     public List<Tag> getGroupTags() {
         final ArrayList<Tag> tags = new ArrayList<>();
         for (final String group : getGroups(true)) {
-            tags.add(new Tag(group, UIHelper.getColorForName(group), 0, account, isActive()));
+            tags.add(new Tag(group));
         }
         return tags;
     }
@@ -227,25 +216,13 @@ public class Contact implements ListItem, Blockable {
         final HashSet<Tag> tags = new HashSet<>();
         tags.addAll(getGroupTags());
         for (final String tag : getSystemTags(true)) {
-            tags.add(new Tag(tag, UIHelper.getColorForName(tag), 0, account, isActive()));
+            tags.add(new Tag(tag));
         }
         Presence.Status status = getShownStatus();
-        if (status != Presence.Status.OFFLINE) {
-            tags.add(UIHelper.getTagForStatus(context, status, account, true));
-        }
-        if (isBlocked()) {
-            tags.add(new Tag(context.getString(R.string.blocked), 0xff2e2f3b, 0, account, true));
-        }
         if (!showInRoster() && getSystemAccount() != null) {
-            tags.add(new Tag("Android", UIHelper.getColorForName("Android"), 0, account, true));
+            tags.add(new Tag("Android"));
         }
         return new ArrayList<>(tags);
-    }
-
-
-    @Override
-    public boolean getActive() {
-        return isActive();
     }
 
     public boolean match(Context context, String needle) {
@@ -339,10 +316,6 @@ public class Contact implements ListItem, Blockable {
         return resource.equals("") ? getJid() : getJid().withResource(resource);
     }
 
-    public String getMostAvailableResource() {
-        return this.presences.getMostAvailableResource();
-    }
-
     public boolean setPhotoUri(String uri) {
         if (uri != null && !uri.equals(this.photoUri)) {
             this.photoUri = uri;
@@ -402,6 +375,7 @@ public class Contact implements ListItem, Blockable {
         }
         return groups;
     }
+
     public void copySystemTagsToGroups() {
         for (String tag : getSystemTags(true)) {
             this.groups.put(tag);
@@ -417,47 +391,6 @@ public class Contact implements ListItem, Blockable {
             }
         }
         return tags;
-    }
-
-    public ArrayList<String> getOtrFingerprints() {
-        synchronized (this.keys) {
-            final ArrayList<String> fingerprints = new ArrayList<String>();
-            try {
-                if (this.keys.has("otr_fingerprints")) {
-                    final JSONArray prints = this.keys.getJSONArray("otr_fingerprints");
-                    for (int i = 0; i < prints.length(); ++i) {
-                        final String print = prints.isNull(i) ? null : prints.getString(i);
-                        if (print != null && !print.isEmpty()) {
-                            fingerprints.add(prints.getString(i).toLowerCase(Locale.US));
-                        }
-                    }
-                }
-            } catch (final JSONException ignored) {
-
-            }
-            return fingerprints;
-        }
-    }
-
-    public boolean addOtrFingerprint(String print) {
-        synchronized (this.keys) {
-            if (getOtrFingerprints().contains(print)) {
-                return false;
-            }
-            try {
-                JSONArray fingerprints;
-                if (!this.keys.has("otr_fingerprints")) {
-                    fingerprints = new JSONArray();
-                } else {
-                    fingerprints = this.keys.getJSONArray("otr_fingerprints");
-                }
-                fingerprints.put(print);
-                this.keys.put("otr_fingerprints", fingerprints);
-                return true;
-            } catch (final JSONException ignored) {
-                return false;
-            }
-        }
     }
 
     public long getPgpKeyId() {
@@ -511,7 +444,7 @@ public class Contact implements ListItem, Blockable {
     public boolean showInContactList() {
         return showInRoster()
                 || getOption(Options.SYNCED_VIA_OTHER)
-                || (QuickConversationsService.isQuicksy() && systemAccount != null);
+                || systemAccount != null;
     }
 
     public void parseSubscriptionFromElement(Element item) {
@@ -621,31 +554,6 @@ public class Contact implements ListItem, Blockable {
         return avatar;
     }
 
-    public boolean deleteOtrFingerprint(String fingerprint) {
-        synchronized (this.keys) {
-            boolean success = false;
-            try {
-                if (this.keys.has("otr_fingerprints")) {
-                    JSONArray newPrints = new JSONArray();
-                    JSONArray oldPrints = this.keys
-                            .getJSONArray("otr_fingerprints");
-                    for (int i = 0; i < oldPrints.length(); ++i) {
-                        if (!oldPrints.getString(i).equals(fingerprint)) {
-                            newPrints.put(oldPrints.getString(i));
-                        } else {
-                            success = true;
-                        }
-                    }
-                    this.keys.put("otr_fingerprints", newPrints);
-                }
-                return success;
-            } catch (JSONException e) {
-                return false;
-            }
-        }
-    }
-
-
     public boolean mutualPresenceSubscription() {
         return getOption(Options.FROM) && getOption(Options.TO);
     }
@@ -690,7 +598,7 @@ public class Contact implements ListItem, Blockable {
     }
 
     public boolean isActive() {
-        return this.mActive && account.isOnlineAndConnected();
+        return this.mActive;
     }
 
     public boolean setLastseen(long timestamp) {
@@ -739,19 +647,20 @@ public class Contact implements ListItem, Blockable {
 
     protected String phoneAccountLabel() {
         return account.getJid().asBareJid().toString() +
-                "/" + getJid().asBareJid().toString();
+            "/" + getJid().asBareJid().toString();
     }
 
     public PhoneAccountHandle phoneAccountHandle() {
         ComponentName componentName = new ComponentName(
-                "de.monocles.chat",
-                "de.monocles.chat.ConnectionService"
+            BuildConfig.APPLICATION_ID,
+            "de.monocles.chat.ConnectionService"
         );
         return new PhoneAccountHandle(componentName, phoneAccountLabel());
     }
 
     // This Contact is a gateway to use for voice calls, register it with OS
     public void registerAsPhoneAccount(XmppConnectionService ctx) {
+        if (Build.VERSION.SDK_INT < 23) return;
         if (Build.VERSION.SDK_INT >= 33) {
             if (!ctx.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELECOM) && !ctx.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)) return;
         } else {
@@ -761,18 +670,18 @@ public class Contact implements ListItem, Blockable {
         TelecomManager telecomManager = ctx.getSystemService(TelecomManager.class);
 
         PhoneAccount phoneAccount = PhoneAccount.builder(
-                phoneAccountHandle(),
-                account.getJid().asBareJid().toString()
+            phoneAccountHandle(),
+            account.getJid().asBareJid().toString()
         ).setAddress(
-                Uri.fromParts("xmpp", account.getJid().asBareJid().toString(), null)
+            Uri.fromParts("xmpp", account.getJid().asBareJid().toString(), null)
         ).setIcon(
-                Icon.createWithBitmap(FileBackend.drawDrawable(ctx.getAvatarService().get(this, AvatarService.getSystemUiAvatarSize(ctx) / 2, false)))
+            Icon.createWithBitmap(FileBackend.drawDrawable(ctx.getAvatarService().get(this, AvatarService.getSystemUiAvatarSize(ctx) / 2, false)))
         ).setHighlightColor(
-                0x7401CF
+            0x7401CF
         ).setShortDescription(
-                getJid().asBareJid().toString()
+            getJid().asBareJid().toString()
         ).setCapabilities(
-                PhoneAccount.CAPABILITY_CALL_PROVIDER
+            PhoneAccount.CAPABILITY_CALL_PROVIDER
         ).build();
 
         try {
@@ -792,6 +701,7 @@ public class Contact implements ListItem, Blockable {
         }
 
         TelecomManager telecomManager = ctx.getSystemService(TelecomManager.class);
+
         try {
             telecomManager.unregisterPhoneAccount(phoneAccountHandle());
         } catch (final SecurityException e) {

@@ -22,12 +22,12 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.core.util.Consumer;
+
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
 import eu.siacs.conversations.databinding.DialpadBinding;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.utils.Consumer;
-
 
 public class DialpadView extends ConstraintLayout implements View.OnClickListener {
 
@@ -54,10 +54,10 @@ public class DialpadView extends ConstraintLayout implements View.OnClickListene
 
     private void init() {
         DialpadBinding binding = DataBindingUtil.inflate(
-                LayoutInflater.from(getContext()),
-                R.layout.dialpad,
-                this,
-                true
+            LayoutInflater.from(getContext()),
+            R.layout.dialpad,
+            this,
+            true
         );
         binding.setDialpadView(this);
     }

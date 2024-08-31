@@ -1,11 +1,10 @@
 package eu.siacs.conversations.ui.widget;
 
+
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.TextView;
-
-import androidx.annotation.StringRes;
 
 import java.lang.reflect.Field;
 
@@ -32,18 +31,19 @@ public class TextInputEditText extends com.google.android.material.textfield.Tex
         String manufacturer = Build.MANUFACTURER.toUpperCase();
         if (!manufacturer.contains("MEIZU") || Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return super.getHint();
-        } else {
+        }else{
             try {
                 return getSuperHintHack();
-            } catch (Exception e) {
+            }catch (Exception e){
                 return super.getHint();
             }
         }
     }
 
     private CharSequence getSuperHintHack() throws NoSuchFieldException, IllegalAccessException {
-        Field hintField = TextView.class.getDeclaredField(getResources().getString(Integer.parseInt("mHint")));
+        Field hintField = TextView.class.getDeclaredField("mHint");
         hintField.setAccessible(true);
         return (CharSequence) hintField.get(this);
     }
 }
+

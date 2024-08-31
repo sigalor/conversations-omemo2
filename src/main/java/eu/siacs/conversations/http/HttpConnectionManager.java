@@ -1,10 +1,13 @@
 package eu.siacs.conversations.http;
 
+import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
+
 import android.os.Build;
 import android.util.Log;
 
+import androidx.core.util.Consumer;
+
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
-import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,12 +26,10 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
-import eu.siacs.conversations.entities.DownloadableFile;
-import eu.siacs.conversations.utils.Consumer;
 import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.AbstractConnectionManager;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -43,7 +44,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
     private final List<HttpDownloadConnection> downloadConnections = new ArrayList<>();
     private final List<HttpUploadConnection> uploadConnections = new ArrayList<>();
 
-    public static final Executor FileTransferExecutor = Executors.newFixedThreadPool(4);
+    public static final Executor EXECUTOR = Executors.newFixedThreadPool(4);
 
     public static final OkHttpClient OK_HTTP_CLIENT;
 
@@ -59,15 +60,16 @@ public class HttpConnectionManager extends AbstractConnectionManager {
                 .build();
     }
 
+
     public static String getUserAgent() {
-        return String.format("%s/%s", "monocles chat", BuildConfig.VERSION_NAME);
+        return String.format("%s/%s", BuildConfig.APP_NAME, BuildConfig.VERSION_NAME);
     }
 
     public HttpConnectionManager(XmppConnectionService service) {
         super(service);
     }
 
-    public static Proxy getProxy(boolean isI2P) {
+    public static Proxy getProxy() {
         final InetAddress localhost;
         try {
             localhost = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
@@ -75,9 +77,9 @@ public class HttpConnectionManager extends AbstractConnectionManager {
             throw new IllegalStateException(e);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(localhost, isI2P ? 4447 : 9050));
+            return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(localhost, 9050));
         } else {
-            return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(localhost, isI2P ? 4444 : 8118));
+            return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(localhost, 8118));
         }
     }
 
@@ -136,8 +138,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
     public OkHttpClient buildHttpClient(final HttpUrl url, final Account account, int readTimeout, boolean interactive) {
         final String slotHostname = url.host();
         final boolean onionSlot = slotHostname.endsWith(".onion");
-        final boolean I2PSlot = slotHostname.endsWith(".i2p");
-        final OkHttpClient.Builder builder = newBuilder(mXmppConnectionService.useTorToConnect() || account.isOnion() || onionSlot , mXmppConnectionService.useI2PToConnect() || account.isI2P() || I2PSlot);
+        final OkHttpClient.Builder builder = newBuilder(mXmppConnectionService.useTorToConnect() || account.isOnion() || onionSlot);
         builder.readTimeout(readTimeout, TimeUnit.SECONDS);
         setupTrustManager(builder, interactive);
         return builder.build();
@@ -154,27 +155,26 @@ public class HttpConnectionManager extends AbstractConnectionManager {
             final SSLSocketFactory sf = new TLSSocketFactory(new X509TrustManager[]{trustManager}, SECURE_RANDOM);
             builder.sslSocketFactory(sf, trustManager);
             builder.hostnameVerifier(new StrictHostnameVerifier());
-        } catch (final KeyManagementException ignored) {
-        } catch (final NoSuchAlgorithmException ignored) {
+        } catch (final KeyManagementException | NoSuchAlgorithmException ignored) {
         }
     }
 
-    public static OkHttpClient.Builder newBuilder(final boolean tor, final boolean i2p) {
+    public static OkHttpClient.Builder newBuilder(final boolean tor) {
         final OkHttpClient.Builder builder = OK_HTTP_CLIENT.newBuilder();
         builder.writeTimeout(30, TimeUnit.SECONDS);
         builder.readTimeout(30, TimeUnit.SECONDS);
-        if (tor || i2p) {
-            builder.proxy(HttpConnectionManager.getProxy(i2p)).build();
+        if (tor) {
+            builder.proxy(HttpConnectionManager.getProxy()).build();
         }
         return builder;
     }
 
-    public static InputStream open(final String url, final boolean tor, final boolean i2p) throws IOException {
-        return open(HttpUrl.get(url), tor, i2p);
+    public static InputStream open(final String url, final boolean tor) throws IOException {
+        return open(HttpUrl.get(url), tor);
     }
 
-    public static InputStream open(final HttpUrl httpUrl, final boolean tor, final boolean i2p) throws IOException {
-        final OkHttpClient client = newBuilder(tor, i2p).build();
+    public static InputStream open(final HttpUrl httpUrl, final boolean tor) throws IOException {
+        final OkHttpClient client = newBuilder(tor).build();
         final Request request = new Request.Builder().get().url(httpUrl).build();
         final ResponseBody body = client.newCall(request).execute().body();
         if (body == null) {

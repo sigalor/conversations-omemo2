@@ -12,8 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
@@ -34,19 +34,23 @@ import eu.siacs.conversations.databinding.ActivityUriHandlerBinding;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.QuickConversationsService;
-import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ProvisioningUtils;
 import eu.siacs.conversations.utils.SignupUtils;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
-import me.drakeet.support.toast.ToastCompat;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class UriHandlerActivity extends AppCompatActivity {
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class UriHandlerActivity extends BaseActivity {
 
     public static final String ACTION_SCAN_QR_CODE = "scan_qr_code";
     private static final String EXTRA_ALLOW_PROVISIONING = "extra_allow_provisioning";
@@ -64,7 +68,9 @@ public class UriHandlerActivity extends AppCompatActivity {
     }
 
     public static void scan(final Activity activity, final boolean provisioning) {
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_GRANTED) {
             final Intent intent = new Intent(activity, UriHandlerActivity.class);
             intent.setAction(UriHandlerActivity.ACTION_SCAN_QR_CODE);
             if (provisioning) {
@@ -122,6 +128,7 @@ public class UriHandlerActivity extends AppCompatActivity {
         handleIntent(intent);
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -137,7 +144,6 @@ public class UriHandlerActivity extends AppCompatActivity {
         Intent intent = new Intent(this, DownloadDefaultStickers.class);
         intent.setData(stickers);
         intent.putExtra("tor", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor)));
-        intent.putExtra("i2p", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("use_i2p", getResources().getBoolean(R.bool.use_i2p)));
         ContextCompat.startForegroundService(this, intent);
         Toast.makeText(this, "Sticker download started", Toast.LENGTH_SHORT).show();
         finish();
@@ -177,16 +183,16 @@ public class UriHandlerActivity extends AppCompatActivity {
                     showError(R.string.account_already_exists);
                     return false;
                 }
-                intent = SignupUtils.getTokenRegistrationIntent(this, jid, preAuth, true);
+                intent = SignupUtils.getTokenRegistrationIntent(this, jid, preAuth);
                 startActivity(intent);
                 return true;
             }
             if (accounts.size() == 0
                     && xmppUri.isAction(XmppUri.ACTION_ROSTER)
                     && "y"
-                    .equalsIgnoreCase(
-                            Strings.nullToEmpty(xmppUri.getParameter(XmppUri.PARAMETER_IBR))
-                                    .trim())) {
+                            .equalsIgnoreCase(
+                                    Strings.nullToEmpty(xmppUri.getParameter(XmppUri.PARAMETER_IBR))
+                                            .trim())) {
                 intent = SignupUtils.getTokenRegistrationIntent(this, jid.getDomain(), preAuth);
                 intent.putExtra(StartConversationActivity.EXTRA_INVITE_URI, xmppUri.toString());
                 startActivity(intent);
@@ -196,6 +202,7 @@ public class UriHandlerActivity extends AppCompatActivity {
             showError(R.string.account_registrations_are_not_supported);
             return false;
         }
+
         if (accounts.size() == 0) {
             if (xmppUri.isValidJid()) {
                 intent = SignupUtils.getSignUpIntent(this);
@@ -207,9 +214,11 @@ public class UriHandlerActivity extends AppCompatActivity {
                 return false;
             }
         }
+
         if (xmppUri.isAction(XmppUri.ACTION_MESSAGE) || xmppUri.isAction("command")) {
             final Jid jid = xmppUri.getJid();
             final String body = xmppUri.getBody();
+
             if (jid != null) {
                 final Class<?> clazz = findShareViaAccountClass();
                 if (clazz != null) {
@@ -255,13 +264,13 @@ public class UriHandlerActivity extends AppCompatActivity {
         this.call.enqueue(
                 new Callback() {
                     @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         Log.d(Config.LOGTAG, "unable to check HTTP url", e);
                         showError(R.string.no_xmpp_adddress_found);
                     }
 
                     @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) {
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
                         if (response.isSuccessful()) {
                             final String linkHeader = response.header("Link");
                             if (linkHeader != null && processLinkHeader(linkHeader)) {
@@ -323,6 +332,7 @@ public class UriHandlerActivity extends AppCompatActivity {
                 break;
         }
     }
+
     private Intent createMainIntent() {
         final Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra(EXTRA_ALLOW_PROVISIONING, allowProvisioning());
@@ -365,7 +375,7 @@ public class UriHandlerActivity extends AppCompatActivity {
             final Uri uri = Uri.parse(result.trim());
             if (allowProvisioning
                     && "https".equalsIgnoreCase(uri.getScheme())
-                    && !Config.INVITE_DOMAIN.equalsIgnoreCase(uri.getHost())) {
+                    && !XmppUri.INVITE_DOMAIN.equalsIgnoreCase(uri.getHost())) {
                 final HttpUrl httpUrl = HttpUrl.parse(uri.toString());
                 if (httpUrl != null) {
                     checkForLinkHeader(httpUrl);
@@ -388,12 +398,13 @@ public class UriHandlerActivity extends AppCompatActivity {
     }
 
     protected boolean hasStoragePermission(int requestCode) {
-        if (!Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
-            return false;
-        } else if (Compatibility.runsThirtyThree() && checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_VIDEO}, requestCode);
-            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return true;
         }

@@ -1,8 +1,7 @@
 package eu.siacs.conversations.utils;
 
-import static eu.siacs.conversations.services.EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE;
+import static eu.siacs.conversations.receiver.SystemEventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.content.Context;
@@ -13,8 +12,6 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -23,25 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.ui.SettingsActivity;
-import eu.siacs.conversations.ui.SettingsFragment;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class Compatibility {
-
-    private static final List<String> UNUSED_SETTINGS_POST_TWENTYSIX =
-            Arrays.asList(
-                    "led",
-                    "notification_ringtone",
-                    "notification_headsup",
-                    "vibrate_on_notification");
-    private static final List<String> UNUSED_SETTINGS_PRE_TWENTYSIX =
-            Collections.singletonList("message_notification_settings");
 
     public static boolean hasStoragePermission(final Context context) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU || ContextCompat.checkSelfPermission(
@@ -52,7 +35,7 @@ public class Compatibility {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
     }
 
-    public static boolean runsTwentyFour() {
+    private static boolean runsTwentyFour() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
@@ -77,7 +60,7 @@ public class Compatibility {
             final PackageManager packageManager = context.getPackageManager();
             final ApplicationInfo applicationInfo =
                     packageManager.getApplicationInfo(context.getPackageName(), 0);
-            return applicationInfo == null || applicationInfo.targetSdkVersion >= 26;
+            return applicationInfo.targetSdkVersion >= 26;
         } catch (PackageManager.NameNotFoundException | RuntimeException e) {
             return true; // when in doubt…
         }
@@ -88,7 +71,7 @@ public class Compatibility {
             final PackageManager packageManager = context.getPackageManager();
             final ApplicationInfo applicationInfo =
                     packageManager.getApplicationInfo(context.getPackageName(), 0);
-            return applicationInfo == null || applicationInfo.targetSdkVersion >= 24;
+            return applicationInfo.targetSdkVersion >= 24;
         } catch (PackageManager.NameNotFoundException | RuntimeException e) {
             return true; // when in doubt…
         }
@@ -105,58 +88,12 @@ public class Compatibility {
     public static boolean keepForegroundService(Context context) {
         return runsAndTargetsTwentySix(context)
                 || getBooleanPreference(
-                context,
-                SettingsActivity.SHOW_FOREGROUND_SERVICE,
-                R.bool.show_foreground_service);
+                        context,
+                        AppSettings.KEEP_FOREGROUND_SERVICE,
+                        R.bool.enable_foreground_service);
     }
 
-    public static void removeUnusedPreferences(SettingsFragment settingsFragment) {
-        List<PreferenceCategory> categories =
-                Arrays.asList(
-                        (PreferenceCategory)
-                                settingsFragment.findPreference("notification_category"),
-                        (PreferenceCategory) settingsFragment.findPreference("advanced"));
-        for (String key :
-                (runsTwentySix()
-                        ? UNUSED_SETTINGS_POST_TWENTYSIX
-                        : UNUSED_SETTINGS_PRE_TWENTYSIX)) {
-            Preference preference = settingsFragment.findPreference(key);
-            if (preference != null) {
-                for (PreferenceCategory category : categories) {
-                    if (category != null) {
-                        category.removePreference(preference);
-                    }
-                }
-            }
-        }
-        if (Compatibility.runsTwentySix()) {
-            if (targetsTwentySix(settingsFragment.getContext())) {
-                Preference preference =
-                        settingsFragment.findPreference(SettingsActivity.SHOW_FOREGROUND_SERVICE);
-                if (preference != null) {
-                    for (PreferenceCategory category : categories) {
-                        if (category != null) {
-                            category.removePreference(preference);
-                        }
-                    }
-                }
-            }
-        }
-
-        try {
-            Class.forName("io.sentry.Sentry");
-            Preference preference = settingsFragment.findPreference("never_send");
-            if (preference != null) {
-                for (PreferenceCategory category : categories) {
-                    if (category != null) {
-                        category.removePreference(preference);
-                    }
-                }
-            }
-        } catch (final ClassNotFoundException e) { }
-    }
-
-    public static void startService(Context context, Intent intent) {
+    public static void startService(final Context context, final Intent intent) {
         try {
             if (Compatibility.runsAndTargetsTwentySix(context)) {
                 intent.putExtra(EXTRA_NEEDS_FOREGROUND_SERVICE, true);
@@ -164,7 +101,7 @@ public class Compatibility {
             } else {
                 context.startService(intent);
             }
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             Log.d(
                     Config.LOGTAG,
                     context.getClass().getSimpleName() + " was unable to start service");
@@ -189,26 +126,6 @@ public class Compatibility {
                     e);
             return ConnectivityManager.RESTRICT_BACKGROUND_STATUS_DISABLED;
         }
-    }
-
-    public static boolean runsTwentyEight() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
-    }
-
-    public static boolean runsTwentyNine() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-    }
-
-    public static boolean runsThirty() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
-    }
-
-    public static boolean runsThirtyThree() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
-    }
-
-    public static boolean runsThirtyFour() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

@@ -1,13 +1,9 @@
 package eu.siacs.conversations.generator;
 
-
-import static eu.siacs.conversations.ui.SettingsActivity.PERSISTENT_ROOM;
-
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Base64OutputStream;
-import eu.siacs.conversations.entities.Message;
+import android.util.Log;
 
 import de.monocles.chat.BobTransfer;
 
@@ -40,7 +36,9 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.DownloadableFile;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.MessageArchiveService;
+import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -48,16 +46,11 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.pep.Avatar;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
-import eu.siacs.conversations.entities.Message;
-
 
 public class IqGenerator extends AbstractGenerator {
 
-    private static XmppConnectionService xmppConnectionService;
-
     public IqGenerator(final XmppConnectionService service) {
         super(service);
-        xmppConnectionService = service;
     }
 
     public IqPacket discoResponse(final Account account, final IqPacket request) {
@@ -81,10 +74,21 @@ public class IqGenerator extends AbstractGenerator {
         Element query = packet.query("jabber:iq:version");
         query.addChild("name").setContent(mXmppConnectionService.getString(R.string.app_name));
         query.addChild("version").setContent(getIdentityVersion());
+        final StringBuilder os = new StringBuilder();
         if ("chromium".equals(android.os.Build.BRAND)) {
-            query.addChild("os").setContent("Chrome OS");
+            os.append("Chrome OS");
         } else {
-            query.addChild("os").setContent("Android");
+            os.append("Android");
+        }
+        os.append(" ");
+        os.append(android.os.Build.VERSION.RELEASE);
+        if (QuickConversationsService.isPlayStoreFlavor()) {
+            os.append(" (");
+            os.append(android.os.Build.BOARD);
+            os.append(", ");
+            os.append(android.os.Build.FINGERPRINT);
+            os.append(")");
+            query.addChild("os").setContent(os.toString());
         }
         return packet;
     }
@@ -176,7 +180,7 @@ public class IqGenerator extends AbstractGenerator {
         final Element pubsub = packet.addChild("pubsub", Namespace.PUBSUB);
         final Element retract = pubsub.addChild("retract");
         retract.setAttribute("node", node);
-        retract.setAttribute("notify", "true");
+        retract.setAttribute("notify","true");
         retract.addChild("item").setAttribute("id", id);
         return packet;
     }
@@ -210,12 +214,6 @@ public class IqGenerator extends AbstractGenerator {
         return publish(Namespace.AVATAR_METADATA, item, options);
     }
 
-    public IqPacket deleteAvatar() {
-        final Element item = new Element("item");
-        item.addChild("metadata", Namespace.AVATAR_DATA);
-        return publish(Namespace.AVATAR_DATA, item);
-    }
-
     public IqPacket retrievePepAvatar(final Avatar avatar) {
         final Element item = new Element("item");
         item.setAttribute("id", avatar.sha1sum);
@@ -238,9 +236,8 @@ public class IqGenerator extends AbstractGenerator {
         return packet;
     }
 
-
     public IqPacket retrieveAvatarMetaData(final Jid to) {
-        final IqPacket packet = retrieve(Namespace.AVATAR_DATA, null);
+        final IqPacket packet = retrieve("urn:xmpp:avatar:metadata", null);
         if (to != null) {
             packet.setTo(to);
         }
@@ -294,7 +291,7 @@ public class IqGenerator extends AbstractGenerator {
         if (password != null) {
             conference.addChild("password").setContent(password);
         }
-        conference.setAttribute("autojoin", String.valueOf(autojoin));
+        conference.setAttribute("autojoin",String.valueOf(autojoin));
         conference.addChild(bookmark.getExtensions());
         return conference;
     }
@@ -460,30 +457,18 @@ public class IqGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public IqPacket destroyRoom(Conversation conference) {
-        IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
-        packet.setTo(conference.getJid().asBareJid());
-        packet.setFrom(conference.getAccount().getJid());
-        final Element query = packet.addChild("query", "http://jabber.org/protocol/muc#owner");
-        final Element destroy = query.addChild("destroy");
-        destroy.setAttribute("jid", conference.getJid().asBareJid().toString());
-        Log.d(Config.LOGTAG, "Destroy: " + packet.toString());
-        return packet;
-    }
-
     public IqPacket moderateMessage(Account account, Message m, String reason) {
         IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
         packet.setTo(m.getConversation().getJid().asBareJid());
         packet.setFrom(account.getJid());
         Element moderate =
-                packet.addChild("apply-to", "urn:xmpp:fasten:0")
-                        .setAttribute("id", m.getServerMsgId())
-                        .addChild("moderate", "urn:xmpp:message-moderate:0");
+            packet.addChild("apply-to", "urn:xmpp:fasten:0")
+                  .setAttribute("id", m.getServerMsgId())
+                  .addChild("moderate", "urn:xmpp:message-moderate:0");
         moderate.addChild("retract", "urn:xmpp:message-retract:0");
         moderate.addChild("reason", "urn:xmpp:message-moderate:0").setContent(reason);
         return packet;
     }
-
 
     public IqPacket requestHttpUploadSlot(Jid host, DownloadableFile file, String name, String mime) {
         IqPacket packet = new IqPacket(IqPacket.TYPE.GET);
@@ -513,7 +498,7 @@ public class IqGenerator extends AbstractGenerator {
                 ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
                 bb.putLong(uuid.getMostSignificantBits());
                 bb.putLong(uuid.getLeastSignificantBits());
-                return Base64.encodeToString(bb.array(), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP) + name.substring(pos, name.length());
+                return Base64.encodeToString(bb.array(), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP) + name.substring(pos);
             } catch (Exception e) {
                 return name;
             }
@@ -542,20 +527,16 @@ public class IqGenerator extends AbstractGenerator {
         final IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
         packet.setTo(appServer);
         final Element command = packet.addChild("command", Namespace.COMMANDS);
-        command.setAttribute("node", "v1-register-push");
+        command.setAttribute("node", "register-push-fcm");
         command.setAttribute("action", "execute");
         final Data data = new Data();
-        data.put("type", "fcm");
         data.put("token", token);
-        data.put("node", deviceId);
-        data.put("FORM_TYPE", "https://github.com/tmolitor-stud-tu/mod_push_appserver/#v1-register-push");
-        // to do MUC not support
-        /*if (muc != null) {
+        data.put("android-id", deviceId);
+        if (muc != null) {
             data.put("muc", muc.toEscapedString());
-        }*/
+        }
         data.submit();
         command.addChild(data);
-        Log.d(Config.LOGTAG, "Push packet " + packet);
         return packet;
     }
 
@@ -566,11 +547,8 @@ public class IqGenerator extends AbstractGenerator {
         command.setAttribute("node", "unregister-push-fcm");
         command.setAttribute("action", "execute");
         final Data data = new Data();
-        data.put("type", "fcm");
-        data.put("node", deviceId);
         data.put("channel", channel);
         data.put("android-id", deviceId);
-        data.put("FORM_TYPE", "https://github.com/tmolitor-stud-tu/mod_push_appserver/#v1-unregister-push");
         data.submit();
         command.addChild(data);
         return packet;
@@ -608,11 +586,7 @@ public class IqGenerator extends AbstractGenerator {
 
     public static Bundle defaultGroupChatConfiguration() {
         Bundle options = new Bundle();
-        if (persistentRoom()) {
-            options.putString("muc#roomconfig_persistentroom", "1");
-        } else {
-            options.putString("muc#roomconfig_persistentroom", "0");
-        }
+        options.putString("muc#roomconfig_persistentroom", "1");
         options.putString("muc#roomconfig_membersonly", "1");
         options.putString("muc#roomconfig_publicroom", "0");
         options.putString("muc#roomconfig_whois", "anyone");
@@ -626,11 +600,7 @@ public class IqGenerator extends AbstractGenerator {
 
     public static Bundle defaultChannelConfiguration() {
         Bundle options = new Bundle();
-        if (persistentRoom()) {
-            options.putString("muc#roomconfig_persistentroom", "1");
-        } else {
-            options.putString("muc#roomconfig_persistentroom", "0");
-        }
+        options.putString("muc#roomconfig_persistentroom", "1");
         options.putString("muc#roomconfig_membersonly", "0");
         options.putString("muc#roomconfig_publicroom", "1");
         options.putString("muc#roomconfig_whois", "moderators");
@@ -640,7 +610,6 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("muc#roomconfig_mam", "1"); //ejabberd saas
         return options;
     }
-
 
     public IqPacket requestPubsubConfiguration(Jid jid, String node) {
         return pubsubConfiguration(jid, node, null);
@@ -678,12 +647,8 @@ public class IqGenerator extends AbstractGenerator {
     public IqPacket queryDiscoInfo(Jid jid) {
         IqPacket packet = new IqPacket(IqPacket.TYPE.GET);
         packet.setTo(jid);
-        packet.addChild("query", Namespace.DISCO_INFO);
+        packet.addChild("query",Namespace.DISCO_INFO);
         return packet;
-    }
-
-    private static boolean persistentRoom() {
-        return xmppConnectionService.getBooleanPreference(PERSISTENT_ROOM, R.bool.enable_persistent_rooms);
     }
 
     public IqPacket bobResponse(IqPacket request) {

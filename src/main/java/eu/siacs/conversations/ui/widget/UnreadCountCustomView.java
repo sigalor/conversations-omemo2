@@ -9,52 +9,55 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.ui.util.StyledAttributes;
 
 public class UnreadCountCustomView extends View {
 
     private int unreadCount;
     private Paint paint, textPaint;
-    private int backgroundColor = 0xff0091ea;
+    private int backgroundColor = 0xff326130;
+    private int textColor = Color.WHITE;
 
     public UnreadCountCustomView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public UnreadCountCustomView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initXMLAttrs(context, attrs);
-        init(context);
+        init();
     }
 
     public UnreadCountCustomView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initXMLAttrs(context, attrs);
-        init(context);
+        init();
     }
 
     private void initXMLAttrs(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.UnreadCountCustomView);
-        //setBackgroundColor(a.getColor(a.getIndex(0), ContextCompat.getColor(context, R.color.accent)));
-        setBackgroundColor(StyledAttributes.getColor(context, R.attr.colorAccent));
+        setBackgroundColor(a.getColor(a.getIndex(0), ContextCompat.getColor(context, R.color.md_theme_light_tertiaryContainer)));
+        this.textColor = a.getColor(a.getIndex(1),ContextCompat.getColor(context, R.color.md_theme_light_onTertiaryContainer));
         a.recycle();
     }
 
-    void init(Context context) {
+    void init() {
         paint = new Paint();
-        paint.setColor(StyledAttributes.getColor(context, R.attr.colorAccent));
+        paint.setColor(backgroundColor);
         paint.setAntiAlias(true);
         textPaint = new Paint();
-        textPaint.setColor(Color.WHITE);
+        textPaint.setColor(textColor);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setAntiAlias(true);
         textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         float midx = canvas.getWidth() / 2.0f;
         float midy = canvas.getHeight() / 2.0f;

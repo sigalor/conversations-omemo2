@@ -1,10 +1,9 @@
 package eu.siacs.conversations.http;
 
-import static eu.siacs.conversations.http.HttpConnectionManager.FileTransferExecutor;
-
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
@@ -14,13 +13,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import eu.siacs.conversations.utils.Consumer;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.DownloadableFile;
@@ -38,6 +34,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static eu.siacs.conversations.http.HttpConnectionManager.EXECUTOR;
+
 public class HttpDownloadConnection implements Transferable {
 
     private final Message message;
@@ -50,7 +48,6 @@ public class HttpDownloadConnection implements Transferable {
     private int mProgress = 0;
     private Call mostRecentCall;
     final private Consumer<DownloadableFile> cb;
-    private final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
 
     HttpDownloadConnection(Message message, HttpConnectionManager manager, Consumer<DownloadableFile> cb) {
         this.message = message;
@@ -75,13 +72,13 @@ public class HttpDownloadConnection implements Transferable {
 
     public void init(boolean interactive) {
         final Message.FileParams fileParams = message.getFileParams();
-        if (message.isFileDeleted()) {
+        if (message.isDeleted()) {
             if (message.getType() == Message.TYPE_PRIVATE_FILE) {
                 message.setType(Message.TYPE_PRIVATE);
             } else if (message.isFileOrImage()) {
                 message.setType(Message.TYPE_TEXT);
             }
-            message.setFileDeleted(false);
+            message.setDeleted(false);
             mXmppConnectionService.updateMessage(message);
         }
         this.message.setTransferable(this);
@@ -96,27 +93,15 @@ public class HttpDownloadConnection implements Transferable {
             final AbstractConnectionManager.Extension extension = AbstractConnectionManager.Extension.of(mUrl.encodedPath());
             if (VALID_CRYPTO_EXTENSIONS.contains(extension.main)) {
                 this.message.setEncryption(Message.ENCRYPTION_PGP);
-            } else if (message.getEncryption() != Message.ENCRYPTION_OTR
-                    && message.getEncryption() != Message.ENCRYPTION_AXOLOTL) {
+            } else if (message.getEncryption() != Message.ENCRYPTION_AXOLOTL) {
                 this.message.setEncryption(Message.ENCRYPTION_NONE);
             }
             String ext = extension.getExtension();
             if (ext == null && fileParams.getMediaType() != null) {
                 ext = MimeUtils.guessExtensionFromMimeType(fileParams.getMediaType());
             }
-            if (ext != null) {
-                if (message.getStatus() == Message.STATUS_RECEIVED) {
-                    message.setRelativeFilePath(String.format("%s.%s", fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4), ext));
-                } else {
-                    message.setRelativeFilePath("Sent/" + String.format("%s.%s", fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4), ext));
-                }
-            } else if (Strings.isNullOrEmpty(message.getRelativeFilePath())) {
-                if (message.getStatus() == Message.STATUS_RECEIVED) {
-                    message.setRelativeFilePath(fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4));
-                } else {
-                    message.setRelativeFilePath("Sent/" + fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4));
-                }
-            }
+            final String filename = Strings.isNullOrEmpty(ext) ? message.getUuid() : String.format("%s.%s", message.getUuid(), ext);
+            mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, filename);
             setupFile();
             if (this.message.getEncryption() == Message.ENCRYPTION_AXOLOTL && this.file.getKey() == null) {
                 this.message.setEncryption(Message.ENCRYPTION_NONE);
@@ -127,7 +112,7 @@ public class HttpDownloadConnection implements Transferable {
             } else {
                 knownFileSize = message.getFileParams().size;
             }
-            Log.d(Config.LOGTAG, "knownFileSize: " + knownFileSize + ", body=" + message.getBody());
+            Log.d(Config.LOGTAG,"knownFileSize: "+knownFileSize+", body="+message.getRawBody());
             if (knownFileSize != null && interactive) {
                 if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL
                         && this.file.getKey() != null) {
@@ -156,14 +141,11 @@ public class HttpDownloadConnection implements Transferable {
     }
 
     private void download(final boolean interactive) {
-        changeStatus(STATUS_WAITING);
-        Log.d(Config.LOGTAG, "download()", new Exception());
-        FileTransferExecutor.execute(new FileDownloader(interactive));
+        EXECUTOR.execute(new FileDownloader(interactive));
     }
 
     private void checkFileSize(final boolean interactive) {
-        changeStatus(STATUS_WAITING);
-        FileTransferExecutor.execute(new FileSizeChecker(interactive));
+        EXECUTOR.execute(new FileSizeChecker(interactive));
     }
 
     @Override
@@ -175,7 +157,7 @@ public class HttpDownloadConnection implements Transferable {
         mHttpConnectionManager.finishConnection(this);
         message.setTransferable(null);
         if (message.isFileOrImage()) {
-            message.setFileDeleted(true);
+            message.setDeleted(true);
         }
         mHttpConnectionManager.updateConversationUi(true);
     }
@@ -214,8 +196,7 @@ public class HttpDownloadConnection implements Transferable {
         if (message.getEncryption() == Message.ENCRYPTION_PGP) {
             notify = message.getConversation().getAccount().getPgpDecryptionService().decrypt(message, notify);
         }
-        DownloadableFile file;
-        final DownloadableFile tmp = mXmppConnectionService.getFileBackend().getFile(message);
+        final DownloadableFile tmp = file;
         final String extension = MimeUtils.extractRelevantExtension(tmp.getName());
         try {
             mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, new FileInputStream(tmp), extension);
@@ -254,7 +235,6 @@ public class HttpDownloadConnection implements Transferable {
     }
 
     private void showToastForException(final Exception e) {
-        e.printStackTrace();
         final Call call = mostRecentCall;
         final boolean cancelled = call != null && call.isCanceled();
         if (e == null || cancelled) {
@@ -379,7 +359,7 @@ public class HttpDownloadConnection implements Transferable {
                 if (Strings.isNullOrEmpty(extension.getExtension()) && contentType != null) {
                     final String fileExtension = MimeUtils.guessExtensionFromMimeType(contentType);
                     if (fileExtension != null) {
-                        mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, String.format("%s.%s", fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4), fileExtension), contentType);
+                        mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, String.format("%s.%s", message.getUuid(), fileExtension), contentType);
                         Log.d(Config.LOGTAG, "rewriting name after not finding extension in url but in content type");
                         setupFile();
                     }
@@ -429,7 +409,6 @@ public class HttpDownloadConnection implements Transferable {
                     HttpDownloadConnection.this.acceptedAutomatically = false;
                     HttpDownloadConnection.this.mXmppConnectionService.getNotificationService().push(message);
                 }
-                changeStatus(STATUS_OFFER);
                 cancel();
             }
         }

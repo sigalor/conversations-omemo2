@@ -11,8 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
@@ -33,7 +33,6 @@ import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.UserAdapter;
 import eu.siacs.conversations.ui.util.MucDetailsContextMenuHelper;
 import eu.siacs.conversations.xmpp.Jid;
-import me.drakeet.support.toast.ToastCompat;
 
 public class MucUsersActivity extends XmppActivity implements XmppConnectionService.OnMucRosterUpdate, XmppConnectionService.OnAffiliationChanged, MenuItem.OnActionExpandListener, TextWatcher {
 
@@ -80,14 +79,14 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
                                                 final String name = user.getName();
                                                 final Contact contact = user.getContact();
                                                 return name != null
-                                                        && name.toLowerCase(
-                                                                Locale.getDefault())
-                                                        .contains(needle)
+                                                                && name.toLowerCase(
+                                                                                Locale.getDefault())
+                                                                        .contains(needle)
                                                         || contact != null
-                                                        && contact.getDisplayName()
-                                                        .toLowerCase(
-                                                                Locale.getDefault())
-                                                        .contains(needle);
+                                                                && contact.getDisplayName()
+                                                                        .toLowerCase(
+                                                                                Locale.getDefault())
+                                                                        .contains(needle);
                                             })));
         }
     }
@@ -103,8 +102,9 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityMucUsersBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_muc_users);
-        setSupportActionBar((Toolbar) binding.toolbar.getRoot());
+        final ActivityMucUsersBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_muc_users);
+        setSupportActionBar(binding.toolbar);
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         configureActionBar(getSupportActionBar(), true);
         this.userAdapter = new UserAdapter(getPreferences().getBoolean("advanced_muc_mode", false));
         binding.list.setAdapter(this.userAdapter);
@@ -116,8 +116,8 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
         loadAndSubmitUsers();
     }
 
-    private void displayToast(final String msg) {
-        runOnUiThread(() -> ToastCompat.makeText(this, msg, ToastCompat.LENGTH_SHORT).show());
+     private void displayToast(final String msg) {
+        runOnUiThread(() -> Toast.makeText(this, msg, Toast.LENGTH_SHORT).show());
     }
 
     @Override

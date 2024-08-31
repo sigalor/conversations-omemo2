@@ -5,6 +5,7 @@ import com.google.common.collect.Collections2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import eu.siacs.conversations.entities.Presences;
 import eu.siacs.conversations.entities.ServiceDiscoveryResult;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
-
 
 public class RtpCapability {
 

@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.core.app.ActivityCompat;
-import com.google.common.primitives.Ints;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,18 +41,6 @@ public class PermissionUtils {
             final String permission, final int[] grantResults, final String[] permissions) {
         for (int i = 0; i < grantResults.length; ++i) {
             if (permission.equals(permissions[i])) {
-                return grantResults[i] == PackageManager.PERMISSION_GRANTED;
-            }
-        }
-        return false;
-    }
-
-    public static boolean readGranted(int[] grantResults, String[] permission) {
-        for (int i = 0; i < grantResults.length; ++i) {
-
-            if (!Compatibility.runsThirtyThree() && Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission[i])) {
-                return grantResults[i] == PackageManager.PERMISSION_GRANTED;
-            } else if (Compatibility.runsThirtyThree() && Manifest.permission.READ_MEDIA_IMAGES.equals(permission[i]) && Manifest.permission.READ_MEDIA_AUDIO.equals(permission[i]) && Manifest.permission.READ_MEDIA_VIDEO.equals(permission[i])) {
                 return grantResults[i] == PackageManager.PERMISSION_GRANTED;
             }
         }
@@ -96,19 +86,23 @@ public class PermissionUtils {
 
     public static boolean hasPermission(
             final Activity activity, final List<String> permissions, final int requestCode) {
-        final ImmutableList.Builder<String> missingPermissions = new ImmutableList.Builder<>();
-        for (final String permission : permissions) {
-            if (ActivityCompat.checkSelfPermission(activity, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                missingPermissions.add(permission);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            final ImmutableList.Builder<String> missingPermissions = new ImmutableList.Builder<>();
+            for (final String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(activity, permission)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    missingPermissions.add(permission);
+                }
             }
-        }
-        final ImmutableList<String> missing = missingPermissions.build();
-        if (missing.size() == 0) {
+            final ImmutableList<String> missing = missingPermissions.build();
+            if (missing.size() == 0) {
+                return true;
+            }
+            ActivityCompat.requestPermissions(
+                    activity, missing.toArray(new String[0]), requestCode);
+            return false;
+        } else {
             return true;
         }
-        ActivityCompat.requestPermissions(
-                activity, missing.toArray(new String[0]), requestCode);
-        return false;
     }
 }

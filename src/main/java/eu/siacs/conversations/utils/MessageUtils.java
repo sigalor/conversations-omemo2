@@ -44,6 +44,7 @@ import eu.siacs.conversations.ui.util.QuoteHelper;
 public class MessageUtils {
 
     private static final Pattern LTR_RTL = Pattern.compile("(\\u200E[^\\u200F]*\\u200F){3,}");
+
     public static final String EMPTY_STRING = "";
 
     public static String prepareQuote(Message message) {
@@ -140,10 +141,6 @@ public class MessageUtils {
 
     public static boolean unInitiatedButKnownSize(Message message) {
         return message.getType() == Message.TYPE_TEXT && message.getTransferable() == null && message.isOOb() && message.getFileParams().url != null &&
-                (message.getFileParams().size != null || (message.getOob() != null && message.getOob().getScheme() != null && message.getOob().getScheme().equalsIgnoreCase("cid")));
-    }
-
-    public static boolean fileWithKnownSize(Message message) {
-        return message.getType() == Message.TYPE_TEXT && message.isOOb() && message.getFileParams().size != null && message.getFileParams().size > 0 && message.getFileParams().url != null;
+               (message.getFileParams().size != null || (message.getOob() != null && message.getOob().getScheme() != null && message.getOob().getScheme().equalsIgnoreCase("cid")));
     }
 }

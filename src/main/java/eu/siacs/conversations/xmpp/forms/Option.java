@@ -24,10 +24,10 @@ public class Option {
 
     public Option(final Element option) {
         this(
-                option.findChildContent("value", "jabber:x:data"),
-                option.getAttribute("label"),
-                parseSVG(option.findChild("svg", "http://www.w3.org/2000/svg")),
-                option.findChild("svg", "http://www.w3.org/2000/svg")
+            option.findChildContent("value", "jabber:x:data"),
+            option.getAttribute("label"),
+            parseSVG(option.findChild("svg", "http://www.w3.org/2000/svg")),
+            option.findChild("svg", "http://www.w3.org/2000/svg")
         );
     }
 

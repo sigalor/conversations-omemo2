@@ -36,6 +36,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,7 +63,7 @@ public class PresenceSelector {
 
     public static void selectFullJidForDirectRtpConnection(final Activity activity, final Contact contact, final RtpCapability.Capability required, final OnFullJidSelected onFullJidSelected) {
         final String[] resources = RtpCapability.filterPresences(contact, required);
-        if (resources.length == 0) {
+        if (resources.length < 1) {
             Toast.makeText(activity,R.string.rtp_state_contact_offline,Toast.LENGTH_LONG).show();
         } else if (resources.length == 1) {
             onFullJidSelected.onFullJidSelected(contact.getJid().withResource(resources[0]));
@@ -72,7 +74,7 @@ public class PresenceSelector {
 
     private static void showPresenceSelectionDialog(final Activity activity, final Contact contact, final String[] resourceArray, final OnFullJidSelected onFullJidSelected) {
         final Presences presences = contact.getPresences();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
         builder.setTitle(activity.getString(R.string.choose_presence));
         Pair<Map<String, String>, Map<String, String>> typeAndName = presences.toTypeAndNameMap();
         final Map<String, String> resourceTypeMap = typeAndName.first;
@@ -128,8 +130,8 @@ public class PresenceSelector {
         }
     }
 
-    public static void warnMutualPresenceSubscription(Activity activity, final Conversation conversation, final OnPresenceSelected listener) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    public static void warnMutualPresenceSubscription(final Activity activity, final Conversation conversation, final OnPresenceSelected listener) {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
         builder.setTitle(conversation.getContact().getJid().toString());
         builder.setMessage(R.string.without_mutual_presence_updates);
         builder.setNegativeButton(R.string.cancel, null);
@@ -142,7 +144,7 @@ public class PresenceSelector {
         builder.create().show();
     }
 
-    public static String translateType(Context context, String type) {
+    private static String translateType(Context context, String type) {
         switch (type.toLowerCase()) {
             case "pc":
                 return context.getString(R.string.type_pc);

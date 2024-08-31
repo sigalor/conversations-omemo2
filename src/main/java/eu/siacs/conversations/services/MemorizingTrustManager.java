@@ -181,36 +181,25 @@ public class MemorizingTrustManager {
         this.daneVerifier = new DaneVerifier();
         try {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
-                this.defaultTrustManager = defaultWithBundledLetsEncrypt(context);
+                this.defaultTrustManager = TrustManagers.defaultWithBundledLetsEncrypt(context);
             } else {
                 this.defaultTrustManager = TrustManagers.createDefaultTrustManager();
             }
         } catch (final NoSuchAlgorithmException
-                       | KeyStoreException
-                       | CertificateException
-                       | IOException e) {
+                | KeyStoreException
+                | CertificateException
+                | IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static X509TrustManager defaultWithBundledLetsEncrypt(final Context context)
-            throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        final BundledTrustManager bundleTrustManager =
-                BundledTrustManager.builder()
-                        .loadKeyStore(
-                                context.getResources().openRawResource(R.raw.letsencrypt),
-                                "letsencrypt")
-                        .build();
-        return CombiningTrustManager.combineWithDefault(bundleTrustManager);
     }
 
     private static boolean isIp(final String server) {
         return server != null
                 && (PATTERN_IPV4.matcher(server).matches()
-                || PATTERN_IPV6.matcher(server).matches()
-                || PATTERN_IPV6_6HEX4DEC.matcher(server).matches()
-                || PATTERN_IPV6_HEX4DECCOMPRESSED.matcher(server).matches()
-                || PATTERN_IPV6_HEXCOMPRESSED.matcher(server).matches());
+                        || PATTERN_IPV6.matcher(server).matches()
+                        || PATTERN_IPV6_6HEX4DEC.matcher(server).matches()
+                        || PATTERN_IPV6_HEX4DECCOMPRESSED.matcher(server).matches()
+                        || PATTERN_IPV6_HEXCOMPRESSED.matcher(server).matches());
     }
 
     private static String getBase64Hash(X509Certificate certificate, String digest)
@@ -414,7 +403,7 @@ public class MemorizingTrustManager {
         try {
             LOGGER.log(Level.FINE, "checkCertTrusted: trying appTrustManager");
             if (isServer) {
-                if (verifiedHostname != null) {
+                if (verifiedHostname != null && !eu.siacs.conversations.utils.IP.matches(verifiedHostname)) {
                     try {
                         if (daneVerifier.verifyCertificateChain(chain, verifiedHostname, port)) {
                             if (daneCb != null) daneCb.accept(true);

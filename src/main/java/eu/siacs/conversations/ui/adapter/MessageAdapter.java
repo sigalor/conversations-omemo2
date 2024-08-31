@@ -1,150 +1,140 @@
 package eu.siacs.conversations.ui.adapter;
 
-import static android.view.View.GONE;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static de.monocles.chat.Util.getReadmakerType;
-import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY;
-import static eu.siacs.conversations.entities.Message.DELETED_MESSAGE_BODY_OLD;
-import static eu.siacs.conversations.entities.Message.ENCRYPTION_NONE;
-import static eu.siacs.conversations.persistance.FileBackend.formatTime;
-import static eu.siacs.conversations.persistance.FileBackend.safeLongToInt;
-import static eu.siacs.conversations.ui.SettingsActivity.PLAY_GIF_INSIDE;
-import static eu.siacs.conversations.ui.SettingsActivity.SHOW_LINKS_INSIDE;
-import static eu.siacs.conversations.ui.SettingsActivity.SHOW_MAPS_INSIDE;
-import static eu.siacs.conversations.ui.util.MyLinkify.removeTrackingParameter;
-import static eu.siacs.conversations.ui.util.MyLinkify.removeTrailingBracket;
-import static eu.siacs.conversations.ui.util.MyLinkify.replaceYoutube;
-
 import android.Manifest;
-import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Rect;
-import android.graphics.Typeface;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.format.DateUtils;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
+import android.text.style.ClickableSpan;
+import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
-import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.LruCache;
-import android.util.Patterns;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.ColorUtils;
-import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.widget.ImageViewCompat;
 
-import com.bumptech.glide.Glide;
-import com.daimajia.swipe.SwipeLayout;
-import com.google.common.base.Strings;
-import com.lelloman.identicon.view.GithubIdenticonView;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.ShapeAppearanceModel;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.MessageTextActionModeCallback;
-import de.monocles.chat.Util;
+import de.monocles.chat.SwipeDetector;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcUpdate;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.color.MaterialColors;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+
+import com.lelloman.identicon.view.GithubIdenticonView;
+
+import io.ipfs.cid.Cid;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
+
+import net.fellbaum.jemoji.EmojiManager;
+
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
-import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Message.FileParams;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
+import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
 import eu.siacs.conversations.persistance.FileBackend;
-import eu.siacs.conversations.services.AudioPlayer;
 import eu.siacs.conversations.services.MessageArchiveService;
 import eu.siacs.conversations.services.NotificationService;
+import eu.siacs.conversations.ui.Activities;
 import eu.siacs.conversations.ui.ConversationFragment;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.XmppActivity;
+import eu.siacs.conversations.ui.service.AudioPlayer;
 import eu.siacs.conversations.ui.text.DividerSpan;
 import eu.siacs.conversations.ui.text.QuoteSpan;
+import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
-import eu.siacs.conversations.ui.util.CustomTab;
 import eu.siacs.conversations.ui.util.MyLinkify;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.ui.util.ShareUtil;
-import eu.siacs.conversations.ui.util.StyledAttributes;
 import eu.siacs.conversations.ui.util.ViewUtil;
-import eu.siacs.conversations.ui.widget.ClickableMovementMethod;
-import eu.siacs.conversations.ui.widget.RichLinkView;
-import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.GeoHelper;
 import eu.siacs.conversations.utils.MessageUtils;
-import eu.siacs.conversations.utils.RichPreview;
 import eu.siacs.conversations.utils.StylingHelper;
-import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.utils.UIHelper;
-import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.mam.MamReference;
-import io.ipfs.cid.Cid;
-import me.drakeet.support.toast.ToastCompat;
-import me.saket.bettermovementmethod.BetterLinkMovementMethod;
+import eu.siacs.conversations.xml.Element;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageAdapter extends ArrayAdapter<Message> {
 
@@ -154,33 +144,27 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private static final int STATUS = 2;
     private static final int DATE_SEPARATOR = 3;
     private static final int RTP_SESSION = 4;
-    boolean isResendable = false;
-
     private final XmppActivity activity;
     private final AudioPlayer audioPlayer;
     private List<String> highlightedTerm = null;
     private final DisplayMetrics metrics;
+    private ConversationFragment mConversationFragment = null;
     private OnContactPictureClicked mOnContactPictureClickedListener;
     private OnContactPictureClicked mOnMessageBoxClickedListener;
     private OnContactPictureClicked mOnMessageBoxSwipedListener;
     private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
     private OnInlineImageLongClicked mOnInlineImageLongClickedListener;
-    private boolean mIndicateReceived = false;
-    private boolean mPlayGifInside = false;
-    private boolean mShowLinksInside = false;
-    private boolean mShowMapsInside = false;
+    private boolean mUseGreenBackground = false;
+    private BubbleDesign bubbleDesign = new BubbleDesign(false, false);
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
-    private String readmarkervalue;
-    private ConversationFragment mConversationFragment = null;
-    private boolean expandable;
-    private boolean expand;
+    private String selectionUuid = null;
 
-
-    public MessageAdapter(final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
+    public MessageAdapter(
+            final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
         super(activity, 0, messages);
-        this.activity = activity;
         this.audioPlayer = new AudioPlayer(this);
+        this.activity = activity;
         metrics = getContext().getResources().getDisplayMetrics();
         updatePreferences();
         this.mForceNames = forceNames;
@@ -196,24 +180,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
     }
 
-    public void flagDisableInputs() {
-        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    }
-
-    public void flagEnableInputs() {
-        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    }
-
     public void flagScreenOn() {
         activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void flagScreenOff() {
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    public boolean autoPauseVoice() {
-        return activity.xmppConnectionService.pauseVoiceOnMoveFromEar();
     }
 
     public void setVolumeControl(final int stream) {
@@ -224,25 +196,36 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.mOnContactPictureClickedListener = listener;
     }
 
-    public void setOnContactPictureLongClicked(
-            OnContactPictureLongClicked listener) {
-        this.mOnContactPictureLongClickedListener = listener;
-    }
-
-    public void setOnInlineImageLongClicked(OnInlineImageLongClicked listener) {
-        this.mOnInlineImageLongClickedListener = listener;
+    public void setOnMessageBoxClicked(OnContactPictureClicked listener) {
+        this.mOnMessageBoxClickedListener = listener;
     }
 
     public void setOnMessageBoxSwiped(OnContactPictureClicked listener) {
         this.mOnMessageBoxSwipedListener = listener;
     }
 
-    public void setOnMessageBoxClicked(OnContactPictureClicked listener) {
-        this.mOnMessageBoxClickedListener = listener;
+    public void setConversationFragment(ConversationFragment frag) {
+        mConversationFragment = frag;
+    }
+
+    public void quoteText(String text) {
+        if (mConversationFragment != null) mConversationFragment.quoteText(text);
+    }
+
+    public boolean hasSelection() {
+        return selectionUuid != null;
     }
 
     public Activity getActivity() {
         return activity;
+    }
+
+    public void setOnContactPictureLongClicked(OnContactPictureLongClicked listener) {
+        this.mOnContactPictureLongClickedListener = listener;
+    }
+
+    public void setOnInlineImageLongClicked(OnInlineImageLongClicked listener) {
+        this.mOnInlineImageLongClickedListener = listener;
     }
 
     @Override
@@ -271,321 +254,212 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         return this.getItemViewType(getItem(position));
     }
 
-    private void displayStatus(ViewHolder viewHolder, final Message message, int type, boolean darkBackground) {
-        String filesize = null;
-        String info = null;
-        boolean error = false;
-        viewHolder.user.setText(UIHelper.getDisplayedMucCounterpart(message.getCounterpart()));
+    private void displayStatus(
+            final ViewHolder viewHolder,
+            final Message message,
+            final int type,
+            final BubbleColor bubbleColor) {
+        final int mergedStatus = message.getMergedStatus();
+        final boolean error;
         if (viewHolder.indicatorReceived != null) {
-            viewHolder.indicatorReceived.setVisibility(GONE);
-        }
-        if (viewHolder.edit_indicator != null) {
-            if (message.edited() && message.getModerated() == null) {
-                viewHolder.edit_indicator.setVisibility(View.VISIBLE);
-                viewHolder.edit_indicator.setImageResource(darkBackground ? R.drawable.ic_mode_edit_white_18dp : R.drawable.ic_mode_edit_black_18dp);
-                viewHolder.edit_indicator.setAlpha(darkBackground ? 0.7f : 0.57f);
-            } else {
-                viewHolder.edit_indicator.setVisibility(GONE);
-            }
-        }
-        if (viewHolder.retract_indicator != null) {
-            if (message.getRetractId() != null) {
-                viewHolder.retract_indicator.setVisibility(View.VISIBLE);
-                viewHolder.retract_indicator.setImageResource(darkBackground ? R.drawable.ic_delete_white_18dp : R.drawable.ic_delete_black_18dp);
-                viewHolder.retract_indicator.setAlpha(darkBackground ? 0.7f : 0.57f);
-            } else {
-                viewHolder.retract_indicator.setVisibility(GONE);
-            }
+            viewHolder.indicatorReceived.setVisibility(View.GONE);
         }
         final Transferable transferable = message.getTransferable();
-        boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI
-                && message.getMergedStatus() <= Message.STATUS_RECEIVED;
-        boolean singleReceived = message.getConversation().getMode() == Conversation.MODE_SINGLE
-                && message.getMergedStatus() <= Message.STATUS_RECEIVED;
-        if (message.isFileOrImage() || transferable != null || MessageUtils.unInitiatedButKnownSize(message)) {
-            FileParams params = message.getFileParams();
-            filesize = params.size != null ? UIHelper.filesizeToString(params.size) : null;
-            if (transferable != null && (transferable.getStatus() == Transferable.STATUS_FAILED || transferable.getStatus() == Transferable.STATUS_CANCELLED)) {
+        final boolean multiReceived =
+                message.getConversation().getMode() == Conversation.MODE_MULTI
+                        && mergedStatus <= Message.STATUS_RECEIVED;
+        final String fileSize;
+        if (message.isFileOrImage()
+                || transferable != null
+                || MessageUtils.unInitiatedButKnownSize(message)) {
+            final FileParams params = message.getFileParams();
+            fileSize = params.size != null ? UIHelper.filesizeToString(params.size) : null;
+            if (message.getStatus() == Message.STATUS_SEND_FAILED
+                    || (transferable != null
+                            && (transferable.getStatus() == Transferable.STATUS_FAILED
+                                    || transferable.getStatus()
+                                            == Transferable.STATUS_CANCELLED))) {
                 error = true;
-            }
-        }
-        switch (message.getMergedStatus()) {
-            case Message.STATUS_WAITING:
-                info = getContext().getString(R.string.waiting);
-                break;
-            case Message.STATUS_UNSEND:
-                if (transferable != null) {
-                    info = getContext().getString(R.string.sending);
-                    showProgress(viewHolder, transferable, message);
-                } else {
-                    info = getContext().getString(R.string.sending);
-                }
-                break;
-            case Message.STATUS_OFFERED:
-                info = getContext().getString(R.string.offering);
-                break;
-            case Message.STATUS_SEND_RECEIVED:
-                if (mIndicateReceived) {
-                    if (viewHolder.indicatorReceived != null) {
-                        viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, readmarkervalue, Util.ReadmarkerType.RECEIVED));
-                        viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
-                    }
-                } else {
-                    viewHolder.indicatorReceived.setVisibility(GONE);
-                }
-                break;
-            case Message.STATUS_SEND_DISPLAYED:
-                if (mIndicateReceived) {
-                    if (viewHolder.indicatorReceived != null) {
-                        viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
-                        viewHolder.indicatorReceived.setImageResource(getReadmakerType(darkBackground, readmarkervalue, Util.ReadmarkerType.DISPLAYED));
-                        viewHolder.indicatorReceived.setAlpha(darkBackground ? 0.7f : 0.57f);
-                    }
-                } else {
-                    viewHolder.indicatorReceived.setVisibility(GONE);
-                }
-                break;
-            case Message.STATUS_SEND_FAILED:
-                DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
-                if (isResendable && file.exists() || message.getResendCount() < activity.xmppConnectionService.maxResendTime()) {
-                    info = getContext().getString(R.string.send_failed_resend);
-                } else {
-                    final String errorMessage = message.getErrorMessage();
-                    if (Message.ERROR_MESSAGE_CANCELLED.equals(errorMessage)) {
-                        info = getContext().getString(R.string.cancelled);
-                    } else {
-                        if (errorMessage != null) {
-                            final String[] errorParts = errorMessage.split("\\u001f", 2);
-                            if (errorParts.length == 2) {
-                                switch (errorParts[0]) {
-                                    case "file-too-large":
-                                        info = getContext().getString(R.string.file_too_large);
-                                        break;
-                                    default:
-                                        info = getContext().getString(R.string.send_failed);
-                                        break;
-                                }
-                            } else {
-                                info = getContext().getString(R.string.send_failed);
-                            }
-                        } else {
-                            info = getContext().getString(R.string.send_failed);
-                        }
-                    }
-                }
-                error = true;
-                break;
-            default:
-                if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
-                    final int shadowSize = 10;
-                    viewHolder.username.setVisibility(View.VISIBLE);
-                    viewHolder.username.setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
-                    if (activity.xmppConnectionService.colored_muc_names() && ThemeHelper.showColoredUsernameBackGround(activity, darkBackground)) {
-                        viewHolder.username.setPadding(4, 2, 4, 2);
-                        viewHolder.username.setBackground(ContextCompat.getDrawable(activity, R.drawable.duration_background));
-                    }
-                } else if (singleReceived) {
-                    viewHolder.username.setVisibility(GONE);
-                }
-                break;
-        }
-        if (error && type == SENT) {
-            if (darkBackground) {
-                viewHolder.time.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Caption_Warning_OnDark);
             } else {
-                viewHolder.time.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Caption_Warning);
-            }
-            DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
-            if (error==false && file.exists()) {    //TODO: Improve this quick fix
-                if (activity.xmppConnectionService.mHttpConnectionManager.getAutoAcceptFileSize() >= message.getFileParams().size && (transferable != null && transferable.getStatus() == Transferable.STATUS_FAILED)) {
-                    isResendable = true;
-                    viewHolder.resend_button.setVisibility(GONE);
-                } else {
-                    isResendable = false;
-                    viewHolder.resend_button.setVisibility(GONE);
-                    /*
-                    viewHolder.resend_button.setVisibility(View.VISIBLE);
-                    viewHolder.resend_button.setText(R.string.send_again);
-                    viewHolder.resend_button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_resend_grey600_48dp, 0, 0, 0);
-                    viewHolder.resend_button.setOnClickListener(v -> mConversationFragment.resendMessage(message));
-                    */
-                }
-            } else {
-                isResendable = false;
-                viewHolder.resend_button.setVisibility(GONE);
+                error = message.getStatus() == Message.STATUS_SEND_FAILED;
             }
         } else {
-            if (darkBackground) {
-                viewHolder.time.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Caption_OnDark);
+            fileSize = null;
+            error = message.getStatus() == Message.STATUS_SEND_FAILED;
+        }
+        if (type == SENT) {
+            final @DrawableRes Integer receivedIndicator =
+                    getMessageStatusAsDrawable(message, mergedStatus);
+            if (receivedIndicator == null) {
+                viewHolder.indicatorReceived.setVisibility(View.INVISIBLE);
             } else {
-                viewHolder.time.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Caption);
+                viewHolder.indicatorReceived.setImageResource(receivedIndicator);
+                if (mergedStatus == Message.STATUS_SEND_FAILED) {
+                    setImageTintError(viewHolder.indicatorReceived);
+                } else {
+                    setImageTint(viewHolder.indicatorReceived, bubbleColor);
+                }
+                viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
             }
-            viewHolder.time.setTextColor(ThemeHelper.getMessageTextColor(getContext(), darkBackground, false));
         }
-        if (!error && type == SENT) {
-            viewHolder.resend_button.setVisibility(GONE);
+        final var additionalStatusInfo = getAdditionalStatusInfo(message, mergedStatus);
+
+        if (error && type == SENT) {
+            viewHolder.time.setTextColor(
+                    MaterialColors.getColor(
+                            viewHolder.time, com.google.android.material.R.attr.colorError));
+        } else {
+            setTextColor(viewHolder.time, bubbleColor);
         }
+        setTextColor(viewHolder.subject, bubbleColor);
         if (message.getEncryption() == Message.ENCRYPTION_NONE) {
-            viewHolder.indicator.setVisibility(GONE);
+            viewHolder.indicator.setVisibility(View.GONE);
         } else {
             boolean verified = false;
             if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
-                final FingerprintStatus status = message.getConversation().getAccount().getAxolotlService().getFingerprintTrust(message.getFingerprint());
+                final FingerprintStatus status =
+                        message.getConversation()
+                                .getAccount()
+                                .getAxolotlService()
+                                .getFingerprintTrust(message.getFingerprint());
                 if (status != null && status.isVerified()) {
                     verified = true;
                 }
             }
             if (verified) {
-                viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_verified_user_white_18dp : R.drawable.ic_verified_user_black_18dp);
+                viewHolder.indicator.setImageResource(R.drawable.ic_verified_user_24dp);
             } else {
-                viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_lock_white_18dp : R.drawable.ic_lock_black_18dp);
+                viewHolder.indicator.setImageResource(R.drawable.ic_lock_24dp);
             }
-            if (darkBackground) {
-                viewHolder.indicator.setAlpha(0.7f);
+            if (error && type == SENT) {
+                setImageTintError(viewHolder.indicator);
             } else {
-                viewHolder.indicator.setAlpha(0.57f);
+                setImageTint(viewHolder.indicator, bubbleColor);
             }
             viewHolder.indicator.setVisibility(View.VISIBLE);
         }
 
-        final String formattedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
-        final String bodyLanguage = message.getBodyLanguage();
-        final String bodyLanguageInfo = bodyLanguage == null ? "" : String.format(" \u00B7 %s", bodyLanguage.toUpperCase(Locale.US));
-        if (message.getStatus() <= Message.STATUS_RECEIVED) {
-            if ((filesize != null) && (info != null)) {
-                viewHolder.time.setText(formattedTime + " \u00B7 " + filesize + " \u00B7 " + info + bodyLanguageInfo);
-            } else if ((filesize == null) && (info != null)) {
-                viewHolder.time.setText(formattedTime + " \u00B7 " + info + bodyLanguageInfo);
-            } else if ((filesize != null) && (info == null)) {
-                viewHolder.time.setText(formattedTime + " \u00B7 " + filesize + bodyLanguageInfo);
-            } else {
-                viewHolder.time.setText(formattedTime + bodyLanguageInfo);
-            }
-        } else {
-            if ((filesize != null) && (info != null)) {
-                viewHolder.time.setText(filesize + " \u00B7 " + info + bodyLanguageInfo);
-            } else if ((filesize == null) && (info != null)) {
-                if (error) {
-                    viewHolder.time.setText(info + " \u00B7 " + formattedTime + bodyLanguageInfo);
+        if (viewHolder.edit_indicator != null) {
+            if (message.edited()) {
+                viewHolder.edit_indicator.setVisibility(View.VISIBLE);
+                if (error && type == SENT) {
+                    setImageTintError(viewHolder.edit_indicator);
                 } else {
-                    viewHolder.time.setText(info);
+                    setImageTint(viewHolder.edit_indicator, bubbleColor);
                 }
-            } else if ((filesize != null) && (info == null)) {
-                viewHolder.time.setText(filesize + " \u00B7 " + formattedTime + bodyLanguageInfo);
             } else {
-                viewHolder.time.setText(formattedTime + bodyLanguageInfo);
+                viewHolder.edit_indicator.setVisibility(View.GONE);
             }
         }
+
+        final String formattedTime =
+                UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
+        final String bodyLanguage = message.getBodyLanguage();
+        final ImmutableList.Builder<String> timeInfoBuilder = new ImmutableList.Builder<>();
+        if (message.getStatus() <= Message.STATUS_RECEIVED) {
+            timeInfoBuilder.add(formattedTime);
+            if (fileSize != null) {
+                timeInfoBuilder.add(fileSize);
+            }
+            if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
+                final String displayName = UIHelper.getMessageDisplayName(message);
+                if (displayName != null) {
+                    timeInfoBuilder.add(displayName);
+                }
+            }
+            if (bodyLanguage != null) {
+                timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
+            }
+        } else {
+            if (bodyLanguage != null) {
+                timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
+            }
+            if (fileSize != null) {
+                timeInfoBuilder.add(fileSize);
+            }
+            // for space reasons we display only 'additional status info' (send progress or concrete
+            // failure reason) or the time
+            if (additionalStatusInfo != null) {
+                timeInfoBuilder.add(additionalStatusInfo);
+            } else {
+                timeInfoBuilder.add(formattedTime);
+            }
+        }
+        final var timeInfo = timeInfoBuilder.build();
+        viewHolder.time.setText(Joiner.on(" \u00B7 ").join(timeInfo));
     }
 
-    private void displayInfoMessage(ViewHolder viewHolder, CharSequence text, boolean darkBackground, Message message) {
-        viewHolder.download_button.setVisibility(GONE);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
+    public static @DrawableRes Integer getMessageStatusAsDrawable(
+            final Message message, final int status) {
+        final var transferable = message.getTransferable();
+        return switch (status) {
+            case Message.STATUS_WAITING -> R.drawable.ic_more_horiz_24dp;
+            case Message.STATUS_UNSEND -> transferable == null ? null : R.drawable.ic_upload_24dp;
+            case Message.STATUS_SEND -> R.drawable.ic_done_24dp;
+            case Message.STATUS_SEND_RECEIVED, Message.STATUS_SEND_DISPLAYED -> R.drawable
+                    .ic_done_all_24dp;
+            case Message.STATUS_SEND_FAILED -> {
+                final String errorMessage = message.getErrorMessage();
+                if (Message.ERROR_MESSAGE_CANCELLED.equals(errorMessage)) {
+                    yield R.drawable.ic_cancel_24dp;
+                } else {
+                    yield R.drawable.ic_error_24dp;
+                }
+            }
+            case Message.STATUS_OFFERED -> R.drawable.ic_p2p_24dp;
+            default -> null;
+        };
+    }
+
+    @Nullable
+    private String getAdditionalStatusInfo(final Message message, final int mergedStatus) {
+        final String additionalStatusInfo;
+        if (mergedStatus == Message.STATUS_SEND_FAILED) {
+            final String errorMessage = Strings.nullToEmpty(message.getErrorMessage());
+            final String[] errorParts = errorMessage.split("\\u001f", 2);
+            if (errorParts.length == 2 && errorParts[0].equals("file-too-large")) {
+                additionalStatusInfo = getContext().getString(R.string.file_too_large);
+            } else {
+                additionalStatusInfo = null;
+            }
+        } else if (mergedStatus == Message.STATUS_UNSEND) {
+            final var transferable = message.getTransferable();
+            if (transferable == null) {
+                return null;
+            }
+            return getContext().getString(R.string.sending_file, transferable.getProgress());
+        } else {
+            additionalStatusInfo = null;
+        }
+        return additionalStatusInfo;
+    }
+
+    private void displayInfoMessage(
+            ViewHolder viewHolder, CharSequence text, final BubbleColor bubbleColor) {
+        viewHolder.download_button.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
+        viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.VISIBLE);
         viewHolder.messageBody.setText(text);
-        showProgress(viewHolder, message.getTransferable(), message);
-        if (darkBackground) {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_Secondary_OnDark);
-        } else {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_Secondary);
-        }
+        viewHolder.messageBody.setTextColor(
+                bubbleToOnSurfaceVariant(viewHolder.messageBody, bubbleColor));
         viewHolder.messageBody.setTextIsSelectable(false);
     }
 
-    private void showProgress(final ViewHolder viewHolder, final Transferable transferable, final Message message) {
-        if (transferable != null) {
-            if (message.fileIsTransferring()) {
-                viewHolder.transfer.setVisibility(View.VISIBLE);
-                viewHolder.progressBar.setProgress(transferable.getProgress());
-                Drawable icon = activity.getResources().getDrawable(R.drawable.ic_cancel_black_24dp);
-                Drawable drawable = DrawableCompat.wrap(icon);
-                DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-                viewHolder.cancel_transfer.setImageDrawable(drawable);
-                viewHolder.cancel_transfer.setEnabled(true);
-                viewHolder.cancel_transfer.setOnClickListener(v -> {
-                    try {
-                        if (activity instanceof ConversationsActivity) {
-                            ConversationFragment conversationFragment = ConversationFragment.get(activity);
-                            if (conversationFragment != null) {
-                                activity.invalidateOptionsMenu();
-                                conversationFragment.cancelTransmission(message);
-                            }
-                        }
-                    } catch (Exception e) {
-                        viewHolder.cancel_transfer.setEnabled(false);
-                        e.printStackTrace();
-                    }
-                });
-            } else {
-                viewHolder.transfer.setVisibility(GONE);
-            }
-        } else {
-            viewHolder.transfer.setVisibility(GONE);
-        }
-    }
-
-    private void displayEmojiMessage(final ViewHolder viewHolder, final SpannableStringBuilder body, final boolean darkBackground) {
-        viewHolder.download_button.setVisibility(GONE);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
+    private void displayEmojiMessage(
+            final ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.download_button.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
+        viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.VISIBLE);
-        if (darkBackground) {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_Emoji_OnDark);
-        } else {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_Emoji);
-        }
+        setTextColor(viewHolder.messageBody, bubbleColor);
+        final var body = getSpannableBody(message);
         ImageSpan[] imageSpans = body.getSpans(0, body.length(), ImageSpan.class);
-        float size = imageSpans.length == 1 || Emoticons.isEmoji(body.toString()) ? 5.0f : 3.0f;
-        body.setSpan(new RelativeSizeSpan(size), 0, body.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        float size = imageSpans.length == 1 || Emoticons.isEmoji(body.toString()) ? 5.0f : 2.0f;
+        body.setSpan(
+                new RelativeSizeSpan(size), 0, body.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         viewHolder.messageBody.setText(body);
-    }
-
-    private void displayXmppMessage(final ViewHolder viewHolder, final String body) {
-        String contact = body.toLowerCase();
-        contact = contact.split(":")[1];
-        boolean group;
-        try {
-            group = ((contact.split("\\?")[1]) != null && (contact.split("\\?")[1]).length() > 0 && (contact.split("\\?")[1]).equalsIgnoreCase("join"));
-        } catch (Exception e) {
-            group = false;
-        }
-        contact = contact.split("\\?")[0];
-        final String add_contact = activity.getString(R.string.add_to_contact_list) + " (" + contact + ")";
-        viewHolder.audioPlayer.setVisibility(GONE);
-        viewHolder.download_button.setVisibility(View.VISIBLE);
-        viewHolder.download_button.setText(add_contact);
-        if (group) {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_account_multiple_plus_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-        } else {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_account_plus_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-        }
-        viewHolder.download_button.setOnClickListener(v -> {
-            try {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(body));
-                activity.startActivity(intent);
-                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-            } catch (Exception e) {
-                ToastCompat.makeText(activity, R.string.no_application_found_to_view_contact, ToastCompat.LENGTH_LONG).show();
-            }
-
-        });
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        viewHolder.messageBody.setVisibility(GONE);
     }
 
     private void applyQuoteSpan(
@@ -593,7 +467,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             Editable body,
             int start,
             int end,
-            boolean darkBackground,
+            final BubbleColor bubbleColor,
             final boolean makeEdits) {
         if (makeEdits && start > 1 && !"\n\n".equals(body.subSequence(start - 2, start).toString())) {
             body.insert(start++, "\n");
@@ -604,15 +478,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (makeEdits && end < body.length() - 1 && !"\n\n".equals(body.subSequence(end, end + 2).toString())) {
             body.insert(end, "\n");
             body.setSpan(
-                    new DividerSpan(false),
-                    end,
-                    end + ("\n".equals(body.subSequence(end + 1, end + 2).toString()) ? 2 : 1),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                new DividerSpan(false),
+                end,
+                end + ("\n".equals(body.subSequence(end + 1, end + 2).toString()) ? 2 : 1),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             );
         }
-        int color = ThemeHelper.messageTextColor(activity);
         final DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-        body.setSpan(new QuoteSpan(color, metrics), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        body.setSpan(
+                new QuoteSpan(bubbleToOnSurfaceVariant(textView, bubbleColor), metrics),
+                start,
+                end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     public boolean handleTextQuotes(final TextView textView, final Editable body) {
@@ -620,9 +497,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public boolean handleTextQuotes(final TextView textView, final Editable body, final boolean deleteMarkers) {
-        boolean darkBackground = activity.isDarkTheme();
-        return handleTextQuotes(textView, body, darkBackground, deleteMarkers);
+        final boolean colorfulBackground = this.bubbleDesign.colorfulChatBubbles;
+        final BubbleColor bubbleColor = colorfulBackground ? (deleteMarkers ? BubbleColor.SECONDARY : BubbleColor.TERTIARY) : BubbleColor.SURFACE;
+        return handleTextQuotes(textView, body, bubbleColor, deleteMarkers);
     }
+
     /**
      * Applies QuoteSpan to group of lines which starts with > or » characters. Appends likebreaks
      * and applies DividerSpan to them to show a padding between quote and text.
@@ -630,7 +509,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public boolean handleTextQuotes(
             final TextView textView,
             final Editable body,
-            final boolean darkBackground,
+            final BubbleColor bubbleColor,
             final boolean deleteMarkers) {
         boolean startsWithQuote = false;
         int quoteDepth = 1;
@@ -655,7 +534,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             if (i == 0) startsWithQuote = true;
                         } else if (quoteStart >= 0) {
                             // Line start without quote, apply spans there
-                            applyQuoteSpan(textView, body, quoteStart, i - 1, darkBackground, deleteMarkers);
+                            applyQuoteSpan(textView, body, quoteStart, i - 1, bubbleColor, deleteMarkers);
                             quoteStart = -1;
                         }
                     }
@@ -685,7 +564,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
             if (quoteStart >= 0) {
                 // Apply spans to finishing open quote
-                applyQuoteSpan(textView, body, quoteStart, body.length(), darkBackground, deleteMarkers);
+                applyQuoteSpan(textView, body, quoteStart, body.length(), bubbleColor, deleteMarkers);
             }
             quoteDepth++;
         }
@@ -693,8 +572,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private SpannableStringBuilder getSpannableBody(final Message message) {
-        Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
-        return replaceYoutube(activity.getApplicationContext(), message.getMergedBody((cid) -> {
+        Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), R.drawable.ic_photo_24dp, null);
+        return message.getMergedBody((cid) -> {
             try {
                 DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
                 if (f == null || !f.canRead()) {
@@ -714,124 +593,169 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } catch (final IOException e) {
                 return null;
             }
-        }, fallbackImg));
+        }, fallbackImg);
     }
 
-    private void displayTextMessage(final ViewHolder viewHolder, final Message message, boolean darkBackground, int type) {
-        viewHolder.download_button.setVisibility(GONE);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        viewHolder.messageBody.setVisibility(GONE);
-        if (darkBackground) {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_OnDark);
-        } else {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1);
-        }
-        viewHolder.messageBody.setHighlightColor(darkBackground ? type == SENT ? StyledAttributes.getColor(activity, R.attr.colorAccent) : StyledAttributes.getColor(activity, R.attr.colorAccent) : StyledAttributes.getColor(activity, R.attr.colorAccent));
+    private void displayTextMessage(
+            final ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
+        viewHolder.inReplyToQuote.setVisibility(View.GONE);
+        viewHolder.download_button.setVisibility(View.GONE);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
+        viewHolder.messageBody.setVisibility(View.VISIBLE);
+        setTextColor(viewHolder.messageBody, bubbleColor);
+        setTextSize(viewHolder.messageBody, this.bubbleDesign.largeFont);
+
+        final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody.getLayoutParams();
+        layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        viewHolder.messageBody.setLayoutParams(layoutParams);
+
+        final ViewGroup.LayoutParams qlayoutParams = viewHolder.inReplyToQuote.getLayoutParams();
+        qlayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        viewHolder.messageBody.setLayoutParams(qlayoutParams);
+
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
+
         if (message.getBody() != null && !message.getBody().equals("")) {
             viewHolder.messageBody.setTextIsSelectable(true);
             viewHolder.messageBody.setVisibility(View.VISIBLE);
-            final SpannableString nick = UIHelper.getColoredUsername(activity.xmppConnectionService, message);
-            Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), activity.getThemeResource(R.attr.ic_attach_photo, R.drawable.ic_attach_photo), null);
-            fallbackImg.setBounds(FileBackend.rectForSize(fallbackImg.getIntrinsicWidth(), fallbackImg.getIntrinsicHeight(), (int) (metrics.density * 32)));
-            SpannableStringBuilder body =  getSpannableBody(message);
-            if (message.getBody().equals(DELETED_MESSAGE_BODY)) {
-                body = body.replace(0, DELETED_MESSAGE_BODY.length(), activity.getString(R.string.message_deleted));
-            } else if (message.getBody().equals(DELETED_MESSAGE_BODY_OLD)) {
-                body = body.replace(0, DELETED_MESSAGE_BODY_OLD.length(), activity.getString(R.string.message_deleted));
-            } else {
-                boolean hasMeCommand = message.hasMeCommand();
-                if (hasMeCommand) {
-                    body = body.replace(0, Message.ME_COMMAND.length(), nick);
-                }
-                if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
-                    body = new SpannableStringBuilder(body, 0, Config.MAX_DISPLAY_MESSAGE_CHARS);
-                    body.append("\u2026");
-                }
-                final Message.MergeSeparator[] mergeSeparators = body.getSpans(0, body.length(), Message.MergeSeparator.class);
-                for (Message.MergeSeparator mergeSeparator : mergeSeparators) {
-                    int start = body.getSpanStart(mergeSeparator);
-                    int end = body.getSpanEnd(mergeSeparator);
-                    body.setSpan(new DividerSpan(true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-                final boolean startsWithQuote = handleTextQuotes(viewHolder.messageBody, body, darkBackground, true);
-                for (final android.text.style.QuoteSpan quote : body.getSpans(0, body.length(), android.text.style.QuoteSpan.class)) {
-                    int start = body.getSpanStart(quote);
-                    int end = body.getSpanEnd(quote);
-                    body.removeSpan(quote);
-                    applyQuoteSpan(viewHolder.messageBody, body, start, end, darkBackground, true);
-                }
-                if (!message.isPrivateMessage()) {
-                    if (hasMeCommand) {
-                        body.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, nick.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                } else {
-                    String privateMarker;
-                    if (message.getStatus() <= Message.STATUS_RECEIVED) {
-                        privateMarker = activity.getString(R.string.private_message);
-                    } else {
-                        Jid cp = message.getCounterpart();
-                        privateMarker = activity.getString(R.string.private_message_to, Strings.nullToEmpty(cp == null ? null : cp.getResource()));
-                    }
-                    body.insert(0, privateMarker);
-                    final int privateMarkerIndex = privateMarker.length();
-                    if (startsWithQuote) {
-                        body.insert(privateMarkerIndex, "\n\n");
-                        body.setSpan(new DividerSpan(false), privateMarkerIndex, privateMarkerIndex + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    } else {
-                        body.insert(privateMarkerIndex, " ");
-                    }
-                    body.setSpan(new ForegroundColorSpan(ThemeHelper.getMessageTextColorPrivate(activity)), 0, privateMarkerIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    body.setSpan(new StyleSpan(Typeface.BOLD), 0, privateMarkerIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    if (hasMeCommand) {
-                        body.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), privateMarkerIndex + 1, privateMarkerIndex + 1 + nick.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                }
-                if (message.getConversation().getMode() == Conversation.MODE_MULTI && message.getStatus() == Message.STATUS_RECEIVED) {
-                    if (message.getConversation() instanceof Conversation) {
-                        final Conversation conversation = (Conversation) message.getConversation();
-                        Pattern pattern = NotificationService.generateNickHighlightPattern(conversation.getMucOptions().getActualNick());
-                        Matcher matcher = pattern.matcher(body);
-                        while (matcher.find()) {
-                            body.setSpan(new StyleSpan(Typeface.BOLD), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
+            final String nick = UIHelper.getMessageDisplayName(message);
+            SpannableStringBuilder body = getSpannableBody(message);
+            final var processMarkup = body.getSpans(0, body.length(), Message.PlainTextSpan.class).length > 0;
+            boolean hasMeCommand = message.hasMeCommand();
+            if (hasMeCommand) {
+                body = body.replace(0, Message.ME_COMMAND.length(), nick + " ");
+            }
+            if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
+                body = new SpannableStringBuilder(body, 0, Config.MAX_DISPLAY_MESSAGE_CHARS);
+                body.append("\u2026");
+            }
+            Message.MergeSeparator[] mergeSeparators =
+                    body.getSpans(0, body.length(), Message.MergeSeparator.class);
+            for (Message.MergeSeparator mergeSeparator : mergeSeparators) {
+                int start = body.getSpanStart(mergeSeparator);
+                int end = body.getSpanEnd(mergeSeparator);
+                body.setSpan(new DividerSpan(true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            if (processMarkup) StylingHelper.format(body, viewHolder.messageBody.getCurrentTextColor());
+            MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
+            boolean startsWithQuote = processMarkup ? handleTextQuotes(viewHolder.messageBody, body, bubbleColor, true) : false;
+            for (final android.text.style.QuoteSpan quote : body.getSpans(0, body.length(), android.text.style.QuoteSpan.class)) {
+                int start = body.getSpanStart(quote);
+                int end = body.getSpanEnd(quote);
+                if (start < 0 || end < 0) continue;
 
-                        pattern = NotificationService.generateNickHighlightPattern(conversation.getMucOptions().getActualName());
-                        matcher = pattern.matcher(body);
-                        while (matcher.find()) {
-                            body.setSpan(new StyleSpan(Typeface.BOLD), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
+                body.removeSpan(quote);
+                applyQuoteSpan(viewHolder.messageBody, body, start, end, bubbleColor, true);
+                if (start == 0) {
+                    if (message.getInReplyTo() == null) {
+                        startsWithQuote = true;
+                    } else {
+                        viewHolder.inReplyToQuote.setText(body.subSequence(start, end));
+                        viewHolder.inReplyToQuote.setVisibility(View.VISIBLE);
+                        body.delete(start, end);
+                        while (body.length() > start && body.charAt(start) == '\n') body.delete(start, 1); // Newlines after quote
+                        continue;
                     }
-                }
-                final Matcher matcher = Emoticons.getEmojiPattern(body).matcher(body);
-                while (matcher.find()) {
-                    if (matcher.start() < matcher.end()) {
-                        body.setSpan(new RelativeSizeSpan(1.5f), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                }
-                StylingHelper.format(body, viewHolder.messageBody.getCurrentTextColor(), true);
-                if (highlightedTerm != null) {
-                    StylingHelper.highlight(activity, body, highlightedTerm, StylingHelper.isDarkText(viewHolder.messageBody));
                 }
             }
-            if (message.isWebUri() || message.getWebUri() != null) {
-                displayRichLinkMessage(viewHolder, message, darkBackground);
+            if (!message.isPrivateMessage()) {
+                if (hasMeCommand) {
+                    body.setSpan(
+                            new StyleSpan(Typeface.BOLD_ITALIC),
+                            0,
+                            nick.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            } else {
+                String privateMarker;
+                if (message.getStatus() <= Message.STATUS_RECEIVED) {
+                    privateMarker = activity.getString(R.string.private_message);
+                } else {
+                    Jid cp = message.getCounterpart();
+                    privateMarker =
+                            activity.getString(
+                                    R.string.private_message_to,
+                                    Strings.nullToEmpty(cp == null ? null : cp.getResource()));
+                }
+                body.insert(0, privateMarker);
+                int privateMarkerIndex = privateMarker.length();
+                if (startsWithQuote) {
+                    body.insert(privateMarkerIndex, "\n\n");
+                    body.setSpan(
+                            new DividerSpan(false),
+                            privateMarkerIndex,
+                            privateMarkerIndex + 2,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                } else {
+                    body.insert(privateMarkerIndex, " ");
+                }
+                body.setSpan(
+                        new ForegroundColorSpan(
+                                bubbleToOnSurfaceVariant(viewHolder.messageBody, bubbleColor)),
+                        0,
+                        privateMarkerIndex,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                body.setSpan(
+                        new StyleSpan(Typeface.BOLD),
+                        0,
+                        privateMarkerIndex,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if (hasMeCommand) {
+                    body.setSpan(
+                            new StyleSpan(Typeface.BOLD_ITALIC),
+                            privateMarkerIndex + 1,
+                            privateMarkerIndex + 1 + nick.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+            if (message.getConversation().getMode() == Conversation.MODE_MULTI
+                    && message.getStatus() == Message.STATUS_RECEIVED) {
+                if (message.getConversation() instanceof Conversation conversation) {
+                    Pattern pattern =
+                            NotificationService.generateNickHighlightPattern(
+                                    conversation.getMucOptions().getActualNick());
+                    Matcher matcher = pattern.matcher(body);
+                    while (matcher.find()) {
+                        body.setSpan(
+                                new StyleSpan(Typeface.BOLD),
+                                matcher.start(),
+                                matcher.end(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+
+                    pattern = NotificationService.generateNickHighlightPattern(conversation.getMucOptions().getActualName());
+                    matcher = pattern.matcher(body);
+                    while (matcher.find()) {
+                        body.setSpan(new StyleSpan(Typeface.BOLD), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                }
+            }
+            for (final var emoji : EmojiManager.extractEmojisInOrderWithIndex(body.toString())) {
+                var end = emoji.getCharIndex() + emoji.getEmoji().getEmoji().length();
+                if (body.length() > end && body.charAt(end) == '\uFE0F') end++;
+                body.setSpan(
+                        new RelativeSizeSpan(1.2f),
+                        emoji.getCharIndex(),
+                        end,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             // Make custom emoji bigger too, to match emoji
             for (final var span : body.getSpans(0, body.length(), de.monocles.chat.InlineImageSpan.class)) {
                 body.setSpan(
-                        new RelativeSizeSpan(2f),
+                        new RelativeSizeSpan(1.2f),
                         body.getSpanStart(span),
                         body.getSpanEnd(span),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
-            MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
-            viewHolder.messageBody.setText(body);
+            if (highlightedTerm != null) {
+                StylingHelper.highlight(viewHolder.messageBody, body, highlightedTerm);
+            }
+
             viewHolder.messageBody.setAutoLinkMask(0);
+            viewHolder.messageBody.setText(body);
+            if (body.length() <= 0) viewHolder.messageBody.setVisibility(View.GONE);
             BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
                 @Override
                 protected void dispatchUrlLongClick(TextView tv, ClickableSpan span) {
@@ -862,13 +786,17 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             viewHolder.messageBody.setText("");
             viewHolder.messageBody.setTextIsSelectable(false);
-            toggleWhisperInfo(viewHolder,  message, false, darkBackground);
+            toggleWhisperInfo(viewHolder, message, bubbleColor);
         }
     }
 
-    private void displayDownloadableMessage(ViewHolder viewHolder, final Message message, String text, final boolean darkBackground, final int type) {
-        displayTextMessage(viewHolder, message, darkBackground, type);
-        viewHolder.image.setVisibility(GONE);
+    private void displayDownloadableMessage(
+            ViewHolder viewHolder,
+            final Message message,
+            String text,
+            final BubbleColor bubbleColor, final int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.image.setVisibility(View.GONE);
         List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
         if (thumbs != null && !thumbs.isEmpty()) {
             for (Element thumb : thumbs) {
@@ -902,36 +830,39 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (height < 1) height = 1080;
 
                 viewHolder.image.setVisibility(View.VISIBLE);
-                imagePreviewLayout(width, height, viewHolder.image);
+                imagePreviewLayout(width, height, viewHolder.image, message.getInReplyTo() != null, true, type, viewHolder);
                 activity.loadBitmap(message, viewHolder.image);
                 viewHolder.image.setOnClickListener(v -> ConversationFragment.downloadFile(activity, message));
 
                 break;
             }
         }
-        viewHolder.audioPlayer.setVisibility(GONE);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
         viewHolder.download_button.setText(text);
-        final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_download_grey600_48dp);
-        final Drawable drawable = DrawableCompat.wrap(icon);
-        DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-        viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-        viewHolder.download_button.setOnClickListener(v -> ConversationFragment.downloadFile(activity, message));
+        final var attachment = Attachment.of(message);
+        final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
+        viewHolder.download_button.setIconResource(imageResource);
+        viewHolder.download_button.setOnClickListener(
+                v -> ConversationFragment.downloadFile(activity, message));
     }
 
-
-    private void displayWebxdcMessage(ViewHolder viewHolder, final Message message, final boolean darkBackground, final int type) {
+    private void displayWebxdcMessage(ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         Cid webxdcCid = message.getFileParams().getCids().get(0);
         WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message, activity.xmppConnectionService);
-        displayTextMessage(viewHolder, message, darkBackground, type);
-        viewHolder.image.setVisibility(GONE);
-        viewHolder.audioPlayer.setVisibility(GONE);
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
-        viewHolder.download_button.setText(activity.getResources().getString(R.string.open) + " " + webxdc.getName());
+        viewHolder.download_button.setIconResource(0);
+        viewHolder.download_button.setText("Open " + webxdc.getName());
         viewHolder.download_button.setOnClickListener(v -> {
+            Conversation conversation = (Conversation) message.getConversation();
+            if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
+                conversation.startWebxdc(webxdc);
+            }
+        });
+        viewHolder.image.setOnClickListener(v -> {
             Conversation conversation = (Conversation) message.getConversation();
             if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
                 conversation.startWebxdc(webxdc);
@@ -952,8 +883,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (lastUpdate != null && (lastUpdate.getSummary() != null || lastUpdate.getDocument() != null)) {
                 viewHolder.messageBody.setVisibility(View.VISIBLE);
                 viewHolder.messageBody.setText(
-                        (lastUpdate.getDocument() == null ? "" : lastUpdate.getDocument() + "\n") +
-                                (lastUpdate.getSummary() == null ? "" : lastUpdate.getSummary())
+                    (lastUpdate.getDocument() == null ? "" : lastUpdate.getDocument() + "\n") +
+                    (lastUpdate.getSummary() == null ? "" : lastUpdate.getSummary())
                 );
             }
         }
@@ -969,309 +900,65 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             }).start();
         } else {
-            viewHolder.images.setVisibility(View.VISIBLE);
             viewHolder.image.setVisibility(View.VISIBLE);
             viewHolder.image.setImageDrawable(d);
+            imagePreviewLayout(d.getIntrinsicWidth(), d.getIntrinsicHeight(), viewHolder.image, message.getInReplyTo() != null, true, type, viewHolder);
         }
     }
 
-    private void displayOpenableMessage(ViewHolder viewHolder, final Message message, final boolean darkBackground, final int type) {
-        displayTextMessage(viewHolder, message, darkBackground, type);
+    private void displayOpenableMessage(
+            ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        final String mimeType = message.getMimeType();
-        if (mimeType != null && message.getMimeType().contains("vcard")) {
-            try {
-                showVCard(message, viewHolder);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (mimeType != null && message.getMimeType().contains("calendar")) {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_calendar_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
-        } else if (mimeType != null && message.getMimeType().equals("application/vnd.android.package-archive")) {
-            try {
-                showAPK(message, viewHolder);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (mimeType != null && message.getMimeType().contains("video")) {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_video_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
-        } else if (mimeType != null && message.getMimeType().contains("image")) {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_image_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
-        } else if (mimeType != null && message.getMimeType().contains("audio")) {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_audio_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
-        } else {
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_file_grey600_48dp);
-            final  Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
-        }
+        viewHolder.download_button.setText(
+                activity.getString(
+                        R.string.open_x_file,
+                        UIHelper.getFileDescriptionString(activity, message)));
+        final var attachment = Attachment.of(message);
+        final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
+        viewHolder.download_button.setIconResource(imageResource);
         viewHolder.download_button.setOnClickListener(v -> openDownloadable(message));
     }
 
-    private void showAPK(final Message message, final ViewHolder viewHolder) {
-        String APKName = "";
-        if (message.getFileParams().subject.length() != 0) {
-            try {
-                byte[] data = Base64.decode(message.getFileParams().subject, Base64.DEFAULT);
-                APKName = new String(data, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                APKName = "";
-                e.printStackTrace();
-            }
-        }
-        final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_android_grey600_48dp);
-        final Drawable drawable = DrawableCompat.wrap(icon);
-        DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-        viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-        viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message) + APKName));
+    private void displayLocationMessage(
+            ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
+        viewHolder.download_button.setVisibility(View.VISIBLE);
+        viewHolder.download_button.setText(R.string.show_location);
+        final var attachment = Attachment.of(message);
+        final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
+        viewHolder.download_button.setIconResource(imageResource);
+        viewHolder.download_button.setOnClickListener(v -> showLocation(message));
     }
 
-    private void showVCard(final Message message, ViewHolder viewHolder) {
-        String VCardName = "";
-        if (message.getFileParams().subject.length() != 0) {
-            try {
-                byte[] data = Base64.decode(message.getFileParams().subject, Base64.DEFAULT);
-                VCardName = new String(data, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                VCardName = "";
-                e.printStackTrace();
-            }
-        }
-        final  Drawable icon = activity.getResources().getDrawable(R.drawable.ic_account_card_details_grey600_48dp);
-        final  Drawable drawable = DrawableCompat.wrap(icon);
-        DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-        viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-        viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message) + VCardName));
-    }
-
-    private void displayRichLinkMessage(final ViewHolder viewHolder, final Message message, boolean darkBackground) {
-        toggleWhisperInfo(viewHolder, message, true, darkBackground);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        showImages(false, viewHolder);
-        viewHolder.download_button.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        String url;
-        if (message.isWebUri()) {
-            url = removeTrackingParameter(Uri.parse(message.getBody().trim())).toString();
-        } else {
-            url = removeTrackingParameter(Uri.parse(message.getWebUri())).toString();
-        }
-        final String link = replaceYoutube(activity.getApplicationContext(), url);
-        Log.d(Config.LOGTAG, "Weburi body for preview: " + link);
-        final boolean dataSaverDisabled = activity.xmppConnectionService.isDataSaverDisabled();
-        viewHolder.richlinkview.setVisibility(mShowLinksInside ? View.VISIBLE : GONE);
-        if (mShowLinksInside) {
-            final int color = ThemeHelper.messageTextColor(activity);
-            final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
-            final int scaledH;
-            if (Math.max(100, 100) * metrics.density <= target) {
-                scaledH = (int) (100 * metrics.density);
-            } else if (Math.max(100, 100) <= target) {
-                scaledH = 100;
-            } else {
-                scaledH = (int) (100 / ((double) 100 / target));
-            }
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-            layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
-            viewHolder.richlinkview.setLayoutParams(layoutParams);
-            viewHolder.richlinkview.setMinimumHeight(scaledH);
-            final String weburl;
-            if (link.startsWith("http://") || link.startsWith("https://")) {
-                weburl = removeTrailingBracket(link);
-            } else {
-                weburl = "http://" + removeTrailingBracket(link);
-            }
-            Log.d(Config.LOGTAG, "Weburi for preview: " + weburl);
-            viewHolder.richlinkview.setLink(weburl, message.getUuid(), dataSaverDisabled, activity.xmppConnectionService, color, new RichPreview.ViewListener() {
-
-                @Override
-                public void onSuccess(boolean status) {
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    e.printStackTrace();
-                    viewHolder.richlinkview.setVisibility(GONE);
-                }
-            });
-        }
-    }
-
-    private void displayLocationMessage(ViewHolder viewHolder, final Message message, final boolean darkBackground, final int type) {
-        displayTextMessage(viewHolder, message, darkBackground, type);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        final String url = GeoHelper.MapPreviewUri(message, activity);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        if (mShowMapsInside) {
-            showImages(mShowMapsInside, 0, false, viewHolder);
-            final double target = activity.getResources().getDimension(R.dimen.image_preview_width);
-            final int scaledW;
-            final int scaledH;
-            if (Math.max(500, 500) * metrics.density <= target) {
-                scaledW = (int) (500 * metrics.density);
-                scaledH = (int) (500 * metrics.density);
-            } else if (Math.max(500, 500) <= target) {
-                scaledW = 500;
-                scaledH = 500;
-            } else {
-                scaledW = (int) target;
-                scaledH = (int) (500 / ((double) 500 / target));
-            }
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
-            layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
-            viewHolder.images.setLayoutParams(layoutParams);
-            viewHolder.image.setOnClickListener(v -> showLocation(message));
-            Glide.with(activity)
-                    .load(Uri.parse(url))
-                    .placeholder(R.drawable.ic_map_marker_grey600_48dp)
-                    .error(R.drawable.ic_map_marker_grey600_48dp)
-                    .into(viewHolder.image);
-            viewHolder.image.setMaxWidth(500);
-            viewHolder.image.setAdjustViewBounds(true);
-            viewHolder.download_button.setVisibility(GONE);
-        } else {
-            showImages(false, viewHolder);
-            viewHolder.download_button.setVisibility(View.VISIBLE);
-            viewHolder.download_button.setText(R.string.show_location);
-            final Drawable icon = activity.getResources().getDrawable(R.drawable.ic_map_marker_grey600_48dp);
-            final Drawable drawable = DrawableCompat.wrap(icon);
-            DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-            viewHolder.download_button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            viewHolder.download_button.setOnClickListener(v -> showLocation(message));
-        }
-    }
-
-    private void displayAudioMessage(ViewHolder viewHolder, Message message, boolean darkBackground, final int type) {
-        final Resources res = activity.getResources();
-        viewHolder.messageBody.setWidth((int) res.getDimension(R.dimen.audio_player_width));
-        displayTextMessage(viewHolder, message, darkBackground, type);
-        showImages(false, viewHolder);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        viewHolder.download_button.setVisibility(GONE);
+    private void displayAudioMessage(
+            ViewHolder viewHolder, Message message, final BubbleColor bubbleColor, final int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.download_button.setVisibility(View.GONE);
         final RelativeLayout audioPlayer = viewHolder.audioPlayer;
         audioPlayer.setVisibility(View.VISIBLE);
-        AudioPlayer.ViewHolder.get(audioPlayer).setTheme(darkBackground);
+        AudioPlayer.ViewHolder.get(audioPlayer).setBubbleColor(bubbleColor);
         this.audioPlayer.init(audioPlayer, message);
     }
 
-    private boolean showTitle(Message message) {
-        boolean show = false;
-        if (message.getFileParams().subject.length() != 0) {
-            try {
-                byte[] data = Base64.decode(message.getFileParams().subject, Base64.DEFAULT);
-                show = (new String(data, "UTF-8").length() != 0);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        return show;
+    private void displayMediaPreviewMessage(
+            ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.download_button.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
+        viewHolder.image.setVisibility(View.VISIBLE);
+        final FileParams params = message.getFileParams();
+        imagePreviewLayout(params.width, params.height, viewHolder.image, message.getInReplyTo() != null, viewHolder.messageBody.getVisibility() != View.GONE, type, viewHolder);
+        activity.loadBitmap(message, viewHolder.image);
+        viewHolder.image.setOnClickListener(v -> openDownloadable(message));
     }
 
-    private String getTitle(Message message) {
-        if (message.getFileParams().subject.length() != 0) {
-            try {
-                byte[] data = Base64.decode(message.getFileParams().subject, Base64.DEFAULT);
-                return new String(data, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
-
-    private void displayMediaPreviewMessage(ViewHolder viewHolder, final Message message, final boolean darkBackground, final int type) {
-        displayTextMessage(viewHolder, message, darkBackground, type);
-        viewHolder.download_button.setVisibility(GONE);
-        viewHolder.audioPlayer.setVisibility(GONE);
-        viewHolder.richlinkview.setVisibility(GONE);
-        viewHolder.transfer.setVisibility(GONE);
-        final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
-        if (file != null && !file.exists() && !message.isFileDeleted()) {
-            new Thread(new markFileDeletedFinisher(message, activity)).start();
-            displayInfoMessage(viewHolder, activity.getString(R.string.file_deleted), darkBackground, message);
-            ToastCompat.makeText(activity, R.string.file_deleted, ToastCompat.LENGTH_SHORT).show();
-            return;
-        }
-        final String mime = file.getMimeType();
-        final boolean isGif = mime != null && mime.equals("image/gif");
-        final int mediaRuntime = message.getFileParams().runtime;
-        if (isGif && mPlayGifInside) {
-            showImages(true, mediaRuntime, true, viewHolder);
-            Log.d(Config.LOGTAG, "Gif Image file");
-            final FileParams params = message.getFileParams();
-            final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
-            final int scaledW;
-            final int scaledH;
-            if (Math.max(params.height, params.width) * metrics.density <= target) {
-                scaledW = (int) (params.width * metrics.density);
-                scaledH = (int) (params.height * metrics.density);
-            } else if (Math.max(params.height, params.width) <= target) {
-                scaledW = params.width;
-                scaledH = params.height;
-            } else if (params.width <= params.height) {
-                scaledW = (int) (params.width / ((double) params.height / target));
-                scaledH = (int) target;
-            } else {
-                scaledW = (int) target;
-                scaledH = (int) (params.height / ((double) params.width / target));
-            }
-            final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
-            layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
-            viewHolder.images.setLayoutParams(layoutParams);
-            Glide.with(activity).load(file).into(viewHolder.image);
-            viewHolder.image.setOnClickListener(v -> openDownloadable(message));
-        } else {
-            showImages(true, mediaRuntime, false, viewHolder);
-            FileParams params = message.getFileParams();
-            final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
-            final int scaledW;
-            final int scaledH;
-            if (Math.max(params.height, params.width) * metrics.density <= target) {
-                scaledW = (int) (params.width * metrics.density);
-                scaledH = (int) (params.height * metrics.density);
-            } else if (Math.max(params.height, params.width) <= target) {
-                scaledW = params.width;
-                scaledH = params.height;
-            } else if (params.width <= params.height) {
-                scaledW = (int) (params.width / ((double) params.height / target));
-                scaledH = (int) target;
-            } else {
-                scaledW = (int) target;
-                scaledH = (int) (params.height / ((double) params.width / target));
-            }
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
-            layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
-            viewHolder.images.setLayoutParams(layoutParams);
-            activity.loadBitmap(message, viewHolder.image);
-            viewHolder.image.setOnClickListener(v -> openDownloadable(message));
-        }
-    }
-
-    private void imagePreviewLayout(int w, int h, ImageView image) {
+    private void imagePreviewLayout(int w, int h, ShapeableImageView image, boolean otherAbove, boolean otherBelow, int type, ViewHolder viewHolder) {
         final float target = activity.getResources().getDimension(R.dimen.image_preview_width);
         final int scaledW;
         final int scaledH;
@@ -1288,81 +975,72 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             scaledW = (int) target;
             scaledH = (int) (h / ((double) w / target));
         }
-        final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
-        layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
+        final var bodyWidth = Math.max(viewHolder.messageBody.getWidth(), viewHolder.download_button.getWidth() + (20 * metrics.density));
+        var targetImageWidth = 200 * metrics.density;
+        if (!otherBelow) targetImageWidth = 110 * metrics.density;
+        if (bodyWidth > 0 && bodyWidth < targetImageWidth) targetImageWidth = bodyWidth;
+        final var small = scaledW < targetImageWidth;
+        final LinearLayout.LayoutParams layoutParams =
+                new LinearLayout.LayoutParams(scaledW, scaledH);
         image.setLayoutParams(layoutParams);
-    }
 
-    private void showImages(final boolean show, final ViewHolder viewHolder) {
-        showImages(show, 0, false, viewHolder);
-    }
-
-    private void showImages(final boolean show, final int duration, final boolean isGif, final ViewHolder viewHolder) {
-        boolean hasDuration = duration > 0;
-        if (show) {
-            viewHolder.images.setVisibility(View.VISIBLE);
-            viewHolder.image.setVisibility(View.VISIBLE);
-            if (hasDuration) {
-                viewHolder.mediaduration.setVisibility(View.VISIBLE);
-                viewHolder.mediaduration.setText(formatTime(safeLongToInt(duration)));
-            } else {
-                viewHolder.mediaduration.setVisibility(GONE);
+        final var bubbleRadius = activity.getResources().getDimension(R.dimen.bubble_radius);
+        var shape = new ShapeAppearanceModel.Builder();
+        if (!otherAbove) {
+            shape = shape.setTopRightCorner(CornerFamily.ROUNDED, bubbleRadius);
+            if (type == SENT) {
+                shape = shape.setTopLeftCorner(CornerFamily.ROUNDED, bubbleRadius);
             }
+        }
+        if (small) {
+            final var imageRadius = activity.getResources().getDimension(R.dimen.image_radius);
+            shape = shape.setAllCorners(CornerFamily.ROUNDED, imageRadius);
+            image.setPadding(0, (int)(8 * metrics.density), 0, 0);
         } else {
-            viewHolder.images.setVisibility(GONE);
-            viewHolder.image.setVisibility(GONE);
-            viewHolder.mediaduration.setVisibility(GONE);
+            image.setPadding(0, 0, 0, 0);
+        }
+        image.setShapeAppearanceModel(shape.build());
+
+        if (!small) {
+            final ViewGroup.LayoutParams blayoutParams = viewHolder.messageBody.getLayoutParams();
+            blayoutParams.width = (int) (scaledW - (22 * metrics.density));
+            viewHolder.messageBody.setLayoutParams(blayoutParams);
+
+            final ViewGroup.LayoutParams qlayoutParams = viewHolder.inReplyToQuote.getLayoutParams();
+            qlayoutParams.width = (int) (scaledW - (22 * metrics.density));
+            viewHolder.messageBody.setLayoutParams(qlayoutParams);
         }
     }
 
-    private void toggleWhisperInfo(ViewHolder viewHolder, final Message message,
-                                   final boolean includeBody, final boolean darkBackground) {
-        SpannableStringBuilder messageBody = new SpannableStringBuilder(replaceYoutube(activity.getApplicationContext(), message.getBody()));
-
-        final String mimeType = message.getMimeType();
-        if (mimeType != null && message.getMimeType().contains("audio")) {
-            messageBody.clear();
-            messageBody.append(getTitle(message));
-        }
-        Editable body;
-        if (darkBackground) {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1_OnDark);
-        } else {
-            viewHolder.messageBody.setTextAppearance(getContext(), R.style.TextAppearance_Conversations_Body1);
-        }
+    private void toggleWhisperInfo(
+            ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor) {
         if (message.isPrivateMessage()) {
             final String privateMarker;
             if (message.getStatus() <= Message.STATUS_RECEIVED) {
                 privateMarker = activity.getString(R.string.private_message);
             } else {
                 Jid cp = message.getCounterpart();
-                privateMarker = activity.getString(R.string.private_message_to, Strings.nullToEmpty(cp == null ? null : cp.getResource()));
+                privateMarker =
+                        activity.getString(
+                                R.string.private_message_to,
+                                Strings.nullToEmpty(cp == null ? null : cp.getResource()));
             }
-            body = new SpannableStringBuilder(privateMarker);
-            viewHolder.messageBody.setVisibility(View.VISIBLE);
-            if (includeBody) {
-                body.append("\n");
-                body.append(messageBody);
-            }
-            body.setSpan(new ForegroundColorSpan(ThemeHelper.getMessageTextColorPrivate(activity)), 0, privateMarker.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            body.setSpan(new StyleSpan(Typeface.BOLD), 0, privateMarker.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            MyLinkify.addLinks(body, false);
+            final SpannableString body = new SpannableString(privateMarker);
+            body.setSpan(
+                    new ForegroundColorSpan(
+                            bubbleToOnSurfaceVariant(viewHolder.messageBody, bubbleColor)),
+                    0,
+                    privateMarker.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            body.setSpan(
+                    new StyleSpan(Typeface.BOLD),
+                    0,
+                    privateMarker.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             viewHolder.messageBody.setText(body);
-            viewHolder.messageBody.setAutoLinkMask(0);
-            viewHolder.messageBody.setTextIsSelectable(true);
-            viewHolder.messageBody.setMovementMethod(ClickableMovementMethod.getInstance());
+            viewHolder.messageBody.setVisibility(View.VISIBLE);
         } else {
-            if (includeBody) {
-                viewHolder.messageBody.setVisibility(View.VISIBLE);
-                body = new SpannableStringBuilder(messageBody);
-                MyLinkify.addLinks(body, false);
-                viewHolder.messageBody.setText(body);
-                viewHolder.messageBody.setAutoLinkMask(0);
-                viewHolder.messageBody.setTextIsSelectable(true);
-                viewHolder.messageBody.setMovementMethod(ClickableMovementMethod.getInstance());
-            } else {
-                viewHolder.messageBody.setVisibility(GONE);
-            }
+            viewHolder.messageBody.setVisibility(View.GONE);
         }
     }
 
@@ -1376,20 +1054,28 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             timestamp = System.currentTimeMillis();
         }
         conversation.messagesLoaded.set(true);
-        MessageArchiveService.Query query = activity.xmppConnectionService.getMessageArchiveService().query(conversation, new MamReference(0), timestamp, false);
+        MessageArchiveService.Query query =
+                activity.xmppConnectionService
+                        .getMessageArchiveService()
+                        .query(conversation, new MamReference(0), timestamp, false);
         if (query != null) {
-            ToastCompat.makeText(activity, R.string.fetching_history_from_server, ToastCompat.LENGTH_LONG).show();
+            Toast.makeText(activity, R.string.fetching_history_from_server, Toast.LENGTH_LONG)
+                    .show();
         } else {
-            ToastCompat.makeText(activity, R.string.not_fetching_history_retention_period, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(
+                            activity,
+                            R.string.not_fetching_history_retention_period,
+                            Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
-    @SuppressLint({"StringFormatInvalid", "ClickableViewAccessibility"})
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
+    public View getView(final int position, View view, final @NonNull ViewGroup parent) {
         final Message message = getItem(position);
         final boolean omemoEncryption = message.getEncryption() == Message.ENCRYPTION_AXOLOTL;
-        final boolean isInValidSession = message.isValidInSession() && (!omemoEncryption || message.isTrusted());
+        final boolean isInValidSession =
+                message.isValidInSession() && (!omemoEncryption || message.isTrusted());
         final Conversational conversation = message.getConversation();
         final Account account = conversation.getAccount();
         final List<Element> commands = message.getCommands();
@@ -1399,113 +1085,68 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder = new ViewHolder();
             switch (type) {
                 case DATE_SEPARATOR:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_date_bubble, parent, false);
-                    viewHolder.status_message = view.findViewById(R.id.status_message);
+                    view =
+                            activity.getLayoutInflater()
+                                    .inflate(R.layout.item_message_date_bubble, parent, false);
+                    viewHolder.status_message = view.findViewById(R.id.message_body);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     break;
                 case RTP_SESSION:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_rtp_session, parent, false);
+                    view =
+                            activity.getLayoutInflater()
+                                    .inflate(R.layout.item_message_rtp_session, parent, false);
                     viewHolder.status_message = view.findViewById(R.id.message_body);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     break;
                 case SENT:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
+                    view = activity.getLayoutInflater().inflate(R.layout.item_message_sent, parent, false);
+                    viewHolder.status_line = view.findViewById(R.id.status_line);
+                    viewHolder.message_box_inner = view.findViewById(R.id.message_box_inner);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                    } else {
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
-                    }
-                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
-                        view.findViewById(R.id.message_photo).setVisibility(GONE);
-                        view.findViewById(R.id.message_photo_square).setVisibility(GONE);
-                    }
-                    viewHolder.username = view.findViewById(R.id.username);
-                    viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
+                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
-                    viewHolder.resend_button = view.findViewById(R.id.resend_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
-                    viewHolder.retract_indicator = view.findViewById(R.id.retract_indicator);
-                    viewHolder.images = view.findViewById(R.id.images);
-                    viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
-                    viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
-                    if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-                        viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
-                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-                        viewHolder.messageBody = view.findViewById(R.id.message_body);
-                    }
-                    viewHolder.user = view.findViewById(R.id.message_user);
+                    viewHolder.messageBody = view.findViewById(R.id.message_body);
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
                     viewHolder.inReplyTo = view.findViewById(R.id.in_reply_to);
                     viewHolder.inReplyToBox = view.findViewById(R.id.in_reply_to_box);
+                    viewHolder.inReplyToQuote = view.findViewById(R.id.in_reply_to_quote);
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
-                    viewHolder.transfer = view.findViewById(R.id.transfer);
-                    viewHolder.progressBar = view.findViewById(R.id.progressBar);
-                    viewHolder.cancel_transfer = view.findViewById(R.id.cancel_transfer);
+                    viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
                     break;
                 case RECEIVED:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
+                    view = activity.getLayoutInflater().inflate(R.layout.item_message_received, parent, false);
+                    viewHolder.status_line = view.findViewById(R.id.status_line);
+                    viewHolder.message_box_inner = view.findViewById(R.id.message_box_inner);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
-                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                    } else {
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
-                    }
-                    if (message.getConversation().getMode() == Conversation.MODE_SINGLE && activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
-                        view.findViewById(R.id.message_photo).setVisibility(GONE);
-                        view.findViewById(R.id.message_photo_square).setVisibility(GONE);
-                    }
-                    viewHolder.username = view.findViewById(R.id.username);
-                    viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
+                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
-                    viewHolder.answer_button = view.findViewById(R.id.answer);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
-                    viewHolder.retract_indicator = view.findViewById(R.id.retract_indicator);
-                    viewHolder.images = view.findViewById(R.id.images);
-                    viewHolder.mediaduration = view.findViewById(R.id.media_duration);
                     viewHolder.image = view.findViewById(R.id.message_image);
-                    viewHolder.richlinkview = view.findViewById(R.id.richLinkView);
-                    if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-                        viewHolder.messageBody = view.findViewById(R.id.message_body_collapsable);
-                    } else if (!activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-                        viewHolder.messageBody = view.findViewById(R.id.message_body);
-                    }
-                    viewHolder.user = view.findViewById(R.id.message_user);
+                    viewHolder.messageBody = view.findViewById(R.id.message_body);
                     viewHolder.time = view.findViewById(R.id.message_time);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
                     viewHolder.inReplyTo = view.findViewById(R.id.in_reply_to);
+                    viewHolder.inReplyToQuote = view.findViewById(R.id.in_reply_to_quote);
                     viewHolder.inReplyToBox = view.findViewById(R.id.in_reply_to_box);
                     viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
                     viewHolder.encryption = view.findViewById(R.id.message_encryption);
-                    viewHolder.transfer = view.findViewById(R.id.transfer);
-                    viewHolder.progressBar = view.findViewById(R.id.progressBar);
-                    viewHolder.cancel_transfer = view.findViewById(R.id.cancel_transfer);
+                    viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
                     viewHolder.commands_list = view.findViewById(R.id.commands_list);
                     viewHolder.thread_identicon = view.findViewById(R.id.thread_identicon);
                     break;
                 case STATUS:
-                    view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
-                    if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo);
-                        viewHolder.status_message = view.findViewById(R.id.status_message);
-                    } else {
-                        viewHolder.contact_picture = view.findViewById(R.id.message_photo_square);
-                        // Update layout constraints because the textview would now reference the wrong ShapeableImageView
-                        // This should only be the case in MUC's where the participants can see the READ status
-                        TextView status_message = view.findViewById(R.id.status_message);
-                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) status_message.getLayoutParams();
-                        params.addRule(RelativeLayout.RIGHT_OF, R.id.message_photo_square);
-                        params.addRule(RelativeLayout.END_OF, R.id.message_photo_square);
-                        status_message.setLayoutParams(params);
-                        viewHolder.status_message = status_message;
-                    }
+                    view =
+                            activity.getLayoutInflater()
+                                    .inflate(R.layout.item_message_status, parent, false);
+                    viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    viewHolder.status_message = view.findViewById(R.id.status_message);
                     viewHolder.load_more_messages = view.findViewById(R.id.load_more_messages);
                     break;
                 default:
@@ -1523,20 +1164,44 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.messageBody.setCustomSelectionActionModeCallback(new MessageTextActionModeCallback(this, viewHolder.messageBody));
         }
 
+        if (viewHolder.time != null) {
+            if (message.isAttention()) {
+                viewHolder.time.setTypeface(null, Typeface.BOLD);
+            } else {
+                viewHolder.time.setTypeface(null, Typeface.NORMAL);
+            }
+        }
+
+        final var black = MaterialColors.getColor(view, com.google.android.material.R.attr.colorSecondaryContainer) == view.getContext().getColor(android.R.color.black);
+        final boolean colorfulBackground = this.bubbleDesign.colorfulChatBubbles;
+        final BubbleColor bubbleColor;
+        if (type == RECEIVED) {
+            if (isInValidSession) {
+                bubbleColor = colorfulBackground  || black ? BubbleColor.SECONDARY : BubbleColor.SURFACE;
+            } else {
+                bubbleColor = BubbleColor.WARNING;
+            }
+        } else {
+            if (!colorfulBackground && black) {
+                bubbleColor = BubbleColor.SECONDARY;
+            } else {
+                bubbleColor = colorfulBackground ? BubbleColor.TERTIARY : BubbleColor.SURFACE_HIGH;
+            }
+        }
+
         if (viewHolder.thread_identicon != null) {
-            viewHolder.thread_identicon.setVisibility(GONE);
+            viewHolder.thread_identicon.setVisibility(View.GONE);
             final Element thread = message.getThread();
             if (thread != null) {
                 final String threadId = thread.getContent();
                 if (threadId != null) {
+                    final var roles = MaterialColors.getColorRoles(activity, UIHelper.getColorForName(threadId));
                     viewHolder.thread_identicon.setVisibility(View.VISIBLE);
-                    viewHolder.thread_identicon.setColor(UIHelper.getColorForName(threadId));
+                    viewHolder.thread_identicon.setColor(roles.getAccent());
                     viewHolder.thread_identicon.setHash(UIHelper.identiconHash(threadId));
                 }
             }
         }
-
-        boolean darkBackground = activity.isDarkTheme();
 
         if (type == DATE_SEPARATOR) {
             if (UIHelper.today(message.getTimeSent())) {
@@ -1544,61 +1209,93 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } else if (UIHelper.yesterday(message.getTimeSent())) {
                 viewHolder.status_message.setText(R.string.yesterday);
             } else {
-                viewHolder.status_message.setText(DateUtils.formatDateTime(activity, message.getTimeSent(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
+                viewHolder.status_message.setText(
+                        DateUtils.formatDateTime(
+                                activity,
+                                message.getTimeSent(),
+                                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
             }
-            viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
-            viewHolder.message_box.setBackgroundResource(darkBackground ? R.drawable.date_bubble_dark : R.drawable.date_bubble);
-            int date_bubble_color = ColorUtils.setAlphaComponent(StyledAttributes.getColor(activity, R.attr.text_Color_Main), 50); //set alpha to date_bubble
-            activity.setBubbleColor(viewHolder.message_box, (date_bubble_color), -1); // themed color
+            if (colorfulBackground) {
+                setBackgroundTint(viewHolder.message_box, BubbleColor.PRIMARY);
+                setTextColor(viewHolder.status_message, BubbleColor.PRIMARY);
+            } else {
+                setBackgroundTint(viewHolder.message_box, BubbleColor.SURFACE_HIGH);
+                setTextColor(viewHolder.status_message, BubbleColor.SURFACE_HIGH);
+            }
             return view;
         } else if (type == RTP_SESSION) {
-            final boolean isDarkTheme = activity.isDarkTheme();
             final boolean received = message.getStatus() <= Message.STATUS_RECEIVED;
-            final String formattedTime = UIHelper.readableTimeDifferenceFull(activity, message.getMergedTimeSent());
             final RtpSessionStatus rtpSessionStatus = RtpSessionStatus.of(message.getBody());
             final long duration = rtpSessionStatus.duration;
+            final String callTime = UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent());
             if (received) {
                 if (duration > 0) {
-                    viewHolder.status_message.setText(activity.getString(R.string.incoming_call_duration_timestamp, TimeFrameUtils.resolve(activity, duration), UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
-                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
+                    viewHolder.status_message.setText(
+                            activity.getString(
+                                    R.string.incoming_call_duration_timestamp,
+                                    TimeFrameUtils.resolve(activity, duration),
+                                    UIHelper.readableTimeDifferenceFull(
+                                            activity, message.getTimeSent())));
                 } else if (rtpSessionStatus.successful) {
-                    viewHolder.status_message.setText(R.string.incoming_call);
-                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
+                    viewHolder.status_message.setText(activity.getString(R.string.incoming_call_timestamp, callTime));
                 } else {
-                    viewHolder.status_message.setText(activity.getString(R.string.missed_call_timestamp, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
-                    viewHolder.status_message.setTextColor(ThemeHelper.getMissedCallTextColor(activity, darkBackground));
+                    viewHolder.status_message.setText(
+                            activity.getString(
+                                    R.string.missed_call_timestamp,
+                                    UIHelper.readableTimeDifferenceFull(
+                                            activity, message.getTimeSent())));
                 }
             } else {
                 if (duration > 0) {
-                    viewHolder.status_message.setText(activity.getString(R.string.outgoing_call_duration_timestamp, TimeFrameUtils.resolve(activity, duration), UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
-                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
+                    viewHolder.status_message.setText(
+                            activity.getString(
+                                    R.string.outgoing_call_duration_timestamp,
+                                    TimeFrameUtils.resolve(activity, duration),
+                                    UIHelper.readableTimeDifferenceFull(
+                                            activity, message.getTimeSent())));
                 } else {
-                    viewHolder.status_message.setText(activity.getString(R.string.outgoing_call_timestamp, UIHelper.readableTimeDifferenceFull(activity, message.getTimeSent())));
-                    viewHolder.status_message.setTextColor(ThemeHelper.getCallTextColor(getContext(), darkBackground));
+                    viewHolder.status_message.setText(
+                            activity.getString(
+                                    R.string.outgoing_call_timestamp,
+                                    UIHelper.readableTimeDifferenceFull(
+                                            activity, message.getTimeSent())));
                 }
             }
-            viewHolder.indicatorReceived.setImageResource(RtpSessionStatus.getDrawable(received, rtpSessionStatus.successful, isDarkTheme));
-            viewHolder.message_box.setBackgroundResource(darkBackground ? R.drawable.date_bubble_dark : R.drawable.date_bubble);
-            int date_bubble_color = ColorUtils.setAlphaComponent(StyledAttributes.getColor(activity, R.attr.text_Color_Main), 50); //set alpha to date bubble
-            activity.setBubbleColor(viewHolder.message_box, (date_bubble_color), -1); //themed color
+            if (colorfulBackground) {
+                setBackgroundTint(viewHolder.message_box, BubbleColor.SECONDARY);
+                setTextColor(viewHolder.status_message, BubbleColor.SECONDARY);
+                setImageTint(viewHolder.indicatorReceived, BubbleColor.SECONDARY);
+            } else {
+                setBackgroundTint(viewHolder.message_box, BubbleColor.SURFACE_HIGH);
+                setTextColor(viewHolder.status_message, BubbleColor.SURFACE_HIGH);
+                setImageTint(viewHolder.indicatorReceived, BubbleColor.SURFACE_HIGH);
+            }
+            viewHolder.indicatorReceived.setImageResource(
+                    RtpSessionStatus.getDrawable(received, rtpSessionStatus.successful));
             return view;
         } else if (type == STATUS) {
             if ("LOAD_MORE".equals(message.getBody())) {
-                viewHolder.status_message.setVisibility(GONE);
-                viewHolder.contact_picture.setVisibility(GONE);
+                viewHolder.status_message.setVisibility(View.GONE);
+                viewHolder.contact_picture.setVisibility(View.GONE);
                 viewHolder.load_more_messages.setVisibility(View.VISIBLE);
-                viewHolder.load_more_messages.setOnClickListener(v -> loadMoreMessages((Conversation) message.getConversation()));
+                viewHolder.load_more_messages.setOnClickListener(
+                        v -> loadMoreMessages((Conversation) message.getConversation()));
             } else {
                 viewHolder.status_message.setVisibility(View.VISIBLE);
-                viewHolder.load_more_messages.setVisibility(GONE);
+                viewHolder.load_more_messages.setVisibility(View.GONE);
                 viewHolder.status_message.setText(message.getBody());
                 boolean showAvatar;
                 if (conversation.getMode() == Conversation.MODE_SINGLE) {
                     showAvatar = true;
-                    AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
-                } else if (message.getCounterpart() != null || message.getTrueCounterpart() != null || (message.getCounterparts() != null && message.getCounterparts().size() > 0)) {
+                    AvatarWorkerTask.loadAvatar(
+                            message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
+                } else if (message.getCounterpart() != null
+                        || message.getTrueCounterpart() != null
+                        || (message.getCounterparts() != null
+                                && message.getCounterparts().size() > 0)) {
                     showAvatar = true;
-                    AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
+                    AvatarWorkerTask.loadAvatar(
+                            message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
                 } else {
                     showAvatar = false;
                 }
@@ -1606,100 +1303,31 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.contact_picture.setAlpha(0.5f);
                     viewHolder.contact_picture.setVisibility(View.VISIBLE);
                 } else {
-                    viewHolder.contact_picture.setVisibility(GONE);
+                    viewHolder.contact_picture.setVisibility(View.GONE);
                 }
             }
             return view;
         } else {
+            // viewHolder.message_box.setClipToOutline(true); This eats the bubble tails on A14 for some reason
             AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
-        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            viewHolder.message_box.setOnClickListener(v -> {
-                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    MessageAdapter.this.mOnMessageBoxClickedListener
-                            .onContactPictureClicked(message);
-                }
-            });
-            viewHolder.messageBody.setOnClickListener(v -> {
-                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    MessageAdapter.this.mOnMessageBoxClickedListener
-                            .onContactPictureClicked(message);
-                }
-            });
-        }
 
-        viewHolder.messageBody.setOnClickListener(v -> {
+        viewHolder.message_box.setOnClickListener(v -> {
             if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                 MessageAdapter.this.mOnMessageBoxClickedListener
                         .onContactPictureClicked(message);
             }
         });
-
-
-        viewHolder.contact_picture.setOnClickListener(v -> {
-            if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
-                MessageAdapter.this.mOnContactPictureClickedListener.onContactPictureClicked(message);
+        SwipeDetector swipeDetector = new SwipeDetector((action) -> {
+            if (action == SwipeDetector.Action.LR && MessageAdapter.this.mOnMessageBoxSwipedListener != null) {
+                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
             }
         });
-
-
-
-
-        SwipeLayout swipeLayout = view.findViewById(R.id.layout_swipe);
-
-//set show mode.
-        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
-
-//add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
-        swipeLayout.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
-
-        swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
-            @Override
-            public void onClose(SwipeLayout layout) {
-                swipeLayout.refreshDrawableState();
-                swipeLayout.clearAnimation();
-                //when the SurfaceView totally cover the BottomView.
-            }
-
-            @Override
-            public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
-                swipeLayout.setClickToClose(true);
-                //you are swiping.
-            }
-
-            @Override
-            public void onStartOpen(SwipeLayout layout) {
-                swipeLayout.setClickToClose(true);
-
-            }
-
-            @Override
-            public void onOpen(SwipeLayout layout) {
-                swipeLayout.refreshDrawableState();
-                //when the BottomView totally show.
-                if (mOnMessageBoxSwipedListener != null) mOnMessageBoxSwipedListener.onContactPictureClicked(message);
-                swipeLayout.close(true);
-                swipeLayout.setClickToClose(true);
-            }
-
-            @Override
-            public void onStartClose(SwipeLayout layout) {
-                swipeLayout.close(true);
-                swipeLayout.setClickToClose(true);
-            }
-
-            @Override
-            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
-                swipeLayout.refreshDrawableState();
-                swipeLayout.close(true);
-            }
-        });
-
-
-
-
+        viewHolder.message_box.setOnTouchListener(swipeDetector);
+        viewHolder.image.setOnTouchListener(swipeDetector);
+        viewHolder.time.setOnTouchListener(swipeDetector);
 
         // Treat touch-up as click so we don't have to touch twice
         // (touch twice is because it's waiting to see if you double-touch for text selection)
@@ -1707,20 +1335,39 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                     MessageAdapter.this.mOnMessageBoxClickedListener
-                            .onContactPictureClicked(message);
+                        .onContactPictureClicked(message);
                 }
             }
+
+            swipeDetector.onTouch(v, event);
+
             return false;
         });
+        viewHolder.messageBody.setOnClickListener(v -> {
+            if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                MessageAdapter.this.mOnMessageBoxClickedListener
+                        .onContactPictureClicked(message);
+            }
+        });
+        viewHolder.contact_picture.setOnClickListener(v -> {
+            if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
+                MessageAdapter.this.mOnContactPictureClickedListener
+                        .onContactPictureClicked(message);
+            }
 
+        });
         viewHolder.contact_picture.setOnLongClickListener(v -> {
             if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
-                MessageAdapter.this.mOnContactPictureLongClickedListener.onContactPictureLongClicked(v, message);
+                MessageAdapter.this.mOnContactPictureLongClickedListener
+                        .onContactPictureLongClicked(v, message);
                 return true;
             } else {
                 return false;
             }
         });
+        viewHolder.messageBody.setAccessibilityDelegate(null);
+
+        boolean footerWrap = false;
 
         final Transferable transferable = message.getTransferable();
         final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
@@ -1728,78 +1375,96 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final boolean muted = message.getStatus() == Message.STATUS_RECEIVED && conversation.getMode() == Conversation.MODE_MULTI && activity.xmppConnectionService.isMucUserMuted(new MucOptions.User(null, conversation.getJid(), message.getOccupantId(), null, null));
         if (muted) {
             // Muted MUC participant
-            displayInfoMessage(viewHolder, "Muted", darkBackground, message);
-        } else if (unInitiatedButKnownSize || message.isFileDeleted() || (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING)) {
-            if (unInitiatedButKnownSize || (message.isMessageDeleted() && message.getModerated() == null)  || transferable != null && transferable.getStatus() == Transferable.STATUS_OFFER) {
-                displayDownloadableMessage(viewHolder, message, activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, message)), darkBackground, type);
+            displayInfoMessage(viewHolder, "Muted", bubbleColor);
+        } else if (unInitiatedButKnownSize || message.isDeleted() || (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING)) {
+            if (unInitiatedButKnownSize || (message.isDeleted() && message.getModerated() == null) || transferable != null && transferable.getStatus() == Transferable.STATUS_OFFER) {
+                displayDownloadableMessage(viewHolder, message, activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, message)), bubbleColor, type);
             } else if (transferable != null && transferable.getStatus() == Transferable.STATUS_OFFER_CHECK_FILESIZE) {
-                displayDownloadableMessage(viewHolder, message, activity.getString(R.string.check_x_filesize, UIHelper.getFileDescriptionString(activity, message)), darkBackground, type);
+                displayDownloadableMessage(viewHolder, message, activity.getString(R.string.check_x_filesize, UIHelper.getFileDescriptionString(activity, message)), bubbleColor, type);
             } else {
-                /* todo why should we mark a file as deleted? --> causing strange side effects
-                if (!activity.xmppConnectionService.getFileBackend().getFile(message).exists() && !message.isFileDeleted()) {
-                    new Thread(new markFileDeletedFinisher(message, activity)).start();
-                    displayInfoMessage(viewHolder, activity.getString(R.string.file_deleted), darkBackground, message);
-                }*/
-                if (checkFileExistence(message, view, viewHolder)) {
-                    new Thread(new markFileExistingFinisher(message, activity)).start();
-                }
-                displayInfoMessage(viewHolder, UIHelper.getMessagePreview(activity.xmppConnectionService, message).first, darkBackground, message);
+                displayInfoMessage(viewHolder, UIHelper.getMessagePreview(activity.xmppConnectionService, message).first, bubbleColor);
             }
-        } else if (message.isFileOrImage() && message.getEncryption() != Message.ENCRYPTION_PGP && message.getEncryption() != Message.ENCRYPTION_DECRYPTION_FAILED) {
+        } else if (message.isFileOrImage()
+                && message.getEncryption() != Message.ENCRYPTION_PGP
+                && message.getEncryption() != Message.ENCRYPTION_DECRYPTION_FAILED) {
             if (message.getFileParams().width > 0 && message.getFileParams().height > 0) {
-                displayMediaPreviewMessage(viewHolder, message, darkBackground, type);
-            } else if (message.getFileParams().runtime > 0 && (message.getFileParams().width == 0 && message.getFileParams().height == 0)) {
-                displayAudioMessage(viewHolder, message, darkBackground, type);
-            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty()) {
-                displayWebxdcMessage(viewHolder, message, darkBackground, type);
+                displayMediaPreviewMessage(viewHolder, message, bubbleColor, type);
+                if (!black && viewHolder.image.getLayoutParams().width > metrics.density * 110) {
+                    footerWrap = true;
+                }
+            } else if (message.getFileParams().runtime > 0) {
+                displayAudioMessage(viewHolder, message, bubbleColor, type);
+            } else if ("application/xdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty()) {
+                displayWebxdcMessage(viewHolder, message, bubbleColor, type);
             } else {
-                displayOpenableMessage(viewHolder, message, darkBackground, type);
+                displayOpenableMessage(viewHolder, message, bubbleColor, type);
             }
         } else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
             if (account.isPgpDecryptionServiceConnected()) {
-                if (conversation instanceof Conversation && !account.hasPendingPgpIntent((Conversation) conversation)) {
-                    displayInfoMessage(viewHolder, activity.getString(R.string.message_decrypting), darkBackground, message);
+                if (conversation instanceof Conversation
+                        && !account.hasPendingPgpIntent((Conversation) conversation)) {
+                    displayInfoMessage(
+                            viewHolder,
+                            activity.getString(R.string.message_decrypting),
+                            bubbleColor);
                 } else {
-                    displayInfoMessage(viewHolder, activity.getString(R.string.pgp_message), darkBackground, message);
+                    displayInfoMessage(
+                            viewHolder, activity.getString(R.string.pgp_message), bubbleColor);
                 }
             } else {
-                displayInfoMessage(viewHolder, activity.getString(R.string.install_openkeychain), darkBackground, message);
+                displayInfoMessage(
+                        viewHolder, activity.getString(R.string.install_openkeychain), bubbleColor);
                 viewHolder.message_box.setOnClickListener(this::promptOpenKeychainInstall);
                 viewHolder.messageBody.setOnClickListener(this::promptOpenKeychainInstall);
             }
         } else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
-            displayInfoMessage(viewHolder, activity.getString(R.string.decryption_failed), darkBackground, message);
+            displayInfoMessage(
+                    viewHolder, activity.getString(R.string.decryption_failed), bubbleColor);
         } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE) {
-            displayInfoMessage(viewHolder, activity.getString(R.string.not_encrypted_for_this_device), darkBackground, message);
+            displayInfoMessage(
+                    viewHolder,
+                    activity.getString(R.string.not_encrypted_for_this_device),
+                    bubbleColor);
         } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
-            displayInfoMessage(viewHolder, activity.getString(R.string.omemo_decryption_failed), darkBackground, message);
+            displayInfoMessage(
+                    viewHolder, activity.getString(R.string.omemo_decryption_failed), bubbleColor);
         } else {
             if (message.isGeoUri()) {
-                displayLocationMessage(viewHolder, message, darkBackground, type);
-            } else if (message.isXmppUri()) {
-                displayXmppMessage(viewHolder, message.getBody().trim());
+                displayLocationMessage(viewHolder, message, bubbleColor, type);
             } else if (message.treatAsDownloadable()) {
                 try {
                     final URI uri = message.getOob();
                     displayDownloadableMessage(viewHolder,
                             message,
-                            activity.getString(R.string.check_x_filesize_on_host,
+                            activity.getString(
+                                    R.string.check_x_filesize_on_host,
                                     UIHelper.getFileDescriptionString(activity, message),
                                     uri.getHost()),
-                            darkBackground, type);
+                            bubbleColor, type);
                 } catch (Exception e) {
-                    displayDownloadableMessage(viewHolder,
+                    displayDownloadableMessage(
+                            viewHolder,
                             message,
-                            activity.getString(R.string.check_x_filesize,
+                            activity.getString(
+                                    R.string.check_x_filesize,
                                     UIHelper.getFileDescriptionString(activity, message)),
-                            darkBackground, type);
+                            bubbleColor, type);
                 }
             } else if (message.bodyIsOnlyEmojis() && message.getType() != Message.TYPE_PRIVATE) {
-                displayEmojiMessage(viewHolder, getSpannableBody(message), darkBackground);
+                displayEmojiMessage(viewHolder, message, bubbleColor, type);
             } else {
-                displayTextMessage(viewHolder, message, darkBackground, type);
+                displayTextMessage(viewHolder, message, bubbleColor, message.getType());
             }
         }
+
+        viewHolder.message_box_inner.setMinimumWidth(footerWrap ? (int) (110 * metrics.density) : 0);
+        LinearLayout.LayoutParams statusParams = (LinearLayout.LayoutParams) viewHolder.status_line.getLayoutParams();
+        statusParams.width = footerWrap ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT;
+        viewHolder.status_line.setLayoutParams(statusParams);
+
+        setBackgroundTint(viewHolder.message_box, bubbleColor);
+        setTextColor(viewHolder.messageBody, bubbleColor);
+        viewHolder.messageBody.setLinkTextColor(bubbleToOnSurfaceColor(viewHolder.messageBody, bubbleColor));
 
         if (type == RECEIVED) {
             if (!muted && commands != null && conversation instanceof Conversation) {
@@ -1817,47 +1482,25 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (adapter instanceof ArrayAdapter) {
                     ((ArrayAdapter<?>) adapter).clear();
                 }
-                viewHolder.commands_list.setVisibility(GONE);
+                viewHolder.commands_list.setVisibility(View.GONE);
                 viewHolder.commands_list.setOnItemClickListener(null);
             }
-            if (message.isPrivateMessage()) {
-                viewHolder.answer_button.setVisibility(View.VISIBLE);
-                Drawable icon = activity.getResources().getDrawable(R.drawable.ic_reply_circle_black_24dp);
-                Drawable drawable = DrawableCompat.wrap(icon);
-                DrawableCompat.setTint(drawable, StyledAttributes.getColor(getContext(), R.attr.colorAccent));
-                viewHolder.answer_button.setImageDrawable(drawable);
-                viewHolder.answer_button.setOnClickListener(v -> {
-                    try {
-                        if (activity instanceof ConversationsActivity) {
-                            ConversationFragment conversationFragment = ConversationFragment.get(activity);
-                            if (conversationFragment != null) {
-                                activity.invalidateOptionsMenu();
-                                conversationFragment.privateMessageWith(message.getCounterpart());
-                            }
-                        }
-                    } catch (Exception e) {
-                        viewHolder.answer_button.setVisibility(GONE);
-                        e.printStackTrace();
-                    }
-                });
-            } else {
-                viewHolder.answer_button.setVisibility(GONE);
-            }
+
+            setTextColor(viewHolder.encryption, bubbleColor);
+
             if (isInValidSession) {
-                setBubbleBackgroundColor(viewHolder.message_box, type, message.isPrivateMessage(), isInValidSession);
-                viewHolder.encryption.setVisibility(GONE);
-                viewHolder.encryption.setTextColor(ThemeHelper.getMessageTextColor(activity, darkBackground, false));
+                viewHolder.encryption.setVisibility(View.GONE);
             } else {
-                setBubbleBackgroundColor(viewHolder.message_box, type, message.isPrivateMessage(), isInValidSession);
                 viewHolder.encryption.setVisibility(View.VISIBLE);
-                viewHolder.encryption.setTextColor(ThemeHelper.getWarningTextColor(activity, darkBackground));
                 if (omemoEncryption && !message.isTrusted()) {
                     viewHolder.encryption.setText(R.string.not_trusted);
                 } else {
-                    viewHolder.encryption.setText(CryptoHelper.encryptionTypeToText(message.getEncryption()));
+                    viewHolder.encryption.setText(
+                            CryptoHelper.encryptionTypeToText(message.getEncryption()));
                 }
             }
         }
+
         if (type == RECEIVED || type == SENT) {
             String subject = message.getSubject();
             if (subject == null && message.getThread() != null) {
@@ -1871,82 +1514,34 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.subject.setText(subject);
             }
 
-
             if (message.getInReplyTo() == null) {
                 viewHolder.inReplyToBox.setVisibility(View.GONE);
             } else {
                 viewHolder.inReplyToBox.setVisibility(View.VISIBLE);
                 viewHolder.inReplyTo.setText(UIHelper.getMessageDisplayName(message.getInReplyTo()));
                 viewHolder.inReplyTo.setOnClickListener((v) -> mConversationFragment.jumpTo(message.getInReplyTo()));
-                setBubbleBackgroundColor(viewHolder.inReplyTo, type, message.isPrivateMessage(), isInValidSession);
+                viewHolder.inReplyToQuote.setOnClickListener((v) -> mConversationFragment.jumpTo(message.getInReplyTo()));
+                setTextColor(viewHolder.inReplyTo, bubbleColor);
             }
         }
 
-        if (type == SENT) {
-            setBubbleBackgroundColor(viewHolder.message_box, type, message.isPrivateMessage(), isInValidSession);
-        }
-        displayStatus(viewHolder, message, type, darkBackground);
+        displayStatus(viewHolder, message, type, bubbleColor);
+
+        viewHolder.messageBody.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void sendAccessibilityEvent(View host, int eventType) {
+                super.sendAccessibilityEvent(host, eventType);
+                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED) {
+                    if (viewHolder.messageBody.hasSelection()) {
+                        selectionUuid = message.getUuid();
+                    } else if (message.getUuid() != null && message.getUuid().equals(selectionUuid)) {
+                        selectionUuid = null;
+                    }
+                }
+            }
+        });
+
         return view;
-    }
-
-    private static class markFileExistingFinisher implements Runnable {
-        private final Message message;
-        private final WeakReference<XmppActivity> activityReference;
-
-        private markFileExistingFinisher(Message message, XmppActivity activity) {
-            this.message = message;
-            this.activityReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void run() {
-            final XmppActivity activity = activityReference.get();
-            if (activity == null) {
-                return;
-            }
-            activity.runOnUiThread(
-                    () -> {
-                        Log.d(Config.LOGTAG, "Found and restored orphaned file " + message.getRelativeFilePath());
-                        message.setFileDeleted(false);
-                        activity.xmppConnectionService.updateMessage(message, false);
-                        activity.xmppConnectionService.updateConversation((Conversation) message.getConversation());
-                    });
-        }
-    }
-
-    private static class markFileDeletedFinisher implements Runnable {
-        private final Message message;
-        private final WeakReference<XmppActivity> activityReference;
-
-        private markFileDeletedFinisher(Message message, XmppActivity activity) {
-            this.message = message;
-            this.activityReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void run() {
-            final XmppActivity activity = activityReference.get();
-            if (activity == null) {
-                return;
-            }
-            activity.runOnUiThread(
-                    () -> {
-                        Log.d(Config.LOGTAG, "Mark file deleted " + message.getRelativeFilePath());
-                        message.setFileDeleted(true);
-                        activity.xmppConnectionService.updateMessage(message, false);
-                        activity.xmppConnectionService.updateConversation((Conversation) message.getConversation());
-                    });
-        }
-    }
-
-    private boolean checkFileExistence(Message message, View view, ViewHolder viewHolder) {
-        final Rect scrollBounds = new Rect();
-        view.getHitRect(scrollBounds);
-        if (message.isFileDeleted() && viewHolder.messageBody.getLocalVisibleRect(scrollBounds)) {
-            return activity.xmppConnectionService.getFileBackend().getFile(message).exists();
-        } else {
-            return false;
-        }
     }
 
     private void promptOpenKeychainInstall(View view) {
@@ -1970,49 +1565,44 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public void openDownloadable(Message message) {
-        if (Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(
+                                activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
             ConversationFragment.registerPendingMessage(activity, message);
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_VIDEO}, ConversationsActivity.REQUEST_OPEN_MESSAGE);
-            return;
-        } else if (!Compatibility.runsThirtyThree() && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ConversationFragment.registerPendingMessage(activity, message);
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, ConversationsActivity.REQUEST_OPEN_MESSAGE);
+            ActivityCompat.requestPermissions(
+                    activity,
+                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    ConversationsActivity.REQUEST_OPEN_MESSAGE);
             return;
         }
-        final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
+        final DownloadableFile file =
+                activity.xmppConnectionService.getFileBackend().getFile(message);
         ViewUtil.view(activity, file);
     }
 
     private void showLocation(Message message) {
-        for (Intent intent : GeoHelper.createGeoIntentsFromMessage(this.getContext(), message)) {
+        for (Intent intent : GeoHelper.createGeoIntentsFromMessage(activity, message)) {
             if (intent.resolveActivity(getContext().getPackageManager()) != null) {
                 getContext().startActivity(intent);
-                activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 return;
             }
         }
+        Toast.makeText(
+                        activity,
+                        R.string.no_application_found_to_display_location,
+                        Toast.LENGTH_SHORT)
+                .show();
     }
 
     public void updatePreferences() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        this.mIndicateReceived = p.getBoolean("indicate_received", activity.getResources().getBoolean(R.bool.indicate_received));
-        this.mPlayGifInside = p.getBoolean(PLAY_GIF_INSIDE, activity.getResources().getBoolean(R.bool.play_gif_inside));
-        this.mShowLinksInside = p.getBoolean(SHOW_LINKS_INSIDE, activity.getResources().getBoolean(R.bool.show_links_inside));
-        this.mShowMapsInside = p.getBoolean(SHOW_MAPS_INSIDE, activity.getResources().getBoolean(R.bool.show_maps_inside));
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-        this.readmarkervalue = sharedPref.getString("readmarker_style", "blue_readmarkers");
+        final AppSettings appSettings = new AppSettings(activity);
+        this.bubbleDesign =
+                new BubbleDesign(appSettings.isColorfulChatBubbles(), appSettings.isLargeFont());
     }
 
     public void setHighlightedTerm(List<String> terms) {
         this.highlightedTerm = terms == null ? null : StylingHelper.filterHighlightedWords(terms);
-    }
-
-    public void setConversationFragment(ConversationFragment frag) {
-        mConversationFragment = frag;
-    }
-
-    public void quoteText(String text, String user) {
-        if (mConversationFragment != null) mConversationFragment.quoteText(text, null);
     }
 
     public interface OnContactPictureClicked {
@@ -2027,82 +1617,140 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         boolean onInlineImageLongClicked(Cid cid);
     }
 
+    private static void setBackgroundTint(final View view, final BubbleColor bubbleColor) {
+        view.setBackgroundTintList(bubbleToColorStateList(view, bubbleColor));
+    }
+
+    private static ColorStateList bubbleToColorStateList(
+            final View view, final BubbleColor bubbleColor) {
+        final @AttrRes int colorAttributeResId =
+                switch (bubbleColor) {
+                    case SURFACE -> Activities.isNightMode(view.getContext())
+                            ? com.google.android.material.R.attr.colorSurfaceContainerHigh
+                            : com.google.android.material.R.attr.colorSurfaceContainerLow;
+                    case SURFACE_HIGH -> Activities.isNightMode(view.getContext())
+                            ? com.google.android.material.R.attr.colorSurfaceContainerHighest
+                            : com.google.android.material.R.attr.colorSurfaceContainerHigh;
+                    case PRIMARY -> com.google.android.material.R.attr.colorPrimaryContainer;
+                    case SECONDARY -> com.google.android.material.R.attr.colorSecondaryContainer;
+                    case TERTIARY -> com.google.android.material.R.attr.colorTertiaryContainer;
+                    case WARNING -> com.google.android.material.R.attr.colorErrorContainer;
+                };
+        return ColorStateList.valueOf(MaterialColors.getColor(view, colorAttributeResId));
+    }
+
+    public static void setImageTint(final ImageView imageView, final BubbleColor bubbleColor) {
+        ImageViewCompat.setImageTintList(
+                imageView, bubbleToOnSurfaceColorStateList(imageView, bubbleColor));
+    }
+
+    public static void setImageTintError(final ImageView imageView) {
+        ImageViewCompat.setImageTintList(
+                imageView,
+                ColorStateList.valueOf(
+                        MaterialColors.getColor(
+                                imageView, com.google.android.material.R.attr.colorError)));
+    }
+
+    public static void setTextColor(final TextView textView, final BubbleColor bubbleColor) {
+        final var color = bubbleToOnSurfaceColor(textView, bubbleColor);
+        textView.setTextColor(color);
+        if (BubbleColor.SURFACES.contains(bubbleColor)) {
+            textView.setLinkTextColor(
+                    MaterialColors.getColor(
+                            textView, com.google.android.material.R.attr.colorPrimary));
+        } else {
+            textView.setLinkTextColor(color);
+        }
+    }
+
+    private static void setTextSize(final TextView textView, final boolean largeFont) {
+        if (largeFont) {
+            textView.setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyLarge);
+            textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18);
+        } else {
+            textView.setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+        }
+    }
+
+    private static @ColorInt int bubbleToOnSurfaceVariant(
+            final View view, final BubbleColor bubbleColor) {
+        final @AttrRes int colorAttributeResId;
+        if (BubbleColor.SURFACES.contains(bubbleColor)) {
+            colorAttributeResId = com.google.android.material.R.attr.colorOnSurfaceVariant;
+        } else {
+            colorAttributeResId = bubbleToOnSurface(bubbleColor);
+        }
+        return MaterialColors.getColor(view, colorAttributeResId);
+    }
+
+    private static @ColorInt int bubbleToOnSurfaceColor(
+            final View view, final BubbleColor bubbleColor) {
+        return MaterialColors.getColor(view, bubbleToOnSurface(bubbleColor));
+    }
+
+    public static ColorStateList bubbleToOnSurfaceColorStateList(
+            final View view, final BubbleColor bubbleColor) {
+        return ColorStateList.valueOf(bubbleToOnSurfaceColor(view, bubbleColor));
+    }
+
+    private static @AttrRes int bubbleToOnSurface(final BubbleColor bubbleColor) {
+        return switch (bubbleColor) {
+            case SURFACE, SURFACE_HIGH -> com.google.android.material.R.attr.colorOnSurface;
+            case PRIMARY -> com.google.android.material.R.attr.colorOnPrimaryContainer;
+            case SECONDARY -> com.google.android.material.R.attr.colorOnSecondaryContainer;
+            case TERTIARY -> com.google.android.material.R.attr.colorOnTertiaryContainer;
+            case WARNING -> com.google.android.material.R.attr.colorOnErrorContainer;
+        };
+    }
+
+    public enum BubbleColor {
+        SURFACE,
+        SURFACE_HIGH,
+        PRIMARY,
+        SECONDARY,
+        TERTIARY,
+        WARNING;
+
+        private static final Collection<BubbleColor> SURFACES =
+                Arrays.asList(BubbleColor.SURFACE, BubbleColor.SURFACE_HIGH);
+    }
+
+    private static class BubbleDesign {
+        public final boolean colorfulChatBubbles;
+        public final boolean largeFont;
+
+        private BubbleDesign(final boolean colorfulChatBubbles, final boolean largeFont) {
+            this.colorfulChatBubbles = colorfulChatBubbles;
+            this.largeFont = largeFont;
+        }
+    }
 
     private static class ViewHolder {
 
-        public Button load_more_messages;
+        public MaterialButton load_more_messages;
         public ImageView edit_indicator;
-        public ImageView retract_indicator;
         public RelativeLayout audioPlayer;
-        public LinearLayout images;
+        protected View status_line;
         protected LinearLayout message_box;
-        protected Button download_button;
-        protected Button resend_button;
-        protected ImageButton answer_button;
-        protected ImageView image;
-        protected TextView mediaduration;
-        protected RichLinkView richlinkview;
+        protected View message_box_inner;
+        protected MaterialButton download_button;
+        protected ShapeableImageView image;
         protected ImageView indicator;
         protected ImageView indicatorReceived;
         protected TextView time;
         protected TextView subject;
         protected TextView inReplyTo;
+        protected TextView inReplyToQuote;
         protected LinearLayout inReplyToBox;
         protected TextView messageBody;
-        protected TextView user;
-        protected TextView username;
         protected ImageView contact_picture;
         protected TextView status_message;
         protected TextView encryption;
         protected ListView commands_list;
         protected GithubIdenticonView thread_identicon;
-        protected RelativeLayout transfer;
-        protected ProgressBar progressBar;
-        protected ImageButton cancel_transfer;
-    }
-
-    public void setBubbleBackgroundColor(final View viewHolder, final int type,
-                                         final boolean isPrivateMessage, final boolean isInValidSession) {
-        if (type == RECEIVED) {
-            if (isInValidSession) {
-                if (isPrivateMessage) {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_light_private);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_light), StyledAttributes.getColor(activity, R.attr.colorAccent));
-                } else {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_light);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_light), -1);
-                }
-            } else {
-                if (isPrivateMessage) {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_warning_private);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_warning), StyledAttributes.getColor(activity, R.attr.colorAccent));
-                } else {
-                    viewHolder.setBackgroundResource(R.drawable.message_bubble_received_warning);
-                    activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_warning), -1);
-                }
-            }
-        }
-
-        if (type == SENT) {
-            if (isPrivateMessage) {
-                viewHolder.setBackgroundResource(R.drawable.message_bubble_sent_private);
-                activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
-            } else {
-                viewHolder.setBackgroundResource(R.drawable.message_bubble_sent);
-                activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), -1);
-            }
-        }
-    }
-
-    public void setInputBubbleBackgroundColor(final View viewHolder,
-                                         final boolean isPrivateMessage) {
-        if (isPrivateMessage) {
-            viewHolder.setBackgroundResource(R.drawable.input_bubble_sent_private);
-            activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), StyledAttributes.getColor(activity, R.attr.colorAccent));
-        } else {
-            viewHolder.setBackgroundResource(R.drawable.input_bubble_light);
-            activity.setBubbleColor(viewHolder, StyledAttributes.getColor(activity, R.attr.color_bubble_dark), -1);
-        }
     }
 
     class ThumbnailTask extends AsyncTask<DownloadableFile, Void, Drawable[]> {

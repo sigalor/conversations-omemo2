@@ -31,10 +31,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search"
-        android:visible="@bool/show_individual_search_options"
-        android:orderInCategory="50"
+        android:orderInCategory="10"
         android:title="@string/search_messages"
-        android:icon="?attr/icon_search"
-        app:showAsAction="always" />
-
+        android:visible="@bool/show_individual_search_options"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_easy_invite"
+        android:orderInCategory="89"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_person_add_24dp"
+        android:title="@string/invite_to_app" />
+    <item
+        android:id="@+id/action_accounts"
+        android:orderInCategory="90"
+        android:title="@string/action_accounts"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_account"
+        android:orderInCategory="90"
+        android:title="@string/action_account"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_privacy_policy"
+        android:visible="false"
+        android:orderInCategory="98"
+        android:title="@string/privacy_policy"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
 </menu>

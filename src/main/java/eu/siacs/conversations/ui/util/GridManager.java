@@ -25,7 +25,7 @@ public class GridManager {
                 recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 final int availableWidth = recyclerView.getMeasuredWidth();
                 if (availableWidth == 0) {
-                    Log.e(Config.LOGTAG, "GridManager: available width was 0; probably because layout was hidden");
+                    Log.e(Config.LOGTAG,"GridManager: available width was 0; probably because layout was hidden");
                     return;
                 }
                 final ColumnInfo columnInfo = calculateColumnCount(context, recyclerView.getMeasuredWidth(), desiredSize);

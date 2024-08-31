@@ -12,7 +12,9 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.utils.CryptoHelper;
 
 public class DigestMd5 extends SaslMechanism {
-    public static final String MECHANISM = "DIGEST-MD5";private State state = State.INITIAL;
+
+    public static final String MECHANISM = "DIGEST-MD5";
+    private State state = State.INITIAL;
 
     public DigestMd5(final Account account) {
         super(account);

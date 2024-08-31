@@ -2,25 +2,14 @@ package eu.siacs.conversations.entities;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Log;
-import android.net.Uri;
 
 import androidx.core.graphics.ColorUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
-import net.java.otr4j.crypto.OtrCryptoException;
-import java.security.PublicKey;
-import java.security.interfaces.DSAPublicKey;
-import java.util.Locale;
-
-import eu.siacs.conversations.crypto.sasl.HashedToken;
-import eu.siacs.conversations.crypto.sasl.HashedTokenSha256;
-import eu.siacs.conversations.crypto.sasl.HashedTokenSha512;
-import eu.siacs.conversations.crypto.sasl.ChannelBindingMechanism;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +28,12 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.PgpDecryptionService;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlSession;
-import eu.siacs.conversations.crypto.OtrService;
+import eu.siacs.conversations.crypto.sasl.ChannelBinding;
+import eu.siacs.conversations.crypto.sasl.ChannelBindingMechanism;
+import eu.siacs.conversations.crypto.sasl.HashedToken;
+import eu.siacs.conversations.crypto.sasl.HashedTokenSha256;
+import eu.siacs.conversations.crypto.sasl.HashedTokenSha512;
+import eu.siacs.conversations.crypto.sasl.SaslMechanism;
 import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.UIHelper;
@@ -47,8 +41,7 @@ import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
-import eu.siacs.conversations.crypto.sasl.ChannelBinding;
-import eu.siacs.conversations.crypto.sasl.SaslMechanism;
+
 public class Account extends AbstractEntity implements AvatarService.Avatarable {
 
     public static final String TABLENAME = "accounts";
@@ -87,7 +80,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     private static final String KEY_PINNED_MECHANISM = "pinned_mechanism";
     public static final String KEY_PRE_AUTH_REGISTRATION_TOKEN = "pre_auth_registration";
 
-
     protected final JSONObject keys;
     private final Roster roster = new Roster(this);
     private final Collection<Jid> blocklist = new CopyOnWriteArraySet<>();
@@ -105,17 +97,14 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     protected String hostname = null;
     protected int port = 5222;
     protected boolean online = false;
-    private OtrService mOtrService = null;
     private String rosterVersion;
     private String displayName = null;
     private AxolotlService axolotlService = null;
     private PgpDecryptionService pgpDecryptionService = null;
     private XmppConnection xmppConnection = null;
     private long mEndGracePeriod = 0L;
-    private String otrFingerprint;
     private final Map<Jid, Bookmark> bookmarks = new HashMap<>();
     private boolean bookmarksLoaded = false;
-
     private Presence.Status presenceStatus;
     private String presenceStatusMessage;
     private String pinnedMechanism;
@@ -123,7 +112,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     private String fastMechanism;
     private String fastToken;
     private Integer color = null;
-
 
     public Account(final Jid jid, final String password) {
         this(
@@ -259,8 +247,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         if (color != null) return color.intValue();
 
         return ColorUtils.setAlphaComponent(
-                getAvatarBackgroundColor(),
-                dark ? 25 : 20
+            getAvatarBackgroundColor(),
+            dark ? 25 : 20
         );
     }
 
@@ -353,11 +341,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         return server != null && server.endsWith(".onion");
     }
 
-    public boolean isI2P() {
-        final String server = getServer();
-        return server != null && server.endsWith(".i2p");
-    }
-
     public int getPort() {
         return this.port;
     }
@@ -390,6 +373,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
             this.lastErrorStatus = status;
         }
     }
+
     public void setPinnedMechanism(final SaslMechanism mechanism) {
         this.pinnedMechanism = mechanism.getMechanism();
         if (mechanism instanceof ChannelBindingMechanism) {
@@ -399,6 +383,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
             this.pinnedChannelBinding = null;
         }
     }
+
     public void setFastToken(final HashedToken.Mechanism mechanism, final String token) {
         this.fastMechanism = mechanism.name();
         this.fastToken = token;
@@ -408,7 +393,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         this.fastMechanism = null;
         this.fastToken = null;
     }
-
 
     public void resetPinnedMechanism() {
         this.pinnedMechanism = null;
@@ -434,6 +418,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         final ChannelBinding channelBinding = ChannelBinding.get(this.pinnedChannelBinding);
         return new SaslMechanism.Factory(this).of(mechanism, channelBinding);
     }
+
     public HashedToken getFastMechanism() {
         final HashedToken.Mechanism fastMechanism = HashedToken.Mechanism.ofOrNull(this.fastMechanism);
         final String token = this.fastToken;
@@ -460,7 +445,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     public String getFastToken() {
         return this.fastToken;
     }
-
 
     public State getTrueStatus() {
         return this.status;
@@ -573,15 +557,11 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void initAccountServices(final XmppConnectionService context) {
-        this.mOtrService = new OtrService(context, this);
         this.axolotlService = new AxolotlService(this, context);
         this.pgpDecryptionService = new PgpDecryptionService(context);
         if (xmppConnection != null) {
             xmppConnection.addOnAdvancedStreamFeaturesAvailableListener(axolotlService);
         }
-    }
-    public OtrService getOtrService() {
-        return this.mOtrService;
     }
 
     public PgpDecryptionService getPgpDecryptionService() {
@@ -594,26 +574,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     public void setXmppConnection(final XmppConnection connection) {
         this.xmppConnection = connection;
-    }
-
-    public String getOtrFingerprint() {
-        if (this.otrFingerprint == null) {
-            try {
-                if (this.mOtrService == null) {
-                    return null;
-                }
-                final PublicKey publicKey = this.mOtrService.getPublicKey();
-                if (publicKey == null || !(publicKey instanceof DSAPublicKey)) {
-                    return null;
-                }
-                this.otrFingerprint = new OtrCryptoEngineImpl().getFingerprint(publicKey).toLowerCase(Locale.US);
-                return this.otrFingerprint;
-            } catch (final OtrCryptoException ignored) {
-                return null;
-            }
-        } else {
-            return this.otrFingerprint;
-        }
     }
 
     public String getRosterVersion() {
@@ -694,6 +654,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
             return ImmutableList.copyOf(this.bookmarks.values());
         }
     }
+
     public boolean areBookmarksLoaded() {
         // No way to tell if old PEP bookmarks are all loaded yet if they are empty
         // because we don't manually fetch them...
@@ -702,7 +663,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         return bookmarksLoaded;
     }
 
-    public void setBookmarks(Map<Jid, Bookmark> bookmarks) {
+    public void setBookmarks(final Map<Jid, Bookmark> bookmarks) {
         synchronized (this.bookmarks) {
             this.bookmarks.clear();
             this.bookmarks.putAll(bookmarks);
@@ -779,7 +740,9 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     public String getShareableLink() {
         List<XmppUri.Fingerprint> fingerprints = this.getFingerprints();
-        String uri = Config.inviteUserURL + XmppUri.lameUrlEncode(this.getJid().asBareJid().toEscapedString());
+        String uri =
+                "https://conversations.im/i/"
+                        + XmppUri.lameUrlEncode(this.getJid().asBareJid().toEscapedString());
         if (fingerprints.size() > 0) {
             return XmppUri.getFingerprintUri(uri, fingerprints, '&');
         } else {
@@ -789,10 +752,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     private List<XmppUri.Fingerprint> getFingerprints() {
         ArrayList<XmppUri.Fingerprint> fingerprints = new ArrayList<>();
-        final String otr = this.getOtrFingerprint();
-        if (otr != null) {
-            fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OTR, otr));
-        }
         if (axolotlService == null) {
             return fingerprints;
         }
@@ -845,22 +804,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         throw new IllegalStateException("This method should not be called");
     }
 
-    public Contact getWhatsappContact() {
-        return getRoster().getContact(Jid.ofDomain("whatsapp.monocles.eu"));
-    }
-
-    public Contact getSignalContact() {
-        return getRoster().getContact(Jid.ofDomain("signal.monocles.eu"));
-    }
-
-    public Contact getTelegramContact() {
-        return getRoster().getContact(Jid.ofDomain("telegram.monocles.eu"));
-    }
-
-    public Contact getCheogramContact() {
-        return getRoster().getContact(Jid.ofDomain("cheogram.com"));
-    }
-
     public enum State {
         DISABLED(false, false),
         LOGGED_OUT(false,false),
@@ -884,7 +827,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         INCOMPATIBLE_SERVER,
         INCOMPATIBLE_CLIENT,
         TOR_NOT_AVAILABLE,
-        I2P_NOT_AVAILABLE,
         DOWNGRADE_ATTACK,
         SESSION_FAILURE,
         BIND_FAILURE,
@@ -894,8 +836,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         STREAM_OPENING_ERROR,
         POLICY_VIOLATION,
         PAYMENT_REQUIRED,
-        MISSING_INTERNET_PERMISSION(false),
-        DANE_FAILED (true);
+        MISSING_INTERNET_PERMISSION(false);
 
         private final boolean isError;
         private final boolean attemptReconnect;
@@ -961,8 +902,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                     return R.string.account_status_incompatible_client;
                 case TOR_NOT_AVAILABLE:
                     return R.string.account_status_tor_unavailable;
-                case I2P_NOT_AVAILABLE:
-                    return R.string.account_status_i2p_unavailable;
                 case BIND_FAILURE:
                     return R.string.account_status_bind_failure;
                 case SESSION_FAILURE:
@@ -987,8 +926,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                     return R.string.reconnect_on_other_host;
                 case MISSING_INTERNET_PERMISSION:
                     return R.string.missing_internet_permission;
-                case DANE_FAILED:
-                    return R.string.dane_failed;
+                case TEMPORARY_AUTH_FAILURE:
+                    return R.string.account_status_temporary_auth_failure;
                 default:
                     return R.string.account_status_unknown;
             }

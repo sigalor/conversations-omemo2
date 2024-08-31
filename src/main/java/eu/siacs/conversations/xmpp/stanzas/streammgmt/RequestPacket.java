@@ -5,9 +5,9 @@ import eu.siacs.conversations.xmpp.stanzas.AbstractStanza;
 
 public class RequestPacket extends AbstractStanza {
 
-    public RequestPacket() {
-        super("r");
-        this.setAttribute("xmlns", Namespace.STREAM_MANAGEMENT);
-    }
+	public RequestPacket() {
+		super("r");
+		this.setAttribute("xmlns", Namespace.STREAM_MANAGEMENT);
+	}
 
 }

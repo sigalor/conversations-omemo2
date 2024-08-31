@@ -17,11 +17,11 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
 	private final Context context;
 
 	ExceptionHandler(final Context context) {
-        this.context = context;
-        this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
-    }
+		this.context = context;
+		this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+	}
 
-    @Override
+	@Override
 	public void uncaughtException(@NonNull Thread thread, final Throwable throwable) {
 		NotificationService.cancelIncomingCallNotification(context);
 		final Writer stringWriter = new StringWriter();
@@ -31,6 +31,6 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
 		printWriter.close();
 		ExceptionHelper.writeToStacktraceFile(context, stacktrace);
 		this.defaultHandler.uncaughtException(thread, throwable);
-    }
+	}
 
 }

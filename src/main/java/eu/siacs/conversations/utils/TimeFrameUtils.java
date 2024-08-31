@@ -50,7 +50,6 @@ public class TimeFrameUtils {
                 new TimeFrame(24L * 60 * 60 * 1000, R.plurals.days),
                 new TimeFrame(7L * 24 * 60 * 60 * 1000, R.plurals.weeks),
                 new TimeFrame(30L * 24 * 60 * 60 * 1000, R.plurals.months),
-                new TimeFrame(12L * 30 * 24 * 60 * 60 * 1000, R.plurals.years),
         };
     }
 
@@ -99,4 +98,5 @@ public class TimeFrameUtils {
             this.name = name;
         }
     }
+
 }

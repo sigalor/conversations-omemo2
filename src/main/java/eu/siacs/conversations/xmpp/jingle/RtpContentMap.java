@@ -23,6 +23,7 @@ import eu.siacs.conversations.xmpp.jingle.stanzas.OmemoVerifiedIceUdpTransportIn
 import eu.siacs.conversations.xmpp.jingle.stanzas.RtpDescription;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
     public static RtpContentMap of(
             final SessionDescription sessionDescription, final boolean isInitiator) {
         final ImmutableMap.Builder<
-                String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
+                        String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 contentMapBuilder = new ImmutableMap.Builder<>();
         for (SessionDescription.Media media : sessionDescription.media) {
             final String id = Iterables.getFirst(media.attributes.get("mid"), null);
@@ -160,7 +161,7 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
     RtpContentMap withCandidates(
             ImmutableMultimap<String, IceUdpTransportInfo.Candidate> candidates) {
         final ImmutableMap.Builder<
-                String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
+                        String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 contentBuilder = new ImmutableMap.Builder<>();
         for (final Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 entry : this.contents.entrySet()) {
@@ -264,7 +265,7 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
     public RtpContentMap modifiedCredentials(
             IceUdpTransportInfo.Credentials credentials, final IceUdpTransportInfo.Setup setup) {
         final ImmutableMap.Builder<
-                String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
+                        String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 contentMapBuilder = new ImmutableMap.Builder<>();
         for (final Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 content : contents.entrySet()) {
@@ -292,7 +293,7 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
     public RtpContentMap modifiedSendersChecked(
             final boolean isInitiator, final Map<String, Content.Senders> modification) {
         final ImmutableMap.Builder<
-                String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
+                        String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 contentMapBuilder = new ImmutableMap.Builder<>();
         for (final Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 content : contents.entrySet()) {
@@ -386,40 +387,40 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
                 merge(contents, modification.contents);
         final Map<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>
                 combinedFixedTransport =
-                Maps.transformValues(
-                        combined,
-                        dt -> {
-                            final IceUdpTransportInfo iceUdpTransportInfo;
-                            if (dt.transport.isStub()) {
-                                final IceUdpTransportInfo.Credentials credentials =
-                                        getDistinctCredentials();
-                                final Collection<String> iceOptions =
-                                        getCombinedIceOptions();
-                                final DTLS dtls = getDistinctDtls();
-                                iceUdpTransportInfo =
-                                        IceUdpTransportInfo.of(
-                                                credentials,
-                                                iceOptions,
-                                                setupOverwrite,
-                                                dtls.hash,
-                                                dtls.fingerprint);
-                            } else {
-                                final IceUdpTransportInfo.Fingerprint fp =
-                                        dt.transport.getFingerprint();
-                                final IceUdpTransportInfo.Setup setup = fp.getSetup();
-                                iceUdpTransportInfo =
-                                        IceUdpTransportInfo.of(
-                                                dt.transport.getCredentials(),
-                                                dt.transport.getIceOptions(),
-                                                setup == IceUdpTransportInfo.Setup.ACTPASS
-                                                        ? setupOverwrite
-                                                        : setup,
-                                                fp.getHash(),
-                                                fp.getContent());
-                            }
-                            return new DescriptionTransport<>(
-                                    dt.senders, dt.description, iceUdpTransportInfo);
-                        });
+                        Maps.transformValues(
+                                combined,
+                                dt -> {
+                                    final IceUdpTransportInfo iceUdpTransportInfo;
+                                    if (dt.transport.isStub()) {
+                                        final IceUdpTransportInfo.Credentials credentials =
+                                                getDistinctCredentials();
+                                        final Collection<String> iceOptions =
+                                                getCombinedIceOptions();
+                                        final DTLS dtls = getDistinctDtls();
+                                        iceUdpTransportInfo =
+                                                IceUdpTransportInfo.of(
+                                                        credentials,
+                                                        iceOptions,
+                                                        setupOverwrite,
+                                                        dtls.hash,
+                                                        dtls.fingerprint);
+                                    } else {
+                                        final IceUdpTransportInfo.Fingerprint fp =
+                                                dt.transport.getFingerprint();
+                                        final IceUdpTransportInfo.Setup setup = fp.getSetup();
+                                        iceUdpTransportInfo =
+                                                IceUdpTransportInfo.of(
+                                                        dt.transport.getCredentials(),
+                                                        dt.transport.getIceOptions(),
+                                                        setup == IceUdpTransportInfo.Setup.ACTPASS
+                                                                ? setupOverwrite
+                                                                : setup,
+                                                        fp.getHash(),
+                                                        fp.getContent());
+                                    }
+                                    return new DescriptionTransport<>(
+                                            dt.senders, dt.description, iceUdpTransportInfo);
+                                });
         return new RtpContentMap(modification.group, ImmutableMap.copyOf(combinedFixedTransport));
     }
 

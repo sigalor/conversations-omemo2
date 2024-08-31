@@ -15,7 +15,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -43,12 +42,8 @@ public class CallIntegration extends Connection {
      *
      * <p>Samsung Galaxy Tab A claims to have FEATURE_CONNECTION_SERVICE but then throws
      * SecurityException when invoking placeCall(). Both Stock and LineageOS have this problem.
-     *
-     * <p>Lenovo Yoga Smart Tab YT-X705F claims to have FEATURE_CONNECTION_SERVICE but throws
-     * SecurityException
      */
-    private static final List<String> BROKEN_DEVICE_MODELS =
-            Arrays.asList("OnePlus6", "gtaxlwifi", "YT-X705F");
+    private static final List<String> BROKEN_DEVICE_MODELS = Arrays.asList("OnePlus6", "gtaxlwifi");
 
     public static final int DEFAULT_TONE_VOLUME = 60;
     private static final int DEFAULT_MEDIA_PLAYER_VOLUME = 90;
@@ -57,11 +52,14 @@ public class CallIntegration extends Connection {
 
     private final AppRTCAudioManager appRTCAudioManager;
     private AudioDevice initialAudioDevice = null;
+
+    private boolean isAudioRoutingRequested = false;
     private final AtomicBoolean initialAudioDeviceConfigured = new AtomicBoolean(false);
     private final AtomicBoolean delayedDestructionInitiated = new AtomicBoolean(false);
     private final AtomicBoolean isDestroyed = new AtomicBoolean(false);
 
     private List<CallEndpoint> availableEndpoints = Collections.emptyList();
+    private boolean isMicrophoneEnabled = true;
 
     private Callback callback = null;
 
@@ -77,10 +75,10 @@ public class CallIntegration extends Connection {
             this.appRTCAudioManager = null;
         } else {
             this.appRTCAudioManager = new AppRTCAudioManager(context);
-            ContextCompat.getMainExecutor(context)
-                    .execute(() -> this.appRTCAudioManager.start(this::onAudioDeviceChanged));
+            this.appRTCAudioManager.setAudioManagerEvents(this::onAudioDeviceChanged);
         }
         setRingbackRequested(true);
+        setConnectionCapabilities(CAPABILITY_MUTE | CAPABILITY_RESPOND_VIA_TEXT);
     }
 
     public void setCallback(final Callback callback) {
@@ -115,6 +113,11 @@ public class CallIntegration extends Connection {
         this.callback.onCallIntegrationReject();
     }
 
+    @Override
+    public void onPlayDtmfTone(char c) {
+        this.callback.applyDtmfTone("" + c);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     public void onAvailableCallEndpointsChanged(@NonNull List<CallEndpoint> availableEndpoints) {
@@ -142,45 +145,63 @@ public class CallIntegration extends Connection {
 
     @Override
     public void onCallAudioStateChanged(final CallAudioState state) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (selfManaged() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             Log.d(Config.LOGTAG, "ignoring onCallAudioStateChange() on Upside Down Cake");
             return;
         }
+        setMicrophoneEnabled(!state.isMuted());
         Log.d(Config.LOGTAG, "onCallAudioStateChange(" + state + ")");
         this.onAudioDeviceChanged(getAudioDeviceOreo(state), getAudioDevicesOreo(state));
     }
 
+    @Override
+    public void onMuteStateChanged(final boolean isMuted) {
+        Log.d(Config.LOGTAG, "onMuteStateChanged(" + isMuted + ")");
+        setMicrophoneEnabled(!isMuted);
+    }
+
+    private void setMicrophoneEnabled(final boolean enabled) {
+        this.isMicrophoneEnabled = enabled;
+        this.callback.onCallIntegrationMicrophoneEnabled(enabled);
+    }
+
+    public boolean isMicrophoneEnabled() {
+        return this.isMicrophoneEnabled;
+    }
+
     public Set<AudioDevice> getAudioDevices() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (notSelfManaged(context)) {
+            return getAudioDevicesFallback();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             return getAudioDevicesUpsideDownCake();
-        } else if (selfManaged()) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return getAudioDevicesOreo();
         } else {
-            return getAudioDevicesFallback();
+            throw new AssertionError("Trying to get audio devices on unsupported version");
         }
     }
 
     public AudioDevice getSelectedAudioDevice() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (notSelfManaged(context)) {
+            return getAudioDeviceFallback();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             return getAudioDeviceUpsideDownCake();
-        } else if (selfManaged()) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return getAudioDeviceOreo();
         } else {
-            return getAudioDeviceFallback();
+            throw new AssertionError("Trying to get selected audio device on unsupported version");
         }
     }
 
     public void setAudioDevice(final AudioDevice audioDevice) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            setAudioDeviceUpsideDownCake(audioDevice);
-        } else if (selfManaged()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                setAudioDeviceOreo(audioDevice);
-            } else {
-                throw new AssertionError("Trying to set audio devices on unsupported version");
-            }
-        } else {
+        if (notSelfManaged(context)) {
             setAudioDeviceFallback(audioDevice);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            setAudioDeviceUpsideDownCake(audioDevice);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setAudioDeviceOreo(audioDevice);
+        } else {
+            throw new AssertionError("Trying to set audio devices on unsupported version");
         }
     }
 
@@ -372,7 +393,9 @@ public class CallIntegration extends Connection {
 
     public void success() {
         Log.d(Config.LOGTAG, "CallIntegration.success()");
-        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
+        final var toneGenerator =
+                new ToneGenerator(AudioManager.STREAM_VOICE_CALL, DEFAULT_TONE_VOLUME);
+        toneGenerator.startTone(ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
         this.destroyWithDelay(new DisconnectCause(DisconnectCause.LOCAL, null), 375);
     }
 
@@ -387,7 +410,9 @@ public class CallIntegration extends Connection {
 
     public void error() {
         Log.d(Config.LOGTAG, "CallIntegration.error()");
-        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
+        final var toneGenerator =
+                new ToneGenerator(AudioManager.STREAM_VOICE_CALL, DEFAULT_TONE_VOLUME);
+        toneGenerator.startTone(ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
         this.destroyWithDelay(new DisconnectCause(DisconnectCause.ERROR, null), 375);
     }
 
@@ -404,7 +429,8 @@ public class CallIntegration extends Connection {
 
     public void busy() {
         Log.d(Config.LOGTAG, "CallIntegration.busy()");
-        startTone(80, ToneGenerator.TONE_CDMA_NETWORK_BUSY, 2500);
+        final var toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80);
+        toneGenerator.startTone(ToneGenerator.TONE_CDMA_NETWORK_BUSY, 2500);
         this.destroyWithDelay(new DisconnectCause(DisconnectCause.BUSY, null), 2500);
     }
 
@@ -432,17 +458,6 @@ public class CallIntegration extends Connection {
         Log.d(Config.LOGTAG, "destroyed!");
     }
 
-    private void startTone(final int volume, final int toneType, final int durationMs) {
-        final ToneGenerator toneGenerator;
-        try {
-            toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, volume);
-        } catch (final RuntimeException e) {
-            Log.e(Config.LOGTAG, "could not initialize tone generator", e);
-            return;
-        }
-        toneGenerator.startTone(toneType, durationMs);
-    }
-
     public static Uri address(final Jid contact) {
         return Uri.parse(String.format("xmpp:%s", contact.toEscapedString()));
     }
@@ -457,12 +472,28 @@ public class CallIntegration extends Connection {
     private void onAudioDeviceChanged(
             final CallIntegration.AudioDevice selectedAudioDevice,
             final Set<CallIntegration.AudioDevice> availableAudioDevices) {
-        if (this.initialAudioDevice != null
-                && this.initialAudioDeviceConfigured.compareAndSet(false, true)) {
-            if (availableAudioDevices.contains(this.initialAudioDevice)
+        if (isAudioRoutingRequested) {
+            configureInitialAudioDevice(availableAudioDevices);
+        }
+        final var callback = this.callback;
+        if (callback == null) {
+            return;
+        }
+        callback.onAudioDeviceChanged(selectedAudioDevice, availableAudioDevices);
+    }
+
+    private void configureInitialAudioDevice(final Set<AudioDevice> availableAudioDevices) {
+        final var initialAudioDevice = this.initialAudioDevice;
+        if (initialAudioDevice == null) {
+            Log.d(Config.LOGTAG, "skipping configureInitialAudioDevice()");
+            return;
+        }
+        final var target = this.initialAudioDevice;
+        if (this.initialAudioDeviceConfigured.compareAndSet(false, true)) {
+            if (availableAudioDevices.contains(target)
                     && !availableAudioDevices.contains(AudioDevice.BLUETOOTH)) {
-                setAudioDevice(this.initialAudioDevice);
-                Log.d(Config.LOGTAG, "configured initial audio device");
+                setAudioDevice(target);
+                Log.d(Config.LOGTAG, "configured initial audio device: " + target);
             } else {
                 Log.d(
                         Config.LOGTAG,
@@ -470,11 +501,6 @@ public class CallIntegration extends Connection {
                                 + availableAudioDevices);
             }
         }
-        final var callback = this.callback;
-        if (callback == null) {
-            return;
-        }
-        callback.onAudioDeviceChanged(selectedAudioDevice, availableAudioDevices);
     }
 
     private boolean selfManaged() {
@@ -484,7 +510,7 @@ public class CallIntegration extends Connection {
     public static boolean selfManaged(final Context context) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 && hasSystemFeature(context)
-                && !BROKEN_DEVICE_MODELS.contains(Build.DEVICE);
+                && isDeviceModelSupported();
     }
 
     public static boolean hasSystemFeature(final Context context) {
@@ -492,8 +518,28 @@ public class CallIntegration extends Connection {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return packageManager.hasSystemFeature(PackageManager.FEATURE_TELECOM);
         } else {
+            //noinspection deprecation
             return packageManager.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE);
         }
+    }
+
+    private static boolean isDeviceModelSupported() {
+        if (BROKEN_DEVICE_MODELS.contains(Build.DEVICE)) {
+            return false;
+        }
+        // all Realme devices at least up to and including Android 11 are broken
+        if ("realme".equalsIgnoreCase(Build.MANUFACTURER)
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            return false;
+        }
+        // we only know of one Umidigi device (BISON_GT2_5G) that doesn't work (audio is not being
+        // routed properly) However with those devices being extremely rare it's impossible to gauge
+        // how many might be effected and no Naomi Wu around to clarify with the company directly
+        if ("umidigi".equalsIgnoreCase(Build.MANUFACTURER)
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) {
+            return false;
+        }
+        return true;
     }
 
     public static boolean notSelfManaged(final Context context) {
@@ -503,17 +549,25 @@ public class CallIntegration extends Connection {
     public void setInitialAudioDevice(final AudioDevice audioDevice) {
         Log.d(Config.LOGTAG, "setInitialAudioDevice(" + audioDevice + ")");
         this.initialAudioDevice = audioDevice;
+    }
+
+    public void startAudioRouting() {
+        this.isAudioRoutingRequested = true;
         if (selfManaged()) {
-            // once the 'CallIntegration' gets added to the system we receive calls to update audio
-            // state
+            final var devices = getAudioDevices();
+            if (devices.isEmpty()) {
+                return;
+            }
+            configureInitialAudioDevice(devices);
             return;
         }
         final var audioManager = requireAppRtcAudioManager();
         audioManager.executeOnMain(
-                () ->
-                        this.onAudioDeviceChanged(
-                                audioManager.getSelectedAudioDevice(),
-                                audioManager.getAudioDevices()));
+                () -> {
+                    audioManager.start();
+                    this.onAudioDeviceChanged(
+                            audioManager.getSelectedAudioDevice(), audioManager.getAudioDevices());
+                });
     }
 
     private void destroyCallIntegration() {
@@ -525,7 +579,6 @@ public class CallIntegration extends Connection {
         return this.isDestroyed.get();
     }
 
-    /** AudioDevice is the names of possible audio devices that we currently support. */
     public enum AudioDevice {
         NONE,
         SPEAKER_PHONE,
@@ -557,5 +610,9 @@ public class CallIntegration extends Connection {
         void onCallIntegrationAnswer();
 
         void onCallIntegrationSilence();
+
+        void onCallIntegrationMicrophoneEnabled(boolean enabled);
+
+        boolean applyDtmfTone(final String dtmf);
     }
 }

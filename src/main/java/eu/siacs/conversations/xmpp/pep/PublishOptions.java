@@ -33,6 +33,7 @@ public class PublishOptions {
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_delete", "true");
         options.putString("pubsub#notify_retract", "true"); //one could also set notify=true on the retract
+
         return options;
     }
 

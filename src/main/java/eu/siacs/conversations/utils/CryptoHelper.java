@@ -1,17 +1,21 @@
 package eu.siacs.conversations.utils;
 
+import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
+
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Pair;
-import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
+
+import androidx.annotation.StringRes;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -27,13 +31,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import io.ipfs.cid.Cid;
+import io.ipfs.multihash.Multihash;
+
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.xmpp.Jid;
-import io.ipfs.cid.Cid;
-import io.ipfs.multihash.Multihash;
 
 public final class CryptoHelper {
 
@@ -43,7 +48,6 @@ public final class CryptoHelper {
     private static final int PW_LENGTH = 25;
     private static final char[] VOWELS = "aeiou".toCharArray();
     private static final char[] CONSONANTS = "bcfghjklmnpqrstvwxyz".toCharArray();
-    public static final String FILETRANSFER = "?FILETRANSFERv1:";
     private final static char[] hexArray = "0123456789abcdef".toCharArray();
 
     public static String bytesToHex(byte[] bytes) {
@@ -259,25 +263,21 @@ public final class CryptoHelper {
     public static String getFingerprint(String value) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            return bytesToHex(md.digest(value.getBytes("UTF-8")));
+            return bytesToHex(md.digest(value.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
             return "";
         }
     }
 
-    public static int encryptionTypeToText(int encryption) {
-        switch (encryption) {
-            case Message.ENCRYPTION_OTR:
-                return R.string.encryption_choice_otr;
-            case Message.ENCRYPTION_AXOLOTL:
-            case Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE:
-            case Message.ENCRYPTION_AXOLOTL_FAILED:
-                return R.string.encryption_choice_omemo;
-            case Message.ENCRYPTION_NONE:
-                return R.string.encryption_choice_unencrypted;
-            default:
-                return R.string.encryption_choice_pgp;
-        }
+    public static @StringRes int encryptionTypeToText(final int encryption) {
+        return switch (encryption) {
+            case Message.ENCRYPTION_OTR -> R.string.encryption_choice_otr;
+            case Message.ENCRYPTION_AXOLOTL,
+                    Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE,
+                    Message.ENCRYPTION_AXOLOTL_FAILED -> R.string.encryption_choice_omemo;
+            case Message.ENCRYPTION_PGP -> R.string.encryption_choice_pgp;
+            default -> R.string.encryption_choice_unencrypted;
+        };
     }
 
     public static boolean isPgpEncryptedUrl(String url) {
@@ -288,17 +288,16 @@ public final class CryptoHelper {
         return !u.contains(" ") && (u.startsWith("https://") || u.startsWith("http://") || u.startsWith("p1s3://")) && u.endsWith(".pgp");
     }
 
-
     public static String multihashAlgo(Multihash.Type type) throws NoSuchAlgorithmException {
         switch(type) {
-            case sha1:
-                return "sha-1";
-            case sha2_256:
-                return "sha-256";
-            case sha2_512:
-                return "sha-512";
-            default:
-                throw new NoSuchAlgorithmException("" + type);
+        case sha1:
+            return "sha-1";
+        case sha2_256:
+            return "sha-256";
+        case sha2_512:
+            return "sha-512";
+        default:
+            throw new NoSuchAlgorithmException("" + type);
         }
     }
 

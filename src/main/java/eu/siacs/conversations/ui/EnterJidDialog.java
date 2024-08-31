@@ -1,57 +1,57 @@
 package eu.siacs.conversations.ui;
+import android.util.Log;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.Map;
-import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.entities.Contact;
-import eu.siacs.conversations.entities.Presence;
-import eu.siacs.conversations.entities.ServiceDiscoveryResult;
-import eu.siacs.conversations.xmpp.OnGatewayResult;
-
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 
-
-import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.databinding.EnterJidDialogBinding;
+import eu.siacs.conversations.databinding.DialogEnterJidBinding;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Presence;
+import eu.siacs.conversations.entities.ServiceDiscoveryResult;
 import eu.siacs.conversations.ui.adapter.KnownHostsAdapter;
 import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.ui.util.DelayedHintHelper;
-import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
+import eu.siacs.conversations.xmpp.Jid;
+import eu.siacs.conversations.xmpp.OnGatewayResult;
 
 public class EnterJidDialog extends DialogFragment implements OnBackendConnected, TextWatcher {
-
 
     private static final List<String> SUSPICIOUS_DOMAINS =
             Arrays.asList("conference", "muc", "room", "rooms");
@@ -64,16 +64,14 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
     private static final String PREFILLED_JID_KEY = "prefilled_jid";
     private static final String ACCOUNT_KEY = "account";
     private static final String ALLOW_EDIT_JID_KEY = "allow_edit_jid";
-    private static final String MULTIPLE_ACCOUNTS = "multiple_accounts_enabled";
     private static final String ACCOUNTS_LIST_KEY = "activated_accounts_list";
     private static final String SANITY_CHECK_JID = "sanity_check_jid";
     private static final String SHOW_BOOKMARK_CHECKBOX = "show_bookmark_checkbox";
 
-
     private KnownHostsAdapter knownHostsAdapter;
     private Collection<String> whitelistedDomains = Collections.emptyList();
 
-    private EnterJidDialogBinding binding;
+    private DialogEnterJidBinding binding;
     private AlertDialog dialog;
     private SanityCheck sanityCheckJid = SanityCheck.NO;
 
@@ -87,7 +85,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
     }
 
     public static EnterJidDialog newInstance(
-            final List<String> activatedAccounts,
+            final ArrayList<String> activatedAccounts,
             final String title,
             final String positiveButton,
             final String secondaryButton,
@@ -95,9 +93,8 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
             final String account,
             boolean allowEditJid,
             boolean showBookmarkCheckbox,
-            boolean multipleAccounts,
             final SanityCheck sanity_check_jid) {
-        EnterJidDialog dialog = new EnterJidDialog();
+        final EnterJidDialog dialog = new EnterJidDialog();
         Bundle bundle = new Bundle();
         bundle.putString(TITLE_KEY, title);
         bundle.putString(POSITIVE_BUTTON_KEY, positiveButton);
@@ -105,8 +102,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
         bundle.putString(PREFILLED_JID_KEY, prefilledJid);
         bundle.putString(ACCOUNT_KEY, account);
         bundle.putBoolean(ALLOW_EDIT_JID_KEY, allowEditJid);
-        bundle.putBoolean(MULTIPLE_ACCOUNTS, multipleAccounts);
-        bundle.putStringArrayList(ACCOUNTS_LIST_KEY, (ArrayList<String>) activatedAccounts);
+        bundle.putStringArrayList(ACCOUNTS_LIST_KEY, activatedAccounts);
         bundle.putInt(SANITY_CHECK_JID, sanity_check_jid.ordinal());
         bundle.putBoolean(SHOW_BOOKMARK_CHECKBOX, showBookmarkCheckbox);
         dialog.setArguments(bundle);
@@ -123,21 +119,24 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
     public void onStart() {
         super.onStart();
         final Activity activity = getActivity();
-        if (activity instanceof XmppActivity && ((XmppActivity) activity).xmppConnectionService != null) {
+        if (activity instanceof XmppActivity
+                && ((XmppActivity) activity).xmppConnectionService != null) {
             refreshKnownHosts();
         }
     }
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(getArguments().getString(TITLE_KEY));
-        binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(), R.layout.enter_jid_dialog, null, false);
-        this.knownHostsAdapter = new KnownHostsAdapter(getActivity(), R.layout.simple_list_item);
+    public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        final var arguments = getArguments();
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(arguments.getString(TITLE_KEY));
+        binding =
+                DataBindingUtil.inflate(requireActivity().getLayoutInflater(), R.layout.dialog_enter_jid, null, false);
+        this.knownHostsAdapter = new KnownHostsAdapter(getActivity(), R.layout.item_autocomplete);
         binding.jid.setAdapter(this.knownHostsAdapter);
         binding.jid.addTextChangedListener(this);
-        String prefilledJid = getArguments().getString(PREFILLED_JID_KEY);
+        final String prefilledJid = arguments.getString(PREFILLED_JID_KEY);
         if (prefilledJid != null) {
             binding.jid.append(prefilledJid);
             if (!getArguments().getBoolean(ALLOW_EDIT_JID_KEY)) {
@@ -155,58 +154,33 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
 
         DelayedHintHelper.setHint(R.string.account_settings_example_jabber_id, binding.jid);
 
-        String account = getArguments().getString(ACCOUNT_KEY);
-
-        if (getArguments().getBoolean(MULTIPLE_ACCOUNTS)) {
-            binding.yourAccount.setVisibility(View.VISIBLE);
-            binding.account.setVisibility(View.VISIBLE);
+        final String account = getArguments().getString(ACCOUNT_KEY);
+        if (Strings.isNullOrEmpty(account)) {
+            StartConversationActivity.populateAccountSpinner(
+                    getActivity(),
+                    arguments.getStringArrayList(ACCOUNTS_LIST_KEY),
+                    binding.account);
         } else {
-            binding.yourAccount.setVisibility(View.GONE);
-            binding.account.setVisibility(View.GONE);
-        }
-
-        if (account == null) {
-            StartConversationActivity.populateAccountSpinner(getActivity(), getArguments().getStringArrayList(ACCOUNTS_LIST_KEY), binding.account);
-        } else {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    getActivity(), R.layout.simple_list_item,
-                    new String[]{account});
+            final ArrayAdapter<String> adapter =
+                    new ArrayAdapter<>(requireActivity(), R.layout.item_autocomplete, new String[] {account});
+            binding.account.setText(account);
             binding.account.setEnabled(false);
-            adapter.setDropDownViewResource(R.layout.simple_list_item);
+            adapter.setDropDownViewResource(R.layout.item_autocomplete);
             binding.account.setAdapter(adapter);
         }
+
         binding.gatewayList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         binding.gatewayList.setAdapter(gatewayListAdapter);
         gatewayListAdapter.setOnEmpty(() -> binding.gatewayList.setVisibility(View.GONE));
         gatewayListAdapter.setOnNonEmpty(() -> binding.gatewayList.setVisibility(View.VISIBLE));
 
-        binding.account.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.account.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView accountSpinner, View view, int position, long id) {
-                XmppActivity context = (XmppActivity) getActivity();
-                if (context == null || context.xmppConnectionService == null || accountJid() == null) return;
-
-                gatewayListAdapter.clear();
-                final Account account = context.xmppConnectionService.findAccountByJid(accountJid());
-                if (account == null) return;
-
-                for (final Contact contact : account.getRoster().getContacts()) {
-                    if (contact.showInRoster() && contact.getPresences().size() > 0 && (contact.getPresences().anyIdentity("gateway", null) || contact.getPresences().anySupport("jabber:iq:gateway"))) {
-                        context.xmppConnectionService.fetchFromGateway(account, contact.getJid(), null, (final String prompt, String errorMessage) -> {
-                            if (prompt == null && !contact.getPresences().anyIdentity("gateway", null)) return;
-                            context.runOnUiThread(() -> {
-                                gatewayListAdapter.add(contact, prompt);
-                            });
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView accountSpinner) {
-                gatewayListAdapter.clear();
+            public void onItemClick(AdapterView accountSpinner, View view, int position, long id) {
+                populateGateways();
             }
         });
+        populateGateways();
 
         builder.setView(binding.getRoot());
         builder.setPositiveButton(getArguments().getString(POSITIVE_BUTTON_KEY), null);
@@ -218,10 +192,11 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
         }
         this.dialog = builder.create();
 
-        binding.jid.setOnEditorActionListener((v, actionId, event) -> {
-            handleEnter(binding, account, false);
-            return true;
-        });
+        binding.jid.setOnEditorActionListener(
+                (v, actionId, event) -> {
+                    handleEnter(binding, account, false);
+                    return true;
+                });
 
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener((v) -> handleEnter(binding, account, false));
@@ -231,19 +206,36 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
         return dialog;
     }
 
+    protected void populateGateways() {
+        XmppActivity context = (XmppActivity) getActivity();
+        if (context == null || context.xmppConnectionService == null || accountJid() == null) return;
+
+        gatewayListAdapter.clear();
+        final Account account = context.xmppConnectionService.findAccountByJid(accountJid());
+        if (account == null) return;
+
+        for (final Contact contact : account.getRoster().getContacts()) {
+            if (contact.showInRoster() && contact.getPresences().size() > 0 && (contact.getPresences().anyIdentity("gateway", null) || contact.getPresences().anySupport("jabber:iq:gateway"))) {
+                context.xmppConnectionService.fetchFromGateway(account, contact.getJid(), null, (final String prompt, String errorMessage) -> {
+                    if (prompt == null && !contact.getPresences().anyIdentity("gateway", null)) return;
+
+                    context.runOnUiThread(() -> {
+                            gatewayListAdapter.add(contact, prompt);
+                    });
+                });
+            }
+        }
+    }
+
     protected Jid accountJid() {
         try {
-            if (Config.DOMAIN_LOCK != null) {
-                return Jid.ofEscaped((String) binding.account.getSelectedItem(), Config.DOMAIN_LOCK, null);
-            } else {
-                return Jid.ofEscaped((String) binding.account.getSelectedItem());
-            }
+            return Jid.ofEscaped((String) binding.account.getEditableText().toString());
         } catch (final IllegalArgumentException e) {
             return null;
         }
     }
 
-    private void handleEnter(EnterJidDialogBinding binding, String account, boolean secondary) {
+    private void handleEnter(DialogEnterJidBinding binding, String account, boolean secondary) {
         if (!binding.account.isEnabled() && account == null) {
             return;
         }
@@ -273,13 +265,13 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                 if (!issuedWarning && sanityCheckJid != SanityCheck.NO) {
                     if (contactJid.isDomainJid()) {
                         binding.jidLayout.setError(getActivity().getString(R.string.this_looks_like_a_domain));
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.add_anyway);
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.add_anway);
                         issuedWarning = true;
                         return;
                     }
                     if (sanityCheckJid != SanityCheck.ALLOW_MUC && suspiciousSubDomain(contactJid.getDomain().toEscapedString())) {
                         binding.jidLayout.setError(getActivity().getString(R.string.this_looks_like_channel));
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.add_anyway);
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.add_anway);
                         issuedWarning = true;
                         return;
                     }
@@ -310,14 +302,14 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
         }
 
         if (p == null) {
-            finish.onGatewayResult(binding.jid.getText().toString(), null);
+            finish.onGatewayResult(binding.jid.getText().toString().trim(), null);
         } else if (p.first != null) { // Gateway already responsed to jabber:iq:gateway once
             final Account acct = ((XmppActivity) getActivity()).xmppConnectionService.findAccountByJid(accountJid);
-            ((XmppActivity) getActivity()).xmppConnectionService.fetchFromGateway(acct, p.second.first, binding.jid.getText().toString(), finish);
+            ((XmppActivity) getActivity()).xmppConnectionService.fetchFromGateway(acct, p.second.first, binding.jid.getText().toString().trim(), finish);
         } else if (p.second.first.isDomainJid() && p.second.second.getServiceDiscoveryResult().getFeatures().contains("jid\\20escaping")) {
-            finish.onGatewayResult(Jid.ofLocalAndDomain(binding.jid.getText().toString(), p.second.first.getDomain().toString()).toString(), null);
+            finish.onGatewayResult(Jid.ofLocalAndDomain(binding.jid.getText().toString().trim(), p.second.first.getDomain().toString()).toString(), null);
         } else if (p.second.first.isDomainJid()) {
-            finish.onGatewayResult(Jid.ofLocalAndDomain(binding.jid.getText().toString().replace("@", "%"), p.second.first.getDomain().toString()).toString(), null);
+            finish.onGatewayResult(Jid.ofLocalAndDomain(binding.jid.getText().toString().trim().replace("@", "%"), p.second.first.getDomain().toString()).toString(), null);
         } else {
             finish.onGatewayResult(null, null);
         }
@@ -346,14 +338,10 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
     }
 
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-    }
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-    }
+    public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
     @Override
     public void afterTextChanged(Editable s) {
@@ -443,6 +431,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
         protected int selected = 0;
         protected Runnable onEmpty = () -> {};
         protected Runnable onNonEmpty = () -> {};
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.enter_jid_dialog_gateway_list_item, null);
@@ -473,6 +462,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                 binding.jid.setThreshold(1);
                 binding.jid.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
                 binding.jidLayout.setHint(R.string.account_settings_jabber_id);
+
                 if(binding.jid.hasFocus()) {
                     binding.jid.setHint(R.string.account_settings_example_jabber_id);
                 } else {
@@ -521,6 +511,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
 
         public String getType(int i) {
             if (i == 0) return null;
+
             return getType(this.gateways.get(i-1).first);
         }
 

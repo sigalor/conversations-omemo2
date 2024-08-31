@@ -1,18 +1,16 @@
 package eu.siacs.conversations.http;
 
-import static eu.siacs.conversations.http.HttpConnectionManager.FileTransferExecutor;
 import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,7 +22,6 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Transferable;
-import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.AbstractConnectionManager;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
@@ -51,7 +48,6 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
     private final Message message;
     private SlotRequester.Slot slot;
     private byte[] key = null;
-    private int mStatus = Transferable.STATUS_UNKNOWN;
 
     private long transmitted = 0;
     private Call mostRecentCall;
@@ -71,7 +67,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
 
     @Override
     public int getStatus() {
-        return this.mStatus;
+        return STATUS_UPLOADING;
     }
 
     @Override
@@ -127,8 +123,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         final long originalFileSize = file.getSize();
         this.delayed = delay;
         if (Config.ENCRYPT_ON_HTTP_UPLOADED
-                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL
-                || message.getEncryption() == Message.ENCRYPTION_OTR) {
+                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
             this.key = new byte[44];
             SECURE_RANDOM.nextBytes(this.key);
             this.file.setKeyAndIv(this.key);
@@ -138,21 +133,16 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         Futures.addCallback(this.slotFuture, new FutureCallback<SlotRequester.Slot>() {
             @Override
             public void onSuccess(@Nullable SlotRequester.Slot result) {
-                changeStatus(STATUS_WAITING);
-                FileTransferExecutor.execute(() -> {
-                    changeStatus(STATUS_UPLOADING);
-                    HttpUploadConnection.this.slot = result;
-                    try {
-                        HttpUploadConnection.this.upload();
-                    } catch (final Exception e) {
-                        changeStatus(STATUS_FAILED);
-                        fail(e.getMessage());
-                    }
-                });
+                HttpUploadConnection.this.slot = result;
+                try {
+                    HttpUploadConnection.this.upload();
+                } catch (final Exception e) {
+                    fail(e.getMessage());
+                }
             }
 
             @Override
-            public void onFailure(@NotNull final Throwable throwable) {
+            public void onFailure(@NonNull final Throwable throwable) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to request slot", throwable);
                 // TODO consider fall back to jingle in 1-on-1 chats with exactly one online presence
                 fail(throwable.getMessage());
@@ -161,7 +151,6 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         message.setTransferable(this);
         mXmppConnectionService.markMessage(message, Message.STATUS_UNSEND);
     }
-
 
     private void upload() {
         final OkHttpClient client = mHttpConnectionManager.buildHttpClient(
@@ -180,13 +169,13 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         this.mostRecentCall = client.newCall(request);
         this.mostRecentCall.enqueue(new Callback() {
             @Override
-            public void onFailure(@NotNull Call call, IOException e) {
+            public void onFailure(@NonNull Call call, IOException e) {
                 Log.d(Config.LOGTAG, "http upload failed", e);
                 fail(e.getMessage());
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response)  {
+            public void onResponse(@NonNull Call call, @NonNull Response response)  {
                 final int code = response.code();
                 if (code == 200 || code == 201) {
                     Log.d(Config.LOGTAG, "finished uploading file");
@@ -197,7 +186,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
                         get = slot.get.toString();
                     }
                     mXmppConnectionService.getFileBackend().updateFileParams(message, get);
-                    FileBackend.updateMediaScanner(mXmppConnectionService, file);
+                    mXmppConnectionService.getFileBackend().updateMediaScanner(file);
                     finish();
                     if (!message.isPrivateMessage()) {
                         message.setCounterpart(message.getConversation().getJid().asBareJid());
@@ -213,11 +202,6 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
 
     public Message getMessage() {
         return message;
-    }
-
-    private void changeStatus(int status) {
-        this.mStatus = status;
-        mHttpConnectionManager.updateConversationUi(true);
     }
 
     @Override

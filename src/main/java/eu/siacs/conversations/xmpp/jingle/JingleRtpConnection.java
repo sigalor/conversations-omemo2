@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.util.Log;
+import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +37,7 @@ import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.services.CallIntegration;
+import eu.siacs.conversations.services.CallIntegrationConnectionService;
 import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -51,11 +53,14 @@ import eu.siacs.conversations.xmpp.jingle.stanzas.RtpDescription;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 
+import org.webrtc.DtmfSender;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.PeerConnection;
 import org.webrtc.VideoTrack;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,6 +76,7 @@ import java.util.concurrent.TimeUnit;
 public class JingleRtpConnection extends AbstractJingleConnection
         implements WebRTCWrapper.EventCallback, CallIntegration.Callback, OngoingRtpSession {
 
+    // TODO consider adding State.SESSION_INITIALIZED to ongoing call states for direct init mode
     public static final List<State> STATES_SHOWING_ONGOING_CALL =
             Arrays.asList(
                     State.PROPOSED,
@@ -96,6 +102,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private final Stopwatch sessionDuration = Stopwatch.createUnstarted();
     private final Queue<PeerConnection.PeerConnectionState> stateHistory = new LinkedList<>();
     private ScheduledFuture<?> ringingTimeoutFuture;
+    private final long created = System.currentTimeMillis() / 1000L;
 
     JingleRtpConnection(
             final JingleConnectionManager jingleConnectionManager,
@@ -111,6 +118,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
                                 .getApplicationContext()));
         this.callIntegration.setAddress(
                 CallIntegration.address(id.with.asBareJid()), TelecomManager.PRESENTATION_ALLOWED);
+        final var contact = id.getContact();
+        this.callIntegration.setCallerDisplayName(
+                contact.getDisplayName(), TelecomManager.PRESENTATION_ALLOWED);
         this.callIntegration.setInitialized();
     }
 
@@ -179,7 +189,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
         }
     }
 
-    public boolean applyDtmfTone(String tone) {
+    public boolean applyDtmfTone(final String tone) {
         return webRTCWrapper.applyDtmfTone(tone);
     }
 
@@ -686,7 +696,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                     Reason.FAILED_APPLICATION,
                     String.format(
                             "%s only supports %s as a means to retract a not yet accepted %s",
-                            "monocles chat",
+                            BuildConfig.APP_NAME,
                             JinglePacket.Action.CONTENT_REMOVE,
                             JinglePacket.Action.CONTENT_ADD));
         }
@@ -1480,12 +1490,12 @@ public class JingleRtpConnection extends AbstractJingleConnection
         if (this.omemoVerification.hasDeviceId()) {
             ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
                     verifiedPayloadFuture =
-                    id.account
-                            .getAxolotlService()
-                            .encrypt(
-                                    rtpContentMap,
-                                    id.with,
-                                    omemoVerification.getDeviceId());
+                            id.account
+                                    .getAxolotlService()
+                                    .encrypt(
+                                            rtpContentMap,
+                                            id.with,
+                                            omemoVerification.getDeviceId());
             return Futures.transform(
                     verifiedPayloadFuture,
                     verifiedPayload -> {
@@ -1697,7 +1707,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
                 jingleConnectionManager.schedule(
                         this::ringingTimeout, BUSY_TIME_OUT, TimeUnit.SECONDS);
         if (CallIntegration.selfManaged(xmppConnectionService)) {
-            return;
+            if (CallIntegrationConnectionService.addNewIncomingCall(xmppConnectionService, getId())) {
+                return;
+            }
         }
         xmppConnectionService.getNotificationService().startRinging(id, getMedia());
     }
@@ -1949,12 +1961,12 @@ public class JingleRtpConnection extends AbstractJingleConnection
         if (this.omemoVerification.hasDeviceId()) {
             final ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
                     verifiedPayloadFuture =
-                    id.account
-                            .getAxolotlService()
-                            .encrypt(
-                                    rtpContentMap,
-                                    id.with,
-                                    omemoVerification.getDeviceId());
+                            id.account
+                                    .getAxolotlService()
+                                    .encrypt(
+                                            rtpContentMap,
+                                            id.with,
+                                            omemoVerification.getDeviceId());
             final ListenableFuture<RtpContentMap> future =
                     Futures.transform(
                             verifiedPayloadFuture,
@@ -2328,11 +2340,13 @@ public class JingleRtpConnection extends AbstractJingleConnection
         this.jingleConnectionManager.ensureConnectionIsRegistered(this);
         this.webRTCWrapper.setup(this.xmppConnectionService);
         this.webRTCWrapper.initializePeerConnection(media, iceServers, trickle);
+        this.webRTCWrapper.setMicrophoneEnabledOrThrow(callIntegration.isMicrophoneEnabled());
     }
 
     private void acceptCallFromProposed() {
         transitionOrThrow(State.PROCEED);
         xmppConnectionService.getNotificationService().cancelIncomingCallNotification();
+        this.callIntegration.startAudioRouting();
         this.sendJingleMessage("accept", id.account.getJid().asBareJid());
         this.sendJingleMessage("proceed");
     }
@@ -2401,6 +2415,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     private void acceptCallFromSessionInitialized() {
         xmppConnectionService.getNotificationService().cancelIncomingCallNotification();
+        this.callIntegration.startAudioRouting();
         sendSessionAccept();
     }
 
@@ -2483,7 +2498,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
         this.webRTCWrapper.execute(this::renegotiate);
     }
 
-    private void renegotiate() {
+    private synchronized void renegotiate() {
         final SessionDescription sessionDescription;
         try {
             sessionDescription = setLocalSessionDescription();
@@ -2532,10 +2547,11 @@ public class JingleRtpConnection extends AbstractJingleConnection
                             + this.webRTCWrapper.getSignalingState());
         }
 
-        if (diff.added.size() > 0) {
-            modifyLocalContentMap(rtpContentMap);
-            sendContentAdd(rtpContentMap, diff.added);
+        if (diff.added.isEmpty()) {
+            return;
         }
+        modifyLocalContentMap(rtpContentMap);
+        sendContentAdd(rtpContentMap, diff.added);
     }
 
     private void initiateIceRestart(final RtpContentMap rtpContentMap) {
@@ -2688,7 +2704,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     public boolean setMicrophoneEnabled(final boolean enabled) {
-        return webRTCWrapper.setMicrophoneEnabled(enabled);
+        return webRTCWrapper.setMicrophoneEnabledOrThrow(enabled);
     }
 
     public boolean isVideoEnabled() {
@@ -2765,6 +2781,11 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     @Override
+    public void onCallIntegrationMicrophoneEnabled(final boolean enabled) {
+        this.webRTCWrapper.setMicrophoneEnabled(enabled);
+    }
+
+    @Override
     public void onAudioDeviceChanged(
             final CallIntegration.AudioDevice selectedAudioDevice,
             final Set<CallIntegration.AudioDevice> availableAudioDevices) {
@@ -2785,6 +2806,12 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private void updateOngoingCallNotification() {
         final State state = this.state;
         if (STATES_SHOWING_ONGOING_CALL.contains(state)) {
+            if (Arrays.asList(State.PROPOSED, State.SESSION_INITIALIZED).contains(state)
+                    && isResponder()) {
+                Log.d(Config.LOGTAG, "do not set ongoing call during incoming call notification");
+                xmppConnectionService.removeOngoingCall();
+                return;
+            }
             final boolean reconnecting;
             if (state == State.SESSION_ACCEPTED) {
                 reconnecting =
@@ -2808,7 +2835,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                     request,
                     (account, response) -> {
                         final var iceServers = IceServers.parse(response);
-                        if (iceServers.size() == 0) {
+                        if (iceServers.isEmpty()) {
                             Log.w(
                                     Config.LOGTAG,
                                     id.account.getJid().asBareJid()
@@ -2838,6 +2865,11 @@ public class JingleRtpConnection extends AbstractJingleConnection
             this.webRTCWrapper.verifyClosed();
             this.jingleConnectionManager.setTerminalSessionState(id, getEndUserState(), getMedia());
             super.finish();
+            try {
+                File log = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "monocles/calls/" + id.getWith().asBareJid() + "." + id.getSessionId() + "." + created + ".log");
+                log.getParentFile().mkdirs();
+                Runtime.getRuntime().exec(new String[]{"logcat", "-dT", "" + created + ".0", "-f", log.getAbsolutePath()});
+            } catch (final IOException e) { }
         } else {
             throw new IllegalStateException(
                     String.format("Unable to call finish from %s", this.state));
@@ -2906,7 +2938,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final boolean prerequisite =
                 Media.audioOnly(getMedia())
                         && Arrays.asList(RtpEndUserState.CONNECTED, RtpEndUserState.RECONNECTING)
-                        .contains(getEndUserState());
+                                .contains(getEndUserState());
         return prerequisite && remoteHasVideoFeature();
     }
 

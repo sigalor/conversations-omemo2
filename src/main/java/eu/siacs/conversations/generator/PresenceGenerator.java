@@ -7,8 +7,8 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.stanzas.PresencePacket;
 
 public class PresenceGenerator extends AbstractGenerator {
@@ -81,7 +81,7 @@ public class PresenceGenerator extends AbstractGenerator {
             Element cap = packet.addChild("c",
                     "http://jabber.org/protocol/caps");
             cap.setAttribute("hash", "sha-1");
-            cap.setAttribute("node", "http://monocles.eu");
+            cap.setAttribute("node", "https://cheogram.com");
             cap.setAttribute("ver", capHash);
         }
         return packet;

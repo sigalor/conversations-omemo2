@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlMessage;
@@ -17,10 +14,11 @@ import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
+import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
@@ -28,7 +26,6 @@ import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
 import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 
 public class MessageGenerator extends AbstractGenerator {
-    public static final String OTR_FALLBACK_MESSAGE = "I would like to start a private (OTR encrypted) conversation but your client doesn’t seem to support that";
     private static final String OMEMO_FALLBACK_MESSAGE = "I sent you an OMEMO encrypted message but your client doesn’t seem to support that. Find more information on https://conversations.im/omemo";
     private static final String PGP_FALLBACK_MESSAGE = "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
 
@@ -44,16 +41,14 @@ public class MessageGenerator extends AbstractGenerator {
         if (conversation.getMode() == Conversation.MODE_SINGLE) {
             packet.setTo(message.getCounterpart());
             packet.setType(MessagePacket.TYPE_CHAT);
-            if (this.mXmppConnectionService.indicateReceived() && !isWithSelf) {
+            if (!isWithSelf) {
                 packet.addChild("request", "urn:xmpp:receipts");
             }
         } else if (message.isPrivateMessage()) {
             packet.setTo(message.getCounterpart());
             packet.setType(MessagePacket.TYPE_CHAT);
             packet.addChild("x", "http://jabber.org/protocol/muc#user");
-            if (this.mXmppConnectionService.indicateReceived()) {
-                packet.addChild("request", "urn:xmpp:receipts");
-            }
+            packet.addChild("request", "urn:xmpp:receipts");
         } else {
             packet.setTo(message.getCounterpart().asBareJid());
             packet.setType(MessagePacket.TYPE_GROUPCHAT);
@@ -66,15 +61,8 @@ public class MessageGenerator extends AbstractGenerator {
         if (conversation.getMode() == Conversational.MODE_SINGLE || message.isPrivateMessage() || !conversation.getMucOptions().stableId()) {
             packet.addChild("origin-id", Namespace.STANZA_IDS).setAttribute("id", message.getUuid());
         }
-        if (message.edited() && !message.isMessageDeleted()) {
+        if (message.edited()) {
             packet.addChild("replace", "urn:xmpp:message-correct:0").setAttribute("id", message.getEditedIdWireFormat());
-        }
-        else if (message.isMessageDeleted()) {
-            Element apply = packet.addChild("apply-to", "urn:xmpp:fasten:0").setAttribute("id", (message.getRetractId() != null ? message.getRetractId() : (message.getRemoteMsgId() != null ? message.getRemoteMsgId() : (message.getEditedIdWireFormat() != null ? message.getEditedIdWireFormat() : message.getUuid()))));
-            apply.addChild("retract", "urn:xmpp:message-retract:0");
-            packet.addChild("fallback", "urn:xmpp:fallback:0");
-            packet.addChild("store", "urn:xmpp:hints");
-            packet.setBody("This person attempted to retract a previous message, but it's unsupported by your client.");
         }
         if (!legacyEncryption) {
             if (message.getSubject() != null && message.getSubject().length() > 0) packet.addChild("subject").setContent(message.getSubject());
@@ -122,38 +110,6 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-
-    public static void addMessageHints(MessagePacket packet) {
-        packet.addChild("private", "urn:xmpp:carbons:2");
-        packet.addChild("no-copy", "urn:xmpp:hints");
-        packet.addChild("no-permanent-store", "urn:xmpp:hints");
-        packet.addChild("no-permanent-storage", "urn:xmpp:hints"); //do not copy this. this is wrong. it is *store*
-    }
-
-
-    public MessagePacket generateOtrChat(Message message) {
-        Conversation conversation = (Conversation) message.getConversation();
-        Session otrSession = conversation.getOtrSession();
-        if (otrSession == null) {
-            return null;
-        }
-        MessagePacket packet = preparePacket(message, true);
-        addMessageHints(packet);
-        try {
-            String content;
-            if (message.hasFileOnRemoteHost()) {
-                content = message.getFileParams().url.toString();
-            } else {
-                content = message.getBody();
-            }
-            packet.setBody(otrSession.transformSending(content)[0]);
-            packet.addChild("encryption", "urn:xmpp:eme:0").setAttribute("namespace", "urn:xmpp:otr:0");
-            return packet;
-        } catch (OtrException e) {
-            return null;
-        }
-    }
-
     public MessagePacket generateChat(Message message) {
         MessagePacket packet = preparePacket(message, false);
         if (message.hasFileOnRemoteHost()) {
@@ -170,11 +126,12 @@ public class MessageGenerator extends AbstractGenerator {
                     message.appendBody(fileParams.url);
                     final var fallback = new Element("fallback", "urn:xmpp:fallback:0").setAttribute("for", Namespace.OOB);
                     fallback.addChild("body", "urn:xmpp:fallback:0")
-                            .setAttribute("start", String.valueOf(start))
-                            .setAttribute("end", String.valueOf(start + fileParams.url.length()));
+                        .setAttribute("start", String.valueOf(start))
+                        .setAttribute("end", String.valueOf(start + fileParams.url.length()));
                     message.addPayload(fallback);
                 }
             }
+
             packet = preparePacket(message, false);
             packet.addChild("x", Namespace.OOB).addChild("url").setContent(fileParams.url);
         }
@@ -190,7 +147,7 @@ public class MessageGenerator extends AbstractGenerator {
             packet.setBody(url);
             packet.addChild("x", Namespace.OOB).addChild("url").setContent(url);
             packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", Namespace.OOB)
-                    .addChild("body", "urn:xmpp:fallback:0");
+                  .addChild("body", "urn:xmpp:fallback:0");
         } else {
             if (Config.supportUnencrypted()) {
                 packet.setBody(PGP_FALLBACK_MESSAGE);
@@ -249,6 +206,18 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
+    public MessagePacket requestVoice(Jid jid) {
+        MessagePacket packet = new MessagePacket();
+        packet.setType(MessagePacket.TYPE_NORMAL);
+        packet.setTo(jid.asBareJid());
+        Data form = new Data();
+        form.setFormType("http://jabber.org/protocol/muc#request");
+        form.put("muc#role", "participant");
+        form.submit();
+        packet.addChild(form);
+        return packet;
+    }
+
     public MessagePacket directInvite(final Conversation conversation, final Jid contact) {
         MessagePacket packet = new MessagePacket();
         packet.setType(MessagePacket.TYPE_NORMAL);
@@ -301,19 +270,6 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket generateOtrError(Jid to, String id, String errorText) {
-        MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_ERROR);
-        packet.setAttribute("id", id);
-        packet.setTo(to);
-        Element error = packet.addChild("error");
-        error.setAttribute("code", "406");
-        error.setAttribute("type", "modify");
-        error.addChild("not-acceptable", "urn:ietf:params:xml:ns:xmpp-stanzas");
-        error.addChild("text").setContent("?OTR Error:" + errorText);
-        return packet;
-    }
-
     public MessagePacket sessionFinish(
             final Jid with, final String sessionId, final Reason reason) {
         final MessagePacket packet = new MessagePacket();
@@ -337,7 +293,6 @@ public class MessageGenerator extends AbstractGenerator {
         for (final Media media : proposal.media) {
             propose.addChild("description", Namespace.JINGLE_APPS_RTP).setAttribute("media", media.toString());
         }
-
         packet.addChild("request", "urn:xmpp:receipts");
         packet.addChild("store", "urn:xmpp:hints");
         return packet;

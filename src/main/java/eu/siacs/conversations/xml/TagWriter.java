@@ -16,9 +16,10 @@ public class TagWriter {
 
     private OutputStreamWriter outputStream;
     private boolean finished = false;
-    private LinkedBlockingQueue<AbstractStanza> writeQueue = new LinkedBlockingQueue<AbstractStanza>();
+    private final LinkedBlockingQueue<AbstractStanza> writeQueue = new LinkedBlockingQueue<AbstractStanza>();
     private CountDownLatch stanzaWriterCountDownLatch = null;
-    private Thread asyncStanzaWriter = new Thread() {
+
+    private final Thread asyncStanzaWriter = new Thread() {
 
         @Override
         public void run() {
@@ -39,6 +40,7 @@ public class TagWriter {
             }
             stanzaWriterCountDownLatch.countDown();
         }
+
     };
 
     public TagWriter() {
@@ -62,14 +64,13 @@ public class TagWriter {
         writeTag(tag, true);
     }
 
-    public synchronized  void writeTag(final Tag tag, final boolean flush) throws IOException {
+    public synchronized void writeTag(final Tag tag, final boolean flush) throws IOException {
         if (outputStream == null) {
             throw new IOException("output stream was null");
         }
         outputStream.write(tag.toString());
         if (flush) {
             outputStream.flush();
-
         }
     }
 
@@ -79,13 +80,11 @@ public class TagWriter {
         }
         outputStream.write(element.toString());
         outputStream.flush();
-
     }
 
     public void writeStanzaAsync(AbstractStanza stanza) {
         if (finished) {
             Log.d(Config.LOGTAG, "attempting to write stanza to finished TagWriter");
-
         } else {
             if (!asyncStanzaWriter.isAlive()) {
                 try {
@@ -95,7 +94,6 @@ public class TagWriter {
                 }
             }
             writeQueue.add(stanza);
-
         }
     }
 

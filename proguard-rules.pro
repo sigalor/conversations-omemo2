@@ -1,7 +1,5 @@
 -dontobfuscate
 
--keep class de.monocles.chat.**
--keep class de.pixart.messenger.**
 -keep class eu.siacs.conversations.**
 
 -keep class org.whispersystems.**
@@ -14,9 +12,6 @@
 
 -keep class org.openintents.openpgp.*
 -keep class org.webrtc.** { *; }
-
--keep class com.squareup.okhttp.** { *; }
--keep interface com.squareup.okhttp.** { *; }
 
 -dontwarn javax.mail.internet.MimeMessage
 -dontwarn javax.mail.internet.MimeBodyPart
@@ -39,24 +34,11 @@
 -dontwarn org.openjsse.javax.net.ssl.SSLParameters
 -dontwarn org.openjsse.javax.net.ssl.SSLSocket
 -dontwarn org.openjsse.net.ssl.OpenJSSE
+-dontwarn org.jetbrains.annotations.**
 
 -keepclassmembers class eu.siacs.conversations.http.services.** {
   !transient <fields>;
 }
-
-# JSR 305 annotations are for embedding nullability information.
--dontwarn javax.annotation.**
-
-# A resource is loaded with a relative path so the package of this class must be preserved.
--keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
-
-# Animal Sniffer compileOnly dependency to ensure APIs are compatible with older versions of Java.
--dontwarn org.codehaus.mojo.animal_sniffer.*
-
-# OkHttp platform used only on JVM and when Conscrypt dependency is available.
--dontwarn okhttp3.internal.platform.ConscryptPlatform
-
-
 
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
 # EnclosingMethod is required to use InnerClasses.

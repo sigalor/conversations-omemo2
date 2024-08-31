@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/color_background_secondary"
-    android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:orientation="vertical">
-<LinearLayout
-    android:id="@+id/accounts_lists"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_marginBottom="70dp" >
 
-    <include layout="@layout/toolbar" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <ListView
-        android:id="@+id/account_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ListView
+            android:id="@+id/account_list"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp" />
 
     <RelativeLayout
         android:id="@+id/phone_accounts"
@@ -33,17 +33,17 @@
         android:background="?selectableItemBackground"
         android:paddingLeft="8dp"
         android:paddingBottom="8dp"
-        android:paddingTop="8dp" >
+        android:paddingTop="8dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/phone_accounts_image"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/ic_call_white_48dp"
-            android:background="@color/accent_monocles"
-            app:strokeColor="@color/custom_theme_accent"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
+            android:background="@color/yeller"
+            android:src="@drawable/ic_call_24dp"
+            android:tint="@color/white"
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -58,14 +58,14 @@
                 android:layout_height="wrap_content"
                 android:scrollHorizontally="false"
                 android:singleLine="true"
-                android:text="@string/manage_phone_accounts"
-                android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
+                android:text="Manage Phone Accounts"
+                android:textAppearance="?textAppearanceBodyLarge" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Android system dialler integration"
-                android:textAppearance="@style/TextAppearance.Conversations.Body2" />
+                android:textAppearance="?textAppearanceBodyMedium" />
         </LinearLayout>
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -75,20 +75,10 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:paddingRight="16dp"
-            android:src="?attr/icon_settings"
             app:strokeColor="@null"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.PhotoSquare" />
+            android:src="@drawable/ic_settings_24dp"
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
     </RelativeLayout>
-</LinearLayout>
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_gravity="end|bottom"
-        android:background="?attr/color_background_secondary"
-        app:labelVisibilityMode="labeled"
-        app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
-        app:menu="@menu/bottom_navigation_menu_accounts"
-        android:animateLayoutChanges="true" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</LinearLayout>
+
+    </LinearLayout>
+</layout>

@@ -1,7 +1,5 @@
 package eu.siacs.conversations.ui.adapter;
 
-import static eu.siacs.conversations.services.ChannelDiscoveryService.Method.JABBER_NETWORK;
-
 import android.app.Activity;
 import android.text.TextUtils;
 import android.view.ContextMenu;
@@ -15,23 +13,18 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.MessageFormat;
-import java.util.Locale;
-
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.databinding.SearchResultItemBinding;
+import eu.siacs.conversations.databinding.ItemChannelDiscoveryBinding;
 import eu.siacs.conversations.entities.Room;
-import eu.siacs.conversations.ui.ChannelDiscoveryActivity;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.xmpp.Jid;
 
+import java.util.Locale;
 
 public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchResultAdapter.ViewHolder> implements View.OnCreateContextMenuListener {
 
-    private XmppActivity activity;
-
-    private static final DiffUtil.ItemCallback<Room> DIFF = new DiffUtil.ItemCallback<Room>() {
+    private static final DiffUtil.ItemCallback<Room> DIFF = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull Room a, @NonNull Room b) {
             return a.address != null && a.address.equals(b.address);
@@ -45,22 +38,20 @@ public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchR
     private OnChannelSearchResultSelected listener;
     private Room current;
 
-    public ChannelSearchResultAdapter(XmppActivity activity) {
+    public ChannelSearchResultAdapter() {
         super(DIFF);
-        this.activity = activity;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        return new ViewHolder(DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.search_result_item, viewGroup, false));
+        return new ViewHolder(DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.item_channel_discovery, viewGroup, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         final Room searchResult = getItem(position);
-        final String user = '[' + String.valueOf(searchResult.nusers) + ']';
-        viewHolder.binding.name.setText(MessageFormat.format("{0} {1}", searchResult.getName(), user));
+        viewHolder.binding.name.setText(searchResult.getName());
         final String description = searchResult.getDescription();
         final String language = searchResult.getLanguage();
         if (TextUtils.isEmpty(description)) {
@@ -77,17 +68,7 @@ public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchR
         }
         final Jid room = searchResult.getRoom();
         viewHolder.binding.room.setText(room != null ? room.asBareJid().toString() : "");
-        String roomJID;
-        if (room != null) {
-            roomJID = ChannelDiscoveryActivity.getMethod(activity.xmppConnectionService) == JABBER_NETWORK ? room.toString() : null;
-        } else {
-            roomJID = null;
-        }
-        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("set_round_avatars", R.bool.set_round_avatars)) {
-            AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatar, R.dimen.avatar);
-        } else {
-            AvatarWorkerTask.loadAvatar(roomJID, searchResult, viewHolder.binding.avatarSquare, R.dimen.avatar);
-        }
+        AvatarWorkerTask.loadAvatar(searchResult, viewHolder.binding.avatar, R.dimen.avatar);
         final View root = viewHolder.binding.getRoot();
         root.setTag(searchResult);
         root.setOnClickListener(v -> listener.onChannelSearchResult(searchResult));
@@ -118,9 +99,9 @@ public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchR
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final SearchResultItemBinding binding;
+        private final ItemChannelDiscoveryBinding binding;
 
-        private ViewHolder(SearchResultItemBinding binding) {
+        private ViewHolder(final ItemChannelDiscoveryBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

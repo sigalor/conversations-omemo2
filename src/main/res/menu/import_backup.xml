@@ -4,8 +4,8 @@
 
     <item
         android:id="@+id/action_open_backup_file"
-        android:icon="?attr/ic_cloud_download"
-        android:title="@string/open_backup"
-        app:showAsAction="always" />
+        android:icon="@drawable/ic_cloud_download_24dp"
+        app:showAsAction="always"
+        android:title="@string/open_backup"/>
 
 </menu>

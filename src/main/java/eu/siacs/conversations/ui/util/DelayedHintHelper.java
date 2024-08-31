@@ -36,13 +36,14 @@ import androidx.annotation.StringRes;
 
 public class DelayedHintHelper {
 
-    public static void setHint(@StringRes final int res, EditText editText) {
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                new Handler().postDelayed(() -> editText.setHint(res), 200);
-            } else {
-                editText.setHint(null);
-            }
-        });
-    }
+	public static void setHint(@StringRes final int res, EditText editText) {
+		editText.setOnFocusChangeListener((v, hasFocus) -> {
+			if (hasFocus) {
+				new Handler().postDelayed(() -> editText.setHint(res), 200);
+			} else {
+				editText.setHint(null);
+			}
+		});
+	}
+
 }

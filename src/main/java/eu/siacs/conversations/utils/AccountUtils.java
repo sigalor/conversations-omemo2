@@ -2,6 +2,9 @@ package eu.siacs.conversations.utils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
@@ -16,7 +19,6 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.XmppActivity;
-import me.drakeet.support.toast.ToastCompat;
 
 public class AccountUtils {
 
@@ -28,7 +30,7 @@ public class AccountUtils {
 
     public static boolean hasEnabledAccounts(final XmppConnectionService service) {
         final List<Account> accounts = service.getAccounts();
-        for(Account account : accounts) {
+        for (Account account : accounts) {
             if (account.isOptionSet(Account.OPTION_DISABLED)) {
                 return false;
             }
@@ -59,11 +61,7 @@ public class AccountUtils {
         final ArrayList<String> accounts = new ArrayList<>();
         for (final Account account : service.getAccounts()) {
             if (account.isEnabled()) {
-                if (Config.DOMAIN_LOCK != null) {
-                    accounts.add(account.getJid().getEscapedLocal());
-                } else {
-                    accounts.add(account.getJid().asBareJid().toEscapedString());
-                }
+                accounts.add(account.getJid().asBareJid().toEscapedString());
             }
         }
         return accounts;
@@ -103,7 +101,7 @@ public class AccountUtils {
         if (MANAGE_ACCOUNT_ACTIVITY != null) {
             activity.startActivity(new Intent(activity, MANAGE_ACCOUNT_ACTIVITY));
         } else {
-            ToastCompat.makeText(activity, R.string.feature_not_implemented, ToastCompat.LENGTH_SHORT).show();
+            Toast.makeText(activity, R.string.feature_not_implemented, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -117,6 +115,17 @@ public class AccountUtils {
             return Class.forName("eu.siacs.conversations.ui.ManageAccountActivity");
         } catch (final ClassNotFoundException e) {
             return null;
+        }
+    }
+
+    public static void showHideMenuItems(final Menu menu) {
+        final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+        final MenuItem manageAccount = menu.findItem(R.id.action_account);
+        if (manageAccount != null) {
+            manageAccount.setVisible(MANAGE_ACCOUNT_ACTIVITY == null);
+        }
+        if (manageAccounts != null) {
+            manageAccounts.setVisible(MANAGE_ACCOUNT_ACTIVITY != null);
         }
     }
 }

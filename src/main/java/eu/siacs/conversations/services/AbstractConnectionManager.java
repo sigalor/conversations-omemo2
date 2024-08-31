@@ -1,7 +1,7 @@
 package eu.siacs.conversations.services;
 
-import static eu.siacs.conversations.entities.Transferable.VALID_CRYPTO_EXTENSIONS;
-
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,8 +36,11 @@ import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
 
+import static eu.siacs.conversations.entities.Transferable.VALID_CRYPTO_EXTENSIONS;
+
 public class AbstractConnectionManager {
-    private static final int UI_REFRESH_THRESHOLD = Config.REFRESH_UI_INTERVAL;
+
+    private static final int UI_REFRESH_THRESHOLD = 250;
     private static final AtomicLong LAST_UI_UPDATE_CALL = new AtomicLong(0);
     protected XmppConnectionService mXmppConnectionService;
 
@@ -118,26 +121,13 @@ public class AbstractConnectionManager {
     }
 
     public long getAutoAcceptFileSize() {
-        final long defaultValue_wifi = this.getXmppConnectionService().getResources().getInteger(R.integer.auto_accept_filesize_wifi);
-        final long defaultValue_mobile = this.getXmppConnectionService().getResources().getInteger(R.integer.auto_accept_filesize_mobile);
-        final long defaultValue_roaming = this.getXmppConnectionService().getResources().getInteger(R.integer.auto_accept_filesize_roaming);
-
-        String config = "0";
-        if (mXmppConnectionService.isWIFI()) {
-            config = this.mXmppConnectionService.getPreferences().getString(
-                    "auto_accept_file_size_wifi", String.valueOf(defaultValue_wifi));
-        } else if (mXmppConnectionService.isMobile()) {
-            config = this.mXmppConnectionService.getPreferences().getString(
-                    "auto_accept_file_size_mobile", String.valueOf(defaultValue_mobile));
-        } else if (mXmppConnectionService.isMobileRoaming()) {
-            config = this.mXmppConnectionService.getPreferences().getString(
-                    "auto_accept_file_size_roaming", String.valueOf(defaultValue_roaming));
+        final ConnectivityManager connectivityManager = mXmppConnectionService.getSystemService(ConnectivityManager.class);
+        final var autoAcceptUnmetered = mXmppConnectionService.getBooleanPreference("auto_accept_unmetered", R.bool.auto_accept_unmetered);
+        if (autoAcceptUnmetered && !Compatibility.isActiveNetworkMetered(connectivityManager)) {
+            return 20000000; // 20 MB
         }
-        try {
-            return Long.parseLong(config) <= 0 ? -1 : Long.parseLong(config);
-        } catch (NumberFormatException e) {
-            return defaultValue_mobile;
-        }
+        final long autoAcceptFileSize = this.mXmppConnectionService.getLongPreference("auto_accept_file_size", R.integer.auto_accept_filesize);
+        return autoAcceptFileSize <= 0 ? -1 : autoAcceptFileSize;
     }
 
     public boolean hasStoragePermission() {

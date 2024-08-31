@@ -153,7 +153,7 @@ public class SessionDescription {
         attributeMap.put("msid-semantic", " WMS my-media-stream");
 
         for (final Map.Entry<
-                String, DescriptionTransport<FileTransferDescription, GenericTransportInfo>>
+                        String, DescriptionTransport<FileTransferDescription, GenericTransportInfo>>
                 entry : contentMap.contents.entrySet()) {
             final var dt = entry.getValue();
             final WebRTCDataChannelTransportInfo webRTCDataChannelTransportInfo;

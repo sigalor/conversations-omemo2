@@ -3,28 +3,34 @@ package eu.siacs.conversations.ui.adapter;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.IntentSender;
-import android.graphics.drawable.Drawable;
+import android.content.res.ColorStateList;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.TextView;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.openintents.openpgp.util.OpenPgpUtils;
+import com.google.android.material.color.MaterialColors;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openintents.openpgp.util.OpenPgpUtils;
+
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.PgpEngine;
-import eu.siacs.conversations.databinding.ContactBinding;
+import eu.siacs.conversations.databinding.ItemContactBinding;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -69,18 +75,29 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int position) {
-        return new ViewHolder(DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.contact, viewGroup, false));
+        return new ViewHolder(DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.item_contact, viewGroup, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         final MucOptions.User user = getItem(position);
-        AvatarWorkerTask.loadAvatar(user, viewHolder.binding.contactPhoto, R.dimen.avatar_on_details_screen_size);
+        AvatarWorkerTask.loadAvatar(user, viewHolder.binding.contactPhoto, R.dimen.avatar);
         viewHolder.binding.getRoot().setOnClickListener(v -> {
             final XmppActivity activity = XmppActivity.find(v);
-            if (activity != null) {
-                activity.highlightInMuc(user.getConversation(), user.getNick());
+            if (activity == null) {
+                return;
             }
+            final var contact = user.getContact();
+            if (user.getRole() == MucOptions.Role.NONE && contact != null) {
+                Toast.makeText(
+                                activity,
+                                activity.getString(
+                                        R.string.user_has_left_conference,
+                                        contact.getDisplayName()),
+                                Toast.LENGTH_SHORT)
+                        .show();
+            }
+            activity.highlightInMuc(user.getConversation(), user.getName());
         });
         viewHolder.binding.getRoot().setTag(user);
         viewHolder.binding.getRoot().setOnCreateContextMenuListener(this);
@@ -100,7 +117,8 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
                 viewHolder.binding.contactJid.setText(name);
             }
         } else {
-            viewHolder.binding.contactDisplayName.setText(name == null ? "" : name);
+            viewHolder.binding.contactDisplayName.setText(Strings.nullToEmpty(name));
+            viewHolder.binding.contactJid.setText(ConferenceDetailsActivity.getStatus(viewHolder.binding.getRoot().getContext(), user, advancedMode));
         }
         if (advancedMode && user.getPgpKeyId() != 0) {
             viewHolder.binding.key.setVisibility(View.VISIBLE);
@@ -124,26 +142,32 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
             viewHolder.binding.key.setVisibility(View.GONE);
         }
 
+        final Context context = viewHolder.binding.getRoot().getContext();
+        final LayoutInflater inflater = LayoutInflater.from(context);
         viewHolder.binding.tags.setVisibility(View.VISIBLE);
-        viewHolder.binding.tags.removeAllViewsInLayout();
+        viewHolder.binding.tags.removeViews(1, viewHolder.binding.tags.getChildCount() - 1);
+        final ImmutableList.Builder<Integer> viewIdBuilder = new ImmutableList.Builder<>();
         for (MucOptions.Hat hat : getPseudoHats(viewHolder.binding.getRoot().getContext(), user)) {
-            TextView tv = (TextView) LayoutInflater.from(viewHolder.binding.getRoot().getContext()).inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
-            tv.setText(hat.toString());
-            Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
-            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-            DrawableCompat.setTint(wrappedDrawable, hat.getColor());
-            tv.setBackgroundResource(R.drawable.rounded_tag);
+            final String tag = hat.toString();
+            final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
+            tv.setText(tag);
+            tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(context,hat.getColor())));
+            final int id = ViewCompat.generateViewId();
+            tv.setId(id);
+            viewIdBuilder.add(id);
             viewHolder.binding.tags.addView(tv);
         }
         for (MucOptions.Hat hat : user.getHats()) {
-            TextView tv = (TextView) LayoutInflater.from(viewHolder.binding.getRoot().getContext()).inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
-            tv.setText(hat.toString());
-            Drawable unwrappedDrawable = AppCompatResources.getDrawable(tv.getContext(), R.drawable.rounded_tag);
-            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-            DrawableCompat.setTint(wrappedDrawable, hat.getColor());
-            tv.setBackgroundResource(R.drawable.rounded_tag);
+            final String tag = hat.toString();
+            final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
+            tv.setText(tag);
+            tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(context,hat.getColor())));
+            final int id = ViewCompat.generateViewId();
+            tv.setId(id);
+            viewIdBuilder.add(id);
             viewHolder.binding.tags.addView(tv);
         }
+        viewHolder.binding.flowWidget.setReferencedIds(Ints.toArray(viewIdBuilder.build()));
 
         if (viewHolder.binding.tags.getChildCount() < 1) {
             viewHolder.binding.contactJid.setVisibility(View.VISIBLE);
@@ -168,14 +192,14 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        MucDetailsContextMenuHelper.onCreateContextMenu(menu, v);
+        MucDetailsContextMenuHelper.onCreateContextMenu(menu,v);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final ContactBinding binding;
+        private final ItemContactBinding binding;
 
-        private ViewHolder(ContactBinding binding) {
+        private ViewHolder(ItemContactBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

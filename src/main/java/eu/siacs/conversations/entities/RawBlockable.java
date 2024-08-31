@@ -45,11 +45,6 @@ public class RawBlockable implements ListItem, Blockable {
     }
 
     @Override
-    public int getOffline() {
-        return 0;
-    }
-
-    @Override
     public Jid getJid() {
         return this.jid;
     }
@@ -57,11 +52,6 @@ public class RawBlockable implements ListItem, Blockable {
     @Override
     public List<Tag> getTags(Context context) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public boolean getActive() {
-        return false;
     }
 
     @Override
@@ -86,7 +76,7 @@ public class RawBlockable implements ListItem, Blockable {
 
     @Override
     public int getAvatarBackgroundColor() {
-        return UIHelper.getColorForName(jid.toEscapedString());
+        return  UIHelper.getColorForName(jid.toEscapedString());
     }
 
     @Override
@@ -97,6 +87,6 @@ public class RawBlockable implements ListItem, Blockable {
     @Override
     public int compareTo(ListItem o) {
         return this.getDisplayName().compareToIgnoreCase(
-                o.getDisplayName());
+				o.getDisplayName());
     }
 }

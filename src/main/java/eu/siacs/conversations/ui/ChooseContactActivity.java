@@ -9,6 +9,7 @@ import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
@@ -51,15 +52,15 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     public static final String EXTRA_SHOW_ENTER_JID = "extra_show_enter_jid";
     public static final String EXTRA_CONVERSATION = "extra_conversation";
     private static final String EXTRA_FILTERED_CONTACTS = "extra_filtered_contacts";
-    private List<String> mActivatedAccounts = new ArrayList<>();
-    private Set<String> selected = new HashSet<>();
+    private final ArrayList<String> mActivatedAccounts = new ArrayList<>();
+    private final Set<String> selected = new HashSet<>();
     private Set<String> filterContacts;
 
     private boolean showEnterJid = false;
     private boolean startSearching = false;
     private boolean multiple = false;
 
-    private PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
+    private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
 
     public static Intent create(Activity activity, Conversation conversation) {
         final Intent intent = new Intent(activity, ChooseContactActivity.class);
@@ -130,8 +131,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         if (this.showEnterJid) {
             this.binding.fab.show();
         } else {
-            binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
+            binding.fab.setImageResource(R.drawable.ic_navigate_next_24dp);
         }
+
         final SharedPreferences preferences = getPreferences();
         this.startSearching = intent.getBooleanExtra("direct_search", false) && preferences.getBoolean("start_searching", getResources().getBoolean(R.bool.start_searching));
 
@@ -147,7 +149,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     }
 
     private void onFabClicked(View v) {
-        if (selected.size() == 0) {
+        if (selected.isEmpty()) {
             showEnterJidDialog(null);
         } else {
             submitSelection();
@@ -162,7 +164,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         mode.setTitle(getTitleFromIntent());
-        binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
+        binding.chooseContactList.setFastScrollEnabled(false);
+        binding.fab.setImageResource(R.drawable.ic_navigate_next_24dp);
         binding.fab.show();
         final View view = getSearchEditText();
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -174,12 +177,13 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        this.binding.fab.setImageResource(R.drawable.ic_person_add_white_24dp);
+        this.binding.fab.setImageResource(R.drawable.ic_person_add_24dp);
         if (this.showEnterJid) {
             this.binding.fab.show();
         } else {
             this.binding.fab.hide();
         }
+        binding.chooseContactList.setFastScrollEnabled(true);
         selected.clear();
     }
 
@@ -207,8 +211,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     @Override
     public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
         if (selected.size() != 0) {
-            getListView().playSoundEffect(0);
+            getListView().playSoundEffect(SoundEffectConstants.CLICK);
         }
+        getListItemAdapter().notifyDataSetChanged();
         Contact item = (Contact) getListItems().get(position);
         if (checked) {
             selected.add(item.getJid().toString());
@@ -288,7 +293,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
                 }
 
                 final Contact self = new Contact(account.getSelfContact());
-                self.setSystemName(getString(R.string.note_to_self));
+                self.setSystemName("Note to Self");
                 if (self.match(this, needle)) {
                     getListItems().add(self);
                 }
@@ -335,7 +340,6 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
                 jid == null ? null : jid.asBareJid().toString(),
                 getIntent().getStringExtra(EXTRA_ACCOUNT),
                 true,
-                true,
                 false,
                 EnterJidDialog.SanityCheck.NO
         );
@@ -381,13 +385,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     protected void onBackendConnected() {
         filterContacts();
         this.mActivatedAccounts.clear();
-        for (Account account : xmppConnectionService.getAccounts()) {
+        for (final Account account : xmppConnectionService.getAccounts()) {
             if (account.isEnabled()) {
-                if (Config.DOMAIN_LOCK != null) {
-                    this.mActivatedAccounts.add(account.getJid().getEscapedLocal());
-                } else {
-                    this.mActivatedAccounts.add(account.getJid().asBareJid().toEscapedString());
-                }
+                this.mActivatedAccounts.add(account.getJid().asBareJid().toEscapedString());
             }
         }
         ActivityResult activityResult = this.postponedActivityResult.pop();
@@ -416,14 +416,14 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
             }
 
             if (selected.isEmpty()) {
-                this.binding.fab.setImageResource(R.drawable.ic_person_add_white_24dp);
+                this.binding.fab.setImageResource(R.drawable.ic_person_add_24dp);
                 if (this.showEnterJid) {
                     this.binding.fab.show();
                 } else {
                     this.binding.fab.hide();
                 }
             } else {
-                binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
+                binding.fab.setImageResource(R.drawable.ic_navigate_next_24dp);
                 binding.fab.show();
             }
 

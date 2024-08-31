@@ -6,8 +6,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
 
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 
 public class Group extends Element {
 

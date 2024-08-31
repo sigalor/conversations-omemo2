@@ -22,13 +22,6 @@ public class TLSSocketFactory extends SSLSocketFactory {
         this.internalSSLSocketFactory = context.getSocketFactory();
     }
 
-    private static Socket enableTLSOnSocket(Socket socket) {
-        if (socket instanceof SSLSocket) {
-            SSLSockets.setSecurity((SSLSocket) socket);
-        }
-        return socket;
-    }
-
     @Override
     public String[] getDefaultCipherSuites() {
         return CryptoHelper.getOrderedCipherSuites(internalSSLSocketFactory.getDefaultCipherSuites());
@@ -62,5 +55,12 @@ public class TLSSocketFactory extends SSLSocketFactory {
     @Override
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket(address, port, localAddress, localPort));
+    }
+
+    private static Socket enableTLSOnSocket(Socket socket) {
+        if(socket instanceof SSLSocket) {
+            SSLSockets.setSecurity((SSLSocket) socket);
+        }
+        return socket;
     }
 }
