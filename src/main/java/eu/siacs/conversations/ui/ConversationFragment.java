@@ -1,5 +1,7 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
 import static eu.siacs.conversations.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
@@ -85,6 +87,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import com.bumptech.glide.Glide;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
@@ -1625,7 +1629,13 @@ public class ConversationFragment extends XmppFragment
         }
 
         SpannableStringBuilder body = message.getSpannableBody(null, null);
-        if (message.isFileOrImage() || message.isOOb()) body.append(" 🖼️");
+        if ((message.isFileOrImage() || message.isOOb()) && binding.imageReplyPreview != null) {
+            binding.imageReplyPreview.setVisibility(VISIBLE);
+            Glide.with(activity).load(message.getRelativeFilePath()).placeholder(R.drawable.ic_image_24dp).thumbnail(0.2f).into(binding.imageReplyPreview);
+        } else if (binding.imageReplyPreview != null) {
+            Glide.with(activity).clear(binding.imageReplyPreview);
+            binding.imageReplyPreview.setVisibility(GONE);
+        }
         messageListAdapter.handleTextQuotes(binding.contextPreviewText, body);
         binding.contextPreviewText.setText(body);
         binding.contextPreview.setVisibility(View.VISIBLE);
