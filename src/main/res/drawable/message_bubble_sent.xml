@@ -17,16 +17,4 @@
             <solid android:color="?colorSurface" />
         </shape>
     </item>
-    <item android:bottom="0dp" android:gravity="bottom|right" android:width="7dp" android:height="7dp">
-        <vector
-           android:width="24dp"
-           android:height="24dp"
-           android:viewportWidth="24.0"
-           android:viewportHeight="24.0">
-           <path
-                android:pathData="M0,24 V 0 L24,24 z"
-                android:strokeColor="?colorSurface"
-                android:fillColor="?colorSurface"/>
-        </vector>
-    </item>
 </layer-list>
