@@ -743,7 +743,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             // Make custom emoji bigger too, to match emoji
             for (final var span : body.getSpans(0, body.length(), de.monocles.chat.InlineImageSpan.class)) {
                 body.setSpan(
-                        new RelativeSizeSpan(1.2f),
+                        new RelativeSizeSpan(2.0f),
                         body.getSpanStart(span),
                         body.getSpanEnd(span),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
