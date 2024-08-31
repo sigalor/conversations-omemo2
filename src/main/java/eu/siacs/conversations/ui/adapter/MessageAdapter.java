@@ -68,6 +68,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import com.lelloman.identicon.view.GithubIdenticonView;
+import com.daimajia.swipe.SwipeLayout;
 
 import io.ipfs.cid.Cid;
 
@@ -1325,9 +1326,64 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
             }
         });
-        viewHolder.message_box.setOnTouchListener(swipeDetector);
-        viewHolder.image.setOnTouchListener(swipeDetector);
-        viewHolder.time.setOnTouchListener(swipeDetector);
+
+
+
+        // monocles swipe feature
+        SwipeLayout swipeLayout = view.findViewById(R.id.layout_swipe);
+
+        //set show mode.
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
+
+        //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
+        swipeLayout.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
+
+        swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
+            @Override
+            public void onClose(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
+                swipeLayout.clearAnimation();
+                //when the SurfaceView totally cover the BottomView.
+            }
+
+            @Override
+            public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                swipeLayout.setClickToClose(true);
+                //you are swiping.
+            }
+
+            @Override
+            public void onStartOpen(SwipeLayout layout) {
+                swipeLayout.setClickToClose(true);
+
+            }
+
+            @Override
+            public void onOpen(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
+                //when the BottomView totally show.
+                if (mOnMessageBoxSwipedListener != null) mOnMessageBoxSwipedListener.onContactPictureClicked(message);
+                swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
+            }
+
+            @Override
+            public void onStartClose(SwipeLayout layout) {
+                swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
+            }
+
+            @Override
+            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                swipeLayout.refreshDrawableState();
+                swipeLayout.close(true);
+            }
+        });
+
+
+
+
+
 
         // Treat touch-up as click so we don't have to touch twice
         // (touch twice is because it's waiting to see if you double-touch for text selection)
