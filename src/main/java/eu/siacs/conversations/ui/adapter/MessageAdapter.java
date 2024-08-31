@@ -57,7 +57,6 @@ import com.google.android.material.shape.ShapeAppearanceModel;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.MessageTextActionModeCallback;
-import de.monocles.chat.SwipeDetector;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcUpdate;
 
@@ -1321,12 +1320,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         .onContactPictureClicked(message);
             }
         });
-        SwipeDetector swipeDetector = new SwipeDetector((action) -> {
-            if (action == SwipeDetector.Action.LR && MessageAdapter.this.mOnMessageBoxSwipedListener != null) {
-                MessageAdapter.this.mOnMessageBoxSwipedListener.onContactPictureClicked(message);
-            }
-        });
-
 
 
         // monocles swipe feature
@@ -1394,8 +1387,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         .onContactPictureClicked(message);
                 }
             }
-
-            swipeDetector.onTouch(v, event);
 
             return false;
         });
