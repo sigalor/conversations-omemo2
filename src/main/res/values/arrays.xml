@@ -48,6 +48,18 @@
 		<item>SEND_LOCATION</item>
 	</string-array>
 
+	<string-array name="avatars_shape">
+		<item>@string/avater_shape_rounded_square</item>
+		<item>@string/avater_shape_oval</item>
+		<item>@string/avater_shape_square</item>
+	</string-array>
+
+	<string-array name="avatars_shape_values">
+		<item>rounded_square</item>
+		<item>oval</item>
+		<item>square</item>
+	</string-array>
+
 	<string-array name="picture_compression_values">
 		<item>never</item>
 		<item>auto</item>

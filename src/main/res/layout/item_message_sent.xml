@@ -37,12 +37,11 @@
             android:layout_marginStart="0dp"
             android:orientation="vertical">
 
-        <com.google.android.material.imageview.ShapeableImageView
+        <eu.siacs.conversations.ui.widget.AvatarView
                 android:id="@+id/message_photo"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:scaleType="centerCrop"
-                app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
+                android:scaleType="centerCrop" />
         </LinearLayout>
 
 

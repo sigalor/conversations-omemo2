@@ -1076,4 +1076,10 @@
     <string name="welcome_to_monocles_chat">Welcome to monocles chat</string>
     <string name="monocles_chat_intro_description">monocles chat is an app that connects you to a global network called Jabber. This network includes services, called gateways, for chatting with other networks such as SMS, IRC, Matrix, and more.</string>
     <string name="how_the_xmpp_network_works">How the XMPP network works</string>
+
+    <string name="avater_shape_oval">Oval</string>
+    <string name="avater_shape_rounded_square">Rounded Square</string>
+    <string name="avater_shape_square">Square</string>
+    <string name="pref_avatars_shape">Avatars shape</string>
+    <string name="pref_avatar_shape_summary">Allows you to select avatars shape globally</string>
 </resources>

@@ -7,11 +7,10 @@
         android:layout_height="match_parent"
         android:background="?selectableItemBackgroundBorderless"
         android:padding="2dp">
-        <com.google.android.material.imageview.ShapeableImageView
+        <eu.siacs.conversations.ui.widget.AvatarView
             android:id="@+id/avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
+            android:scaleType="centerCrop" />
     </eu.siacs.conversations.ui.widget.SquareFrameLayout>
 </layout>

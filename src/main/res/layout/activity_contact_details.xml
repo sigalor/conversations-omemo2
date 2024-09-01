@@ -43,12 +43,11 @@
                         android:layout_height="wrap_content"
                         android:padding="@dimen/card_padding_regular">
 
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <eu.siacs.conversations.ui.widget.AvatarView
                             android:id="@+id/details_contact_badge"
                             android:layout_width="@dimen/avatar_on_details_screen_size"
                             android:layout_height="@dimen/avatar_on_details_screen_size"
                             android:layout_alignParentTop="true"
-                            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
                             android:scaleType="centerCrop" />
 
                         <LinearLayout

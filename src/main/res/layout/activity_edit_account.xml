@@ -47,14 +47,13 @@
                         android:layout_height="wrap_content"
                         android:padding="@dimen/card_padding_regular">
 
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <eu.siacs.conversations.ui.widget.AvatarView
                             android:id="@+id/avater"
                             android:layout_width="@dimen/avatar_on_details_screen_size"
                             android:layout_height="@dimen/avatar_on_details_screen_size"
                             android:layout_alignParentTop="true"
                             android:layout_marginEnd="@dimen/avatar_item_distance"
-                            android:contentDescription="@string/account_image_description"
-                            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
+                            android:contentDescription="@string/account_image_description" />
 
                         <LinearLayout
                             android:layout_width="fill_parent"

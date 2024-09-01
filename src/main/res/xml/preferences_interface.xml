@@ -81,6 +81,13 @@
             app:colorpicker_showAlpha="false" />
     </PreferenceCategory>>
     <PreferenceCategory android:title="@string/appearance">
+        <ListPreference
+            android:defaultValue="@string/avatar_shape"
+            android:key="avatar_shape"
+            android:entries="@array/avatars_shape"
+            android:entryValues="@array/avatars_shape_values"
+            android:summary="@string/pref_avatar_shape_summary"
+            android:title="@string/pref_avatars_shape" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/use_green_background"
             android:icon="@drawable/ic_forum_24dp"

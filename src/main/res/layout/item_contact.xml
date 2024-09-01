@@ -13,13 +13,12 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/list_padding">
 
-        <com.google.android.material.imageview.ShapeableImageView
+        <eu.siacs.conversations.ui.widget.AvatarView
             android:id="@+id/contact_photo"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentStart="true"
-            android:scaleType="centerCrop"
-            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
+            android:scaleType="centerCrop" />
 
         <LinearLayout
             android:layout_width="wrap_content"
