@@ -1073,4 +1073,5 @@
     <string name="unsupported_operation">Unsupported operation</string>
     <string name="schedule_message">Send later</string>
     <string name="options">Options</string>
+    <string name="welcome_to_monocles_chat">Welcome to monocles chat</string>
 </resources>

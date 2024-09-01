@@ -40,7 +40,7 @@
             android:fontFamily="@font/archivoblack"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
-            android:text="Welcome to monocles chat" />
+            android:text="@string/welcome_to_monocles_chat" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -229,7 +229,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:layout_gravity="center"
-                        android:drawableLeft="@drawable/getjid"
                         android:fontFamily="@font/poppins"
                         android:text="@string/create_new_account" />
 
@@ -242,7 +241,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:layout_gravity="center"
-                        android:drawableLeft="@drawable/havejid"
                         android:fontFamily="@font/poppins"
                         android:text="@string/i_already_have_an_account" />
 
@@ -254,7 +252,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:drawableLeft="@drawable/snikket"
                         android:fontFamily="@font/poppins"
                         android:text="@string/i_am_snikket_user" />
 
@@ -266,7 +263,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:drawableLeft="@drawable/restore"
                         android:fontFamily="@font/poppins"
                         android:text="@string/restore_backup" />
                 </LinearLayout>
