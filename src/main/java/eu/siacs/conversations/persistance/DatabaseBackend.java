@@ -225,85 +225,85 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return instance;
     }
 
-    protected void cheogramMigrate(SQLiteDatabase db) {
+    protected void monoclesMigrate(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
-            Cursor cursor = db.rawQuery("PRAGMA cheogram.user_version", null);
+            Cursor cursor = db.rawQuery("PRAGMA monocles.user_version", null);
             cursor.moveToNext();
-            int cheogramVersion = cursor.getInt(0);
+            int monoclesVersion = cursor.getInt(0);
             cursor.close();
 
-            if(cheogramVersion < 1) {
+            if(monoclesVersion < 1) {
                 // No cross-DB foreign keys unfortunately
                 db.execSQL(
-                    "CREATE TABLE cheogram." + Message.TABLENAME + "(" +
+                    "CREATE TABLE monocles." + Message.TABLENAME + "(" +
                     Message.UUID + " TEXT PRIMARY KEY, " +
                     "subject TEXT" +
                     ")"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 1");
+                db.execSQL("PRAGMA monocles.user_version = 1");
             }
 
-            if(cheogramVersion < 2) {
+            if(monoclesVersion < 2) {
                 db.execSQL(
-                    "ALTER TABLE cheogram." + Message.TABLENAME + " " +
+                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
                     "ADD COLUMN oobUri TEXT"
                 );
                 db.execSQL(
-                    "ALTER TABLE cheogram." + Message.TABLENAME + " " +
+                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
                     "ADD COLUMN fileParams TEXT"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 2");
+                db.execSQL("PRAGMA monocles.user_version = 2");
             }
 
-            if(cheogramVersion < 3) {
+            if(monoclesVersion < 3) {
                 db.execSQL(
-                    "ALTER TABLE cheogram." + Message.TABLENAME + " " +
+                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
                     "ADD COLUMN payloads TEXT"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 3");
+                db.execSQL("PRAGMA monocles.user_version = 3");
             }
 
-            if(cheogramVersion < 4) {
+            if(monoclesVersion < 4) {
                 db.execSQL(
-                    "CREATE TABLE cheogram.cids (" +
+                    "CREATE TABLE monocles.cids (" +
                     "cid TEXT NOT NULL PRIMARY KEY," +
                     "path TEXT NOT NULL" +
                     ")"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 4");
+                db.execSQL("PRAGMA monocles.user_version = 4");
             }
 
-            if(cheogramVersion < 5) {
+            if(monoclesVersion < 5) {
                 db.execSQL(
-                    "ALTER TABLE cheogram." + Message.TABLENAME + " " +
+                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
                     "ADD COLUMN timeReceived NUMBER"
                 );
-                db.execSQL("CREATE INDEX cheogram.message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
-                db.execSQL("PRAGMA cheogram.user_version = 5");
+                db.execSQL("CREATE INDEX monocles.message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
+                db.execSQL("PRAGMA monocles.user_version = 5");
             }
 
-            if(cheogramVersion < 6) {
+            if(monoclesVersion < 6) {
                 db.execSQL(
-                    "CREATE TABLE cheogram.blocked_media (" +
+                    "CREATE TABLE monocles.blocked_media (" +
                     "cid TEXT NOT NULL PRIMARY KEY" +
                     ")"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 6");
+                db.execSQL("PRAGMA monocles.user_version = 6");
             }
 
-            if(cheogramVersion < 7) {
+            if(monoclesVersion < 7) {
                 db.execSQL(
-                    "ALTER TABLE cheogram.cids " +
+                    "ALTER TABLE monocles.cids " +
                     "ADD COLUMN url TEXT"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 7");
+                db.execSQL("PRAGMA monocles.user_version = 7");
             }
 
-            if(cheogramVersion < 8) {
+            if(monoclesVersion < 8) {
                 db.execSQL(
-                    "CREATE TABLE cheogram.webxdc_updates (" +
+                    "CREATE TABLE monocles.webxdc_updates (" +
                     "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     Message.CONVERSATION + " TEXT NOT NULL, " +
                     "sender TEXT NOT NULL, " +
@@ -315,22 +315,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     "payload TEXT" +
                     ")"
                 );
-                db.execSQL("CREATE INDEX cheogram.webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
-                db.execSQL("PRAGMA cheogram.user_version = 8");
+                db.execSQL("CREATE INDEX monocles.webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
+                db.execSQL("PRAGMA monocles.user_version = 8");
 				}
 
-            if(cheogramVersion < 9) {
+            if(monoclesVersion < 9) {
                 db.execSQL(
-                    "ALTER TABLE cheogram.webxdc_updates " +
+                    "ALTER TABLE monocles.webxdc_updates " +
                     "ADD COLUMN message_id TEXT"
                 );
-                db.execSQL("CREATE UNIQUE INDEX cheogram.webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
-                db.execSQL("PRAGMA cheogram.user_version = 9");
+                db.execSQL("CREATE UNIQUE INDEX monocles.webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
+                db.execSQL("PRAGMA monocles.user_version = 9");
             }
 
-            if(cheogramVersion < 10) {
+            if(monoclesVersion < 10) {
                 db.execSQL(
-                    "CREATE TABLE cheogram.muted_participants (" +
+                    "CREATE TABLE monocles.muted_participants (" +
                     "muc_jid TEXT NOT NULL, " +
                     "occupant_id TEXT NOT NULL, " +
                     "nick TEXT NOT NULL," +
@@ -338,29 +338,29 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     ")"
                 );
                 db.execSQL(
-                    "ALTER TABLE cheogram." + Message.TABLENAME + " " +
+                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
                     "ADD COLUMN occupant_id TEXT"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 10");
+                db.execSQL("PRAGMA monocles.user_version = 10");
             }
 
-            if(cheogramVersion < 11) {
+            if(monoclesVersion < 11) {
                 if (Build.VERSION.SDK_INT >= 34) {
                     db.execSQL(
-                        "ALTER TABLE cheogram.muted_participants " +
+                        "ALTER TABLE monocles.muted_participants " +
                         "DROP COLUMN nick"
                     );
                 } else {
-                    db.execSQL("DROP TABLE cheogram.muted_participants");
+                    db.execSQL("DROP TABLE monocles.muted_participants");
                     db.execSQL(
-                        "CREATE TABLE cheogram.muted_participants (" +
+                        "CREATE TABLE monocles.muted_participants (" +
                         "muc_jid TEXT NOT NULL, " +
                         "occupant_id TEXT NOT NULL, " +
                         "PRIMARY KEY (muc_jid, occupant_id)" +
                         ")"
                     );
                 }
-                db.execSQL("PRAGMA cheogram.user_version = 11");
+                db.execSQL("PRAGMA monocles.user_version = 11");
             }
 
             db.setTransactionSuccessful();
@@ -373,8 +373,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public void onConfigure(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys=ON");
         db.rawQuery("PRAGMA secure_delete=ON", null).close();
-        db.execSQL("ATTACH DATABASE ? AS cheogram", new Object[]{context.getDatabasePath("cheogram").getPath()});
-        cheogramMigrate(db);
+        db.execSQL("ATTACH DATABASE ? AS monocles", new Object[]{context.getDatabasePath("monocles").getPath()});
+        monoclesMigrate(db);
     }
 
     @Override
@@ -848,7 +848,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (cid == null) return null;
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("cheogram.cids", new String[]{"path"}, "cid=?", new String[]{cid.toString()}, null, null, null);
+        Cursor cursor = db.query("monocles.cids", new String[]{"path"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         DownloadableFile f = null;
         if (cursor.moveToNext()) {
             f = new DownloadableFile(cursor.getString(0));
@@ -859,7 +859,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public String getUrlForCid(Cid cid) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("cheogram.cids", new String[]{"url"}, "cid=?", new String[]{cid.toString()}, null, null, null);
+        Cursor cursor = db.query("monocles.cids", new String[]{"url"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         String url = null;
         if (cursor.moveToNext()) {
             url = cursor.getString(0);
@@ -878,8 +878,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         cv.put("cid", cid.toString());
         if (file != null) cv.put("path", file.getAbsolutePath());
         if (url != null) cv.put("url", url);
-        if (db.update("cheogram.cids", cv, "cid=?", new String[]{cid.toString()}) < 1) {
-            db.insertWithOnConflict("cheogram.cids", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        if (db.update("monocles.cids", cv, "cid=?", new String[]{cid.toString()}) < 1) {
+            db.insertWithOnConflict("monocles.cids", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         }
     }
 
@@ -887,12 +887,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("cid", cid.toString());
-        db.insertWithOnConflict("cheogram.blocked_media", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict("monocles.blocked_media", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public boolean isBlockedMedia(Cid cid) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("cheogram.blocked_media", new String[]{"count(*)"}, "cid=?", new String[]{cid.toString()}, null, null, null);
+        Cursor cursor = db.query("monocles.blocked_media", new String[]{"count(*)"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         boolean is = false;
         if (cursor.moveToNext()) {
             is = cursor.getInt(0) > 0;
@@ -903,13 +903,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public void clearBlockedMedia() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM cheogram.blocked_media");
+        db.execSQL("DELETE FROM monocles.blocked_media");
     }
 
     public Multimap<String, String> loadMutedMucUsers() {
         Multimap<String, String> result = HashMultimap.create();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("cheogram.muted_participants", new String[]{"muc_jid", "occupant_id"}, null, null, null, null, null);
+        Cursor cursor = db.query("monocles.muted_participants", new String[]{"muc_jid", "occupant_id"}, null, null, null, null, null);
         while (cursor.moveToNext()) {
             result.put(cursor.getString(0), cursor.getString(1));
         }
@@ -924,7 +924,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("muc_jid", user.getMuc().toString());
         cv.put("occupant_id", user.getOccupantId());
-        db.insertWithOnConflict("cheogram.muted_participants", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict("monocles.muted_participants", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
         return true;
     }
@@ -935,14 +935,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String where = "muc_jid=? AND occupant_id=?";
         String[] whereArgs = {user.getMuc().toString(), user.getOccupantId()};
-        db.delete("cheogram.muted_participants", where, whereArgs);
+        db.delete("monocles.muted_participants", where, whereArgs);
 
         return true;
     }
 
     public void insertWebxdcUpdate(final WebxdcUpdate update) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.insertWithOnConflict("cheogram.webxdc_updates", null, update.getContentValues(), SQLiteDatabase.CONFLICT_IGNORE);
+        db.insertWithOnConflict("monocles.webxdc_updates", null, update.getContentValues(), SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     public WebxdcUpdate findLastWebxdcUpdate(Message message) {
@@ -953,7 +953,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = {message.getConversation().getUuid(), message.getThread().getContent()};
-        Cursor cursor = db.query("cheogram.webxdc_updates", null,
+        Cursor cursor = db.query("monocles.webxdc_updates", null,
                 Message.CONVERSATION + "=? AND thread=?",
                 selectionArgs, null, null, "serial ASC");
         WebxdcUpdate update = null;
@@ -967,7 +967,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public List<WebxdcUpdate> findWebxdcUpdates(Message message, long serial) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = {message.getConversation().getUuid(), message.getThread().getContent(), String.valueOf(serial)};
-        Cursor cursor = db.query("cheogram.webxdc_updates", null,
+        Cursor cursor = db.query("monocles.webxdc_updates", null,
                 Message.CONVERSATION + "=? AND thread=? AND serial>?",
                 selectionArgs, null, null, "serial ASC");
         long maxSerial = 0;
@@ -993,7 +993,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public void createMessage(Message message) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.insert(Message.TABLENAME, null, message.getContentValues());
-        db.insert("cheogram." + Message.TABLENAME, null, message.getCheogramContentValues());
+        db.insert("monocles." + Message.TABLENAME, null, message.getmonoclesContentValues());
     }
 
     public void createAccount(Account account) {
@@ -1099,7 +1099,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Cursor cursor;
         cursor = db.rawQuery(
             "SELECT * FROM " + Message.TABLENAME + " " +
-            "LEFT JOIN cheogram." + Message.TABLENAME +
+            "LEFT JOIN monocles." + Message.TABLENAME +
             "  USING (" + Message.UUID + ")" +
             "WHERE " + Message.UUID + "=?",
             new String[]{uuid}
@@ -1135,7 +1135,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Cursor cursor;
         cursor = db.rawQuery(
             "SELECT * FROM " + Message.TABLENAME + " " +
-            "LEFT JOIN cheogram." + Message.TABLENAME +
+            "LEFT JOIN monocles." + Message.TABLENAME +
             "  USING (" + Message.UUID + ")" +
             "WHERE " + Message.UUID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.SERVER_MSG_ID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.REMOTE_MSG_ID + " IN (" + TextUtils.join(",", template) + ")",
             params.toArray(new String[0])
@@ -1163,7 +1163,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             String[] selectionArgs = {conversation.getUuid()};
             cursor = db.rawQuery(
                 "SELECT * FROM " + Message.TABLENAME + " " +
-                "LEFT JOIN cheogram." + Message.TABLENAME +
+                "LEFT JOIN monocles." + Message.TABLENAME +
                 "  USING (" + Message.UUID + ")" +
                 " WHERE " + Message.UUID + " IN (" +
                 "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
@@ -1178,7 +1178,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     Long.toString(timestamp)};
             cursor = db.rawQuery(
                 "SELECT * FROM " + Message.TABLENAME + " " +
-                "LEFT JOIN cheogram." + Message.TABLENAME +
+                "LEFT JOIN monocles." + Message.TABLENAME +
                 "  USING (" + Message.UUID + ")" +
                 " WHERE " + Message.UUID + " IN (" +
                 "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
@@ -1419,14 +1419,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             contentValues.remove(Message.BODY);
         }
         return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1 &&
-               db.update("cheogram." + Message.TABLENAME, message.getCheogramContentValues(), Message.UUID + "=?", args) == 1;
+               db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
     }
 
     public boolean updateMessage(Message message, String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
         return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1 &&
-               db.update("cheogram." + Message.TABLENAME, message.getCheogramContentValues(), Message.UUID + "=?", args) == 1;
+               db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
     }
 
 
@@ -1434,7 +1434,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
         return db.delete(Message.TABLENAME, Message.UUID + "=?", args) == 1 &&
-               db.delete("cheogram." + Message.TABLENAME, Message.UUID + "=?", args) == 1;
+               db.delete("monocles." + Message.TABLENAME, Message.UUID + "=?", args) == 1;
     }
 
     public void readRoster(Roster roster) {
@@ -1476,7 +1476,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.beginTransaction();
         final String[] args = {conversation.getUuid()};
         int num = db.delete(Message.TABLENAME, Message.CONVERSATION + "=?", args);
-        db.delete("cheogram.webxdc_updates", Message.CONVERSATION + "=?", args);
+        db.delete("monocles.webxdc_updates", Message.CONVERSATION + "=?", args);
         db.setTransactionSuccessful();
         db.endTransaction();
         Log.d(Config.LOGTAG, "deleted " + num + " messages for " + conversation.getJid().asBareJid() + " in " + (SystemClock.elapsedRealtime() - start) + "ms");
@@ -1487,7 +1487,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         db.beginTransaction();
         db.delete(Message.TABLENAME, "timeSent<?", args);
-        db.delete("cheogram.messages", "timeReceived<?", args);
+        db.delete("monocles.messages", "timeReceived<?", args);
         db.setTransactionSuccessful();
         db.endTransaction();
     }
