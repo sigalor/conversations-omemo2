@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:fontFamily="@font/poppins"
-            android:text="monocles chat is an app that connects you to a global network called Jabber.  This network includes services, called gateways, for chatting with other networks such as SMS, IRC, Matrix, and more." />
+            android:text="@string/monocles_chat_intro_description" />
 
         <com.wefika.flowlayout.FlowLayout
             android:layout_width="wrap_content"
@@ -148,7 +148,7 @@
             android:fontFamily="@font/archivoblack"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
-            android:text="How the Jabber network works" />
+            android:text="@string/how_the_xmpp_network_works" />
 
         <TextView
             android:layout_width="wrap_content"
