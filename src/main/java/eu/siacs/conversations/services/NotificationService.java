@@ -101,7 +101,7 @@ public class NotificationService {
 
     public static final Object CATCHUP_LOCK = new Object();
 
-    private static final int LED_COLOR = 0xff7401cf;
+    private static final int LED_COLOR = 0xff0080FF;
 
     private static final long[] CALL_PATTERN = {0, 500, 300, 600, 3000};
 
