@@ -340,7 +340,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return message;
     }
 
-    public ContentValues getCheogramContentValues() {
+    public ContentValues getmonoclesContentValues() {
         final FileParams fp = fileParams;
         ContentValues values = new ContentValues();
         values.put(UUID, uuid);

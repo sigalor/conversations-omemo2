@@ -266,7 +266,7 @@ public class ExportBackupWorker extends Worker {
         accountExport(db, uuid, writer);
         simpleExport(db, Conversation.TABLENAME, Conversation.ACCOUNT, uuid, writer);
         messageExport(db, uuid, writer, progress);
-        messageExportCheogram(db, uuid, writer, progress);
+        messageExportmonocles(db, uuid, writer, progress);
         for (final String table :
                 Arrays.asList(
                         SQLiteAxolotlStore.PREKEY_TABLENAME,
@@ -332,15 +332,15 @@ public class ExportBackupWorker extends Worker {
         }
     }
 
-    private void messageExportCheogram(SQLiteDatabase db, String uuid, PrintWriter writer, Progress progress) {
+    private void messageExportmonocles(SQLiteDatabase db, String uuid, PrintWriter writer, Progress progress) {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
-        Cursor cursor = db.rawQuery("select cmessages.* from messages join cheogram.messages cmessages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=?", new String[]{uuid});
+        Cursor cursor = db.rawQuery("select cmessages.* from messages join monocles.messages cmessages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=?", new String[]{uuid});
         int size = cursor != null ? cursor.getCount() : 0;
-        Log.d(Config.LOGTAG, "exporting " + size + " cheogram messages for account " + uuid);
+        Log.d(Config.LOGTAG, "exporting " + size + " monocles messages for account " + uuid);
         int i = 0;
         int p = 0;
         while (cursor != null && cursor.moveToNext()) {
-            writer.write(cursorToString("cheogram." + Message.TABLENAME, cursor, PAGE_SIZE, false));
+            writer.write(cursorToString("monocles." + Message.TABLENAME, cursor, PAGE_SIZE, false));
             if (i + PAGE_SIZE > size) {
                 i = size;
             } else {
@@ -356,11 +356,11 @@ public class ExportBackupWorker extends Worker {
             cursor.close();
         }
 
-        cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join cheogram.webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
+        cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join monocles.webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
         size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " WebXDC updates for account " + uuid);
         while (cursor != null && cursor.moveToNext()) {
-            writer.write(cursorToString("cheogram.webxdc_updates", cursor, PAGE_SIZE, false));
+            writer.write(cursorToString("monocles.webxdc_updates", cursor, PAGE_SIZE, false));
             if (i + PAGE_SIZE > size) {
                 i = size;
             } else {

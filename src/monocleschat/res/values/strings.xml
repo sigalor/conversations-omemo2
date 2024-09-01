@@ -6,7 +6,7 @@
     <string name="create_new_account">I need to sign up</string>
     <string name="i_already_have_an_account">I already have a Jabber ID</string>
     <string name="i_am_snikket_user">I am a Snikket user</string>
-    <string name="do_you_have_an_account">Do you already have a Jabber ID? This might be the case if you are already using a different Jabber client or have used Cheogram Android, Conversations, or Snikket before. If not you can create a new Jabber ID right now.</string>
+    <string name="do_you_have_an_account">Do you already have a Jabber ID? This might be the case if you are already using a different Jabber client or have used monocles chat, Conversations, or Snikket before. If not you can create a new Jabber ID right now.</string>
     <string name="server_select_text">Jabber is a provider independent instant messaging network, powered by the XMPP protocol. You can use this client with whatever Jabber service you choose.</string>
     <string name="magic_create_text">You will be able to communicate with users of other providers by giving them your full Jabber ID.</string>
     <string name="magic_create_text_on_x">You have been invited to %1$s. We will guide you through the process of creating an account.\nWhen picking %1$s as a provider you will be able to communicate with users of other providers by giving them your full Jabber ID.</string>

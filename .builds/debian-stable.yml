@@ -1,10 +1,10 @@
 image: debian/stable
 sources:
-- https://git.sr.ht/~singpolyma/cheogram-android
+- https://codeberg.org/monocles/monocles_chat
 artifacts:
-- cheogram.apk
-- cheogram_google_play.apk
-- cheogram_google_play.aab
+- monocleschat.apk
+- monocleschat_google_play.apk
+- monocleschat_google_play.aab
 packages:
 - wget
 - unzip
@@ -31,29 +31,29 @@ tasks:
     touch ~/.android/repositories.cfg
     yes | android/cmdline-tools/tools/bin/sdkmanager --licenses
 - sentry: |
-    cd cheogram-android
-    sed -ie 's/<!-- INSERT -->/<meta-data android:name="io.sentry.dsn" android:value="https:\/\/ef8be0f096894172885533d912826e3e@app.glitchtip.com\/5857" \/>/' src/cheogram/AndroidManifest.xml
+    cd monocles_chat
+    sed -ie 's/<!-- INSERT -->/<meta-data android:name="io.sentry.dsn" android:value="https:\/\/ef8be0f096894172885533d912826e3e@app.glitchtip.com\/5857" \/>/' src/monocleschat/AndroidManifest.xml
     sed -ie 's/\/\/ PLUGIN INSERT/id "io.sentry.android.gradle" version "4.2.0"/' build.gradle
     sed -ie 's/\/\/ ROOT INSERT/sentry { includeSourceContext = true }/' build.gradle
 - build_free: |
     set +x
     export SENTRY_AUTH_TOKEN=$(cat ~/sentry_auth_token)
     set -x
-    cd cheogram-android
-    ./gradlew assembleCheogramFreeDebug
+    cd monocles_chat
+    ./gradlew assemblemonocleschatFreeDebug
 - build_google_play: |
     set +x
     export SENTRY_AUTH_TOKEN=$(cat ~/sentry_auth_token)
     set -x
-    cd cheogram-android
+    cd monocles_chat
     mkdir -p src/playstore/res/values/
     mv ~/push.xml src/playstore/res/values/
-    ./gradlew assembleCheogramPlaystoreDebug
-    echo keystore=$HOME/.android/cheogram.keystore > signing.properties
-    echo keystore.password=cheogram >> signing.properties
-    echo keystore.alias=cheogram >> signing.properties
-    ./gradlew bundleCheogramPlaystoreRelease
+    ./gradlew assemblemonocleschatPlaystoreDebug
+    echo keystore=$HOME/.android/monocleschat.keystore > signing.properties
+    echo keystore.password=monocleschat >> signing.properties
+    echo keystore.alias=monocleschat >> signing.properties
+    ./gradlew bundlemonocleschatPlaystoreRelease
 - assets: |
-    mv cheogram-android/build/outputs/apk/cheogramFree/debug/*universal*.apk cheogram.apk
-    mv cheogram-android/build/outputs/apk/cheogramPlaystore/debug/*universal*.apk cheogram_google_play.apk
-    mv cheogram-android/build/outputs/bundle/cheogramPlaystoreRelease/*.aab cheogram_google_play.aab
+    mv monocles_chat/build/outputs/apk/monocleschatFree/debug/*universal*.apk monocleschat.apk
+    mv monocles_chat/build/outputs/apk/monocleschatPlaystore/debug/*universal*.apk monocleschat_google_play.apk
+    mv monocles_chat/build/outputs/bundle/monocleschatPlaystoreRelease/*.aab monocleschat_google_play.aab

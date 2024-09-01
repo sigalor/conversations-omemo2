@@ -97,11 +97,11 @@ public class FinishOnboarding {
 							Element command4 = iq4.findChild("command", "http://jabber.org/protocol/commands");
 							if (command4 != null && command4.getAttribute("status") != null && command4.getAttribute("status").equals("completed")) {
 								xmppConnectionService.createContact(newAccount.getRoster().getContact(iq4.getFrom().asBareJid()), true);
-								Conversation withCheogram = xmppConnectionService.findOrCreateConversation(newAccount, iq4.getFrom().asBareJid(), true, true, true);
-								xmppConnectionService.markRead(withCheogram);
-								xmppConnectionService.clearConversationHistory(withCheogram);
+								Conversation withmonocles = xmppConnectionService.findOrCreateConversation(newAccount, iq4.getFrom().asBareJid(), true, true, true);
+								xmppConnectionService.markRead(withmonocles);
+								xmppConnectionService.clearConversationHistory(withmonocles);
 								xmppConnectionService.deleteAccount(onboardAccount);
-								activity.switchToConversation(withCheogram, null, false, null, false, false, "command");
+								activity.switchToConversation(withmonocles, null, false, null, false, false, "command");
 								// We don't set WORKING back to false because we suceeded so it should never run again anyway
 							} else {
 								Log.e(Config.LOGTAG, "Error confirming jid switch, got: " + iq4);

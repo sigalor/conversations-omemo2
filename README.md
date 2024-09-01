@@ -1,8 +1,8 @@
-# Cheogram Android
+# monocles chat
 
 This is a fork of [Conversations](https://conversations.im) to implement features of use to the [Sopranica](https://soprani.ca) project.
 
-The Cheogram Android app allows you to join a worldwide communication network.  It especially focuses on features useful to users who want to contact those on other networks as well, such as SMS-enabled phone numbers.
+The monocles chat app allows you to join a worldwide communication network.  It especially focuses on features useful to users who want to contact those on other networks as well, such as SMS-enabled phone numbers.
 
 Based on the app Conversations, but with unique features:
 
