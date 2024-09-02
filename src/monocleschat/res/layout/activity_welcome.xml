@@ -155,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:fontFamily="@font/poppins"
-            android:text="The Jabber network is powered by a protocol called XMPP. It is a decentralized network, which means no one owns or controls the whole thing. It is a federated network which means anyone can run a Jabber service. Messages to other Jabber users can be end-to-end encrypted by enabling OMEMO for the conversation.\n\nAddresses are called Jabber IDs and look similar to email addresses:" />
+            android:text="The Jabber network is powered by a protocol called XMPP. It is a decentralized network, which means no one owns or controls the whole thing. It is a federated network which means anyone can run a Jabber service. Messages to other XMPP users can be end-to-end encrypted by enabling OMEMO for the conversation.\n\nAddresses are called XMPP IDs and look similar to email addresses:" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -165,7 +165,7 @@
             android:fontFamily="@font/archivoblack"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
-            android:text="username@service.com" />
+            android:text="username@monocles.eu" />
 
         <com.caverock.androidsvg.SVGImageView
            android:layout_width="match_parent"
@@ -216,51 +216,51 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
+                    android:paddingLeft="50dp"
+                    android:paddingRight="50dp"
                     android:paddingBottom="10dp">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/register_new_account"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:textAllCaps="false"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_height="58dp"
+                        android:layout_marginBottom="20dp"
                         android:layout_gravity="center"
                         android:text="@string/create_new_account" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/use_existing"
-                        style="@style/Widget.Material3.Button.TonalButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:textAllCaps="false"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="20dp"
                         android:layout_gravity="center"
-                        android:text="@string/i_already_have_an_account" />
+                        android:text="@string/log_in" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/use_backup"
-                        style="@style/Widget.Material3.Button.TonalButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:textAllCaps="false"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
+                        android:layout_height="58dp"
+                        android:layout_marginBottom="40dp"
                         android:layout_gravity="center"
                         android:text="@string/restore_backup" />
 
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/use_snikket"
-                        style="@style/Widget.Material3.Button.TonalButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:textAllCaps="false"
-                        android:textSize="20sp"
+                        android:textSize="15sp"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="55dp"
                         android:layout_gravity="center"
                         android:layout_marginBottom="10dp"
                         android:text="@string/i_am_snikket_user" />
