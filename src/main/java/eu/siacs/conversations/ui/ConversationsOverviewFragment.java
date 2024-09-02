@@ -426,11 +426,35 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	}
 
 	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		boolean navBarVisible = activity instanceof ConversationsActivity && ((ConversationsActivity) activity).navigationBarVisible();
+		MenuItem manageAccount = menu.findItem(R.id.action_account);
+		MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+		if (navBarVisible) {
+			manageAccount.setVisible(false);
+			manageAccounts.setVisible(false);
+		} else {
+			AccountUtils.showHideMenuItems(menu);
+		}
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
 		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onStart()");
 		if (activity.xmppConnectionService != null) {
 			refresh();
+		}
+		if (activity instanceof ConversationsActivity) {
+			boolean showed = ((ConversationsActivity) activity).showNavigationBar();
+
+			if (showed) {
+				this.binding.fab.setVisibility(View.GONE);
+			} else {
+				this.binding.fab.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 

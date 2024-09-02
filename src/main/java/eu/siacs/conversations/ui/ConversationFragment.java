@@ -1415,6 +1415,12 @@ public class ConversationFragment extends XmppFragment
             }
             deleteCustomBg.setVisible(ChatBackgroundHelper.getBgFile(activity, conversation.getUuid()).exists());
         }
+        Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
+        if (secondaryFragment instanceof ConversationFragment) {
+            activity.showNavigationBar();
+        } else {
+            activity.hideNavigationBar();
+        }
         super.onCreateOptionsMenu(menu, menuInflater);
     }
 

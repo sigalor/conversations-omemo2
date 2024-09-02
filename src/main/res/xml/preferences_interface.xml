@@ -81,6 +81,11 @@
             app:colorpicker_showAlpha="false" />
     </PreferenceCategory>>
     <PreferenceCategory android:title="@string/appearance">
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_nav_bar"
+            android:key="show_nav_bar"
+            android:summary="@string/pref_show_navigation_bar_summary"
+            android:title="@string/pref_show_navigation_bar" />
         <ListPreference
             android:defaultValue="@string/avatar_shape"
             android:key="avatar_shape"

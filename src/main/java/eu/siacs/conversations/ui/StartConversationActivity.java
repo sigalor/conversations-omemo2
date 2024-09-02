@@ -1,5 +1,8 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.VISIBLE;
+import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -60,6 +63,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import de.monocles.chat.FinishOnboarding;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
@@ -373,6 +377,30 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             }
             return false;
         });
+
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            switch (item.getItemId()) {
+                case R.id.chats -> {
+                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                case R.id.contactslist -> {
+                    return true;
+                }
+                case R.id.manageaccounts -> {
+                    Intent i = new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                default ->
+                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+            }
+        });
     }
 
     private void inflateFab(final SpeedDialView speedDialView, final @MenuRes int menuRes) {
@@ -424,6 +452,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
         }
         mConferenceAdapter.refreshSettings();
         mContactsAdapter.refreshSettings();
+
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.contactslist);
+
+        if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
+            bottomNavigationView.setVisibility(VISIBLE);
+        } else {
+            bottomNavigationView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -776,6 +813,22 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean res = super.onPrepareOptionsMenu(menu);
+        boolean navBarVisible = binding.bottomNavigation.getVisibility() == VISIBLE;
+        MenuItem manageAccount = menu.findItem(R.id.action_account);
+        MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+        if (navBarVisible) {
+            manageAccount.setVisible(false);
+            manageAccounts.setVisible(false);
+        } else {
+            AccountUtils.showHideMenuItems(menu);
+        }
+
+        return res;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
@@ -981,8 +1034,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             return;
         }
         boolean openConversations = !createdByViewIntent && !xmppConnectionService.isConversationsListEmpty(null);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
+        boolean showNavBar = binding.bottomNavigation.getVisibility() == VISIBLE;
+        actionBar.setDisplayHomeAsUpEnabled(openConversations && !showNavBar);
+        actionBar.setDisplayHomeAsUpEnabled(openConversations && !showNavBar);
 
     }
 
@@ -1280,6 +1334,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
             Intent intent = new Intent(this, ConversationsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
+            if (binding.bottomNavigation.getVisibility() == VISIBLE) {
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            }
         }
         finish();
     }

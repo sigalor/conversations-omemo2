@@ -1092,4 +1092,8 @@
     <string name="delete_background_failed">Couldn\'t remove background image</string>
     <string name="delete_background_success">Background image removed</string>
     <string name="no_background_set">No custom background set</string>
+    <string name="pref_show_navigation_bar">Show navigation bar</string>
+    <string name="pref_show_navigation_bar_summary">Use alternative navigation way via navigation bar on the bottom of the screen</string>
+    <string name="chats">Chats</string>
+    <string name="accounts">Accounts</string>
 </resources>

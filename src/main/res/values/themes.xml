@@ -50,5 +50,12 @@
         <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
+
+        <item name="ic_chat_unselected" type="reference">@drawable/outline_chat_black_24</item>
+        <item name="ic_chat_selected" type="reference">@drawable/chat_selected_black_24</item>
+        <item name="ic_account" type="reference">@drawable/ic_account_black_24dp</item>
+        <item name="ic_accounts_selected" type="reference">@drawable/accounts_selected_black_24</item>
+        <item name="ic_group_unselected" type="reference">@drawable/outline_group_black_24dp</item>
+        <item name="ic_group_selected" type="reference">@drawable/ic_group_selected_black_24</item>
     </style>
 </resources>

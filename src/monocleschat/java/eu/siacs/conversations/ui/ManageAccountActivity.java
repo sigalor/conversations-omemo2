@@ -1,5 +1,7 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.VISIBLE;
+
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -44,6 +46,8 @@ import eu.siacs.conversations.xmpp.XmppConnection;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class ManageAccountActivity extends XmppActivity implements OnAccountUpdate, KeyChainAliasCallback, XmppConnectionService.OnAccountCreated, AccountAdapter.OnTglAccountState {
 
     private final String STATE_SELECTED_ACCOUNT = "selected_account";
@@ -74,9 +78,10 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             accountList.addAll(xmppConnectionService.getAccounts());
         }
         ActionBar actionBar = getSupportActionBar();
+        boolean showNavBar = findViewById(R.id.bottom_navigation).getVisibility() == VISIBLE;
         if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(this.accountList.size() > 0);
-            actionBar.setDisplayHomeAsUpEnabled(this.accountList.size() > 0);
+            actionBar.setHomeButtonEnabled(!this.accountList.isEmpty() && !showNavBar);
+            actionBar.setDisplayHomeAsUpEnabled(!this.accountList.isEmpty() && !showNavBar);
         }
         invalidateOptionsMenu();
         mAccountAdapter.notifyDataSetChanged();
@@ -136,7 +141,59 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         accountListView.setAdapter(this.mAccountAdapter);
         accountListView.setOnItemClickListener((arg0, view, position, arg3) -> switchToAccount(accountList.get(position)));
         registerForContextMenu(accountListView);
+
+
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            switch (item.getItemId()) {
+                case R.id.chats -> {
+                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                case R.id.contactslist -> {
+                    Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                case R.id.manageaccounts -> {
+                    return true;
+                }
+                default ->
+                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+            }
+        });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.manageaccounts);
+
+        if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
+            bottomNavigationView.setVisibility(VISIBLE);
+        } else {
+            bottomNavigationView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.bottom_navigation).getVisibility() == VISIBLE) {
+            Intent intent = new Intent(this, ConversationsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        }
+
+        super.onBackPressed();
+    }
+
 
     @Override
     public void onSaveInstanceState(final Bundle savedInstanceState) {

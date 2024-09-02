@@ -1,9 +1,14 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_above="@id/bottom_navigation" >
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
@@ -19,6 +24,7 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <LinearLayout
+            android:id="@+id/main_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -32,7 +38,20 @@
                 android:id="@+id/secondary_fragment"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1618" />
+                android:layout_weight="1618"
+                android:layout_marginBottom="70dp" />
         </LinearLayout>
     </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_bar_height"
+        android:layout_alignParentBottom="true"
+        android:background="?colorOnPrimary"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_navigation_menu_chat"
+        android:visibility="gone" />
+
+</RelativeLayout>
 </layout>

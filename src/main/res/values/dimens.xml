@@ -58,4 +58,5 @@
 
 
     <dimen name="avatar_corners_radius">8dp</dimen>
+    <dimen name="nav_bar_height">72dp</dimen>
 </resources>

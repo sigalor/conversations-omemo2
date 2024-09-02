@@ -31,6 +31,7 @@ package eu.siacs.conversations.ui;
 
 
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
+import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -52,6 +53,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.IdRes;
@@ -65,6 +67,7 @@ import androidx.databinding.DataBindingUtil;
 import de.monocles.chat.DownloadDefaultStickers;
 import de.monocles.chat.FinishOnboarding;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.collect.ImmutableList;
 
 import io.michaelrocks.libphonenumber.android.NumberParseException;
@@ -526,6 +529,33 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             pendingViewIntent.push(intent);
             setIntent(createLauncherIntent(this));
         }
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            switch (item.getItemId()) {
+                case R.id.chats -> {
+                    return true;
+                }
+                case R.id.contactslist -> {
+                    Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                case R.id.manageaccounts -> {
+                    Intent i = new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                default ->
+                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+            }
+        });
     }
 
     @Override
@@ -560,6 +590,26 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             Log.e(Config.LOGTAG, "cleared pending view intent");
         }
     }
+
+
+    public boolean navigationBarVisible() {
+        return findViewById(R.id.bottom_navigation).getVisibility() == View.VISIBLE;
+    }
+
+    public boolean showNavigationBar() {
+        if (!getBooleanPreference("show_nav_bar", R.bool.show_nav_bar)) {
+            findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
+            return false;
+        }
+
+        findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
+        return true;
+    }
+
+    public void hideNavigationBar() {
+        findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
+    }
+
 
     private void displayToast(final String msg) {
         runOnUiThread(() -> Toast.makeText(ConversationsActivity.this, msg, Toast.LENGTH_SHORT).show());
@@ -734,6 +784,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public void onStart() {
         super.onStart();
         mRedirectInProcess.set(false);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.chats);
     }
 
     @Override

@@ -39,7 +39,7 @@
     <bool name="scroll_to_bottom">true</bool>
     <string name="omemo_setting_default">default_on</string>
     <bool name="use_share_location_plugin">false</bool>
-    <bool name="start_searching">true</bool>
+    <bool name="start_searching">false</bool>
     <string name="video_compression">360</string>
     <string name="default_channel_discovery">JABBER_NETWORK</string>
     <bool name="dialler_integration_incoming">true</bool>
@@ -54,5 +54,6 @@
     <bool name="send_link_previews">true</bool>
     <bool name="compose_rich_text">true</bool>
     <bool name="auto_accept_unmetered">true</bool>
-    <string name="avatar_shape">rounded_square</string>
+    <string name="avatar_shape">oval</string>
+    <bool name="show_nav_bar">true</bool>
 </resources>
