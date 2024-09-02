@@ -222,49 +222,48 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/register_new_account"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
                         android:textAllCaps="false"
                         android:textSize="20sp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/poppins"
                         android:text="@string/create_new_account" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/use_existing"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
                         android:textAllCaps="false"
                         android:textSize="20sp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/poppins"
                         android:text="@string/i_already_have_an_account" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/use_snikket"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        android:id="@+id/use_backup"
+                        style="@style/Widget.Material3.Button.TonalButton"
                         android:textAllCaps="false"
                         android:textSize="20sp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/poppins"
-                        android:text="@string/i_am_snikket_user" />
+                        android:text="@string/restore_backup" />
+
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/use_backup"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        android:id="@+id/use_snikket"
+                        style="@style/Widget.Material3.Button.TonalButton"
                         android:textAllCaps="false"
                         android:textSize="20sp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/poppins"
-                        android:text="@string/restore_backup" />
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/i_am_snikket_user" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
