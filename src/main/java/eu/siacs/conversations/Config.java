@@ -43,9 +43,9 @@ public final class Config {
 
     public static final boolean QUICK_LOG = false;
 
-    public static final Jid BUG_REPORTS = Jid.of("+14169938000@cheogram.com");
-    public static final Uri HELP = Uri.parse("https://cheogram.com");
-    public static final String MAGIC_CREATE_DOMAIN = "chatterboxtown.us";
+    public static final Jid BUG_REPORTS = Jid.of("support@monocles.eu");
+    public static final Uri HELP = Uri.parse("https://docs.monocles.eu");
+    public static final String MAGIC_CREATE_DOMAIN = "monocles.eu";
     public static final Jid QUICKSY_DOMAIN = Jid.of("cheogram.com");
     public static final Jid ONBOARDING_DOMAIN = Jid.of("onboarding.cheogram.com");
 
