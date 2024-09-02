@@ -76,7 +76,7 @@ import eu.siacs.conversations.xmpp.mam.MamReference;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 51;
+    private static final int DATABASE_VERSION = 59;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
