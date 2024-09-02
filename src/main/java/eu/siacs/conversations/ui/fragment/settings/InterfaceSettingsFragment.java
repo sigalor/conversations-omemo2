@@ -54,7 +54,7 @@ public class InterfaceSettingsFragment extends XmppPreferenceFragment {
             importBackgroundPreference.setSummary(getString(R.string.pref_chat_background_summary));
             importBackgroundPreference.setOnPreferenceClickListener(preference -> {
                 if (requireSettingsActivity().hasStoragePermission(ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND)) {
-                    ChatBackgroundHelper.openBGPicker(requireSettingsActivity());
+                    ChatBackgroundHelper.openBGPicker(this);
                 }
                 return true;
             });
@@ -160,7 +160,7 @@ public class InterfaceSettingsFragment extends XmppPreferenceFragment {
         if (grantResults.length > 0)
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                ChatBackgroundHelper.onRequestPermissionsResult(requireSettingsActivity(), requestCode, permissions, grantResults);
+                ChatBackgroundHelper.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
             } else {
                 Toast.makeText(
                                 requireSettingsActivity(),

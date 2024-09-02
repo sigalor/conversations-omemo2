@@ -31,6 +31,7 @@ import java.io.OutputStream;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.ui.fragment.settings.InterfaceSettingsFragment;
 
 public class ChatBackgroundHelper {
     public static final int REQUEST_IMPORT_BACKGROUND = 0xbf8704;
@@ -44,10 +45,10 @@ public class ChatBackgroundHelper {
         }
     }
 
-    public static void onRequestPermissionsResult(Activity activity,
+    public static void onRequestPermissionsResult(InterfaceSettingsFragment settingsFragment,
                                                   int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && requestCode == REQUEST_IMPORT_BACKGROUND) {
-            openBGPicker(activity);
+            openBGPicker(settingsFragment);
         }
     }
 
@@ -79,11 +80,11 @@ public class ChatBackgroundHelper {
         }
     }
 
-    public static void openBGPicker(Activity activity) {
+    public static void openBGPicker(InterfaceSettingsFragment settingsFragment) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
-        activity.startActivityForResult(Intent.createChooser(intent, "Select image"), REQUEST_IMPORT_BACKGROUND);
+        settingsFragment.startActivityForResult(Intent.createChooser(intent, "Select image"), REQUEST_IMPORT_BACKGROUND);
     }
 
     public static void openBGPicker(Fragment fragment) {
