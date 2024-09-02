@@ -83,19 +83,23 @@
     <PreferenceCategory android:title="@string/appearance">
         <Preference
             android:key="import_background"
+            android:icon="@drawable/ic_add_24dp"
             android:summary="@string/pref_chat_background_summary"
             android:title="@string/custom_background" />
         <Preference
             android:key="delete_background"
+            android:icon="@drawable/ic_delete_24dp"
             android:summary="@string/pref_delete_background_summary"
             android:title="@string/delete_background" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_nav_bar"
             android:key="show_nav_bar"
+            android:icon="@drawable/ic_navigate_next_24dp"
             android:summary="@string/pref_show_navigation_bar_summary"
             android:title="@string/pref_show_navigation_bar" />
         <ListPreference
             android:defaultValue="@string/avatar_shape"
+            android:icon="@drawable/ic_person_24dp"
             android:key="avatar_shape"
             android:entries="@array/avatars_shape"
             android:entryValues="@array/avatars_shape_values"
