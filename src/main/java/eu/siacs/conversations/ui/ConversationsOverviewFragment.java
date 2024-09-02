@@ -535,7 +535,15 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				}
 			}
 		} else {
-			binding.fab.setVisibility(View.VISIBLE);
+			if (activity instanceof ConversationsActivity) {
+				boolean showed = ((ConversationsActivity) activity).showNavigationBar();
+
+				if (showed) {
+					this.binding.fab.setVisibility(View.GONE);
+				} else {
+					this.binding.fab.setVisibility(View.VISIBLE);
+				}
+			}
 		}
 		setupSwipe();
 	}
