@@ -154,7 +154,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             binding.slideshowPager.setCurrentItem(binding.slideshowPager.getCurrentItem() + 1)
         );
         binding.buttonPrivacy.setOnClickListener((v) ->
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://cheogram.com/android-privacy.html")))
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://monocles.eu/legal-privacy/#policies-section")))
         );
         configureActionBar(getSupportActionBar(), false);
         binding.registerNewAccount.setOnClickListener(v -> {
