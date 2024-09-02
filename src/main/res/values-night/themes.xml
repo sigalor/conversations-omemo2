@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.Conversations3" parent="Theme.Material3.Dark.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
@@ -40,5 +40,10 @@
     <style name="Theme.Conversations3.SplashScreen" parent="@style/Theme.Conversations3">
         <item name="android:windowBackground">@drawable/background_splash_screen</item>
         <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Preference.SwitchPreferenceCompat" parent="@style/Preference.SwitchPreferenceCompat.Material"
+        tools:ignore="ResourceCycle">
+        <item name="widgetLayout">@layout/material_switch</item>
     </style>
 </resources>
