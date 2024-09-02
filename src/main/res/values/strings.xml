@@ -1082,4 +1082,14 @@
     <string name="avater_shape_square">Square</string>
     <string name="pref_avatars_shape">Avatars shape</string>
     <string name="pref_avatar_shape_summary">Allows you to select avatars shape globally</string>
+    <string name="refresh_feature_discovery">Refresh feature discovery</string>
+    <string name="custom_background">Custom background</string>
+    <string name="pref_chat_background_summary">Choose an own image file as chat background.</string>
+    <string name="delete_background">Remove chat background</string>
+    <string name="pref_delete_background_summary">Remove your custom background image from the chat</string>
+    <string name="create_background_failed">Failed to create background</string>
+    <string name="custom_background_set">Custom background set</string>
+    <string name="delete_background_failed">Couldn\'t remove background image</string>
+    <string name="delete_background_success">Background image removed</string>
+    <string name="no_background_set">No custom background set</string>
 </resources>

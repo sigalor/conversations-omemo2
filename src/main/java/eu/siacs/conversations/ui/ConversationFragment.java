@@ -102,6 +102,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.jetbrains.annotations.NotNull;
 
+import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
@@ -1310,6 +1311,12 @@ public class ConversationFragment extends XmppFragment
         } else {
             this.postponedActivityResult.push(activityResult);
         }
+
+        ChatBackgroundHelper.onActivityResult(activity, requestCode, resultCode, data, conversation.getUuid());
+
+        if (requestCode == ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND) {
+            refresh();
+        }
     }
 
     public void unblockConversation(final Blockable conversation) {
@@ -1355,6 +1362,7 @@ public class ConversationFragment extends XmppFragment
         final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
         final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
         final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
+        final MenuItem deleteCustomBg = menu.findItem(R.id.action_delete_custom_bg);
 
         if (conversation != null) {
             if (conversation.getMode() == Conversation.MODE_MULTI) {
@@ -1405,6 +1413,7 @@ public class ConversationFragment extends XmppFragment
             } else {
                 menuTogglePinned.setTitle(R.string.add_to_favorites);
             }
+            deleteCustomBg.setVisible(ChatBackgroundHelper.getBgFile(activity, conversation.getUuid()).exists());
         }
         super.onCreateOptionsMenu(menu, menuInflater);
     }
@@ -2034,6 +2043,27 @@ public class ConversationFragment extends XmppFragment
             case R.id.action_unmute:
                 unMuteConversation(conversation);
                 break;
+            case R.id.action_set_custom_bg:
+                if (activity.hasStoragePermission(ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND)) {
+                    ChatBackgroundHelper.openBGPicker(this);
+                }
+                break;
+            case R.id.action_delete_custom_bg:
+                try {
+                    File bgfile =  ChatBackgroundHelper.getBgFile(activity, conversation.getUuid());
+                    if (bgfile.exists()) {
+                        bgfile.delete();
+                        Toast.makeText(activity, R.string.delete_background_success,Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(activity, R.string.no_background_set,Toast.LENGTH_LONG).show();
+                    }
+
+                    refresh();
+                } catch (Exception e) {
+                    Toast.makeText(activity, R.string.delete_background_failed,Toast.LENGTH_LONG).show();
+                    throw new RuntimeException(e);
+                }
+                break;
             case R.id.action_block:
             case R.id.action_unblock:
                 BlockContactDialog.show(activity, conversation);
@@ -2489,6 +2519,7 @@ public class ConversationFragment extends XmppFragment
                                 Toast.LENGTH_SHORT)
                         .show();
             }
+            ChatBackgroundHelper.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
         }
         if (writeGranted(grantResults, permissions)) {
             if (activity != null && activity.xmppConnectionService != null) {
@@ -2499,6 +2530,18 @@ public class ConversationFragment extends XmppFragment
         }
         if (cameraGranted(grantResults, permissions) || audioGranted(grantResults, permissions)) {
             XmppConnectionService.toggleForegroundService(activity);
+        }
+    }
+
+    private void updateChatBG() {
+        if (activity != null) {
+            Uri uri = ChatBackgroundHelper.getBgUri(activity, conversation.getUuid());
+            if (uri != null) {
+                binding.backgroundImage.setImageURI(uri);
+                binding.backgroundImage.setVisibility(View.VISIBLE);
+            } else {
+                binding.backgroundImage.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -2693,6 +2736,7 @@ public class ConversationFragment extends XmppFragment
     public void onResume() {
         super.onResume();
         binding.messagesView.post(this::fireReadEvent);
+        updateChatBG();
     }
 
     private void fireReadEvent() {
@@ -3113,6 +3157,7 @@ public class ConversationFragment extends XmppFragment
                 findAndReInitByUuidOrArchive(uuid);
             }
         }
+        updateChatBG();
     }
 
     @Override
@@ -3769,6 +3814,7 @@ public class ConversationFragment extends XmppFragment
                     "ConversationFragment.refresh() skipped updated because view binding was null");
             return;
         }
+        updateChatBG();
         if (this.conversation != null
                 && this.activity != null
                 && this.activity.xmppConnectionService != null) {

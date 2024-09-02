@@ -160,7 +160,19 @@
             <item
                 android:id="@+id/action_refresh_feature_discovery"
                 android:orderInCategory="75"
-                android:title="Refresh Feature Discovery"
+                android:title="@string/refresh_feature_discovery"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/action_set_custom_bg"
+                android:orderInCategory="76"
+                android:title="@string/custom_background"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/action_delete_custom_bg"
+                android:orderInCategory="77"
+                android:title="@string/delete_background"
                 app:showAsAction="never" />
         </menu>
     </item>

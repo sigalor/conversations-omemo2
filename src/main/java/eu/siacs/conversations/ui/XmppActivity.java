@@ -853,7 +853,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         });
     }
 
-    protected boolean hasStoragePermission(int requestCode) {
+    public boolean hasStoragePermission(int requestCode) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
