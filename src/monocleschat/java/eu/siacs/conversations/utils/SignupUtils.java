@@ -52,7 +52,7 @@ public class SignupUtils {
         Account pendingAccount = AccountUtils.getPendingAccount(service);
         Intent intent;
         if (pendingAccount != null) {
-            intent = new Intent(activity, EditAccountActivity.class);
+            intent = new Intent(activity, Config.ONBOARDING_DOMAIN.equals(pendingAccount.getJid().getDomain()) ? WelcomeActivity.class : EditAccountActivity.class);
             intent.putExtra("jid", pendingAccount.getJid().asBareJid().toString());
             if (!pendingAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {
                 intent.putExtra(EditAccountActivity.EXTRA_FORCE_REGISTER, pendingAccount.isOptionSet(Account.OPTION_REGISTER));

@@ -48,6 +48,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
     private XmppUri inviteUri;
     private Account onboardingAccount = null;
+    private ActivityWelcomeBinding binding = null;
 
     public static void launch(AppCompatActivity activity) {
         Intent intent = new Intent(activity, WelcomeActivity.class);
@@ -109,7 +110,13 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
     @Override
     protected void onBackendConnected() {
-
+        if (xmppConnectionService.isOnboarding()) {
+            binding.registerNewAccount.setText("Working...");
+            binding.registerNewAccount.setEnabled(false);
+            binding.slideshowPager.setCurrentItem(4);
+            onboardingAccount = xmppConnectionService.getAccounts().get(0);
+            xmppConnectionService.reconnectAccountInBackground(onboardingAccount);
+        }
     }
 
     @Override
@@ -137,7 +144,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         }
         super.onCreate(savedInstanceState);
         getPreferences().edit().putStringSet("pstn_gateways", new HashSet<>()).apply();
-        ActivityWelcomeBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         binding.slideshowPager.setAdapter(new WelcomePagerAdapter(binding.slideshowPager));
         binding.dotsIndicator.setViewPager(binding.slideshowPager);
