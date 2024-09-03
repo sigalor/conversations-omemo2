@@ -623,7 +623,7 @@
                                     android:textAppearance="?textAppearanceBodyMedium"/>
                             </LinearLayout>
 
-                            <androidx.appcompat.widget.SwitchCompat
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/quiet_hours_enable"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
