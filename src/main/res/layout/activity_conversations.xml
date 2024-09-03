@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/nav_bar_height"
         android:layout_alignParentBottom="true"
-        android:background="?colorOnPrimary"
+        android:background="?colorSurfaceContainerLow"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_menu_chat"
         android:state_checked="true"
