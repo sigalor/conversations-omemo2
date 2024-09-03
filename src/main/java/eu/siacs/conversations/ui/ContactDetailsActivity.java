@@ -65,9 +65,11 @@ import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlSession;
 import eu.siacs.conversations.databinding.ActivityContactDetailsBinding;
 import eu.siacs.conversations.databinding.CommandRowBinding;
+import eu.siacs.conversations.databinding.ThreadRowBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.ListItem;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.services.AbstractQuickConversationsService;
@@ -259,6 +261,15 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
+        this.binding.recentThreads.setOnItemClickListener((a0, v, pos, a3) -> {
+            Account thisAccount = xmppConnectionService.findAccountByJid(accountJid);
+            if (thisAccount == null) {
+                return;
+            }
+            final var conversation = xmppConnectionService.findOrCreateConversation(thisAccount, contact.getJid(), false, true);
+            final Conversation.Thread thread = (Conversation.Thread) binding.recentThreads.getAdapter().getItem(pos);
+            switchToConversation(conversation, null, false, null, false, true, null, thread.getThreadId());
+        });
     }
 
     @Override
@@ -645,6 +656,22 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             }
             binding.flowWidget.setReferencedIds(Ints.toArray(viewIdBuilder.build()));
         }
+
+        Account thisAccount = xmppConnectionService.findAccountByJid(accountJid);
+        if (thisAccount == null) {
+            return;
+        }
+        final var conversation = xmppConnectionService.findOrCreateConversation(thisAccount, contact.getJid(), false, true);
+        final List<Conversation.Thread> recentThreads = conversation.recentThreads();
+        if (recentThreads.isEmpty()) {
+            this.binding.recentThreadsWrapper.setVisibility(View.GONE);
+        } else {
+            final ThreadAdapter threads = new ThreadAdapter();
+            threads.addAll(recentThreads);
+            this.binding.recentThreads.setAdapter(threads);
+            this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
+            Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
+        }
     }
 
     private void onBadgeClick(final View view) {
@@ -831,6 +858,23 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (uriS != null) return Uri.parse(uriS).normalizeScheme();
             if (item.getName().equals("email")) return Uri.parse("mailto:" + item.findChildContent("text", Namespace.VCARD4));
             return null;
+        }
+    }
+
+    class ThreadAdapter extends ArrayAdapter<Conversation.Thread> {
+        ThreadAdapter() { super(ContactDetailsActivity.this, 0); }
+
+        @Override
+        public View getView(int position, View view, @NonNull ViewGroup parent) {
+            final ThreadRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.thread_row, parent, false);
+            final Conversation.Thread item = getItem(position);
+
+            binding.threadIdenticon.setColor(UIHelper.getColorForName(item.getThreadId()));
+            binding.threadIdenticon.setHash(UIHelper.identiconHash(item.getThreadId()));
+
+            binding.threadSubject.setText(item.getDisplay());
+
+            return binding.getRoot();
         }
     }
 }
