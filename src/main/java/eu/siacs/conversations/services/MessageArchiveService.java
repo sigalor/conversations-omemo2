@@ -387,6 +387,15 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
             if (query.isCatchup() && query.getActualMessageCount() > 0) {
                 mXmppConnectionService.getNotificationService().finishBacklog(true, query.getAccount());
             }
+            if (query.isCatchup() && query.getPagingOrder() == PagingOrder.NORMAL && !complete) {
+                // Going forward we stopped without completing due to limits
+                // So we don't have the most recent messages yet
+                synchronized (this.queries) {
+                    final var q = new Query(query.getConversation(), new MamReference(System.currentTimeMillis() - Config.MAM_MIN_CATCHUP), 0, true, PagingOrder.REVERSE);
+                    this.queries.add(q);
+                    this.execute(q);
+                }
+            }
             processPostponed(query);
         } else {
             final Query nextQuery;
@@ -491,6 +500,11 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
         private boolean catchup = true;
         public final Version version;
 
+
+        Query(Conversation conversation, MamReference start, long end, boolean catchup, PagingOrder order) {
+            this(conversation, start, end, catchup);
+            this.pagingOrder = order;
+        }
 
         Query(Conversation conversation, MamReference start, long end, boolean catchup) {
             this(conversation.getAccount(), Version.get(conversation.getAccount(), conversation), catchup ? start : start.timeOnly(), end);
