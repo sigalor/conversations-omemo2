@@ -101,7 +101,6 @@ public class QuickConversationsService extends AbstractQuickConversationsService
         ImmutableMap<String, PhoneNumberContact> allContacts = null;
         for (final Account account : ImmutableList.copyOf(service.getAccounts())) {
             List<String> gateways = gateways(account);
-            if (gateways.size() < 1) continue;
             if (allContacts == null) allContacts = PhoneNumberContact.load(service);
             refresh(account, gateways, allContacts.values());
             if (!considerSync(account, gateways, allContacts, forced)) {
