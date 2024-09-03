@@ -955,7 +955,11 @@ public class ConversationFragment extends XmppFragment
         final Conversation conversation = this.conversation;
         final boolean hasSubject = binding.textinputSubject.getText().length() > 0;
         if (conversation == null || (body.length() == 0 && (conversation.getThread() == null || !hasSubject))) {
-            binding.textSendButton.showContextMenu(0, 0);
+            if (Build.VERSION.SDK_INT >= 24) {
+                binding.textSendButton.showContextMenu(0, 0);
+            } else {
+                binding.textSendButton.showContextMenu();
+            }
             return;
         }
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_TEXT)) {

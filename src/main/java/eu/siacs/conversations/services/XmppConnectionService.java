@@ -836,7 +836,8 @@ public class XmppConnectionService extends Service {
     }
 
     protected void cleanupCache() {
-         mStickerScanExecutor.execute(() -> {
+        if (Build.VERSION.SDK_INT < 26) return; // Doesn't support file.toPath
+        mStickerScanExecutor.execute(() -> {
             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
             final var now = System.currentTimeMillis();
             try {

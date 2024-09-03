@@ -608,7 +608,7 @@ public class FileBackend {
         }
 
         try {
-            if (file.exists() && file.toString().startsWith(mXmppConnectionService.getCacheDir().toString())) {
+            if (file.exists() && file.toString().startsWith(mXmppConnectionService.getCacheDir().toString()) && Build.VERSION.SDK_INT >= 26) {
                 java.nio.file.Files.setAttribute(file.toPath(), "lastAccessTime", java.nio.file.attribute.FileTime.fromMillis(System.currentTimeMillis()));
             }
         } catch (final IOException e) {
@@ -1838,6 +1838,7 @@ public class FileBackend {
 
     public File getAvatarFile(String avatar) {
         final var f = new File(mXmppConnectionService.getCacheDir(), "/avatars/" + avatar);
+        if (Build.VERSION.SDK_INT < 26) return f; // Doesn't support file.toPath
         try {
             if (f.exists()) java.nio.file.Files.setAttribute(f.toPath(), "lastAccessTime", java.nio.file.attribute.FileTime.fromMillis(System.currentTimeMillis()));
         } catch (final IOException e) {
