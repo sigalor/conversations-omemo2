@@ -2540,7 +2540,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void updateChatBG() {
-        if (activity != null) {
+        if (activity != null && conversation != null && conversation.getUuid() != null) {
             Uri uri = ChatBackgroundHelper.getBgUri(activity, conversation.getUuid());
             if (uri != null) {
                 binding.backgroundImage.setImageURI(uri);
