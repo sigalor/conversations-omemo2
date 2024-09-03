@@ -19,6 +19,11 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_server_connection">
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/enforce_dane"
+            android:key="enforce_dane"
+            android:summary="@string/pref_enforce_dane_summary"
+            android:title="@string/pref_enforce_dane" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/trust_system_ca_store"
             android:icon="@drawable/ic_assured_workload_24dp"
             android:key="trust_system_ca_store"

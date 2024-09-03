@@ -836,7 +836,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         STREAM_OPENING_ERROR,
         POLICY_VIOLATION,
         PAYMENT_REQUIRED,
-        MISSING_INTERNET_PERMISSION(false);
+        MISSING_INTERNET_PERMISSION(false),
+        DANE_FAILED (true);
 
         private final boolean isError;
         private final boolean attemptReconnect;
@@ -928,6 +929,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                     return R.string.missing_internet_permission;
                 case TEMPORARY_AUTH_FAILURE:
                     return R.string.account_status_temporary_auth_failure;
+                case DANE_FAILED:
+                    return R.string.dane_failed;
                 default:
                     return R.string.account_status_unknown;
             }

@@ -48,4 +48,27 @@
     <string name="block_inviter">Block inviter</string>
     <string name="add_bookmark">Add Chat</string>
     <string name="received_invite_from_stranger">Received invite from stranger</string>
+
+    <string name="avater_shape_oval">Oval</string>
+    <string name="avater_shape_rounded_square">Rounded Square</string>
+    <string name="avater_shape_square">Square</string>
+    <string name="pref_avatars_shape">Avatars shape</string>
+    <string name="pref_avatar_shape_summary">Allows you to select avatars shape globally</string>
+    <string name="refresh_feature_discovery">Refresh feature discovery</string>
+    <string name="custom_background">Custom background</string>
+    <string name="pref_chat_background_summary">Choose an own image file as chat background.</string>
+    <string name="delete_background">Remove chat background</string>
+    <string name="pref_delete_background_summary">Remove your custom background image from the chat</string>
+    <string name="create_background_failed">Failed to create background</string>
+    <string name="custom_background_set">Custom background set</string>
+    <string name="delete_background_failed">Couldn\'t remove background image</string>
+    <string name="delete_background_success">Background image removed</string>
+    <string name="no_background_set">No custom background set</string>
+    <string name="pref_show_navigation_bar">Show navigation bar</string>
+    <string name="pref_show_navigation_bar_summary">Use alternative navigation way via navigation bar on the bottom of the screen</string>
+    <string name="chats">Chats</string>
+    <string name="accounts">Accounts</string>
+    <string name="pref_enforce_dane_summary">Only connect an account when successfully verified DANE</string>
+    <string name="pref_enforce_dane">Enforce DANE</string>
+    <string name="dane_failed">DANE failed</string>
 </resources>

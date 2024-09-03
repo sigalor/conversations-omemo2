@@ -56,4 +56,5 @@
     <bool name="auto_accept_unmetered">true</bool>
     <string name="avatar_shape">oval</string>
     <bool name="show_nav_bar">true</bool>
+    <bool name="enforce_dane">false</bool>
 </resources>
