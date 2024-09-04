@@ -59,6 +59,7 @@ import androidx.databinding.DataBindingUtil;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -66,6 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.RejectedExecutionException;
 
 import eu.siacs.conversations.AppSettings;
@@ -972,7 +974,28 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     protected void showQrCode() {
-        showQrCode(getShareableUri());
+        final var uri = getShareableUri();
+        if (uri != null) {
+            showQrCode(uri);
+            return;
+        }
+
+        final var accounts = xmppConnectionService.getAccounts();
+        if (accounts.size() < 1) return;
+
+        if (accounts.size() == 1) {
+            showQrCode(accounts.get(0).getShareableUri());
+            return;
+        }
+
+        final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
+        final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
+        alertDialogBuilder.setTitle(R.string.choose_account);
+        final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toEscapedString()).toArray(new String[0]);
+        alertDialogBuilder.setSingleChoiceItems(asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
+        alertDialogBuilder.setNegativeButton(R.string.cancel, null);
+        alertDialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> showQrCode(selectedAccount.get().getShareableUri()));
+        alertDialogBuilder.create().show();
     }
 
     protected void showQrCode(final String uri) {

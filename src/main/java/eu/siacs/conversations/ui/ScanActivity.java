@@ -35,6 +35,7 @@ import android.os.Process;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
@@ -67,7 +68,7 @@ import eu.siacs.conversations.ui.widget.ScannerView;
  * @author Andreas Schildbach
  */
 @SuppressWarnings("deprecation")
-public final class ScanActivity extends Activity implements SurfaceTextureListener, ActivityCompat.OnRequestPermissionsResultCallback {
+public final class ScanActivity extends XmppActivity implements SurfaceTextureListener, ActivityCompat.OnRequestPermissionsResultCallback {
 	public static final String INTENT_EXTRA_RESULT = "result";
 
 	public static final int REQUEST_SCAN_QR_CODE = 0x0987;
@@ -170,6 +171,12 @@ public final class ScanActivity extends Activity implements SurfaceTextureListen
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
 		setContentView(R.layout.activity_scan);
+		setSupportActionBar(findViewById(R.id.toolbar));
+		final var actionBar = getSupportActionBar();
+		configureActionBar(actionBar);
+		actionBar.setTitle("Scan Contact QR Code");
+		Activities.setStatusAndNavigationBarColors(this, findViewById(android.R.id.content));
+
 		scannerView = findViewById(R.id.scan_activity_mask);
 		previewView = findViewById(R.id.scan_activity_preview);
 		previewView.setSurfaceTextureListener(this);
@@ -186,7 +193,7 @@ public final class ScanActivity extends Activity implements SurfaceTextureListen
 	}
 
 	@Override
-	protected void onPause() {
+	public void onPause() {
 		cameraHandler.post(closeRunnable);
 
 		super.onPause();
@@ -201,6 +208,19 @@ public final class ScanActivity extends Activity implements SurfaceTextureListen
 		previewView.setSurfaceTextureListener(null);
 
 		super.onDestroy();
+	}
+
+	@Override
+	public void onBackendConnected() { }
+
+	@Override
+	public void refreshUiReal() { }
+
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.scan_activity, menu);
+		return true;
 	}
 
 	private void maybeOpenCamera() {

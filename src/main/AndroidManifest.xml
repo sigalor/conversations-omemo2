@@ -215,7 +215,6 @@
             android:name=".ui.ScanActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Conversations3.FullScreen"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.UriHandlerActivity"
