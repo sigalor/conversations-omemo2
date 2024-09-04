@@ -145,7 +145,7 @@
                             android:id="@+id/textinput_subject"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Subject"
+                            android:hint="@string/subject"
                             android:textColor="?colorOnTertiaryContainer"
                             android:textColorHint="@color/hint_on_tertiary_container"
                             android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
@@ -228,7 +228,7 @@
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:text="Request to Speak" />
+                        android:text="@string/request_to_speak" />
                 </RelativeLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
