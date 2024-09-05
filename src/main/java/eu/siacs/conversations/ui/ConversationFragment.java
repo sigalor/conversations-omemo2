@@ -4589,9 +4589,14 @@ public class ConversationFragment extends XmppFragment
                                         menuItem, user, activity, fingerprint));
             } else {
                 popupMenu.inflate(R.menu.one_on_one_context);
+                final MenuItem menuShowAvatar = popupMenu.getMenu().findItem(R.id.action_show_avatar);
+                if (contact.getAvatar() != null) menuShowAvatar.setVisible(true);
                 popupMenu.setOnMenuItemClickListener(
                         item -> {
                             switch (item.getItemId()) {
+                                case R.id.action_show_avatar:
+                                    activity.ShowAvatarPopup(activity, contact);
+                                    break;
                                 case R.id.action_contact_details:
                                     activity.switchToContactDetails(
                                             message.getContact(), fingerprint);

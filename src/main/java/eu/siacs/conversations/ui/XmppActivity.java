@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import android.app.Activity;
 import android.telephony.TelephonyManager;
 
 import android.Manifest;
@@ -40,9 +41,11 @@ import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.webkit.ValueCallback;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -87,6 +90,7 @@ import eu.siacs.conversations.services.EmojiInitializationService;
 import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService.XmppConnectionBinder;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PresenceSelector;
 import eu.siacs.conversations.ui.util.SettingsUtils;
@@ -120,6 +124,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected static final String FRAGMENT_TAG_DIALOG = "dialog";
 
     private boolean isCameraFeatureAvailable = false;
+    public AlertDialog AvatarPopup;
 
     protected int mTheme;
     protected HashMap<Integer,Integer> mCustomColors;
@@ -1190,5 +1195,30 @@ public abstract class XmppActivity extends ActionBarActivity {
     public boolean isDark() {
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    public void ShowAvatarPopup(final Activity activity, final AvatarService.Avatarable user) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AvatarPopup = builder.create();
+        final LayoutInflater inflater = getLayoutInflater();
+        final View dialogLayout = inflater.inflate(R.layout.avatar_dialog, null);
+        AvatarPopup.setView(dialogLayout);
+        AvatarPopup.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final ImageView image = (ImageView) dialogLayout.findViewById(R.id.avatar);
+        AvatarWorkerTask.loadAvatar(user, image, R.dimen.avatar_big);
+        AvatarPopup.setOnShowListener((DialogInterface.OnShowListener) d -> {
+            int imageWidthInPX = 0;
+            if (image != null) {
+                imageWidthInPX = Math.round(image.getWidth());
+                AvatarPopup.getWindow().setLayout(imageWidthInPX, imageWidthInPX);
+            }
+        });
+        AvatarPopup.show();
+    }
+
+    private void hideAvatarPopup() {
+        if (AvatarPopup != null && AvatarPopup.isShowing()) {
+            AvatarPopup.cancel();
+        }
     }
 }

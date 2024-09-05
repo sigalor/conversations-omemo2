@@ -10,6 +10,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -17,6 +18,7 @@ import androidx.databinding.DataBindingUtil;
 
 import java.util.ArrayList;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import eu.siacs.conversations.Config;
@@ -114,7 +116,10 @@ public final class MucDetailsContextMenuHelper {
         final boolean isGroupChat = mucOptions.isPrivateAndNonAnonymous();
         MenuItem sendPrivateMessage = menu.findItem(R.id.send_private_message);
         MenuItem shareContactDetails = menu.findItem(R.id.share_contact_details);
-
+        MenuItem showAvatar = menu.findItem(R.id.action_show_avatar);
+        if (user != null && user.getAvatar() != null) {
+            showAvatar.setVisible(true);
+        }
         MenuItem blockAvatar = menu.findItem(R.id.action_block_avatar);
         if (user != null && user.getAvatar() != null) {
             blockAvatar.setVisible(true);
@@ -205,6 +210,9 @@ public final class MucDetailsContextMenuHelper {
         final XmppConnectionService.OnAffiliationChanged onAffiliationChanged = activity instanceof XmppConnectionService.OnAffiliationChanged ? (XmppConnectionService.OnAffiliationChanged) activity : null;
         Jid jid = user.getRealJid();
         switch (item.getItemId()) {
+            case R.id.action_show_avatar:
+                activity.ShowAvatarPopup(activity, user);
+                return true;
             case R.id.action_contact_details:
                 final Jid realJid = user.getRealJid();
                 final Account account = conversation.getAccount();
