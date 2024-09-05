@@ -73,4 +73,7 @@
     <string name="dane_failed">DANE failed</string>
     <string name="request_to_speak">Request to speak</string>
     <string name="subject">Subject</string>
+    <string name="one_participant">One participant</string>
+    <string name="is_typing">is typing …</string>
+    <string name="more_participants">%d participants</string>
 </resources>

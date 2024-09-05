@@ -43,10 +43,13 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
@@ -54,6 +57,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.IdRes;
@@ -70,6 +74,12 @@ import de.monocles.chat.FinishOnboarding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.collect.ImmutableList;
 
+import eu.siacs.conversations.entities.MucOptions;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.ui.widget.AvatarView;
+import eu.siacs.conversations.utils.UIHelper;
+import eu.siacs.conversations.xml.Namespace;
+import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -149,6 +159,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private boolean refreshForNewCaps = false;
     private Set<Jid> newCapsJids = new HashSet<>();
     private int mRequestCode = -1;
+    private boolean showLastSeen = false;
 
     private static boolean isViewOrShareIntent(Intent i) {
         Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
@@ -170,6 +181,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
         refreshForNewCaps = false;
         newCapsJids.clear();
+        invalidateActionBarTitle();
     }
 
     @Override
@@ -787,6 +799,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.chats);
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.showLastSeen = preferences.getBoolean("last_activity", getResources().getBoolean(R.bool.last_activity));
     }
 
     @Override
@@ -864,6 +878,68 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (mainFragment instanceof ConversationFragment conversationFragment) {
             final Conversation conversation = conversationFragment.getConversation();
             if (conversation != null) {
+                if (conversation.getMode() == Conversation.MODE_SINGLE) {
+                    if (!conversation.withSelf()) {
+                        ChatState state = conversation.getIncomingChatState();
+                        if (state == ChatState.COMPOSING) {
+                            actionBar.setSubtitle(getString(R.string.is_typing));
+                            //absubtitle.setVisibility(View.VISIBLE);
+                            //absubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
+                            //absubtitle.setSelected(true);
+                        } else {
+                            if (showLastSeen && conversation.getContact().getLastseen() > 0 && conversation.getContact().getPresences().allOrNonSupport(Namespace.IDLE)) {
+                                actionBar.setSubtitle(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                                //absubtitle.setVisibility(View.VISIBLE);
+                            } else {
+                                actionBar.setSubtitle(null);
+                                // absubtitle.setVisibility(View.GONE);
+                            }
+                            //absubtitle.setSelected(true);
+                        }
+                    } else {
+                        actionBar.setSubtitle(null);
+                        //absubtitle.setVisibility(View.GONE);
+                    }
+                } else {
+                    ChatState state = ChatState.COMPOSING;
+                    List<MucOptions.User> userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
+                    if (userWithChatStates.isEmpty()) {
+                        state = ChatState.PAUSED;
+                        userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
+                    }
+                    List<MucOptions.User> users = conversation.getMucOptions().getUsers(true);
+                    if (state == ChatState.COMPOSING) {
+                        if (!userWithChatStates.isEmpty()) {
+                            if (userWithChatStates.size() == 1) {
+                                MucOptions.User user = userWithChatStates.get(0);
+                                actionBar.setSubtitle(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
+                                // absubtitle.setVisibility(View.VISIBLE);
+                            } else {
+                                StringBuilder builder = new StringBuilder();
+                                for (MucOptions.User user : userWithChatStates) {
+                                    if (builder.length() != 0) {
+                                        builder.append(", ");
+                                    }
+                                    builder.append(UIHelper.getDisplayName(user));
+                                }
+                                actionBar.setSubtitle(getString(R.string.contacts_are_typing, builder.toString()));
+                                // absubtitle.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    } else {
+                        if (users.isEmpty()) {
+                            actionBar.setSubtitle(getString(R.string.one_participant));
+                            // absubtitle.setVisibility(View.VISIBLE);
+                        } else {
+                            int size = users.size();
+                            actionBar.setSubtitle(getString(R.string.more_participants, size));
+                            //absubtitle.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    //absubtitle.setSelected(true);
+                }
+                AvatarWorkerTask.loadAvatar(conversation, binding.toolbarAvatar, R.dimen.muc_avatar_actionbar);
+                binding.toolbarAvatar.setVisibility(View.VISIBLE);
                 actionBar.setTitle(conversation.getName());
                 actionBar.setDisplayHomeAsUpEnabled(!xmppConnectionService.isOnboarding() || !conversation.getJid().equals(Jid.of("cheogram.com")));
                 ToolbarUtils.setActionBarOnClickListener(
@@ -872,16 +948,82 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 );
                 return;
             }
+        } else {
+            actionBar.setSubtitle(null);
+            binding.toolbarAvatar.setVisibility(View.GONE);
         }
         final Fragment secondaryFragment = fragmentManager.findFragmentById(R.id.secondary_fragment);
         if (secondaryFragment instanceof ConversationFragment conversationFragment) {
             final Conversation conversation = conversationFragment.getConversation();
             if (conversation != null) {
+                if (conversation.getMode() == Conversation.MODE_SINGLE) {
+                    if (!conversation.withSelf()) {
+                        ChatState state = conversation.getIncomingChatState();
+                        if (state == ChatState.COMPOSING) {
+                            actionBar.setSubtitle(getString(R.string.is_typing));
+                            //absubtitle.setVisibility(View.VISIBLE);
+                            //absubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
+                            //absubtitle.setSelected(true);
+                        } else {
+                            if (showLastSeen && conversation.getContact().getLastseen() > 0 && conversation.getContact().getPresences().allOrNonSupport(Namespace.IDLE)) {
+                                actionBar.setSubtitle(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                                //absubtitle.setVisibility(View.VISIBLE);
+                            } else {
+                                actionBar.setSubtitle(null);
+                                // absubtitle.setVisibility(View.GONE);
+                            }
+                            //absubtitle.setSelected(true);
+                        }
+                    } else {
+                        actionBar.setSubtitle(null);
+                        //absubtitle.setVisibility(View.GONE);
+                    }
+                } else {
+                    ChatState state = ChatState.COMPOSING;
+                    List<MucOptions.User> userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
+                    if (userWithChatStates.isEmpty()) {
+                        state = ChatState.PAUSED;
+                        userWithChatStates = conversation.getMucOptions().getUsersWithChatState(state, 5);
+                    }
+                    List<MucOptions.User> users = conversation.getMucOptions().getUsers(true);
+                    if (state == ChatState.COMPOSING) {
+                        if (!userWithChatStates.isEmpty()) {
+                            if (userWithChatStates.size() == 1) {
+                                MucOptions.User user = userWithChatStates.get(0);
+                                actionBar.setSubtitle(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
+                                // absubtitle.setVisibility(View.VISIBLE);
+                            } else {
+                                StringBuilder builder = new StringBuilder();
+                                for (MucOptions.User user : userWithChatStates) {
+                                    if (builder.length() != 0) {
+                                        builder.append(", ");
+                                    }
+                                    builder.append(UIHelper.getDisplayName(user));
+                                }
+                                actionBar.setSubtitle(getString(R.string.contacts_are_typing, builder.toString()));
+                                // absubtitle.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    } else {
+                        if (users.isEmpty()) {
+                            actionBar.setSubtitle(getString(R.string.one_participant));
+                            // absubtitle.setVisibility(View.VISIBLE);
+                        } else {
+                            int size = users.size();
+                            actionBar.setSubtitle(getString(R.string.more_participants, size));
+                            //absubtitle.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    //absubtitle.setSelected(true);
+                }
+                AvatarWorkerTask.loadAvatar(conversation, binding.toolbarAvatar, R.dimen.muc_avatar_actionbar);
+                binding.toolbarAvatar.setVisibility(View.VISIBLE);
                 actionBar.setTitle(conversation.getName());
             } else {
                 actionBar.setTitle(R.string.app_name);
             }
         } else {
+            binding.toolbarAvatar.setVisibility(View.GONE);
             actionBar.setTitle(R.string.app_name);
         }
         actionBar.setDisplayHomeAsUpEnabled(false);
