@@ -92,6 +92,11 @@
             android:summary="@string/pref_delete_background_summary"
             android:title="@string/delete_background" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_less_avatars"
+            android:key="show_less_avatars"
+            android:summary="@string/pref_show_less_avatars_summary"
+            android:title="@string/pref_show_less_avatars" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/show_nav_bar"
             android:key="show_nav_bar"
             android:icon="@drawable/ic_navigate_next_24dp"

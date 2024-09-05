@@ -1105,6 +1105,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.message_box_inner = view.findViewById(R.id.message_box_inner);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    if (activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
+                        viewHolder.contact_picture.setVisibility(View.VISIBLE);
+                    }
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -1125,6 +1128,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.message_box_inner = view.findViewById(R.id.message_box_inner);
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.contact_picture = view.findViewById(R.id.message_photo);
+                    if (message.getConversation().getMode() == Conversation.MODE_SINGLE && activity.xmppConnectionService.getBooleanPreference("show_less_avatars", R.bool.show_less_avatars)) {
+                        viewHolder.contact_picture.setVisibility(View.GONE);
+                    }
                     viewHolder.download_button = view.findViewById(R.id.download_button);
                     viewHolder.indicator = view.findViewById(R.id.security_indicator);
                     viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
@@ -1292,7 +1298,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 } else if (message.getCounterpart() != null
                         || message.getTrueCounterpart() != null
                         || (message.getCounterparts() != null
-                                && message.getCounterparts().size() > 0)) {
+                                && !message.getCounterparts().isEmpty())) {
                     showAvatar = true;
                     AvatarWorkerTask.loadAvatar(
                             message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);

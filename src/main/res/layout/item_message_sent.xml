@@ -41,7 +41,8 @@
                 android:id="@+id/message_photo"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
         </LinearLayout>
 
 

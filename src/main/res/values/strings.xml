@@ -1079,4 +1079,6 @@
     <string name="do_you_really_want_to_retract_this_message">Do you really want to retract this message?</string>
     <string name="show_avatar">Show avatar</string>
     <string name="block_avatar">Block avatar</string>
+    <string name="pref_show_less_avatars">Show less avatars</string>
+    <string name="pref_show_less_avatars_summary">Show only needed avatars in the chats</string>
 </resources>
