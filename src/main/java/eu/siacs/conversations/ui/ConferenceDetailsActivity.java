@@ -480,7 +480,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         runOnUiThread(() -> {
             int limit = GridManager.getCurrentColumnCount(binding.media);
             mMediaAdapter.setAttachments(attachments.subList(0, Math.min(limit, attachments.size())));
-            binding.mediaWrapper.setVisibility(attachments.size() > 0 ? View.VISIBLE : View.GONE);
+            binding.mediaWrapper.setVisibility(!attachments.isEmpty() ? View.VISIBLE : View.GONE);
         });
 
     }
@@ -657,10 +657,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         });
         this.mUserPreviewAdapter.submitList(MucOptions.sub(users, GridManager.getCurrentColumnCount(binding.users)));
         this.binding.invite.setVisibility(mucOptions.canInvite() ? View.VISIBLE : View.GONE);
-        this.binding.showUsers.setVisibility(users.size() > 0 ? View.VISIBLE : View.GONE);
+        this.binding.showUsers.setVisibility(!users.isEmpty() ? View.VISIBLE : View.GONE);
         this.binding.showUsers.setText(getResources().getQuantityString(R.plurals.view_users, users.size(), users.size()));
-        this.binding.usersWrapper.setVisibility(users.size() > 0 || mucOptions.canInvite() ? View.VISIBLE : View.GONE);
-        if (users.size() == 0) {
+        this.binding.usersWrapper.setVisibility(!users.isEmpty() || mucOptions.canInvite() ? View.VISIBLE : View.GONE);
+        if (users.isEmpty()) {
             this.binding.noUsersHints.setText(mucOptions.isPrivateAndNonAnonymous() ? R.string.no_users_hint_group_chat : R.string.no_users_hint_channel);
             this.binding.noUsersHints.setVisibility(View.VISIBLE);
         } else {
