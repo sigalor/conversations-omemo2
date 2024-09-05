@@ -29,9 +29,9 @@
   -->
 
 <resources>
-    <string name="pref_about_message" translatable="false">
-			Conversations • the very last word in instant messaging.
-			\n\nCopyright © 2014-2024 Daniel Gultsch
+    <string name="pref_about_message" translatable="false"><b>monocles chat</b>
+			\n\nCopyright © 2020-%s Arne-Brün Vogelsang
+			\n\nhttps://monocles.eu/more/
 			\n\nThis program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
 			the Free Software Foundation, either version 3 of the License, or
@@ -42,8 +42,10 @@
 			GNU General Public License for more details.
 			\n\nYou should have received a copy of the GNU General Public License
 			along with this program. If not, see https://www.gnu.org/licenses
-			\n\nDownload the full source code at https://git.singpolyma.net/cheogram-android
-			\n\nPrivacy policy: https://cheogram.com/android-privacy.html
+			\n\nDownload the full original source code at https://github.com/siacs/Conversations (Copyright © Daniel Gultsch)
+			\n\nDownload the modified source code at https://codeberg.org/Arne/monocles_chat
+            \n\nYou can buy me a coffee by making a donation in form of a gift in sense of § 516 ff BGB i.e. a gratuitous donation via PayPal for arne-bruen@monocles.de
+			\n\nPrivacy policy: https://monocles.eu/legal-privacy/#policies-section
 			\n\n\nLibraries
 			\n\nhttps://webrtc.org\nCopyright (c) 2011, The WebRTC project authors. All rights reserved. (https://webrtc.org/support/license)
 			\n\nhttps://github.com/ypresto/android-transcoder\n(Apache License, Version 2.0)
