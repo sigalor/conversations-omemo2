@@ -239,6 +239,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 switch (menuItem.getItemId()) {
                     case R.id.action_show_avatar:
                         ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
+                        return true;
                     case R.id.action_block_avatar:
                         new AlertDialog.Builder(this)
                             .setTitle(R.string.block_media)
