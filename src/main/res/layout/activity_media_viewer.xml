@@ -8,15 +8,8 @@
         android:background="@android:color/black"
         android:orientation="vertical">
 
-        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-            android:id="@+id/messageImageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:visibility="gone" />
-
         <ImageView
-            android:id="@+id/messageGifView"
+            android:id="@+id/messageImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"

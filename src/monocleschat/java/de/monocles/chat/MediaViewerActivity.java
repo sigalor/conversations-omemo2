@@ -33,8 +33,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
-import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -272,8 +271,6 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     }
 
     private void DisplayImage(final File file, final Uri uri) {
-        final boolean gif = "image/gif".equalsIgnoreCase(getMimeType(file.toString()));
-        final boolean bmp = "image/bmp".equalsIgnoreCase(getMimeType(file.toString())) || "image/x-ms-bmp".equalsIgnoreCase(getMimeType(file.toString()));
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
@@ -286,16 +283,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
             rotateScreen(width, height, rotation);
         }
         try {
-            if (gif) {
-                binding.messageGifView.setVisibility(View.VISIBLE);
-                binding.messageGifView.setImageURI(uri);
-                binding.messageGifView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
-            } else {
-                binding.messageImageView.setVisibility(View.VISIBLE);
-                binding.messageImageView.setImage(ImageSource.uri(uri).tiling(!bmp));
-                binding.messageImageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
-                binding.messageImageView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
-            }
+            binding.messageImageView.setVisibility(View.VISIBLE);
+            Glide.with(this).load(uri).into(binding.messageImageView);
+            binding.messageImageView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
         } catch (Exception e) {
             ToastCompat.makeText(this, getString(R.string.error_file_not_found), ToastCompat.LENGTH_LONG).show();
             e.printStackTrace();
