@@ -19,7 +19,14 @@
                 <action android:name="android.telecom.ConnectionService" />
             </intent-filter>
         </service>
-
+        <activity
+            android:name="de.monocles.chat.MediaViewerActivity"
+            android:autoRemoveFromRecents="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:launchMode="singleInstance"
+            android:supportsPictureInPicture="true"
+            android:exported="false"
+            android:theme="@style/Theme.Conversations3.FullScreen" />
         <activity
             android:name=".ui.ManageAccountActivity"
             android:label="@string/title_activity_manage_accounts"

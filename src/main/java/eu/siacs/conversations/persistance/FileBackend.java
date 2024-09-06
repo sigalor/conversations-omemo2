@@ -1150,7 +1150,7 @@ public class FileBackend {
         }
     }
 
-    private static int getRotation(final InputStream inputStream) throws IOException {
+    public static int getRotation(final InputStream inputStream) throws IOException {
         final ExifInterface exif = new ExifInterface(inputStream);
         final int orientation =
                 exif.getAttributeInt(
@@ -2285,6 +2285,10 @@ public class FileBackend {
             Log.w(Config.LOGTAG, "Could not parse SVG: " + e);
             return null;
         }
+    }
+
+    public boolean deleteFile(File file) {
+        return file.delete();
     }
 
     private static class Dimensions {

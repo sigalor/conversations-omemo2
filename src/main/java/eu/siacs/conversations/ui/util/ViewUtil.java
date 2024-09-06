@@ -12,10 +12,12 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.List;
 
+import de.monocles.chat.MediaViewerActivity;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.persistance.FileBackend;
+import me.drakeet.support.toast.ToastCompat;
 
 public class ViewUtil {
 
@@ -37,24 +39,46 @@ public class ViewUtil {
         view(context, file, mime);
     }
 
-    private static void view(Context context, File file, String mime) {
-        Log.d(Config.LOGTAG,"viewing "+file.getAbsolutePath()+" "+mime);
-        final Intent openIntent = new Intent(Intent.ACTION_VIEW);
+    public static void view(Context context, File file, String mime) {
+        Log.d(Config.LOGTAG, "viewing " + file.getAbsolutePath() + " " + mime);
         final Uri uri;
         try {
             uri = FileBackend.getUriForFile(context, file);
         } catch (SecurityException e) {
             Log.d(Config.LOGTAG, "No permission to access " + file.getAbsolutePath(), e);
-            Toast.makeText(context, context.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
+            ToastCompat.makeText(context, context.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), ToastCompat.LENGTH_SHORT).show();
             return;
         }
-        openIntent.setDataAndType(uri, mime);
-        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        try {
-            context.startActivity(openIntent);
-        } catch (final ActivityNotFoundException e) {
-            Toast.makeText(context, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
+        // use internal viewer for images and videos
+        if (mime.startsWith("image/")) {
+            final Intent intent = new Intent(context, MediaViewerActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("image", Uri.fromFile(file));
+            try {
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(context, R.string.cant_open_file, Toast.LENGTH_LONG).show();
+            }
+        } else if (mime.startsWith("video/")) {
+            final Intent intent = new Intent(context, MediaViewerActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("video", Uri.fromFile(file));
+            try {
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(context, R.string.cant_open_file, Toast.LENGTH_LONG).show();
+            }
+        } else {
+            final Intent openIntent = new Intent(Intent.ACTION_VIEW);
+            openIntent.setDataAndType(uri, mime);
+            openIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                context.startActivity(openIntent);
+            } catch (final ActivityNotFoundException e) {
+                Toast.makeText(context, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
 }

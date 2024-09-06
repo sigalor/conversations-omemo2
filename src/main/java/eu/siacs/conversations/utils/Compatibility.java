@@ -35,7 +35,7 @@ public class Compatibility {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
     }
 
-    private static boolean runsTwentyFour() {
+    public static boolean runsTwentyFour() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
