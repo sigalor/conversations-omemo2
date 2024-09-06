@@ -1081,4 +1081,5 @@
     <string name="block_avatar">Block avatar</string>
     <string name="pref_show_less_avatars">Show less avatars</string>
     <string name="pref_show_less_avatars_summary">Show only needed avatars in the chats</string>
+    <string name="store_media_only_in_cache">Store media only in cache</string>
 </resources>
