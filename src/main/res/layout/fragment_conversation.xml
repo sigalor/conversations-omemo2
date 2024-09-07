@@ -53,6 +53,7 @@
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentBottom="true"
                         android:background="@drawable/textsend"
+                        android:alpha="0.88"
                         android:orientation="vertical"
                         android:animateLayoutChanges="true" >
 
@@ -115,18 +116,22 @@
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="6dp">
 
+                        <RelativeLayout
+                            android:id="@+id/input_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_toStartOf="@+id/textSendButton"
+                            android:layout_toEndOf="@+id/thread_identicon_layout"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="8dp"
+                            android:orientation="horizontal">
+
                             <LinearLayout
-                                android:id="@+id/input_layout"
+                                android:id="@+id/text_input_layout"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerVertical="true"
-                                android:layout_toStartOf="@+id/textSendButton"
-                                android:layout_toEndOf="@+id/thread_identicon_layout"
-                                android:background="@drawable/background_message_bubble"
-                                android:backgroundTint="?colorTertiaryContainer"
-                                android:orientation="vertical"
-                                android:paddingHorizontal="16dp"
-                                android:paddingVertical="8dp">
+                                android:orientation="vertical">
 
                                 <TextView
                                     android:id="@+id/text_input_hint"
@@ -182,9 +187,35 @@
 
                                     <requestFocus />
                                 </eu.siacs.conversations.ui.widget.EditMessage>
-
                             </LinearLayout>
 
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/takePictureButton"
+                                style="?attr/materialIconButtonFilledTonalStyle"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:layout_centerVertical="true"
+                                android:layout_toStartOf="@+id/recordVoiceButton"
+                                android:contentDescription="@string/attach_take_picture"
+                                app:icon="@drawable/ic_camera_alt_24dp"
+                                app:iconSize="24dp"
+                                android:backgroundTint="@android:color/transparent"
+                                android:visibility="visible" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/recordVoiceButton"
+                                style="?attr/materialIconButtonFilledTonalStyle"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:layout_centerVertical="true"
+                                android:layout_alignParentEnd="true"
+                                android:contentDescription="@string/attach_record_voice"
+                                app:icon="@drawable/ic_mic_24dp"
+                                app:iconSize="24dp"
+                                android:backgroundTint="@android:color/transparent"
+                                android:visibility="visible" />
+
+                        </RelativeLayout>
                             <RelativeLayout
                                 android:id="@+id/thread_identicon_layout"
                                 android:layout_width="30dp"
@@ -221,12 +252,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:layout_marginStart="2dp"
-                                android:backgroundTint="?colorSurfaceContainerHigh"
+                                android:layout_alignBottom="@+id/input_layout"
                                 android:contentDescription="@string/send_message"
                                 app:icon="@drawable/ic_send_24dp"
-                                app:iconSize="28dp" />
+                                app:iconSize="28dp"
+                                android:backgroundTint="@android:color/transparent" />
 
                             <com.google.android.material.button.MaterialButton
                                 style="?attr/materialIconButtonFilledTonalStyle"

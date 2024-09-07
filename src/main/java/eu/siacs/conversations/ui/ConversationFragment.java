@@ -593,6 +593,8 @@ public class ConversationFragment extends XmppFragment
                     setSelection(binding.messagesView.getCount() - 1, true);
                 }
             };
+    private final OnClickListener mRecordVoiceButtonListener = v -> attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+    private final OnClickListener mtakePictureButtonListener = v -> attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
     private final OnClickListener mSendButtonListener =
             new OnClickListener() {
 
@@ -1452,7 +1454,8 @@ public class ConversationFragment extends XmppFragment
             binding.requestVoice.setVisibility(View.GONE);
             Toast.makeText(activity, "Your request has been sent to the moderators", Toast.LENGTH_SHORT).show();
         });
-
+        binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
+        binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
         binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
@@ -2010,10 +2013,10 @@ public class ConversationFragment extends XmppFragment
                 handleEncryptionSelection(item);
                 break;
             case R.id.attach_choose_picture:
-            case R.id.attach_take_picture:
+            //case R.id.attach_take_picture:
             case R.id.attach_record_video:
             case R.id.attach_choose_file:
-            case R.id.attach_record_voice:
+            //case R.id.attach_record_voice:
             case R.id.attach_location:
                 handleAttachmentSelection(item);
                 break;
@@ -2316,18 +2319,24 @@ public class ConversationFragment extends XmppFragment
             case R.id.attach_choose_picture:
                 attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
                 break;
+                /*
             case R.id.attach_take_picture:
                 attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
                 break;
+
+                 */
             case R.id.attach_record_video:
                 attachFile(ATTACHMENT_CHOICE_RECORD_VIDEO);
                 break;
             case R.id.attach_choose_file:
                 attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
                 break;
+                /*
             case R.id.attach_record_voice:
                 attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
                 break;
+
+                 */
             case R.id.attach_location:
                 attachFile(ATTACHMENT_CHOICE_LOCATION);
                 break;
@@ -3259,6 +3268,7 @@ public class ConversationFragment extends XmppFragment
             final var accent = activity.isDark() ? ColorUtils.blendARGB(colors.getAccentContainer(), bg, 1.0f - Math.max(0.25f, Color.alpha(accountColor) / 255.0f)) : colors.getAccentContainer();
             cursord.setTintList(ColorStateList.valueOf(colors.getOnAccentContainer()));
             binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
+
             binding.textinputSubject.setTextColor(colors.getOnAccentContainer());
             binding.textinput.setTextColor(colors.getOnAccentContainer());
             binding.textinputSubject.setHintTextColor(ColorStateList.valueOf(colors.getOnAccentContainer()).withAlpha(115));
@@ -3267,6 +3277,7 @@ public class ConversationFragment extends XmppFragment
         } else {
             cursord.setTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer)));
             binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
+
             binding.textinputSubject.setTextColor(MaterialColors.getColor(binding.textinputSubject, com.google.android.material.R.attr.colorOnTertiaryContainer));
             binding.textinput.setTextColor(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer));
             binding.textinputSubject.setHintTextColor(R.color.hint_on_tertiary_container);
