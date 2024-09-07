@@ -25,11 +25,31 @@
         </menu>
     </item>
     <item
+        android:id="@+id/action_security"
+        android:icon="@drawable/ic_lock_open_outline_24dp"
+        android:orderInCategory="29"
+        android:title="@string/encryption"
+        app:showAsAction="always">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/encryption_choice_none"
+                    android:title="@string/encryption_choice_unencrypted" />
+                <item
+                    android:id="@+id/encryption_choice_axolotl"
+                    android:title="@string/encryption_choice_omemo" />
+                <item
+                    android:id="@+id/encryption_choice_pgp"
+                    android:title="@string/encryption_choice_pgp" />
+            </group>
+        </menu>
+    </item>
+    <item
         android:id="@+id/action_attach_file"
         android:icon="@drawable/ic_attach_file_24dp"
         android:orderInCategory="30"
         android:title="@string/attach_file"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
         <menu>
 
             <item
@@ -65,12 +85,12 @@
             <item
                 android:id="@+id/attach_webxdc"
                 android:icon="@drawable/toys_and_games_24dp"
-                android:title="Choose Widget" />
+                android:title="@string/choose_widget" />
 
             <item
                 android:id="@+id/attach_subject"
                 android:icon="@drawable/subject"
-                android:title="Add Subject" />
+                android:title="@string/add_subject" />
             <item
                 android:id="@+id/attach_schedule"
                 android:icon="@drawable/schedule_message"
@@ -104,26 +124,6 @@
         android:orderInCategory="60"
         android:title="@string/action_archive_chat"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_security"
-        android:icon="@drawable/ic_lock_open_outline_24dp"
-        android:orderInCategory="65"
-        android:title="Encryption"
-        app:showAsAction="never">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/encryption_choice_none"
-                    android:title="@string/encryption_choice_unencrypted" />
-                <item
-                    android:id="@+id/encryption_choice_axolotl"
-                    android:title="@string/encryption_choice_omemo" />
-                <item
-                    android:id="@+id/encryption_choice_pgp"
-                    android:title="@string/encryption_choice_pgp" />
-            </group>
-        </menu>
-    </item>
     <item
         android:orderInCategory="70"
         android:title="@string/more_options">
