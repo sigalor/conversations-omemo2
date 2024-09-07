@@ -45,191 +45,202 @@
                     android:transcriptMode="normal"
                     tools:listitem="@layout/item_message_sent" />
 
-                <LinearLayout
-                    android:id="@+id/context_preview"
-                    android:visibility="gone"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_above="@+id/textsend"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="40dp"
-                    android:paddingTop="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="14dp"
-                    android:orientation="horizontal"
-                    android:background="@drawable/textsend">
-
-                    <ImageView
-                        android:src="@drawable/ic_reply_24dp"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginRight="8dp"
-                        android:contentDescription="Reply to" />
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/image_reply_preview"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:adjustViewBounds="true"
-                        android:paddingTop="2dp"
-                        android:layout_marginLeft="12dp"
-                        android:layout_marginStart="12dp"
-                        android:scaleType="fitCenter"
-                        app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/context_preview_text"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content" />
-
-                    <ImageButton
-                        android:id="@+id/context_preview_cancel"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:padding="0dp"
-                        android:layout_gravity="center_vertical"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/ic_cancel_24dp"
-                        android:contentDescription="Cancel" />
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:id="@+id/textsend"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentBottom="true"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="6dp">
-
                     <LinearLayout
-                        android:id="@+id/input_layout"
+                        android:id="@+id/input_area"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_toStartOf="@+id/textSendButton"
-                        android:layout_toEndOf="@+id/thread_identicon_layout"
-                        android:background="@drawable/background_message_bubble"
-                        android:backgroundTint="?colorTertiaryContainer"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp">
-
-                        <TextView
-                            android:id="@+id/text_input_hint"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8sp"
-                            android:maxLines="1"
-                            android:textAppearance="?textAppearanceBodySmall"
-                            android:textColor="?colorOnTertiaryContainer"
-                            android:visibility="visible"
-                            tools:text="@string/private_message_to" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/media_preview"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:requiresFadingEdge="horizontal"
-                            android:visibility="gone"
-                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                            tools:listitem="@layout/item_media_preview">
-
-                        </androidx.recyclerview.widget.RecyclerView>
-
-                        <eu.siacs.conversations.ui.widget.EditMessage
-                            android:id="@+id/textinput_subject"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/subject"
-                            android:textColor="?colorOnTertiaryContainer"
-                            android:textColorHint="@color/hint_on_tertiary_container"
-                            android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
-                            android:maxLines="1"
-                            android:padding="8dp"
-                            android:imeOptions="flagNoExtractUi"
-                            android:inputType="textShortMessage|textMultiLine|textCapSentences"
-                            android:visibility="gone" />
-
-                        <eu.siacs.conversations.ui.widget.EditMessage
-                            android:id="@+id/textinput"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
-                            android:ems="10"
-                            android:imeOptions="flagNoExtractUi|actionSend"
-                            android:inputType="textShortMessage|textMultiLine|textCapSentences"
-                            android:maxLines="8"
-                            android:minHeight="32dp"
-                            android:textColor="?colorOnTertiaryContainer"
-                            android:textColorHint="@color/hint_on_tertiary_container"
-                            android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
-                            android:minLines="1">
-
-                            <requestFocus />
-                        </eu.siacs.conversations.ui.widget.EditMessage>
-
-                    </LinearLayout>
-
-                    <RelativeLayout
-                        android:id="@+id/thread_identicon_layout"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/thread_hint">
+                        android:layout_alignParentBottom="true"
+                        android:background="@drawable/textsend"
+                        android:orientation="vertical"
+                        android:animateLayoutChanges="true" >
 
-                        <com.lelloman.identicon.view.GithubIdenticonView
-                            android:id="@+id/thread_identicon"
-                            android:alpha="0"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_centerVertical="true"
-                            android:contentDescription="Thread Marker" />
-                        <ImageView
-                            android:id="@+id/thread_identicon_lock"
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
+                        <LinearLayout
+                            android:id="@+id/context_preview"
                             android:visibility="gone"
-                            android:src="@drawable/ic_lock_24dp"
-                            android:contentDescription="Thread Locked" />
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentLeft="true"
+                            android:layout_above="@+id/textsend"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="40dp"
+                            android:paddingTop="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="14dp"
+                            android:orientation="horizontal" >
 
+                            <ImageView
+                                android:src="@drawable/ic_reply_24dp"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginRight="8dp"
+                                android:contentDescription="Reply to" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/image_reply_preview"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:adjustViewBounds="true"
+                                android:paddingTop="2dp"
+                                android:layout_marginLeft="12dp"
+                                android:layout_marginStart="12dp"
+                                android:scaleType="fitCenter"
+                                app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/context_preview_text"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content" />
+
+                            <ImageButton
+                                android:id="@+id/context_preview_cancel"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:padding="0dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/ic_cancel_24dp"
+                                android:contentDescription="Cancel" />
+                        </LinearLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/textsend"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentBottom="true"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="6dp">
+
+                            <LinearLayout
+                                android:id="@+id/input_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:layout_toStartOf="@+id/textSendButton"
+                                android:layout_toEndOf="@+id/thread_identicon_layout"
+                                android:background="@drawable/background_message_bubble"
+                                android:backgroundTint="?colorTertiaryContainer"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="16dp"
+                                android:paddingVertical="8dp">
+
+                                <TextView
+                                    android:id="@+id/text_input_hint"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="8sp"
+                                    android:maxLines="1"
+                                    android:textAppearance="?textAppearanceBodySmall"
+                                    android:textColor="?colorOnTertiaryContainer"
+                                    android:visibility="visible"
+                                    tools:text="@string/private_message_to" />
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/media_preview"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:requiresFadingEdge="horizontal"
+                                    android:visibility="gone"
+                                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                    tools:listitem="@layout/item_media_preview">
+
+                                </androidx.recyclerview.widget.RecyclerView>
+
+                                <eu.siacs.conversations.ui.widget.EditMessage
+                                    android:id="@+id/textinput_subject"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/subject"
+                                    android:textColor="?colorOnTertiaryContainer"
+                                    android:textColorHint="@color/hint_on_tertiary_container"
+                                    android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
+                                    android:maxLines="1"
+                                    android:padding="8dp"
+                                    android:imeOptions="flagNoExtractUi"
+                                    android:inputType="textShortMessage|textMultiLine|textCapSentences"
+                                    android:visibility="gone" />
+
+                                <eu.siacs.conversations.ui.widget.EditMessage
+                                    android:id="@+id/textinput"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:background="@android:color/transparent"
+                                    android:ems="10"
+                                    android:imeOptions="flagNoExtractUi|actionSend"
+                                    android:inputType="textShortMessage|textMultiLine|textCapSentences"
+                                    android:maxLines="8"
+                                    android:minHeight="32dp"
+                                    android:textColor="?colorOnTertiaryContainer"
+                                    android:textColorHint="@color/hint_on_tertiary_container"
+                                    android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
+                                    android:minLines="1">
+
+                                    <requestFocus />
+                                </eu.siacs.conversations.ui.widget.EditMessage>
+
+                            </LinearLayout>
+
+                            <RelativeLayout
+                                android:id="@+id/thread_identicon_layout"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/thread_hint">
+
+                                <com.lelloman.identicon.view.GithubIdenticonView
+                                    android:id="@+id/thread_identicon"
+                                    android:alpha="0"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_centerVertical="true"
+                                    android:contentDescription="Thread Marker" />
+                                <ImageView
+                                    android:id="@+id/thread_identicon_lock"
+                                    android:layout_width="10dp"
+                                    android:layout_height="10dp"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_alignParentRight="true"
+                                    android:visibility="gone"
+                                    android:src="@drawable/ic_lock_24dp"
+                                    android:contentDescription="Thread Locked" />
+
+                            </RelativeLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/textSendButton"
+                                style="?attr/materialIconButtonFilledTonalStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginStart="2dp"
+                                android:backgroundTint="?colorSurfaceContainerHigh"
+                                android:contentDescription="@string/send_message"
+                                app:icon="@drawable/ic_send_24dp"
+                                app:iconSize="28dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="?attr/materialIconButtonFilledTonalStyle"
+                                android:id="@+id/request_voice"
+                                android:visibility="gone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:layout_marginRight="8dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentRight="true"
+                                android:layout_centerVertical="true"
+                                android:text="@string/request_to_speak" />
                     </RelativeLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/textSendButton"
-                        style="?attr/materialIconButtonFilledTonalStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="2dp"
-                        android:backgroundTint="?colorSurfaceContainerHigh"
-                        android:contentDescription="@string/send_message"
-                        app:icon="@drawable/ic_send_24dp"
-                        app:iconSize="32dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        style="?attr/materialIconButtonFilledTonalStyle"
-                        android:id="@+id/request_voice"
-                        android:visibility="gone"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="@string/request_to_speak" />
-                </RelativeLayout>
+                </LinearLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/scroll_to_bottom_button"
@@ -260,7 +271,7 @@
                     android:id="@+id/snackbar"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_above="@+id/context_preview"
+                    android:layout_above="@+id/input_area"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="4dp"

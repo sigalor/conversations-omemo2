@@ -1083,4 +1083,7 @@
     <string name="pref_show_less_avatars_summary">Show only needed avatars in the chats</string>
     <string name="store_media_only_in_cache">Store media only in cache</string>
     <string name="cant_open_file">Can\'t open file</string>
+    <string name="encryption">Encryption</string>
+    <string name="choose_widget">Choose widget</string>
+    <string name="add_subject">Add subject</string>
 </resources>
