@@ -3989,8 +3989,10 @@ public class ConversationFragment extends XmppFragment
         if (hasAttachments || binding.textinput.getText().toString().replaceFirst("^(\\w|[, ])+:\\s*", "").length() > 0) {
             binding.conversationViewPager.setCurrentItem(0);
             params.width = conversation.getThread() == null ? 0 : identiconWidth;
+            binding.quickButtons.setVisibility(GONE);
         } else {
             params.width = identiconWidth;
+            binding.quickButtons.setVisibility(VISIBLE);
         }
         if (!canWrite()) params.width = 0;
         binding.threadIdenticonLayout.setLayoutParams(params);
