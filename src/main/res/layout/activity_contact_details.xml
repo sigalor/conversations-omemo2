@@ -52,7 +52,7 @@
 
                         <LinearLayout
                             android:id="@+id/details_jidbox"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
                             android:layout_toRightOf="@+id/details_contact_badge"
@@ -120,16 +120,16 @@
                                 android:layout_marginTop="8dp"
                                 android:text="@string/add_contact" />
 
-                            <CheckBox
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/details_send_presence"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="@string/send_presence_updates" />
 
-                            <CheckBox
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/details_receive_presence"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/receive_presence_updates" />
                         </LinearLayout>
