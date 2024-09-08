@@ -1051,7 +1051,7 @@
     <string name="pref_title_trust_system_ca_store">Certificate authorities</string>
     <string name="pref_title_trust_system_ca_store_summary">Trust the system’s CA certificates</string>
     <string name="detect_mim">Require channel binding</string>
-    <string name="detect_mim_summary">Channel binding can detect some machine-in-the-middle attacks</string>
+    <string name="detect_mim_summary">WARNING: Will break your connection if not supported by your server</string>
     <string name="pref_category_server_connection">Server connection</string>
     <string name="pref_category_operating_system">Operating System</string>
     <string name="pref_privacy_summary">Typing notifications, Last Seen, Availability</string>
