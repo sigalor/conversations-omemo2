@@ -773,6 +773,9 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 if (el.getName().equals("attention") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:attention:0")) {
                     message.addPayload(el);
                 }
+                if (el.getName().equals("Description") && el.getNamespace() != null && el.getNamespace().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#")) {
+                    message.addPayload(el);
+                }
             }
             if (conversationMultiMode) {
                 message.setMucUser(conversation.getMucOptions().findUserByFullJid(counterpart));

@@ -1323,6 +1323,19 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return null;
     }
 
+    public List<Element> getLinkDescriptions() {
+        final ArrayList<Element> result = new ArrayList<>();
+        if (this.payloads == null) return result;
+
+        for (Element el : this.payloads) {
+            if (el.getName().equals("Description") && el.getNamespace().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#")) {
+                result.add(el);
+            }
+        }
+
+        return result;
+    }
+
     public String getMimeType() {
         String extension;
         if (relativeFilePath != null) {

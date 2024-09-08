@@ -88,6 +88,14 @@
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp"></ListView>
 
+        <ListView
+            android:id="@+id/link_descriptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="4dp"></ListView>
+
         <RelativeLayout
             android:id="@+id/audio_player"
             android:layout_width="@dimen/audio_player_width"
