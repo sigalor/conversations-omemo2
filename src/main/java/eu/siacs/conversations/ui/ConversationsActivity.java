@@ -882,23 +882,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     if (!conversation.withSelf()) {
                         ChatState state = conversation.getIncomingChatState();
                         if (state == ChatState.COMPOSING) {
-                            actionBar.setSubtitle(getString(R.string.is_typing));
-                            //absubtitle.setVisibility(View.VISIBLE);
-                            //absubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
-                            //absubtitle.setSelected(true);
+                            binding.toolbarSubtitle.setText(R.string.is_typing);
+                            binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                         } else {
                             if (showLastSeen && conversation.getContact().getLastseen() > 0 && conversation.getContact().getPresences().allOrNonSupport(Namespace.IDLE)) {
-                                actionBar.setSubtitle(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
-                                //absubtitle.setVisibility(View.VISIBLE);
+                                binding.toolbarSubtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                                binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                             } else {
-                                actionBar.setSubtitle(null);
-                                // absubtitle.setVisibility(View.GONE);
+                                binding.toolbarSubtitle.setVisibility(View.GONE);
                             }
-                            //absubtitle.setSelected(true);
+                            binding.toolbarSubtitle.setSelected(true);
                         }
                     } else {
-                        actionBar.setSubtitle(null);
-                        //absubtitle.setVisibility(View.GONE);
+                        binding.toolbarSubtitle.setVisibility(View.GONE);
                     }
                 } else {
                     ChatState state = ChatState.COMPOSING;
@@ -912,8 +908,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         if (!userWithChatStates.isEmpty()) {
                             if (userWithChatStates.size() == 1) {
                                 MucOptions.User user = userWithChatStates.get(0);
-                                actionBar.setSubtitle(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
-                                // absubtitle.setVisibility(View.VISIBLE);
+                                binding.toolbarSubtitle.setText(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
+                                binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                             } else {
                                 StringBuilder builder = new StringBuilder();
                                 for (MucOptions.User user : userWithChatStates) {
@@ -922,26 +918,27 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                                     }
                                     builder.append(UIHelper.getDisplayName(user));
                                 }
-                                actionBar.setSubtitle(getString(R.string.contacts_are_typing, builder.toString()));
-                                // absubtitle.setVisibility(View.VISIBLE);
+                                binding.toolbarSubtitle.setText(getString(R.string.contacts_are_typing, builder.toString()));
+                                binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                             }
                         }
                     } else {
                         if (users.isEmpty()) {
-                            actionBar.setSubtitle(getString(R.string.one_participant));
-                            // absubtitle.setVisibility(View.VISIBLE);
+                            binding.toolbarSubtitle.setText(getString(R.string.one_participant));
+                            binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                         } else {
                             int size = users.size();
-                            actionBar.setSubtitle(getString(R.string.more_participants, size));
-                            //absubtitle.setVisibility(View.VISIBLE);
+                            binding.toolbarSubtitle.setText(getString(R.string.more_participants, size));
+                            binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                         }
                     }
-                    //absubtitle.setSelected(true);
+                    binding.toolbarSubtitle.setSelected(true);
                 }
                 AvatarWorkerTask.loadAvatar(conversation, binding.toolbarAvatar, R.dimen.muc_avatar_actionbar);
                 binding.toolbarAvatar.setVisibility(View.VISIBLE);
-                actionBar.setTitle(conversation.getName());
+                binding.toolbarTitle.setText(conversation.getName());
                 actionBar.setDisplayHomeAsUpEnabled(!xmppConnectionService.isOnboarding() || !conversation.getJid().equals(Jid.of("cheogram.com")));
+                binding.toolbar.setOnClickListener((v) -> { if(!xmppConnectionService.isOnboarding()) openConversationDetails(conversation); });
                 ToolbarUtils.setActionBarOnClickListener(
                         binding.toolbar,
                         (v) -> { if(!xmppConnectionService.isOnboarding()) openConversationDetails(conversation); }
@@ -949,7 +946,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 return;
             }
         } else {
-            actionBar.setSubtitle(null);
+            binding.toolbarSubtitle.setVisibility(View.GONE);
             binding.toolbarAvatar.setVisibility(View.GONE);
         }
         final Fragment secondaryFragment = fragmentManager.findFragmentById(R.id.secondary_fragment);
@@ -960,23 +957,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     if (!conversation.withSelf()) {
                         ChatState state = conversation.getIncomingChatState();
                         if (state == ChatState.COMPOSING) {
-                            actionBar.setSubtitle(getString(R.string.is_typing));
-                            //absubtitle.setVisibility(View.VISIBLE);
-                            //absubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
-                            //absubtitle.setSelected(true);
+                            binding.toolbarSubtitle.setText(getString(R.string.is_typing));
+                            binding.toolbarSubtitle.setVisibility(View.VISIBLE);
+                            binding.toolbarSubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
+                            binding.toolbarSubtitle.setSelected(true);
                         } else {
                             if (showLastSeen && conversation.getContact().getLastseen() > 0 && conversation.getContact().getPresences().allOrNonSupport(Namespace.IDLE)) {
-                                actionBar.setSubtitle(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
-                                //absubtitle.setVisibility(View.VISIBLE);
+                                binding.toolbarSubtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                                binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                             } else {
-                                actionBar.setSubtitle(null);
-                                // absubtitle.setVisibility(View.GONE);
+                                binding.toolbarSubtitle.setVisibility(View.GONE);
                             }
-                            //absubtitle.setSelected(true);
+                            binding.toolbarSubtitle.setSelected(true);
                         }
                     } else {
-                        actionBar.setSubtitle(null);
-                        //absubtitle.setVisibility(View.GONE);
+                        binding.toolbarSubtitle.setVisibility(View.GONE);
                     }
                 } else {
                     ChatState state = ChatState.COMPOSING;
@@ -990,8 +985,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         if (!userWithChatStates.isEmpty()) {
                             if (userWithChatStates.size() == 1) {
                                 MucOptions.User user = userWithChatStates.get(0);
-                                actionBar.setSubtitle(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
-                                // absubtitle.setVisibility(View.VISIBLE);
+                                binding.toolbarSubtitle.setText(getString(R.string.contact_is_typing, UIHelper.getDisplayName(user)));
+                                binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                             } else {
                                 StringBuilder builder = new StringBuilder();
                                 for (MucOptions.User user : userWithChatStates) {
@@ -1000,32 +995,33 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                                     }
                                     builder.append(UIHelper.getDisplayName(user));
                                 }
-                                actionBar.setSubtitle(getString(R.string.contacts_are_typing, builder.toString()));
-                                // absubtitle.setVisibility(View.VISIBLE);
+                                binding.toolbarSubtitle.setText(getString(R.string.contacts_are_typing, builder.toString()));
+                                binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                             }
                         }
                     } else {
                         if (users.isEmpty()) {
-                            actionBar.setSubtitle(getString(R.string.one_participant));
-                            // absubtitle.setVisibility(View.VISIBLE);
+                            binding.toolbarSubtitle.setText(getString(R.string.one_participant));
+                            binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                         } else {
                             int size = users.size();
-                            actionBar.setSubtitle(getString(R.string.more_participants, size));
-                            //absubtitle.setVisibility(View.VISIBLE);
+                            binding.toolbarSubtitle.setText(getString(R.string.more_participants, size));
+                            binding.toolbarSubtitle.setVisibility(View.VISIBLE);
                         }
                     }
-                    //absubtitle.setSelected(true);
+                    binding.toolbarSubtitle.setSelected(true);
                 }
                 AvatarWorkerTask.loadAvatar(conversation, binding.toolbarAvatar, R.dimen.muc_avatar_actionbar);
                 binding.toolbarAvatar.setVisibility(View.VISIBLE);
-                actionBar.setTitle(conversation.getName());
+                binding.toolbarTitle.setText(conversation.getName());
             } else {
-                actionBar.setTitle(R.string.app_name);
+                binding.toolbarTitle.setText(R.string.app_name);
             }
         } else {
             binding.toolbarAvatar.setVisibility(View.GONE);
-            actionBar.setTitle(R.string.app_name);
+            binding.toolbarTitle.setText(R.string.app_name);
         }
+        actionBar.setTitle(null);
         actionBar.setDisplayHomeAsUpEnabled(false);
         ToolbarUtils.resetActionBarOnClickListeners(binding.toolbar);
     }
