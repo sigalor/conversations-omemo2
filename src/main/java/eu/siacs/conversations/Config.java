@@ -154,34 +154,24 @@ public final class Config {
 
     public static final int EXPIRY_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
+    //only allow secure tls chipers now
     public static final String[] ENABLED_CIPHERS = {
-        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA384",
-        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA256",
-        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA384",
-        "TLS_DHE_RSA_WITH_AES_256_GCM_SHA256",
-        "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
-        "TLS_DHE_RSA_WITH_CAMELLIA_256_SHA",
-
-        // Fallback.
-        "TLS_RSA_WITH_AES_128_GCM_SHA256",
-        "TLS_RSA_WITH_AES_128_GCM_SHA384",
-        "TLS_RSA_WITH_AES_256_GCM_SHA256",
-        "TLS_RSA_WITH_AES_256_GCM_SHA384",
-        "TLS_RSA_WITH_AES_128_CBC_SHA256",
-        "TLS_RSA_WITH_AES_128_CBC_SHA384",
-        "TLS_RSA_WITH_AES_256_CBC_SHA256",
-        "TLS_RSA_WITH_AES_256_CBC_SHA384",
-        "TLS_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_CHACHA20_POLY1305_SHA256",
+            "TLS_AES_256_GCM_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+            "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA512",
+            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA512",
+            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
     };
 
     public static final String[] WEAK_CIPHER_PATTERNS = {
-        "_NULL_", "_EXPORT_", "_anon_", "_RC4_", "_DES_", "_MD5",
+            "_NULL_",
+            "_EXPORT_",
+            "_anon_",
+            "_RC4_",
+            "_DES_",
+            "_MD5",
     };
 
     public static class OMEMO_EXCEPTIONS {
