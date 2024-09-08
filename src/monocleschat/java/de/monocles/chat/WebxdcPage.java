@@ -229,6 +229,8 @@ public class WebxdcPage implements ConversationPage {
 			// so, to support all systems, for now, using the old one seems to be the simplest way.
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				if (url.startsWith(baseUrl)) return false;
+
 				if (url != null) {
 					Uri uri = Uri.parse(url);
 					switch (uri.getScheme()) {
