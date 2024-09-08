@@ -67,6 +67,7 @@ public class StylingHelper {
 	public static final int XHTML_IGNORE = 1;
 	public static final int XHTML_REMOVE = 2;
 	public static final int XHTML_EMPHASIS = 3;
+	public static final int NOLINKIFY = 0xf0;
 
 	private static final List<? extends Class<? extends ParcelableSpan>> SPAN_CLASSES = Arrays.asList(
 			StyleSpan.class,
@@ -88,7 +89,14 @@ public class StylingHelper {
 	public static void format(final Editable editable, int start, int end, @ColorInt int textColor, final boolean composing) {
 		for (ImStyleParser.Style style : ImStyleParser.parse(editable, start, end)) {
 			final int keywordLength = style.getKeyword().length();
-			editable.setSpan(createSpanForStyle(style), style.getStart() + keywordLength, style.getEnd() - keywordLength + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | ("*".equals(style.getKeyword()) || "_".equals(style.getKeyword()) ? XHTML_EMPHASIS << Spanned.SPAN_USER_SHIFT : 0));
+			editable.setSpan(
+				createSpanForStyle(style),
+				style.getStart() + keywordLength,
+				style.getEnd() - keywordLength + 1,
+				Spanned.SPAN_EXCLUSIVE_EXCLUSIVE |
+					("*".equals(style.getKeyword()) || "_".equals(style.getKeyword()) ? XHTML_EMPHASIS << Spanned.SPAN_USER_SHIFT : 0) |
+					("`".equals(style.getKeyword()) || "```".equals(style.getKeyword()) ? NOLINKIFY << Spanned.SPAN_USER_SHIFT : 0)
+			);
 			makeKeywordOpaque(editable, style.getStart(), style.getStart() + keywordLength + ("```".equals(style.getKeyword()) ? 1 : 0), textColor, composing);
 			makeKeywordOpaque(editable, style.getEnd() - keywordLength + 1, style.getEnd() + 1, textColor, composing);
 		}

@@ -32,6 +32,8 @@ package eu.siacs.conversations.ui.util;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Editable;
+import android.text.Spanned;
+import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 
@@ -52,6 +54,7 @@ import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.ui.text.FixedURLSpan;
 import eu.siacs.conversations.utils.GeoHelper;
 import eu.siacs.conversations.utils.Patterns;
+import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 
@@ -139,7 +142,16 @@ public class MyLinkify {
     public static void addLinks(Editable body, Account account, Jid context) {
         addLinks(body, true);
         Roster roster = account.getRoster();
+        urlspan:
         for (final URLSpan urlspan : body.getSpans(0, body.length() - 1, URLSpan.class)) {
+            final var start = body.getSpanStart(urlspan);
+            for (final var span : body.getSpans(start, start, Object.class))  {
+                // instanceof TypefaceSpan is to block in XHTML code blocks. Probably a bit heavy-handed but works for now
+                if ((body.getSpanFlags(span) & Spanned.SPAN_USER) >> Spanned.SPAN_USER_SHIFT == StylingHelper.NOLINKIFY || span instanceof TypefaceSpan) {
+                    body.removeSpan(urlspan);
+                    continue urlspan;
+                }
+            }
             Uri uri = Uri.parse(urlspan.getURL());
             if ("xmpp".equals(uri.getScheme())) {
                 try {
@@ -153,7 +165,7 @@ public class MyLinkify {
                     String display = xmppUri.toString();
                     if (jid.asBareJid().equals(context) && xmppUri.isAction("message") && xmppUri.getBody() != null) {
                         display = xmppUri.getBody();
-                    } else if (jid.asBareJid().equals(context)) {
+                    } else if (jid.asBareJid().equals(context) && xmppUri.parameterString().length() > 0) {
                         display = xmppUri.parameterString();
                     } else {
                         ListItem item = account.getBookmark(jid);
