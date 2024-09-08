@@ -78,6 +78,7 @@ public class SpannedToXHTML {
 	}
 
 	private static void withinParagraph(Element outer, Spanned text, int start, int end) {
+		String removed = "";
 		int next;
 		outer:
 		for (int i = start; i < end; i = next) {
@@ -85,8 +86,9 @@ public class SpannedToXHTML {
 			next = text.nextSpanTransition(i, end, CharacterStyle.class);
 			CharacterStyle[] style = text.getSpans(i, next, CharacterStyle.class);
 			for (int j = 0; j < style.length; j++) {
-				final var userFlags = (text.getSpanFlags(style[j]) & Spanned.SPAN_USER) >> Spanned.SPAN_USER_SHIFT;
+				final var userFlags = ((text.getSpanFlags(style[j]) & Spanned.SPAN_USER) >> Spanned.SPAN_USER_SHIFT) & 0xf;
 				if (userFlags == StylingHelper.XHTML_REMOVE) {
+					removed = text.subSequence(i, next).toString();
 					continue outer;
 				}
 
@@ -108,9 +110,14 @@ public class SpannedToXHTML {
 					}
 				}
 				if (style[j] instanceof TypefaceSpan) {
-					String s = ((TypefaceSpan) style[j]).getFamily();
-					if ("monospace".equals(s)) {
-						out = out.addChild("tt");
+					if (userFlags == StylingHelper.XHTML_CODE) {
+						out = out.addChild("code");
+						if (removed.length() > 3) out.setAttribute("class", "language-" + removed.substring(3).trim());
+					} else {
+						String s = ((TypefaceSpan) style[j]).getFamily();
+						if ("monospace".equals(s)) {
+							out = out.addChild("tt");
+						}
 					}
 				}
 				if (style[j] instanceof SuperscriptSpan) {

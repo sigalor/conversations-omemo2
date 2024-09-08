@@ -58,6 +58,7 @@ public class ImStyleParser {
                         i = to;
                         continue;
                     }
+                    continue;
                 }
                 int to = seekEnd(text, c, i + 1, end);
                 if (to != -1 && (to != i + 1 || ALLOW_EMPTY)) {
