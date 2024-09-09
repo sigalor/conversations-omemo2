@@ -57,11 +57,11 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
-import com.cheogram.android.BobTransfer;
-import com.cheogram.android.MessageTextActionModeCallback;
-import com.cheogram.android.Util;
-import com.cheogram.android.WebxdcPage;
-import com.cheogram.android.WebxdcUpdate;
+import de.monocles.chat.BobTransfer;
+import de.monocles.chat.MessageTextActionModeCallback;
+import de.monocles.chat.Util;
+import de.monocles.chat.WebxdcPage;
+import de.monocles.chat.WebxdcUpdate;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.color.MaterialColors;
