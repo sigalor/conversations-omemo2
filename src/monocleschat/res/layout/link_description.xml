@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="10dp"
         android:paddingVertical="4dp"
-        android:background="@drawable/background_message_bubble"
+        android:background="@drawable/background_link_description"
         android:orientation="vertical">
 
         <TextView
