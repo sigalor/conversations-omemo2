@@ -830,7 +830,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (uri != null && uri.getScheme() != null) {
                 if (uri.getScheme().equals("xmpp")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.jabber), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.xmpp_logo), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("tel")) {
                     binding.command.setText(uri.getSchemeSpecificPart());

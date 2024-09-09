@@ -102,7 +102,7 @@
                 android:layout_height="60dp"
                 android:layout_margin="10dp"
                 android:adjustViewBounds="true"
-                android:src="@drawable/jabber" />
+                android:src="@drawable/xmpp_logo" />
 
             <ImageView
                 android:layout_width="60dp"
@@ -138,7 +138,7 @@
             android:layout_height="128dp"
             android:layout_gravity="center"
             android:padding="15dp"
-            android:src="@drawable/jabber" />
+            android:src="@drawable/xmpp_logo" />
 
         <TextView
             android:layout_width="wrap_content"
