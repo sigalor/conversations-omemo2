@@ -1224,7 +1224,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 } else {
                     Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Generated message, caching: " + message.getUuid());
                     messageCache.put(message.getUuid(), axolotlMessage);
-                    mXmppConnectionService.resendMessage(message, delay);
+                    mXmppConnectionService.resendMessage(message, delay, true);
                 }
             }
         });
