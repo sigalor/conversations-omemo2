@@ -1643,7 +1643,7 @@ public class ConversationFragment extends XmppFragment
                         u.setRole("participant");
                         allUsers.add(u);
                     }
-                    if (!allUsers.isEmpty()) {
+                    if (!allUsers.isEmpty() && conversation.getMucOptions().getSelf() != null && conversation.getMucOptions().getSelf().getAffiliation().ranks(MucOptions.Affiliation.MEMBER)) {
                         final var u = new MucOptions.User(conversation.getMucOptions(), null, "\0attention", "Notify active participants", new HashSet<>());
                         u.setRole("participant");
                         allUsers.add(u);
