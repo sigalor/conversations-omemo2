@@ -227,7 +227,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 				avatar = get(contact, size, false);
 			} else {
 				String seed = user.getRealJid() != null ? user.getRealJid().asBareJid().toString() : null;
-				avatar = get(user.getName(), seed, size, false);
+				avatar = get(user.getNick(), seed, size, false);
 			}
 		}
 		this.mXmppConnectionService.getDrawableCache().put(KEY, avatar);
