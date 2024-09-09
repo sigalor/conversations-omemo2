@@ -45,7 +45,7 @@
         app:title="@string/unified_push_distributor" />
     <Preference
         android:key="about"
-        android:icon="@drawable/ic_logo_mono"
+        android:icon="@drawable/monocleslogo_chat_signet"
         android:title="@string/title_activity_about_x">
         <intent
             android:action="android.intent.action.VIEW"
