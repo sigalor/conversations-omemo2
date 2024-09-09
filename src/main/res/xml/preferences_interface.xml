@@ -129,6 +129,12 @@
             android:key="show_dynamic_tags"
             android:summary="@string/pref_show_dynamic_tags_summary"
             android:title="@string/pref_show_dynamic_tags" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_link_previews"
+            android:icon="@drawable/ic_link_24dp"
+            android:key="show_link_previews"
+            android:summary="When a sender has included link descriptions, show them"
+            android:title="Show Link Previews" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_operating_system">
         <SwitchPreferenceCompat

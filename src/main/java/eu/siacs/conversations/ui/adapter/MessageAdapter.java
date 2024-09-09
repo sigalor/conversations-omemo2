@@ -164,6 +164,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
     private String selectionUuid = null;
+    private final AppSettings appSettings;
 
     public MessageAdapter(
             final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
@@ -171,6 +172,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.audioPlayer = new AudioPlayer(this);
         this.activity = activity;
         metrics = getContext().getResources().getDisplayMetrics();
+        appSettings = new AppSettings(activity);
         updatePreferences();
         this.mForceNames = forceNames;
     }
@@ -1594,18 +1596,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 setTextColor(viewHolder.inReplyTo, bubbleColor);
             }
 
-            final var descriptions = message.getLinkDescriptions();
-            viewHolder.link_descriptions.setAdapter(new ArrayAdapter<>(activity, 0, descriptions) {
-                @Override
-                public View getView(int position, View view, @NonNull ViewGroup parent) {
-                    final LinkDescriptionBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.link_description, parent, false);
-                    binding.title.setText(getItem(position).findChildContent("title", "https://ogp.me/ns#"));
-                    binding.description.setText(getItem(position).findChildContent("description", "https://ogp.me/ns#"));
-                    binding.url.setText(getItem(position).findChildContent("url", "https://ogp.me/ns#"));
-                    return binding.getRoot();
-                }
-            });
-            Util.justifyListViewHeightBasedOnChildren(viewHolder.link_descriptions, (int)(metrics.density * 100), true);
+            if (appSettings.showLinkPreviews()) {
+                final var descriptions = message.getLinkDescriptions();
+                viewHolder.link_descriptions.setAdapter(new ArrayAdapter<>(activity, 0, descriptions) {
+                    @Override
+                    public View getView(int position, View view, @NonNull ViewGroup parent) {
+                        final LinkDescriptionBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.link_description, parent, false);
+                        binding.title.setText(getItem(position).findChildContent("title", "https://ogp.me/ns#"));
+                        binding.description.setText(getItem(position).findChildContent("description", "https://ogp.me/ns#"));
+                        binding.url.setText(getItem(position).findChildContent("url", "https://ogp.me/ns#"));
+                        return binding.getRoot();
+                    }
+                });
+                Util.justifyListViewHeightBasedOnChildren(viewHolder.link_descriptions, (int)(metrics.density * 100), true);
+            }
         }
 
         displayStatus(viewHolder, message, type, bubbleColor);
@@ -1679,7 +1683,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public void updatePreferences() {
-        final AppSettings appSettings = new AppSettings(activity);
         this.bubbleDesign =
                 new BubbleDesign(appSettings.isColorfulChatBubbles(), appSettings.isLargeFont());
     }
