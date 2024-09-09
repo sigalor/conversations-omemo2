@@ -3464,7 +3464,7 @@ public class ConversationFragment extends XmppFragment
             return false;
         }
 
-        final var cursord = getResources().getDrawable(R.drawable.cursor_on_tertiary_container);
+        final var cursord = activity.getDrawable(R.drawable.cursor_on_tertiary_container);
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
             final var bg = MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorSurface);
             final var accountColor = conversation.getAccount().getColor(activity.isDark());
