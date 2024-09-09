@@ -8,9 +8,11 @@ import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.BoundExtractedResult;
@@ -87,8 +90,8 @@ public class EmojiSearch {
 		return result;
 	}
 
-	public EmojiSearchAdapter makeAdapter(Activity context) {
-		return new EmojiSearchAdapter(context);
+	public EmojiSearchAdapter makeAdapter(Consumer<Emoji> callback) {
+		return new EmojiSearchAdapter(callback);
 	}
 
 	public static class ResultPQ extends PriorityQueue<BoundExtractedResult<Emoji>> {
@@ -198,38 +201,68 @@ public class EmojiSearch {
 		}
 	}
 
-	public class EmojiSearchAdapter extends ArrayAdapter<Emoji> {
+	public class EmojiSearchAdapter extends ListAdapter<Emoji, EmojiSearchAdapter.ViewHolder> {
 		ReplacingSerialSingleThreadExecutor executor = new ReplacingSerialSingleThreadExecutor("EmojiSearchAdapter");
 
-		public EmojiSearchAdapter(Activity context) {
-			super(context, 0);
+		static final DiffUtil.ItemCallback<Emoji> DIFF = new DiffUtil.ItemCallback<Emoji>() {
+			@Override
+			public boolean areItemsTheSame(Emoji a, Emoji b) {
+				return a.equals(b);
+			}
+
+			@Override
+			public boolean areContentsTheSame(Emoji a, Emoji b) {
+				return a.equals(b);
+			}
+		};
+		final Consumer<Emoji> callback;
+
+		public EmojiSearchAdapter(final Consumer<Emoji> callback) {
+			super(DIFF);
+			this.callback = callback;
 		}
 
 		@Override
-		public View getView(int position, View view, ViewGroup parent) {
-			EmojiSearchRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.emoji_search_row, parent, false);
-			if (getItem(position) instanceof CustomEmoji) {
-				binding.nonunicode.setText(getItem(position).toInsert());
+		public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
+			return new ViewHolder(DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.emoji_search_row, viewGroup, false));
+		}
+
+		@Override
+		public void onBindViewHolder(ViewHolder viewHolder, int position) {
+			final var binding = viewHolder.binding;
+			final var item = getItem(position);
+			if (item instanceof CustomEmoji) {
+				binding.nonunicode.setText(item.toInsert());
 				binding.nonunicode.setVisibility(View.VISIBLE);
 				binding.unicode.setVisibility(View.GONE);
 			} else {
-				binding.unicode.setText(getItem(position).toInsert());
+				binding.unicode.setText(item.toInsert());
 				binding.unicode.setVisibility(View.VISIBLE);
 				binding.nonunicode.setVisibility(View.GONE);
 			}
-			binding.shortcode.setText(getItem(position).shortcodes.get(0));
-			return binding.getRoot();
+			binding.shortcode.setText(item.shortcodes.get(0));
+			binding.getRoot().setOnClickListener(v -> {
+				callback.accept(item);
+			});
 		}
 
-		public void search(final String q) {
+		public void search(final Activity activity, final String q) {
 			executor.execute(() -> {
 				final List<Emoji> results = find(q);
-				((Activity) getContext()).runOnUiThread(() -> {
-					clear();
-					addAll(results);
+				activity.runOnUiThread(() -> {
+					submitList(results);
 					notifyDataSetChanged();
 				});
 			});
+		}
+
+		public static class ViewHolder extends RecyclerView.ViewHolder {
+			public final EmojiSearchRowBinding binding;
+
+			private ViewHolder(EmojiSearchRowBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+			}
 		}
 	}
 }

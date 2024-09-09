@@ -153,7 +153,6 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
-import eu.siacs.conversations.databinding.EmojiSearchBinding;
 import eu.siacs.conversations.databinding.FragmentConversationBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Blockable;
@@ -318,8 +317,6 @@ public class ConversationFragment extends XmppFragment
     private int identiconWidth = -1;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
-    private EmojiSearchBinding emojiSearchBinding = null;
-    private PopupWindow emojiPopup = null;
     private final OnClickListener clickToMuc =
             new OnClickListener() {
 
@@ -1711,55 +1708,45 @@ public class ConversationFragment extends XmppFragment
                 public void onPopupVisibilityChanged(boolean shown) {}
             }).build();
 
-        final Pattern lastColonPattern = Pattern.compile("(?<!\\w):");
-        emojiSearchBinding = DataBindingUtil.inflate(inflater, R.layout.emoji_search, null, false);
-        emojiSearchBinding.emoji.setOnItemClickListener((parent, view, position, id) -> {
-            EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
-            Editable toInsert = adapter.getItem(position).toInsert();
-            toInsert.append(" ");
-            Editable s = binding.textinput.getText();
-
-            Matcher lastColonMatcher = lastColonPattern.matcher(s);
-            int lastColon = -1;
-            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-            if (lastColon > 0) s.replace(lastColon - 1, s.length(), toInsert, 0, toInsert.length());
-        });
-        setupEmojiSearch();
-        int popupHeight = (int) displayMetrics.density * 200;
-        emojiPopup = new PopupWindow(emojiSearchBinding.getRoot(), WindowManager.LayoutParams.MATCH_PARENT, Math.min(popupHeight, displayMetrics.heightPixels > 0 ? displayMetrics.heightPixels / 5 : popupHeight));
         Handler emojiDebounce = new Handler(Looper.getMainLooper());
-        final Pattern notEmojiSearch = Pattern.compile("[^\\w\\(\\)\\+'\\-]");
-        binding.textinput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                emojiDebounce.removeCallbacksAndMessages(null);
-                emojiDebounce.postDelayed(() -> {
-                    Matcher lastColonMatcher = lastColonPattern.matcher(s);
-                    int lastColon = -1;
-                    while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
-                    if (lastColon < 0) {
-                        emojiPopup.dismiss();
-                        return;
-                    }
-                    final String q = s.toString().substring(lastColon);
-                    if (notEmojiSearch.matcher(q).find()) {
-                        emojiPopup.dismiss();
-                    } else {
-                        EmojiSearch.EmojiSearchAdapter adapter = ((EmojiSearch.EmojiSearchAdapter) emojiSearchBinding.emoji.getAdapter());
-                        if (adapter != null) {
-                            adapter.search(q);
-                            emojiPopup.showAsDropDown(binding.textsend);
-                        }
-                    }
-                }, 400L);
-            }
+        setupEmojiSearch();
+        Autocomplete.<EmojiSearch.Emoji>on(binding.textinput)
+            .with(activity.getDrawable(R.drawable.background_message_bubble))
+            .with(new CharPolicy(':'))
+            .with(new RecyclerViewPresenter<EmojiSearch.Emoji>(activity) {
+                protected EmojiSearch.EmojiSearchAdapter adapter;
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override
+                protected Adapter instantiateAdapter() {
+                    adapter = emojiSearch.makeAdapter(item -> dispatchClick(item));
+                    return adapter;
+                }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int count, int after) { }
-        });
+                @Override
+                protected void onQuery(@Nullable CharSequence query) {
+                    emojiDebounce.removeCallbacksAndMessages(null);
+                    emojiDebounce.postDelayed(() -> {
+                        if (getRecyclerView() == null) return;
+                        getRecyclerView().getItemAnimator().endAnimations();
+                        adapter.search(activity, query.toString());
+                    }, 100L);
+                }
+            })
+            .with(new AutocompleteCallback<EmojiSearch.Emoji>() {
+                @Override
+                public boolean onPopupItemClicked(Editable editable, EmojiSearch.Emoji emoji) {
+                    int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
+                    if (range == null) return false;
+                    range[0] -= 1;
+                    final var toInsert = emoji.toInsert();
+                    toInsert.append(" ");
+                    editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), toInsert);
+                    return true;
+                }
+
+                @Override
+                public void onPopupVisibilityChanged(boolean shown) {}
+            }).build();
 
         return binding.getRoot();
     }
@@ -1768,16 +1755,12 @@ public class ConversationFragment extends XmppFragment
         if (activity != null && activity.xmppConnectionService != null) {
             if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) {
                 emojiSearch = null;
-                if (emojiSearchBinding != null) emojiSearchBinding.emoji.setAdapter(null);
                 return;
             }
             if (emojiSearch == null) {
                 emojiSearch = activity.xmppConnectionService.emojiSearch();
             }
         }
-        if (emojiSearch == null || emojiSearchBinding == null) return;
-
-        emojiSearchBinding.emoji.setAdapter(emojiSearch.makeAdapter(activity));
     }
 
     protected void newThreadTutorialToast(String s) {
@@ -3399,7 +3382,6 @@ public class ConversationFragment extends XmppFragment
             this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
         }
         this.reInitRequiredOnStart = true;
-        if (emojiPopup != null) emojiPopup.dismiss();
     }
 
     private void updateChatState(final Conversation conversation, final String msg) {
