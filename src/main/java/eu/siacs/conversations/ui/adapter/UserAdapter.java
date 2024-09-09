@@ -147,7 +147,7 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         viewHolder.binding.tags.setVisibility(View.VISIBLE);
         viewHolder.binding.tags.removeViews(1, viewHolder.binding.tags.getChildCount() - 1);
         final ImmutableList.Builder<Integer> viewIdBuilder = new ImmutableList.Builder<>();
-        for (MucOptions.Hat hat : getPseudoHats(viewHolder.binding.getRoot().getContext(), user)) {
+        for (MucOptions.Hat hat : user.getPseudoHats(viewHolder.binding.getRoot().getContext())) {
             final String tag = hat.toString();
             final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
             tv.setText(tag);
@@ -175,17 +175,6 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         }
     }
 
-    private List<MucOptions.Hat> getPseudoHats(Context context, MucOptions.User user) {
-        List<MucOptions.Hat> hats = new ArrayList<>();
-        if (user.getAffiliation() != MucOptions.Affiliation.NONE) {
-            hats.add(new MucOptions.Hat(null, context.getString(user.getAffiliation().getResId())));
-        }
-        if (user.getRole() != MucOptions.Role.PARTICIPANT) {
-            hats.add(new MucOptions.Hat(null, context.getString(user.getRole().getResId())));
-        }
-        return hats;
-    }
-
     public MucOptions.User getSelectedUser() {
         return selectedUser;
     }
@@ -195,9 +184,9 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         MucDetailsContextMenuHelper.onCreateContextMenu(menu,v);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final ItemContactBinding binding;
+        public final ItemContactBinding binding;
 
         private ViewHolder(ItemContactBinding binding) {
             super(binding.getRoot());

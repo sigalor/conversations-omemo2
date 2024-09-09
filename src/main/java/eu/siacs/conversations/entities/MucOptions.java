@@ -1,5 +1,6 @@
 package eu.siacs.conversations.entities;
 
+import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -407,6 +408,18 @@ public class MucOptions {
                 }
             }
             return users;
+        }
+    }
+
+    public ArrayList<User> getUsersByRole(Role role) {
+        synchronized (users) {
+            ArrayList<User> list = new ArrayList<>();
+            for (User user : users) {
+                if (user.getRole().ranks(role)) {
+                    list.add(user);
+                }
+            }
+            return list;
         }
     }
 
@@ -923,6 +936,17 @@ public class MucOptions {
             return this.hats == null ? new HashSet<>() : hats;
         }
 
+        public List<MucOptions.Hat> getPseudoHats(Context context) {
+            List<MucOptions.Hat> hats = new ArrayList<>();
+            if (getAffiliation() != MucOptions.Affiliation.NONE) {
+                hats.add(new MucOptions.Hat(null, context.getString(getAffiliation().getResId())));
+            }
+            if (getRole() != MucOptions.Role.PARTICIPANT) {
+                hats.add(new MucOptions.Hat(null, context.getString(getRole().getResId())));
+            }
+            return hats;
+        }
+
         public long getPgpKeyId() {
             if (this.pgpKeyId != 0) {
                 return this.pgpKeyId;
@@ -1026,6 +1050,14 @@ public class MucOptions {
 
         @Override
         public int compareTo(@NonNull User another) {
+            final var anotherPseudoId = another.getOccupantId() != null && another.getOccupantId().charAt(0) == '\0';
+            final var pseudoId = getOccupantId() != null && getOccupantId().charAt(0) == '\0';
+            if (anotherPseudoId && !pseudoId) {
+                return 1;
+            }
+            if (pseudoId && !anotherPseudoId) {
+                return -1;
+            }
             if (another.getAffiliation().outranks(getAffiliation())) {
                 return 1;
             } else if (getAffiliation().outranks(another.getAffiliation())) {
