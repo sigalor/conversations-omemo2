@@ -707,9 +707,9 @@ public class ConversationFragment extends XmppFragment
         @Override
         public void onClick(View v) {
             binding.shareButton.setEnabled(false);        // TODO: Activate again
-            //binding.shareButton.setText(R.string.please_wait);
+            // binding.shareButton.setText(R.string.please_wait);
             mHandler.removeCallbacks(mTickExecutor);
-            mHandler.postDelayed(() -> stopRecording(true), 100);
+            mHandler.postDelayed(() -> stopRecording(true), 500);
         }
     };
 
@@ -2842,7 +2842,7 @@ public class ConversationFragment extends XmppFragment
         if (context == null) {
             return;
         }
-        try {
+        if (attachmentChoice != ATTACHMENT_CHOICE_RECORD_VOICE) try {
             if (chooser) {
                 startActivityForResult(
                         Intent.createChooser(intent, getString(R.string.perform_action_with)),
@@ -4883,6 +4883,7 @@ public class ConversationFragment extends XmppFragment
             recording = true;
             mHandler.postDelayed(mTickExecutor, 0);
             Log.d(Config.LOGTAG, "started recording to " + mOutputFile.getAbsolutePath());
+            binding.shareButton.setEnabled(true);
             return true;
         } catch (Exception e) {
             Log.e(Config.LOGTAG, "prepare() failed ", e);
@@ -4895,11 +4896,11 @@ public class ConversationFragment extends XmppFragment
             mRecorder.stop();
             mRecorder.release();
             recording = false;
+            binding.shareButton.setEnabled(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
         binding.recordVoiceButton.setEnabled(true);
-        binding.shareButton.setEnabled(true);
     }
 
     private void StartTimerAnimation() {
@@ -4965,7 +4966,7 @@ public class ConversationFragment extends XmppFragment
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         activity.setRequestedOrientation(oldOrientation);
         binding.recordVoiceButton.setEnabled(true);
-        binding.shareButton.setEnabled(true);
+        binding.shareButton.setEnabled(false);
     }
 
     private class Finisher implements Runnable {
