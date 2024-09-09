@@ -219,21 +219,6 @@ import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import eu.siacs.conversations.xmpp.stanzas.IqPacket;
 
-import im.conversations.android.xmpp.model.stanza.Iq;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
 import me.drakeet.support.toast.ToastCompat;
 
 public class ConversationFragment extends XmppFragment
@@ -3601,13 +3586,13 @@ public class ConversationFragment extends XmppFragment
         } else {
             if (!delayShow) conversation.showViewPager();
             binding.commandsViewProgressbar.setVisibility(View.VISIBLE);
-            activity.xmppConnectionService.fetchCommands(conversation.getAccount(), commandJid, (iq) -> {
+            activity.xmppConnectionService.fetchCommands(conversation.getAccount(), commandJid, (a, iq) -> {
                 if (activity == null) return;
 
                 activity.runOnUiThread(() -> {
                     binding.commandsViewProgressbar.setVisibility(View.GONE);
                     commandAdapter.clear();
-                    if (iq.getType() == Iq.Type.RESULT) {
+                    if (iq.getType() == IqPacket.TYPE.RESULT) {
                         for (Element child : iq.query().getChildren()) {
                             if (!"item".equals(child.getName()) || !Namespace.DISCO_ITEMS.equals(child.getNamespace())) continue;
                             commandAdapter.add(new CommandAdapter.Command0050(child));
