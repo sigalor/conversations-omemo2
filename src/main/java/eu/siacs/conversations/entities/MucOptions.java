@@ -400,10 +400,14 @@ public class MucOptions {
     }
 
     public ArrayList<User> getUsers(boolean includeOffline) {
+        return getUsers(true, false);
+    }
+
+    public ArrayList<User> getUsers(boolean includeOffline, boolean includeOutcast) {
         synchronized (users) {
             ArrayList<User> users = new ArrayList<>();
             for (User user : this.users) {
-                if (!user.isDomain() && (includeOffline ? user.getAffiliation().ranks(Affiliation.NONE) : user.getRole().ranks(Role.PARTICIPANT))) {
+                if (!user.isDomain() && (includeOffline ? (includeOutcast || user.getAffiliation().ranks(Affiliation.NONE)) : user.getRole().ranks(Role.PARTICIPANT))) {
                     users.add(user);
                 }
             }

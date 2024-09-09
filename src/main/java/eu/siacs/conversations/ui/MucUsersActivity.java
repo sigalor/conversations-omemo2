@@ -60,7 +60,7 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
 
     private void loadAndSubmitUsers() {
         if (mConversation != null) {
-            allUsers = mConversation.getMucOptions().getUsers();
+            allUsers = mConversation.getMucOptions().getUsers(true, mConversation.getMucOptions().getSelf().getAffiliation().ranks(MucOptions.Affiliation.ADMIN));
             submitFilteredList(mSearchEditText != null ? mSearchEditText.getText().toString() : null);
         }
     }
