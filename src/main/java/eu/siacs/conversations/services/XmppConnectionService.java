@@ -2068,7 +2068,7 @@ public class XmppConnectionService extends Service {
                                             }
                                         })
                                             .showNullOnEmpty(true)
-                                            .maxBodySize(4000)
+                                            .maxBodySize(90000)
                                             .timeout(5000);
                                         if (useTorToConnect()) {
                                             openGraphBuilder = openGraphBuilder.jsoupProxy(new JsoupProxy("127.0.0.1", 8118));
