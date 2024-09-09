@@ -1985,7 +1985,7 @@ public class XmppConnectionService extends Service {
         }
 
         boolean waitForPreview = false;
-        if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading()) {
+        if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading() && message.getEncryption() != Message.ENCRYPTION_AXOLOTL) {
             final List<URI> links = message.getLinks();
             if (!links.isEmpty()) {
                 waitForPreview = true;
