@@ -186,11 +186,6 @@
             android:label="@string/search_messages"
             android:exported="false" />
         <activity
-            android:name=".ui.RecordingActivity"
-            android:exported="false"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/Theme.Conversations3.Dialog" />
-        <activity
             android:name=".ui.ShowLocationActivity"
             android:label="@string/title_activity_show_location"
             android:exported="false" />

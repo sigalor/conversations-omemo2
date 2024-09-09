@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static eu.siacs.conversations.ui.XmppActivity.EXTRA_ACCOUNT;
@@ -25,15 +26,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.icu.util.TimeZone;
+import android.media.MediaRecorder;
+import android.media.MicrophoneDirection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.storage.StorageManager;
@@ -58,6 +63,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.WindowManager;
@@ -99,6 +106,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -106,18 +114,26 @@ import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -205,12 +221,35 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
+import me.drakeet.support.toast.ToastCompat;
 
 public class ConversationFragment extends XmppFragment
         implements EditMessage.KeyboardListener,
                 MessageAdapter.OnContactPictureLongClicked,
                 MessageAdapter.OnContactPictureClicked,
                 MessageAdapter.OnInlineImageLongClicked {
+
+    //Voice recoder
+    private MediaRecorder mRecorder;
+    private Integer oldOrientation;
+    private int mStartTime = 0;
+    private boolean recording = false;
+
+    private CountDownLatch outputFileWrittenLatch = new CountDownLatch(1);
+
+    private final Handler mHandler = new Handler();
+    private final Runnable mTickExecutor = new Runnable() {
+        @Override
+        public void run() {
+            tick();
+            mHandler.postDelayed(mTickExecutor, 1000);
+        }
+    };
+
+    private File mOutputFile;
+
+    private FileObserver mFileObserver;
+
 
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
@@ -593,6 +632,18 @@ public class ConversationFragment extends XmppFragment
                     setSelection(binding.messagesView.getCount() - 1, true);
                 }
             };
+
+    private final OnClickListener mTimerClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (recording && binding.recordingVoiceActivity.getVisibility() == VISIBLE) {
+                pauseRecording();
+            } else if (!recording && binding.recordingVoiceActivity.getVisibility() == VISIBLE) {
+                resumeRecording();
+            }
+        }
+    };
+
     private final OnClickListener mRecordVoiceButtonListener = v -> attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
     private final OnClickListener mtakePictureButtonListener = v -> attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
     private final OnClickListener mSendButtonListener =
@@ -639,6 +690,29 @@ public class ConversationFragment extends XmppFragment
                     }
                 }
             };
+
+
+    private final OnClickListener mCancelVoiceRecord = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mHandler.removeCallbacks(mTickExecutor);
+            stopRecording(false);
+            activity.setResult(RESULT_CANCELED);
+            //activity.finish();
+            binding.recordingVoiceActivity.setVisibility(View.GONE);
+        }
+    };
+
+    private final OnClickListener mShareVoiceRecord = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            binding.shareButton.setEnabled(false);        // TODO: Activate again
+            //binding.shareButton.setText(R.string.please_wait);
+            mHandler.removeCallbacks(mTickExecutor);
+            mHandler.postDelayed(() -> stopRecording(true), 100);
+        }
+    };
+
     private OnBackPressedCallback backPressedLeaveSingleThread = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
@@ -650,6 +724,22 @@ public class ConversationFragment extends XmppFragment
             updateThreadFromLastMessage();
         }
     };
+
+    private final OnBackPressedCallback backPressedLeaveVoiceRecorder = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (binding.recordingVoiceActivity.getVisibility()==VISIBLE){
+                mHandler.removeCallbacks(mTickExecutor);
+                stopRecording(false);
+                activity.setResult(RESULT_CANCELED);
+                //activity.finish();
+                binding.recordingVoiceActivity.setVisibility(View.GONE);
+            }
+            this.setEnabled(false);
+            refresh();
+        }
+    };
+
     private int completionIndex = 0;
     private int lastCompletionLength = 0;
     private String incomplete;
@@ -1352,6 +1442,8 @@ public class ConversationFragment extends XmppFragment
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveSingleThread);
+        activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveVoiceRecorder);
+        oldOrientation = activity.getRequestedOrientation();
     }
 
     @Override
@@ -1444,6 +1536,8 @@ public class ConversationFragment extends XmppFragment
         if (displayMetrics.heightPixels > 0) binding.textinput.setMaxHeight(displayMetrics.heightPixels / 4);
 
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
+        binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
+        binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
         binding.contextPreviewCancel.setOnClickListener((v) -> {
             setThread(null);
             conversation.setUserSelectedThread(false);
@@ -1455,6 +1549,7 @@ public class ConversationFragment extends XmppFragment
             Toast.makeText(activity, "Your request has been sent to the moderators", Toast.LENGTH_SHORT).show();
         });
         binding.recordVoiceButton.setOnClickListener(this.mRecordVoiceButtonListener);
+        binding.timer.setOnClickListener(this.mTimerClickListener);
         binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.messagesView.setOnScrollListener(mOnScrollListener);
@@ -2128,6 +2223,14 @@ public class ConversationFragment extends XmppFragment
             updateThreadFromLastMessage();
             return true;
         }
+        if (binding.recordingVoiceActivity.getVisibility()==VISIBLE){
+            mHandler.removeCallbacks(mTickExecutor);
+            stopRecording(false);
+            activity.setResult(RESULT_CANCELED);
+            //activity.finish();
+            binding.recordingVoiceActivity.setVisibility(View.GONE);
+            return false;
+        }
         return false;
     }
 
@@ -2728,7 +2831,8 @@ public class ConversationFragment extends XmppFragment
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 break;
             case ATTACHMENT_CHOICE_RECORD_VOICE:
-                intent = new Intent(getActivity(), RecordingActivity.class);
+                backPressedLeaveVoiceRecorder.setEnabled(true);
+                recordVoice();
                 break;
             case ATTACHMENT_CHOICE_LOCATION:
                 intent = GeoHelper.getFetchIntent(activity);
@@ -4710,4 +4814,292 @@ public class ConversationFragment extends XmppFragment
         }
         return activity;
     }
+
+// Voice recorder
+    public void recordVoice() {
+        this.binding.recordingVoiceActivity.setVisibility(View.VISIBLE);
+        this.binding.recordVoiceButton.setEnabled(false);
+        if (!startRecording()) {
+            this.binding.shareButton.setEnabled(false);
+            this.binding.timer.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+            this.binding.timer.setText(R.string.unable_to_start_recording);
+        }
+    }
+
+    private static final Set<String> AAC_SENSITIVE_DEVICES =
+            new ImmutableSet.Builder<String>()
+                    .add("FP4")             // Fairphone 4 https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("ONEPLUS A6000")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
+                    .add("ONEPLUS A6003")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
+                    .add("ONEPLUS A6010")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("ONEPLUS A6013")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("Pixel 4a")        // Pixel 4a https://github.com/iNPUTmice/Conversations/issues/4223
+                    .add("WP12 Pro")        // Oukitel WP 12 Pro https://github.com/iNPUTmice/Conversations/issues/4223
+                    .add("Volla Phone X")   // Volla Phone X https://github.com/iNPUTmice/Conversations/issues/4223
+                    .build();
+
+    private boolean startRecording() {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        final String userChosenCodec = activity.xmppConnectionService.getPreferences().getString("voice_message_codec", "");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mRecorder.setPrivacySensitive(true);
+        }
+        final int outputFormat;
+        if (("opus".equals(userChosenCodec) || ("".equals(userChosenCodec) && Config.USE_OPUS_VOICE_MESSAGES)) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            outputFormat = MediaRecorder.OutputFormat.OGG;
+            mRecorder.setOutputFormat(outputFormat);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
+            mRecorder.setAudioEncodingBitRate(32000);
+        } else if ("mpeg4".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
+            outputFormat = MediaRecorder.OutputFormat.MPEG_4;
+            mRecorder.setOutputFormat(outputFormat);
+            if (AAC_SENSITIVE_DEVICES.contains(Build.MODEL) && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+                // Changing these three settings for AAC sensitive devices for Android<=13 might lead to sporadically truncated (cut-off) voice messages.
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
+                mRecorder.setAudioSamplingRate(24_000);
+                mRecorder.setAudioEncodingBitRate(28_000);
+            } else {
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mRecorder.setAudioSamplingRate(44_100);
+                mRecorder.setAudioEncodingBitRate(64_000);
+            }
+        } else {
+            outputFormat = MediaRecorder.OutputFormat.THREE_GPP;
+            mRecorder.setOutputFormat(outputFormat);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
+            mRecorder.setAudioEncodingBitRate(23850);
+            mRecorder.setAudioSamplingRate(16000);
+        }
+        setupOutputFile(outputFormat);
+        mRecorder.setOutputFile(mOutputFile.getAbsolutePath());
+        binding.timer.clearAnimation();
+
+        try {
+            mRecorder.prepare();
+            mRecorder.start();
+            recording = true;
+            mHandler.postDelayed(mTickExecutor, 0);
+            Log.d(Config.LOGTAG, "started recording to " + mOutputFile.getAbsolutePath());
+            return true;
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "prepare() failed ", e);
+            return false;
+        }
+    }
+
+    protected void stopRecording() {
+        try {
+            mRecorder.stop();
+            mRecorder.release();
+            recording = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        binding.recordVoiceButton.setEnabled(true);
+        binding.shareButton.setEnabled(true);
+    }
+
+    private void StartTimerAnimation() {
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(500); //You can manage the blinking time with this parameter
+        anim.setStartOffset(20);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(Animation.INFINITE);
+        binding.timer.startAnimation(anim);
+    }
+
+    protected void pauseRecording() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mRecorder.pause();
+                mHandler.removeCallbacks(mTickExecutor);
+                recording = false;
+                StartTimerAnimation();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void resumeRecording() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mRecorder.resume();
+                mHandler.postDelayed(mTickExecutor, 0);
+                binding.timer.clearAnimation();
+            }
+            recording = true;
+            Log.e("Voice Recorder", "resume recording");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void stopRecording(final boolean saveFile) {
+        resumeRecording();
+        try {
+            if (recording) {
+                stopRecording();
+            }
+        } catch (Exception e) {
+            if (saveFile) {
+                ToastCompat.makeText(activity, R.string.unable_to_save_recording, ToastCompat.LENGTH_SHORT).show();
+                return;
+            }
+        } finally {
+            mRecorder = null;
+            mStartTime = 0;
+            mHandler.removeCallbacks(mTickExecutor);
+        }
+        if (!saveFile && mOutputFile != null) {
+            if (mOutputFile.delete()) {
+                Log.d(Config.LOGTAG, "deleted canceled recording");
+            }
+        }
+        if (saveFile) {
+            new Thread(new Finisher(outputFileWrittenLatch, mOutputFile, activity)).start();
+        }
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        activity.setRequestedOrientation(oldOrientation);
+        binding.recordVoiceButton.setEnabled(true);
+        binding.shareButton.setEnabled(true);
+    }
+
+    private class Finisher implements Runnable {
+
+        private final CountDownLatch latch;
+        private final File outputFile;
+        private final WeakReference<Activity> activityReference;
+
+        private Finisher(CountDownLatch latch, File outputFile, Activity activity) {
+            this.latch = latch;
+            this.outputFile = outputFile;
+            this.activityReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            final String userChosenCodec = activity.xmppConnectionService.getPreferences().getString("voice_message_codec", "");
+            if (("opus".equals(userChosenCodec) || ("".equals(userChosenCodec) && Config.USE_OPUS_VOICE_MESSAGES)) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    if (!latch.await(8, TimeUnit.SECONDS)) {
+                        Log.d(Config.LOGTAG, "time out waiting for output file to be written");
+                    }
+                } catch (InterruptedException e) {
+                    Log.d(Config.LOGTAG, "interrupted while waiting for output file to be written", e);
+                }
+                final Activity activity = activityReference.get();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(
+                        () -> {
+                            activity.setResult(
+                                    Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
+                            //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                            //toggleInputMethod();
+                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/oga;codecs=opus");
+                            binding.recordingVoiceActivity.setVisibility(View.GONE);
+                        });
+            } else if ("mpeg4".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
+                try {
+                    if (!latch.await(8, TimeUnit.SECONDS)) {
+                        Log.d(Config.LOGTAG, "time out waiting for output file to be written");
+                    }
+                } catch (InterruptedException e) {
+                    Log.d(Config.LOGTAG, "interrupted while waiting for output file to be written", e);
+                }
+                final Activity activity = activityReference.get();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(
+                        () -> {
+                            activity.setResult(
+                                    Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
+                            //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                            //toggleInputMethod();
+                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
+                            binding.recordingVoiceActivity.setVisibility(View.GONE);
+                        });
+            }
+        }
+    }
+
+    private File generateOutputFilename(final int outputFormat) {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
+        final String extension;
+        if (outputFormat == MediaRecorder.OutputFormat.MPEG_4) {
+            extension = "m4a";
+        } else if (outputFormat == MediaRecorder.OutputFormat.OGG) {
+            extension = "oga";
+        } else if (outputFormat == MediaRecorder.OutputFormat.THREE_GPP) {
+            extension = "awb";
+        } else {
+            throw new IllegalStateException("Unrecognized output format");
+        }
+        final String filename =
+                String.format("RECORDING_%s.%s", dateFormat.format(new Date()), extension);
+        final File parentDirectory;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            parentDirectory =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RECORDINGS);
+        } else {
+            parentDirectory =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        }
+        final File conversationsDirectory = new File(parentDirectory, getString(R.string.app_name));
+        return new File(conversationsDirectory, filename);
+    }
+
+    private void setupOutputFile(final int outputFormat) {
+        mOutputFile = generateOutputFilename(outputFormat);
+        final File parentDirectory = mOutputFile.getParentFile();
+        if (Objects.requireNonNull(parentDirectory).mkdirs()) {
+            Log.d(Config.LOGTAG, "created " + parentDirectory.getAbsolutePath());
+        }
+        setupFileObserver(parentDirectory);
+    }
+
+    private void setupFileObserver(final File directory) {
+        mFileObserver =
+                new FileObserver(directory.getAbsolutePath()) {
+                    @Override
+                    public void onEvent(int event, String s) {
+                        if (s != null
+                                && s.equals(mOutputFile.getName())
+                                && event == FileObserver.CLOSE_WRITE) {
+                            outputFileWrittenLatch.countDown();
+                        }
+                    }
+                };
+        mFileObserver.startWatching();
+    }
+
+    private void tick() {
+        //this.binding.timer.setText(TimeFrameUtils.formatTimePassed(mStartTime, true));
+        int minutes = (mStartTime % 3600) / 60;
+        int seconds = mStartTime % 60;
+
+        // Format the seconds into hours, minutes,
+        // and seconds.
+        String time
+                = String
+                .format(Locale.getDefault(),
+                        "%02d:%02d", minutes,
+                        seconds);
+
+        // Set the text view text.
+        this.binding.timer.setText(time);
+
+        // If running is true, increment the
+        // seconds variable.
+        if (recording) {
+            mStartTime++;
+        }
+    }
+
 }
