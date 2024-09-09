@@ -1972,7 +1972,6 @@ public class ConversationFragment extends XmppFragment
             if (!showError
                     && relevantForCorrection.getType() == Message.TYPE_TEXT
                     && !m.isGeoUri()
-                    && relevantForCorrection.isEditable()
                     && m.getConversation() instanceof Conversation) {
                 correctMessage.setVisible(true);
                 if (!relevantForCorrection.getBody().equals("") && !relevantForCorrection.getBody().equals(" ")) retractMessage.setVisible(true);
