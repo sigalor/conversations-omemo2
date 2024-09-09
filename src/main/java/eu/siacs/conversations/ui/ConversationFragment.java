@@ -1610,6 +1610,9 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
+        if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return binding.getRoot();
+        // After here should be only autocomplete setup stuff
+
         Autocomplete.<MucOptions.User>on(binding.textinput)
             .with(activity.getDrawable(R.drawable.background_message_bubble))
             .with(new CharPolicy('@'))
@@ -1633,6 +1636,8 @@ public class ConversationFragment extends XmppFragment
 
                 @Override
                 protected void onQuery(@Nullable CharSequence query) {
+                    if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return;
+
                     getRecyclerView().getItemAnimator().endAnimations();
                     final var allUsers = conversation.getMucOptions().getUsers();
                     if (!conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).isEmpty()) {
@@ -1724,6 +1729,8 @@ public class ConversationFragment extends XmppFragment
 
                 @Override
                 protected void onQuery(@Nullable CharSequence query) {
+                    if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return;
+
                     emojiDebounce.removeCallbacksAndMessages(null);
                     emojiDebounce.postDelayed(() -> {
                         if (getRecyclerView() == null) return;
