@@ -1596,7 +1596,7 @@ public class ConversationFragment extends XmppFragment
             return true;
         });
 
-        if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return binding.getRoot();
+        if (activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return binding.getRoot();
         // After here should be only autocomplete setup stuff
 
         Autocomplete.<MucOptions.User>on(binding.textinput)
