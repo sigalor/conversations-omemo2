@@ -450,7 +450,7 @@ public class XmppConnection implements Runnable {
                     results.add(0, seeOtherHost);
                 }
                 for (final Iterator<Resolver.Result> iterator = results.iterator();
-                        iterator.hasNext(); ) {
+                     iterator.hasNext(); ) {
                     final Resolver.Result result = iterator.next();
                     if (Thread.currentThread().isInterrupted()) {
                         Log.d(
@@ -471,8 +471,8 @@ public class XmppConnection implements Runnable {
                                     account.getJid().asBareJid().toString()
                                             + ": using values from resolver "
                                             + (result.getHostname() == null
-                                                    ? ""
-                                                    : result.getHostname().toString() + "/")
+                                            ? ""
+                                            : result.getHostname().toString() + "/")
                                             + result.getIp().getHostAddress()
                                             + ":"
                                             + result.getPort()
@@ -548,8 +548,8 @@ public class XmppConnection implements Runnable {
         } catch (final StateChangingException e) {
             this.changeStatus(e.state);
         } catch (final UnknownHostException
-                | ConnectException
-                | SocksSocketFactory.HostNotFoundException e) {
+                       | ConnectException
+                       | SocksSocketFactory.HostNotFoundException e) {
             this.changeStatus(Account.State.SERVER_NOT_FOUND);
         } catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
             this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
@@ -629,9 +629,9 @@ public class XmppConnection implements Runnable {
         sc.init(
                 keyManager,
                 new X509TrustManager[] {
-                    mInteractive
-                            ? trustManager.getInteractive(domain, verifiedHostname, port, daneCb)
-                            : trustManager.getNonInteractive(domain, verifiedHostname, port, daneCb)
+                        mInteractive
+                                ? trustManager.getInteractive(domain, verifiedHostname, port, daneCb)
+                                : trustManager.getNonInteractive(domain, verifiedHostname, port, daneCb)
                 },
                 SECURE_RANDOM);
         return sc.getSocketFactory();
@@ -1174,24 +1174,10 @@ public class XmppConnection implements Runnable {
     }
 
     private void changeStatusToOnline() {
-        if (mXmppConnectionService.getBooleanPreference("enforce_dane",R.bool.enforce_dane)) {
-            if (daneVerified()) {
-                Log.d(
-                        Config.LOGTAG,
-                        account.getJid().asBareJid() + ": online with enforced DANE with resource " + account.getResource());
-                changeStatus(Account.State.ONLINE);
-            } else {
-                Log.d(
-                        Config.LOGTAG,
-                        account.getJid().asBareJid() + ": offline with enforced DANE with resource " + account.getResource());
-                changeStatus(Account.State.DANE_FAILED);
-            }
-        } else {
-            Log.d(
-                    Config.LOGTAG,
-                    account.getJid().asBareJid() + ": online with enforced DANE disabled with resource " + account.getResource());
-            changeStatus(Account.State.ONLINE);
-        }
+        Log.d(
+                Config.LOGTAG,
+                account.getJid().asBareJid() + ": online with resource " + account.getResource());
+        changeStatus(Account.State.ONLINE);
     }
 
     private void processFailed(final Failed failed, final boolean sendBindRequest) {
@@ -2225,7 +2211,7 @@ public class XmppConnection implements Runnable {
                         }
                         if (advancedStreamFeaturesLoaded
                                 && (jid.equals(account.getDomain())
-                                        || jid.equals(account.getJid().asBareJid()))) {
+                                || jid.equals(account.getJid().asBareJid()))) {
                             enableAdvancedStreamFeatures();
                         }
                     } else if (packet.getType() == Iq.Type.ERROR) {
@@ -3062,7 +3048,7 @@ public class XmppConnection implements Runnable {
         public boolean sm() {
             return streamId != null
                     || (connection.streamFeatures != null
-                            && connection.streamFeatures.streamManagement());
+                    && connection.streamFeatures.streamManagement());
         }
 
         public boolean csi() {
@@ -3082,7 +3068,7 @@ public class XmppConnection implements Runnable {
                 ServiceDiscoveryResult info = disco.get(account.getJid().asBareJid());
                 return info != null
                         && info.getFeatures()
-                                .contains("http://jabber.org/protocol/pubsub#persistent-items");
+                        .contains("http://jabber.org/protocol/pubsub#persistent-items");
             }
         }
 

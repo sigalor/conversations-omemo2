@@ -459,7 +459,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
             final boolean success =
                     push != null
                             && mXmppConnectionService.processUnifiedPushMessage(
-                                    account, transport, push);
+                            account, transport, push);
             final Iq response;
             if (success) {
                 response = packet.generateResponse(Iq.Type.RESULT);

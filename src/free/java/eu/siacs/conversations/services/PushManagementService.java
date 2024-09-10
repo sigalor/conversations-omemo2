@@ -11,7 +11,7 @@ public class PushManagementService {
 		this.mXmppConnectionService = service;
 	}
 
-	void registerPushTokenOnServer(Account account) {
+	public void registerPushTokenOnServer(Account account) {
 		//stub implementation. only affects playstore flavor
 	}
 

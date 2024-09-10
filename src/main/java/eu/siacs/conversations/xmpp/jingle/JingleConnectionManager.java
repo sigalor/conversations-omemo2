@@ -389,11 +389,11 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                     final String ourSessionId = matchingSessionProposal.get().sessionId;
                     final String theirSessionId = id.sessionId;
                     if (ComparisonChain.start()
-                                    .compare(ourSessionId, theirSessionId)
-                                    .compare(
-                                            account.getJid().toEscapedString(),
-                                            id.with.toEscapedString())
-                                    .result()
+                            .compare(ourSessionId, theirSessionId)
+                            .compare(
+                                    account.getJid().toEscapedString(),
+                                    id.with.toEscapedString())
+                            .result()
                             > 0) {
                         Log.d(
                                 Config.LOGTAG,

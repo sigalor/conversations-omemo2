@@ -56,7 +56,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Consumer;
 
 import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.WebxdcUpdate;
@@ -111,6 +110,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import io.ipfs.cid.Cid;
 
@@ -145,8 +145,6 @@ import eu.siacs.conversations.generator.PresenceGenerator;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.parser.IqParser;
-import eu.siacs.conversations.parser.MessageParser;
-import eu.siacs.conversations.parser.PresenceParser;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
@@ -186,11 +184,8 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnBindListener;
 import eu.siacs.conversations.xmpp.OnContactStatusChanged;
 import eu.siacs.conversations.xmpp.OnGatewayResult;
-import eu.siacs.conversations.xmpp.OnIqPacketReceived;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnMessageAcknowledged;
-import eu.siacs.conversations.xmpp.OnMessagePacketReceived;
-import eu.siacs.conversations.xmpp.OnPresencePacketReceived;
 import eu.siacs.conversations.xmpp.OnStatusChanged;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
@@ -2423,8 +2418,8 @@ public class XmppConnectionService extends Service {
     }
 
     public void deleteBookmark(final Account account, final Bookmark bookmark) {
-        if (bookmark.getJid().toString().equals("discuss@conference.soprani.ca")) {
-            getPreferences().edit().putBoolean("cheogram_sopranica_bookmark_deleted", true).apply();
+        if (bookmark.getJid().toString().equals("support@conference.monocles.eu")) {
+            getPreferences().edit().putBoolean("monocles_support_bookmark_deleted", true).apply();
         }
         account.removeBookmark(bookmark);
         final XmppConnection connection = account.getXmppConnection();

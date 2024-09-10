@@ -163,7 +163,7 @@ public class PresenceParser extends AbstractParser implements Consumer<im.conver
                             destroy == null
                                     ? null
                                     : InvalidJid.getNullForInvalid(
-                                            destroy.getAttributeAsJid("jid"));
+                                    destroy.getAttributeAsJid("jid"));
                     mucOptions.setError(MucOptions.Error.DESTROYED);
                     if (alternate != null) {
                         Log.d(
@@ -205,7 +205,7 @@ public class PresenceParser extends AbstractParser implements Consumer<im.conver
                 } else if (!from.isBareJid()) {
                     Element item = x.findChild("item");
                     if (item != null) {
-						mucOptions.updateUser(parseItem(conversation, item, from, occupantId, nick == null ? null : nick.getContent(), hats));
+                        mucOptions.updateUser(parseItem(conversation, item, from, occupantId, nick == null ? null : nick.getContent(), hats));
                     }
                     MucOptions.User user = mucOptions.deleteUser(from);
                     if (user != null && occupantId == null) {

@@ -25,37 +25,37 @@ public abstract class AbstractGenerator {
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
     private final String[] STATIC_FEATURES = {
-        Namespace.JINGLE,
-        Namespace.JINGLE_APPS_FILE_TRANSFER,
-        Namespace.JINGLE_TRANSPORTS_S5B,
-        Namespace.JINGLE_TRANSPORTS_IBB,
-        Namespace.JINGLE_ENCRYPTED_TRANSPORT,
-        Namespace.JINGLE_ENCRYPTED_TRANSPORT_OMEMO,
-        "http://jabber.org/protocol/muc",
-        "jabber:x:conference",
-        Namespace.OOB,
-        "http://jabber.org/protocol/caps",
-        "http://jabber.org/protocol/disco#info",
-        "urn:xmpp:avatar:metadata+notify",
-        Namespace.NICK + "+notify",
-        "urn:xmpp:ping",
-        "jabber:iq:version",
-        "http://jabber.org/protocol/chatstates"
+            Namespace.JINGLE,
+            Namespace.JINGLE_APPS_FILE_TRANSFER,
+            Namespace.JINGLE_TRANSPORTS_S5B,
+            Namespace.JINGLE_TRANSPORTS_IBB,
+            Namespace.JINGLE_ENCRYPTED_TRANSPORT,
+            Namespace.JINGLE_ENCRYPTED_TRANSPORT_OMEMO,
+            "http://jabber.org/protocol/muc",
+            "jabber:x:conference",
+            Namespace.OOB,
+            "http://jabber.org/protocol/caps",
+            "http://jabber.org/protocol/disco#info",
+            "urn:xmpp:avatar:metadata+notify",
+            Namespace.NICK + "+notify",
+            "urn:xmpp:ping",
+            "jabber:iq:version",
+            "http://jabber.org/protocol/chatstates"
     };
     private final String[] MESSAGE_CONFIRMATION_FEATURES = {
-        "urn:xmpp:chat-markers:0", "urn:xmpp:receipts"
+            "urn:xmpp:chat-markers:0", "urn:xmpp:receipts"
     };
     private final String[] MESSAGE_CORRECTION_FEATURES = {"urn:xmpp:message-correct:0"};
     private final String[] PRIVACY_SENSITIVE = {
-        "urn:xmpp:time" // XEP-0202: Entity Time leaks time zone
+            "urn:xmpp:time" // XEP-0202: Entity Time leaks time zone
     };
     private final String[] VOIP_NAMESPACES = {
-        Namespace.JINGLE_TRANSPORT_ICE_UDP,
-        Namespace.JINGLE_FEATURE_AUDIO,
-        Namespace.JINGLE_FEATURE_VIDEO,
-        Namespace.JINGLE_APPS_RTP,
-        Namespace.JINGLE_APPS_DTLS,
-        Namespace.JINGLE_MESSAGE
+            Namespace.JINGLE_TRANSPORT_ICE_UDP,
+            Namespace.JINGLE_FEATURE_AUDIO,
+            Namespace.JINGLE_FEATURE_VIDEO,
+            Namespace.JINGLE_APPS_RTP,
+            Namespace.JINGLE_APPS_DTLS,
+            Namespace.JINGLE_MESSAGE
     };
     protected XmppConnectionService mXmppConnectionService;
 

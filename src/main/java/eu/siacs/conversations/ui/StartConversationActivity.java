@@ -464,30 +464,6 @@ public class StartConversationActivity extends XmppActivity
             }
             return false;
         });
-
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-
-            switch (item.getItemId()) {
-                case R.id.chats -> {
-                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                case R.id.contactslist -> {
-                    return true;
-                }
-                case R.id.manageaccounts -> {
-                    Intent i = new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                default ->
-                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
-            }
-        });
     }
 
     private void inflateFab(final SpeedDialView speedDialView, final @MenuRes int menuRes) {
@@ -1439,7 +1415,7 @@ public class StartConversationActivity extends XmppActivity
         );
         Collections.sort(this.contacts);
 
-        final boolean sopranicaDeleted = getPreferences().getBoolean("cheogram_sopranica_bookmark_deleted", false);
+        final boolean sopranicaDeleted = getPreferences().getBoolean("monocles_support_bookmark_deleted", false);
 
         if (!sopranicaDeleted && !foundSopranica && (needle == null || needle.equals("")) && xmppConnectionService.getAccounts().size() > 0) {
             Bookmark bookmark = new Bookmark(

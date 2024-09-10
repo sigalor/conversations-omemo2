@@ -592,14 +592,14 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             final var payload = webxdc.findChildContent("json", "urn:xmpp:json:0");
             if (document != null || summary != null || payload != null) {
                 mXmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
-                    conversation,
-                    remoteMsgId,
-                    counterpart,
-                    thread,
-                    body == null ? null : body.content,
-                    document,
-                    summary,
-                    payload
+                        conversation,
+                        remoteMsgId,
+                        counterpart,
+                        thread,
+                        body == null ? null : body.content,
+                        document,
+                        summary,
+                        payload
                 ));
             }
 
@@ -736,7 +736,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     if (address.getAttribute("type").equals("ofrom") && address.getAttribute("jid") != null) {
                         Jid ofrom = address.getAttributeAsJid("jid");
                         if (InvalidJid.isValid(ofrom) && ofrom.getDomain().equals(counterpart.getDomain()) &&
-                            conversation.getAccount().getRoster().getContact(counterpart.getDomain()).getPresences().anySupport("http://jabber.org/protocol/address")) {
+                                conversation.getAccount().getRoster().getContact(counterpart.getDomain()).getPresences().anySupport("http://jabber.org/protocol/address")) {
 
                             message.setTrueCounterpart(ofrom);
                         }
@@ -761,7 +761,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             if (reactions != null) message.addPayload(reactions);
             for (Element el : packet.getChildren()) {
                 if ((el.getName().equals("query") && el.getNamespace().equals("http://jabber.org/protocol/disco#items") && el.getAttribute("node").equals("http://jabber.org/protocol/commands")) ||
-                    (el.getName().equals("fallback") && el.getNamespace().equals("urn:xmpp:fallback:0"))) {
+                        (el.getName().equals("fallback") && el.getNamespace().equals("urn:xmpp:fallback:0"))) {
                     message.addPayload(el);
                 }
                 if (el.getName().equals("thread") && (el.getNamespace() == null || el.getNamespace().equals("jabber:client"))) {
@@ -1257,7 +1257,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                             final var mStatus = message.getStatus();
                             if (mucOptions.isPrivateAndNonAnonymous()
                                     && (mStatus == Message.STATUS_SEND_RECEIVED
-                                            || mStatus == Message.STATUS_SEND)
+                                    || mStatus == Message.STATUS_SEND)
                                     && readyBy.containsAll(everyone)) {
                                 message.setStatus(Message.STATUS_SEND_DISPLAYED);
                             }

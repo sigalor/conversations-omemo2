@@ -315,7 +315,7 @@ public class IqGenerator extends AbstractGenerator {
     }
 
     public Iq publishBundles(final SignedPreKeyRecord signedPreKeyRecord, final IdentityKey identityKey,
-                                   final Set<PreKeyRecord> preKeyRecords, final int deviceId, Bundle publishOptions) {
+                             final Set<PreKeyRecord> preKeyRecords, final int deviceId, Bundle publishOptions) {
         final Element item = new Element("item");
         item.setAttribute("id", "current");
         final Element bundle = item.addChild("bundle", AxolotlService.PEP_PREFIX);
@@ -462,9 +462,9 @@ public class IqGenerator extends AbstractGenerator {
         packet.setTo(m.getConversation().getJid().asBareJid());
         packet.setFrom(account.getJid());
         final var moderate =
-            packet.addChild("apply-to", "urn:xmpp:fasten:0")
-                  .setAttribute("id", m.getServerMsgId())
-                  .addChild("moderate", "urn:xmpp:message-moderate:0");
+                packet.addChild("apply-to", "urn:xmpp:fasten:0")
+                        .setAttribute("id", m.getServerMsgId())
+                        .addChild("moderate", "urn:xmpp:message-moderate:0");
         moderate.addChild("retract", "urn:xmpp:message-retract:0");
         moderate.addChild("reason", "urn:xmpp:message-moderate:0").setContent(reason);
         return packet;

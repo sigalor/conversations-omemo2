@@ -87,7 +87,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     private final WebRTCWrapper webRTCWrapper = new WebRTCWrapper(this);
     private final Queue<
-                    Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>>
+            Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>>>
             pendingIceCandidates = new LinkedList<>();
     private final OmemoVerification omemoVerification = new OmemoVerification();
     public final CallIntegration callIntegration;
@@ -1493,12 +1493,12 @@ public class JingleRtpConnection extends AbstractJingleConnection
         if (this.omemoVerification.hasDeviceId()) {
             ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
                     verifiedPayloadFuture =
-                            id.account
-                                    .getAxolotlService()
-                                    .encrypt(
-                                            rtpContentMap,
-                                            id.with,
-                                            omemoVerification.getDeviceId());
+                    id.account
+                            .getAxolotlService()
+                            .encrypt(
+                                    rtpContentMap,
+                                    id.with,
+                                    omemoVerification.getDeviceId());
             return Futures.transform(
                     verifiedPayloadFuture,
                     verifiedPayload -> {
@@ -1964,12 +1964,12 @@ public class JingleRtpConnection extends AbstractJingleConnection
         if (this.omemoVerification.hasDeviceId()) {
             final ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
                     verifiedPayloadFuture =
-                            id.account
-                                    .getAxolotlService()
-                                    .encrypt(
-                                            rtpContentMap,
-                                            id.with,
-                                            omemoVerification.getDeviceId());
+                    id.account
+                            .getAxolotlService()
+                            .encrypt(
+                                    rtpContentMap,
+                                    id.with,
+                                    omemoVerification.getDeviceId());
             final ListenableFuture<RtpContentMap> future =
                     Futures.transform(
                             verifiedPayloadFuture,
@@ -2153,8 +2153,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
             case RETRACTED, RETRACTED_RACED, TERMINATED_CANCEL_OR_TIMEOUT -> this.callIntegration
                     .retracted();
             case TERMINATED_CONNECTIVITY_ERROR,
-                    TERMINATED_APPLICATION_FAILURE,
-                    TERMINATED_SECURITY_ERROR -> this.callIntegration.error();
+                 TERMINATED_APPLICATION_FAILURE,
+                 TERMINATED_SECURITY_ERROR -> this.callIntegration.error();
             default -> throw new IllegalStateException(
                     String.format("%s is not handled", this.state));
         }
@@ -2875,7 +2875,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             this.jingleConnectionManager.setTerminalSessionState(id, getEndUserState(), getMedia());
             super.finish();
             try {
-                File log = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "monocles/calls/" + id.getWith().asBareJid() + "." + id.getSessionId() + "." + created + ".log");
+                File log = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Cheogram/calls/" + id.getWith().asBareJid() + "." + id.getSessionId() + "." + created + ".log");
                 log.getParentFile().mkdirs();
                 Runtime.getRuntime().exec(new String[]{"logcat", "-dT", "" + created + ".0", "-f", log.getAbsolutePath()});
             } catch (final IOException e) { }
@@ -2947,7 +2947,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final boolean prerequisite =
                 Media.audioOnly(getMedia())
                         && Arrays.asList(RtpEndUserState.CONNECTED, RtpEndUserState.RECONNECTING)
-                                .contains(getEndUserState());
+                        .contains(getEndUserState());
         return prerequisite && remoteHasVideoFeature();
     }
 
