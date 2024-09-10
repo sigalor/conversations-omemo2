@@ -201,7 +201,7 @@ android {
             dimension "mode"
 
             applicationId = "de.monocles.chat"
-            versionCode 174
+            versionCode 175
             versionName "1.8"
             def appName = "monocles chat"
             resValue "string", "app_name", appName
