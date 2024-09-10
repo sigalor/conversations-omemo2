@@ -16,7 +16,8 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.forms.Data;
-import eu.siacs.conversations.xmpp.stanzas.IqPacket;
+
+import im.conversations.android.xmpp.model.stanza.Iq;
 
 public class FinishOnboarding {
 	private static final AtomicBoolean WORKING = new AtomicBoolean(false);
@@ -32,14 +33,14 @@ public class FinishOnboarding {
 	public static void finish(final XmppConnectionService xmppConnectionService, final XmppActivity activity, final Account onboardAccount, final Account newAccount) {
 		if (!WORKING.compareAndSet(false, true)) return;
 
-		final IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
+		final var packet = new Iq(Iq.Type.SET);
 		packet.setTo(Jid.of("cheogram.com"));
 		final Element c = packet.addChild("command", Namespace.COMMANDS);
 		c.setAttribute("node", "change jabber id");
 		c.setAttribute("action", "execute");
 
 		Log.d(Config.LOGTAG, "" + packet);
-		xmppConnectionService.sendIqPacket(onboardAccount, packet, (a, iq) -> {
+		xmppConnectionService.sendIqPacket(onboardAccount, packet, (iq) -> {
 			Element command = iq.findChild("command", "http://jabber.org/protocol/commands");
 			if (command == null) {
 				Log.e(Config.LOGTAG, "Did not get expected data form from cheogram, got: " + iq);
@@ -62,15 +63,15 @@ public class FinishOnboarding {
 			iq.setAttribute("type", "set");
 			iq.removeAttribute("from");
 			iq.removeAttribute("id");
-			xmppConnectionService.sendIqPacket(a, iq, (a2, iq2) -> {
+			xmppConnectionService.sendIqPacket(onboardAccount, iq, (iq2) -> {
 				Element command2 = iq2.findChild("command", "http://jabber.org/protocol/commands");
 				if (command2 != null && command2.getAttribute("status") != null && command2.getAttribute("status").equals("completed")) {
-					final IqPacket regPacket = new IqPacket(IqPacket.TYPE.SET);
+					final var regPacket = new Iq(Iq.Type.SET);
 					regPacket.setTo(Jid.of("cheogram.com/CHEOGRAM%jabber:iq:register"));
 					final Element c2 = regPacket.addChild("command", Namespace.COMMANDS);
 					c2.setAttribute("node", "jabber:iq:register");
 					c2.setAttribute("action", "execute");
-					xmppConnectionService.sendIqPacket(newAccount, regPacket, (a3, iq3) -> {
+					xmppConnectionService.sendIqPacket(newAccount, regPacket, (iq3) -> {
 						Element command3 = iq3.findChild("command", "http://jabber.org/protocol/commands");
 						if (command3 == null) {
 							Log.e(Config.LOGTAG, "Did not get expected data form from cheogram, got: " + iq3);
@@ -93,15 +94,15 @@ public class FinishOnboarding {
 						iq3.setAttribute("type", "set");
 						iq3.removeAttribute("from");
 						iq3.removeAttribute("id");
-						xmppConnectionService.sendIqPacket(newAccount, iq3, (a4, iq4) -> {
+						xmppConnectionService.sendIqPacket(newAccount, iq3, (iq4) -> {
 							Element command4 = iq4.findChild("command", "http://jabber.org/protocol/commands");
 							if (command4 != null && command4.getAttribute("status") != null && command4.getAttribute("status").equals("completed")) {
 								xmppConnectionService.createContact(newAccount.getRoster().getContact(iq4.getFrom().asBareJid()), true);
-								Conversation withmonocles = xmppConnectionService.findOrCreateConversation(newAccount, iq4.getFrom().asBareJid(), true, true, true);
-								xmppConnectionService.markRead(withmonocles);
-								xmppConnectionService.clearConversationHistory(withmonocles);
+								Conversation withCheogram = xmppConnectionService.findOrCreateConversation(newAccount, iq4.getFrom().asBareJid(), true, true, true);
+								xmppConnectionService.markRead(withCheogram);
+								xmppConnectionService.clearConversationHistory(withCheogram);
 								xmppConnectionService.deleteAccount(onboardAccount);
-								activity.switchToConversation(withmonocles, null, false, null, false, false, "command");
+								activity.switchToConversation(withCheogram, null, false, null, false, false, "command");
 								// We don't set WORKING back to false because we suceeded so it should never run again anyway
 							} else {
 								Log.e(Config.LOGTAG, "Error confirming jid switch, got: " + iq4);

@@ -41,7 +41,6 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.util.Consumer;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -86,6 +85,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;

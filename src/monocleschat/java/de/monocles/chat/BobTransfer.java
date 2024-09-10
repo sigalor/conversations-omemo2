@@ -30,7 +30,8 @@ import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.MimeUtils;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
-import eu.siacs.conversations.xmpp.stanzas.IqPacket;
+
+import im.conversations.android.xmpp.model.stanza.Iq;
 
 public class BobTransfer implements Transferable {
 	protected int status = Transferable.STATUS_OFFER;
@@ -90,16 +91,16 @@ public class BobTransfer implements Transferable {
 		}
 
 		if (xmppConnectionService.hasInternetConnection() && attempts.getOrDefault(uri, 0L) + 10000L < System.currentTimeMillis()) {
-         attempts.put(uri, System.currentTimeMillis());
+			attempts.put(uri, System.currentTimeMillis());
 			changeStatus(Transferable.STATUS_DOWNLOADING);
 
-			IqPacket request = new IqPacket(IqPacket.TYPE.GET);
+			final var request = new Iq(Iq.Type.GET);
 			request.setTo(to);
 			final Element dataq = request.addChild("data", "urn:xmpp:bob");
 			dataq.setAttribute("cid", uri.getSchemeSpecificPart());
-			xmppConnectionService.sendIqPacket(account, request, (acct, packet) -> {
+			xmppConnectionService.sendIqPacket(account, request, (packet) -> {
 				final Element data = packet.findChild("data", "urn:xmpp:bob");
-				if (packet.getType() == IqPacket.TYPE.ERROR || data == null) {
+				if (packet.getType() == Iq.Type.ERROR || data == null) {
 					Log.d(Config.LOGTAG, "BobTransfer failed: " + packet);
 					finish(null);
 				} else {

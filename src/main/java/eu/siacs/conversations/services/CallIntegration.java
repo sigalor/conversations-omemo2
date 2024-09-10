@@ -42,8 +42,12 @@ public class CallIntegration extends Connection {
      *
      * <p>Samsung Galaxy Tab A claims to have FEATURE_CONNECTION_SERVICE but then throws
      * SecurityException when invoking placeCall(). Both Stock and LineageOS have this problem.
+     *
+     * <p>Lenovo Yoga Smart Tab YT-X705F claims to have FEATURE_CONNECTION_SERVICE but throws
+     * SecurityException
      */
-    private static final List<String> BROKEN_DEVICE_MODELS = Arrays.asList("OnePlus6", "gtaxlwifi");
+    private static final List<String> BROKEN_DEVICE_MODELS =
+            Arrays.asList("OnePlus6", "gtaxlwifi", "YT-X705F");
 
     public static final int DEFAULT_TONE_VOLUME = 60;
     private static final int DEFAULT_MEDIA_PLAYER_VOLUME = 90;
@@ -393,9 +397,7 @@ public class CallIntegration extends Connection {
 
     public void success() {
         Log.d(Config.LOGTAG, "CallIntegration.success()");
-        final var toneGenerator =
-                new ToneGenerator(AudioManager.STREAM_VOICE_CALL, DEFAULT_TONE_VOLUME);
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
+        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
         this.destroyWithDelay(new DisconnectCause(DisconnectCause.LOCAL, null), 375);
     }
 
@@ -410,9 +412,7 @@ public class CallIntegration extends Connection {
 
     public void error() {
         Log.d(Config.LOGTAG, "CallIntegration.error()");
-        final var toneGenerator =
-                new ToneGenerator(AudioManager.STREAM_VOICE_CALL, DEFAULT_TONE_VOLUME);
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
+        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
         this.destroyWithDelay(new DisconnectCause(DisconnectCause.ERROR, null), 375);
     }
 
@@ -429,8 +429,7 @@ public class CallIntegration extends Connection {
 
     public void busy() {
         Log.d(Config.LOGTAG, "CallIntegration.busy()");
-        final var toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80);
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_NETWORK_BUSY, 2500);
+        startTone(80, ToneGenerator.TONE_CDMA_NETWORK_BUSY, 2500);
         this.destroyWithDelay(new DisconnectCause(DisconnectCause.BUSY, null), 2500);
     }
 
@@ -456,6 +455,17 @@ public class CallIntegration extends Connection {
         this.setDisconnected(disconnectCause);
         this.destroyCallIntegration();
         Log.d(Config.LOGTAG, "destroyed!");
+    }
+
+    private void startTone(final int volume, final int toneType, final int durationMs) {
+        final ToneGenerator toneGenerator;
+        try {
+            toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, volume);
+        } catch (final RuntimeException e) {
+            Log.e(Config.LOGTAG, "could not initialize tone generator", e);
+            return;
+        }
+        toneGenerator.startTone(toneType, durationMs);
     }
 
     public static Uri address(final Jid contact) {
@@ -529,6 +539,12 @@ public class CallIntegration extends Connection {
         }
         // all Realme devices at least up to and including Android 11 are broken
         if ("realme".equalsIgnoreCase(Build.MANUFACTURER)
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            return false;
+        }
+        // we are relatively sure that old Oppo devices are broken too. We get reports of 'number
+        // not sent' from Oppo R15x (Android 10)
+        if ("OPPO".equalsIgnoreCase(Build.MANUFACTURER)
                 && Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             return false;
         }

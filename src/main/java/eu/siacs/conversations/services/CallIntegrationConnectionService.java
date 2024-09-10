@@ -36,6 +36,7 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.ui.RtpSessionActivity;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.jingle.AbstractJingleConnection;
+import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
@@ -126,9 +127,17 @@ public class CallIntegrationConnectionService extends ConnectionService {
                 // actually attempted
                 // sendJingleFinishMessage(service, contact, Reason.CONNECTIVITY_ERROR);
             } else {
-                final var proposal =
-                        service.getJingleConnectionManager()
-                                .proposeJingleRtpSession(account, with, media);
+                final JingleConnectionManager.RtpSessionProposal proposal;
+                try {
+                    proposal =
+                            service.getJingleConnectionManager()
+                                    .proposeJingleRtpSession(account, with, media);
+                } catch (final IllegalStateException e) {
+                    return Connection.createFailedConnection(
+                            new DisconnectCause(
+                                    DisconnectCause.ERROR,
+                                    "Phone is busy. Probably race condition. Try again in a moment"));
+                }
                 if (proposal == null) {
                     // TODO instead of just null checking try to get the sessionID
                     return Connection.createFailedConnection(

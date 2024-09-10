@@ -18,14 +18,16 @@ import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.InvalidJid;
 import eu.siacs.conversations.xmpp.Jid;
-import eu.siacs.conversations.xmpp.stanzas.AbstractStanza;
+import im.conversations.android.xmpp.model.stanza.Stanza;
 
 public abstract class AbstractParser {
 
-	protected XmppConnectionService mXmppConnectionService;
+	protected final XmppConnectionService mXmppConnectionService;
+	protected final Account account;
 
-	protected AbstractParser(XmppConnectionService service) {
+	protected AbstractParser(final XmppConnectionService service, final Account account) {
 		this.mXmppConnectionService = service;
+		this.account = account;
 	}
 
 	public static Long parseTimestamp(Element element, Long d) {
@@ -36,8 +38,8 @@ public abstract class AbstractParser {
 		long min = Long.MAX_VALUE;
 		boolean returnDefault = true;
 		final Jid to;
-		if (ignoreCsiAndSm && element instanceof AbstractStanza) {
-			to = ((AbstractStanza) element).getTo();
+		if (ignoreCsiAndSm && element instanceof Stanza stanza) {
+			to = stanza.getTo();
 		} else {
 			to = null;
 		}
@@ -125,7 +127,7 @@ public abstract class AbstractParser {
 		contact.setLastResource(from.isBareJid() ? "" : from.getResource());
 	}
 
-	protected String avatarData(Element items) {
+	protected static String avatarData(Element items) {
 		Element item = items.findChild("item");
 		if (item == null) {
 			return null;

@@ -2,10 +2,26 @@ package eu.siacs.conversations.http;
 
 import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.core.util.Consumer;
+
+import eu.siacs.conversations.BuildConfig;
+import eu.siacs.conversations.Config;
+import eu.siacs.conversations.crypto.TrustManagers;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.DownloadableFile;
+import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.services.AbstractConnectionManager;
+import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.utils.TLSSocketFactory;
+
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
 
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
 
@@ -16,7 +32,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -26,19 +44,6 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
-import eu.siacs.conversations.BuildConfig;
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.entities.DownloadableFile;
-import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.services.AbstractConnectionManager;
-import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.utils.TLSSocketFactory;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
-
 public class HttpConnectionManager extends AbstractConnectionManager {
 
     private final List<HttpDownloadConnection> downloadConnections = new ArrayList<>();
@@ -46,7 +51,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
 
     public static final Executor EXECUTOR = Executors.newFixedThreadPool(4);
 
-    public static final OkHttpClient OK_HTTP_CLIENT;
+    private static final OkHttpClient OK_HTTP_CLIENT;
 
     static {
         OK_HTTP_CLIENT = new OkHttpClient.Builder()
@@ -208,5 +213,28 @@ public class HttpConnectionManager extends AbstractConnectionManager {
         }
 
         return filename;
+    }
+
+    public static OkHttpClient okHttpClient(final Context context) {
+        final OkHttpClient.Builder builder = HttpConnectionManager.OK_HTTP_CLIENT.newBuilder();
+        try {
+            final X509TrustManager trustManager;
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+                trustManager = TrustManagers.defaultWithBundledLetsEncrypt(context);
+            } else {
+                trustManager = TrustManagers.createDefaultTrustManager();
+            }
+            final SSLSocketFactory socketFactory =
+                    new TLSSocketFactory(new X509TrustManager[] {trustManager}, SECURE_RANDOM);
+            builder.sslSocketFactory(socketFactory, trustManager);
+        } catch (final IOException
+                       | KeyManagementException
+                       | NoSuchAlgorithmException
+                       | KeyStoreException
+                       | CertificateException e) {
+            Log.d(Config.LOGTAG, "not reconfiguring service to work with bundled LetsEncrypt");
+            throw new RuntimeException(e);
+        }
+        return builder.build();
     }
 }

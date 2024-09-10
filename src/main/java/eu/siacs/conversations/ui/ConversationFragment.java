@@ -217,7 +217,8 @@ import eu.siacs.conversations.xmpp.jingle.JingleFileTransferConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
-import eu.siacs.conversations.xmpp.stanzas.IqPacket;
+
+import im.conversations.android.xmpp.model.stanza.Iq;
 
 import me.drakeet.support.toast.ToastCompat;
 
@@ -3587,13 +3588,13 @@ public class ConversationFragment extends XmppFragment
         } else {
             if (!delayShow) conversation.showViewPager();
             binding.commandsViewProgressbar.setVisibility(View.VISIBLE);
-            activity.xmppConnectionService.fetchCommands(conversation.getAccount(), commandJid, (a, iq) -> {
+            activity.xmppConnectionService.fetchCommands(conversation.getAccount(), commandJid, (iq) -> {
                 if (activity == null) return;
 
                 activity.runOnUiThread(() -> {
                     binding.commandsViewProgressbar.setVisibility(View.GONE);
                     commandAdapter.clear();
-                    if (iq.getType() == IqPacket.TYPE.RESULT) {
+                    if (iq.getType() == Iq.Type.RESULT) {
                         for (Element child : iq.query().getChildren()) {
                             if (!"item".equals(child.getName()) || !Namespace.DISCO_ITEMS.equals(child.getNamespace())) continue;
                             commandAdapter.add(new CommandAdapter.Command0050(child));

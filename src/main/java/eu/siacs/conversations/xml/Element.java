@@ -5,7 +5,9 @@ import androidx.annotation.NonNull;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 import eu.siacs.conversations.utils.XmlHelper;
 import eu.siacs.conversations.xmpp.InvalidJid;
 import eu.siacs.conversations.xmpp.Jid;
-import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
+import im.conversations.android.xmpp.model.stanza.Message;
 
 public class Element implements Node {
 	private final String name;
@@ -141,6 +143,10 @@ public class Element implements Node {
 		return ImmutableList.copyOf(this.children);
 	}
 
+	public void setAttribute(final String name, final boolean value) {
+		this.setAttribute(name, value ? "1" : "0");
+	}
+
 	// Deprecated: you probably want bindTo or replaceChildren
 	public Element setChildren(List<Element> children) {
 		this.childNodes = new ArrayList(children);
@@ -163,6 +169,31 @@ public class Element implements Node {
 
 	public final String getContent() {
 		return this.childNodes.stream().map(Node::getContent).filter(c -> c != null).collect(Collectors.joining());
+	}
+
+	public long getLongAttribute(final String name) {
+		final var value = Longs.tryParse(Strings.nullToEmpty(this.attributes.get(name)));
+		return value == null ? 0 : value;
+	}
+
+	public Optional<Integer> getOptionalIntAttribute(final String name) {
+		final String value = getAttribute(name);
+		if (value == null) {
+			return Optional.absent();
+		}
+		return Optional.fromNullable(Ints.tryParse(value));
+	}
+
+	public Jid getAttributeAsJid(String name) {
+		final String jid = this.getAttribute(name);
+		if (jid != null && !jid.isEmpty()) {
+			try {
+				return Jid.ofEscaped(jid);
+			} catch (final IllegalArgumentException e) {
+				return InvalidJid.of(jid, this instanceof Message);
+			}
+		}
+		return null;
 	}
 
 	public Element setAttribute(String name, String value) {
@@ -224,7 +255,7 @@ public class Element implements Node {
 		return result;
 	}
 
-	public Element removeAttribute(String name) {
+	public Element removeAttribute(final String name) {
 		this.attributes.remove(name);
 		return this;
 	}
@@ -240,26 +271,6 @@ public class Element implements Node {
 		} else {
 			return null;
 		}
-	}
-
-	public Optional<Integer> getOptionalIntAttribute(final String name) {
-		final String value = getAttribute(name);
-		if (value == null) {
-			return Optional.absent();
-		}
-		return Optional.fromNullable(Ints.tryParse(value));
-	}
-
-	public Jid getAttributeAsJid(String name) {
-		final String jid = this.getAttribute(name);
-		if (jid != null && !jid.isEmpty()) {
-			try {
-				return Jid.ofEscaped(jid);
-			} catch (final IllegalArgumentException e) {
-				return InvalidJid.of(jid, this instanceof MessagePacket);
-			}
-		}
-		return null;
 	}
 
 	public Hashtable<String, String> getAttributes() {

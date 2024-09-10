@@ -53,6 +53,21 @@ import com.madebyevan.thumbhash.ThumbHash;
 
 import com.wolt.blurhashkt.BlurHashDecoder;
 
+import eu.siacs.conversations.Config;
+import eu.siacs.conversations.R;
+import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.DownloadableFile;
+import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.services.AttachFileToConversationRunnable;
+import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.adapter.MediaAdapter;
+import eu.siacs.conversations.ui.util.Attachment;
+import eu.siacs.conversations.utils.CryptoHelper;
+import eu.siacs.conversations.utils.FileUtils;
+import eu.siacs.conversations.utils.FileWriterException;
+import eu.siacs.conversations.utils.MimeUtils;
+import eu.siacs.conversations.xmpp.pep.Avatar;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -84,22 +99,6 @@ import org.tomlj.Toml;
 import org.tomlj.TomlTable;
 
 import io.ipfs.cid.Cid;
-
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
-import eu.siacs.conversations.entities.Conversation;
-import eu.siacs.conversations.entities.DownloadableFile;
-import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.services.AttachFileToConversationRunnable;
-import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.ui.adapter.MediaAdapter;
-import eu.siacs.conversations.ui.util.Attachment;
-import eu.siacs.conversations.utils.CryptoHelper;
-import eu.siacs.conversations.utils.FileUtils;
-import eu.siacs.conversations.utils.FileWriterException;
-import eu.siacs.conversations.utils.MimeUtils;
-import eu.siacs.conversations.xmpp.pep.Avatar;
-import eu.siacs.conversations.xml.Element;
 
 public class FileBackend {
 
@@ -784,16 +783,16 @@ public class FileBackend {
     }
 
     private void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
-        Log.d(
-                Config.LOGTAG,
-                "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
-        file.getParentFile().mkdirs();
+        final var parentDirectory = file.getParentFile();
+        if (parentDirectory != null && parentDirectory.mkdirs()) {
+            Log.d(Config.LOGTAG,"created directory "+parentDirectory.getAbsolutePath());
+        }
         try {
             if (!file.createNewFile() && file.length() > 0) {
                 if (file.canRead() && file.getName().startsWith("zb2")) return; // We have this content already
                 throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
         }
         try (final OutputStream os = new FileOutputStream(file);
@@ -803,12 +802,12 @@ public class FileBackend {
             }
             try {
                 ByteStreams.copy(is, os);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new FileWriterException(file);
             }
             try {
                 os.flush();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new FileWriterException(file);
             }
         } catch (final FileNotFoundException e) {
@@ -817,7 +816,7 @@ public class FileBackend {
         } catch (final FileWriterException e) {
             cleanup(file);
             throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
-        } catch (final SecurityException | IllegalStateException e) {
+        } catch (final SecurityException | IllegalStateException | IllegalArgumentException e) {
             cleanup(file);
             throw new FileCopyException(R.string.error_security_exception);
         } catch (final IOException e) {
@@ -828,7 +827,7 @@ public class FileBackend {
 
     public void copyFileToPrivateStorage(Message message, Uri uri, String type)
             throws FileCopyException {
-        String mime = MimeUtils.guessMimeTypeFromUriAndMime(mXmppConnectionService, uri, type);
+        final String mime = MimeUtils.guessMimeTypeFromUriAndMime(mXmppConnectionService, uri, type);
         Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime=" + mime + ")");
         String extension = MimeUtils.guessExtensionFromMimeType(mime);
         if (extension == null) {
@@ -1168,9 +1167,9 @@ public class FileBackend {
     }
 
     public BitmapDrawable getFallbackThumbnail(final Message message, int size, boolean cacheOnly) {
-        List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
+        final var thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
         if (thumbs != null && !thumbs.isEmpty()) {
-            for (Element thumb : thumbs) {
+            for (final var thumb : thumbs) {
                 final var uriS = thumb.getAttribute("uri");
                 if (uriS == null) continue;
                 Uri uri = Uri.parse(uriS);
@@ -1240,9 +1239,9 @@ public class FileBackend {
 
         if ((thumbnail == null) && (!cacheOnly)) {
             synchronized (THUMBNAIL_LOCK) {
-                List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
+                final var thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
                 if (thumbs != null && !thumbs.isEmpty()) {
-                    for (Element thumb : thumbs) {
+                    for (final var thumb : thumbs) {
                         final var uriS = thumb.getAttribute("uri");
                         if (uriS == null) continue;
                         Uri uri = Uri.parse(uriS);

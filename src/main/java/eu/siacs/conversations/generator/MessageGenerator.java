@@ -23,7 +23,6 @@ import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
 import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
-import eu.siacs.conversations.xmpp.stanzas.MessagePacket;
 
 public class MessageGenerator extends AbstractGenerator {
     private static final String OMEMO_FALLBACK_MESSAGE = "I sent you an OMEMO encrypted message but your client doesn’t seem to support that. Find more information on https://conversations.im/omemo";
@@ -33,25 +32,25 @@ public class MessageGenerator extends AbstractGenerator {
         super(service);
     }
 
-    private MessagePacket preparePacket(Message message, boolean legacyEncryption) {
+    private im.conversations.android.xmpp.model.stanza.Message preparePacket(Message message, boolean legacyEncryption) {
         Conversation conversation = (Conversation) message.getConversation();
         Account account = conversation.getAccount();
-        MessagePacket packet = new MessagePacket();
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
         final boolean isWithSelf = conversation.getContact().isSelf();
         if (conversation.getMode() == Conversation.MODE_SINGLE) {
             packet.setTo(message.getCounterpart());
-            packet.setType(MessagePacket.TYPE_CHAT);
+            packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
             if (!isWithSelf) {
                 packet.addChild("request", "urn:xmpp:receipts");
             }
         } else if (message.isPrivateMessage()) {
             packet.setTo(message.getCounterpart());
-            packet.setType(MessagePacket.TYPE_CHAT);
+            packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
             packet.addChild("x", "http://jabber.org/protocol/muc#user");
             packet.addChild("request", "urn:xmpp:receipts");
         } else {
             packet.setTo(message.getCounterpart().asBareJid());
-            packet.setType(MessagePacket.TYPE_GROUPCHAT);
+            packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
         }
         if (conversation.isSingleOrPrivateAndNonAnonymous() && !message.isPrivateMessage()) {
             packet.addChild("markable", "urn:xmpp:chat-markers:0");
@@ -78,7 +77,7 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public void addDelay(MessagePacket packet, long timestamp) {
+    public void addDelay(im.conversations.android.xmpp.model.stanza.Message packet, long timestamp) {
         final SimpleDateFormat mDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
         mDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -87,8 +86,8 @@ public class MessageGenerator extends AbstractGenerator {
         delay.setAttribute("stamp", mDateFormat.format(date));
     }
 
-    public MessagePacket generateAxolotlChat(Message message, XmppAxolotlMessage axolotlMessage) {
-        MessagePacket packet = preparePacket(message, true);
+    public im.conversations.android.xmpp.model.stanza.Message generateAxolotlChat(Message message, XmppAxolotlMessage axolotlMessage) {
+        im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, true);
         if (axolotlMessage == null) {
             return null;
         }
@@ -101,17 +100,18 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket generateKeyTransportMessage(Jid to, XmppAxolotlMessage axolotlMessage) {
-        MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_CHAT);
+    public im.conversations.android.xmpp.model.stanza.Message generateKeyTransportMessage(Jid to, XmppAxolotlMessage axolotlMessage) {
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
         packet.setTo(to);
         packet.setAxolotlMessage(axolotlMessage.toElement());
         packet.addChild("store", "urn:xmpp:hints");
         return packet;
     }
 
-    public MessagePacket generateChat(Message message) {
-        MessagePacket packet = preparePacket(message, false);
+    public im.conversations.android.xmpp.model.stanza.Message generateChat(Message message) {
+        im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, false);
+        String content;
         if (message.hasFileOnRemoteHost()) {
             final Message.FileParams fileParams = message.getFileParams();
 
@@ -139,8 +139,8 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket generatePgpChat(Message message) {
-        MessagePacket packet = preparePacket(message, true);
+    public im.conversations.android.xmpp.model.stanza.Message generatePgpChat(Message message) {
+        final im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, true);
         if (message.hasFileOnRemoteHost()) {
             Message.FileParams fileParams = message.getFileParams();
             final String url = fileParams.url;
@@ -163,10 +163,10 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket generateChatState(Conversation conversation) {
+    public im.conversations.android.xmpp.model.stanza.Message generateChatState(Conversation conversation) {
         final Account account = conversation.getAccount();
-        MessagePacket packet = new MessagePacket();
-        packet.setType(conversation.getMode() == Conversation.MODE_MULTI ? MessagePacket.TYPE_GROUPCHAT : MessagePacket.TYPE_CHAT);
+        final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(conversation.getMode() == Conversation.MODE_MULTI ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
         packet.setTo(conversation.getJid().asBareJid());
         packet.setFrom(account.getJid());
         packet.addChild(ChatState.toElement(conversation.getOutgoingChatState()));
@@ -175,11 +175,11 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket confirm(final Message message) {
+    public im.conversations.android.xmpp.model.stanza.Message confirm(final Message message) {
         final boolean groupChat = message.getConversation().getMode() == Conversational.MODE_MULTI;
         final Jid to = message.getCounterpart();
-        final MessagePacket packet = new MessagePacket();
-        packet.setType(groupChat ? MessagePacket.TYPE_GROUPCHAT : MessagePacket.TYPE_CHAT);
+        final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(groupChat ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
         packet.setTo(groupChat ? to.asBareJid() : to);
         final Element displayed = packet.addChild("displayed", "urn:xmpp:chat-markers:0");
         if (groupChat) {
@@ -197,20 +197,20 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket conferenceSubject(Conversation conversation, String subject) {
-        MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_GROUPCHAT);
+    public im.conversations.android.xmpp.model.stanza.Message conferenceSubject(Conversation conversation, String subject) {
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
         packet.setTo(conversation.getJid().asBareJid());
         packet.addChild("subject").setContent(subject);
         packet.setFrom(conversation.getAccount().getJid().asBareJid());
         return packet;
     }
 
-    public MessagePacket requestVoice(Jid jid) {
-        MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_NORMAL);
+    public im.conversations.android.xmpp.model.stanza.Message requestVoice(Jid jid) {
+        final var packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.NORMAL);
         packet.setTo(jid.asBareJid());
-        Data form = new Data();
+        final var form = new Data();
         form.setFormType("http://jabber.org/protocol/muc#request");
         form.put("muc#role", "participant");
         form.submit();
@@ -218,9 +218,9 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket directInvite(final Conversation conversation, final Jid contact) {
-        MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_NORMAL);
+    public im.conversations.android.xmpp.model.stanza.Message directInvite(final Conversation conversation, final Jid contact) {
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.NORMAL);
         packet.setTo(contact);
         packet.setFrom(conversation.getAccount().getJid());
         Element x = packet.addChild("x", "jabber:x:conference");
@@ -236,8 +236,8 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket invite(final Conversation conversation, final Jid contact) {
-        final MessagePacket packet = new MessagePacket();
+    public im.conversations.android.xmpp.model.stanza.Message invite(final Conversation conversation, final Jid contact) {
+        final var packet = new im.conversations.android.xmpp.model.stanza.Message();
         packet.setTo(conversation.getJid().asBareJid());
         packet.setFrom(conversation.getAccount().getJid());
         Element x = new Element("x");
@@ -249,8 +249,9 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket received(Account account, final Jid from, final String id, ArrayList<String> namespaces, int type) {
-        final MessagePacket receivedPacket = new MessagePacket();
+    public im.conversations.android.xmpp.model.stanza.Message received(Account account, final Jid from, final String id, ArrayList<String> namespaces, im.conversations.android.xmpp.model.stanza.Message.Type type) {
+        final var receivedPacket =
+                new im.conversations.android.xmpp.model.stanza.Message();
         receivedPacket.setType(type);
         receivedPacket.setTo(from);
         receivedPacket.setFrom(account.getJid());
@@ -261,8 +262,8 @@ public class MessageGenerator extends AbstractGenerator {
         return receivedPacket;
     }
 
-    public MessagePacket received(Account account, Jid to, String id) {
-        MessagePacket packet = new MessagePacket();
+    public im.conversations.android.xmpp.model.stanza.Message received(Account account, Jid to, String id) {
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
         packet.setFrom(account.getJid());
         packet.setTo(to);
         packet.addChild("received", "urn:xmpp:receipts").setAttribute("id", id);
@@ -270,10 +271,10 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket sessionFinish(
+    public im.conversations.android.xmpp.model.stanza.Message sessionFinish(
             final Jid with, final String sessionId, final Reason reason) {
-        final MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_CHAT);
+        final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
         packet.setTo(with);
         final Element finish = packet.addChild("finish", Namespace.JINGLE_MESSAGE);
         finish.setAttribute("id", sessionId);
@@ -283,9 +284,9 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket sessionProposal(final JingleConnectionManager.RtpSessionProposal proposal) {
-        final MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_CHAT); //we want to carbon copy those
+    public im.conversations.android.xmpp.model.stanza.Message sessionProposal(final JingleConnectionManager.RtpSessionProposal proposal) {
+        final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT); //we want to carbon copy those
         packet.setTo(proposal.with);
         packet.setId(JingleRtpConnection.JINGLE_MESSAGE_PROPOSE_ID_PREFIX + proposal.sessionId);
         final Element propose = packet.addChild("propose", Namespace.JINGLE_MESSAGE);
@@ -298,9 +299,9 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket sessionRetract(final JingleConnectionManager.RtpSessionProposal proposal) {
-        final MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_CHAT); //we want to carbon copy those
+    public im.conversations.android.xmpp.model.stanza.Message sessionRetract(final JingleConnectionManager.RtpSessionProposal proposal) {
+        final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT); //we want to carbon copy those
         packet.setTo(proposal.with);
         final Element propose = packet.addChild("retract", Namespace.JINGLE_MESSAGE);
         propose.setAttribute("id", proposal.sessionId);
@@ -309,9 +310,9 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public MessagePacket sessionReject(final Jid with, final String sessionId) {
-        final MessagePacket packet = new MessagePacket();
-        packet.setType(MessagePacket.TYPE_CHAT); //we want to carbon copy those
+    public im.conversations.android.xmpp.model.stanza.Message sessionReject(final Jid with, final String sessionId) {
+        final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT); //we want to carbon copy those
         packet.setTo(with);
         final Element propose = packet.addChild("reject", Namespace.JINGLE_MESSAGE);
         propose.setAttribute("id", sessionId);

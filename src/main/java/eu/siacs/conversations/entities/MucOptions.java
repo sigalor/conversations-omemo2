@@ -29,6 +29,14 @@ import eu.siacs.conversations.xmpp.forms.Field;
 import eu.siacs.conversations.xmpp.pep.Avatar;
 import eu.siacs.conversations.xml.Element;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 public class MucOptions {
 
     public static final String STATUS_CODE_SELF_PRESENCE = "110";
@@ -197,6 +205,11 @@ public class MucOptions {
         } else {
             return false;
         }
+    }
+
+    public boolean allowPmRaw() {
+        final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowpm");
+        return  field == null || Arrays.asList("anyone","participants").contains(field.getValue());
     }
 
     public boolean participating() {

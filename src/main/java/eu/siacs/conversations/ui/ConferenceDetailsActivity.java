@@ -270,6 +270,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             popupMenu.show();
             return true;
         });
+        this.binding.editMucNameButton.setContentDescription(getString(R.string.edit_name_and_topic));
         this.binding.editMucNameButton.setOnClickListener(this::onMucEditButtonClicked);
         this.binding.mucEditTitle.addTextChangedListener(this);
         this.binding.mucEditSubject.addTextChangedListener(this);
@@ -432,6 +433,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         this.binding.mucEditor.setVisibility(View.GONE);
         this.binding.mucDisplay.setVisibility(View.VISIBLE);
         this.binding.editMucNameButton.setImageResource(R.drawable.ic_edit_24dp);
+        this.binding.editMucNameButton.setContentDescription(getString(R.string.edit_name_and_topic));
     }
 
     private void onMucInfoUpdated(String subject, String name) {
@@ -669,7 +671,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         });
         this.mUserPreviewAdapter.submitList(MucOptions.sub(users, GridManager.getCurrentColumnCount(binding.users)));
         this.binding.invite.setVisibility(mucOptions.canInvite() ? View.VISIBLE : View.GONE);
-        this.binding.showUsers.setVisibility(mucOptions.getUsers(true, mucOptions.getSelf().getAffiliation().ranks(MucOptions.Affiliation.ADMIN)).size() > 0 ? View.VISIBLE : View.GONE);
+        this.binding.showUsers.setVisibility(users.size() > 0 ? View.VISIBLE : View.GONE);
         this.binding.showUsers.setText(getResources().getQuantityString(R.plurals.view_users, users.size(), users.size()));
         this.binding.usersWrapper.setVisibility(users.size() > 0 || mucOptions.canInvite() ? View.VISIBLE : View.GONE);
         if (users.size() == 0) {

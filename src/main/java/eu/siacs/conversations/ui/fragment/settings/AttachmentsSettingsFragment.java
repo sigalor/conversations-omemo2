@@ -14,10 +14,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.preference.ListPreference;
+import androidx.preference.PreferenceFragmentCompat;
 
 import de.monocles.chat.DownloadDefaultStickers;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.utils.UIHelper;
 
 public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
 
@@ -75,6 +78,21 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
             runOnUiThread(() -> Toast.makeText(requireActivity(), "Blocked media will be displayed again", Toast.LENGTH_LONG).show());
             return true;
         });
+
+        final ListPreference autoAcceptFileSize = findPreference("auto_accept_file_size");
+        if (autoAcceptFileSize == null) {
+            throw new IllegalStateException("The preference resource file is missing preferences");
+        }
+        setValues(
+                autoAcceptFileSize,
+                R.array.file_size_values,
+                value -> {
+                    if (value <= 0) {
+                        return getString(R.string.never);
+                    } else {
+                        return UIHelper.filesizeToString(value);
+                    }
+                });
     }
 
     protected void downloadStickers() {

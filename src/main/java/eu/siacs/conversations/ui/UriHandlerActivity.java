@@ -68,9 +68,7 @@ public class UriHandlerActivity extends BaseActivity {
     }
 
     public static void scan(final Activity activity, final boolean provisioning) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
-                        == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             final Intent intent = new Intent(activity, UriHandlerActivity.class);
             intent.setAction(UriHandlerActivity.ACTION_SCAN_QR_CODE);
             if (provisioning) {
@@ -114,6 +112,7 @@ public class UriHandlerActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_uri_handler);
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
     }
 
     @Override
@@ -187,7 +186,7 @@ public class UriHandlerActivity extends BaseActivity {
                 startActivity(intent);
                 return true;
             }
-            if (accounts.size() == 0
+            if (accounts.isEmpty()
                     && xmppUri.isAction(XmppUri.ACTION_ROSTER)
                     && "y"
                             .equalsIgnoreCase(
@@ -203,7 +202,7 @@ public class UriHandlerActivity extends BaseActivity {
             return false;
         }
 
-        if (accounts.size() == 0) {
+        if (accounts.isEmpty()) {
             if (xmppUri.isValidJid()) {
                 intent = SignupUtils.getSignUpIntent(this);
                 intent.putExtra(StartConversationActivity.EXTRA_INVITE_URI, xmppUri.toString());
@@ -259,14 +258,14 @@ public class UriHandlerActivity extends BaseActivity {
     private void checkForLinkHeader(final HttpUrl url) {
         Log.d(Config.LOGTAG, "checking for link header on " + url);
         this.call =
-                HttpConnectionManager.OK_HTTP_CLIENT.newCall(
+                HttpConnectionManager.okHttpClient(this).newCall(
                         new Request.Builder().url(url).head().build());
         this.call.enqueue(
                 new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         Log.d(Config.LOGTAG, "unable to check HTTP url", e);
-                        showError(R.string.no_xmpp_adddress_found);
+                        showErrorOnUiThread(R.string.no_xmpp_adddress_found);
                     }
 
                     @Override
@@ -277,7 +276,7 @@ public class UriHandlerActivity extends BaseActivity {
                                 return;
                             }
                         }
-                        showError(R.string.no_xmpp_adddress_found);
+                        showErrorOnUiThread(R.string.no_xmpp_adddress_found);
                     }
                 });
     }
@@ -299,6 +298,10 @@ public class UriHandlerActivity extends BaseActivity {
         this.binding.progress.setVisibility(View.INVISIBLE);
         this.binding.error.setText(error);
         this.binding.error.setVisibility(View.VISIBLE);
+    }
+
+    private void showErrorOnUiThread(@StringRes int error) {
+        runOnUiThread(()-> showError(error));
     }
 
     private static Class<?> findShareViaAccountClass() {
