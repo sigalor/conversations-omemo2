@@ -52,6 +52,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_toStartOf="@+id/message_photo_box"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:background="@drawable/message_bubble_sent"
             android:backgroundTint="?colorSecondaryContainer"
             android:longClickable="true"
