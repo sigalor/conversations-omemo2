@@ -35,7 +35,7 @@ public class XmppUri {
     private Map<String, String> parameters = Collections.emptyMap();
     private boolean safeSource = true;
 
-    public static final String INVITE_DOMAIN = "conversations.im";
+    public static final String INVITE_DOMAIN = "monocles.chat";
 
     public XmppUri(final String uri) {
         try {
