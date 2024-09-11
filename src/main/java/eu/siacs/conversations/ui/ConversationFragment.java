@@ -120,6 +120,7 @@ import com.otaliastudios.autocomplete.RecyclerViewPresenter;
 
 import org.jetbrains.annotations.NotNull;
 
+import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import io.ipfs.cid.Cid;
 
@@ -269,6 +270,7 @@ public class ConversationFragment extends XmppFragment
     public static final int ATTACHMENT_CHOICE_LOCATION = 0x0305;
     public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
     public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
+    public static final int ATTACHMENT_CHOICE_EDIT_PHOTO = 0x0308;
 
     public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
     public static final String STATE_CONVERSATION_UUID =
@@ -1256,14 +1258,25 @@ public class ConversationFragment extends XmppFragment
             case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
                 final List<Attachment> imageUris =
                         Attachment.extractAttachments(getActivity(), data, Attachment.Type.IMAGE);
-                mediaPreviewAdapter.addMediaPreviews(imageUris);
-                toggleInputMethod();
+                if (imageUris.size() == 1) {
+                    editImage(imageUris.get(0).getUri());
+                } else {
+                    mediaPreviewAdapter.addMediaPreviews(imageUris);
+                    toggleInputMethod();
+                }
                 break;
             case ATTACHMENT_CHOICE_TAKE_PHOTO:
                 final Uri takePhotoUri = pendingTakePhotoUri.pop();
                 if (takePhotoUri != null) {
-                    mediaPreviewAdapter.addMediaPreviews(
-                            Attachment.of(getActivity(), takePhotoUri, Attachment.Type.IMAGE));
+                    editImage(takePhotoUri);
+                } else {
+                    Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
+                }
+                break;
+            case ATTACHMENT_CHOICE_EDIT_PHOTO:
+                final Uri editedUriPhoto = data.getParcelableExtra(EditActivity.KEY_EDITED_URI);
+                if (editedUriPhoto != null) {
+                    mediaPreviewAdapter.replaceOrAddMediaPreview(data.getData(), editedUriPhoto, Attachment.Type.IMAGE);
                     toggleInputMethod();
                 } else {
                     Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
@@ -1307,6 +1320,13 @@ public class ConversationFragment extends XmppFragment
                 }
                 break;
         }
+    }
+
+    public void editImage(Uri uri) {
+        Intent intent = new Intent(activity, EditActivity.class);
+        intent.setData(uri);
+        intent.putExtra(EditActivity.KEY_CHAT_NAME, conversation.getName());
+        startActivityForResult(intent, ATTACHMENT_CHOICE_EDIT_PHOTO);
     }
 
     private void commitAttachments() {

@@ -74,7 +74,30 @@ public class MediaPreviewAdapter
                     notifyItemRemoved(pos);
                     conversationFragment.toggleInputMethod();
                 });
-        holder.binding.mediaPreview.setOnClickListener(v -> view(context, attachment));
+        holder.binding.mediaPreview.setOnClickListener(v -> {
+            if (attachment.getType() == Attachment.Type.IMAGE) {
+                conversationFragment.editImage(attachment.getUri());
+            } else {
+                view(context, attachment);
+            }
+        });
+    }
+
+    public void replaceOrAddMediaPreview(Uri originalUri, Uri editedUri, Attachment.Type type) {
+        boolean replaced = false;
+        for(int i = 0; i < mediaPreviews.size(); i++) {
+            Attachment current = mediaPreviews.get(i);
+            if (current.getUri().equals(originalUri)) {
+                replaced = true;
+                mediaPreviews.set(i, Attachment.of(conversationFragment.getActivity(), editedUri, current.getType()).get(0));
+            }
+        }
+
+        if (!replaced) {
+            mediaPreviews.addAll(Attachment.of(conversationFragment.getActivity(), editedUri, type));
+        }
+
+        notifyDataSetChanged();
     }
 
     private static void view(final Context context, final Attachment attachment) {

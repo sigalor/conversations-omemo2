@@ -389,6 +389,12 @@
             android:label="@string/media_browser"
             android:exported="false" />
 
+        <activity
+            android:name="eu.siacs.conversations.medialib.activities.EditActivity"
+            android:theme="@style/Theme.Conversations3.FullScreen"
+            android:configChanges="orientation"
+            android:exported="false"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
