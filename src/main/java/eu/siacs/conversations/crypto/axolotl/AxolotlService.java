@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyException;
@@ -109,9 +110,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (account == null || connectionService == null) {
             throw new IllegalArgumentException("account and service cannot be null");
         }
-        if (Security.getProvider("BC") == null) {
-            Security.addProvider(new BouncyCastleProvider());
+        // this way for adding bouncycastle to android
+        //Security.removeProvider("BC");
+
+        // Confirm that positioning this provider at the end works for your needs!
+        Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BCPQC") == null) {
+            Security.addProvider(new BouncyCastlePQCProvider());
         }
+        //if (Security.getProvider("BC") == null) {
+        //    Security.addProvider(new BouncyCastleProvider());
+        //}
         this.mXmppConnectionService = connectionService;
         this.account = account;
         this.axolotlStore = new SQLiteAxolotlStore(this.account, this.mXmppConnectionService);

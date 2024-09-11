@@ -130,6 +130,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
     implementation 'com.google.android.exoplayer:extension-mediasession:2.19.1'
     implementation 'com.github.natario1:Autocomplete:v1.1.0'
+    implementation group: 'org.bouncycastle', name: 'bcprov-ext-jdk18on', version: '1.78.1'
 }
 
 ext {

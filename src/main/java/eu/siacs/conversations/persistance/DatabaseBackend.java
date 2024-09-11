@@ -237,48 +237,48 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             if(monoclesVersion < 1) {
                 // No cross-DB foreign keys unfortunately
                 db.execSQL(
-                    "CREATE TABLE monocles." + Message.TABLENAME + "(" +
-                    Message.UUID + " TEXT PRIMARY KEY, " +
-                    "subject TEXT" +
-                    ")"
+                        "CREATE TABLE monocles." + Message.TABLENAME + "(" +
+                                Message.UUID + " TEXT PRIMARY KEY, " +
+                                "subject TEXT" +
+                                ")"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 1");
             }
 
             if(monoclesVersion < 2) {
                 db.execSQL(
-                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                    "ADD COLUMN oobUri TEXT"
+                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
+                                "ADD COLUMN oobUri TEXT"
                 );
                 db.execSQL(
-                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                    "ADD COLUMN fileParams TEXT"
+                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
+                                "ADD COLUMN fileParams TEXT"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 2");
             }
 
             if(monoclesVersion < 3) {
                 db.execSQL(
-                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                    "ADD COLUMN payloads TEXT"
+                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
+                                "ADD COLUMN payloads TEXT"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 3");
             }
 
             if(monoclesVersion < 4) {
                 db.execSQL(
-                    "CREATE TABLE monocles.cids (" +
-                    "cid TEXT NOT NULL PRIMARY KEY," +
-                    "path TEXT NOT NULL" +
-                    ")"
+                        "CREATE TABLE monocles.cids (" +
+                                "cid TEXT NOT NULL PRIMARY KEY," +
+                                "path TEXT NOT NULL" +
+                                ")"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 4");
             }
 
             if(monoclesVersion < 5) {
                 db.execSQL(
-                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                    "ADD COLUMN timeReceived NUMBER"
+                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
+                                "ADD COLUMN timeReceived NUMBER"
                 );
                 db.execSQL("CREATE INDEX monocles.message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
                 db.execSQL("PRAGMA monocles.user_version = 5");
@@ -286,43 +286,43 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
             if(monoclesVersion < 6) {
                 db.execSQL(
-                    "CREATE TABLE monocles.blocked_media (" +
-                    "cid TEXT NOT NULL PRIMARY KEY" +
-                    ")"
+                        "CREATE TABLE monocles.blocked_media (" +
+                                "cid TEXT NOT NULL PRIMARY KEY" +
+                                ")"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 6");
             }
 
             if(monoclesVersion < 7) {
                 db.execSQL(
-                    "ALTER TABLE monocles.cids " +
-                    "ADD COLUMN url TEXT"
+                        "ALTER TABLE monocles.cids " +
+                                "ADD COLUMN url TEXT"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 7");
             }
 
             if(monoclesVersion < 8) {
                 db.execSQL(
-                    "CREATE TABLE monocles.webxdc_updates (" +
-                    "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    Message.CONVERSATION + " TEXT NOT NULL, " +
-                    "sender TEXT NOT NULL, " +
-                    "thread TEXT NOT NULL, " +
-                    "threadParent TEXT, " +
-                    "info TEXT, " +
-                    "document TEXT, " +
-                    "summary TEXT, " +
-                    "payload TEXT" +
-                    ")"
+                        "CREATE TABLE monocles.webxdc_updates (" +
+                                "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                                Message.CONVERSATION + " TEXT NOT NULL, " +
+                                "sender TEXT NOT NULL, " +
+                                "thread TEXT NOT NULL, " +
+                                "threadParent TEXT, " +
+                                "info TEXT, " +
+                                "document TEXT, " +
+                                "summary TEXT, " +
+                                "payload TEXT" +
+                                ")"
                 );
                 db.execSQL("CREATE INDEX monocles.webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
                 db.execSQL("PRAGMA monocles.user_version = 8");
-				}
+            }
 
             if(monoclesVersion < 9) {
                 db.execSQL(
-                    "ALTER TABLE monocles.webxdc_updates " +
-                    "ADD COLUMN message_id TEXT"
+                        "ALTER TABLE monocles.webxdc_updates " +
+                                "ADD COLUMN message_id TEXT"
                 );
                 db.execSQL("CREATE UNIQUE INDEX monocles.webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
                 db.execSQL("PRAGMA monocles.user_version = 9");
@@ -330,16 +330,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
             if(monoclesVersion < 10) {
                 db.execSQL(
-                    "CREATE TABLE monocles.muted_participants (" +
-                    "muc_jid TEXT NOT NULL, " +
-                    "occupant_id TEXT NOT NULL, " +
-                    "nick TEXT NOT NULL," +
-                    "PRIMARY KEY (muc_jid, occupant_id)" +
-                    ")"
+                        "CREATE TABLE monocles.muted_participants (" +
+                                "muc_jid TEXT NOT NULL, " +
+                                "occupant_id TEXT NOT NULL, " +
+                                "nick TEXT NOT NULL," +
+                                "PRIMARY KEY (muc_jid, occupant_id)" +
+                                ")"
                 );
                 db.execSQL(
-                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                    "ADD COLUMN occupant_id TEXT"
+                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
+                                "ADD COLUMN occupant_id TEXT"
                 );
                 db.execSQL("PRAGMA monocles.user_version = 10");
             }
@@ -347,17 +347,17 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             if(monoclesVersion < 11) {
                 if (Build.VERSION.SDK_INT >= 34) {
                     db.execSQL(
-                        "ALTER TABLE monocles.muted_participants " +
-                        "DROP COLUMN nick"
+                            "ALTER TABLE monocles.muted_participants " +
+                                    "DROP COLUMN nick"
                     );
                 } else {
                     db.execSQL("DROP TABLE monocles.muted_participants");
                     db.execSQL(
-                        "CREATE TABLE monocles.muted_participants (" +
-                        "muc_jid TEXT NOT NULL, " +
-                        "occupant_id TEXT NOT NULL, " +
-                        "PRIMARY KEY (muc_jid, occupant_id)" +
-                        ")"
+                            "CREATE TABLE monocles.muted_participants (" +
+                                    "muc_jid TEXT NOT NULL, " +
+                                    "occupant_id TEXT NOT NULL, " +
+                                    "PRIMARY KEY (muc_jid, occupant_id)" +
+                                    ")"
                     );
                 }
                 db.execSQL("PRAGMA monocles.user_version = 11");
@@ -1098,11 +1098,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
         cursor = db.rawQuery(
-            "SELECT * FROM " + Message.TABLENAME + " " +
-            "LEFT JOIN monocles." + Message.TABLENAME +
-            "  USING (" + Message.UUID + ")" +
-            "WHERE " + Message.UUID + "=?",
-            new String[]{uuid}
+                "SELECT * FROM " + Message.TABLENAME + " " +
+                        "LEFT JOIN monocles." + Message.TABLENAME +
+                        "  USING (" + Message.UUID + ")" +
+                        "WHERE " + Message.UUID + "=?",
+                new String[]{uuid}
         );
         while (cursor.moveToNext()) {
             try {
@@ -1134,11 +1134,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
         cursor = db.rawQuery(
-            "SELECT * FROM " + Message.TABLENAME + " " +
-            "LEFT JOIN monocles." + Message.TABLENAME +
-            "  USING (" + Message.UUID + ")" +
-            "WHERE " + Message.UUID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.SERVER_MSG_ID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.REMOTE_MSG_ID + " IN (" + TextUtils.join(",", template) + ")",
-            params.toArray(new String[0])
+                "SELECT * FROM " + Message.TABLENAME + " " +
+                        "LEFT JOIN monocles." + Message.TABLENAME +
+                        "  USING (" + Message.UUID + ")" +
+                        "WHERE " + Message.UUID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.SERVER_MSG_ID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.REMOTE_MSG_ID + " IN (" + TextUtils.join(",", template) + ")",
+                params.toArray(new String[0])
         );
 
         while (cursor.moveToNext()) {
@@ -1162,32 +1162,32 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (timestamp == -1) {
             String[] selectionArgs = {conversation.getUuid()};
             cursor = db.rawQuery(
-                "SELECT * FROM " + Message.TABLENAME + " " +
-                "LEFT JOIN monocles." + Message.TABLENAME +
-                "  USING (" + Message.UUID + ")" +
-                " WHERE " + Message.UUID + " IN (" +
-                "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
-                " WHERE " + Message.CONVERSATION + "=? " +
-                "ORDER BY " + Message.TIME_SENT + " DESC " +
-                "LIMIT " + String.valueOf(limit) + ") " +
-                "ORDER BY " + Message.TIME_SENT + " DESC ",
-                selectionArgs
+                    "SELECT * FROM " + Message.TABLENAME + " " +
+                            "LEFT JOIN monocles." + Message.TABLENAME +
+                            "  USING (" + Message.UUID + ")" +
+                            " WHERE " + Message.UUID + " IN (" +
+                            "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
+                            " WHERE " + Message.CONVERSATION + "=? " +
+                            "ORDER BY " + Message.TIME_SENT + " DESC " +
+                            "LIMIT " + String.valueOf(limit) + ") " +
+                            "ORDER BY " + Message.TIME_SENT + " DESC ",
+                    selectionArgs
             );
         } else {
             String[] selectionArgs = {conversation.getUuid(),
                     Long.toString(timestamp)};
             cursor = db.rawQuery(
-                "SELECT * FROM " + Message.TABLENAME + " " +
-                "LEFT JOIN monocles." + Message.TABLENAME +
-                "  USING (" + Message.UUID + ")" +
-                " WHERE " + Message.UUID + " IN (" +
-                "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
-                " WHERE " + Message.CONVERSATION + "=? AND " +
-                Message.TIME_SENT + "<? " +
-                "ORDER BY " + Message.TIME_SENT + " DESC " +
-                "LIMIT " + String.valueOf(limit) + ") " +
-                "ORDER BY " + Message.TIME_SENT + " DESC ",
-                selectionArgs
+                    "SELECT * FROM " + Message.TABLENAME + " " +
+                            "LEFT JOIN monocles." + Message.TABLENAME +
+                            "  USING (" + Message.UUID + ")" +
+                            " WHERE " + Message.UUID + " IN (" +
+                            "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
+                            " WHERE " + Message.CONVERSATION + "=? AND " +
+                            Message.TIME_SENT + "<? " +
+                            "ORDER BY " + Message.TIME_SENT + " DESC " +
+                            "LIMIT " + String.valueOf(limit) + ") " +
+                            "ORDER BY " + Message.TIME_SENT + " DESC ",
+                    selectionArgs
             );
         }
         CursorUtils.upgradeCursorWindowSize(cursor);
@@ -1388,7 +1388,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private List<Account> getAccounts(SQLiteDatabase db) {
         final List<Account> list = new ArrayList<>();
         try (final Cursor cursor =
-                db.query(Account.TABLENAME, null, null, null, null, null, null)) {
+                     db.query(Account.TABLENAME, null, null, null, null, null, null)) {
             while (cursor != null && cursor.moveToNext()) {
                 list.add(Account.fromCursor(cursor));
             }
@@ -1419,14 +1419,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             contentValues.remove(Message.BODY);
         }
         return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1 &&
-               db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
+                db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
     }
 
     public boolean updateMessage(Message message, String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
         return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1 &&
-               db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
+                db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
     }
 
 
@@ -1434,14 +1434,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
         return db.delete(Message.TABLENAME, Message.UUID + "=?", args) == 1 &&
-               db.delete("monocles." + Message.TABLENAME, Message.UUID + "=?", args) == 1;
+                db.delete("monocles." + Message.TABLENAME, Message.UUID + "=?", args) == 1;
     }
 
     public void readRoster(Roster roster) {
         final SQLiteDatabase db = this.getReadableDatabase();
         final String[] args = {roster.getAccount().getUuid()};
         try (final Cursor cursor =
-                db.query(Contact.TABLENAME, null, Contact.ACCOUNT + "=?", args, null, null, null)) {
+                     db.query(Contact.TABLENAME, null, Contact.ACCOUNT + "=?", args, null, null, null)) {
             while (cursor.moveToNext()) {
                 roster.initContact(Contact.fromCursor(cursor));
             }

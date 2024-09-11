@@ -75,7 +75,7 @@ public class ExportBackupWorker extends Worker {
 
     public static final String KEYTYPE = "AES";
     public static final String CIPHERMODE = "AES/GCM/NoPadding";
-    public static final String PROVIDER = "BC";
+    public static final String PROVIDER = "BCPQC";
 
     public static final String MIME_TYPE = "application/vnd.conversations.backup";
 
@@ -104,12 +104,12 @@ public class ExportBackupWorker extends Worker {
         try {
             files = export();
         } catch (final IOException
-                | InvalidKeySpecException
-                | InvalidAlgorithmParameterException
-                | InvalidKeyException
-                | NoSuchPaddingException
-                | NoSuchAlgorithmException
-                | NoSuchProviderException e) {
+                       | InvalidKeySpecException
+                       | InvalidAlgorithmParameterException
+                       | InvalidKeyException
+                       | NoSuchPaddingException
+                       | NoSuchAlgorithmException
+                       | NoSuchProviderException e) {
             Log.d(Config.LOGTAG, "could not create backup", e);
             return Result.failure();
         } finally {
@@ -142,12 +142,12 @@ public class ExportBackupWorker extends Worker {
 
     private List<File> export()
             throws IOException,
-                    InvalidKeySpecException,
-                    InvalidAlgorithmParameterException,
-                    InvalidKeyException,
-                    NoSuchPaddingException,
-                    NoSuchAlgorithmException,
-                    NoSuchProviderException {
+            InvalidKeySpecException,
+            InvalidAlgorithmParameterException,
+            InvalidKeyException,
+            NoSuchPaddingException,
+            NoSuchAlgorithmException,
+            NoSuchProviderException {
         final Context context = getApplicationContext();
         final var database = DatabaseBackend.getInstance(context);
         final var accounts = database.getAccounts();
@@ -202,13 +202,13 @@ public class ExportBackupWorker extends Worker {
             final int max,
             final int count)
             throws IOException,
-                    InvalidKeySpecException,
-                    InvalidAlgorithmParameterException,
-                    InvalidKeyException,
-                    NoSuchPaddingException,
-                    NoSuchAlgorithmException,
-                    NoSuchProviderException,
-                    WorkStoppedException {
+            InvalidKeySpecException,
+            InvalidAlgorithmParameterException,
+            InvalidKeyException,
+            NoSuchPaddingException,
+            NoSuchAlgorithmException,
+            NoSuchProviderException,
+            WorkStoppedException {
         final var context = getApplicationContext();
         final SecureRandom secureRandom = new SecureRandom();
         Log.d(
@@ -232,9 +232,9 @@ public class ExportBackupWorker extends Worker {
                 WorkManager.getInstance(context).createCancelPendingIntent(getId());
         notification.addAction(
                 new NotificationCompat.Action.Builder(
-                                R.drawable.ic_cancel_24dp,
-                                context.getString(R.string.cancel),
-                                cancelPendingIntent)
+                        R.drawable.ic_cancel_24dp,
+                        context.getString(R.string.cancel),
+                        cancelPendingIntent)
                         .build());
         final Progress progress = new Progress(notification, max, count);
         final File directory = file.getParentFile();

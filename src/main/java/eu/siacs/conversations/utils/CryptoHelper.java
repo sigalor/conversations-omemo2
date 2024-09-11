@@ -273,8 +273,8 @@ public final class CryptoHelper {
         return switch (encryption) {
             case Message.ENCRYPTION_OTR -> R.string.encryption_choice_otr;
             case Message.ENCRYPTION_AXOLOTL,
-                    Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE,
-                    Message.ENCRYPTION_AXOLOTL_FAILED -> R.string.encryption_choice_omemo;
+                 Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE,
+                 Message.ENCRYPTION_AXOLOTL_FAILED -> R.string.encryption_choice_omemo;
             case Message.ENCRYPTION_PGP -> R.string.encryption_choice_pgp;
             default -> R.string.encryption_choice_unencrypted;
         };
@@ -290,14 +290,14 @@ public final class CryptoHelper {
 
     public static String multihashAlgo(Multihash.Type type) throws NoSuchAlgorithmException {
         switch(type) {
-        case sha1:
-            return "sha-1";
-        case sha2_256:
-            return "sha-256";
-        case sha2_512:
-            return "sha-512";
-        default:
-            throw new NoSuchAlgorithmException("" + type);
+            case sha1:
+                return "sha-1";
+            case sha2_256:
+                return "sha-256";
+            case sha2_512:
+                return "sha-512";
+            default:
+                throw new NoSuchAlgorithmException("" + type);
         }
     }
 

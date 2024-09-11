@@ -36,7 +36,7 @@ public class XmppAxolotlMessage {
 
     private static final String KEYTYPE = "AES";
     private static final String CIPHERMODE = "AES/GCM/NoPadding";
-    private static final String PROVIDER = "BC";
+    private static final String PROVIDER = "BCPQC";
     private final List<XmppAxolotlSession.AxolotlKey> keys;
     private final Jid from;
     private final int sourceDeviceId;
