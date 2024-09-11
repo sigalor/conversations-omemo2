@@ -2116,7 +2116,7 @@ public class FileBackend {
             } else if (audio) {
                 fileParams.runtime = getMediaRuntime(file);
             }
-            if ("application/xdc+zip".equals(mime)) {
+            if ("application/webxdc+zip".equals(mime)) {
                 try {
                     final var zip = new ZipFile(file);
                     final ZipEntry manifestEntry = zip == null ? null : zip.getEntry("manifest.toml");

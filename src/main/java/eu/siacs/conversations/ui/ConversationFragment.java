@@ -941,7 +941,7 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         final String subject = binding.textinputSubject.getText().toString();
-        if ("application/xdc+zip".equals(type)) newSubThread();
+        if ("application/webxdc+zip".equals(type)) newSubThread();
         final Toast prepareFileToast =
                 Toast.makeText(getActivity(), getText(R.string.preparing_file), Toast.LENGTH_LONG);
         prepareFileToast.show();

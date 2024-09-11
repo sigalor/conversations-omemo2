@@ -237,7 +237,7 @@ public final class MimeUtils {
         add("application/x-x509-server-cert", "crt");
         add("application/x-xcf", "xcf");
         add("application/x-xfig", "fig");
-        add("application/xdc+zip", "xdc");
+        add("application/webxdc+zip", "xdc");
         add("application/xhtml+xml", "xhtml");
         add("video/3gpp", "3gpp");
         add("video/3gpp", "3gp");
