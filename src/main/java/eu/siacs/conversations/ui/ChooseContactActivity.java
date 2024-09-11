@@ -157,6 +157,11 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     }
 
     @Override
+    public boolean colorCodeAccounts() {
+        return mActivatedAccounts.size() > 1;
+    }
+
+    @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
         return false;
     }
@@ -282,21 +287,23 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
             getListItemAdapter().notifyDataSetChanged();
             return;
         }
-        for (final Account account : xmppConnectionService.getAccounts()) {
-            if (account.isEnabled()) {
-                for (final Contact contact : account.getRoster().getContacts()) {
-                    if (contact.showInContactList() &&
-                            !filterContacts.contains(contact.getJid().asBareJid().toString())
-                            && contact.match(this, needle)) {
-                        getListItems().add(contact);
-                    }
+        final var accounts = new ArrayList<Account>();
+        for (final var account : xmppConnectionService.getAccounts()) {
+            if (mActivatedAccounts.contains(account.getJid().asBareJid().toEscapedString())) accounts.add(account);
+        }
+        for (final Account account : accounts) {
+            for (final Contact contact : account.getRoster().getContacts()) {
+                if (contact.showInContactList() &&
+                        !filterContacts.contains(contact.getJid().asBareJid().toString())
+                        && contact.match(this, needle)) {
+                    getListItems().add(contact);
                 }
+            }
 
-                final Contact self = new Contact(account.getSelfContact());
-                self.setSystemName("Note to Self");
-                if (self.match(this, needle)) {
-                    getListItems().add(self);
-                }
+            final Contact self = new Contact(account.getSelfContact());
+            self.setSystemName("Note to Self");
+            if (self.match(this, needle)) {
+                getListItems().add(self);
             }
         }
         Collections.sort(getListItems());
@@ -383,13 +390,14 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
 
     @Override
     protected void onBackendConnected() {
-        filterContacts();
         this.mActivatedAccounts.clear();
+        final var selected = getIntent().getStringExtra(EXTRA_ACCOUNT);
         for (final Account account : xmppConnectionService.getAccounts()) {
-            if (account.isEnabled()) {
+            if (account.isEnabled() && (selected == null || selected.equals(account.getJid().asBareJid().toEscapedString()))) {
                 this.mActivatedAccounts.add(account.getJid().asBareJid().toEscapedString());
             }
         }
+        filterContacts();
         ActivityResult activityResult = this.postponedActivityResult.pop();
         if (activityResult != null) {
             handleActivityResult(activityResult);

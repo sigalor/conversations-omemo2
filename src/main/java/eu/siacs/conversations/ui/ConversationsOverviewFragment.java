@@ -287,7 +287,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversations_overview, container, false);
-		this.binding.fab.setOnClickListener((view) -> StartConversationActivity.launch(getActivity()));
+		this.binding.fab.setOnClickListener((view) -> activity.launchStartConversation());
 
 		this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
 		this.conversationsAdapter.setConversationClickListener((view, conversation) -> {
@@ -503,7 +503,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			Log.d(Config.LOGTAG,"ConversationsOverviewFragment.refresh() skipped updated because view binding or activity was null");
 			return;
 		}
-		this.activity.xmppConnectionService.populateWithOrderedConversations(this.conversations);
+		this.activity.populateWithOrderedConversations(this.conversations);
 		Conversation removed = this.swipedConversation.peek();
 		if (removed != null) {
 			if (removed.isRead()) {

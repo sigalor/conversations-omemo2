@@ -111,6 +111,7 @@ import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.ToolbarUtils;
+import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.ExceptionHelper;
 import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
 import eu.siacs.conversations.utils.SignupUtils;
@@ -147,6 +148,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final int DIALLER_INTEGRATION = 0x5432ff;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
+    public static final long DRAWER_ALL_CHATS = 1;
+    public static final long DRAWER_SETTINGS = 2;
+    public static final long DRAWER_MANAGE_ACCOUNT = 3;
+    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 4;
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -160,6 +165,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private Set<Jid> newCapsJids = new HashSet<>();
     private int mRequestCode = -1;
     private boolean showLastSeen = false;
+    private com.mikepenz.materialdrawer.widget.AccountHeaderView accountHeader;
+    private Bundle savedState = null;
 
     private static boolean isViewOrShareIntent(Intent i) {
         Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
@@ -182,10 +189,63 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         refreshForNewCaps = false;
         newCapsJids.clear();
         invalidateActionBarTitle();
+
+        final var accounts = xmppConnectionService.getAccounts();
+        final var inHeader = new HashSet<>();
+        for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
+            if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
+            if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
+                inHeader.add(p.getTag());
+            } else {
+                accountHeader.removeProfile(p);
+            }
+        }
+
+        if (accounts.size() > 1 && !inHeader.contains(null)) {
+            final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+            all.setIdentifier(100);
+            com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
+            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
+            accountHeader.addProfile(all, 0);
+        }
+
+        var hasPhoneAccounts = false;
+        accountHeader.removeProfileByIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+        outer:
+        for (Account account : xmppConnectionService.getAccounts()) {
+            for (Contact contact : account.getRoster().getContacts()) {
+                if (contact.getPresences().anyIdentity("gateway", "pstn")) {
+                    hasPhoneAccounts = true;
+                    final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
+                    phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+                    com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
+                    com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
+                    accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
+                    break outer;
+                }
+            }
+        }
+
+        int id = 101;
+        for (final var a : accounts) {
+            final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+            p.setIdentifier(id++);
+            p.setTag(a);
+            com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName());
+            com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
+            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconDrawable(p, xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false));
+            if (inHeader.contains(a)) {
+                accountHeader.updateProfile(p);
+            } else {
+                accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+            }
+        }
     }
 
     @Override
     protected void onBackendConnected() {
+        final var useSavedState = savedState;
+        savedState = null;
         if (performRedirectIfNecessary(true)) {
             return;
         }
@@ -217,6 +277,135 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             }
         }
         showDialogsIfMainIsOverview();
+
+        if (accountHeader != null) {
+            refreshUiReal();
+            return;
+        }
+
+        accountHeader = new com.mikepenz.materialdrawer.widget.AccountHeaderView(this);
+        final var manageAccount = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
+        manageAccount.setIdentifier(DRAWER_MANAGE_ACCOUNT);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, "Manage Accounts");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(manageAccount, R.drawable.ic_settings_24dp);
+        accountHeader.addProfiles(manageAccount);
+
+        final var item = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        item.setIdentifier(DRAWER_ALL_CHATS);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(item, "All Chats");
+        binding.drawer.getItemAdapter().add(item);
+
+        final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        settings.setIdentifier(DRAWER_SETTINGS);
+        settings.setSelectable(false);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, "Settings");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(settings, R.drawable.ic_settings_24dp);
+        com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, settings);
+
+        refreshUiReal();
+        if (useSavedState != null) binding.drawer.setSavedInstance(useSavedState);
+        accountHeader.attachToSliderView(binding.drawer);
+        if (useSavedState != null) accountHeader.withSavedInstance(useSavedState);
+
+        if (binding.drawer.getSelectedItemPosition() < 1) {
+            binding.drawer.setSelectedItemIdentifier(DRAWER_ALL_CHATS);
+        }
+
+        binding.drawer.setOnDrawerItemClickListener((v, drawerItem, pos) -> {
+            final var id = drawerItem.getIdentifier();
+            if (id == DRAWER_SETTINGS) {
+                startActivity(new Intent(this, eu.siacs.conversations.ui.activity.SettingsActivity.class));
+            }
+            return false;
+        });
+
+         accountHeader.setOnAccountHeaderListener((v, profile, isCurrent) -> {
+            final var id = profile.getIdentifier();
+            if (isCurrent) return false; // Ignore switching to already selected profile
+
+            if (id == DRAWER_MANAGE_ACCOUNT) {
+                final Account account = (Account) accountHeader.getActiveProfile().getTag();
+                if (account == null) {
+                    AccountUtils.launchManageAccounts(this);
+                } else {
+                    switchToAccount(account);
+                }
+                return false;
+            }
+
+            if (id == DRAWER_MANAGE_PHONE_ACCOUNTS) {
+                final String[] permissions;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    permissions = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.BLUETOOTH_CONNECT};
+                } else {
+                    permissions = new String[]{Manifest.permission.RECORD_AUDIO};
+                }
+                requestPermissions(permissions, REQUEST_MICROPHONE);
+                return false;
+            }
+
+            // Clicked on an actual profile
+            if (profile.getTag() == null) {
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, "Manage Accounts");
+            } else {
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, "Manage Account");
+            }
+            accountHeader.updateProfile(manageAccount);
+
+            final var fm = getFragmentManager();
+            while (fm.getBackStackEntryCount() > 0) {
+                try {
+                    fm.popBackStackImmediate();
+                } catch (IllegalStateException e) {
+                    break;
+                }
+            }
+
+            refreshUi();
+
+            return false;
+        });
+
+         accountHeader.setOnAccountHeaderProfileImageListener((v, profile, isCurrent) -> {
+            if (isCurrent) {
+                final Account account = (Account) accountHeader.getActiveProfile().getTag();
+                if (account == null) {
+                    AccountUtils.launchManageAccounts(this);
+                } else {
+                    switchToAccount(account);
+                }
+            }
+            return false;
+         });
+    }
+
+    @Override
+    public boolean colorCodeAccounts() {
+        if (accountHeader != null) {
+            final var active = accountHeader.getActiveProfile();
+            if (active != null && active.getTag() != null) return false;
+        }
+        return super.colorCodeAccounts();
+    }
+
+    @Override
+    public void populateWithOrderedConversations(List<Conversation> list) {
+        super.populateWithOrderedConversations(list);
+        if (accountHeader == null || accountHeader.getActiveProfile() == null) return;
+
+        if (accountHeader.getActiveProfile().getTag() != null) {
+            final var selected = ((Account) accountHeader.getActiveProfile().getTag()).getUuid();
+            for (final var c : ImmutableList.copyOf(list)) {
+                if (!selected.equals(c.getAccount().getUuid())) {
+                    list.remove(c);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void launchStartConversation() {
+        StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag());
     }
 
     private boolean performRedirectIfNecessary(boolean noAnimation) {
@@ -522,6 +711,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        savedState = savedInstanceState;
         ConversationMenuConfigurator.reloadFeatures(this);
         OmemoSetting.load(this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
@@ -787,9 +977,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     @Override
-    public void onSaveInstanceState(final Bundle savedInstanceState) {
+    public void onSaveInstanceState(Bundle savedInstanceState) {
         final Intent pendingIntent = pendingViewIntent.peek();
         savedInstanceState.putParcelable("intent", pendingIntent != null ? pendingIntent : getIntent());
+        savedInstanceState = binding.drawer.saveInstanceState(savedInstanceState);
+        savedInstanceState = accountHeader.saveInstanceState(savedInstanceState);
         super.onSaveInstanceState(savedInstanceState);
     }
 

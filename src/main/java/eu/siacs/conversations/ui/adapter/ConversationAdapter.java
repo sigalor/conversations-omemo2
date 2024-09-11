@@ -83,7 +83,7 @@ public class ConversationAdapter
                     R.drawable.background_selected_item_conversation);
             viewHolder.binding.frame.setBackgroundColor(MaterialColors.getColor(viewHolder.binding.frame, com.google.android.material.R.attr.colorSurfaceDim));
         } else {
-            if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
+            if (activity.xmppConnectionService != null && activity.colorCodeAccounts()) {
                 viewHolder.binding.frame.setBackgroundColor(conversation.getAccount().getColor(activity.isDark()));
             } else {
                 viewHolder.binding.frame.setBackgroundColor(

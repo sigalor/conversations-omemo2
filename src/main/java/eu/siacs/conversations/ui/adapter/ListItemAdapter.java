@@ -81,7 +81,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		if (view.isActivated()) {
 			Log.d(Config.LOGTAG,"item "+item.getDisplayName()+" is activated");
 		}
-		if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
+		if (activity.colorCodeAccounts()) {
 			innerView.setBackgroundColor(item.getAccount().getColor(activity.isDark()));
 		}
 		//view.setBackground(StyledAttributes.getDrawable(view.getContext(),R.attr.list_item_background));

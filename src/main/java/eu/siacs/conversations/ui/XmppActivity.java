@@ -565,6 +565,18 @@ public abstract class XmppActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public boolean colorCodeAccounts() {
+        return xmppConnectionService.getAccounts().size() > 1;
+    }
+
+    public void populateWithOrderedConversations(List<Conversation> list) {
+        xmppConnectionService.populateWithOrderedConversations(list);
+    }
+
+    public void launchStartConversation() {
+        StartConversationActivity.launch(this);
+    }
+
     public void switchToConversation(Conversation conversation) {
         switchToConversation(conversation, null);
     }
