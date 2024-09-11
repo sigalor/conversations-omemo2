@@ -8,7 +8,7 @@
         android:background="@android:color/black"
         android:orientation="vertical">
 
-        <ImageView
+        <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/messageImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

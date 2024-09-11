@@ -285,7 +285,15 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         try {
             binding.messageImageView.setVisibility(View.VISIBLE);
             Glide.with(this).load(uri).into(binding.messageImageView);
-            binding.messageImageView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
+            binding.messageImageView.setOnPhotoTapListener((view, motionEvent, listener) -> {
+                if (isImage) {
+                    if (binding.speedDial.isShown()) {
+                        hideFAB();
+                    } else {
+                        showFAB();
+                    }
+                }
+            });
         } catch (Exception e) {
             ToastCompat.makeText(this, getString(R.string.error_file_not_found), ToastCompat.LENGTH_LONG).show();
             e.printStackTrace();
