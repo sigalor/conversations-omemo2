@@ -247,7 +247,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
             p.setIdentifier(id++);
             p.setTag(a);
-            com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName());
+            com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
             com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
             com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false)).copy(Bitmap.Config.ARGB_8888, false));
             if (inHeader.contains(a)) {
