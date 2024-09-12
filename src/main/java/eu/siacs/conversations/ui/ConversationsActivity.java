@@ -465,6 +465,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 selectedTag = (Tag) drawerItem.getTag();
             }
             binding.drawer.getSelectExtension().selectByIdentifier(mainFilter, false, true);
+
+            final var fm = getFragmentManager();
+            while (fm.getBackStackEntryCount() > 0) {
+                try {
+                    fm.popBackStackImmediate();
+                } catch (IllegalStateException e) {
+                    break;
+                }
+            }
+
             refreshUi();
             return false;
         });
