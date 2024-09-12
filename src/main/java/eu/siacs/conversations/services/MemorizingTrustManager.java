@@ -388,6 +388,7 @@ public class MemorizingTrustManager {
         }
     }
 
+    // TODO: Check DANE enforcement here
     private void checkCertTrusted(
             X509Certificate[] chain,
             String authType,
