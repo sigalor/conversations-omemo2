@@ -94,7 +94,7 @@ public class BackupFileAdapter extends RecyclerView.Adapter<BackupFileAdapter.Ba
         BitmapWorkerTask(ImageView imageView) {
             imageViewReference = new WeakReference<>(imageView);
             DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
-		this.size = ((int) (48 * metrics.density));
+            this.size = ((int) (48 * metrics.density));
         }
 
         @Override
