@@ -295,6 +295,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 binding.drawer.getItemAdapter().add(item);
             }
         }
+
+        items.subList(4, 4 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
+        binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
     }
 
     @Override
