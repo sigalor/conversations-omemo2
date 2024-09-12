@@ -443,6 +443,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         binding.drawer.setOnDrawerItemClickListener((v, drawerItem, pos) -> {
             final var id = drawerItem.getIdentifier();
+            if (id != DRAWER_START_CHAT) binding.drawer.getExpandableExtension().collapse(false);
             if (id == DRAWER_SETTINGS) {
                 startActivity(new Intent(this, eu.siacs.conversations.ui.activity.SettingsActivity.class));
                 return false;
