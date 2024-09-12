@@ -82,6 +82,7 @@ import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.color.MaterialColors;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
@@ -275,7 +276,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
 
         for (final var entry : tags.entrySet()) {
-            final var badge = entry.getValue() > 0 ? entry.getValue().toString() : "";
+            final var badge = entry.getValue() > 0 ? entry.getValue().toString() : null;
             if (inDrawer.containsKey(entry.getKey())) {
                 com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
                     binding.drawer,
@@ -287,7 +288,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 item.setIdentifier(id++);
                 item.setTag(entry.getKey());
                 com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(item, entry.getKey().getName());
-                com.mikepenz.materialdrawer.model.interfaces.BadgeableKt.setBadgeText(item, badge);
+                if (badge != null) com.mikepenz.materialdrawer.model.interfaces.BadgeableKt.setBadgeText(item, badge);
+                final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
+                final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
+                item.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
                 binding.drawer.getItemAdapter().add(item);
             }
         }
