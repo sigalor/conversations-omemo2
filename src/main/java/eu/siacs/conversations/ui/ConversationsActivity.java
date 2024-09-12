@@ -368,12 +368,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(settings, R.drawable.ic_settings_24dp);
         com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, settings);
 
+        if (useSavedState != null) {
+            mainFilter = useSavedState.getLong("mainFilter", DRAWER_ALL_CHATS);
+            selectedTag = (Tag) useSavedState.getSerializable("selectedTag");
+        }
         refreshUiReal();
         if (useSavedState != null) binding.drawer.setSavedInstance(useSavedState);
         accountHeader.attachToSliderView(binding.drawer);
         if (useSavedState != null) accountHeader.withSavedInstance(useSavedState);
 
-        if (binding.drawer.getSelectedItemPosition() < 1) {
+        if (mainFilter == DRAWER_ALL_CHATS && selectedTag == null) {
             binding.drawer.setSelectedItemIdentifier(DRAWER_ALL_CHATS);
         }
 
@@ -1066,6 +1070,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public void onSaveInstanceState(Bundle savedInstanceState) {
         final Intent pendingIntent = pendingViewIntent.peek();
         savedInstanceState.putParcelable("intent", pendingIntent != null ? pendingIntent : getIntent());
+        savedInstanceState.putLong("mainFilter", mainFilter);
+        savedInstanceState.putSerializable("selectedTag", selectedTag);
         savedInstanceState = binding.drawer.saveInstanceState(savedInstanceState);
         savedInstanceState = accountHeader.saveInstanceState(savedInstanceState);
         super.onSaveInstanceState(savedInstanceState);
