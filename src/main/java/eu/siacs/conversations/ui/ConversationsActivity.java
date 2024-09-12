@@ -156,10 +156,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     public static final long DRAWER_ALL_CHATS = 1;
     public static final long DRAWER_DIRECT_MESSAGES = 2;
-    public static final long DRAWER_CHANNELS = 3;
-    public static final long DRAWER_SETTINGS = 4;
-    public static final long DRAWER_MANAGE_ACCOUNT = 5;
-    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 6;
+    public static final long DRAWER_MANAGE_ACCOUNT = 3;
+    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 4;
+    public static final long DRAWER_CHANNELS = 5;
+    public static final long DRAWER_SETTINGS = 6;
+    public static final long DRAWER_START_CHAT = 7;
+    public static final long DRAWER_START_CHAT_CONTACT = 8;
+    public static final long DRAWER_START_CHAT_NEW = 9;
+    public static final long DRAWER_START_CHAT_GROUP = 10;
+    public static final long DRAWER_START_CHAT_PUBLIC = 11;
+    public static final long DRAWER_START_CHAT_DISCOVER = 12;
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -292,7 +298,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
                 final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
                 item.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
-                binding.drawer.getItemAdapter().add(item);
+                binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(4), item);
             }
         }
 
@@ -363,11 +369,56 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, "Channels");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(channels, R.drawable.ic_group_24dp);
 
+        final var startChat = new com.mikepenz.materialdrawer.model.ExpandableDrawerItem();
+        startChat.setIdentifier(DRAWER_START_CHAT);
+        startChat.setSelectable(false);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(startChat, "Start Chat");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChat, R.drawable.ic_chat_24dp);
+
+        final var startChatWithContact = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+        startChatWithContact.setIdentifier(DRAWER_START_CHAT_CONTACT);
+        startChatWithContact.setSelectable(false);
+        startChatWithContact.setLevel(2);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(startChatWithContact, "With Contact");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatWithContact, R.drawable.ic_person_24dp);
+
+        final var startChatWithNew = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+        startChatWithNew.setIdentifier(DRAWER_START_CHAT_NEW);
+        startChatWithNew.setSelectable(false);
+        startChatWithNew.setLevel(2);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatWithNew, R.string.new_contact);
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatWithNew, R.drawable.ic_person_add_24dp);
+
+        final var startChatWithGroup = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+        startChatWithGroup.setIdentifier(DRAWER_START_CHAT_GROUP);
+        startChatWithGroup.setSelectable(false);
+        startChatWithGroup.setLevel(2);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatWithGroup, R.string.create_private_group_chat);
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatWithGroup, R.drawable.ic_group_24dp);
+
+        final var startChatPublic = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+        startChatPublic.setIdentifier(DRAWER_START_CHAT_PUBLIC);
+        startChatPublic.setSelectable(false);
+        startChatPublic.setLevel(2);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatPublic, R.string.create_public_channel);
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatPublic, R.drawable.ic_public_24dp);
+
+        final var startChatDiscover = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+        startChatDiscover.setIdentifier(DRAWER_START_CHAT_DISCOVER);
+        startChatDiscover.setSelectable(false);
+        startChatDiscover.setLevel(2);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatDiscover, R.string.discover_channels);
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatDiscover, R.drawable.ic_travel_explore_24dp);
+
+        startChat.setSubItems(startChatWithContact, startChatWithNew, startChatWithGroup, startChatPublic, startChatDiscover);
+
         binding.drawer.getItemAdapter().add(
             allChats,
             directMessages,
             channels,
-            new com.mikepenz.materialdrawer.model.DividerDrawerItem()
+            new com.mikepenz.materialdrawer.model.DividerDrawerItem(),
+            new com.mikepenz.materialdrawer.model.DividerDrawerItem(),
+            startChat
         );
 
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
@@ -395,6 +446,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (id == DRAWER_SETTINGS) {
                 startActivity(new Intent(this, eu.siacs.conversations.ui.activity.SettingsActivity.class));
                 return false;
+            } else if (id == DRAWER_START_CHAT_CONTACT) {
+                launchStartConversation();
+            } else if (id == DRAWER_START_CHAT_NEW) {
+                launchStartConversation(R.id.create_contact);
+            } else if (id == DRAWER_START_CHAT_GROUP) {
+                launchStartConversation(R.id.create_private_group_chat);
+            } else if (id == DRAWER_START_CHAT_PUBLIC) {
+                launchStartConversation(R.id.create_public_channel);
+            } else if (id == DRAWER_START_CHAT_DISCOVER) {
+                launchStartConversation(R.id.discover_public_channels);
             } else if (id == DRAWER_ALL_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
                 selectedTag = null;
                 mainFilter = id;
@@ -505,7 +566,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void launchStartConversation() {
-        StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag == null ? null : selectedTag.getName());
+        launchStartConversation(0);
+    }
+
+    public void launchStartConversation(int goTo) {
+        StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag == null ? null : selectedTag.getName(), goTo);
     }
 
     private boolean performRedirectIfNecessary(boolean noAnimation) {

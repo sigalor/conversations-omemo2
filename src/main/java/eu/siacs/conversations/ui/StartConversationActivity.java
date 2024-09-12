@@ -129,6 +129,7 @@ public class StartConversationActivity extends XmppActivity
     public static final String EXTRA_INVITE_URI = "eu.siacs.conversations.invite_uri";
     public static final String EXTRA_ACCOUNT_FILTER = "account_filter";
     public static final String EXTRA_TEXT_FILTER = "text_filter";
+    public static final String EXTRA_GOTO = "goto";
 
     private final int REQUEST_SYNC_CONTACTS = 0x28cf;
     private final int REQUEST_CREATE_CONFERENCE = 0x39da;
@@ -284,10 +285,10 @@ public class StartConversationActivity extends XmppActivity
     }
 
     public static void launch(Context context) {
-        launch(context, null, null);
+        launch(context, null, null, 0);
     }
 
-    public static void launch(Context context, final Account account, final String q) {
+    public static void launch(Context context, final Account account, final String q, final int goTo) {
         final Intent intent = new Intent(context, StartConversationActivity.class);
         if (account != null) {
             intent.putExtra(
@@ -297,6 +298,7 @@ public class StartConversationActivity extends XmppActivity
         if (q != null) {
             intent.putExtra(EXTRA_TEXT_FILTER, q);
         }
+        intent.putExtra(EXTRA_GOTO, goTo);
         context.startActivity(intent);
     }
 
@@ -388,6 +390,9 @@ public class StartConversationActivity extends XmppActivity
 
         if (intent.getBooleanExtra("init", false)) {
             pendingViewIntent.push(intent);
+        } else if (intent.hasExtra(EXTRA_GOTO)) {
+            pendingViewIntent.push(intent);
+            setIntent(createLauncherIntent(this));
         } else if(intent.hasExtra(EXTRA_ACCOUNT_FILTER)) {
             pendingViewIntent.push(intent);
             setIntent(intent);
@@ -1209,6 +1214,22 @@ public class StartConversationActivity extends XmppActivity
             this.mActivatedAccounts.add(accountFilterJid);
         }
         configureHomeButton();
+
+        final var goTo = intent.getIntExtra(EXTRA_GOTO, 0);
+        switch (goTo) {
+            case R.id.discover_public_channels:
+                startActivity(new Intent(this, ChannelDiscoveryActivity.class));
+                break;
+            case R.id.create_private_group_chat:
+                showCreatePrivateGroupChatDialog();
+                break;
+            case R.id.create_public_channel:
+                showPublicChannelDialog();
+                break;
+            case R.id.create_contact:
+                showCreateContactDialog(null, null);
+                break;
+        }
 
         /*      // Better Onboarding later
         final boolean onboardingCancel = xmppConnectionService.getPreferences().getString("onboarding_action", "").equals("cancel");
