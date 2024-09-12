@@ -9,28 +9,30 @@
 
 	<created>2021-06-12</created>
 
-	<shortdesc xml:lang="en">Android Jabber Client</shortdesc>
+	<shortdesc xml:lang="en">Modern XMPP Client for Android</shortdesc>
 
-	<description xml:lang="en">monocles chat is a freedomware client for the Jabber network (using the XMPP protocol) with a focus on features for gateway users.</description>
+	<description xml:lang="en">monocles chat is a modern and secure XMPP chat app with many feature and gateway compatibilities.</description>
 
-	<homepage rdf:resource="https://cheogram.com/"/>
-	<bug-database rdf:resource="https://soprani.ca/todo"/>
+	<homepage rdf:resource="https://monocles.eu/more/"/>
+	<bug-database rdf:resource="https://codeberg.org/monocles/monocles_chat/issues"/>
 	<!-- See https://github.com/ewilderj/doap/issues/53 -->
 	<developer-forum rdf:resource="xmpp:support@conference.monocles.eu?join"/>
 	<support-forum rdf:resource="xmpp:support@conference.monocles.eu?join"/>
 
-	<license rdf:resource="https://git.singpolyma.net/cheogram-android/tree/master/item/LICENSE"/>
+	<license rdf:resource="https://codeberg.org/Arne/monocles_chat/src/branch/master/LICENSE"/>
 
 	<!-- See https://github.com/ewilderj/doap/issues/49 -->
 	<language>en</language>
 
-	<schema:logo rdf:resource="https://git.singpolyma.net/cheogram-android/blob/master/art/ic_launcher.svg"/>
-	<schema:screenshot rdf:resource='https://git.singpolyma.net/cheogram-android/blob/master/fastlane/metadata/android/en_US/images/phoneScreenshots/conversation.png'/>
-	<schema:screenshot rdf:resource='https://git.singpolyma.net/cheogram-android/blob/master/fastlane/metadata/android/en_US/images/phoneScreenshots/dialler.png'/>
-	<schema:screenshot rdf:resource='https://git.singpolyma.net/cheogram-android/blob/master/fastlane/metadata/android/en_US/images/phoneScreenshots/startConversation.png'/>
-	<schema:screenshot rdf:resource='https://git.singpolyma.net/cheogram-android/blob/master/fastlane/metadata/android/en_US/images/phoneScreenshots/startConversationOptions.png'/>
-	<schema:screenshot rdf:resource='https://git.singpolyma.net/cheogram-android/blob/master/fastlane/metadata/android/en_US/images/phoneScreenshots/commandList.png'/>
-	<schema:screenshot rdf:resource='https://git.singpolyma.net/cheogram-android/blob/master/fastlane/metadata/android/en_US/images/phoneScreenshots/jabberIqGateway.png'/>
+    <schema:logo rdf:resource="https://monocles.eu/more/assets/images/monocleslogo_chat-signet.svg"/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/00.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/01.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/02.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/03.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/04.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/05.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/06.png'/>
+    <schema:screenshot rdf:resource='https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/07.png'/>
 
 	<programming-language>Java</programming-language>
 
@@ -43,15 +45,15 @@
 
 	<maintainer>
 		<Project>
-			<name>Soprani.ca</name>
-			<homepage rdf:resource="https://soprani.ca/"/>
+			<name>Arne-Brün Vogelsang</name>
+			<homepage rdf:resource="https://monocles.eu/legacy-privacy/"/>
 		</Project>
 	</maintainer>
 
 	<repository>
 		<GitRepository>
-			<browse rdf:resource="https://git.singpolyma.net/cheogram-android"/>
-			<location rdf:resource="https://git.singpolyma.net/cheogram-android"/>
+			<browse rdf:resource="https://codeberg.org/Arne/monocles_chat"/>
+			<location rdf:resource="https://codeberg.org/Arne/monocles_chat.git"/>
 		</GitRepository>
 	</repository> 
 
