@@ -344,15 +344,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         final var allChats = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         allChats.setIdentifier(DRAWER_ALL_CHATS);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(allChats, "All Chats");
-
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(allChats, R.drawable.ic_chat_24dp);
 
         final var directMessages = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         directMessages.setIdentifier(DRAWER_DIRECT_MESSAGES);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(directMessages, "Direct Messages");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(directMessages, R.drawable.ic_person_24dp);
 
         final var channels = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         channels.setIdentifier(DRAWER_CHANNELS);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, "Channels");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(channels, R.drawable.ic_group_24dp);
 
         binding.drawer.getItemAdapter().add(
             allChats,
