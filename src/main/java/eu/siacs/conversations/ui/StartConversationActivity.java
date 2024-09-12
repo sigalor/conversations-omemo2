@@ -128,6 +128,7 @@ public class StartConversationActivity extends XmppActivity
 
     public static final String EXTRA_INVITE_URI = "eu.siacs.conversations.invite_uri";
     public static final String EXTRA_ACCOUNT_FILTER = "account_filter";
+    public static final String EXTRA_TEXT_FILTER = "text_filter";
 
     private final int REQUEST_SYNC_CONTACTS = 0x28cf;
     private final int REQUEST_CREATE_CONFERENCE = 0x39da;
@@ -283,15 +284,18 @@ public class StartConversationActivity extends XmppActivity
     }
 
     public static void launch(Context context) {
-        launch(context, null);
+        launch(context, null, null);
     }
 
-    public static void launch(Context context, final Account account) {
+    public static void launch(Context context, final Account account, final String q) {
         final Intent intent = new Intent(context, StartConversationActivity.class);
         if (account != null) {
             intent.putExtra(
                 EXTRA_ACCOUNT_FILTER,
                 account.getJid().asBareJid().toEscapedString());
+        }
+        if (q != null) {
+            intent.putExtra(EXTRA_TEXT_FILTER, q);
         }
         context.startActivity(intent);
     }
@@ -369,6 +373,10 @@ public class StartConversationActivity extends XmppActivity
         final Intent intent;
         if (savedInstanceState == null) {
             intent = getIntent();
+            final var search = intent.getStringExtra(EXTRA_TEXT_FILTER);
+            if (search != null) {
+                mInitialSearchValue.push(search);
+            }
         } else {
             createdByViewIntent = savedInstanceState.getBoolean("created_by_view_intent", false);
             final String search = savedInstanceState.getString("search");

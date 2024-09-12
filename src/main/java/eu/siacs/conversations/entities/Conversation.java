@@ -126,6 +126,7 @@ import eu.siacs.conversations.databinding.CommandTextFieldBinding;
 import eu.siacs.conversations.databinding.CommandSliderFieldBinding;
 import eu.siacs.conversations.databinding.CommandWebviewBinding;
 import eu.siacs.conversations.databinding.DialogQuickeditBinding;
+import eu.siacs.conversations.entities.ListItem.Tag;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.AvatarService;
@@ -904,6 +905,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             }
         } else {
             return this.getContact().getDisplayName();
+        }
+    }
+
+    public List<Tag> getTags(final Context ctx) {
+        if (getMode() == MODE_MULTI) {
+            if (getBookmark() == null) return new ArrayList<>();
+            return getBookmark().getTags(ctx);
+        } else {
+            return getContact().getTags(ctx);
         }
     }
 

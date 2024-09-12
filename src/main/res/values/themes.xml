@@ -65,4 +65,5 @@
         tools:ignore="ResourceCycle">
         <item name="widgetLayout">@layout/material_switch</item>
     </style>
+
 </resources>

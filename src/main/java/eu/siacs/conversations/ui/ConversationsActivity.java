@@ -29,7 +29,6 @@
 
 package eu.siacs.conversations.ui;
 
-
 import static eu.siacs.conversations.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
 
@@ -46,6 +45,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -86,10 +86,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.openintents.openpgp.util.OpenPgpApi;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.siacs.conversations.Config;
@@ -100,6 +103,8 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
+import eu.siacs.conversations.entities.ListItem.Tag;
+import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.ui.interfaces.OnConversationArchived;
@@ -149,9 +154,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
     public static final long DRAWER_ALL_CHATS = 1;
-    public static final long DRAWER_SETTINGS = 2;
-    public static final long DRAWER_MANAGE_ACCOUNT = 3;
-    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 4;
+    public static final long DRAWER_DIRECT_MESSAGES = 2;
+    public static final long DRAWER_CHANNELS = 3;
+    public static final long DRAWER_SETTINGS = 4;
+    public static final long DRAWER_MANAGE_ACCOUNT = 5;
+    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 6;
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -167,6 +174,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private boolean showLastSeen = false;
     private com.mikepenz.materialdrawer.widget.AccountHeaderView accountHeader;
     private Bundle savedState = null;
+    private Tag selectedTag = null;
+    private long mainFilter = DRAWER_ALL_CHATS;
 
     private static boolean isViewOrShareIntent(Intent i) {
         Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
@@ -226,18 +235,60 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             }
         }
 
-        int id = 101;
+        long id = 101;
         for (final var a : accounts) {
             final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
             p.setIdentifier(id++);
             p.setTag(a);
             com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName());
             com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
-            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconDrawable(p, xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false));
+            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false)).copy(Bitmap.Config.ARGB_8888, false));
             if (inHeader.contains(a)) {
                 accountHeader.updateProfile(p);
             } else {
                 accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+            }
+        }
+
+        final var items = binding.drawer.getItemAdapter().getAdapterItems();
+        final var tags = new TreeMap<Tag, Integer>();
+        final var conversations = new ArrayList<Conversation>();
+        populateWithOrderedConversations(conversations, false);
+        for (final var c : conversations) {
+            for (final var tag : c.getTags(this)) {
+                if ("Channel".equals(tag.getName())) continue;
+                var count = tags.get(tag);
+                if (count == null) count = 0;
+                tags.put(tag, count + c.unreadCount());
+            }
+        }
+
+        id = 1000;
+        final var inDrawer = new HashMap<Tag, Long>();
+        for (final var item : ImmutableList.copyOf(items)) {
+            if (item.getIdentifier() >= 1000 && !tags.containsKey(item.getTag())) {
+                com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.removeItems(binding.drawer, item);
+            } else if (item.getIdentifier() >= 1000) {
+                inDrawer.put((Tag)item.getTag(), item.getIdentifier());
+                id = item.getIdentifier() + 1;
+            }
+        }
+
+        for (final var entry : tags.entrySet()) {
+            final var badge = entry.getValue() > 0 ? entry.getValue().toString() : "";
+            if (inDrawer.containsKey(entry.getKey())) {
+                com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
+                    binding.drawer,
+                    inDrawer.get(entry.getKey()),
+                    new com.mikepenz.materialdrawer.holder.StringHolder(badge)
+                );
+            } else {
+                final var item = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+                item.setIdentifier(id++);
+                item.setTag(entry.getKey());
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(item, entry.getKey().getName());
+                com.mikepenz.materialdrawer.model.interfaces.BadgeableKt.setBadgeText(item, badge);
+                binding.drawer.getItemAdapter().add(item);
             }
         }
     }
@@ -286,14 +337,29 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         accountHeader = new com.mikepenz.materialdrawer.widget.AccountHeaderView(this);
         final var manageAccount = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
         manageAccount.setIdentifier(DRAWER_MANAGE_ACCOUNT);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, "Manage Accounts");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, xmppConnectionService.getAccounts().size() > 1 ? "Manage Accounts" : "Manage Account");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(manageAccount, R.drawable.ic_settings_24dp);
         accountHeader.addProfiles(manageAccount);
 
-        final var item = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
-        item.setIdentifier(DRAWER_ALL_CHATS);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(item, "All Chats");
-        binding.drawer.getItemAdapter().add(item);
+        final var allChats = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        allChats.setIdentifier(DRAWER_ALL_CHATS);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(allChats, "All Chats");
+
+
+        final var directMessages = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        directMessages.setIdentifier(DRAWER_DIRECT_MESSAGES);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(directMessages, "Direct Messages");
+
+        final var channels = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        channels.setIdentifier(DRAWER_CHANNELS);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, "Channels");
+
+        binding.drawer.getItemAdapter().add(
+            allChats,
+            directMessages,
+            channels,
+            new com.mikepenz.materialdrawer.model.DividerDrawerItem()
+        );
 
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         settings.setIdentifier(DRAWER_SETTINGS);
@@ -315,7 +381,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             final var id = drawerItem.getIdentifier();
             if (id == DRAWER_SETTINGS) {
                 startActivity(new Intent(this, eu.siacs.conversations.ui.activity.SettingsActivity.class));
+                return false;
+            } else if (id == DRAWER_ALL_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
+                selectedTag = null;
+                mainFilter = id;
+            } else if (id >= 1000) {
+                selectedTag = (Tag) drawerItem.getTag();
             }
+            binding.drawer.getSelectExtension().selectByIdentifier(mainFilter, false, true);
+            refreshUi();
             return false;
         });
 
@@ -390,22 +464,34 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void populateWithOrderedConversations(List<Conversation> list) {
+        populateWithOrderedConversations(list, true);
+    }
+
+    public void populateWithOrderedConversations(List<Conversation> list, final boolean tagFilter) {
         super.populateWithOrderedConversations(list);
         if (accountHeader == null || accountHeader.getActiveProfile() == null) return;
 
-        if (accountHeader.getActiveProfile().getTag() != null) {
-            final var selected = ((Account) accountHeader.getActiveProfile().getTag()).getUuid();
-            for (final var c : ImmutableList.copyOf(list)) {
-                if (!selected.equals(c.getAccount().getUuid())) {
-                    list.remove(c);
-                }
+        final var selectedAccount =
+            accountHeader.getActiveProfile().getTag() != null ?
+            ((Account) accountHeader.getActiveProfile().getTag()).getUuid() :
+            null;
+
+        for (final var c : ImmutableList.copyOf(list)) {
+            if (mainFilter == DRAWER_CHANNELS && c.getMode() != Conversation.MODE_MULTI) {
+                list.remove(c);
+            } else if (mainFilter == DRAWER_DIRECT_MESSAGES && c.getMode() == Conversation.MODE_MULTI) {
+                list.remove(c);
+            } else if (selectedAccount != null && !selectedAccount.equals(c.getAccount().getUuid())) {
+                list.remove(c);
+            } else if (selectedTag != null && tagFilter && !c.getTags(this).contains(selectedTag)) {
+                list.remove(c);
             }
         }
     }
 
     @Override
     public void launchStartConversation() {
-        StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag());
+        StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag == null ? null : selectedTag.getName());
     }
 
     private boolean performRedirectIfNecessary(boolean noAnimation) {

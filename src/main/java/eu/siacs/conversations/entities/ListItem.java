@@ -20,7 +20,7 @@ public interface ListItem extends Comparable<ListItem>, AvatarService.Avatarable
 
 	List<Tag> getTags(Context context);
 
-	final class Tag implements Serializable {
+	final class Tag implements Serializable, Comparable {
 		private final String name;
 
 		public Tag(final String name) {
@@ -39,6 +39,12 @@ public interface ListItem extends Comparable<ListItem>, AvatarService.Avatarable
 			if (!(o instanceof Tag)) return false;
 			Tag ot = (Tag) o;
 			return name.toLowerCase(Locale.US).equals(ot.getName().toLowerCase(Locale.US));
+		}
+
+		public int compareTo(Object o) {
+			if (!(o instanceof Tag)) return -1;
+			Tag ot = (Tag) o;
+			return name.toLowerCase(Locale.US).compareTo(ot.getName().toLowerCase(Locale.US));
 		}
 
 		public int hashCode() {
