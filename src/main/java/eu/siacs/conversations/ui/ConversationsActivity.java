@@ -395,6 +395,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             } else if (id == DRAWER_ALL_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
                 selectedTag = null;
                 mainFilter = id;
+                binding.drawer.getSelectExtension().deselect();
             } else if (id >= 1000) {
                 selectedTag = (Tag) drawerItem.getTag();
             }
