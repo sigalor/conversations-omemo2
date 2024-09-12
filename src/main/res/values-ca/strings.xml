@@ -842,7 +842,7 @@ d\'afegir Converses a la llista d\'aplicacions protegides.</string>
     <string name="conversations_backup">Còpia de seguretat de Conversations</string>
     <string name="event">Esdeveniment</string>
     <string name="open_backup">Obrir la còpia de seguretat</string>
-    <string name="not_a_backup_file">L\'arxiu seleccionat no és un arxiu de còpia de seguretat de Conversations</string>
+    <string name="not_a_backup_file">L\'arxiu seleccionat no és un arxiu de còpia de seguretat de  monocles chat</string>
     <string name="account_already_setup">Aquest compte ja està configurada</string>
     <string name="please_enter_password">Si us plau, introdueixi la contrasenya d\'aquest compte</string>
     <string name="unable_to_perform_this_action">No s\'ha pogut realitzar aquesta acció</string>

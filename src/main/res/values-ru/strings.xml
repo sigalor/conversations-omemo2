@@ -882,7 +882,7 @@
     <string name="conversations_backup">Резервная копия Conversations</string>
     <string name="event">Событие</string>
     <string name="open_backup">Открыть резервную копию</string>
-    <string name="not_a_backup_file">Выбранный вами файл не является файлом резервной копии Conversations</string>
+    <string name="not_a_backup_file">Выбранный вами файл не является файлом резервной копии monocles chat</string>
     <string name="account_already_setup">Эта учетная запись уже настроена</string>
     <string name="please_enter_password">Пожалуйста, введите пароль этой учетной записи</string>
     <string name="unable_to_perform_this_action">Не удалось совершить это действие</string>

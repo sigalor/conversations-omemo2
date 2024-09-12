@@ -860,7 +860,7 @@
     <string name="conversations_backup">Резервно копие от Conversations</string>
     <string name="event">Събитие</string>
     <string name="open_backup">Отваряне на резервно копие</string>
-    <string name="not_a_backup_file">Избраният файл не е резервно копие от Conversations</string>
+    <string name="not_a_backup_file">Избраният файл не е резервно копие от monocles chat</string>
     <string name="account_already_setup">Този профил вече е настроен</string>
     <string name="please_enter_password">Въведете паролата за този профил</string>
     <string name="unable_to_perform_this_action">Това действие не може да бъде извършено</string>

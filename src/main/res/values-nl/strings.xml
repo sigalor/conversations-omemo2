@@ -756,7 +756,7 @@
     <string name="conversations_backup">Back-up van Conversations</string>
     <string name="event">Gebeurtenis</string>
     <string name="open_backup">Back-up openen</string>
-    <string name="not_a_backup_file">Het geselecteerde bestand is geen Conversations-back-upbestand</string>
+    <string name="not_a_backup_file">Het geselecteerde bestand is geen monocles chat-back-upbestand</string>
     <string name="account_already_setup">Deze account is al ingesteld</string>
     <string name="please_enter_password">Voer het wachtwoord voor deze account in</string>
     <string name="open_join_dialog">Deelnemen aan openbaar kanaal…</string>

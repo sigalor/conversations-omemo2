@@ -857,7 +857,7 @@
     <string name="conversations_backup">Bản sao lưu Conversations</string>
     <string name="event">Sự kiện</string>
     <string name="open_backup">Mở bản sao lưu</string>
-    <string name="not_a_backup_file">Tệp bạn đã chọn không phải là tệp sao lưu của Conversations</string>
+    <string name="not_a_backup_file">Tệp bạn đã chọn không phải là tệp sao lưu của monocles chat</string>
     <string name="account_already_setup">Tài khoản này đã được thiết lập rồi</string>
     <string name="please_enter_password">Vui lòng nhập mật khẩu cho tài khoản này</string>
     <string name="unable_to_perform_this_action">Không thể thực hiện hành động này</string>

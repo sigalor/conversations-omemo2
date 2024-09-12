@@ -824,7 +824,7 @@
     <string name="conversations_backup">Conversations biztonsági mentés</string>
     <string name="event">Esemény</string>
     <string name="open_backup">Biztonsági mentés megnyitása</string>
-    <string name="not_a_backup_file">A kiválasztott fájl nem Conversations biztonsági mentés fájl</string>
+    <string name="not_a_backup_file">A kiválasztott fájl nem monocles chat biztonsági mentés fájl</string>
     <string name="account_already_setup">Ez a fiók már be lett állítva</string>
     <string name="please_enter_password">Adja meg a fiók jelszavát</string>
     <string name="unable_to_perform_this_action">Nem sikerült végrehajtani ezt a műveletet</string>

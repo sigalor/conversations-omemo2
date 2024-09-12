@@ -881,7 +881,7 @@
     <string name="conversations_backup">Backup di Conversations</string>
     <string name="event">Evento</string>
     <string name="open_backup">Apri backup</string>
-    <string name="not_a_backup_file">Il file selezionato non è un file di backup di Conversations</string>
+    <string name="not_a_backup_file">Il file selezionato non è un file di backup di monocles chat</string>
     <string name="account_already_setup">Questo profilo è già stato configurato</string>
     <string name="please_enter_password">Inserisci la password per questo profilo</string>
     <string name="unable_to_perform_this_action">Impossibile eseguire questa azione</string>

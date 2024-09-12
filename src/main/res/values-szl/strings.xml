@@ -896,7 +896,7 @@
     <string name="conversations_backup">Kopijo ibryczno Conversations</string>
     <string name="event">Zdarzynie</string>
     <string name="open_backup">Ôtwōrz kopijo ibryczno</string>
-    <string name="not_a_backup_file">Wybrany zbiōr to niy ma zbiōr kopije ibrycznyj Conversations</string>
+    <string name="not_a_backup_file">Wybrany zbiōr to niy ma zbiōr kopije ibrycznyj monocles chat</string>
     <string name="account_already_setup">To kōnto już je nasztalowane</string>
     <string name="please_enter_password">Podej hasło dlo tego kōnta</string>
     <string name="unable_to_perform_this_action">Niy idzie wykōnać tyj akcyje</string>

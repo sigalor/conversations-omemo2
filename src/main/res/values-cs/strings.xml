@@ -870,7 +870,7 @@
     <string name="conversations_backup">Záloha Conversations</string>
     <string name="event">Událost</string>
     <string name="open_backup">Otevřít zálohu</string>
-    <string name="not_a_backup_file">Soubor, který jste zvolili, není soubor zálohy Conversations</string>
+    <string name="not_a_backup_file">Soubor, který jste zvolili, není soubor zálohy  monocles chat</string>
     <string name="account_already_setup">Tento účet byl již nastaven</string>
     <string name="please_enter_password">Prosím, zadejte heslo k tomuto účtu</string>
     <string name="unable_to_perform_this_action">Nebylo možné vykonat tuto akci</string>

@@ -719,7 +719,7 @@
     <string name="conversations_backup">Conversations babes-kopia</string>
     <string name="event">Gertaera</string>
     <string name="open_backup">Babes-kopia ireki</string>
-    <string name="not_a_backup_file">Hautatu duzun fitxategia ez da Conversations babes-kopia bat</string>
+    <string name="not_a_backup_file">Hautatu duzun fitxategia ez da monocles chat babes-kopia bat</string>
     <string name="account_already_setup">Kontu hau konfiguratuta dago jada</string>
     <string name="please_enter_password">Mesedez idatzi ezazu kontu honetarako pasahitza</string>
     <string name="open_join_dialog">Kanal publiko batean sartu…</string>

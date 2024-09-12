@@ -875,7 +875,7 @@
     <string name="conversations_backup">Conversations yedeklemesi</string>
     <string name="event">Faaliyet</string>
     <string name="open_backup">Yedeklemeyi aç</string>
-    <string name="not_a_backup_file">Seçtioiniz dosya bir Conversations yedekleme dosyası değildir</string>
+    <string name="not_a_backup_file">Seçtioiniz dosya bir monocles chat yedekleme dosyası değildir</string>
     <string name="account_already_setup">Bu hesap zaten kurulu vaziyette</string>
     <string name="please_enter_password">Lütfen bu hesabın şifresini girin</string>
     <string name="unable_to_perform_this_action">Eylem gerçekleştirilemedi</string>
