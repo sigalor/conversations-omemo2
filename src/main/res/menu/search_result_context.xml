@@ -42,8 +42,12 @@
         android:title="@string/copy_to_clipboard"/>
     <item
         android:id="@+id/quote_message"
-        android:title="Quote"/>
+        android:title="@string/quote"/>
     <item
         android:id="@+id/copy_url"
         android:title="@string/copy_original_url"/>
+    <item
+        android:id="@+id/save_to_downloads"
+        android:title="@string/save_to_downloads"
+        android:visible="false" />
 </menu>

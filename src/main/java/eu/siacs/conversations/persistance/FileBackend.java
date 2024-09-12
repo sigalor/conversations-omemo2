@@ -733,6 +733,56 @@ public class FileBackend {
         return FileUtils.getPath(mXmppConnectionService, uri);
     }
 
+    public void copyAttachmentToDownloadsFolder(Message m) throws FileCopyException {
+        File input = mXmppConnectionService.getFileBackend().getFile(m);
+
+        File parentDirectory =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File output = new File(parentDirectory, input.getName());
+        int counter = 1;
+        while (output.exists()) {
+            output = new File(parentDirectory, "(" + counter + ") " + input.getName());
+            counter++;
+        }
+
+        try {
+            output.createNewFile();
+        } catch (IOException e) {
+            throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
+        }
+        try (final OutputStream os = new FileOutputStream(output);
+             final InputStream is =
+                     mXmppConnectionService.getContentResolver().openInputStream(Uri.fromFile(input))) {
+            if (is == null) {
+                throw new FileCopyException(R.string.error_file_not_found);
+            }
+            try {
+                ByteStreams.copy(is, os);
+            } catch (IOException e) {
+                throw new FileWriterException(output);
+            }
+            try {
+                os.flush();
+            } catch (IOException e) {
+                throw new FileWriterException(output);
+            }
+
+            updateMediaScanner(output);
+        } catch (final FileNotFoundException e) {
+            cleanup(output);
+            throw new FileCopyException(R.string.error_file_not_found);
+        } catch (final FileWriterException e) {
+            cleanup(output);
+            throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
+        } catch (final SecurityException | IllegalStateException e) {
+            cleanup(output);
+            throw new FileCopyException(R.string.error_security_exception);
+        } catch (final IOException e) {
+            cleanup(output);
+            throw new FileCopyException(R.string.error_io_exception);
+        }
+    }
+
     public void copyFileToDocumentFile(Context ctx, File file, DocumentFile df) throws FileCopyException {
         Log.d(
                 Config.LOGTAG,

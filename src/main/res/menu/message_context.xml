@@ -52,6 +52,10 @@
         android:title="@string/copy_original_url"
         android:visible="false" />
     <item
+        android:id="@+id/save_to_downloads"
+        android:title="@string/save_to_downloads"
+        android:visible="false" />
+    <item
         android:id="@+id/save_as_sticker"
         android:title="@string/save_as_sticker"
         android:visible="false" />

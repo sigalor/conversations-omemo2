@@ -1945,6 +1945,7 @@ public class ConversationFragment extends XmppFragment
             MenuItem shareWith = menu.findItem(R.id.share_with);
             MenuItem sendAgain = menu.findItem(R.id.send_again);
             MenuItem copyUrl = menu.findItem(R.id.copy_url);
+            MenuItem saveToDownloads = menu.findItem(R.id.save_to_downloads);
             MenuItem saveAsSticker = menu.findItem(R.id.save_as_sticker);
             MenuItem downloadFile = menu.findItem(R.id.download_file);
             MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
@@ -2033,10 +2034,13 @@ public class ConversationFragment extends XmppFragment
                     if (file.canRead()) saveAsSticker.setVisible(true);
                     blockMedia.setVisible(true);
                     if (file.canWrite()) deleteFile.setVisible(true);
+                    String fileDescriptorString = UIHelper.getFileDescriptionString(activity, m);
                     deleteFile.setTitle(
                             activity.getString(
                                     R.string.delete_x_file,
-                                    UIHelper.getFileDescriptionString(activity, m)));
+                                    fileDescriptorString));
+
+                    saveToDownloads.setVisible(true);
                 }
             }
 
@@ -2169,6 +2173,9 @@ public class ConversationFragment extends XmppFragment
                 return true;
             case R.id.delete_file:
                 deleteFile(selectedMessage);
+                return true;
+            case R.id.save_to_downloads:
+                saveToDownloads(selectedMessage);
                 return true;
             case R.id.show_error_message:
                 showErrorMessage(selectedMessage);
@@ -3161,6 +3168,24 @@ public class ConversationFragment extends XmppFragment
                     }
                 });
         builder.create().show();
+    }
+
+    private void saveToDownloads(final Message message) {
+        activity.xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<>() {
+            @Override
+            public void success(Integer object) {
+                runOnUiThread(() -> Toast.makeText(activity, R.string.save_to_downloads_success, Toast.LENGTH_LONG).show());
+            }
+
+            @Override
+            public void error(int errorCode, Integer object) {
+                runOnUiThread(() -> Toast.makeText(activity, object, Toast.LENGTH_LONG).show());
+            }
+
+            @Override
+            public void userInputRequired(PendingIntent pi, Integer object) {
+            }
+        });
     }
 
     private void resendMessage(final Message message) {

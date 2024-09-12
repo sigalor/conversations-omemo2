@@ -108,4 +108,6 @@
     <string name="resize">resize</string>
     <string name="filter">filter</string>
     <string name="could_not_create_file">could_not_create_file</string>
+    <string name="save_to_downloads">Save to Downloads</string>
+    <string name="save_to_downloads_success">File successfully saved to Downloads folder</string>
 </resources>

@@ -29,6 +29,7 @@
 
 package eu.siacs.conversations.ui;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -41,6 +42,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
@@ -58,6 +60,7 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.MessageSearchTask;
 import eu.siacs.conversations.ui.adapter.MessageAdapter;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
@@ -142,6 +145,26 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		MenuItem copy = menu.findItem(R.id.copy_message);
 		MenuItem quote = menu.findItem(R.id.quote_message);
 		MenuItem copyUrl = menu.findItem(R.id.copy_url);
+		MenuItem saveToDownloads = menu.findItem(R.id.save_to_downloads);
+
+
+		final boolean deleted = message.isDeleted();
+		final boolean waitingOfferedSending =
+				message.getStatus() == Message.STATUS_WAITING
+						|| message.getStatus() == Message.STATUS_UNSEND
+						|| message.getStatus() == Message.STATUS_OFFERED;
+		final boolean cancelable =
+				(message.getTransferable() != null && !deleted) || waitingOfferedSending && message.needsUploading();
+
+		if (message.isFileOrImage() && !deleted && !cancelable) {
+			final String path = message.getRelativeFilePath();
+			if (path == null
+					|| !path.startsWith("/")
+					|| FileBackend.inConversationsDirectory(this, path)) {
+				saveToDownloads.setVisible(true);
+			}
+		}
+
 		if (message.isGeoUri()) {
 			copy.setVisible(false);
 			quote.setVisible(false);
@@ -172,6 +195,23 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 					break;
 				case R.id.copy_message:
 					ShareUtil.copyToClipboard(this, message);
+					break;
+				case R.id.save_to_downloads:
+					xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<>() {
+						@Override
+						public void success(Integer object) {
+							runOnUiThread(() -> Toast.makeText(SearchActivity.this, R.string.save_to_downloads_success, Toast.LENGTH_LONG).show());
+						}
+
+						@Override
+						public void error(int errorCode, Integer object) {
+							runOnUiThread(() -> Toast.makeText(SearchActivity.this, object, Toast.LENGTH_LONG).show());
+						}
+
+						@Override
+						public void userInputRequired(PendingIntent pi, Integer object) {
+						}
+					});
 					break;
 				case R.id.copy_url:
 					ShareUtil.copyUrlToClipboard(this, message);

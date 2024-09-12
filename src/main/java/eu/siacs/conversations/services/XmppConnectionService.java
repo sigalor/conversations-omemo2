@@ -235,7 +235,7 @@ public class XmppConnectionService extends Service {
     public final CountDownLatch restoredFromDatabaseLatch = new CountDownLatch(1);
     private final static Executor FILE_OBSERVER_EXECUTOR = Executors.newSingleThreadExecutor();
     private final static Executor FILE_ATTACHMENT_EXECUTOR = Executors.newSingleThreadExecutor();
-
+    private final static Executor COPY_TO_DOWNLOAD_EXECUTOR = Executors.newSingleThreadExecutor();
     private final ScheduledExecutorService internalPingExecutor = Executors.newSingleThreadScheduledExecutor();
     private final static SerialSingleThreadExecutor VIDEO_COMPRESSION_EXECUTOR = new SerialSingleThreadExecutor("VideoCompression");
     private final SerialSingleThreadExecutor mDatabaseWriterExecutor = new SerialSingleThreadExecutor("DatabaseWriter");
@@ -499,6 +499,17 @@ public class XmppConnectionService extends Service {
 
     public boolean areMessagesInitialized() {
         return this.restoredFromDatabaseLatch.getCount() == 0;
+    }
+
+    public void copyAttachmentToDownloadsFolder(Message m, final UiCallback<Integer> callback) {
+        COPY_TO_DOWNLOAD_EXECUTOR.execute(() -> {
+            try {
+                fileBackend.copyAttachmentToDownloadsFolder(m);
+                callback.success(-1);
+            } catch (FileBackend.FileCopyException e) {
+                callback.error(-1, e.getResId());
+            }
+        });
     }
 
     public PgpEngine getPgpEngine() {
