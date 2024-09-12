@@ -1174,10 +1174,24 @@ public class XmppConnection implements Runnable {
     }
 
     private void changeStatusToOnline() {
-        Log.d(
-                Config.LOGTAG,
-                account.getJid().asBareJid() + ": online with resource " + account.getResource());
-        changeStatus(Account.State.ONLINE);
+        if (mXmppConnectionService.getBooleanPreference("enforce_dane",R.bool.enforce_dane)) {
+            if (daneVerified()) {
+                Log.d(
+                        Config.LOGTAG,
+                        account.getJid().asBareJid() + ": online with enforced DANE with resource " + account.getResource());
+                changeStatus(Account.State.ONLINE);
+            } else {
+                Log.d(
+                        Config.LOGTAG,
+                        account.getJid().asBareJid() + ": offline with enforced DANE with resource " + account.getResource());
+                changeStatus(Account.State.DANE_FAILED);
+            }
+        } else {
+            Log.d(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid() + ": online with enforced DANE disabled with resource " + account.getResource());
+            changeStatus(Account.State.ONLINE);
+        }
     }
 
     private void processFailed(final Failed failed, final boolean sendBindRequest) {
