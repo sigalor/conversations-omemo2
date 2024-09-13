@@ -6,10 +6,12 @@ import android.graphics.drawable.Drawable;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
 import android.text.style.ClickableSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
@@ -1130,9 +1132,25 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 if (thumbnail == null) thumbnail = fallbackImg;
                 if (thumbnail != null) {
                     quote.setSpan(new InlineImageSpan(thumbnail, cid == null ? null : cid.toString()), 0, 7, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    // Make rich quotes bigger too, to match emoji
+                    for (final var span : quote.getSpans(0, quote.length(), de.monocles.chat.InlineImageSpan.class)) {
+                        quote.setSpan(
+                                new RelativeSizeSpan(1.6f),
+                                quote.getSpanStart(span),
+                                quote.getSpanEnd(span),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
                 }
             }
             quote.setSpan(new android.text.style.QuoteSpan(), 0, quote.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // Make rich quotes bigger too, to match emoji
+            for (final var span : quote.getSpans(0, quote.length(), de.monocles.chat.InlineImageSpan.class)) {
+                quote.setSpan(
+                        new RelativeSizeSpan(1.6f),
+                        quote.getSpanStart(span),
+                        quote.getSpanEnd(span),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
             spannableBody.insert(0, "\n");
             spannableBody.insert(0, quote);
         }
