@@ -73,7 +73,7 @@ public class ViewUtil {
         } else {
             final Intent openIntent = new Intent(Intent.ACTION_VIEW);
             openIntent.setDataAndType(uri, mime);
-            openIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
                 context.startActivity(openIntent);
             } catch (final ActivityNotFoundException e) {

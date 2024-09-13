@@ -157,7 +157,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         String mime = MimeUtils.guessMimeTypeFromUri(this, uri);
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(uri, mime);
-        openIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         PackageManager manager = this.getPackageManager();
         List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
         if (info.size() == 0) {
