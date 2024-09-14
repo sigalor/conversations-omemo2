@@ -6,7 +6,7 @@
 * **Server name:** monocles.de, conversations.im, jabber.de or self hosted
 * **Server software:** ejabberd 19.09.1 or prosody 0.11.3 (if known)
 * **Installed server modules:** Stream Managment, CSI, MAM
-* **Monocles Messenger source:** PlayStore, PlayStore Beta Channel, F-Droid, Github, Codeberg, self build (latest HEAD)
+* **Monocles chat source:** PlayStore, PlayStore Beta Channel, F-Droid, Github, Codeberg, self build (latest HEAD)
 
 
 #### Steps to reproduce

@@ -531,8 +531,8 @@
     <string name="no_application_to_share_uri">Ingen app fundet der kan dele URL</string>
     <string name="share_uri_with">Del URL med…</string>
     <string name="agree_and_continue">Accepter og fortsætte</string>
-    <string name="magic_create_text">En guide er oprettet til kontooprettelse på conversations.im.
-\nNår du vælger conversations.im som udbyder, vil du være i stand til at kommunikere med brugere af andre udbydere ved at give dem din fulde XMPP-adresse.</string>
+    <string name="magic_create_text">En guide er oprettet til kontooprettelse på monocles.eu.
+\nNår du vælger monocles.eu som udbyder, vil du være i stand til at kommunikere med brugere af andre udbydere ved at give dem din fulde XMPP-adresse.</string>
     <string name="your_full_jid_will_be">Din fulde XMPP-adresse vil blive: %s</string>
     <string name="create_account">Opret konto</string>
     <string name="use_own_provider">Brug min egen udbyder</string>

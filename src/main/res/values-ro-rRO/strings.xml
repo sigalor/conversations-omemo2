@@ -540,8 +540,8 @@
     <string name="no_application_to_share_uri">Nu s-a găsit nici o aplicație care să partajeze adresa</string>
     <string name="share_uri_with">Partajează adresa cu…</string>
     <string name="agree_and_continue">Sunt de acord și continuă</string>
-    <string name="magic_create_text">Ghidul va configura un cont pe conversations.im.
-\nCând alegeți conversations.im ca furnizor veți putea comunica cu utilizatorii altor furnizori oferindu-le adresa dumneavoastră completă XMPP.</string>
+    <string name="magic_create_text">Ghidul va configura un cont pe monocles.eu.
+\nCând alegeți monocles.eu ca furnizor veți putea comunica cu utilizatorii altor furnizori oferindu-le adresa dumneavoastră completă XMPP.</string>
     <string name="your_full_jid_will_be">Adresa dumneavoastră XMPP completă va fi: %s</string>
     <string name="create_account">Creează cont</string>
     <string name="use_own_provider">Folosește furnizorul meu</string>

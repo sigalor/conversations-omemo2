@@ -530,8 +530,8 @@
     <string name="no_application_to_share_uri">Aucune application disponible pour partager l\'URI</string>
     <string name="share_uri_with">Partager l\'URI avec…</string>
     <string name="agree_and_continue">Accepter et continuer</string>
-    <string name="magic_create_text">Nous vous guiderons tout au long du processus de création d\'un compte sur conversations.im.
-\nLorsque vous sélectionnerez conversations.im en tant que fournisseur, vous pourrez communiquer avec les utilisateurs d\'autres fournisseurs en leur fournissant votre adresse XMPP complète.</string>
+    <string name="magic_create_text">Nous vous guiderons tout au long du processus de création d\'un compte sur monocles.eu.
+\nLorsque vous sélectionnerez monocles.eu en tant que fournisseur, vous pourrez communiquer avec les utilisateurs d\'autres fournisseurs en leur fournissant votre adresse XMPP complète.</string>
     <string name="your_full_jid_will_be">Votre adresse XMPP complète sera : %s</string>
     <string name="create_account">Créer un compte</string>
     <string name="use_own_provider">Utiliser votre propre fournisseur</string>

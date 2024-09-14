@@ -526,8 +526,8 @@
     <string name="no_application_to_share_uri">Không tìm thấy ứng dụng nào để chia sẻ URI</string>
     <string name="share_uri_with">Chia sẻ URI với…</string>
     <string name="agree_and_continue">Đồng ý và tiếp tục</string>
-    <string name="magic_create_text">Một hướng dẫn đã được thiết lập cho việc tạo tài khoản trên conversations.im.¹
-\nKhi chọn conversations.im làm nhà cung cấp, bạn sẽ có thể giao tiếp với những người dùng của các nhà cung cấp khác bằng cách đưa cho họ địa chỉ XMPP đầy đủ của bạn.</string>
+    <string name="magic_create_text">Một hướng dẫn đã được thiết lập cho việc tạo tài khoản trên monocles.eu.¹
+\nKhi chọn monocles.eu làm nhà cung cấp, bạn sẽ có thể giao tiếp với những người dùng của các nhà cung cấp khác bằng cách đưa cho họ địa chỉ XMPP đầy đủ của bạn.</string>
     <string name="your_full_jid_will_be">Địa chỉ XMPP đầy đủ của bạn sẽ là: %s</string>
     <string name="create_account">Tạo tài khoản</string>
     <string name="use_own_provider">Dùng nhà cung cấp của tôi</string>

@@ -165,6 +165,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         );
         configureActionBar(getSupportActionBar(), false);
         binding.registerNewAccount.setOnClickListener(v -> {
+            final Intent intent = new Intent(this, MagicCreateActivity.class);
+            addInviteUri(intent);
+            startActivity(intent);
+            /* // TODO: Better Onboarding later
             if (hasInviteUri()) {
                 final Intent intent = new Intent(this, MagicCreateActivity.class);
                 addInviteUri(intent);
@@ -177,6 +181,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 onboardingAccount.setOption(Account.OPTION_FIXED_USERNAME, true);
                 xmppConnectionService.createAccount(onboardingAccount);
             }
+             */
         });
         binding.useExisting.setOnClickListener(v -> {
             final List<Account> accounts = xmppConnectionService.getAccounts();
