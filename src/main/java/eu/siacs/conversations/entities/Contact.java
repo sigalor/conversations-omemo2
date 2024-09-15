@@ -298,11 +298,13 @@ public class Contact implements ListItem, Blockable {
 
     public void removePresence(final String resource) {
         this.presences.removePresence(resource);
+        refreshCaps();
     }
 
     public void clearPresences() {
         this.presences.clearPresences();
         this.resetOption(Options.PENDING_SUBSCRIPTION_REQUEST);
+        refreshCaps();
     }
 
     public Presence.Status getShownStatus() {
@@ -735,6 +737,10 @@ public class Contact implements ListItem, Blockable {
         final RtpCapability.Capability previous = this.rtpCapability;
         this.rtpCapability = RtpCapability.check(this, false);
         return !Objects.equals(previous, this.rtpCapability);
+    }
+
+    public void refreshCaps() {
+        account.refreshCapsFor(this);
     }
 
     public RtpCapability.Capability getRtpCapability() {

@@ -5649,6 +5649,7 @@ public class XmppConnectionService extends Service {
             if (contact.refreshRtpCapability()) {
                 syncRoster(account);
             }
+            contact.refreshCaps();
             if (disco.hasIdentity("gateway", "pstn")) {
                 contact.registerAsPhoneAccount(this);
                 mQuickConversationsService.considerSyncBackground(false);
@@ -5716,6 +5717,7 @@ public class XmppConnectionService extends Service {
             }
             if (serviceDiscoverySet) {
                 rosterNeedsSync |= contact.refreshRtpCapability();
+                contact.refreshCaps();
             }
         }
         if (rosterNeedsSync) {

@@ -10,6 +10,7 @@ import androidx.core.graphics.ColorUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.HashMultimap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -112,6 +113,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     private String fastMechanism;
     private String fastToken;
     private Integer color = null;
+    private final HashMultimap<String, Contact> gateways = HashMultimap.create();
 
     public Account(final Jid jid, final String password) {
         this(
@@ -647,6 +649,25 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     public Roster getRoster() {
         return this.roster;
+    }
+
+    public void refreshCapsFor(Contact contact) {
+        for (final var k : gateways.keySet()) {
+            gateways.remove(k, contact);
+        }
+        for (final var p : contact.getPresences().getPresences()) {
+            final var disco = p.getServiceDiscoveryResult();
+            if (disco == null) continue;
+            for (final var identity : disco.getIdentities()) {
+                if ("gateway".equals(identity.getCategory())) {
+                    gateways.put(identity.getType(), contact);
+                }
+            }
+        }
+    }
+
+    public Set<Contact> getGateways(final String type) {
+        return gateways.get(type);
     }
 
     public Collection<Bookmark> getBookmarks() {
