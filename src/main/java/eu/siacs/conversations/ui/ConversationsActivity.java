@@ -95,6 +95,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -710,14 +711,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)) return false;
         }
 
-        Set<String> pstnGateways = new HashSet<>();
-        for (Account account : xmppConnectionService.getAccounts()) {
-            for (Contact contact : account.getRoster().getContacts()) {
-                if (contact.getPresences().anyIdentity("gateway", "pstn")) {
-                    pstnGateways.add(contact.getJid().asBareJid().toEscapedString());
-                }
-            }
-        }
+        Set<String> pstnGateways = xmppConnectionService.getAccounts().stream()
+            .flatMap(a -> a.getGateways("pstn").stream())
+            .map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
 
         if (pstnGateways.size() < 1) return false;
         Set<String> fromPrefs = getPreferences().getStringSet("pstn_gateways", Set.of("UPGRADE"));
