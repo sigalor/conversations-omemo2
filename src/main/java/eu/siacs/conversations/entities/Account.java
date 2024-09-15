@@ -652,7 +652,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void refreshCapsFor(Contact contact) {
-        for (final var k : gateways.keySet()) {
+        for (final var k : new HashSet<>(gateways.keySet())) {
             gateways.remove(k, contact);
         }
         for (final var p : contact.getPresences().getPresences()) {
