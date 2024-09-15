@@ -143,15 +143,7 @@ public class NotificationsSettingsFragment extends XmppPreferenceFragment {
         boolean diallerIntegrationPossible = false;
 
         if (Build.VERSION.SDK_INT >= 23) {
-            outer:
-            for (final var account : requireService().getAccounts()) {
-                for (final var contact : account.getRoster().getContacts()) {
-                    if (contact.getPresences().anyIdentity("gateway", "pstn")) {
-                        diallerIntegrationPossible = true;
-                        break outer;
-                    }
-                }
-            }
+            diallerIntegrationPossible = requireService().getAccounts().stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
         }
         if (!diallerIntegrationPossible) {
             final var pref = findPreference("dialler_integration_incoming");
