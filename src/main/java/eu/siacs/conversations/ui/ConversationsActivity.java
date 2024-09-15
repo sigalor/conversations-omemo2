@@ -96,6 +96,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -1080,15 +1081,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             return false;
         }
 
-        Set<String> gateways = new HashSet<>();
-        for (Account account : (acct == null ? xmppConnectionService.getAccounts() : List.of(acct))) {
-            for (Contact contact : account.getRoster().getContacts()) {
-                if (contact.getPresences().anyIdentity("gateway", "pstn") || contact.getPresences().anyIdentity("gateway", "sms")) {
-                    if (acct == null) acct = account;
-                    gateways.add(contact.getJid().asBareJid().toEscapedString());
-                }
-            }
-        }
+        Set<String> gateways = (acct == null ? xmppConnectionService.getAccounts().stream() : List.of(acct).stream()).flatMap(account ->
+            Stream.concat(
+                account.getGateways("pstn").stream(),
+                account.getGateways("sms").stream()
+            )
+        ).map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
 
         for (String gateway : gateways) {
             if (onXmppUriClicked(Uri.parse("xmpp:" + tel + "@" + gateway))) return true;
