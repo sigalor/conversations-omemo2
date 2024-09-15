@@ -183,6 +183,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private Bundle savedState = null;
     private Tag selectedTag = null;
     private long mainFilter = DRAWER_ALL_CHATS;
+    private boolean refreshAccounts = true;
 
     private static boolean isViewOrShareIntent(Intent i) {
         Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
@@ -208,97 +209,106 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         if (accountHeader == null) return;
 
-        final var accounts = xmppConnectionService.getAccounts();
-        final var inHeader = new HashSet<>();
-        for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
-            if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
-            if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
-                inHeader.add(p.getTag());
-            } else {
-                accountHeader.removeProfile(p);
+        accountHeader.apply(ah -> {
+            if (!refreshAccounts) return kotlin.Unit.INSTANCE;
+            refreshAccounts = false;
+            final var accounts = xmppConnectionService.getAccounts();
+            final var inHeader = new HashSet<>();
+            for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
+                if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
+                if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
+                    inHeader.add(p.getTag());
+                } else {
+                    accountHeader.removeProfile(p);
+                }
             }
-        }
 
-        if (accounts.size() > 1 && !inHeader.contains(null)) {
-            final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
-            all.setIdentifier(100);
-            com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
-            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
-            accountHeader.addProfile(all, 0);
-        }
-
-        accountHeader.removeProfileByIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
-        final var hasPhoneAccounts = accounts.stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
-        if (hasPhoneAccounts) {
-            final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
-            phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
-            com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
-            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
-            accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
-        }
-
-        long id = 101;
-        for (final var a : accounts) {
-            final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
-            p.setIdentifier(id++);
-            p.setTag(a);
-            com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
-            com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
-            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false)).copy(Bitmap.Config.ARGB_8888, false));
-            if (inHeader.contains(a)) {
-                accountHeader.updateProfile(p);
-            } else {
-                accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+            if (accounts.size() > 1 && !inHeader.contains(null)) {
+                final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+                all.setIdentifier(100);
+                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
+                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
+                accountHeader.addProfile(all, 0);
             }
-        }
 
-        final var items = binding.drawer.getItemAdapter().getAdapterItems();
-        final var tags = new TreeMap<Tag, Integer>();
-        final var conversations = new ArrayList<Conversation>();
-        populateWithOrderedConversations(conversations, false);
-        for (final var c : conversations) {
-            for (final var tag : c.getTags(this)) {
-                if ("Channel".equals(tag.getName())) continue;
-                var count = tags.get(tag);
-                if (count == null) count = 0;
-                tags.put(tag, count + c.unreadCount());
+            accountHeader.removeProfileByIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+            final var hasPhoneAccounts = accounts.stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
+            if (hasPhoneAccounts) {
+                final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
+                phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
+                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
+                accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
             }
-        }
 
-        id = 1000;
-        final var inDrawer = new HashMap<Tag, Long>();
-        for (final var item : ImmutableList.copyOf(items)) {
-            if (item.getIdentifier() >= 1000 && !tags.containsKey(item.getTag())) {
-                com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.removeItems(binding.drawer, item);
-            } else if (item.getIdentifier() >= 1000) {
-                inDrawer.put((Tag)item.getTag(), item.getIdentifier());
-                id = item.getIdentifier() + 1;
+            long id = 101;
+            for (final var a : accounts) {
+                final var avatar = xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false);
+                final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+                p.setIdentifier(id++);
+                p.setTag(a);
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
+                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
+                if (avatar != null) com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(avatar).copy(Bitmap.Config.ARGB_8888, false));
+                if (inHeader.contains(a)) {
+                    accountHeader.updateProfile(p);
+                } else {
+                    accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+                }
             }
-        }
+            return kotlin.Unit.INSTANCE;
+        });
 
-        for (final var entry : tags.entrySet()) {
-            final var badge = entry.getValue() > 0 ? entry.getValue().toString() : null;
-            if (inDrawer.containsKey(entry.getKey())) {
-                com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
-                    binding.drawer,
-                    inDrawer.get(entry.getKey()),
-                    new com.mikepenz.materialdrawer.holder.StringHolder(badge)
-                );
-            } else {
-                final var item = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
-                item.setIdentifier(id++);
-                item.setTag(entry.getKey());
-                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(item, entry.getKey().getName());
-                if (badge != null) com.mikepenz.materialdrawer.model.interfaces.BadgeableKt.setBadgeText(item, badge);
-                final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
-                final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
-                item.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
-                binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(4), item);
+        binding.drawer.apply(dr -> {
+            final var items = binding.drawer.getItemAdapter().getAdapterItems();
+            final var tags = new TreeMap<Tag, Integer>();
+            final var conversations = new ArrayList<Conversation>();
+            populateWithOrderedConversations(conversations, false, false);
+            for (final var c : conversations) {
+                for (final var tag : c.getTags(this)) {
+                    if ("Channel".equals(tag.getName())) continue;
+                    var count = tags.get(tag);
+                    if (count == null) count = 0;
+                    tags.put(tag, count + c.unreadCount());
+                }
             }
-        }
 
-        items.subList(4, 4 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
-        binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
+            long id = 1000;
+            final var inDrawer = new HashMap<Tag, Long>();
+            for (final var item : ImmutableList.copyOf(items)) {
+                if (item.getIdentifier() >= 1000 && !tags.containsKey(item.getTag())) {
+                    com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.removeItems(binding.drawer, item);
+                } else if (item.getIdentifier() >= 1000) {
+                    inDrawer.put((Tag)item.getTag(), item.getIdentifier());
+                    id = item.getIdentifier() + 1;
+                }
+            }
+
+            for (final var entry : tags.entrySet()) {
+                final var badge = entry.getValue() > 0 ? entry.getValue().toString() : null;
+                if (inDrawer.containsKey(entry.getKey())) {
+                    com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
+                        binding.drawer,
+                        inDrawer.get(entry.getKey()),
+                        new com.mikepenz.materialdrawer.holder.StringHolder(badge)
+                    );
+                } else {
+                    final var item = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
+                    item.setIdentifier(id++);
+                    item.setTag(entry.getKey());
+                    com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(item, entry.getKey().getName());
+                    if (badge != null) com.mikepenz.materialdrawer.model.interfaces.BadgeableKt.setBadgeText(item, badge);
+                    final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
+                    final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
+                    item.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
+                    binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(4), item);
+                }
+            }
+
+            items.subList(4, 4 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
+            binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
+            return kotlin.Unit.INSTANCE;
+        });
     }
 
     @Override
@@ -545,11 +555,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void populateWithOrderedConversations(List<Conversation> list) {
-        populateWithOrderedConversations(list, true);
+        populateWithOrderedConversations(list, true, true);
     }
 
-    public void populateWithOrderedConversations(List<Conversation> list, final boolean tagFilter) {
-        super.populateWithOrderedConversations(list);
+    public void populateWithOrderedConversations(List<Conversation> list, final boolean tagFilter, final boolean sort) {
+        if (sort) {
+            super.populateWithOrderedConversations(list);
+        } else {
+            list.addAll(xmppConnectionService.getConversations());
+        }
         if (accountHeader == null || accountHeader.getActiveProfile() == null) return;
 
         final var selectedAccount =
@@ -1457,6 +1471,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     @Override
     public void onAccountUpdate() {
+        refreshAccounts = true;
         this.refreshUi();
     }
 
