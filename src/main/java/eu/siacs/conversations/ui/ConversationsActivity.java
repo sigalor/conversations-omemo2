@@ -227,21 +227,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             accountHeader.addProfile(all, 0);
         }
 
-        var hasPhoneAccounts = false;
         accountHeader.removeProfileByIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
-        outer:
-        for (Account account : xmppConnectionService.getAccounts()) {
-            for (Contact contact : account.getRoster().getContacts()) {
-                if (contact.getPresences().anyIdentity("gateway", "pstn")) {
-                    hasPhoneAccounts = true;
-                    final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
-                    phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
-                    com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
-                    com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
-                    accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
-                    break outer;
-                }
-            }
+        final var hasPhoneAccounts = accounts.stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
+        if (hasPhoneAccounts) {
+            final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
+            phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+            com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
+            com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
+            accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
         }
 
         long id = 101;
