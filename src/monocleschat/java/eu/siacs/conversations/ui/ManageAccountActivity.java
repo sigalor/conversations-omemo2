@@ -105,14 +105,9 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)) return;
         }
 
-        outer:
-        for (Account account : xmppConnectionService.getAccounts()) {
-            for (Contact contact : account.getRoster().getContacts()) {
-                if (contact.getPresences().anyIdentity("gateway", "pstn")) {
-                    findViewById(R.id.phone_accounts).setVisibility(View.VISIBLE);
-                    break outer;
-                }
-            }
+        final var hasPhoneAccounts = xmppConnectionService.getAccounts().stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
+        if (hasPhoneAccounts) {
+            findViewById(R.id.phone_accounts).setVisibility(View.VISIBLE);
         }
     }
 
