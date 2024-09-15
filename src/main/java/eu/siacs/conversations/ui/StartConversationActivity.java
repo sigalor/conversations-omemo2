@@ -1253,16 +1253,9 @@ public class StartConversationActivity extends XmppActivity
                     }
                 }
 
-                for (Contact contact : account.getRoster().getContacts()) {
-                    if (contact.getPresences().anyIdentity("gateway", "pstn")) {
-                        hasPstnOrSms = true;
-                        break outer;
-                    }
-                    if (contact.getPresences().anyIdentity("gateway", "sms")) {
-                        hasPstnOrSms = true;
-                        break outer;
-                    }
-                }
+                final var hasGw = account.getGateways("pstn").size() > 0 || account.getGateways("sms").size() > 0;
+                hasPstnOrSms = hasPstnOrSms || hasGw;
+                if (hasGw) break outer;
             }
 
             if (!hasPstnOrSms) {
