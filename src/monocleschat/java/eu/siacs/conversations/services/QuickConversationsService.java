@@ -4,10 +4,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList;
@@ -65,7 +68,7 @@ public class QuickConversationsService extends AbstractQuickConversationsService
         Log.d(Config.LOGTAG,"ignoring received SMS");
     }
 
-    protected static String getNumber(final List<String> gateways, final Contact contact) {
+    protected static String getNumber(final Set<String> gateways, final Contact contact) {
         final Jid jid = contact.getJid();
         if (jid.getLocal() != null && ("quicksy.im".equals(jid.getDomain()) || gateways.contains(jid.getDomain()))) {
             return jid.getLocal();
@@ -73,7 +76,7 @@ public class QuickConversationsService extends AbstractQuickConversationsService
         return null;
     }
 
-    protected void refresh(Account account, final List<String> gateways, Collection<PhoneNumberContact> phoneNumberContacts) {
+    protected void refresh(Account account, final Set<String> gateways, Collection<PhoneNumberContact> phoneNumberContacts) {
         for (Contact contact : account.getRoster().getWithSystemAccounts(PhoneNumberContact.class)) {
             final Uri uri = contact.getSystemAccount();
             if (uri == null) {
@@ -100,7 +103,7 @@ public class QuickConversationsService extends AbstractQuickConversationsService
     protected void considerSync(boolean forced) {
         ImmutableMap<String, PhoneNumberContact> allContacts = null;
         for (final Account account : ImmutableList.copyOf(service.getAccounts())) {
-            List<String> gateways = gateways(account);
+            final var gateways = gateways(account);
             if (allContacts == null) allContacts = PhoneNumberContact.load(service);
             refresh(account, gateways, allContacts.values());
             if (!considerSync(account, gateways, allContacts, forced)) {
@@ -109,17 +112,14 @@ public class QuickConversationsService extends AbstractQuickConversationsService
         }
     }
 
-    protected List<String> gateways(final Account account) {
-        List<String> gateways = new ArrayList();
-        for (final Contact contact : account.getRoster().getContacts()) {
-            if (contact.showInRoster() && (contact.getPresences().anyIdentity("gateway", "pstn") || contact.getPresences().anyIdentity("gateway", "sms"))) {
-                gateways.add(contact.getJid().asBareJid().toString());
-            }
-        }
-        return gateways;
+    protected Set<String> gateways(final Account account) {
+        return Stream.concat(
+            account.getGateways("pstn").stream(),
+            account.getGateways("sms").stream()
+        ).map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
     }
 
-    protected boolean considerSync(final Account account, final List<String> gateways, final Map<String, PhoneNumberContact> contacts, final boolean forced) {
+    protected boolean considerSync(final Account account, final Set<String> gateways, final Map<String, PhoneNumberContact> contacts, final boolean forced) {
         final int hash = Objects.hash(contacts.keySet(), gateways);
         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": consider sync of " + hash);
         if (!mLastSyncAttempt.getOrDefault(account.getUuid(), Attempt.NULL).retry(hash) && !forced) {
