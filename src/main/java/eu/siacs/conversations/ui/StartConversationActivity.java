@@ -530,9 +530,7 @@ public class StartConversationActivity extends XmppActivity
         mConferenceAdapter.refreshSettings();
         mContactsAdapter.refreshSettings();
         if (pendingViewIntent.peek() == null) {
-            if (askForContactsPermissions()) {
-                return;
-            }
+            askForContactsPermissions();
             requestNotificationPermissionIfNeeded();
         }
 
