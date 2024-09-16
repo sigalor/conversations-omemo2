@@ -163,7 +163,7 @@
                         android:layout_below="@+id/conversation_lastwrapper"
                         android:layout_alignParentBottom="true"
                         android:paddingTop="4dp"
-                        android:textAppearance="?textAppearanceLabelSmall"
+                        android:textSize="11sp"
                         android:visibility="gone" />
                 </RelativeLayout>
             </RelativeLayout>
