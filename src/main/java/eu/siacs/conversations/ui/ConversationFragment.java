@@ -4231,6 +4231,7 @@ public class ConversationFragment extends XmppFragment
             params.width = identiconWidth;
             binding.quickButtons.setVisibility(VISIBLE);
         } else {
+            binding.quickButtons.setVisibility(VISIBLE);
             params.width = 0;
         }
         if (!canWrite()) params.width = 0;
