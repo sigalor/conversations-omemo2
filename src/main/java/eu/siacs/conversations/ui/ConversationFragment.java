@@ -2985,9 +2985,7 @@ public class ConversationFragment extends XmppFragment
         Element thread = new Element("thread", "jabber:client");
         thread.setContent(UUID.randomUUID().toString());
         if (oldThread != null) thread.setAttribute("parent", oldThread.getContent());
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            setThread(thread);
-        }
+        setThread(thread);
     }
 
     private void newThread() {
