@@ -110,4 +110,5 @@
     <string name="could_not_create_file">could_not_create_file</string>
     <string name="save_to_downloads">Save to Downloads</string>
     <string name="save_to_downloads_success">File successfully saved to Downloads folder</string>
+    <string name="mappreview_url">https://staticmap.monocles.eu/map.png</string>
 </resources>

@@ -1,5 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
+import static android.view.View.GONE;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -53,6 +55,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.DataBindingUtil;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -933,14 +936,28 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void displayLocationMessage(
             ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.image.setVisibility(View.GONE);
+        final String url = GeoHelper.MapPreviewUri(message, activity);
         viewHolder.audioPlayer.setVisibility(View.GONE);
-        viewHolder.download_button.setVisibility(View.VISIBLE);
-        viewHolder.download_button.setText(R.string.show_location);
-        final var attachment = Attachment.of(message);
-        final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
-        viewHolder.download_button.setIconResource(imageResource);
-        viewHolder.download_button.setOnClickListener(v -> showLocation(message));
+        if (activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
+            Glide.with(activity)
+                    .load(Uri.parse(url))
+                    .placeholder(R.drawable.marker)
+                    .error(R.drawable.marker)
+                    .into(viewHolder.image);
+            Drawable d = viewHolder.image.getDrawable();
+            viewHolder.image.setVisibility(View.VISIBLE);
+            imagePreviewLayout(d.getIntrinsicWidth(), d.getIntrinsicHeight(), viewHolder.image, message.getInReplyTo() != null, true, type, viewHolder);
+            viewHolder.image.setOnClickListener(v -> showLocation(message));
+            viewHolder.download_button.setVisibility(GONE);
+        } else {
+            viewHolder.image.setVisibility(View.GONE);
+            viewHolder.download_button.setVisibility(View.VISIBLE);
+            viewHolder.download_button.setText(R.string.show_location);
+            final var attachment = Attachment.of(message);
+            final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
+            viewHolder.download_button.setIconResource(imageResource);
+            viewHolder.download_button.setOnClickListener(v -> showLocation(message));
+        }
     }
 
     private void displayAudioMessage(

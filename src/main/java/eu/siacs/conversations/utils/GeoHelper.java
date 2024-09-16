@@ -1,19 +1,24 @@
 package eu.siacs.conversations.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.webkit.URLUtil;
 
 import org.osmdroid.util.GeoPoint;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversational;
@@ -148,5 +153,27 @@ public class GeoHelper {
 		} else {
 			return context.getString(R.string.me);
 		}
+	}
+
+	public static String MapPreviewUri(Message message, Activity activity) {
+		Matcher matcher = GEO_URI.matcher(message.getQuoteableBody());
+		if (!matcher.matches()) {
+			return null;
+		}
+		double latitude;
+		double longitude;
+		try {
+			latitude = Double.parseDouble(matcher.group(1));
+			if (latitude > 90.0 || latitude < -90.0) {
+				return null;
+			}
+			longitude = Double.parseDouble(matcher.group(2));
+			if (longitude > 180.0 || longitude < -180.0) {
+				return null;
+			}
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
+		return activity.getResources().getString(R.string.mappreview_url) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
 	}
 }

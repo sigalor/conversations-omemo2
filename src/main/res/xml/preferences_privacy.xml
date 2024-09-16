@@ -25,6 +25,13 @@
             android:key="send_link_previews"
             android:summary="@string/pref_send_link_previews_summary"
             android:title="@string/pref_send_link_previews" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_maps_inside"
+            android:icon="@drawable/ic_menu_mapmode"
+            android:disableDependentsState="false"
+            android:key="show_maps_inside"
+            android:summary="@string/pref_show_mappreview_inside_summary"
+            android:title="@string/pref_show_mappreview_inside" />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_interaction">

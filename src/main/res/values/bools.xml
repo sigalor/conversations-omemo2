@@ -3,4 +3,5 @@
     <bool name="show_avatar_incoming_call">true</bool>
     <bool name="show_less_avatars">true</bool>
     <bool name="show_thread_feature">false</bool>
+    <bool name="show_maps_inside">true</bool>
 </resources>
