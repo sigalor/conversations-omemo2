@@ -1094,7 +1094,7 @@
     <string name="video_is_disabled_tap_to_enable">Video is disabled. Tap to enable.</string>
     <string name="server_info_login_mechanism">Login mechanism</string>
     <string name="welcome_to_monocles_chat">Welcome to monocles chat</string>
-    <string name="monocles_chat_intro_description">monocles chat is an app that connects you to a global network called Jabber. This network includes services, called gateways, for chatting with other networks such as SMS, IRC, Matrix, and more.</string>
+    <string name="monocles_chat_intro_description">monocles chat is an app that connects you to a global network called XMPP. This network includes services, called gateways, for chatting with other networks such as SMS, IRC, Matrix, and more.</string>
     <string name="how_the_xmpp_network_works">How the XMPP network works</string>
     <string name="do_you_really_want_to_retract_this_message">Do you really want to retract this message?</string>
     <string name="show_avatar">Show avatar</string>
