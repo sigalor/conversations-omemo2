@@ -15,5 +15,5 @@
     <string name="share_invite_with">Einladung teilen mit…</string>
 
     <string name="pref_enforce_dane_summary">Erlaube Verbindungen nur bei erfolgreicher DANE verifizierung</string>
-    <string name="pref_enforce_dane">DANE erwzingen</string>
+    <string name="pref_enforce_dane">DANE erzwingen</string>
 </resources>
