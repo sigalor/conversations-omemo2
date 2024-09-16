@@ -2997,20 +2997,21 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void updateThreadFromLastMessage() {
-        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            if (this.conversation != null && !this.conversation.getUserSelectedThread() && TextUtils.isEmpty(binding.textinput.getText())) {
-                Message message = getLastVisibleMessage();
-                if (message == null) {
+        if (this.conversation != null && !this.conversation.getUserSelectedThread() && TextUtils.isEmpty(binding.textinput.getText())) {
+            Message message = getLastVisibleMessage();
+            if (message == null) {
+                if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     newThread();
-                } else {
-                    if (conversation.getMode() == Conversation.MODE_MULTI) {
-                        if (activity == null || activity.xmppConnectionService == null) return;
-                        if (message.getStatus() < Message.STATUS_SEND) {
-                            if (!activity.xmppConnectionService.getBooleanPreference("follow_thread_in_channel", R.bool.follow_thread_in_channel))
-                                return;
-                        }
+                }
+            } else {
+                if (conversation.getMode() == Conversation.MODE_MULTI) {
+                    if (activity == null || activity.xmppConnectionService == null) return;
+                    if (message.getStatus() < Message.STATUS_SEND) {
+                        if (activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("follow_thread_in_channel", R.bool.follow_thread_in_channel))
+                            return;
                     }
-
+                }
+                if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                     setThread(message.getThread());
                 }
             }
