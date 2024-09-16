@@ -82,6 +82,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1339,12 +1340,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
 
-        viewHolder.message_box.setOnClickListener(v -> {
-            if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                MessageAdapter.this.mOnMessageBoxClickedListener
-                        .onContactPictureClicked(message);
-            }
-        });
+        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            viewHolder.message_box.setOnClickListener(v -> {
+                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                    MessageAdapter.this.mOnMessageBoxClickedListener
+                            .onContactPictureClicked(message);
+                }
+            });
+        }
 
 
         // monocles swipe feature
@@ -1466,8 +1469,15 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             } else if (message.getFileParams().runtime > 0) {
                 displayAudioMessage(viewHolder, message, bubbleColor, type);
-            } else if ("application/webxdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && message.getThread() != null && !message.getFileParams().getCids().isEmpty()) {
-                displayWebxdcMessage(viewHolder, message, bubbleColor, type);
+            } else if ("application/webxdc+zip".equals(message.getFileParams().getMediaType()) && message.getConversation() instanceof Conversation && !message.getFileParams().getCids().isEmpty()) {
+                if (message.getThread() != null) {
+                    displayWebxdcMessage(viewHolder, message, bubbleColor, type);
+                } else {
+                    Element thread = new Element("thread", "jabber:client");
+                    thread.setContent(UUID.randomUUID().toString());
+                    message.setThread(thread);
+                    displayWebxdcMessage(viewHolder, message, bubbleColor, type);
+                }
             } else {
                 displayOpenableMessage(viewHolder, message, bubbleColor, type);
             }

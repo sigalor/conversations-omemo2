@@ -631,7 +631,9 @@ public class XmppConnectionService extends Service {
         }
         Message message = new Message(conversation, uri.toString(), encryption);
         if (subject != null && subject.length() > 0) message.setSubject(subject);
-        message.setThread(conversation.getThread());
+        if (getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            message.setThread(conversation.getThread());
+        }
         Message.configurePrivateMessage(message);
         if (encryption == Message.ENCRYPTION_DECRYPTED) {
             getPgpEngine().encrypt(message, callback);
@@ -653,7 +655,9 @@ public class XmppConnectionService extends Service {
             message.setEncryption(Message.ENCRYPTION_DECRYPTED);
         }
         if (subject != null && subject.length() > 0) message.setSubject(subject);
-        message.setThread(conversation.getThread());
+        if (getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            message.setThread(conversation.getThread());
+        }
         if (!Message.configurePrivateFileMessage(message)) {
             message.setCounterpart(conversation.getNextCounterpart());
             message.setType(Message.TYPE_FILE);
@@ -692,7 +696,9 @@ public class XmppConnectionService extends Service {
             message.setEncryption(Message.ENCRYPTION_DECRYPTED);
         }
         if (subject != null && subject.length() > 0) message.setSubject(subject);
-        message.setThread(conversation.getThread());
+        if (getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            message.setThread(conversation.getThread());
+        }
         if (!Message.configurePrivateFileMessage(message)) {
             message.setCounterpart(conversation.getNextCounterpart());
             message.setType(Message.TYPE_IMAGE);

@@ -145,6 +145,12 @@
             android:title="@string/pref_allow_screenshots" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_input_options">
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_thread_feature"
+            android:key="show_thread_feature"
+            android:icon="@drawable/thread_hint"
+            android:summary="@string/pref_show_thread_feature_summary"
+            android:title="@string/pref_show_thread_feature" />
         <ListPreference
             android:defaultValue="@string/quick_action"
             android:dialogTitle="@string/choose_quick_action"

@@ -1108,4 +1108,6 @@
     <string name="add_subject">Add subject</string>
     <string name="pref_jump_to_commands_tab">Jump to commands</string>
     <string name="pref_jump_to_commands_tab_summary">Automatically jump to commands page when available</string>
+    <string name="pref_show_thread_feature_summary">Show thread icon and use threads</string>
+    <string name="pref_show_thread_feature">Thread icon</string>
 </resources>
