@@ -535,6 +535,15 @@ public class StartConversationActivity extends XmppActivity
             }
             requestNotificationPermissionIfNeeded();
         }
+
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.contactslist);
+
+        if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
+            bottomNavigationView.setVisibility(VISIBLE);
+        } else {
+            bottomNavigationView.setVisibility(View.GONE);
+        }
     }
 
     private void requestNotificationPermissionIfNeeded() {
@@ -544,15 +553,6 @@ public class StartConversationActivity extends XmppActivity
             requestPermissions(
                     new String[] {Manifest.permission.POST_NOTIFICATIONS},
                     REQUEST_POST_NOTIFICATION);
-        }
-
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.contactslist);
-
-        if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
-            bottomNavigationView.setVisibility(VISIBLE);
-        } else {
-            bottomNavigationView.setVisibility(View.GONE);
         }
     }
 
@@ -1159,8 +1159,9 @@ public class StartConversationActivity extends XmppActivity
         }
         boolean openConversations =
                 !createdByViewIntent && !xmppConnectionService.isConversationsListEmpty(null);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
-        actionBar.setDisplayHomeAsUpEnabled(openConversations);
+        boolean showNavBar = binding.bottomNavigation.getVisibility() == VISIBLE;
+        actionBar.setDisplayHomeAsUpEnabled(openConversations && !showNavBar);
+        actionBar.setDisplayHomeAsUpEnabled(openConversations && !showNavBar);
     }
 
     @Override
