@@ -71,6 +71,13 @@ public class ConversationAdapter
             viewHolder.binding.conversationName.setText(name);
         }
 
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getPreferences().getBoolean("show_own_accounts", false)) {
+            viewHolder.binding.account.setVisibility(View.VISIBLE);
+            viewHolder.binding.account.setText(conversation.getAccount().getJid().asBareJid());
+        } else {
+            viewHolder.binding.account.setVisibility(View.GONE);
+        }
+
         if (conversation == ConversationFragment.getConversation(activity)) {
             viewHolder.binding.frame.setBackgroundResource(
                     R.drawable.background_selected_item_conversation);

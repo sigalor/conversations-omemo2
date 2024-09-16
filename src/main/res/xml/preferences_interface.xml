@@ -98,6 +98,12 @@
             android:summary="@string/pref_show_less_avatars_summary"
             android:title="@string/pref_show_less_avatars" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_own_accounts"
+            android:icon="@drawable/ic_person_24dp"
+            android:key="show_own_accounts"
+            android:summary="@string/pref_show_own_accounts_summary"
+            android:title="@string/pref_show_own_accounts" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/show_nav_bar"
             android:key="show_nav_bar"
             android:icon="@drawable/ic_navigate_next_24dp"

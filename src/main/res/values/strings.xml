@@ -1112,4 +1112,6 @@
     <string name="pref_show_thread_feature">Thread icon</string>
     <string name="pref_show_mappreview_inside">Show maps preview</string>
     <string name="pref_show_mappreview_inside_summary">Load a preview of maps for a share location inside the chat</string>
+    <string name="pref_show_own_accounts">Show own account name</string>
+    <string name="pref_show_own_accounts_summary">Shows the used account on messages overview and details</string>
 </resources>

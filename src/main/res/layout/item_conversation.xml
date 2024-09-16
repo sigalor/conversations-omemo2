@@ -155,6 +155,16 @@
                         android:layout_alignParentEnd="true"
                         android:gravity="right"
                         tools:text="23:42" />
+
+                    <TextView
+                        android:id="@+id/account"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/conversation_lastwrapper"
+                        android:layout_alignParentBottom="true"
+                        android:paddingTop="4dp"
+                        android:textAppearance="?textAppearanceLabelSmall"
+                        android:visibility="gone" />
                 </RelativeLayout>
             </RelativeLayout>
         </FrameLayout>

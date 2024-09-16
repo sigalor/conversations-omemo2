@@ -145,6 +145,12 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		} else {
 			viewHolder.jid.setVisibility(View.GONE);
 		}
+		if (activity.xmppConnectionService != null && activity.xmppConnectionService.getPreferences().getBoolean("show_own_accounts", false)) {
+			viewHolder.account.setVisibility(View.VISIBLE);
+			viewHolder.account.setText(item.getAccount().getJid().asBareJid());
+		} else {
+			viewHolder.account.setVisibility(View.GONE);
+		}
 		viewHolder.name.setText(item.getDisplayName());
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
 		return view;
@@ -162,6 +168,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 	private static class ViewHolder {
 		private TextView name;
 		private TextView jid;
+		private TextView account;
 		private ImageView avatar;
 		private View inner;
 		private ConstraintLayout tags;
@@ -175,6 +182,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.name = binding.contactDisplayName;
 			viewHolder.jid = binding.contactJid;
+			viewHolder.account = binding.account;
 			viewHolder.avatar = binding.contactPhoto;
 			viewHolder.tags = binding.tags;
 			viewHolder.inner = binding.inner;
