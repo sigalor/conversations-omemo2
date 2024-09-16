@@ -71,7 +71,7 @@ public class ConversationAdapter
             viewHolder.binding.conversationName.setText(name);
         }
 
-        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getPreferences().getBoolean("show_own_accounts", false)) {
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_own_accounts", R.bool.show_own_accounts)) {
             viewHolder.binding.account.setVisibility(View.VISIBLE);
             viewHolder.binding.account.setText(conversation.getAccount().getJid().asBareJid());
         } else {

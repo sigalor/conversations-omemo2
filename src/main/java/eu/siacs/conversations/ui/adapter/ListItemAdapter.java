@@ -145,7 +145,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		} else {
 			viewHolder.jid.setVisibility(View.GONE);
 		}
-		if (activity.xmppConnectionService != null && activity.xmppConnectionService.getPreferences().getBoolean("show_own_accounts", false)) {
+		if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_own_accounts", R.bool.show_own_accounts)) {
 			viewHolder.account.setVisibility(View.VISIBLE);
 			viewHolder.account.setText(item.getAccount().getJid().asBareJid());
 		} else {
