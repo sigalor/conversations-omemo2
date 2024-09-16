@@ -938,7 +938,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         displayTextMessage(viewHolder, message, bubbleColor, type);
         final String url = GeoHelper.MapPreviewUri(message, activity);
         viewHolder.audioPlayer.setVisibility(View.GONE);
-        if (activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
             Glide.with(activity)
                     .load(Uri.parse(url))
                     .placeholder(R.drawable.marker)
