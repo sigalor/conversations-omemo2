@@ -251,7 +251,6 @@ public class EmojiSearch {
 				final List<Emoji> results = find(q);
 				activity.runOnUiThread(() -> {
 					submitList(results);
-					notifyDataSetChanged();
 				});
 			});
 		}
