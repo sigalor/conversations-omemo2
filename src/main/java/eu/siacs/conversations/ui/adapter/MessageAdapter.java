@@ -944,7 +944,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     .placeholder(R.drawable.marker)
                     .error(R.drawable.marker)
                     .into(viewHolder.image);
-            Drawable d = viewHolder.image.getDrawable();
             viewHolder.image.setVisibility(View.VISIBLE);
             imagePreviewLayout(540, 540, viewHolder.image, message.getInReplyTo() != null, true, type, viewHolder);
             viewHolder.image.setOnClickListener(v -> showLocation(message));
