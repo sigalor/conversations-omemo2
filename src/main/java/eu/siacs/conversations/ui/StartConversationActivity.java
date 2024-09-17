@@ -1180,6 +1180,7 @@ public class StartConversationActivity extends XmppActivity
         configureHomeButton();
         Intent intent = pendingViewIntent.pop();
 
+        /*      // Better Onboarding later
         final boolean onboardingCancel = xmppConnectionService.getPreferences().getString("onboarding_action", "").equals("cancel");
         if (onboardingCancel) xmppConnectionService.getPreferences().edit().remove("onboarding_action").commit();
 
@@ -1223,6 +1224,7 @@ public class StartConversationActivity extends XmppActivity
                 }
             }
         }
+         */
 
         if (intent != null && processViewIntent(intent)) {
             filter(null);
