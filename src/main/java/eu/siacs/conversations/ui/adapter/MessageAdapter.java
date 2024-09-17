@@ -946,7 +946,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     .into(viewHolder.image);
             Drawable d = viewHolder.image.getDrawable();
             viewHolder.image.setVisibility(View.VISIBLE);
-            imagePreviewLayout(d.getIntrinsicWidth(), d.getIntrinsicHeight(), viewHolder.image, message.getInReplyTo() != null, true, type, viewHolder);
+            imagePreviewLayout(540, 540, viewHolder.image, message.getInReplyTo() != null, true, type, viewHolder);
             viewHolder.image.setOnClickListener(v -> showLocation(message));
             viewHolder.download_button.setVisibility(GONE);
         } else {
