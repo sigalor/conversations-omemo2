@@ -1359,6 +1359,8 @@ public class FileBackend {
                     thumbnail = new BitmapDrawable(res, getPdfDocumentPreview(file, size));
                 } else if (mime.startsWith("video/")) {
                     thumbnail = new BitmapDrawable(res, getVideoPreview(file, size));
+                } else if (mime.startsWith("audio/")) {
+                    thumbnail = res.getDrawable(R.drawable.audio_file_24dp);
                 } else {
                     thumbnail = getImagePreview(file, res, size, mime);
                     if (thumbnail == null) {
