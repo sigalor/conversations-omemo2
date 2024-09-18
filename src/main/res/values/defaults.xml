@@ -27,7 +27,7 @@
     <bool name="allow_message_correction">true</bool>
     <bool name="use_tor">false</bool>
     <bool name="show_connection_options">false</bool>
-    <bool name="display_enter_key">false</bool>
+    <bool name="display_enter_key">true</bool>
     <bool name="manually_change_presence">false</bool>
     <bool name="away_when_screen_off">true</bool>
     <bool name="enable_foreground_service">true</bool>
