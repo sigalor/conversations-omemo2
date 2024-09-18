@@ -485,11 +485,14 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             if (fasten != null) {
                 replaceElement = fasten.findChild("retract", "urn:xmpp:message-retract:0");
                 if (replaceElement == null) replaceElement = fasten.findChild("moderated", "urn:xmpp:message-moderate:0");
-                if (replaceElement != null) {
-                    final String reason = replaceElement.findChildContent("reason", "urn:xmpp:message-moderate:0");
-                    replacementId = fasten.getAttribute("id");
-                    packet.setBody(reason == null ? "" : reason);
-                }
+            }
+            if (replaceElement == null) replaceElement = packet.findChild("retract", "urn:xmpp:message-retract:1");
+            if (replaceElement == null) replaceElement = packet.findChild("moderate", "urn:xmpp:message-moderate:1");
+            if (replaceElement != null) {
+                var reason = replaceElement.findChildContent("reason", "urn:xmpp:message-moderate:0");
+                if (reason == null) reason = replaceElement.findChildContent("reason", "urn:xmpp:message-moderate:1");
+                replacementId = (fasten == null ? replaceElement : fasten).getAttribute("id");
+                packet.setBody(reason == null ? "" : reason);
             }
         }
         LocalizedContent body = packet.getBody();

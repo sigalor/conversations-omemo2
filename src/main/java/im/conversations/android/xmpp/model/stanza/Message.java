@@ -46,6 +46,7 @@ public class Message extends Stanza {
     }
 
     public void setBody(final String text) {
+        removeChild(findChild("body"));
         this.addExtension(new Body(text));
     }
 
