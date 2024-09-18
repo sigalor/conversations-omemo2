@@ -2538,7 +2538,12 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     }
 
                     if (field.getValues().size() > 0) {
-                        binding.slider.setValue(Float.valueOf(field.getValue().getContent()));
+                        final var val = Float.valueOf(field.getValue().getContent());
+                        if ((min == null || val >= min) && (max == null || val <= max)) {
+                            binding.slider.setValue(Float.valueOf(field.getValue().getContent()));
+                        } else {
+                            binding.slider.setValue(min == null ? Float.MIN_VALUE : min);
+                        }
                     } else {
                         binding.slider.setValue(min == null ? Float.MIN_VALUE : min);
                     }
