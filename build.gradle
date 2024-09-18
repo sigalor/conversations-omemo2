@@ -121,7 +121,7 @@ dependencies {
     implementation 'com.caverock:androidsvg-aar:1.4'
     implementation 'org.tomlj:tomlj:1.1.0'
     implementation 'com.tbuonomo:dotsindicator:4.2'
-    implementation 'com.github.Priyansh-Kedia:OpenGraphParser:2.5.6'
+    implementation 'com.github.singpolyma:OpenGraphParser:d0882eadb2'
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
     implementation 'net.fellbaum:jemoji:1.4.1'
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"

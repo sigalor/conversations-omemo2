@@ -1992,6 +1992,9 @@ public class XmppConnectionService extends Service {
                                                 if (result.getSiteName() != null) {
                                                     rdf.addChild("site_name", "https://ogp.me/ns#").setContent(result.getSiteName());
                                                 }
+                                                if (result.getVideo() != null) {
+                                                    rdf.addChild("video", "https://ogp.me/ns#").setContent(result.getVideo());
+                                                }
                                                 message.addPayload(rdf);
                                                 waiter.release();
                                             }
