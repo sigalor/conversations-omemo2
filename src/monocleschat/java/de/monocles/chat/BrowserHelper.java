@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import androidx.browser.customtabs.CustomTabsIntent;
 
+import eu.siacs.conversations.R;
+import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.XmppActivity;
 
 public class BrowserHelper {
@@ -78,7 +80,14 @@ public class BrowserHelper {
 				launchNativeBeforeApi30(context, uri);
 
 		if (!launched) {
-			var builder = new CustomTabsIntent.Builder().setShowTitle(true);
+			var builder = new CustomTabsIntent.Builder()
+				.setShowTitle(true)
+				.setShareState(CustomTabsIntent.SHARE_STATE_ON)
+				.setBackgroundInteractionEnabled(true)
+				.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+				.setExitAnimations(context, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+				.setCloseButtonIcon(FileBackend.drawDrawable(context.getDrawable(R.drawable.ic_arrow_back_24dp)))
+				.setCloseButtonPosition(CustomTabsIntent.CLOSE_BUTTON_POSITION_START);
 			if (context instanceof XmppActivity) {
 				builder = builder.setColorScheme(((XmppActivity) context).isDark() ? CustomTabsIntent.COLOR_SCHEME_DARK : CustomTabsIntent.COLOR_SCHEME_LIGHT);
 			}
