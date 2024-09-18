@@ -49,7 +49,7 @@
     <string name="add_bookmark">Add Chat</string>
     <string name="received_invite_from_stranger">Received invite from stranger</string>
 
-    <string name="avater_shape_oval">Oval</string>
+    <string name="avater_shape_oval">Round</string>
     <string name="avater_shape_rounded_square">Rounded Square</string>
     <string name="avater_shape_square">Square</string>
     <string name="pref_avatars_shape">Avatars shape</string>
