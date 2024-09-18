@@ -120,9 +120,11 @@ public class ImStyleParser {
     }
 
     private static int seekEndBlock(CharSequence text, char needle, int start, int end) {
+        var foundNewline = false;
         for (int i = start; i <= end; ++i) {
             char c = text.charAt(i);
-            if (c == needle && isCharRepeatedTwoTimes(text, needle, i + 1, end)) {
+            if (c == '\n') foundNewline = true;
+            if (foundNewline && c == needle && isCharRepeatedTwoTimes(text, needle, i + 1, end)) {
                 return i + 2;
             }
         }
