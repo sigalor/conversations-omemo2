@@ -2085,7 +2085,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     binding.label.setText(field.getLabel().or(""));
                     setTextOrHide(binding.desc, field.getDesc());
                     mValue = field.getValue();
-                    binding.checkbox.setChecked(mValue.getContent() != null && (mValue.getContent().equals("true") || mValue.getContent().equals("1")));
+                    final var isChecked = mValue.getContent() != null && (mValue.getContent().equals("true") || mValue.getContent().equals("1"));
+                    mValue.setContent(isChecked ? "true" : "false");
+                    binding.checkbox.setChecked(isChecked);
                 }
 
                 @Override
