@@ -1123,8 +1123,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         Log.w(Config.LOGTAG, "Unable to pop back stack after pressing home button");
                     }
                     return true;
+                } else {
+                    binding.drawer.getDrawerLayout().openDrawer(binding.drawer);
+                    return true;
                 }
-                break;
             case R.id.action_scan_qr_code:
                 UriHandlerActivity.scan(this);
                 return true;
@@ -1247,6 +1249,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (actionBar == null) {
             return;
         }
+        actionBar.setHomeAsUpIndicator(0);
         final FragmentManager fragmentManager = getFragmentManager();
         final Fragment mainFragment = fragmentManager.findFragmentById(R.id.main_fragment);
         if (mainFragment instanceof ConversationFragment conversationFragment) {
@@ -1396,8 +1399,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             binding.toolbarTitle.setText(R.string.app_name);
         }
         actionBar.setTitle(null);
-        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.menu_24dp);
         ToolbarUtils.resetActionBarOnClickListeners(binding.toolbar);
+        ToolbarUtils.setActionBarOnClickListener(
+                binding.toolbar,
+                (v) -> { binding.drawer.getDrawerLayout().openDrawer(binding.drawer); }
+        );
     }
 
     private void openConversationDetails(final Conversation conversation) {
