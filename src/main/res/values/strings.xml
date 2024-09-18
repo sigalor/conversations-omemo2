@@ -542,6 +542,8 @@
     <string name="no_keys_just_confirm">You have already trusted this persons fingerprint. By selecting “Done” you are just confirming that %s is part of this group chat.</string>
     <string name="this_account_is_disabled">You have disabled this account</string>
     <string name="this_account_is_logged_out">You have logged out of this account</string>
+    <string name="this_account_is_connecting">This account is connecting…</string>
+    <string name="this_account_is_offline">This account is not connected, messages will send once it reconnects</string>
     <string name="security_error_invalid_file_access">Security error: Invalid file access!</string>
     <string name="no_application_to_share_uri">No app found to share URI</string>
     <string name="share_uri_with">Share URI with…</string>

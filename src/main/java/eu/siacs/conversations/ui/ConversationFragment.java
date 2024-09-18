@@ -3960,6 +3960,10 @@ public class ConversationFragment extends XmppFragment
             showSnackbar(R.string.this_account_is_logged_out,R.string.log_in,this.mEnableAccountListener);
         } else if (conversation.isBlocked()) {
             showSnackbar(R.string.contact_blocked, R.string.unblock, this.mUnblockClickListener);
+        } else if (account.getStatus() == Account.State.CONNECTING) {
+            showSnackbar(R.string.this_account_is_connecting, 0, null);
+        } else if (account.getStatus() != Account.State.ONLINE) {
+            showSnackbar(R.string.this_account_is_offline, 0, null);
         } else if (contact != null
                 && !contact.showInRoster()
                 && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
