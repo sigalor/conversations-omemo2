@@ -633,10 +633,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final String nick = UIHelper.getMessageDisplayName(message);
             SpannableStringBuilder body = getSpannableBody(message);
             final var processMarkup = body.getSpans(0, body.length(), Message.PlainTextSpan.class).length > 0;
-            boolean hasMeCommand = message.hasMeCommand();
-            if (hasMeCommand) {
-                body = body.replace(0, Message.ME_COMMAND.length(), nick + " ");
-            }
             if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
                 body = new SpannableStringBuilder(body, 0, Config.MAX_DISPLAY_MESSAGE_CHARS);
                 body.append("\u2026");
@@ -670,8 +666,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     }
                 }
             }
+            boolean hasMeCommand = body.toString().startsWith(Message.ME_COMMAND);
+            if (hasMeCommand) {
+                body = body.replace(0, Message.ME_COMMAND.length(), nick + " ");
+            }
             if (!message.isPrivateMessage()) {
-                if (hasMeCommand) {
+                if (hasMeCommand && body.length() > nick.length()) {
                     body.setSpan(
                             new StyleSpan(Typeface.BOLD_ITALIC),
                             0,
