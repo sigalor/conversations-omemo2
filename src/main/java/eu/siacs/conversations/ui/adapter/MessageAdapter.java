@@ -1639,6 +1639,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         binding.title.setText(getItem(position).findChildContent("title", "https://ogp.me/ns#"));
                         binding.description.setText(getItem(position).findChildContent("description", "https://ogp.me/ns#"));
                         binding.url.setText(getItem(position).findChildContent("url", "https://ogp.me/ns#"));
+                        final var video = getItem(position).findChildContent("video", "https://ogp.me/ns#");
+                        if (video != null && video.length() > 0) {
+                            binding.playButton.setVisibility(View.VISIBLE);
+                            binding.playButton.setOnClickListener((v) -> {
+                                new FixedURLSpan(video).onClick(v);
+                            });
+                        }
                         return binding.getRoot();
                     }
                 });
