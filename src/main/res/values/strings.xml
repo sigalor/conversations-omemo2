@@ -1120,4 +1120,6 @@
     <string name="pref_set_text_collapsable">Collapse long text</string>
     <string name="show_less">... show less</string>
     <string name="show_more">... show more</string>
+    <string name="pref_show_show_nav_drawer_summary">Activate a navigation drawer to better sort chats</string>
+    <string name="pref_show_show_nav_drawer">Navigation drawer</string>
 </resources>

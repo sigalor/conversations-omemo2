@@ -1122,11 +1122,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     } catch (IllegalStateException e) {
                         Log.w(Config.LOGTAG, "Unable to pop back stack after pressing home button");
                     }
-                    return true;
                 } else {
-                    binding.drawer.getDrawerLayout().openDrawer(binding.drawer);
-                    return true;
+                    if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
+                        if (binding.drawer != null && binding.drawer.getDrawerLayout() != null) {
+                            binding.drawer.getDrawerLayout().openDrawer(binding.drawer);
+                        }
+                    }
                 }
+                return true;
             case R.id.action_scan_qr_code:
                 UriHandlerActivity.scan(this);
                 return true;
@@ -1392,20 +1395,37 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 binding.toolbarAvatar.setVisibility(View.VISIBLE);
                 binding.toolbarTitle.setText(conversation.getName());
             } else {
-                binding.toolbarTitle.setText(R.string.app_name);
+                if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
+                    binding.toolbarTitle.setText(null);
+                } else {
+                    binding.toolbarTitle.setText(R.string.app_name);
+                }
+                binding.toolbar.setOnClickListener(null);
             }
         } else {
             binding.toolbarAvatar.setVisibility(View.GONE);
-            binding.toolbarTitle.setText(R.string.app_name);
+            if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
+                binding.toolbarTitle.setText(null);
+            } else {
+                binding.toolbarTitle.setText(R.string.app_name);
+            }
+            binding.toolbar.setOnClickListener(null);
         }
         actionBar.setTitle(null);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.menu_24dp);
-        ToolbarUtils.resetActionBarOnClickListeners(binding.toolbar);
-        ToolbarUtils.setActionBarOnClickListener(
-                binding.toolbar,
-                (v) -> { binding.drawer.getDrawerLayout().openDrawer(binding.drawer); }
-        );
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.nav_circle);
+            ToolbarUtils.resetActionBarOnClickListeners(binding.toolbar);
+            ToolbarUtils.setActionBarOnClickListener(
+                    binding.toolbar,
+                    (v) -> {
+                        if (binding.drawer != null && binding.drawer.getDrawerLayout() != null) {
+                            binding.drawer.getDrawerLayout().openDrawer(binding.drawer);
+                        }
+                    }
+            );
+        }
     }
 
     private void openConversationDetails(final Conversation conversation) {

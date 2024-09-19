@@ -109,6 +109,12 @@
             android:icon="@drawable/ic_navigate_next_24dp"
             android:summary="@string/pref_show_navigation_bar_summary"
             android:title="@string/pref_show_navigation_bar" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_nav_drawer"
+            android:key="show_nav_drawer"
+            android:icon="@drawable/nav_circle"
+            android:summary="@string/pref_show_show_nav_drawer_summary"
+            android:title="@string/pref_show_show_nav_drawer" />
         <ListPreference
             android:defaultValue="@string/avatar_shape"
             android:icon="@drawable/ic_person_24dp"
