@@ -1114,4 +1114,8 @@
     <string name="pref_show_mappreview_inside_summary">Load a preview of maps for a share location inside the chat</string>
     <string name="pref_show_own_accounts">Show own account name</string>
     <string name="pref_show_own_accounts_summary">Shows the used account on messages overview and details</string>
+    <string name="pref_set_text_collapsable_summary">Collapses text with more than 230 signs</string>
+    <string name="pref_set_text_collapsable">Collapse long text</string>
+    <string name="show_less">... show less</string>
+    <string name="show_more">... show more</string>
 </resources>

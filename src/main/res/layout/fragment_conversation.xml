@@ -135,7 +135,11 @@
                                 app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
                                 android:visibility="gone" />
 
-                            <TextView
+                            <de.monocles.chat.ReadMoreTextView
+                                app:trimExpandedText="@string/show_less"
+                                app:trimCollapsedText="@string/show_more"
+                                app:trimMode="trimModeLength"
+                                app:colorClickableText="?colorPrimary"
                                 android:id="@+id/context_preview_text"
                                 android:layout_weight="1"
                                 android:layout_width="0dp"

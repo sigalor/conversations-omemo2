@@ -65,7 +65,23 @@
             android:paddingTop="4dp"
             android:autoLink="web"
             android:longClickable="false"
-            android:textAppearance="?textAppearanceBodyMedium" />
+            android:textAppearance="?textAppearanceBodyMedium"
+            android:visibility="gone" />
+
+        <de.monocles.chat.ReadMoreTextView
+            app:trimExpandedText="@string/show_less"
+            app:trimCollapsedText="@string/show_more"
+            app:trimMode="trimModeLength"
+            app:colorClickableText="?colorPrimary"
+            android:id="@+id/message_body_collapsable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:paddingTop="4dp"
+            android:autoLink="web"
+            android:longClickable="false"
+            android:textAppearance="?textAppearanceBodyMedium"
+            android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/download_button"

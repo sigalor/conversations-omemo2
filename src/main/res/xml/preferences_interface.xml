@@ -118,6 +118,12 @@
             android:summary="@string/pref_avatar_shape_summary"
             android:title="@string/pref_avatars_shape" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/set_text_collapsable"
+            android:icon="@drawable/ic_keyboard_double_arrow_down_24dp"
+            android:key="set_text_collapsable"
+            android:summary="@string/pref_set_text_collapsable_summary"
+            android:title="@string/pref_set_text_collapsable" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/use_green_background"
             android:icon="@drawable/ic_forum_24dp"
             android:key="use_green_background"
