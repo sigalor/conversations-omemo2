@@ -1620,151 +1620,156 @@ public class ConversationFragment extends XmppFragment
             newThreadTutorialToast("Cleared thread");
             return true;
         });
-        if (activity != null && activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return binding.getRoot();
-        // After here should be only autocomplete setup stuff
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) {
+            // After here should be only autocomplete setup stuff
 
-        Autocomplete.<MucOptions.User>on(binding.textinput)
-            .with(activity.getDrawable(R.drawable.background_message_bubble))
-            .with(new CharPolicy('@'))
-            .with(new RecyclerViewPresenter<MucOptions.User>(activity) {
-                protected UserAdapter adapter;
+            Autocomplete.<MucOptions.User>on(binding.textinput)
+                    .with(activity.getDrawable(R.drawable.background_message_bubble))
+                    .with(new CharPolicy('@'))
+                    .with(new RecyclerViewPresenter<MucOptions.User>(activity) {
+                        protected UserAdapter adapter;
 
-                @Override
-                protected Adapter instantiateAdapter() {
-                    adapter = new UserAdapter(false) {
                         @Override
-                        public void onBindViewHolder(UserAdapter.ViewHolder viewHolder, int position) {
-                            super.onBindViewHolder(viewHolder, position);
-                            final var item = getItem(position);
-                            viewHolder.binding.getRoot().setOnClickListener(v -> {
-                                dispatchClick(item);
-                            });
+                        protected Adapter instantiateAdapter() {
+                            adapter = new UserAdapter(false) {
+                                @Override
+                                public void onBindViewHolder(UserAdapter.ViewHolder viewHolder, int position) {
+                                    super.onBindViewHolder(viewHolder, position);
+                                    final var item = getItem(position);
+                                    viewHolder.binding.getRoot().setOnClickListener(v -> {
+                                        dispatchClick(item);
+                                    });
+                                }
+                            };
+                            return adapter;
                         }
-                    };
-                    return adapter;
-                }
 
-                @Override
-                protected void onQuery(@Nullable CharSequence query) {
-                    if (activity != null && activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return;
+                        @Override
+                        protected void onQuery(@Nullable CharSequence query) {
+                            getRecyclerView().getItemAnimator().endAnimations();
+                            final var allUsers = conversation.getMucOptions().getUsers();
+                            if (!conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).isEmpty()) {
+                                final var u = new MucOptions.User(conversation.getMucOptions(), null, "\0role:moderator", "Notify active moderators", new HashSet<>());
+                                u.setRole("participant");
+                                allUsers.add(u);
+                            }
+                            if (!allUsers.isEmpty() && conversation.getMucOptions().getSelf() != null && conversation.getMucOptions().getSelf().getAffiliation().ranks(MucOptions.Affiliation.MEMBER)) {
+                                final var u = new MucOptions.User(conversation.getMucOptions(), null, "\0attention", "Notify active participants", new HashSet<>());
+                                u.setRole("participant");
+                                allUsers.add(u);
+                            }
+                            final String needle = query.toString().toLowerCase(Locale.getDefault());
+                            adapter.submitList(
+                                    Ordering.natural().immutableSortedCopy(Collections2.filter(
+                                            allUsers,
+                                            user -> {
+                                                if ("mods".contains(needle) && "\0role:moderator".equals(user.getOccupantId()))
+                                                    return true;
+                                                if ("here".contains(needle) && "\0attention".equals(user.getOccupantId()))
+                                                    return true;
+                                                final String name = user.getNick();
+                                                if (name == null) return false;
+                                                for (final var hat : user.getHats()) {
+                                                    if (hat.toString().toLowerCase(Locale.getDefault()).contains(needle))
+                                                        return true;
+                                                }
+                                                for (final var hat : user.getPseudoHats(activity)) {
+                                                    if (hat.toString().toLowerCase(Locale.getDefault()).contains(needle))
+                                                        return true;
+                                                }
+                                                final Contact contact = user.getContact();
+                                                return name.toLowerCase(Locale.getDefault()).contains(needle)
+                                                        || contact != null
+                                                        && contact.getDisplayName().toLowerCase(Locale.getDefault()).contains(needle);
+                                            })));
+                        }
 
-                    getRecyclerView().getItemAnimator().endAnimations();
-                    final var allUsers = conversation.getMucOptions().getUsers();
-                    if (!conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).isEmpty()) {
-                        final var u = new MucOptions.User(conversation.getMucOptions(), null, "\0role:moderator", "Notify active moderators", new HashSet<>());
-                        u.setRole("participant");
-                        allUsers.add(u);
-                    }
-                    if (!allUsers.isEmpty() && conversation.getMucOptions().getSelf() != null && conversation.getMucOptions().getSelf().getAffiliation().ranks(MucOptions.Affiliation.MEMBER)) {
-                        final var u = new MucOptions.User(conversation.getMucOptions(), null, "\0attention", "Notify active participants", new HashSet<>());
-                        u.setRole("participant");
-                        allUsers.add(u);
-                    }
-                    final String needle = query.toString().toLowerCase(Locale.getDefault());
-                    adapter.submitList(
-                        Ordering.natural().immutableSortedCopy(Collections2.filter(
-                            allUsers,
-                            user -> {
-                                if ("mods".contains(needle) && "\0role:moderator".equals(user.getOccupantId())) return true;
-                                if ("here".contains(needle) && "\0attention".equals(user.getOccupantId())) return true;
-                                final String name = user.getNick();
-                                if (name == null) return false;
-                                for (final var hat : user.getHats()) {
-                                    if (hat.toString().toLowerCase(Locale.getDefault()).contains(needle)) return true;
-                                }
-                                for (final var hat : user.getPseudoHats(activity)) {
-                                    if (hat.toString().toLowerCase(Locale.getDefault()).contains(needle)) return true;
-                                }
-                                final Contact contact = user.getContact();
-                                return name.toLowerCase(Locale.getDefault()).contains(needle)
-                                    || contact != null
-                                    && contact.getDisplayName().toLowerCase(Locale.getDefault()).contains(needle);
-                            })));
-                }
+                        @Override
+                        protected AutocompletePresenter.PopupDimensions getPopupDimensions() {
+                            final var dim = new AutocompletePresenter.PopupDimensions();
+                            dim.width = displayMetrics.widthPixels * 4 / 5;
+                            return dim;
+                        }
+                    })
+                    .with(new AutocompleteCallback<MucOptions.User>() {
+                        @Override
+                        public boolean onPopupItemClicked(Editable editable, MucOptions.User user) {
+                            int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
+                            if (range == null) return false;
+                            range[0] -= 1;
+                            if ("\0attention".equals(user.getOccupantId())) {
+                                editable.delete(Math.max(0, range[0]), Math.min(editable.length(), range[1]));
+                                editable.insert(0, "@here ");
+                                return true;
+                            }
+                            int colon = editable.toString().indexOf(':');
+                            final var beforeColon = range[0] < colon;
+                            String prefix = "";
+                            String suffix = " ";
+                            if (beforeColon) suffix = ", ";
+                            if (colon < 0 && range[0] == 0) suffix = ": ";
+                            if (colon > 0 && colon == range[0] - 2) {
+                                prefix = ", ";
+                                suffix = ": ";
+                                range[0] -= 2;
+                            }
+                            var insert = user.getNick();
+                            if ("\0role:moderator".equals(user.getOccupantId())) {
+                                insert = conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).stream().map(MucOptions.User::getNick).collect(Collectors.joining(", "));
+                            }
+                            editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), prefix + insert + suffix);
+                            return true;
+                        }
 
-                @Override
-                protected AutocompletePresenter.PopupDimensions getPopupDimensions() {
-                    final var dim = new AutocompletePresenter.PopupDimensions();
-                    dim.width = displayMetrics.widthPixels * 4/5;
-                    return dim;
-                }
-            })
-            .with(new AutocompleteCallback<MucOptions.User>() {
-                @Override
-                public boolean onPopupItemClicked(Editable editable, MucOptions.User user) {
-                    int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
-                    if (range == null) return false;
-                    range[0] -= 1;
-                    if ("\0attention".equals(user.getOccupantId())) {
-	                    editable.delete(Math.max(0, range[0]), Math.min(editable.length(), range[1]));
-                        editable.insert(0, "@here ");
-                        return true;
-                    }
-                    int colon = editable.toString().indexOf(':');
-                    final var beforeColon = range[0] < colon;
-                    String prefix = "";
-                    String suffix = " ";
-                    if (beforeColon) suffix = ", ";
-                    if (colon < 0 && range[0] == 0) suffix = ": ";
-                    if (colon > 0 && colon == range[0] - 2) {
-                        prefix = ", ";
-                        suffix = ": ";
-                        range[0] -= 2;
-                    }
-                    var insert = user.getNick();
-                    if ("\0role:moderator".equals(user.getOccupantId())) {
-                        insert = conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).stream().map(MucOptions.User::getNick).collect(Collectors.joining(", "));
-                    }
-                    editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), prefix + insert + suffix);
-                    return true;
-                }
+                        @Override
+                        public void onPopupVisibilityChanged(boolean shown) {
+                        }
+                    }).build();
 
-                @Override
-                public void onPopupVisibilityChanged(boolean shown) {}
-            }).build();
+            Handler emojiDebounce = new Handler(Looper.getMainLooper());
+            setupEmojiSearch();
+            Autocomplete.<EmojiSearch.Emoji>on(binding.textinput)
+                    .with(activity.getDrawable(R.drawable.background_message_bubble))
+                    .with(new CharPolicy(':'))
+                    .with(new RecyclerViewPresenter<EmojiSearch.Emoji>(activity) {
+                        protected EmojiSearch.EmojiSearchAdapter adapter;
 
-        Handler emojiDebounce = new Handler(Looper.getMainLooper());
-        setupEmojiSearch();
-        Autocomplete.<EmojiSearch.Emoji>on(binding.textinput)
-            .with(activity.getDrawable(R.drawable.background_message_bubble))
-            .with(new CharPolicy(':'))
-            .with(new RecyclerViewPresenter<EmojiSearch.Emoji>(activity) {
-                protected EmojiSearch.EmojiSearchAdapter adapter;
+                        @Override
+                        protected Adapter instantiateAdapter() {
+                            adapter = emojiSearch.makeAdapter(item -> dispatchClick(item));
+                            return adapter;
+                        }
 
-                @Override
-                protected Adapter instantiateAdapter() {
-                    adapter = emojiSearch.makeAdapter(item -> dispatchClick(item));
-                    return adapter;
-                }
+                        @Override
+                        protected void onQuery(@Nullable CharSequence query) {
+                            if (activity != null && activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete))
+                                return;
 
-                @Override
-                protected void onQuery(@Nullable CharSequence query) {
-                    if (activity != null && activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) return;
+                            emojiDebounce.removeCallbacksAndMessages(null);
+                            emojiDebounce.postDelayed(() -> {
+                                if (getRecyclerView() == null) return;
+                                getRecyclerView().getItemAnimator().endAnimations();
+                                adapter.search(activity, query.toString());
+                            }, 100L);
+                        }
+                    })
+                    .with(new AutocompleteCallback<EmojiSearch.Emoji>() {
+                        @Override
+                        public boolean onPopupItemClicked(Editable editable, EmojiSearch.Emoji emoji) {
+                            int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
+                            if (range == null) return false;
+                            range[0] -= 1;
+                            final var toInsert = emoji.toInsert();
+                            toInsert.append(" ");
+                            editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), toInsert);
+                            return true;
+                        }
 
-                    emojiDebounce.removeCallbacksAndMessages(null);
-                    emojiDebounce.postDelayed(() -> {
-                        if (getRecyclerView() == null) return;
-                        getRecyclerView().getItemAnimator().endAnimations();
-                        adapter.search(activity, query.toString());
-                    }, 100L);
-                }
-            })
-            .with(new AutocompleteCallback<EmojiSearch.Emoji>() {
-                @Override
-                public boolean onPopupItemClicked(Editable editable, EmojiSearch.Emoji emoji) {
-                    int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
-                    if (range == null) return false;
-                    range[0] -= 1;
-                    final var toInsert = emoji.toInsert();
-                    toInsert.append(" ");
-                    editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), toInsert);
-                    return true;
-                }
-
-                @Override
-                public void onPopupVisibilityChanged(boolean shown) {}
-            }).build();
-
+                        @Override
+                        public void onPopupVisibilityChanged(boolean shown) {
+                        }
+                    }).build();
+        }
         return binding.getRoot();
     }
 
