@@ -117,18 +117,20 @@
             android:title="@string/pref_show_show_nav_drawer" />
         <ListPreference
             android:defaultValue="@string/avatar_shape"
-            android:icon="@drawable/ic_person_24dp"
+            android:icon="@drawable/rounded_account_circle_24"
             android:key="avatar_shape"
             android:entries="@array/avatars_shape"
             android:entryValues="@array/avatars_shape_values"
             android:summary="@string/pref_avatar_shape_summary"
             android:title="@string/pref_avatars_shape" />
+        <!--        TODO: Add expandable text later
         <SwitchPreferenceCompat
             android:defaultValue="@bool/set_text_collapsable"
             android:icon="@drawable/ic_keyboard_double_arrow_down_24dp"
             android:key="set_text_collapsable"
             android:summary="@string/pref_set_text_collapsable_summary"
             android:title="@string/pref_set_text_collapsable" />
+            -->
         <SwitchPreferenceCompat
             android:defaultValue="@bool/use_green_background"
             android:icon="@drawable/ic_forum_24dp"
@@ -149,10 +151,10 @@
             android:title="@string/pref_show_dynamic_tags" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_link_previews"
-            android:icon="@drawable/ic_link_24dp"
+            android:icon="@drawable/rounded_link_24"
             android:key="show_link_previews"
-            android:summary="When a sender has included link descriptions, show them"
-            android:title="Show Link Previews" />
+            android:summary="@string/show_link_previews_summary"
+            android:title="@string/show_link_previews" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_operating_system">
         <SwitchPreferenceCompat

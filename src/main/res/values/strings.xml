@@ -1123,4 +1123,6 @@
     <string name="pref_show_show_nav_drawer_summary">Activate a navigation drawer to better sort chats</string>
     <string name="pref_show_show_nav_drawer">Navigation drawer</string>
     <string name="note_to_self">Note to Self</string>
+    <string name="show_link_previews">Show link previews</string>
+    <string name="show_link_previews_summary">Show a link description when sender included it</string>
 </resources>
