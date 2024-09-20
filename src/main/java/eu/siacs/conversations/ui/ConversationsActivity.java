@@ -1168,7 +1168,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         savedInstanceState.putParcelable("intent", pendingIntent != null ? pendingIntent : getIntent());
         savedInstanceState.putLong("mainFilter", mainFilter);
         savedInstanceState.putSerializable("selectedTag", selectedTag);
-        savedInstanceState = binding.drawer.saveInstanceState(savedInstanceState);
+        if (binding.drawer != null) savedInstanceState = binding.drawer.saveInstanceState(savedInstanceState);
         if (accountHeader != null) savedInstanceState = accountHeader.saveInstanceState(savedInstanceState);
         super.onSaveInstanceState(savedInstanceState);
     }
