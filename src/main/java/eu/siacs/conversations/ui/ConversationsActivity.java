@@ -1402,27 +1402,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 binding.toolbarAvatar.setVisibility(View.VISIBLE);
                 binding.toolbarTitle.setText(conversation.getName());
             } else {
-                if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
-                    binding.toolbarTitle.setText(null);
-                } else {
-                    binding.toolbarTitle.setText(R.string.app_name);
-                }
+                binding.toolbarTitle.setText(R.string.app_name);
                 binding.toolbar.setOnClickListener(null);
             }
         } else {
             binding.toolbarAvatar.setVisibility(View.GONE);
-            if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
-                binding.toolbarTitle.setText(null);
-            } else {
-                binding.toolbarTitle.setText(R.string.app_name);
-            }
+            binding.toolbarTitle.setText(R.string.app_name);
             binding.toolbar.setOnClickListener(null);
         }
         actionBar.setTitle(null);
         actionBar.setDisplayHomeAsUpEnabled(false);
         if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.nav_circle);
+            actionBar.setHomeAsUpIndicator(R.drawable.menu_24dp);
             ToolbarUtils.resetActionBarOnClickListeners(binding.toolbar);
             ToolbarUtils.setActionBarOnClickListener(
                     binding.toolbar,

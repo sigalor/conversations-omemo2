@@ -106,13 +106,13 @@
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_nav_bar"
             android:key="show_nav_bar"
-            android:icon="@drawable/ic_navigate_next_24dp"
+            android:icon="@drawable/rounded_bottom_navigation_24"
             android:summary="@string/pref_show_navigation_bar_summary"
             android:title="@string/pref_show_navigation_bar" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_nav_drawer"
             android:key="show_nav_drawer"
-            android:icon="@drawable/nav_circle"
+            android:icon="@drawable/menu_24dp"
             android:summary="@string/pref_show_show_nav_drawer_summary"
             android:title="@string/pref_show_show_nav_drawer" />
         <ListPreference
