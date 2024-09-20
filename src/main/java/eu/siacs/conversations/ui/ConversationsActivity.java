@@ -67,6 +67,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import de.monocles.chat.DownloadDefaultStickers;
 import de.monocles.chat.FinishOnboarding;
@@ -208,7 +209,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         refreshForNewCaps = false;
         newCapsJids.clear();
         invalidateActionBarTitle();
-
+        if (binding.drawer != null && binding.drawer.getDrawerLayout() != null && !getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
+            binding.drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        } else if (binding.drawer != null && binding.drawer.getDrawerLayout() != null) {
+            binding.drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        }
         if (accountHeader == null) return;
 
         accountHeader.apply(ah -> {
