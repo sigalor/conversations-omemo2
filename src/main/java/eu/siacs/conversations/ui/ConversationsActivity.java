@@ -592,7 +592,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     public void launchStartConversation(int goTo) {
-        StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag == null ? null : selectedTag.getName(), goTo);
+        if (accountHeader.getActiveProfile() != null) {
+            StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag == null ? null : selectedTag.getName(), goTo);
+        }
     }
 
     private boolean performRedirectIfNecessary(boolean noAnimation) {

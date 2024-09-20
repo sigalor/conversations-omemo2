@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import eu.siacs.conversations.Config;
@@ -309,7 +310,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         Collections.sort(getListItems());
         getListItemAdapter().notifyDataSetChanged();
         for (int i = 0; i < getListItemAdapter().getCount(); i++) {
-            getListView().setItemChecked(i, selected.contains(getListItemAdapter().getItem(i).getJid().toString()));
+            getListView().setItemChecked(i, selected.contains(Objects.requireNonNull(getListItemAdapter().getItem(i)).getJid().toString()));
         }
     }
 

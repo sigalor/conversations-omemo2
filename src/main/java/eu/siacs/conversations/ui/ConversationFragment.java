@@ -4201,7 +4201,7 @@ public class ConversationFragment extends XmppFragment
         final Conversation c = this.conversation;
         final Presence.Status status;
         final String text =
-                this.binding.textinput == null ? "" : this.binding.textinput.getText().toString();
+                this.binding.textinput == null ? "" : Objects.requireNonNull(this.binding.textinput.getText()).toString();
         final SendButtonAction action;
         if (hasAttachments) {
             action = SendButtonAction.TEXT;
@@ -4232,14 +4232,15 @@ public class ConversationFragment extends XmppFragment
             this.binding.textSendButton.setIconResource(
                     SendButtonTool.getSendButtonImageResource(action, text.length() > 0 || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
         }
-        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if (activity == null) return;
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
         ViewGroup.LayoutParams params = binding.threadIdenticonLayout.getLayoutParams();
         if (identiconWidth < 0) identiconWidth = params.width;
         if (hasAttachments || binding.textinput.getText().toString().replaceFirst("^(\\w|[, ])+:\\s*", "").length() > 0) {
             binding.conversationViewPager.setCurrentItem(0);
             params.width = conversation.getThread() == null ? 0 : identiconWidth;
             binding.quickButtons.setVisibility(GONE);
-        } else if (pref.getBoolean("show_thread_feature", getResources().getBoolean(R.bool.show_thread_feature))) {
+        } else if (pref != null && pref.getBoolean("show_thread_feature", getResources().getBoolean(R.bool.show_thread_feature))) {
             params.width = identiconWidth;
             binding.quickButtons.setVisibility(VISIBLE);
         } else {
