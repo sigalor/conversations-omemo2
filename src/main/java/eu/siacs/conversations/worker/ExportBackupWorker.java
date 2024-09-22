@@ -70,7 +70,7 @@ public class ExportBackupWorker extends Worker {
 
     public static final String KEYTYPE = "AES";
     public static final String CIPHERMODE = "AES/GCM/NoPadding";
-    public static final String PROVIDER = "BCPQC";
+    public static final String PROVIDER = "BC";
 
     public static final String MIME_TYPE = "application/vnd.conversations.backup";
 

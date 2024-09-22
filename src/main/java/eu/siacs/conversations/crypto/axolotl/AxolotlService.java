@@ -111,17 +111,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (account == null || connectionService == null) {
             throw new IllegalArgumentException("account and service cannot be null");
         }
-        // this way for adding bouncycastle to android
-        //Security.removeProvider("BC");
-
-        // Confirm that positioning this provider at the end works for your needs!
-        Security.addProvider(new BouncyCastleProvider());
-        if (Security.getProvider("BCPQC") == null) {
-            Security.addProvider(new BouncyCastlePQCProvider());
+        if (Security.getProvider("BC") == null) {
+            Security.addProvider(new BouncyCastleProvider());
         }
-        //if (Security.getProvider("BC") == null) {
-        //    Security.addProvider(new BouncyCastleProvider());
-        //}
         this.mXmppConnectionService = connectionService;
         this.account = account;
         this.axolotlStore = new SQLiteAxolotlStore(this.account, this.mXmppConnectionService);
