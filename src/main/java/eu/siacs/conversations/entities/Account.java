@@ -762,7 +762,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     public String getShareableLink() {
         List<XmppUri.Fingerprint> fingerprints = this.getFingerprints();
         String uri =
-                "https://monocles.chat/i/"
+                "https://monocles.chat/"
                         + XmppUri.lameUrlEncode(this.getJid().asBareJid().toEscapedString());
         if (fingerprints.size() > 0) {
             return XmppUri.getFingerprintUri(uri, fingerprints, '&');
