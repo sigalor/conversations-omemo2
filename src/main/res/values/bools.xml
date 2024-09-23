@@ -7,4 +7,5 @@
     <bool name="show_own_accounts">false</bool>
     <bool name="set_text_collapsable">false</bool>
     <bool name="show_nav_drawer">false</bool>
+    <bool name="internal_meda_viewer">true</bool>
 </resources>

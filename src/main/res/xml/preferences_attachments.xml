@@ -34,6 +34,12 @@
             android:summary="Don't use the above size limit on unmetered networks" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Advanced">
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/internal_meda_viewer"
+            android:icon="@drawable/outline_perm_media_24"
+            android:key="internal_meda_viewer"
+            android:title="@string/internal_meda_viewer_title"
+            android:summary="@string/internal_meda_viewer_summary" />
         <Preference
             android:title="Change Stickers Location"
             android:key="sticker_directory" />

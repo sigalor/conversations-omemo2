@@ -8,6 +8,8 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.preference.PreferenceManager;
+
 
 import java.io.File;
 import java.util.List;
@@ -50,7 +52,7 @@ public class ViewUtil {
             return;
         }
         // use internal viewer for images and videos
-        if (mime.startsWith("image/")) {
+        if (mime.startsWith("image/") && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_meda_viewer", context.getResources().getBoolean(R.bool.internal_meda_viewer))) {
             final Intent intent = new Intent(context, MediaViewerActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -60,7 +62,7 @@ public class ViewUtil {
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, R.string.cant_open_file, Toast.LENGTH_LONG).show();
             }
-        } else if (mime.startsWith("video/")) {
+        } else if (mime.startsWith("video/") && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_meda_viewer", context.getResources().getBoolean(R.bool.internal_meda_viewer))) {
             final Intent intent = new Intent(context, MediaViewerActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

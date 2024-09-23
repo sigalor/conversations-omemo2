@@ -1125,4 +1125,6 @@
     <string name="note_to_self">Note to Self</string>
     <string name="show_link_previews">Show link previews</string>
     <string name="show_link_previews_summary">Show a link description when sender included it</string>
+    <string name="internal_meda_viewer_title">Internal media viewer</string>
+    <string name="internal_meda_viewer_summary">Use internal media viewer to open image or video files inside monocles chat</string>
 </resources>
