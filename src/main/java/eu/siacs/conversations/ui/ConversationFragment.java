@@ -1748,7 +1748,7 @@ public class ConversationFragment extends XmppFragment
                             emojiDebounce.removeCallbacksAndMessages(null);
                             emojiDebounce.postDelayed(() -> {
                                 if (getRecyclerView() == null) return;
-                                getRecyclerView().getItemAnimator().endAnimations();
+                                try { getRecyclerView().getItemAnimator().endAnimations(); } catch (final Exception e) {  }
                                 adapter.search(activity, query.toString());
                             }, 100L);
                         }
