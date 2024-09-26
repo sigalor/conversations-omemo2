@@ -773,8 +773,10 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 }
                 if (el.getName().equals("reply") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:reply:0")) {
                     message.addPayload(el);
-                    for (final var parent : mXmppConnectionService.getMessageFuzzyIds(conversation, List.of(el.getAttribute("id"))).entrySet()) {
-                        message.setInReplyTo(parent.getValue());
+                    if (el.getAttribute("id") != null) {
+                        for (final var parent : mXmppConnectionService.getMessageFuzzyIds(conversation, List.of(el.getAttribute("id"))).entrySet()) {
+                            message.setInReplyTo(parent.getValue());
+                        }
                     }
                 }
                 if (el.getName().equals("attention") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:attention:0")) {
