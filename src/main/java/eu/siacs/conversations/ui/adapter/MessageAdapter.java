@@ -298,7 +298,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             fileSize = null;
             error = message.getStatus() == Message.STATUS_SEND_FAILED;
         }
-        if (type == SENT) {
+        if (type == SENT && viewHolder.indicatorReceived != null) {
             final @DrawableRes Integer receivedIndicator =
                     getMessageStatusAsDrawable(message, mergedStatus);
             if (receivedIndicator == null) {
