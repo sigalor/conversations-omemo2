@@ -95,6 +95,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -116,6 +117,7 @@ import eu.siacs.conversations.ui.interfaces.OnConversationRead;
 import eu.siacs.conversations.ui.interfaces.OnConversationSelected;
 import eu.siacs.conversations.ui.interfaces.OnConversationsListItemUpdated;
 import eu.siacs.conversations.ui.util.ActivityResult;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PendingItem;
@@ -250,7 +252,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             long id = 101;
             for (final var a : accounts) {
-                final var avatar = xmppConnectionService.getAvatarService().get(a, (int) getResources().getDimension(R.dimen.avatar_on_drawer), false);
+                final var size = (int) getResources().getDimension(R.dimen.avatar_on_drawer);
+                final var avatar = xmppConnectionService.getAvatarService().get(a, size, true);
+                if (avatar == null) {
+                    final var task = new AvatarWorkerTask(this, R.dimen.avatar_on_drawer);
+                    try { task.execute(a); } catch (final RejectedExecutionException ignored) { }
+                    refreshAccounts = true;
+                }
                 final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
                 p.setIdentifier(id++);
                 p.setTag(a);

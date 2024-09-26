@@ -22,19 +22,28 @@ import eu.siacs.conversations.ui.XmppActivity;
 
 public class AvatarWorkerTask extends AsyncTask<AvatarService.Avatarable, Void, Drawable> {
     private final WeakReference<ImageView> imageViewReference;
+    private final WeakReference<XmppActivity> activityReference;
     private AvatarService.Avatarable avatarable = null;
     private @DimenRes
     final int size;
 
     public AvatarWorkerTask(ImageView imageView, @DimenRes int size) {
         imageViewReference = new WeakReference<>(imageView);
+        activityReference = null;
+        this.size = size;
+    }
+
+
+    public AvatarWorkerTask(XmppActivity activity, @DimenRes int size) {
+        activityReference = new WeakReference<>(activity);
+        imageViewReference = new WeakReference<>(null);
         this.size = size;
     }
 
     @Override
     protected Drawable doInBackground(AvatarService.Avatarable... params) {
         this.avatarable = params[0];
-        final XmppActivity activity = XmppActivity.find(imageViewReference);
+        final XmppActivity activity = activityReference == null ? XmppActivity.find(imageViewReference) : activityReference.get();
         if (activity == null) {
             return null;
         }
@@ -48,8 +57,14 @@ public class AvatarWorkerTask extends AsyncTask<AvatarService.Avatarable, Void, 
             if (imageView != null) {
                 imageView.setImageDrawable(bitmap);
                 imageView.setBackgroundColor(0x00000000);
-                if (Build.VERSION.SDK_INT >= 28 && bitmap instanceof AnimatedImageDrawable) {
-                    ((AnimatedImageDrawable) bitmap).start();
+            }
+            if (Build.VERSION.SDK_INT >= 28 && bitmap instanceof AnimatedImageDrawable) {
+                ((AnimatedImageDrawable) bitmap).start();
+            }
+            if (activityReference != null) {
+                final var activity = activityReference.get();
+                if (activity != null) {
+                    activity.refreshUi();
                 }
             }
         }
