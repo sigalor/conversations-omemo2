@@ -387,7 +387,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
             if (query.isCatchup() && query.getActualMessageCount() > 0) {
                 mXmppConnectionService.getNotificationService().finishBacklog(true, query.getAccount());
             }
-            if (query.isCatchup() && query.getPagingOrder() == PagingOrder.NORMAL && !complete) {
+            if (query.isCatchup() && query.getPagingOrder() == PagingOrder.NORMAL && !complete && query.getConversation() != null) {
                 // Going forward we stopped without completing due to limits
                 // So we don't have the most recent messages yet
                 synchronized (this.queries) {
