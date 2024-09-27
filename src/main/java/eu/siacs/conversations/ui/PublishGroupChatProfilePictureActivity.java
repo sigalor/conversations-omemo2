@@ -80,6 +80,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     }
 
     private void reloadAvatar() {
+        if (xmppConnectionService == null) return; // We will get called again in onBackendConnected
         final int size = (int) getResources().getDimension(R.dimen.publish_avatar_size);
         Drawable bitmap;
         if (uri == null) {
