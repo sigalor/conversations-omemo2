@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.telephony.TelephonyManager;
 
 import android.Manifest;
