@@ -389,56 +389,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, "Channels");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(channels, R.drawable.ic_group_24dp);
 
-        final var startChat = new com.mikepenz.materialdrawer.model.ExpandableDrawerItem();
-        startChat.setIdentifier(DRAWER_START_CHAT);
-        startChat.setSelectable(false);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(startChat, "Start Chat");
-        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChat, R.drawable.ic_chat_24dp);
-
-        final var startChatWithContact = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
-        startChatWithContact.setIdentifier(DRAWER_START_CHAT_CONTACT);
-        startChatWithContact.setSelectable(false);
-        startChatWithContact.setLevel(2);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(startChatWithContact, "With Contact");
-        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatWithContact, R.drawable.ic_person_24dp);
-
-        final var startChatWithNew = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
-        startChatWithNew.setIdentifier(DRAWER_START_CHAT_NEW);
-        startChatWithNew.setSelectable(false);
-        startChatWithNew.setLevel(2);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatWithNew, R.string.new_contact);
-        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatWithNew, R.drawable.ic_person_add_24dp);
-
-        final var startChatWithGroup = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
-        startChatWithGroup.setIdentifier(DRAWER_START_CHAT_GROUP);
-        startChatWithGroup.setSelectable(false);
-        startChatWithGroup.setLevel(2);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatWithGroup, R.string.create_private_group_chat);
-        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatWithGroup, R.drawable.ic_group_24dp);
-
-        final var startChatPublic = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
-        startChatPublic.setIdentifier(DRAWER_START_CHAT_PUBLIC);
-        startChatPublic.setSelectable(false);
-        startChatPublic.setLevel(2);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatPublic, R.string.create_public_channel);
-        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatPublic, R.drawable.ic_public_24dp);
-
-        final var startChatDiscover = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
-        startChatDiscover.setIdentifier(DRAWER_START_CHAT_DISCOVER);
-        startChatDiscover.setSelectable(false);
-        startChatDiscover.setLevel(2);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameRes(startChatDiscover, R.string.discover_channels);
-        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(startChatDiscover, R.drawable.ic_travel_explore_24dp);
-
-        startChat.setSubItems(startChatWithContact, startChatWithNew, startChatWithGroup, startChatPublic, startChatDiscover);
-
         binding.drawer.getItemAdapter().add(
             allChats,
             directMessages,
             channels,
-            new com.mikepenz.materialdrawer.model.DividerDrawerItem(),
-            new com.mikepenz.materialdrawer.model.DividerDrawerItem(),
-            startChat
+            new com.mikepenz.materialdrawer.model.DividerDrawerItem()
         );
 
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
