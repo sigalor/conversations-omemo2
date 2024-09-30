@@ -17,6 +17,8 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.ui.util.QuoteHelper;
+import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -234,7 +236,7 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public im.conversations.android.xmpp.model.stanza.Message reaction(final Conversational conversation, final String reactingTo, final Collection<String> ourReactions) {
+    public im.conversations.android.xmpp.model.stanza.Message reaction(final Conversational conversation, final Message inReplyTo, final String reactingTo, final Collection<String> ourReactions) {
         final boolean groupChat = conversation.getMode() == Conversational.MODE_MULTI;
         final Jid to = conversation.getJid().asBareJid();
         final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
@@ -245,6 +247,22 @@ public class MessageGenerator extends AbstractGenerator {
         for(final String ourReaction : ourReactions) {
             reactions.addExtension(new Reaction(ourReaction));
         }
+
+        final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(inReplyTo)) + "\n";
+        packet.setBody(quote + String.join(" ", ourReactions));
+
+        packet.addChild("reply", "urn:xmpp:reply:0")
+                .setAttribute("to", inReplyTo.getCounterpart())
+                .setAttribute("id", reactingTo);
+        final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
+        replyFallback.addChild("body", "urn:xmpp:fallback:0")
+                .setAttribute("start", "0")
+                .setAttribute("end", "" + quote.codePointCount(0, quote.length()));
+
+
+        final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
+        fallback.addChild("body", "urn:xmpp:fallback:0");
+
         packet.addChild("store", "urn:xmpp:hints");
         return packet;
     }

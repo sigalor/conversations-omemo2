@@ -5411,7 +5411,7 @@ public class XmppConnectionService extends Service {
                 return false;
             }
             final var reactionMessage =
-                    mMessageGenerator.reaction(conversation, reactToId, reactions);
+                    mMessageGenerator.reaction(conversation, message, reactToId, reactions);
             sendMessagePacket(conversation.getAccount(), reactionMessage);
             message.setReactions(combinedReactions);
             updateMessage(message, false);
