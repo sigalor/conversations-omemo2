@@ -279,15 +279,43 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             final var items = binding.drawer.getItemAdapter().getAdapterItems();
             final var tags = new TreeMap<Tag, Integer>();
             final var conversations = new ArrayList<Conversation>();
+            var totalUnread = 0;
+            var dmUnread = 0;
+            var channelUnread = 0;
             populateWithOrderedConversations(conversations, false, false);
             for (final var c : conversations) {
+                final var unread = c.unreadCount();
+                totalUnread += unread;
+                if (c.getMode() == Conversation.MODE_MULTI) {
+                    channelUnread += unread;
+                } else {
+                    dmUnread += unread;
+                }
                 for (final var tag : c.getTags(this)) {
                     if ("Channel".equals(tag.getName())) continue;
                     var count = tags.get(tag);
                     if (count == null) count = 0;
-                    tags.put(tag, count + c.unreadCount());
+                    tags.put(tag, count + unread);
                 }
             }
+
+            com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
+                binding.drawer,
+                DRAWER_UNREAD_CHATS,
+                new com.mikepenz.materialdrawer.holder.StringHolder(totalUnread > 0 ? new Integer(totalUnread).toString() : null)
+            );
+
+            com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
+                binding.drawer,
+                DRAWER_DIRECT_MESSAGES,
+                new com.mikepenz.materialdrawer.holder.StringHolder(dmUnread > 0 ? new Integer(dmUnread).toString() : null)
+            );
+
+            com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
+                binding.drawer,
+                DRAWER_CHANNELS,
+                new com.mikepenz.materialdrawer.holder.StringHolder(channelUnread > 0 ? new Integer(channelUnread).toString() : null)
+            );
 
             long id = 1000;
             final var inDrawer = new HashMap<Tag, Long>();
@@ -375,6 +403,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(manageAccount, R.drawable.ic_settings_24dp);
         accountHeader.addProfiles(manageAccount);
 
+        final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
+        final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
+
         final var allChats = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         allChats.setIdentifier(DRAWER_ALL_CHATS);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(allChats, "All Chats");
@@ -384,16 +415,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         unreadChats.setIdentifier(DRAWER_UNREAD_CHATS);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(unreadChats, "Unread Chats");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(unreadChats, R.drawable.chat_unread_24dp);
+        unreadChats.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
         final var directMessages = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         directMessages.setIdentifier(DRAWER_DIRECT_MESSAGES);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(directMessages, "Direct Messages");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(directMessages, R.drawable.ic_person_24dp);
+        directMessages.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
         final var channels = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         channels.setIdentifier(DRAWER_CHANNELS);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, "Channels");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(channels, R.drawable.ic_group_24dp);
+        channels.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
         binding.drawer.getItemAdapter().add(
             allChats,
