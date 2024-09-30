@@ -188,7 +188,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     private boolean showLastSeen = false;
     private com.mikepenz.materialdrawer.widget.AccountHeaderView accountHeader;
     private Bundle savedState = null;
-    private Tag selectedTag = null;
+    private HashSet<Tag> selectedTag = new HashSet<>();
     private long mainFilter = DRAWER_ALL_CHATS;
     private boolean refreshAccounts = true;
 
@@ -465,14 +465,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         if (useSavedState != null) {
             mainFilter = useSavedState.getLong("mainFilter", DRAWER_ALL_CHATS);
-            selectedTag = (Tag) useSavedState.getSerializable("selectedTag");
+            selectedTag = (HashSet<Tag>) useSavedState.getSerializable("selectedTag");
         }
         refreshUiReal();
         if (useSavedState != null) binding.drawer.setSavedInstance(useSavedState);
         accountHeader.attachToSliderView(binding.drawer);
         if (useSavedState != null) accountHeader.withSavedInstance(useSavedState);
 
-        if (mainFilter == DRAWER_ALL_CHATS && selectedTag == null) {
+        if (mainFilter == DRAWER_ALL_CHATS && selectedTag.isEmpty()) {
             binding.drawer.setSelectedItemIdentifier(DRAWER_ALL_CHATS);
         }
 
@@ -493,11 +493,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             } else if (id == DRAWER_START_CHAT_DISCOVER) {
                 launchStartConversation(R.id.discover_public_channels);
             } else if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
-                selectedTag = null;
+                selectedTag.clear();
                 mainFilter = id;
                 binding.drawer.getSelectExtension().deselect();
             } else if (id >= 1000) {
-                selectedTag = (Tag) drawerItem.getTag();
+                selectedTag.clear();
+                selectedTag.add((Tag) drawerItem.getTag());
+                binding.drawer.getSelectExtension().deselect();
+                binding.drawer.getSelectExtension().select(pos, false, true);
             }
             binding.drawer.getSelectExtension().selectByIdentifier(mainFilter, false, true);
 
@@ -514,7 +517,29 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             return false;
         });
 
-         accountHeader.setOnAccountHeaderListener((v, profile, isCurrent) -> {
+        binding.drawer.setOnDrawerItemLongClickListener((v, drawerItem, pos) -> {
+            final var id = drawerItem.getIdentifier();
+            if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
+                selectedTag.clear();
+                mainFilter = id;
+                binding.drawer.getSelectExtension().deselect();
+            } else if (id >= 1000) {
+                final var tag = (Tag) drawerItem.getTag();
+                if (selectedTag.contains(tag)) {
+                    selectedTag.remove(tag);
+                    binding.drawer.getSelectExtension().deselect(pos);
+                } else {
+                    selectedTag.add(tag);
+                    binding.drawer.getSelectExtension().select(pos, false, true);
+                }
+            }
+            binding.drawer.getSelectExtension().selectByIdentifier(mainFilter, false, true);
+
+            refreshUi();
+            return true;
+        });
+
+        accountHeader.setOnAccountHeaderListener((v, profile, isCurrent) -> {
             final var id = profile.getIdentifier();
             if (isCurrent) return false; // Ignore switching to already selected profile
 
@@ -610,8 +635,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 list.remove(c);
             } else if (selectedAccount != null && !selectedAccount.equals(c.getAccount().getUuid())) {
                 list.remove(c);
-            } else if (selectedTag != null && tagFilter && !c.getTags(this).contains(selectedTag)) {
-                list.remove(c);
+            } else if (!selectedTag.isEmpty() && tagFilter) {
+                final var tags = new HashSet<>(c.getTags(this));
+                tags.retainAll(selectedTag);
+                if (tags.isEmpty()) list.remove(c);
             }
         }
     }
@@ -623,7 +650,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
     public void launchStartConversation(int goTo) {
         if (accountHeader.getActiveProfile() != null) {
-            StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag == null ? null : selectedTag.getName(), goTo);
+            StartConversationActivity.launch(this, (Account) accountHeader.getActiveProfile().getTag(), selectedTag.stream().map(tag -> tag.getName()).collect(Collectors.joining(", ")), goTo);
         }
     }
 
