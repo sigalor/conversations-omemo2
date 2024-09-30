@@ -219,62 +219,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
         if (accountHeader == null) return;
 
-        accountHeader.apply(ah -> {
-            if (!refreshAccounts) return kotlin.Unit.INSTANCE;
-            refreshAccounts = false;
-            final var accounts = xmppConnectionService.getAccounts();
-            final var inHeader = new HashSet<>();
-            for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
-                if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
-                if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
-                    inHeader.add(p.getTag());
-                } else {
-                    accountHeader.removeProfile(p);
-                }
-            }
-
-            if (accounts.size() > 1 && !inHeader.contains(null)) {
-                final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
-                all.setIdentifier(100);
-                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
-                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
-                accountHeader.addProfile(all, 0);
-            }
-
-            accountHeader.removeProfileByIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
-            final var hasPhoneAccounts = accounts.stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
-            if (hasPhoneAccounts) {
-                final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
-                phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
-                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
-                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
-                accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
-            }
-
-            long id = 101;
-            for (final var a : accounts) {
-                final var size = (int) getResources().getDimension(R.dimen.avatar_on_drawer);
-                final var avatar = xmppConnectionService.getAvatarService().get(a, size, true);
-                if (avatar == null) {
-                    final var task = new AvatarWorkerTask(this, R.dimen.avatar_on_drawer);
-                    try { task.execute(a); } catch (final RejectedExecutionException ignored) { }
-                    refreshAccounts = true;
-                }
-                final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
-                p.setIdentifier(id++);
-                p.setTag(a);
-                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
-                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
-                if (avatar != null) com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(avatar).copy(Bitmap.Config.ARGB_8888, false));
-                if (inHeader.contains(a)) {
-                    accountHeader.updateProfile(p);
-                } else {
-                    accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
-                }
-            }
-            return kotlin.Unit.INSTANCE;
-        });
-
+        final var accountUnreads = new HashMap<Account, Integer>();
         binding.drawer.apply(dr -> {
             final var items = binding.drawer.getItemAdapter().getAdapterItems();
             final var tags = new TreeMap<Tag, Integer>();
@@ -291,6 +236,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 } else {
                     dmUnread += unread;
                 }
+                var accountUnread = accountUnreads.get(c.getAccount());
+                if (accountUnread == null) accountUnread = 0;
+                accountUnreads.put(c.getAccount(), accountUnread + unread);
                 for (final var tag : c.getTags(this)) {
                     if ("Channel".equals(tag.getName())) continue;
                     var count = tags.get(tag);
@@ -351,6 +299,68 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             items.subList(5, 5 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
             binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
+            return kotlin.Unit.INSTANCE;
+        });
+
+
+        accountHeader.apply(ah -> {
+            // if (!refreshAccounts) return kotlin.Unit.INSTANCE;
+            refreshAccounts = false;
+            final var accounts = xmppConnectionService.getAccounts();
+            final var inHeader = new HashSet<>();
+            for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
+                if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
+                if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
+                    inHeader.add(p.getTag());
+                } else {
+                    accountHeader.removeProfile(p);
+                }
+            }
+
+            if (accounts.size() > 1 && !inHeader.contains(null)) {
+                final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+                all.setIdentifier(100);
+                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
+                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
+                accountHeader.addProfile(all, 0);
+            }
+
+            accountHeader.removeProfileByIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+            final var hasPhoneAccounts = accounts.stream().anyMatch(a -> a.getGateways("pstn").size() > 0);
+            if (hasPhoneAccounts) {
+                final var phoneAccounts = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
+                phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
+                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
+                accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
+            }
+
+            long id = 101;
+            for (final var a : accounts) {
+                final var size = (int) getResources().getDimension(R.dimen.avatar_on_drawer);
+                final var avatar = xmppConnectionService.getAvatarService().get(a, size, true);
+                if (avatar == null) {
+                    final var task = new AvatarWorkerTask(this, R.dimen.avatar_on_drawer);
+                    try { task.execute(a); } catch (final RejectedExecutionException ignored) { }
+                    refreshAccounts = true;
+                }
+                final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+                p.setIdentifier(id++);
+                p.setTag(a);
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
+                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
+                if (avatar != null) com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(avatar).copy(Bitmap.Config.ARGB_8888, false));
+                final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
+                final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
+                p.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
+                final var badgeNumber = accountUnreads.get(a);
+                p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null ? null : badgeNumber.toString()));
+                if (inHeader.contains(a)) {
+                    accountHeader.updateProfile(p);
+                } else {
+                    accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+                }
+            }
             return kotlin.Unit.INSTANCE;
         });
     }
