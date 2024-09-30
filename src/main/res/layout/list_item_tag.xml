@@ -7,7 +7,8 @@
     android:backgroundTint="@color/green_700"
     android:maxLines="1"
     android:minHeight="10dp"
-    android:paddingHorizontal="5dp"
+    android:paddingVertical="1dp"
+    android:paddingHorizontal="7dp"
     android:textAppearance="?textAppearanceLabelMedium"
     android:textColor="@android:color/white"
     tools:text="Friends" />
