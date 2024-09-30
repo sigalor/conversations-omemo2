@@ -363,7 +363,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
                 p.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
                 final var badgeNumber = accountUnreads.get(a);
-                p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null ? " " : badgeNumber.toString()));
+                p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null || badgeNumber < 1 ? " " : badgeNumber.toString()));
                 if (inHeader.contains(a)) {
                     accountHeader.updateProfile(p);
                 } else {
