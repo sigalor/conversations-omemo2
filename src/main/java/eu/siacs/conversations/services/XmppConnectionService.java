@@ -63,9 +63,10 @@ import de.monocles.chat.WebxdcUpdate;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 
 import com.kedia.ogparser.JsoupProxy;
@@ -1278,8 +1279,13 @@ public class XmppConnectionService extends Service {
         final Message inReplyTo = lastMessageUuid == null ? null : conversation.findMessageWithUuid(lastMessageUuid);
         Message message = new Message(conversation, body, conversation.getNextEncryption());
         if (inReplyTo != null) {
-            if (Emoticons.isEmoji(body)) {
-                message = inReplyTo.react(body);
+            if (Emoticons.isEmoji(body.replaceAll("\\s", ""))) {
+                final var aggregated = inReplyTo.getAggregatedReactions();
+                final ImmutableSet.Builder<String> reactionBuilder = new ImmutableSet.Builder<>();
+                reactionBuilder.addAll(aggregated.ourReactions);
+                reactionBuilder.add(body.replaceAll("\\s", ""));
+                sendReactions(inReplyTo, reactionBuilder.build());
+                return;
             } else {
                 message = inReplyTo.reply();
             }

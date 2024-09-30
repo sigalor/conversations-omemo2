@@ -1090,7 +1090,14 @@ public class ConversationFragment extends XmppFragment
             }
             if (conversation.getReplyTo() != null) {
                 if (Emoticons.isEmoji(body.toString().replaceAll("\\s", ""))) {
-                    message = conversation.getReplyTo().react(body.toString().replaceAll("\\s", ""));
+                    final var aggregated = conversation.getReplyTo().getAggregatedReactions();
+                    final ImmutableSet.Builder<String> reactionBuilder = new ImmutableSet.Builder<>();
+                    reactionBuilder.addAll(aggregated.ourReactions);
+                    reactionBuilder.add(body.toString().replaceAll("\\s", ""));
+                    activity.xmppConnectionService.sendReactions(conversation.getReplyTo(), reactionBuilder.build());
+                    setupReply(null);
+                    messageSent();
+                    return;
                 } else {
                     message = conversation.getReplyTo().reply();
                     message.appendBody(body);
