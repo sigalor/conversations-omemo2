@@ -160,17 +160,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
     public static final long DRAWER_ALL_CHATS = 1;
-    public static final long DRAWER_DIRECT_MESSAGES = 2;
-    public static final long DRAWER_MANAGE_ACCOUNT = 3;
-    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 4;
-    public static final long DRAWER_CHANNELS = 5;
-    public static final long DRAWER_SETTINGS = 6;
-    public static final long DRAWER_START_CHAT = 7;
-    public static final long DRAWER_START_CHAT_CONTACT = 8;
-    public static final long DRAWER_START_CHAT_NEW = 9;
-    public static final long DRAWER_START_CHAT_GROUP = 10;
-    public static final long DRAWER_START_CHAT_PUBLIC = 11;
-    public static final long DRAWER_START_CHAT_DISCOVER = 12;
+    public static final long DRAWER_UNREAD_CHATS = 2;
+    public static final long DRAWER_DIRECT_MESSAGES = 3;
+    public static final long DRAWER_MANAGE_ACCOUNT = 4;
+    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 5;
+    public static final long DRAWER_CHANNELS = 6;
+    public static final long DRAWER_SETTINGS = 7;
+    public static final long DRAWER_START_CHAT = 8;
+    public static final long DRAWER_START_CHAT_CONTACT = 9;
+    public static final long DRAWER_START_CHAT_NEW = 10;
+    public static final long DRAWER_START_CHAT_GROUP = 11;
+    public static final long DRAWER_START_CHAT_PUBLIC = 12;
+    public static final long DRAWER_START_CHAT_DISCOVER = 13;
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -316,11 +317,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
                     final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
                     item.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
-                    binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(4), item);
+                    binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(5), item);
                 }
             }
 
-            items.subList(4, 4 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
+            items.subList(5, 5 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
             binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
             return kotlin.Unit.INSTANCE;
         });
@@ -379,6 +380,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(allChats, "All Chats");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(allChats, R.drawable.ic_chat_24dp);
 
+        final var unreadChats = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        unreadChats.setIdentifier(DRAWER_UNREAD_CHATS);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(unreadChats, "Unread Chats");
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(unreadChats, R.drawable.chat_unread_24dp);
+
         final var directMessages = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         directMessages.setIdentifier(DRAWER_DIRECT_MESSAGES);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(directMessages, "Direct Messages");
@@ -391,6 +397,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         binding.drawer.getItemAdapter().add(
             allChats,
+            unreadChats,
             directMessages,
             channels,
             new com.mikepenz.materialdrawer.model.DividerDrawerItem()
@@ -432,7 +439,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 launchStartConversation(R.id.create_public_channel);
             } else if (id == DRAWER_START_CHAT_DISCOVER) {
                 launchStartConversation(R.id.discover_public_channels);
-            } else if (id == DRAWER_ALL_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
+            } else if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
                 selectedTag = null;
                 mainFilter = id;
                 binding.drawer.getSelectExtension().deselect();
@@ -545,6 +552,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (mainFilter == DRAWER_CHANNELS && c.getMode() != Conversation.MODE_MULTI) {
                 list.remove(c);
             } else if (mainFilter == DRAWER_DIRECT_MESSAGES && c.getMode() == Conversation.MODE_MULTI) {
+                list.remove(c);
+            } else if (mainFilter == DRAWER_UNREAD_CHATS && c.unreadCount() < 1) {
                 list.remove(c);
             } else if (selectedAccount != null && !selectedAccount.equals(c.getAccount().getUuid())) {
                 list.remove(c);
