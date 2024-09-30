@@ -82,6 +82,21 @@ public class Reaction {
         }
     }
 
+    public static Collection<Reaction> append(
+            final Collection<Reaction> existing,
+            final Collection<String> reactions,
+            final boolean received,
+            final Jid from,
+            final Jid trueJid,
+            final String occupantId) {
+        final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
+        builder.addAll(existing);
+        builder.addAll(
+                Collections2.transform(
+                        reactions, r -> new Reaction(r, received, from, trueJid, occupantId)));
+        return builder.build();
+    }
+
     public static Collection<Reaction> withOccupantId(
             final Collection<Reaction> existing,
             final Collection<String> reactions,
@@ -89,7 +104,7 @@ public class Reaction {
             final Jid from,
             final Jid trueJid,
             final String occupantId) {
-        final ImmutableList.Builder<Reaction> builder = new ImmutableList.Builder<>();
+        final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
         builder.addAll(Collections2.filter(existing, e -> !occupantId.equals(e.occupantId)));
         builder.addAll(
                 Collections2.transform(
@@ -109,12 +124,22 @@ public class Reaction {
                 .toString();
     }
 
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Reaction)) return false;
+        return toString().equals(o.toString());
+    }
+
     public static Collection<Reaction> withFrom(
             final Collection<Reaction> existing,
             final Collection<String> reactions,
             final boolean received,
             final Jid from) {
-        final ImmutableList.Builder<Reaction> builder = new ImmutableList.Builder<>();
+        final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
         builder.addAll(
                 Collections2.filter(existing, e -> !from.asBareJid().equals(e.from.asBareJid())));
         builder.addAll(

@@ -59,6 +59,7 @@ import eu.siacs.conversations.services.MessageArchiveService;
 import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
+import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.LocalizedContent;
 import eu.siacs.conversations.xml.Namespace;
@@ -574,7 +575,6 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
         if (timestamp == null) {
             timestamp = AbstractParser.parseTimestamp(original, AbstractParser.parseTimestamp(packet));
         }
-        final Reactions reactions = packet.getExtension(Reactions.class);
         final Element mucUserElement = packet.findChild("x", Namespace.MUC_USER);
         final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
         Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
@@ -609,6 +609,33 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             }
         }
         LocalizedContent body = packet.getBody();
+
+        var appendReactions = false;
+        var reactions = packet.getExtension(Reactions.class);
+        final var reply = packet.findChild("reply", "urn:xmpp:reply:0");
+        if (reactions == null && reply != null && reply.getAttribute("id") != null && body != null) {
+            StringBuilder bodyB = new StringBuilder(body.content);
+
+            for (Element el : packet.getChildren()) {
+                if ("fallback".equals(el.getName()) && "urn:xmpp:fallback:0".equals(el.getNamespace()) && "urn:xmpp:reply:0".equals(el.getAttribute("for"))) {
+                    for (final var span : el.getChildren()) {
+                        if (!span.getName().equals("body") && !span.getNamespace().equals("urn:xmpp:fallback:0")) continue;
+                        if (span.getAttribute("start") == null || span.getAttribute("end") == null) {
+                            bodyB.setLength(0);
+                        } else {
+                            bodyB.delete(bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("start"))), bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("end"))));
+                        }
+                    }
+                }
+            }
+
+            final var emojiMaybe = bodyB.toString().replaceAll("\\s", "");
+            if (Emoticons.isEmoji(emojiMaybe)) {
+                appendReactions = true;
+                reactions = im.conversations.android.xmpp.model.reactions.Reactions.to(reply.getAttribute("id"));
+                reactions.addExtension(new im.conversations.android.xmpp.model.reactions.Reaction(emojiMaybe));
+            }
+        }
 
         final Element axolotlEncrypted = packet.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
         int status;
@@ -718,7 +745,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             }
         }
 
-        if ((body != null || pgpEncrypted != null || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload")) || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread"))) && !isMucStatusMessage) {
+        if (reactions == null && (body != null || pgpEncrypted != null || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload")) || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread"))) && !isMucStatusMessage) {
             final Conversation conversation = mXmppConnectionService.findOrCreateConversation(account, counterpart.asBareJid(), conversationIsProbablyMuc, false, query, false);
             final boolean conversationMultiMode = conversation.getMode() == Conversation.MODE_MULTI;
 
@@ -1428,6 +1455,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     final boolean isReceived = !mucOptions.isSelf(counterpart);
                     if (occupantId != null && message != null) {
                         final var combinedReactions =
+                            appendReactions ? Reaction.append(message.getReactions(), reactions.getReactions(), isReceived, counterpart, null, occupantId) :
                                 Reaction.withOccupantId(
                                         message.getReactions(),
                                         reactions.getReactions(),
@@ -1454,6 +1482,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     packet.fromAccount(account);
                     if (message != null) {
                         final var combinedReactions =
+                            appendReactions ? Reaction.append(message.getReactions(), reactions.getReactions(), isReceived, reactionFrom, null, null) :
                                 Reaction.withFrom(
                                         message.getReactions(),
                                         reactions.getReactions(),
@@ -1596,6 +1625,14 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 mXmppConnectionService.updateConversationUi();
             }
             return true;
+        }
+    }
+
+    private static int parseInt(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 }
