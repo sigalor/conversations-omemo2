@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -216,6 +217,7 @@ public class EmojiSearch {
 			}
 		};
 		final Consumer<Emoji> callback;
+		protected Semaphore doingUpdate = new Semaphore(1);
 
 		public EmojiSearchAdapter(final Consumer<Emoji> callback) {
 			super(DIFF);
@@ -249,9 +251,15 @@ public class EmojiSearch {
 		public void search(final Activity activity, final String q) {
 			executor.execute(() -> {
 				final List<Emoji> results = find(q);
-				activity.runOnUiThread(() -> {
-					submitList(results);
-				});
+				try {
+					// Acquire outside so to not block UI thread
+					doingUpdate.acquire();
+					activity.runOnUiThread(() -> {
+						submitList(results, () -> {
+							activity.runOnUiThread(() -> doingUpdate.release());
+						});
+					});
+				} catch (final InterruptedException e) { }
 			});
 		}
 
