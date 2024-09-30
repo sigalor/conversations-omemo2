@@ -1102,7 +1102,12 @@ public class ConversationFragment extends XmppFragment
                 if (message.bodyIsOnlyEmojis()) {
                     SpannableStringBuilder spannable = message.getSpannableBody(null, null);
                     ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
-                    if (imageSpans.length == 1) {
+                    for (ImageSpan span : imageSpans) {
+                        final int start = spannable.getSpanStart(span);
+                        final int end = spannable.getSpanEnd(span);
+                        spannable.delete(start, end);
+                    }
+                    if (imageSpans.length == 1 && spannable.toString().replaceAll("\\s", "").length() < 1) {
                         // Only one inline image, so it's a sticker
                         String source = imageSpans[0].getSource();
                         if (source != null && source.length() > 0 && source.substring(0, 4).equals("cid:")) {
