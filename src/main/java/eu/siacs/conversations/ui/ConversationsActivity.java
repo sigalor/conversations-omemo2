@@ -122,6 +122,7 @@ import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.ToolbarUtils;
+import eu.siacs.conversations.ui.util.SendButtonTool;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.ExceptionHelper;
 import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
@@ -336,6 +337,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             }
 
             long id = 101;
+            final boolean nightMode = Activities.isNightMode(this);
             for (final var a : accounts) {
                 final var size = (int) getResources().getDimension(R.dimen.avatar_on_drawer);
                 final var avatar = xmppConnectionService.getAvatarService().get(a, size, true);
@@ -350,11 +352,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
                 com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
                 if (avatar != null) com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(avatar).copy(Bitmap.Config.ARGB_8888, false));
-                final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
+                var color = SendButtonTool.getSendButtonColor(binding.drawer, a.getPresenceStatus());
+                if (!a.isOnlineAndConnected()) {
+                    if (a.getStatus().isError()) {
+                        color = MaterialColors.harmonizeWithPrimary(this, ContextCompat.getColor(this, nightMode ? R.color.red_300 : R.color.red_800));
+                    } else {
+                        color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnSurface);
+                    }
+                }
                 final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
                 p.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
                 final var badgeNumber = accountUnreads.get(a);
-                p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null ? null : badgeNumber.toString()));
+                p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null ? " " : badgeNumber.toString()));
                 if (inHeader.contains(a)) {
                     accountHeader.updateProfile(p);
                 } else {
