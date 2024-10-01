@@ -322,8 +322,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             refreshAccounts = false;
             final var accounts = xmppConnectionService.getAccounts();
             final var inHeader = new HashMap<Account, com.mikepenz.materialdrawer.model.ProfileDrawerItem>();
+            long id = 101;
             for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
                 if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
+                final var pId = p.getIdentifier();
+                if (id < pId) id = pId;
                 if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
                     inHeader.put((Account) p.getTag(), (com.mikepenz.materialdrawer.model.ProfileDrawerItem) p);
                 } else {
@@ -349,7 +352,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
             }
 
-            long id = 101;
             final boolean nightMode = Activities.isNightMode(this);
             for (final var a : accounts) {
                 final var size = (int) getResources().getDimension(R.dimen.avatar_on_drawer);
