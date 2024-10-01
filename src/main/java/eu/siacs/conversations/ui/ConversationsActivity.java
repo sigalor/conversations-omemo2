@@ -309,20 +309,20 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 
         accountHeader.apply(ah -> {
-            // if (!refreshAccounts) return kotlin.Unit.INSTANCE;
+            //if (!refreshAccounts) return kotlin.Unit.INSTANCE;
             refreshAccounts = false;
             final var accounts = xmppConnectionService.getAccounts();
-            final var inHeader = new HashSet<>();
+            final var inHeader = new HashMap<Account, com.mikepenz.materialdrawer.model.ProfileDrawerItem>();
             for (final var p : ImmutableList.copyOf(accountHeader.getProfiles())) {
                 if (p instanceof com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem) continue;
                 if (accounts.contains(p.getTag()) || (accounts.size() > 1 && p.getTag() == null)) {
-                    inHeader.add(p.getTag());
+                    inHeader.put((Account) p.getTag(), (com.mikepenz.materialdrawer.model.ProfileDrawerItem) p);
                 } else {
                     accountHeader.removeProfile(p);
                 }
             }
 
-            if (accounts.size() > 1 && !inHeader.contains(null)) {
+            if (accounts.size() > 1 && !inHeader.containsKey(null)) {
                 final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
                 all.setIdentifier(100);
                 com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
@@ -350,9 +350,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     try { task.execute(a); } catch (final RejectedExecutionException ignored) { }
                     refreshAccounts = true;
                 }
-                final var p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
-                p.setIdentifier(id++);
-                p.setTag(a);
+                final var alreadyInHeader = inHeader.get(a);
+                final com.mikepenz.materialdrawer.model.ProfileDrawerItem p;
+                if (alreadyInHeader == null) {
+                    p = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
+                    p.setIdentifier(id++);
+                    p.setTag(a);
+                } else {
+                    p = alreadyInHeader;
+                }
                 com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(p, a.getDisplayName() == null ? "" : a.getDisplayName());
                 com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(p, a.getJid().asBareJid().toString());
                 if (avatar != null) com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconBitmap(p, FileBackend.drawDrawable(avatar).copy(Bitmap.Config.ARGB_8888, false));
@@ -368,10 +374,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 p.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
                 final var badgeNumber = accountUnreads.get(a);
                 p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null || badgeNumber < 1 ? " " : badgeNumber.toString()));
-                if (inHeader.contains(a)) {
-                    accountHeader.updateProfile(p);
-                } else {
+                if (alreadyInHeader == null) {
                     accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+                } else {
+                    accountHeader.updateProfile(p);
                 }
             }
             return kotlin.Unit.INSTANCE;
