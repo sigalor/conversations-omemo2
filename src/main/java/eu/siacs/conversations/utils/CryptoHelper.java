@@ -48,6 +48,7 @@ public final class CryptoHelper {
     private static final int PW_LENGTH = 25;
     private static final char[] VOWELS = "aeiou".toCharArray();
     private static final char[] CONSONANTS = "bcfghjklmnpqrstvwxyz".toCharArray();
+    public static final String FILETRANSFER = "?FILETRANSFERv1:";
     private final static char[] hexArray = "0123456789abcdef".toCharArray();
 
     public static String bytesToHex(byte[] bytes) {

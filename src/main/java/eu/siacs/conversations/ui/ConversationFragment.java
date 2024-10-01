@@ -118,6 +118,8 @@ import com.otaliastudios.autocomplete.AutocompletePresenter;
 import com.otaliastudios.autocomplete.CharPolicy;
 import com.otaliastudios.autocomplete.RecyclerViewPresenter;
 
+import net.java.otr4j.session.SessionStatus;
+
 import org.jetbrains.annotations.NotNull;
 
 import eu.siacs.conversations.medialib.activities.EditActivity;
@@ -305,6 +307,14 @@ public class ConversationFragment extends XmppFragment
     private int identiconWidth = -1;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
+
+    protected OnClickListener clickToVerify = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            activity.verifyOtrSessionDialog(conversation, v);
+        }
+    };
+
     private final OnClickListener clickToMuc =
             new OnClickListener() {
 
@@ -573,6 +583,20 @@ public class ConversationFragment extends XmppFragment
                     }
                 }
             };
+
+    private OnClickListener mAnswerSmpClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(activity, VerifyOTRActivity.class);
+            intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
+            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
+            intent.putExtra(VerifyOTRActivity.EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
+            intent.putExtra("mode", VerifyOTRActivity.MODE_ANSWER_QUESTION);
+            startActivity(intent);
+            activity.overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        }
+    };
+
     protected OnClickListener clickToDecryptListener =
             new OnClickListener() {
 
@@ -1134,6 +1158,9 @@ public class ConversationFragment extends XmppFragment
         }
         if (sendAt != null) message.setTime(sendAt);
         switch (conversation.getNextEncryption()) {
+            case Message.ENCRYPTION_OTR:
+                sendOtrMessage(message);
+                break;
             case Message.ENCRYPTION_PGP:
                 sendPgpMessage(message);
                 break;
@@ -1515,7 +1542,7 @@ public class ConversationFragment extends XmppFragment
                 menuUnmute.setVisible(false);
             }
             ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, TextUtils.isEmpty(binding.textinput.getText()));
-            ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu);
+            ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu, activity);
             if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, false)) {
                 menuTogglePinned.setTitle(R.string.remove_from_favorites);
             } else {
@@ -2221,6 +2248,7 @@ public class ConversationFragment extends XmppFragment
         switch (item.getItemId()) {
             case R.id.encryption_choice_axolotl:
             case R.id.encryption_choice_pgp:
+            case R.id.encryption_choice_otr:
             case R.id.encryption_choice_none:
                 handleEncryptionSelection(item);
                 break;
@@ -2598,6 +2626,10 @@ public class ConversationFragment extends XmppFragment
                                 + "Enabled axolotl for Contact "
                                 + conversation.getContact().getJid());
                 updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
+                item.setChecked(true);
+                break;
+            case R.id.encryption_choice_otr:
+                updated = conversation.setNextEncryption(Message.ENCRYPTION_OTR);
                 item.setChecked(true);
                 break;
             default:
@@ -4054,6 +4086,14 @@ public class ConversationFragment extends XmppFragment
             }
         } else if (account.hasPendingPgpIntent(conversation)) {
             showSnackbar(R.string.openpgp_messages_found, R.string.decrypt, clickToDecryptListener);
+        } else if (mode == Conversation.MODE_SINGLE
+                && conversation.smpRequested()) {
+            showSnackbar(R.string.smp_requested, R.string.verify, this.mAnswerSmpClickListener);
+        } else if (mode == Conversation.MODE_SINGLE
+                && conversation.hasValidOtrSession()
+                && (conversation.getOtrSession().getSessionStatus() == SessionStatus.ENCRYPTED)
+                && (!conversation.isOtrFingerprintVerified())) {
+            showSnackbar(R.string.unknown_otr_fingerprint, R.string.verify, clickToVerify);
         } else if (connection != null
                 && connection.getFeatures().blocking()
                 && conversation.strangerInvited()) {
@@ -4449,6 +4489,17 @@ public class ConversationFragment extends XmppFragment
     protected void sendMessage(Message message) {
         new Thread(() -> activity.xmppConnectionService.sendMessage(message)).start();
         messageSent();
+    }
+
+    protected void sendOtrMessage(final Message message) {
+        final ConversationsActivity activity = (ConversationsActivity) getActivity();
+        final XmppConnectionService xmppService = activity.xmppConnectionService;
+        activity.selectPresence(conversation,
+                () -> {
+                    message.setCounterpart(conversation.getNextCounterpart());
+                    xmppService.sendMessage(message);
+                    messageSent();
+                });
     }
 
     protected void sendPgpMessage(final Message message) {

@@ -395,6 +395,48 @@ public class Contact implements ListItem, Blockable {
         return tags;
     }
 
+
+    public ArrayList<String> getOtrFingerprints() {
+        synchronized (this.keys) {
+            final ArrayList<String> fingerprints = new ArrayList<String>();
+            try {
+                if (this.keys.has("otr_fingerprints")) {
+                    final JSONArray prints = this.keys.getJSONArray("otr_fingerprints");
+                    for (int i = 0; i < prints.length(); ++i) {
+                        final String print = prints.isNull(i) ? null : prints.getString(i);
+                        if (print != null && !print.isEmpty()) {
+                            fingerprints.add(prints.getString(i).toLowerCase(Locale.US));
+                        }
+                    }
+                }
+            } catch (final JSONException ignored) {
+
+            }
+            return fingerprints;
+        }
+    }
+
+    public boolean addOtrFingerprint(String print) {
+        synchronized (this.keys) {
+            if (getOtrFingerprints().contains(print)) {
+                return false;
+            }
+            try {
+                JSONArray fingerprints;
+                if (!this.keys.has("otr_fingerprints")) {
+                    fingerprints = new JSONArray();
+                } else {
+                    fingerprints = this.keys.getJSONArray("otr_fingerprints");
+                }
+                fingerprints.put(print);
+                this.keys.put("otr_fingerprints", fingerprints);
+                return true;
+            } catch (final JSONException ignored) {
+                return false;
+            }
+        }
+    }
+
     public long getPgpKeyId() {
         synchronized (this.keys) {
             if (this.keys.has("pgp_keyid")) {

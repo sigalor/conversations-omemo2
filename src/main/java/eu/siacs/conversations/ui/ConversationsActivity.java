@@ -64,6 +64,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
@@ -84,6 +85,8 @@ import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.color.MaterialColors;
+
+import net.java.otr4j.session.SessionStatus;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
@@ -131,6 +134,7 @@ import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
+import me.drakeet.support.toast.ToastCompat;
 
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged {
 
@@ -1490,6 +1494,33 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 switchToContactDetails(contact);
             }
         }
+    }
+
+    public void verifyOtrSessionDialog(final Conversation conversation, View view) {
+        if (!conversation.hasValidOtrSession() || conversation.getOtrSession().getSessionStatus() != SessionStatus.ENCRYPTED) {
+            ToastCompat.makeText(this, R.string.otr_session_not_started, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (view == null) {
+            return;
+        }
+        PopupMenu popup = new PopupMenu(this, view);
+        popup.inflate(R.menu.verification_choices);
+        popup.setOnMenuItemClickListener(menuItem -> {
+            Intent intent = new Intent(ConversationsActivity.this, VerifyOTRActivity.class);
+            intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
+            intent.putExtra("contact", conversation.getContact().getJid().asBareJid().toString());
+            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
+            switch (menuItem.getItemId()) {
+                case R.id.ask_question:
+                    intent.putExtra("mode", VerifyOTRActivity.MODE_ASK_QUESTION);
+                    break;
+            }
+            startActivity(intent);
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            return true;
+        });
+        popup.show();
     }
 
     @Override

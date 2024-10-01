@@ -16,6 +16,13 @@
             android:summary="@string/pref_blind_trust_before_verification_summary"
             android:title="@string/pref_blind_trust_before_verification" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/enable_otr"
+            android:icon="@drawable/ic_lock_24dp"
+            android:key="enable_otr_encryption"
+            android:summary="@string/pref_enable_otr_summary"
+            android:title="@string/pref_enable_otr" />
+
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_server_connection">
         <SwitchPreferenceCompat

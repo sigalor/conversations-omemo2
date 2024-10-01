@@ -64,6 +64,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 
+import net.java.otr4j.session.SessionID;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -485,7 +487,17 @@ public abstract class XmppActivity extends ActionBarActivity {
 
     public void selectPresence(final Conversation conversation, final PresenceSelector.OnPresenceSelected listener) {
         final Contact contact = conversation.getContact();
-        if (contact.showInRoster() || contact.isSelf()) {
+        if (conversation.hasValidOtrSession()) {
+            SessionID id = conversation.getOtrSession().getSessionID();
+            Jid jid;
+            try {
+                jid = Jid.of(id.getAccountID() + "/" + id.getUserID());
+            } catch (IllegalArgumentException e) {
+                jid = null;
+            }
+            conversation.setNextCounterpart(jid);
+            listener.onPresenceSelected();
+        } else if (contact.showInRoster() || contact.isSelf()) {
             final Presences presences = contact.getPresences();
             if (presences.size() == 0) {
                 if (contact.isSelf()) {
@@ -530,7 +542,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected boolean isOptimizingBattery() {
         final PowerManager pm = getSystemService(PowerManager.class);
         return !pm.isIgnoringBatteryOptimizations(getPackageName());
-}
+    }
 
     protected boolean isAffectedByDataSaver() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

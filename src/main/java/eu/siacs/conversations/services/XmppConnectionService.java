@@ -73,6 +73,11 @@ import com.kedia.ogparser.OpenGraphCallback;
 import com.kedia.ogparser.OpenGraphParser;
 import com.kedia.ogparser.OpenGraphResult;
 
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
+
 import org.conscrypt.Conscrypt;
 import org.jxmpp.stringprep.libidn.LibIdnXmppStringprep;
 import org.openintents.openpgp.IOpenPgpService2;
@@ -112,6 +117,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import eu.siacs.conversations.xmpp.jid.OtrJidHelper;
 import io.ipfs.cid.Cid;
 
 import eu.siacs.conversations.AppSettings;
@@ -281,8 +287,17 @@ public class XmppConnectionService extends Service {
         Conversation conversation = find(getConversations(), contact);
         if (conversation != null) {
             if (online) {
+                conversation.endOtrIfNeeded();
                 if (contact.getPresences().size() == 1) {
                     sendUnsentMessages(conversation);
+                }
+            } else {
+                //check if the resource we are haveing a conversation with is still online
+                if (conversation.hasValidOtrSession()) {
+                    String otrResource = conversation.getOtrSession().getSessionID().getUserID();
+                    if (!(Arrays.asList(contact.getPresences().toResourceArray()).contains(otrResource))) {
+                        conversation.endOtrIfNeeded();
+                    }
                 }
             }
         }
@@ -408,6 +423,9 @@ public class XmppConnectionService extends Service {
                     if (conversation.getAccount() == account
                             && !pendingJoin
                             && !inProgressJoin) {
+                        if (!conversation.startOtrIfNeeded()) {
+                            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": couldn't start OTR with " + conversation.getContact().getJid() + " when needed");
+                        }
                         sendUnsentMessages(conversation);
                     }
                 }
@@ -1915,6 +1933,12 @@ public class XmppConnectionService extends Service {
             }
         }
 
+        if (!resend && message.getEncryption() != Message.ENCRYPTION_OTR) {
+            conversation.endOtrIfNeeded();
+            conversation.findUnsentMessagesWithEncryption(Message.ENCRYPTION_OTR,
+                    message1 -> markMessage(message1, Message.STATUS_SEND_FAILED));
+        }
+
         final boolean inProgressJoin = isJoinInProgress(conversation);
 
         if (message.getCounterpart() == null && !message.isPrivateMessage()) {
@@ -2056,6 +2080,30 @@ public class XmppConnectionService extends Service {
                         packet = mMessageGenerator.generatePgpChat(message);
                     }
                     break;
+                case Message.ENCRYPTION_OTR:
+                    SessionImpl otrSession = conversation.getOtrSession();
+                    if (otrSession != null && otrSession.getSessionStatus() == SessionStatus.ENCRYPTED) {
+                        try {
+                            message.setCounterpart(OtrJidHelper.fromSessionID(otrSession.getSessionID()));
+                        } catch (IllegalArgumentException e) {
+                            break;
+                        }
+                        if (message.needsUploading()) {
+                            mJingleConnectionManager.startJingleFileTransfer(message);
+                        } else {
+                            packet = mMessageGenerator.generateOtrChat(message);
+                        }
+                    } else if (otrSession == null) {
+                        if (message.fixCounterpart()) {
+                            conversation.startOtrSession(message.getCounterpart().getResource(), true);
+                        } else {
+                            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not fix counterpart for OTR message to contact " + message.getCounterpart());
+                            break;
+                        }
+                    } else {
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + " OTR session with " + message.getContact() + " is in wrong state: " + otrSession.getSessionStatus().toString());
+                    }
+                    break;
                 case Message.ENCRYPTION_AXOLOTL:
                     message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
                     if (message.needsUploading()) {
@@ -2107,6 +2155,12 @@ public class XmppConnectionService extends Service {
                             message.setBody(decryptedBody);
                             message.setEncryption(Message.ENCRYPTION_DECRYPTED);
                         }
+                    }
+                    break;
+                case Message.ENCRYPTION_OTR:
+                    if (!conversation.hasValidOtrSession() && message.getCounterpart() != null) {
+                        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": create otr session without starting for " + message.getContact().getJid());
+                        conversation.startOtrSession(message.getCounterpart().getResource(), false);
                     }
                     break;
                 case Message.ENCRYPTION_AXOLOTL:
@@ -2780,7 +2834,7 @@ public class XmppConnectionService extends Service {
     }
 
     public Conversation find(final Iterable<Conversation> haystack, final Account account, final Jid jid) {
-        if (jid == null) {
+        if (jid == null || haystack == null) {
             return null;
         }
         for (final Conversation conversation : haystack) {
@@ -4364,6 +4418,39 @@ public class XmppConnectionService extends Service {
         pushContactToServer(contact, preAuth);
     }
 
+    public void onOtrSessionEstablished(Conversation conversation) {
+        final Account account = conversation.getAccount();
+        final Session otrSession = conversation.getOtrSession();
+        Log.d(Config.LOGTAG,
+                account.getJid().asBareJid() + " otr session established with "
+                        + conversation.getJid() + "/"
+                        + otrSession.getSessionID().getUserID());
+        conversation.findUnsentMessagesWithEncryption(Message.ENCRYPTION_OTR, new Conversation.OnMessageFound() {
+
+            @Override
+            public void onMessageFound(Message message) {
+                SessionID id = otrSession.getSessionID();
+                try {
+                    message.setCounterpart(Jid.of(id.getAccountID() + "/" + id.getUserID()));
+                } catch (IllegalArgumentException e) {
+                    return;
+                }
+                if (message.needsUploading()) {
+                    mJingleConnectionManager.startJingleFileTransfer(message);
+                } else {
+                    im.conversations.android.xmpp.model.stanza.Message outPacket = mMessageGenerator.generateOtrChat(message);
+                    if (outPacket != null) {
+                        mMessageGenerator.addDelay(outPacket, message.getTimeSent());
+                        message.setStatus(Message.STATUS_SEND);
+                        databaseBackend.updateMessage(message, false);
+                        sendMessagePacket(account, outPacket);
+                    }
+                }
+                updateConversationUi();
+            }
+        });
+    }
+
     public void pushContactToServer(final Contact contact) {
         pushContactToServer(contact, null);
     }
@@ -5297,6 +5384,11 @@ public class XmppConnectionService extends Service {
         setMemorizingTrustManager(trustManager);
     }
 
+    public void syncRosterToDisk(final Account account) {
+        Runnable runnable = () -> databaseBackend.writeRoster(account.getRoster());
+        mDatabaseWriterExecutor.execute(runnable);
+    }
+
     public LruCache<String, Drawable> getDrawableCache() {
         return this.mDrawableCache;
     }
@@ -5785,10 +5877,14 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean verifyFingerprints(Contact contact, List<XmppUri.Fingerprint> fingerprints) {
+        boolean needsRosterWrite = false;
         boolean performedVerification = false;
         final AxolotlService axolotlService = contact.getAccount().getAxolotlService();
         for (XmppUri.Fingerprint fp : fingerprints) {
-            if (fp.type == XmppUri.FingerprintType.OMEMO) {
+            if (fp.type == XmppUri.FingerprintType.OTR) {
+                performedVerification |= contact.addOtrFingerprint(fp.fingerprint);
+                needsRosterWrite |= performedVerification;
+            } else if (fp.type == XmppUri.FingerprintType.OMEMO) {
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
                 FingerprintStatus fingerprintStatus = axolotlService.getFingerprintTrust(fingerprint);
                 if (fingerprintStatus != null) {
@@ -5801,6 +5897,11 @@ public class XmppConnectionService extends Service {
                 }
             }
         }
+
+        if (needsRosterWrite) {
+            syncRosterToDisk(contact.getAccount());
+        }
+
         return performedVerification;
     }
 

@@ -1,6 +1,8 @@
 package eu.siacs.conversations.parser;
 
 import android.net.Uri;
+import android.os.Build;
+import android.text.Html;
 import android.util.Log;
 import android.util.Pair;
 
@@ -8,6 +10,9 @@ import de.monocles.chat.BobTransfer;
 import de.monocles.chat.WebxdcUpdate;
 
 import com.google.common.collect.ImmutableSet;
+
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionStatus;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -24,6 +29,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import eu.siacs.conversations.crypto.OtrService;
+import eu.siacs.conversations.entities.Presence;
+import eu.siacs.conversations.entities.ServiceDiscoveryResult;
 import io.ipfs.cid.Cid;
 
 import eu.siacs.conversations.AppSettings;
@@ -67,6 +75,7 @@ import im.conversations.android.xmpp.model.carbons.Sent;
 import im.conversations.android.xmpp.model.forward.Forwarded;
 
 public class MessageParser extends AbstractParser implements Consumer<im.conversations.android.xmpp.model.stanza.Message> {
+    private static final List<String> CLIENTS_SENDING_HTML_IN_OTR = Arrays.asList("Pidgin", "Adium", "Trillian");
 
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 
@@ -113,6 +122,30 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
         return result != null ? result : fallback;
     }
 
+    private static boolean clientMightSendHtml(Account account, Jid from) {
+        String resource = from.getResource();
+        if (resource == null) {
+            return false;
+        }
+        Presence presence = account.getRoster().getContact(from).getPresences().getPresencesMap().get(resource);
+        ServiceDiscoveryResult disco = presence == null ? null : presence.getServiceDiscoveryResult();
+        if (disco == null) {
+            return false;
+        }
+        return hasIdentityKnowForSendingHtml(disco.getIdentities());
+    }
+
+    private static boolean hasIdentityKnowForSendingHtml(List<ServiceDiscoveryResult.Identity> identities) {
+        for (ServiceDiscoveryResult.Identity identity : identities) {
+            if (identity.getName() != null) {
+                if (CLIENTS_SENDING_HTML_IN_OTR.contains(identity.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean extractChatState(Conversation c, final boolean isTypeGroupChat, final im.conversations.android.xmpp.model.stanza.Message packet) {
         ChatState state = ChatState.parse(packet);
         if (state != null && c != null) {
@@ -142,6 +175,66 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             }
         }
         return false;
+    }
+
+    private Message parseOtrChat(String body, Jid from, String id, Conversation conversation) {
+        String presence;
+        if (from.isBareJid()) {
+            presence = "";
+        } else {
+            presence = from.getResource();
+        }
+        if (body.matches("^\\?OTRv\\d{1,2}\\?.*")) {
+            conversation.endOtrIfNeeded();
+        }
+        if (!conversation.hasValidOtrSession()) {
+            conversation.startOtrSession(presence, false);
+        } else {
+            String foreignPresence = conversation.getOtrSession().getSessionID().getUserID();
+            if (!foreignPresence.equals(presence)) {
+                conversation.endOtrIfNeeded();
+                conversation.startOtrSession(presence, false);
+            }
+        }
+        try {
+            conversation.setLastReceivedOtrMessageId(id);
+            Session otrSession = conversation.getOtrSession();
+            body = otrSession.transformReceiving(body);
+            SessionStatus status = otrSession.getSessionStatus();
+            if (body == null && status == SessionStatus.ENCRYPTED) {
+                mXmppConnectionService.onOtrSessionEstablished(conversation);
+                return null;
+            } else if (body == null && status == SessionStatus.FINISHED) {
+                conversation.resetOtrSession();
+                mXmppConnectionService.updateConversationUi();
+                return null;
+            } else if (body == null || (body.isEmpty())) {
+                return null;
+            }
+            if (body.startsWith(CryptoHelper.FILETRANSFER)) {
+                String key = body.substring(CryptoHelper.FILETRANSFER.length());
+                conversation.setSymmetricKey(CryptoHelper.hexToBytes(key));
+                return null;
+            }
+            if (clientMightSendHtml(conversation.getAccount(), from)) {
+                Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": received OTR message from bad behaving client. escaping HTML…");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    body = Html.fromHtml(body, Html.FROM_HTML_MODE_LEGACY).toString();
+                } else {
+                    body = Html.fromHtml(body).toString();
+                }
+            }
+
+            final OtrService otrService = conversation.getAccount().getOtrService();
+            Message finishedMessage = new Message(conversation, body, Message.ENCRYPTION_OTR, Message.STATUS_RECEIVED);
+            finishedMessage.setFingerprint(otrService.getFingerprint(otrSession.getRemotePublicKey()));
+            conversation.setLastReceivedOtrMessageId(null);
+
+            return finishedMessage;
+        } catch (Exception e) {
+            conversation.resetOtrSession();
+            return null;
+        }
     }
 
     private Message parseAxolotlChat(Element axolotlMessage, Jid from, Conversation conversation, int status, final boolean checkedForDuplicates, boolean postpone) {
@@ -373,6 +466,11 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             final Jid from = packet.getFrom();
             final String id = packet.getId();
             if (from != null && id != null) {
+                final Message message = mXmppConnectionService.markMessage(account,
+                        from.asBareJid(),
+                        packet.getId(),
+                        Message.STATUS_SEND_FAILED,
+                        extractErrorMessage(packet));
                 if (id.startsWith(JingleRtpConnection.JINGLE_MESSAGE_PROPOSE_ID_PREFIX)) {
                     final String sessionId = id.substring(JingleRtpConnection.JINGLE_MESSAGE_PROPOSE_ID_PREFIX.length());
                     mXmppConnectionService.getJingleConnectionManager()
@@ -381,8 +479,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 }
                 if (id.startsWith(JingleRtpConnection.JINGLE_MESSAGE_PROCEED_ID_PREFIX)) {
                     final String sessionId = id.substring(JingleRtpConnection.JINGLE_MESSAGE_PROCEED_ID_PREFIX.length());
-                    final String message = extractErrorMessage(packet);
-                    mXmppConnectionService.getJingleConnectionManager().failProceed(account, from, sessionId, message);
+                    final String errorMessage = extractErrorMessage(packet);
+                    mXmppConnectionService.getJingleConnectionManager().failProceed(account, from, sessionId, errorMessage);
                     return true;
                 }
                 mXmppConnectionService.markMessage(account,
@@ -401,6 +499,12 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                         }
                     }
                 }
+                if (message != null) {
+                    if (message.getEncryption() == Message.ENCRYPTION_OTR) {
+                        Conversation conversation = (Conversation) message.getConversation();
+                        conversation.endOtrIfNeeded();
+                    }
+                }
             }
             return true;
         }
@@ -414,6 +518,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
         }
         final im.conversations.android.xmpp.model.stanza.Message packet;
         Long timestamp = null;
+        final boolean isForwarded;
         boolean isCarbon = false;
         String serverMsgId = null;
         final Element fin = original.findChild("fin", MessageArchiveService.Version.MAM_0.namespace);
@@ -432,6 +537,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             }
             timestamp = f.second;
             packet = f.first;
+            isForwarded = true;
             serverMsgId = result.getAttribute("id");
             query.incrementMessageCount();
             if (handleErrorMessage(account, packet)) {
@@ -455,8 +561,10 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             }
             timestamp = f != null ? f.second : null;
             isCarbon = f != null;
+            isForwarded = isCarbon;
         } else {
             packet = original;
+            isForwarded = false;
         }
 
         if (timestamp == null) {
@@ -526,6 +634,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             Log.e(Config.LOGTAG, account.getJid().asBareJid() + ": received groupchat (" + from + ") message on regular MAM request. skipping");
             return;
         }
+        boolean isProperlyAddressed = (to != null) && (!to.isBareJid() || account.countPresences() == 0);
         boolean isMucStatusMessage = InvalidJid.hasValidFrom(packet) && from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
         boolean selfAddressed;
         if (packet.fromAccount(account)) {
@@ -664,7 +773,20 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 }
             }
             final Message message;
-            if (pgpEncrypted != null && Config.supportOpenPgp()) {
+            if (body != null && body.content.startsWith("?OTR") && Config.supportOtr()) {
+                if (!isForwarded && !isTypeGroupChat && isProperlyAddressed && !conversationMultiMode) {
+                    message = parseOtrChat(body.content, from, remoteMsgId, conversation);
+                    if (message == null) {
+                        return;
+                    }
+                } else {
+                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring OTR message from " + from + " isForwarded=" + Boolean.toString(isForwarded) + ", isProperlyAddressed=" + Boolean.valueOf(isProperlyAddressed));
+                    message = new Message(conversation, body.content, Message.ENCRYPTION_NONE, status);
+                    if (body.count > 1) {
+                        message.setBodyLanguage(body.language);
+                    }
+                }
+            } else if (pgpEncrypted != null && Config.supportOpenPgp()) {
                 message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
             } else if (axolotlEncrypted != null && Config.supportOmemo()) {
                 Jid origin;
@@ -968,6 +1090,13 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                         break;
                     }
                 }
+            }
+
+            if (message.getStatus() == Message.STATUS_RECEIVED
+                    && conversation.getOtrSession() != null
+                    && !conversation.getOtrSession().getSessionID().getUserID()
+                    .equals(message.getCounterpart().getResource())) {
+                conversation.endOtrIfNeeded();
             }
 
             mXmppConnectionService.databaseBackend.createMessage(message);

@@ -29,6 +29,7 @@ public class XmppUri {
     public static final String PARAMETER_PRE_AUTH = "preauth";
     public static final String PARAMETER_IBR = "ibr";
     private static final String OMEMO_URI_PARAM = "omemo-sid-";
+    private static final String OTR_URI_PARAM = "otr-fingerprint";
     protected Uri uri;
     protected String jid;
     private List<Fingerprint> fingerprints = new ArrayList<>();
@@ -111,6 +112,8 @@ public class XmppUri {
             if (type == XmppUri.FingerprintType.OMEMO) {
                 builder.append(XmppUri.OMEMO_URI_PARAM);
                 builder.append(fingerprints.get(i).deviceId);
+            } else if (type == XmppUri.FingerprintType.OTR) {
+                builder.append(XmppUri.OTR_URI_PARAM);
             }
             builder.append('=');
             builder.append(fingerprints.get(i).fingerprint);
@@ -268,13 +271,18 @@ public class XmppUri {
     }
 
     public enum FingerprintType {
-        OMEMO
+        OMEMO,
+        OTR
     }
 
     public static class Fingerprint {
         public final FingerprintType type;
         public final String fingerprint;
         final int deviceId;
+
+        public Fingerprint(FingerprintType type, String fingerprint) {
+            this(type, fingerprint, 0);
+        }
 
         public Fingerprint(FingerprintType type, String fingerprint, int deviceId) {
             this.type = type;
