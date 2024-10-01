@@ -253,16 +253,16 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                         return true;
                     case R.id.action_block_avatar:
                         new AlertDialog.Builder(this)
-                            .setTitle(R.string.block_media)
-                            .setMessage("Do you really want to block this avatar?")
-                            .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                                .setTitle(R.string.block_media)
+                                .setMessage("Do you really want to block this avatar?")
+                                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                                     xmppConnectionService.blockMedia(xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()));
                                     xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()).delete();
                                     avatarService().clear(mConversation);
                                     mConversation.getContact().setAvatar(null);
                                     xmppConnectionService.updateConversationUi();
-                            })
-                            .setNegativeButton(R.string.no, null).show();
+                                })
+                                .setNegativeButton(R.string.no, null).show();
                         return true;
                 }
                 return true;
@@ -270,6 +270,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             popupMenu.show();
             return true;
         });
+        this.binding.editMucNameButton.setContentDescription(getString(R.string.edit_name_and_topic));
         this.binding.editMucNameButton.setOnClickListener(this::onMucEditButtonClicked);
         this.binding.mucEditTitle.addTextChangedListener(this);
         this.binding.mucEditSubject.addTextChangedListener(this);
@@ -398,13 +399,13 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
 
                 ArrayAdapter<ListItem.Tag> adapter = new ArrayAdapter<>(
-                    this,
-                    android.R.layout.simple_list_item_1,
-                    tags.stream()
-                    .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
-                    .entrySet().stream()
-                    .sorted(sortTagsBy)
-                    .map(e -> e.getKey()).collect(Collectors.toList())
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        tags.stream()
+                                .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
+                                .entrySet().stream()
+                                .sorted(sortTagsBy)
+                                .map(e -> e.getKey()).collect(Collectors.toList())
                 );
                 binding.editTags.setAdapter(adapter);
                 this.binding.editTags.setVisibility(View.VISIBLE);
@@ -432,6 +433,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         this.binding.mucEditor.setVisibility(View.GONE);
         this.binding.mucDisplay.setVisibility(View.VISIBLE);
         this.binding.editMucNameButton.setImageResource(R.drawable.ic_edit_24dp);
+        this.binding.editMucNameButton.setContentDescription(getString(R.string.edit_name_and_topic));
     }
 
     private void onMucInfoUpdated(String subject, String name) {
@@ -492,7 +494,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         runOnUiThread(() -> {
             int limit = GridManager.getCurrentColumnCount(binding.media);
             mMediaAdapter.setAttachments(attachments.subList(0, Math.min(limit, attachments.size())));
-            binding.mediaWrapper.setVisibility(!attachments.isEmpty() ? View.VISIBLE : View.GONE);
+            binding.mediaWrapper.setVisibility(attachments.size() > 0 ? View.VISIBLE : View.GONE);
         });
 
     }

@@ -1162,4 +1162,6 @@
     <string name="shared_secret_hint">Hint or Question</string>
     <string name="shared_secret_secret">Shared Secret</string>
     <string name="encrypted_with_otr">Encrypted with OTR</string>
+    <string name="could_not_add_reaction">Could not add reaction</string>
+    <string name="add_reaction">Add reaction…</string>
 </resources>

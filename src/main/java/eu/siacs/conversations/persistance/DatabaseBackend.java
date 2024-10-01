@@ -76,7 +76,7 @@ import eu.siacs.conversations.xmpp.mam.MamReference;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 59;
+    private static final int DATABASE_VERSION = 60;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -424,6 +424,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 + Message.MARKABLE + " NUMBER DEFAULT 0,"
                 + Message.DELETED + " NUMBER DEFAULT 0,"
                 + Message.BODY_LANGUAGE + " TEXT,"
+                + Message.OCCUPANT_ID + " TEXT,"
+                + Message.REACTIONS + " TEXT,"
                 + Message.REMOTE_MSG_ID + " TEXT, FOREIGN KEY("
                 + Message.CONVERSATION + ") REFERENCES "
                 + Conversation.TABLENAME + "(" + Conversation.UUID
@@ -762,6 +764,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (oldVersion < 51 && newVersion >= 51) {
             db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN " + Account.FAST_MECHANISM + " TEXT");
             db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN " + Account.FAST_TOKEN + " TEXT");
+        }
+        if (oldVersion < 60 && newVersion >= 60) {
+            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.OCCUPANT_ID + " TEXT");
+            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.REACTIONS + " TEXT");
         }
     }
 
@@ -1397,28 +1403,29 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public boolean updateAccount(Account account) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] args = {account.getUuid()};
-        final int rows = db.update(Account.TABLENAME, account.getContentValues(), Account.UUID + "=?", args);
+        final var db = this.getWritableDatabase();
+        final String[] args = {account.getUuid()};
+        final int rows =
+                db.update(Account.TABLENAME, account.getContentValues(), Account.UUID + "=?", args);
         return rows == 1;
     }
 
-    public boolean deleteAccount(Account account) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] args = {account.getUuid()};
+    public boolean deleteAccount(final Account account) {
+        final var db = this.getWritableDatabase();
+        final String[] args = {account.getUuid()};
         final int rows = db.delete(Account.TABLENAME, Account.UUID + "=?", args);
         return rows == 1;
     }
 
-    public boolean updateMessage(Message message, boolean includeBody) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] args = {message.getUuid()};
-        ContentValues contentValues = message.getContentValues();
+    public boolean updateMessage(final Message message, final boolean includeBody) {
+        final var db = this.getWritableDatabase();
+        final String[] args = {message.getUuid()};
+        final var contentValues = message.getContentValues();
         contentValues.remove(Message.UUID);
         if (!includeBody) {
             contentValues.remove(Message.BODY);
         }
-        return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1 &&
+        return db.update(Message.TABLENAME, contentValues, Message.UUID + "=?", args) == 1 &&
                 db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
     }
 

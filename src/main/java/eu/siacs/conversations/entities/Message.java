@@ -32,18 +32,23 @@ import org.json.JSONException;
 
 import java.lang.ref.WeakReference;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import io.ipfs.cid.Cid;
 
@@ -121,6 +126,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final String READ_BY_MARKERS = "readByMarkers";
     public static final String MARKABLE = "markable";
     public static final String DELETED = "deleted";
+    public static final String OCCUPANT_ID = "occupantId";
+    public static final String REACTIONS = "reactions";
     public static final String ME_COMMAND = "/me ";
 
     public static final String ERROR_MESSAGE_CANCELLED = "eu.siacs.conversations.cancelled";
@@ -158,6 +165,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private String errorMessage = null;
     private Set<ReadByMarker> readByMarkers = new CopyOnWriteArraySet<>();
     protected Message mInReplyTo = null;
+    private Collection<Reaction> reactions = Collections.emptyList();
 
     private Boolean isGeoUri = null;
     private Boolean isEmojisOnly = null;
@@ -197,6 +205,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 false,
                 false,
                 null,
+                null,
+                Collections.emptyList(),
                 System.currentTimeMillis(),
                 null,
                 null,
@@ -226,6 +236,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 false,
                 false,
                 null,
+                null,
+                Collections.emptyList(),
                 System.currentTimeMillis(),
                 null,
                 null,
@@ -238,7 +250,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                       final String remoteMsgId, final String relativeFilePath,
                       final String serverMsgId, final String fingerprint, final boolean read,
                       final String edited, final boolean oob, final String errorMessage, final Set<ReadByMarker> readByMarkers,
-                      final boolean markable, final boolean deleted, final String bodyLanguage, final long timeReceived, final String subject, final String fileParams, final List<Element> payloads) {
+                      final boolean markable, final boolean deleted, final String bodyLanguage, final String occupantId, final Collection<Reaction> reactions, final long timeReceived, final String subject, final String fileParams, final List<Element> payloads) {
         this.conversation = conversation;
         this.uuid = uuid;
         this.conversationUuid = conversationUUid;
@@ -262,6 +274,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         this.markable = markable;
         this.deleted = deleted;
         this.bodyLanguage = bodyLanguage;
+        this.occupantId = occupantId;
+        this.reactions = reactions;
         this.timeReceived = timeReceived;
         this.subject = subject;
         if (payloads != null) this.payloads = payloads;
@@ -307,12 +321,15 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 cursor.getInt(cursor.getColumnIndex(MARKABLE)) > 0,
                 cursor.getInt(cursor.getColumnIndex(DELETED)) > 0,
                 cursor.getString(cursor.getColumnIndex(BODY_LANGUAGE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANT_ID)),
+                Reaction.fromString(cursor.getString(cursor.getColumnIndexOrThrow(REACTIONS))),
                 cursor.getLong(cursor.getColumnIndex(cursor.isNull(cursor.getColumnIndex("timeReceived")) ? TIME_SENT : "timeReceived")),
                 cursor.getString(cursor.getColumnIndex("subject")),
                 cursor.getString(cursor.getColumnIndex("fileParams")),
                 payloads
         );
-        m.setOccupantId(cursor.getString(cursor.getColumnIndex("occupant_id")));
+        final var legacyOccupant = cursor.getString(cursor.getColumnIndex("occupant_id"));
+        if (legacyOccupant != null) m.setOccupantId(legacyOccupant);
         return m;
     }
 
@@ -363,7 +380,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     @Override
     public ContentValues getContentValues() {
-        ContentValues values = new ContentValues();
+        final var values = new ContentValues();
         values.put(UUID, uuid);
         values.put(CONVERSATION, conversationUuid);
         if (counterpart == null) {
@@ -398,6 +415,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         values.put(MARKABLE, markable ? 1 : 0);
         values.put(DELETED, deleted ? 1 : 0);
         values.put(BODY_LANGUAGE, bodyLanguage);
+        values.put(OCCUPANT_ID, occupantId);
+        values.put(REACTIONS, Reaction.toString(this.reactions));
         return values;
     }
 
@@ -417,7 +436,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void clearReplyReact() {
-        this.payloads.remove(getReactions());
+        this.payloads.remove(getReactionsEl());
         this.payloads.remove(getReply());
         clearFallbacks("urn:xmpp:reply:0", "urn:xmpp:reactions:0");
     }
@@ -432,9 +451,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (replyId == null) return;
 
         addPayload(
-            new Element("reply", "urn:xmpp:reply:0")
-                .setAttribute("to", replyTo.getCounterpart())
-                .setAttribute("id", replyId)
+                new Element("reply", "urn:xmpp:reply:0")
+                        .setAttribute("to", replyTo.getCounterpart())
+                        .setAttribute("id", replyId)
         );
         final Element fallback = new Element("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
         fallback.addChild("body", "urn:xmpp:fallback:0")
@@ -448,7 +467,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public Message react(String emoji) {
         final var m = reply();
-        if (getReactions() == null) {
+        if (getReactionsEl() == null) {
             m.updateReaction(this, emoji);
         } else if (mInReplyTo != null) {
             // Try to send react-to-reaction to parent
@@ -461,7 +480,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void updateReaction(final Message reactTo, String emoji) {
-         Set<String> emojis = new HashSet<>();
+        Set<String> emojis = new HashSet<>();
         if (conversation instanceof Conversation) emojis = ((Conversation) conversation).findReactionsTo(reactTo.replyId(), null);
         emojis.remove(getBody(true));
         emojis.add(emoji);
@@ -475,25 +494,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             reactions.addChild("reaction", "urn:xmpp:reactions:0").setContent(oneEmoji);
         }
         addPayload(reactions);
-    }
-
-    public void setReactions(Element reactions) {
-        if (this.payloads != null) {
-            this.payloads.remove(getReactions());
-        }
-        addPayload(reactions);
-    }
-
-    public Element getReactions() {
-        if (this.payloads == null) return null;
-
-        for (Element el : this.payloads) {
-            if (el.getName().equals("reactions") && el.getNamespace().equals("urn:xmpp:reactions:0")) {
-                return el;
-            }
-        }
-
-        return null;
     }
 
     public Element getReply() {
@@ -540,7 +540,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.conversation.getMode() == Conversation.MODE_SINGLE) {
             if (this.trueCounterpart != null) {
                 return this.conversation.getAccount().getRoster()
-                           .getContact(this.trueCounterpart);
+                        .getContact(this.trueCounterpart);
             }
 
             return this.conversation.getContact();
@@ -717,8 +717,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         final MucOptions.User thisUser = this.user == null ? null : this.user.get();
         final MucOptions.User otherUser = otherMessage.user == null ? null : otherMessage.user.get();
         return
-            (thisUser != null && thisUser == otherUser) ||
-            (getOccupantId() != null && getOccupantId().equals(otherMessage.getOccupantId()));
+                (thisUser != null && thisUser == otherUser) ||
+                        (getOccupantId() != null && getOccupantId().equals(otherMessage.getOccupantId()));
     }
 
     public String getErrorMessage() {
@@ -1021,7 +1021,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public boolean mergeable(final Message message) {
-        return false; // Merrgine messages messes up reply, so disable for now
+        return false; // Merging messages messes up reply, so disable for now
     }
 
     private static boolean isStatusMergeable(int a, int b) {
@@ -1037,7 +1037,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private static boolean isEncryptionMergeable(final int a, final int b) {
         return a == b
                 && Arrays.asList(ENCRYPTION_NONE, ENCRYPTION_DECRYPTED, ENCRYPTION_AXOLOTL)
-                        .contains(a);
+                .contains(a);
     }
 
     public void setCounterparts(List<MucOptions.User> counterparts) {
@@ -1066,6 +1066,41 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return oob || getFileParams().url != null;
     }
 
+    public Collection<Reaction> getReactions() {
+        return this.reactions;
+    }
+
+    public void setReactions(Element reactions) {
+        if (this.payloads != null) {
+            this.payloads.remove(getReactionsEl());
+        }
+        addPayload(reactions);
+    }
+
+    public Element getReactionsEl() {
+        if (this.payloads == null) return null;
+
+        for (Element el : this.payloads) {
+            if (el.getName().equals("reactions") && el.getNamespace().equals("urn:xmpp:reactions:0")) {
+                return el;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isReactionsEmpty() {
+        return this.reactions.isEmpty();
+    }
+
+    public Reaction.Aggregated getAggregatedReactions() {
+        return Reaction.aggregated(this.reactions);
+    }
+
+    public void setReactions(final Collection<Reaction> reactions) {
+        this.reactions = reactions;
+    }
+
     public static class MergeSeparator {
     }
 
@@ -1077,27 +1112,27 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             spannableBody.setSpan(PLAIN_TEXT_SPAN, 0, spannableBody.length(), 0); // Let adapter know it can do more formatting
         } else {
             SpannableStringBuilder spannable = new SpannableStringBuilder(Html.fromHtml(
-                MessageUtils.filterLtrRtl(html.toString()).trim(),
-                Html.FROM_HTML_MODE_COMPACT,
-                (source) -> {
-                   try {
-                       if (thumbnailer == null || source == null) {
-                           return fallbackImg;
-                       }
-                       Cid cid = BobTransfer.cid(new URI(source));
-                       if (cid == null) {
-                           return fallbackImg;
-                       }
-                       Drawable thumbnail = thumbnailer.getThumbnail(cid);
-                       if (thumbnail == null) {
-                           return fallbackImg;
-                       }
-                       return thumbnail;
-                   } catch (final URISyntaxException e) {
-                       return fallbackImg;
-                   }
-                },
-                (opening, tag, output, xmlReader) -> {}
+                    MessageUtils.filterLtrRtl(html.toString()).trim(),
+                    Html.FROM_HTML_MODE_COMPACT,
+                    (source) -> {
+                        try {
+                            if (thumbnailer == null || source == null) {
+                                return fallbackImg;
+                            }
+                            Cid cid = BobTransfer.cid(new URI(source));
+                            if (cid == null) {
+                                return fallbackImg;
+                            }
+                            Drawable thumbnail = thumbnailer.getThumbnail(cid);
+                            if (thumbnail == null) {
+                                return fallbackImg;
+                            }
+                            return thumbnail;
+                        } catch (final URISyntaxException e) {
+                            return fallbackImg;
+                        }
+                    },
+                    (opening, tag, output, xmlReader) -> {}
             ));
 
             // Make images clickable and long-clickable with BetterLinkMovementMethod
@@ -1260,7 +1295,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public List<URI> getLinks() {
         SpannableStringBuilder text = new SpannableStringBuilder(
-            getBody().replaceAll("^>.*", "") // Remove quotes
+                getBody().replaceAll("^>.*", "") // Remove quotes
         );
         return MyLinkify.extractLinks(text).stream().map((url) -> {
             try {
@@ -1291,7 +1326,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public List<Element> getPayloads() {
-       return new ArrayList<>(this.payloads);
+        return new ArrayList<>(this.payloads);
     }
 
     public List<Element> getFallbacks(String... includeFor) {
@@ -1329,7 +1364,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         }
 
         return null;
-   }
+    }
 
     public List<Element> getCommands() {
         if (this.payloads == null) return null;
@@ -1416,8 +1451,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     protected List<Element> getSims() {
         return payloads.stream().filter(el ->
-            el.getName().equals("reference") && el.getNamespace().equals("urn:xmpp:reference:0") &&
-            el.findChild("media-sharing", "urn:xmpp:sims:1") != null
+                el.getName().equals("reference") && el.getNamespace().equals("urn:xmpp:reference:0") &&
+                        el.findChild("media-sharing", "urn:xmpp:sims:1") != null
         ).collect(Collectors.toList());
     }
 
@@ -1672,8 +1707,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
             for (Cid cid : cids) {
                 file.addChild("hash", "urn:xmpp:hashes:2")
-                    .setAttribute("algo", CryptoHelper.multihashAlgo(cid.getType()))
-                    .setContent(Base64.encodeToString(cid.getHash(), Base64.NO_WRAP));
+                        .setAttribute("algo", CryptoHelper.multihashAlgo(cid.getType()))
+                        .setContent(Base64.encodeToString(cid.getHash(), Base64.NO_WRAP));
             }
         }
 
@@ -1703,11 +1738,11 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             if (sims == null) toSims();
             Element file = getFileElement();
             file.addChild(
-                new Element("thumbnail", "urn:xmpp:thumbs:1")
-                    .setAttribute("width", Integer.toString(width))
-                    .setAttribute("height", Integer.toString(height))
-                    .setAttribute("type", mimeType)
-                    .setAttribute("uri", uri)
+                    new Element("thumbnail", "urn:xmpp:thumbs:1")
+                            .setAttribute("width", Integer.toString(width))
+                            .setAttribute("height", Integer.toString(height))
+                            .setAttribute("type", mimeType)
+                            .setAttribute("uri", uri)
             );
         }
 

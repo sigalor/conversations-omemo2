@@ -116,12 +116,12 @@ import java.util.stream.Collectors;
 
 public class StartConversationActivity extends XmppActivity
         implements XmppConnectionService.OnConversationUpdate,
-                OnRosterUpdate,
-                OnUpdateBlocklist,
-                CreatePrivateGroupChatDialog.CreateConferenceDialogListener,
-                JoinConferenceDialog.JoinConferenceDialogListener,
-                SwipeRefreshLayout.OnRefreshListener,
-                CreatePublicChannelDialog.CreatePublicChannelDialogListener {
+        OnRosterUpdate,
+        OnUpdateBlocklist,
+        CreatePrivateGroupChatDialog.CreateConferenceDialogListener,
+        JoinConferenceDialog.JoinConferenceDialogListener,
+        SwipeRefreshLayout.OnRefreshListener,
+        CreatePublicChannelDialog.CreatePublicChannelDialogListener {
 
     private static final String PREF_KEY_CONTACT_INTEGRATION_CONSENT =
             "contact_list_integration_consent";
@@ -292,8 +292,8 @@ public class StartConversationActivity extends XmppActivity
         final Intent intent = new Intent(context, StartConversationActivity.class);
         if (account != null) {
             intent.putExtra(
-                EXTRA_ACCOUNT_FILTER,
-                account.getJid().asBareJid().toEscapedString());
+                    EXTRA_ACCOUNT_FILTER,
+                    account.getJid().asBareJid().toEscapedString());
         }
         if (q != null) {
             intent.putExtra(EXTRA_TEXT_FILTER, q);
@@ -317,8 +317,8 @@ public class StartConversationActivity extends XmppActivity
     private static boolean isViewIntent(final Intent i) {
         return i != null
                 && (Intent.ACTION_VIEW.equals(i.getAction())
-                        || Intent.ACTION_SENDTO.equals(i.getAction())
-                        || i.hasExtra(EXTRA_INVITE_URI));
+                || Intent.ACTION_SENDTO.equals(i.getAction())
+                || i.hasExtra(EXTRA_INVITE_URI));
     }
 
     protected void hideToast() {
@@ -576,7 +576,7 @@ public class StartConversationActivity extends XmppActivity
     private void requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                        != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(
                     new String[] {Manifest.permission.POST_NOTIFICATIONS},
                     REQUEST_POST_NOTIFICATION);
@@ -1034,19 +1034,19 @@ public class StartConversationActivity extends XmppActivity
                         // Ideally this would be based around XEP-0033 but until we think of a good fallback behaviour we keep using this gross commas thing
                         if (jids.stream().allMatch(jid -> jid.getDomain().toString().equals("cheogram.com"))) {
                             new AlertDialog.Builder(this)
-                                .setMessage("You appear to be creating a group with only SMS contacts. Would you like to create a channel or an MMS group text?")
-                                .setNeutralButton("Channel", (d, w) -> {
-                                    if (xmppConnectionService.createAdhocConference(account, name, jids, mAdhocConferenceCallback)) {
-                                        mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
-                                        mToast.show();
-                                    }
-                                }).setPositiveButton("Group Text", (d, w) -> {
-                                    Jid groupJid = Jid.ofLocalAndDomain(jids.stream().map(jid -> jid.getLocal()).sorted().collect(Collectors.joining(",")), "cheogram.com");
-                                    Contact group = account.getRoster().getContact(groupJid);
-                                    if (name != null && !name.equals("")) group.setServerName(name);
-                                    xmppConnectionService.createContact(group, true);
-                                    switchToConversation(group);
-                                }).create().show();
+                                    .setMessage("You appear to be creating a group with only SMS contacts. Would you like to create a channel or an MMS group text?")
+                                    .setNeutralButton("Channel", (d, w) -> {
+                                        if (xmppConnectionService.createAdhocConference(account, name, jids, mAdhocConferenceCallback)) {
+                                            mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
+                                            mToast.show();
+                                        }
+                                    }).setPositiveButton("Group Text", (d, w) -> {
+                                        Jid groupJid = Jid.ofLocalAndDomain(jids.stream().map(jid -> jid.getLocal()).sorted().collect(Collectors.joining(",")), "cheogram.com");
+                                        Contact group = account.getRoster().getContact(groupJid);
+                                        if (name != null && !name.equals("")) group.setServerName(name);
+                                        xmppConnectionService.createContact(group, true);
+                                        switchToConversation(group);
+                                    }).create().show();
                         } else {
                             if (xmppConnectionService.createAdhocConference(account, name, jids, mAdhocConferenceCallback)) {
                                 mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
@@ -1082,7 +1082,7 @@ public class StartConversationActivity extends XmppActivity
                             .getString(PREF_KEY_CONTACT_INTEGRATION_CONSENT, null);
             final boolean requiresConsent =
                     (QuickConversationsService.isQuicksy()
-                                    || QuickConversationsService.isPlayStoreFlavor())
+                            || QuickConversationsService.isPlayStoreFlavor())
                             && !"agreed".equals(consent);
             if (requiresConsent && "declined".equals(consent)) {
                 Log.d(
@@ -1195,8 +1195,8 @@ public class StartConversationActivity extends XmppActivity
     protected void onBackendConnected() {
         if (QuickConversationsService.isContactListIntegration(this)
                 && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                        || checkSelfPermission(Manifest.permission.READ_CONTACTS)
-                                == PackageManager.PERMISSION_GRANTED)) {
+                || checkSelfPermission(Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED)) {
             xmppConnectionService.getQuickConversationsService().considerSyncBackground(false);
         }
         if (mPostponedActivityResult != null) {
@@ -1423,8 +1423,8 @@ public class StartConversationActivity extends XmppActivity
             for (Contact contact : account.getRoster().getContacts()) {
                 Presence.Status s = contact.getShownStatus();
                 if (contact.showInContactList()
-                    && contact.match(this, needle)
-                    && (!this.mHideOfflineContacts
+                        && contact.match(this, needle)
+                        && (!this.mHideOfflineContacts
                         || (needle != null && !needle.trim().isEmpty())
                         || s.compareTo(Presence.Status.OFFLINE) < 0)) {
                     this.contacts.add(contact);
@@ -1453,11 +1453,11 @@ public class StartConversationActivity extends XmppActivity
         sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
 
         mTagsAdapter.setTags(
-            tags.stream()
-            .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
-            .entrySet().stream()
-            .sorted(sortTagsBy)
-            .map(e -> e.getKey()).collect(Collectors.toList())
+                tags.stream()
+                        .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
+                        .entrySet().stream()
+                        .sorted(sortTagsBy)
+                        .map(e -> e.getKey()).collect(Collectors.toList())
         );
         Collections.sort(this.contacts);
 
@@ -1938,7 +1938,7 @@ public class StartConversationActivity extends XmppActivity
             String needle = mSearchEditText == null ? "" : mSearchEditText.getText().toString().toLowerCase(Locale.US).trim();
             HashSet<String> parts = new HashSet<>(Arrays.asList(needle.split("[,\\s]+")));
             this.tags = tags.stream().filter(
-                tag -> !tag.equals(channelTag) && !parts.contains(tag.getName().toLowerCase(Locale.US))
+                    tag -> !tag.equals(channelTag) && !parts.contains(tag.getName().toLowerCase(Locale.US))
             ).collect(Collectors.toList());
             if (!parts.contains("channel") && tags.contains(channelTag)) this.tags.add(0, channelTag);
             notifyDataSetChanged();

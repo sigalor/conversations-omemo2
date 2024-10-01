@@ -20,6 +20,7 @@ import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.InvalidJid;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.pep.Avatar;
+import im.conversations.android.xmpp.model.occupant.OccupantId;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
@@ -71,7 +72,7 @@ public class PresenceParser extends AbstractParser implements Consumer<im.conver
                 hats = packet.findChild("hats", "xmpp:prosody.im/protocol/hats:1");
             }
             if (hats == null) hats = new Element("hats", "urn:xmpp:hats:0");
-            final Element occupantId = packet.findChild("occupant-id", "urn:xmpp:occupant-id:0");
+            final Element occupantIdEl = packet.findChild("occupant-id", "urn:xmpp:occupant-id:0");
             Avatar avatar = Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
             final List<String> codes = getStatusCodes(x);
             if (type == null) {
@@ -79,8 +80,15 @@ public class PresenceParser extends AbstractParser implements Consumer<im.conver
                     Element item = x.findChild("item");
                     if (item != null && !from.isBareJid()) {
                         mucOptions.setError(MucOptions.Error.NONE);
-                        MucOptions.User user = parseItem(conversation, item, from, occupantId, nick == null ? null : nick.getContent(), hats);
-                        if (codes.contains(MucOptions.STATUS_CODE_SELF_PRESENCE) || (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED) && jid.equals(InvalidJid.getNullForInvalid(item.getAttributeAsJid("jid"))))) {
+                        MucOptions.User user = parseItem(conversation, item, from, occupantIdEl, nick == null ? null : nick.getContent(), hats);
+                        final var occupant = packet.getExtension(OccupantId.class);
+                        final String occupantId = mucOptions.occupantId() && occupant != null ? occupant.getId() : null;
+                        user.setOccupantId(occupantId);
+                        if (codes.contains(MucOptions.STATUS_CODE_SELF_PRESENCE)
+                                || (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED)
+                                && jid.equals(
+                                InvalidJid.getNullForInvalid(
+                                        item.getAttributeAsJid("jid"))))) {
                             if (mucOptions.setOnline()) {
                                 mXmppConnectionService.getAvatarService().clear(mucOptions);
                             }
@@ -205,10 +213,10 @@ public class PresenceParser extends AbstractParser implements Consumer<im.conver
                 } else if (!from.isBareJid()) {
                     Element item = x.findChild("item");
                     if (item != null) {
-                        mucOptions.updateUser(parseItem(conversation, item, from, occupantId, nick == null ? null : nick.getContent(), hats));
+                        mucOptions.updateUser(parseItem(conversation, item, from, occupantIdEl, nick == null ? null : nick.getContent(), hats));
                     }
                     MucOptions.User user = mucOptions.deleteUser(from);
-                    if (user != null && occupantId == null) {
+                    if (user != null && occupantIdEl == null) {
                         mXmppConnectionService.getAvatarService().clear(user);
                     }
                 }

@@ -373,13 +373,13 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     sortTagsBy = sortTagsBy.thenComparing(entry -> entry.getKey().getName());
 
                     ArrayAdapter<ListItem.Tag> adapter = new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        tags.stream()
-                        .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
-                        .entrySet().stream()
-                       .sorted(sortTagsBy)
-                       .map(e -> e.getKey()).collect(Collectors.toList())
+                            this,
+                            android.R.layout.simple_list_item_1,
+                            tags.stream()
+                                    .collect(Collectors.toMap((x) -> x, (t) -> 1, (c1, c2) -> c1 + c2))
+                                    .entrySet().stream()
+                                    .sorted(sortTagsBy)
+                                    .map(e -> e.getKey()).collect(Collectors.toList())
                     );
                     binding.editTags.setAdapter(adapter);
                     if (showDynamicTags) binding.editTags.setVisibility(View.VISIBLE);

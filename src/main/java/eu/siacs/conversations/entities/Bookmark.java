@@ -61,11 +61,11 @@ public class Bookmark extends Element implements ListItem {
 		return bookmarks;
 	}
 
-	public static Map<Jid, Bookmark> parseFromPubsub(Element pubsub, Account account) {
-		if (pubsub == null) {
+	public static Map<Jid, Bookmark> parseFromPubSub(final Element pubSub, final Account account) {
+		if (pubSub == null) {
 			return Collections.emptyMap();
 		}
-		final Element items = pubsub.findChild("items");
+		final Element items = pubSub.findChild("items");
 		if (items != null && Namespace.BOOKMARKS2.equals(items.getAttribute("node"))) {
 			final Map<Jid, Bookmark> bookmarks = new HashMap<>();
 			for(Element item : items.getChildren()) {
@@ -99,6 +99,7 @@ public class Bookmark extends Element implements ListItem {
 		}
 		final Bookmark bookmark = new Bookmark(account);
 		bookmark.jid = InvalidJid.getNullForInvalid(item.getAttributeAsJid("id"));
+		// TODO verify that we only use bare jids and ignore full jids
 		if (bookmark.jid == null) {
 			return null;
 		}
@@ -128,14 +129,14 @@ public class Bookmark extends Element implements ListItem {
 	}
 
 	public void setGroups(List<String> groups) {
-		final List<Element> children = new ArrayList<>(getChildren());
+		final List<Element> children = ImmutableList.copyOf(getChildren());
 		for (final Element el : children) {
 			if (el.getName().equals("group")) {
 				removeChild(el);
 			}
 		}
 
-		final List<Element> extChildren = new ArrayList<>(extensions.getChildren());
+		final List<Element> extChildren = ImmutableList.copyOf(extensions.getChildren());
 		for (final Element el : extChildren) {
 			if (el.getName().equals("group")) {
 				extensions.removeChild(el);
@@ -275,12 +276,12 @@ public class Bookmark extends Element implements ListItem {
 		} else if (parts.length > 0) {
 			final Jid jid = getJid();
 			return (jid != null && jid.toString().contains(parts[0])) ||
-				getDisplayName().toLowerCase(Locale.US).contains(parts[0]) ||
-				matchInTag(context, parts[0]);
+					getDisplayName().toLowerCase(Locale.US).contains(parts[0]) ||
+					matchInTag(context, parts[0]);
 		} else {
 			final Jid jid = getJid();
 			return (jid != null && jid.toString().contains(needle)) ||
-				getDisplayName().toLowerCase(Locale.US).contains(needle);
+					getDisplayName().toLowerCase(Locale.US).contains(needle);
 		}
 	}
 

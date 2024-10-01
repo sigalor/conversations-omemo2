@@ -1,6 +1,5 @@
 package eu.siacs.conversations.parser;
 
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -139,7 +138,7 @@ public abstract class AbstractParser {
 		return parseItem(conference,item,null,null,null,new Element("hats", "urn:xmpp:hats:0"));
 	}
 
-	public static MucOptions.User parseItem(Conversation conference, Element item, Jid fullJid, final Element occupantId, final String nicknameIn, final Element hatsEl) {
+	public static MucOptions.User parseItem(final Conversation conference, Element item, Jid fullJid, final Element occupantId, final String nicknameIn, final Element hatsEl) {
 		final String local = conference.getJid().getLocal();
 		final String domain = conference.getJid().getDomain().toEscapedString();
 		String affiliation = item.getAttribute("affiliation");
