@@ -2035,7 +2035,6 @@ public class ConversationFragment extends XmppFragment
                     && relevantForCorrection.getType() == Message.TYPE_TEXT
                     && relevantForCorrection.isEditable()
                     && !m.isGeoUri()
-                    && relevantForCorrection.isEditable()
                     && m.getConversation() instanceof Conversation) {
                 correctMessage.setVisible(true);
                 if (!relevantForCorrection.getBody().equals("") && !relevantForCorrection.getBody().equals(" ")) retractMessage.setVisible(true);
