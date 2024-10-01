@@ -232,23 +232,32 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             var totalUnread = 0;
             var dmUnread = 0;
             var channelUnread = 0;
+            final var selectedAccount = selectedAccount();
             populateWithOrderedConversations(conversations, false, false);
             for (final var c : conversations) {
                 final var unread = c.unreadCount();
-                totalUnread += unread;
-                if (c.getMode() == Conversation.MODE_MULTI) {
-                    channelUnread += unread;
-                } else {
-                    dmUnread += unread;
+                if (selectedAccount == null || selectedAccount.getUuid().equals(c.getAccount().getUuid())) {
+                    totalUnread += unread;
+                    if (c.getMode() == Conversation.MODE_MULTI) {
+                        channelUnread += unread;
+                    } else {
+                        dmUnread += unread;
+                    }
                 }
                 var accountUnread = accountUnreads.get(c.getAccount());
                 if (accountUnread == null) accountUnread = 0;
                 accountUnreads.put(c.getAccount(), accountUnread + unread);
-                for (final var tag : c.getTags(this)) {
-                    if ("Channel".equals(tag.getName())) continue;
-                    var count = tags.get(tag);
-                    if (count == null) count = 0;
-                    tags.put(tag, count + unread);
+            }
+            filterByMainFilter(conversations);
+            for (final var c : conversations) {
+                if (selectedAccount == null || selectedAccount.getUuid().equals(c.getAccount().getUuid())) {
+                    final var unread = c.unreadCount();
+                    for (final var tag : c.getTags(this)) {
+                        if ("Channel".equals(tag.getName())) continue;
+                        var count = tags.get(tag);
+                        if (count == null) count = 0;
+                        tags.put(tag, count + unread);
+                    }
                 }
             }
 
@@ -623,32 +632,42 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         populateWithOrderedConversations(list, true, true);
     }
 
-    public void populateWithOrderedConversations(List<Conversation> list, final boolean tagFilter, final boolean sort) {
+    public void populateWithOrderedConversations(List<Conversation> list, final boolean filter, final boolean sort) {
         if (sort) {
             super.populateWithOrderedConversations(list);
         } else {
             list.addAll(xmppConnectionService.getConversations());
         }
-        if (accountHeader == null || accountHeader.getActiveProfile() == null) return;
 
-        final var selectedAccount =
-            accountHeader.getActiveProfile().getTag() != null ?
-            ((Account) accountHeader.getActiveProfile().getTag()).getUuid() :
-            null;
+        if (!filter) return;
+        filterByMainFilter(list);
+
+        final var selectedAccount = selectedAccount();
 
         for (final var c : ImmutableList.copyOf(list)) {
+            if (selectedAccount != null && !selectedAccount.getUuid().equals(c.getAccount().getUuid())) {
+                list.remove(c);
+            } else if (!selectedTag.isEmpty()) {
+                final var tags = new HashSet<>(c.getTags(this));
+                tags.retainAll(selectedTag);
+                if (tags.isEmpty()) list.remove(c);
+            }
+        }
+    }
+
+    protected Account selectedAccount() {
+        if (accountHeader == null || accountHeader.getActiveProfile() == null) return null;
+        return (Account) accountHeader.getActiveProfile().getTag();
+    }
+
+    protected void filterByMainFilter(List<Conversation> list) {
+         for (final var c : ImmutableList.copyOf(list)) {
             if (mainFilter == DRAWER_CHANNELS && c.getMode() != Conversation.MODE_MULTI) {
                 list.remove(c);
             } else if (mainFilter == DRAWER_DIRECT_MESSAGES && c.getMode() == Conversation.MODE_MULTI) {
                 list.remove(c);
             } else if (mainFilter == DRAWER_UNREAD_CHATS && c.unreadCount() < 1) {
                 list.remove(c);
-            } else if (selectedAccount != null && !selectedAccount.equals(c.getAccount().getUuid())) {
-                list.remove(c);
-            } else if (!selectedTag.isEmpty() && tagFilter) {
-                final var tags = new HashSet<>(c.getTags(this));
-                tags.retainAll(selectedTag);
-                if (tags.isEmpty()) list.remove(c);
             }
         }
     }
