@@ -200,7 +200,7 @@ public class VerifyOTRActivity extends XmppActivity implements XmppConnectionSer
                 return false;
             }
             try {
-                this.mConversation = this.xmppConnectionService.find(null, this.mAccount, Jid.of(intent.getExtras().getString("contact")));
+                this.mConversation = this.xmppConnectionService.find(this.mAccount, Jid.of(intent.getStringExtra("contact")));
                 if (this.mConversation == null) {
                     return false;
                 }
