@@ -263,6 +263,9 @@ public class MessageGenerator extends AbstractGenerator {
         final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
         fallback.addChild("body", "urn:xmpp:fallback:0");
 
+        final var thread = inReplyTo.getThread();
+        if (thread != null) packet.addChild(thread);
+
         packet.addChild("store", "urn:xmpp:hints");
         return packet;
     }
