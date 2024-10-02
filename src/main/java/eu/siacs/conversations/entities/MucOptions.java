@@ -887,7 +887,7 @@ public class MucOptions {
         private final MucOptions options;
         private ChatState chatState = Config.DEFAULT_CHAT_STATE;
         protected Set<Hat> hats;
-        protected String occupantId;
+        private String occupantId;
         protected boolean online = true;
 
         public User(MucOptions options, Jid fullJid, final String occupantId, final String nick, final Set<Hat> hats) {
@@ -924,7 +924,7 @@ public class MucOptions {
         }
 
         public String getOccupantId() {
-            return occupantId;
+            return this.occupantId;
         }
 
         public String getNick() {

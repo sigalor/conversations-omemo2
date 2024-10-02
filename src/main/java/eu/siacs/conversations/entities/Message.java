@@ -691,7 +691,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public String getOccupantId() {
-        return occupantId;
+        return this.occupantId;
     }
 
     public void setMucUser(MucOptions.User user) {

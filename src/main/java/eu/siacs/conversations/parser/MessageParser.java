@@ -575,6 +575,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
         if (timestamp == null) {
             timestamp = AbstractParser.parseTimestamp(original, AbstractParser.parseTimestamp(packet));
         }
+        Reactions reactions = packet.getExtension(Reactions.class);
+        LocalizedContent body = packet.getBody();
         final Element mucUserElement = packet.findChild("x", Namespace.MUC_USER);
         final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
         Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
@@ -608,10 +610,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 packet.setBody(reason == null ? "" : reason);
             }
         }
-        LocalizedContent body = packet.getBody();
-
         var appendReactions = false;
-        var reactions = packet.getExtension(Reactions.class);
         final var reply = packet.findChild("reply", "urn:xmpp:reply:0");
         if (reactions == null && reply != null && reply.getAttribute("id") != null && body != null) {
             StringBuilder bodyB = new StringBuilder(body.content);

@@ -151,7 +151,7 @@ public abstract class AbstractParser {
 				fullJid = null;
 			}
 		}
-		Jid realJid = item.getAttributeAsJid("jid");
+		final Jid realJid = item.getAttributeAsJid("jid");
 		if (fullJid != null) nick = fullJid.getResource();
 		String nickname = null;
 		if (nick != null && nicknameIn != null) nickname = nick.equals(nicknameIn) ? nick : null;
