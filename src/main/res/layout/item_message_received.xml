@@ -146,7 +146,7 @@
             android:id="@+id/reactions_anchor"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="12dp"
             app:layout_constraintBottom_toBottomOf="@+id/message_box"
             app:layout_constraintStart_toStartOf="@+id/message_box" />
 
@@ -154,10 +154,10 @@
             android:id="@+id/reactions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="7dp"
             android:orientation="horizontal"
             android:visibility="visible"
-            app:chipSpacingHorizontal="4dp"
+            app:chipSpacingHorizontal="2dp"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/message_box"
             app:layout_constraintTop_toBottomOf="@+id/reactions_anchor" />

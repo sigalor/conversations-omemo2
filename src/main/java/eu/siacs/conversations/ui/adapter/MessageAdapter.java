@@ -1622,10 +1622,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     reactions -> sendReactions(message, reactions),
                     () -> addReaction(message));
         } else if (type == SENT) {
-            BindingAdapters.setReactionsOnSent(
+            BindingAdapters.setReactionsOnReceived(
                     viewHolder.reactions,
                     message.getAggregatedReactions(),
-                    reactions -> sendReactions(message, reactions));
+                    reactions -> sendReactions(message, reactions),
+                    () -> addReaction(message));
         }
 
         if (type == RECEIVED || type == SENT) {

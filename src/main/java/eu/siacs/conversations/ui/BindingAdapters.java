@@ -1,6 +1,8 @@
 package eu.siacs.conversations.ui;
 
 import android.view.View;
+import android.view.ViewGroup;
+import android.util.TypedValue;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -41,6 +43,9 @@ public class BindingAdapters {
             final Consumer<Collection<String>> onModifiedReactions,
             final Runnable addReaction) {
         final var context = chipGroup.getContext();
+        final var size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
+        final var corner = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
+        final var layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, size);
         final List<Map.Entry<String, Integer>> reactions = aggregated.reactions;
         if (reactions == null || reactions.isEmpty()) {
             chipGroup.setVisibility(View.GONE);
@@ -51,9 +56,13 @@ public class BindingAdapters {
                 final var emoji = reaction.getKey();
                 final var count = reaction.getValue();
                 final Chip chip = new Chip(chipGroup.getContext());
-                chip.setEnsureMinTouchTargetSize(false);
+                //chip.setEnsureMinTouchTargetSize(false);
+                chip.setChipMinHeight(size-32.0f);
+                chip.ensureAccessibleTouchTarget(size);
                 chip.setChipStartPadding(0.0f);
                 chip.setChipEndPadding(0.0f);
+                chip.setChipCornerRadius(corner);
+                chip.setLayoutParams(layoutParams);
                 if (count == 1) {
                     chip.setText(emoji);
                 } else {
@@ -91,22 +100,26 @@ public class BindingAdapters {
                         });
                 chipGroup.addView(chip);
             }
-            if (onReceived) {
+            if (addReaction != null) {
                 final Chip chip = new Chip(chipGroup.getContext());
+                chip.setChipMinHeight(size-32.0f);
+                chip.ensureAccessibleTouchTarget(size);
+                chip.setLayoutParams(layoutParams);
+                chip.setChipCornerRadius(corner);
                 chip.setChipIconResource(R.drawable.ic_add_reaction_24dp);
-                chip.setChipStrokeColor(
-                        MaterialColors.getColorStateListOrNull(
-                                chipGroup.getContext(),
-                                com.google.android.material.R.attr.colorTertiary));
+                //chip.setChipStrokeColor(
+                //        MaterialColors.getColorStateListOrNull(
+                //                chipGroup.getContext(),
+                //                com.google.android.material.R.attr.colorTertiary));
                 chip.setChipBackgroundColor(
                         MaterialColors.getColorStateListOrNull(
                                 chipGroup.getContext(),
-                                com.google.android.material.R.attr.colorTertiaryContainer));
+                                com.google.android.material.R.attr.colorSurfaceContainerLow));
                 chip.setChipIconTint(
                         MaterialColors.getColorStateListOrNull(
                                 chipGroup.getContext(),
-                                com.google.android.material.R.attr.colorOnTertiaryContainer));
-                chip.setEnsureMinTouchTargetSize(false);
+                                com.google.android.material.R.attr.colorOnSurface));
+                //chip.setEnsureMinTouchTargetSize(false);
                 chip.setTextEndPadding(0.0f);
                 chip.setTextStartPadding(0.0f);
                 chip.setOnClickListener(v -> addReaction.run());
