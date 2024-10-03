@@ -53,6 +53,8 @@
             android:longClickable="true"
             android:minHeight="48dp"
             android:paddingRight="7dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toStartOf="@id/message_photo_box"
             app:layout_constraintHorizontal_bias="1.0"
