@@ -622,7 +622,9 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                         if (span.getAttribute("start") == null || span.getAttribute("end") == null) {
                             bodyB.setLength(0);
                         } else {
-                            bodyB.delete(bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("start"))), bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("end"))));
+                            try {
+                                bodyB.delete(bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("start"))), bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("end"))));
+                            } catch (final IndexOutOfBoundsException e) { /* bad span */ }
                         }
                     }
                 }
