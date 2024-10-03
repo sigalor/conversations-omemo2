@@ -75,6 +75,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.HashMultimap;
 
 import io.ipfs.cid.Cid;
 
@@ -128,6 +130,7 @@ import eu.siacs.conversations.databinding.CommandTextFieldBinding;
 import eu.siacs.conversations.databinding.CommandSliderFieldBinding;
 import eu.siacs.conversations.databinding.CommandWebviewBinding;
 import eu.siacs.conversations.databinding.DialogQuickeditBinding;
+import eu.siacs.conversations.entities.Reaction;
 import eu.siacs.conversations.entities.ListItem.Tag;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.persistance.DatabaseBackend;
@@ -138,6 +141,7 @@ import eu.siacs.conversations.ui.UriHandlerActivity;
 import eu.siacs.conversations.ui.text.FixedURLSpan;
 import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
+import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.JidHelper;
 import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.utils.PhoneNumberUtilWrapper;
@@ -215,6 +219,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     protected boolean userSelectedThread = false;
     protected Message replyTo = null;
     protected HashMap<String, Thread> threads = new HashMap<>();
+    protected Multimap<String, Reaction> reactions = HashMultimap.create();
     private String displayState = null;
     protected XmppConnectionService xmppConnectionService;
     private boolean hasPermanentCounterpart;
@@ -711,6 +716,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             messages.clear();
             messages.addAll(this.messages);
             threads.clear();
+            reactions.clear();
         }
         Set<String> extraIds = new HashSet<>();
         for (ListIterator<Message> iterator = messages.listIterator(messages.size()); iterator.hasPrevious(); ) {
@@ -729,15 +735,36 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     thread.first = m;
                 }
             }
+            final var reply = m.getReply();
+            if (reply != null && reply.getAttribute("id") != null) {
+                extraIds.add(reply.getAttribute("id"));
+                final var body = m.getBody(true).toString().replaceAll("\\s", "");
+                if (Emoticons.isEmoji(body)) {
+                    reactions.put(reply.getAttribute("id"), new Reaction(body, true, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId()));
+                    iterator.remove();
+                }
+            }
+
             if (m.wasMergedIntoPrevious(xmppConnectionService) || (m.getSubject() != null && !m.isOOb() && (m.getRawBody() == null || m.getRawBody().length() == 0)) || (getLockThread() && !extraIds.contains(m.replyId()) && (mthread == null || !mthread.getContent().equals(getThread() == null ? "" : getThread().getContent())))) {
                 iterator.remove();
             } else if (getLockThread() && mthread != null) {
-                Element reply = m.getReply();
-                if (reply != null && reply.getAttribute("id") != null) extraIds.add(reply.getAttribute("id"));
                 Element reactions = m.getReactionsEl();
                 if (reactions != null && reactions.getAttribute("id") != null) extraIds.add(reactions.getAttribute("id"));
             }
         }
+    }
+
+    public Reaction.Aggregated aggregatedReactionsFor(Message m) {
+        Set<Reaction> result = new HashSet<>();
+        if (getMode() == MODE_MULTI) {
+            result.addAll(reactions.get(m.getServerMsgId()));
+        } else if (m.getStatus() > Message.STATUS_RECEIVED) {
+            result.addAll(reactions.get(m.getUuid()));
+        } else {
+            result.addAll(reactions.get(m.getRemoteMsgId()));
+        }
+        result.addAll(m.getReactions());
+        return Reaction.aggregated(result);
     }
 
     public Thread getThread(String id) {
