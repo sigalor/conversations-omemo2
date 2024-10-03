@@ -3595,7 +3595,7 @@ public class ConversationFragment extends XmppFragment
         stopScrolling();
         Log.d(Config.LOGTAG, "reInit(hasExtras=" + hasExtras + ")");
 
-        if (this.conversation.isRead() && hasExtras) {
+        if (this.conversation.isRead(activity == null ? null : activity.xmppConnectionService) && hasExtras) {
             Log.d(Config.LOGTAG, "trimming conversation");
             this.conversation.trim();
         }

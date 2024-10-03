@@ -912,16 +912,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return this.replyTo;
     }
 
-    public boolean isRead() {
-        synchronized (this.messages) {
-            for(final Message message : Lists.reverse(this.messages)) {
-                if (message.isRead() && message.getType() == Message.TYPE_RTP_SESSION) {
-                    continue;
-                }
-                return message.isRead();
-            }
-            return true;
-        }
+    public boolean isRead(XmppConnectionService xmppConnectionService) {
+        return unreadCount(xmppConnectionService) < 1;
     }
 
     public List<Message> markRead(final String upToUuid) {
@@ -1537,11 +1529,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         }
     }
 
-    public int unreadCount() {
+    public int unreadCount(XmppConnectionService xmppConnectionService) {
         synchronized (this.messages) {
             int count = 0;
             for(final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                final boolean muted = xmppConnectionService != null && message.getStatus() == Message.STATUS_RECEIVED && getMode() == Conversation.MODE_MULTI && xmppConnectionService.isMucUserMuted(new MucOptions.User(null, getJid(), message.getOccupantId(), null, null));
+                if (muted) continue;
                 if (message.isRead()) {
                     if (message.getType() == Message.TYPE_RTP_SESSION) {
                         continue;
@@ -1639,7 +1633,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("jump_to_commands_tab", R.bool.jump_to_commands_tab)) {
             if (mCurrentTab >= 0) return mCurrentTab;
 
-        if (!isRead() || getContact().resourceWhichSupport(Namespace.COMMANDS) == null) {
+        if (!isRead(null) || getContact().resourceWhichSupport(Namespace.COMMANDS) == null) {
             return 0;
         }
 

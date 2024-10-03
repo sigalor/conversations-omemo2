@@ -95,8 +95,8 @@ public class ConversationAdapter
 
         final Message message = conversation.getLatestMessage();
         final int status = message.getStatus();
-        final int unreadCount = conversation.unreadCount();
-        final boolean isRead = conversation.isRead();
+        final int unreadCount = conversation.unreadCount(activity.xmppConnectionService);
+        final boolean isRead = unreadCount < 1;
         final @DrawableRes Integer messageStatusDrawable =
                 MessageAdapter.getMessageStatusAsDrawable(message, status);
         if (message.getType() == Message.TYPE_RTP_SESSION) {

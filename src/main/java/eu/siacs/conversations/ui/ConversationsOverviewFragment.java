@@ -191,7 +191,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				}
 				final Conversation conversation = swipedConversation.pop();
 				if(conversation != null){
-					if (!conversation.isRead() && conversation.getMode() == Conversation.MODE_SINGLE) {
+					if (!conversation.isRead(activity.xmppConnectionService) && conversation.getMode() == Conversation.MODE_SINGLE) {
 						return;
 					}
 					activity.xmppConnectionService.archiveConversation(c);
@@ -506,7 +506,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		this.activity.populateWithOrderedConversations(this.conversations);
 		Conversation removed = this.swipedConversation.peek();
 		if (removed != null) {
-			if (removed.isRead()) {
+			if (removed.isRead(activity == null ? null : activity.xmppConnectionService)) {
 				this.conversations.remove(removed);
 			} else {
 				pendingActionHelper.execute();

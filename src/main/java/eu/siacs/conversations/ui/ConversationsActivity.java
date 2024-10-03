@@ -235,7 +235,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             final var selectedAccount = selectedAccount();
             populateWithOrderedConversations(conversations, false, false);
             for (final var c : conversations) {
-                final var unread = c.unreadCount();
+                final var unread = c.unreadCount(xmppConnectionService);
                 if (selectedAccount == null || selectedAccount.getUuid().equals(c.getAccount().getUuid())) {
                     totalUnread += unread;
                     if (c.getMode() == Conversation.MODE_MULTI) {
@@ -251,7 +251,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             filterByMainFilter(conversations);
             for (final var c : conversations) {
                 if (selectedAccount == null || selectedAccount.getUuid().equals(c.getAccount().getUuid())) {
-                    final var unread = c.unreadCount();
+                    final var unread = c.unreadCount(xmppConnectionService);
                     for (final var tag : c.getTags(this)) {
                         if ("Channel".equals(tag.getName())) continue;
                         var count = tags.get(tag);
@@ -668,7 +668,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 list.remove(c);
             } else if (mainFilter == DRAWER_DIRECT_MESSAGES && c.getMode() == Conversation.MODE_MULTI) {
                 list.remove(c);
-            } else if (mainFilter == DRAWER_UNREAD_CHATS && c.unreadCount() < 1) {
+            } else if (mainFilter == DRAWER_UNREAD_CHATS && c.unreadCount(xmppConnectionService) < 1) {
                 list.remove(c);
             }
         }

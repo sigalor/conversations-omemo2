@@ -5113,7 +5113,7 @@ public class XmppConnectionService extends Service {
     public int unreadCount() {
         int count = 0;
         for (Conversation conversation : getConversations()) {
-            count += conversation.unreadCount();
+            count += conversation.unreadCount(this);
         }
         return count;
     }
