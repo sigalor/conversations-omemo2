@@ -7,6 +7,7 @@
 
 -keep class com.kyleduo.switchbutton.Configuration
 
+# Needed for proper GSON deserialization
 -keep class com.google.gson.reflect.TypeToken
 -keep class * extends com.google.gson.reflect.TypeToken
 -keep public class * implements java.lang.reflect.Type
