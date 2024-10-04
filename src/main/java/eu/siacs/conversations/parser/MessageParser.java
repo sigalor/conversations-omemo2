@@ -1432,29 +1432,53 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     final var occupant =
                             mucOptions.occupantId() ? packet.getExtension(OccupantId.class) : null;
                     final var occupantId = occupant == null ? null : occupant.getId();
-                    final var message = conversation.findMessageWithServerMsgId(reactingTo);
-                    // TODO use occupant id for isSelf assessment
-                    final boolean isReceived = !mucOptions.isSelf(counterpart);
-                    if (occupantId != null && message != null) {
-                        final var newReactions = new HashSet<>(reactions.getReactions());
-                        newReactions.removeAll(message.getReactions().stream().filter(r -> occupantId.equals(r.occupantId)).map(r -> r.reaction).collect(Collectors.toList()));
-                        final var combinedReactions =
-                                Reaction.withOccupantId(
-                                        message.getReactions(),
-                                        reactions.getReactions(),
-                                        isReceived,
-                                        counterpart,
-                                        null,
-                                        occupantId,
-                                        message.getRemoteMsgId());
-                        message.setReactions(combinedReactions);
-                        mXmppConnectionService.updateMessage(message, false);
-                        if (!isCarbon && !packet.fromAccount(account)) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
+                    if (occupantId != null) {
+                        // TODO use occupant id for isSelf assessment
+                        final boolean isReceived = !mucOptions.isSelf(counterpart);
+                        final Message message;
+                        final var inMemoryMessage =
+                                conversation.findMessageWithServerMsgId(reactingTo);
+                        if (inMemoryMessage != null) {
+                            message = inMemoryMessage;
+                        } else {
+                            message =
+                                    mXmppConnectionService.databaseBackend
+                                            .getMessageWithServerMsgId(conversation, reactingTo);
+                        }
+                        if (message != null) {
+                            final var newReactions = new HashSet<>(reactions.getReactions());
+                            newReactions.removeAll(message.getReactions().stream().filter(r -> occupantId.equals(r.occupantId)).map(r -> r.reaction).collect(Collectors.toList()));
+                            final var combinedReactions =
+                                    Reaction.withOccupantId(
+                                            message.getReactions(),
+                                            reactions.getReactions(),
+                                            isReceived,
+                                            counterpart,
+                                            null,
+                                            occupantId,
+                                            message.getRemoteMsgId());
+                            message.setReactions(combinedReactions);
+                            mXmppConnectionService.updateMessage(message, false);
+                            if (!isCarbon && !packet.fromAccount(account)) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
+                        } else {
+                            Log.d(Config.LOGTAG, "message with id " + reactingTo + " not found");
+                        }
                     } else {
-                        Log.d(Config.LOGTAG,"not found occupant or message");
+                        Log.d(
+                                Config.LOGTAG,
+                                "received reaction in channel w/o occupant ids. ignoring");
                     }
                 } else if (conversation.getMode() == Conversational.MODE_SINGLE) {
-                    final var message = conversation.findMessageWithUuidOrRemoteId(reactingTo);
+                    final Message message;
+                    final var inMemoryMessage =
+                            conversation.findMessageWithUuidOrRemoteId(reactingTo);
+                    if (inMemoryMessage != null) {
+                        message = inMemoryMessage;
+                    } else {
+                        message =
+                                mXmppConnectionService.databaseBackend.getMessageWithUuidOrRemoteId(
+                                        conversation, reactingTo);
+                    }
                     final boolean isReceived;
                     final Jid reactionFrom;
                     if (packet.fromAccount(account)) {
@@ -1478,6 +1502,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
                         if (!isCarbon && !packet.fromAccount(account)) mXmppConnectionService.getNotificationService().push(message, counterpart, null, newReactions);
+                    } else {
+                        Log.d(Config.LOGTAG, "message with id " + reactingTo + " not found");
                     }
                 }
             }
