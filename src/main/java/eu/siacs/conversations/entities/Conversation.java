@@ -313,6 +313,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (asReaction(message) != null) continue;
                 if (message.isRead()) {
                     return first;
@@ -329,6 +330,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         synchronized (this.messages) {
             for (final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (asReaction(message) != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
                     final String serverMsgId = message.getServerMsgId();
@@ -741,6 +743,12 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     thread.first = m;
                 }
             }
+
+            if ((m.getRawBody() == null || "".equals(m.getRawBody()) || " ".equals(m.getRawBody())) && m.getReply() != null && m.edited() && m.getHtml() != null) {
+                iterator.remove();
+                continue;
+            }
+
             final var asReaction = asReaction(m);
             if (asReaction != null) {
                 reactions.put(asReaction.first, asReaction.second);
@@ -761,9 +769,16 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     protected Pair<String, Reaction> asReaction(Message m) {
         final var reply = m.getReply();
         if (reply != null && reply.getAttribute("id") != null) {
+            final String envelopeId;
+            if (m.isCarbon() || m.getStatus() == Message.STATUS_RECEIVED) {
+                envelopeId = m.getRemoteMsgId();
+            } else {
+                envelopeId = m.getUuid();
+            }
+
             final var body = m.getBody(true).toString().replaceAll("\\s", "");
             if (Emoticons.isEmoji(body)) {
-                return new Pair<>(reply.getAttribute("id"), new Reaction(body, null, m.getStatus() <= Message.STATUS_RECEIVED, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId()));
+                return new Pair<>(reply.getAttribute("id"), new Reaction(body, null, m.getStatus() <= Message.STATUS_RECEIVED, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId(), envelopeId));
             } else {
                 final var html = m.getHtml();
                 if (html == null) return null;
@@ -785,7 +800,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     }
                     if (source != null && source.length() > 0 && source.substring(0, 4).equals("cid:")) {
                         final Cid cid = BobTransfer.cid(Uri.parse(source));
-                        return new Pair<>(reply.getAttribute("id"), new Reaction(shortcode, cid, m.getStatus() <= Message.STATUS_RECEIVED, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId()));
+                        return new Pair<>(reply.getAttribute("id"), new Reaction(shortcode, cid, m.getStatus() <= Message.STATUS_RECEIVED, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId(), envelopeId));
                     }
                 }
             }
@@ -976,6 +991,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for(final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
+                if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 return message;
             }
 
@@ -1576,6 +1592,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for(final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
+                if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 final boolean muted = xmppConnectionService != null && message.getStatus() == Message.STATUS_RECEIVED && getMode() == Conversation.MODE_MULTI && xmppConnectionService.isMucUserMuted(new MucOptions.User(null, getJid(), message.getOccupantId(), null, null));
                 if (muted) continue;
                 if (message.isRead()) {
@@ -1596,6 +1613,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for (Message message : messages) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
+                if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
                     ++count;
                 }

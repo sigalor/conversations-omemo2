@@ -1617,6 +1617,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     aggregatedReactions,
                     reactions -> sendReactions(message, reactions),
                     emoji -> sendCustomReaction(message, emoji),
+                    reaction -> removeCustomReaction(conversation, reaction),
                     () -> addReaction(message));
         } else if (type == SENT) {
             final var aggregatedReactions = conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message, reactionThumbnailer) : message.getAggregatedReactions();
@@ -1626,6 +1627,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     aggregatedReactions,
                     reactions -> sendReactions(message, reactions),
                     emoji -> sendCustomReaction(message, emoji),
+                    reaction -> removeCustomReaction(conversation, reaction),
                     () -> addReaction(message));
         }
 
@@ -1705,6 +1707,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final var message = inReplyTo.reply();
         message.appendBody(emoji.toInsert());
         Message.configurePrivateMessage(message);
+        new Thread(() -> activity.xmppConnectionService.sendMessage(message)).start();
+    }
+
+    private void removeCustomReaction(final Conversational conversation, final Reaction reaction) {
+        if (!(conversation instanceof Conversation)) {
+            Toast.makeText(activity, R.string.could_not_add_reaction, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final var message = new Message(conversation, " ", ((Conversation) conversation).getNextEncryption());
+        final var envelope = ((Conversation) conversation).findMessageWithUuidOrRemoteId(reaction.envelopeId);
+        if (envelope != null) {
+            ((Conversation) conversation).remove(envelope);
+            message.addPayload(envelope.getReply());
+            message.getOrMakeHtml();
+            message.putEdited(reaction.envelopeId, envelope.getServerMsgId());
+        } else {
+            message.putEdited(reaction.envelopeId, null);
+        }
+
         new Thread(() -> activity.xmppConnectionService.sendMessage(message)).start();
     }
 

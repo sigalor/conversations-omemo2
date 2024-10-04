@@ -32,15 +32,16 @@ public class BindingAdapters {
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions,
             final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
+            final Consumer<Reaction> onCustomReactionRemove,
             final Runnable addReaction) {
-        setReactions(chipGroup, conversation, reactions, true, onModifiedReactions, onCustomReaction, addReaction);
+        setReactions(chipGroup, conversation, reactions, true, onModifiedReactions, onCustomReaction, onCustomReactionRemove, addReaction);
     }
 
     public static void setReactionsOnSent(
             final ChipGroup chipGroup,
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions) {
-        setReactions(chipGroup, null, reactions, false, onModifiedReactions, null, null);
+        setReactions(chipGroup, null, reactions, false, onModifiedReactions, null, null, null);
     }
 
     private static void setReactions(
@@ -50,6 +51,7 @@ public class BindingAdapters {
             final boolean onReceived,
             final Consumer<Collection<String>> onModifiedReactions,
             final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
+            final Consumer<Reaction> onCustomReactionRemove,
             final Runnable addReaction) {
         final var context = chipGroup.getContext();
         final var size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
@@ -71,9 +73,9 @@ public class BindingAdapters {
                 chip.setLayoutParams(layoutParams);
                 chip.setChipCornerRadius(corner);
                 emoji.setupChip(chip, count);
-                final boolean oneOfOurs = aggregated.ourReactions.contains(emoji.toString());
+                final var oneOfOurs = reaction.getValue().stream().filter(r -> !r.received).findFirst();
                 // received = surface; sent = surface high matches bubbles
-                if (oneOfOurs) {
+                if (oneOfOurs.isPresent()) {
                     chip.setChipBackgroundColor(
                             MaterialColors.getColorStateListOrNull(
                                     context,
@@ -89,12 +91,16 @@ public class BindingAdapters {
                 chip.setTextStartPadding(0.0f);
                 chip.setOnClickListener(
                         v -> {
-                            if (oneOfOurs) {
-                                onModifiedReactions.accept(
+                            if (oneOfOurs.isPresent()) {
+                                if (emoji instanceof EmojiSearch.CustomEmoji) {
+                                    onCustomReactionRemove.accept(oneOfOurs.get());
+                                } else {
+                                    onModifiedReactions.accept(
                                         ImmutableSet.copyOf(
                                                 Collections2.filter(
                                                         aggregated.ourReactions,
                                                         r -> !r.equals(emoji.toString()))));
+                                }
                             } else {
                                 if (emoji instanceof EmojiSearch.CustomEmoji) {
                                     onCustomReaction.accept((EmojiSearch.CustomEmoji) emoji);

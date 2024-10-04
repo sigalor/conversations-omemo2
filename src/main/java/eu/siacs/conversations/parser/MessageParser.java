@@ -1435,7 +1435,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                         isReceived,
                                         counterpart,
                                         null,
-                                        occupantId);
+                                        occupantId,
+                                        message.getRemoteMsgId());
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
                     } else {
@@ -1459,7 +1460,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                         message.getReactions(),
                                         reactions.getReactions(),
                                         isReceived,
-                                        reactionFrom);
+                                        reactionFrom,
+                                        message.getRemoteMsgId());
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
                     }

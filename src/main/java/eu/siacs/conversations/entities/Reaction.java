@@ -58,6 +58,7 @@ public class Reaction {
     public final Jid trueJid;
     public final String occupantId;
     public final Cid cid;
+    public final String envelopeId;
 
     public Reaction(
             final String reaction,
@@ -65,13 +66,15 @@ public class Reaction {
             boolean received,
             final Jid from,
             final Jid trueJid,
-            final String occupantId) {
+            final String occupantId,
+            final String envelopeId) {
         this.reaction = reaction;
         this.cid = cid;
         this.received = received;
         this.from = from;
         this.trueJid = trueJid;
         this.occupantId = occupantId;
+        this.envelopeId = envelopeId;
     }
 
     public static String toString(final Collection<Reaction> reactions) {
@@ -95,12 +98,13 @@ public class Reaction {
             final boolean received,
             final Jid from,
             final Jid trueJid,
-            final String occupantId) {
+            final String occupantId,
+            final String envelopeId) {
         final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
         builder.addAll(Collections2.filter(existing, e -> !occupantId.equals(e.occupantId)));
         builder.addAll(
                 Collections2.transform(
-                        reactions, r -> new Reaction(r, null, received, from, trueJid, occupantId)));
+                        reactions, r -> new Reaction(r, null, received, from, trueJid, occupantId, envelopeId)));
         return builder.build();
     }
 
@@ -131,13 +135,14 @@ public class Reaction {
             final Collection<Reaction> existing,
             final Collection<String> reactions,
             final boolean received,
-            final Jid from) {
+            final Jid from,
+            final String envelopeId) {
         final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
         builder.addAll(
                 Collections2.filter(existing, e -> !from.asBareJid().equals(e.from.asBareJid())));
         builder.addAll(
                 Collections2.transform(
-                        reactions, r -> new Reaction(r, null, received, from, null, null)));
+                        reactions, r -> new Reaction(r, null, received, from, null, null, envelopeId)));
         return builder.build();
     }
 
