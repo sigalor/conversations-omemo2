@@ -89,21 +89,6 @@ public class Reaction {
         }
     }
 
-    public static Collection<Reaction> append(
-            final Collection<Reaction> existing,
-            final Collection<String> reactions,
-            final boolean received,
-            final Jid from,
-            final Jid trueJid,
-            final String occupantId) {
-        final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
-        builder.addAll(existing);
-        builder.addAll(
-                Collections2.transform(
-                        reactions, r -> new Reaction(r, null, received, from, trueJid, occupantId)));
-        return builder.build();
-    }
-
     public static Collection<Reaction> withOccupantId(
             final Collection<Reaction> existing,
             final Collection<String> reactions,

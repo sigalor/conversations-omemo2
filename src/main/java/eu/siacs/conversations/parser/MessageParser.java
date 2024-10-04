@@ -575,8 +575,6 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
         if (timestamp == null) {
             timestamp = AbstractParser.parseTimestamp(original, AbstractParser.parseTimestamp(packet));
         }
-        Reactions reactions = packet.getExtension(Reactions.class);
-        LocalizedContent body = packet.getBody();
         final Element mucUserElement = packet.findChild("x", Namespace.MUC_USER);
         final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
         Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
@@ -610,34 +608,9 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 packet.setBody(reason == null ? "" : reason);
             }
         }
-        var appendReactions = false;
-        final var reply = packet.findChild("reply", "urn:xmpp:reply:0");
-        if (reactions == null && reply != null && reply.getAttribute("id") != null && body != null) {
-            StringBuilder bodyB = new StringBuilder(body.content);
+        LocalizedContent body = packet.getBody();
 
-            for (Element el : packet.getChildren()) {
-                if ("fallback".equals(el.getName()) && "urn:xmpp:fallback:0".equals(el.getNamespace()) && "urn:xmpp:reply:0".equals(el.getAttribute("for"))) {
-                    for (final var span : el.getChildren()) {
-                        if (!span.getName().equals("body") && !span.getNamespace().equals("urn:xmpp:fallback:0")) continue;
-                        if (span.getAttribute("start") == null || span.getAttribute("end") == null) {
-                            bodyB.setLength(0);
-                        } else {
-                            try {
-                                bodyB.delete(bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("start"))), bodyB.offsetByCodePoints(0, parseInt(span.getAttribute("end"))));
-                            } catch (final IndexOutOfBoundsException e) { /* bad span */ }
-                        }
-                    }
-                }
-            }
-
-            final var emojiMaybe = bodyB.toString().replaceAll("\\s", "");
-            if (Emoticons.isEmoji(emojiMaybe)) {
-                appendReactions = true;
-                reactions = im.conversations.android.xmpp.model.reactions.Reactions.to(reply.getAttribute("id"));
-                reactions.addExtension(new im.conversations.android.xmpp.model.reactions.Reaction(emojiMaybe));
-            }
-        }
-
+        final var reactions = packet.getExtension(Reactions.class);
         final Element axolotlEncrypted = packet.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
         int status;
         final Jid counterpart;
@@ -716,14 +689,14 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             final var payload = webxdc.findChildContent("json", "urn:xmpp:json:0");
             if (document != null || summary != null || payload != null) {
                 mXmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
-                        conversation,
-                        remoteMsgId,
-                        counterpart,
-                        thread,
-                        body == null ? null : body.content,
-                        document,
-                        summary,
-                        payload
+                    conversation,
+                    remoteMsgId,
+                    counterpart,
+                    thread,
+                    body == null ? null : body.content,
+                    document,
+                    summary,
+                    payload
                 ));
             }
 
@@ -873,7 +846,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     if (address.getAttribute("type").equals("ofrom") && address.getAttribute("jid") != null) {
                         Jid ofrom = address.getAttributeAsJid("jid");
                         if (InvalidJid.isValid(ofrom) && ofrom.getDomain().equals(counterpart.getDomain()) &&
-                                conversation.getAccount().getRoster().getContact(counterpart.getDomain()).getPresences().anySupport("http://jabber.org/protocol/address")) {
+                            conversation.getAccount().getRoster().getContact(counterpart.getDomain()).getPresences().anySupport("http://jabber.org/protocol/address")) {
 
                             message.setTrueCounterpart(ofrom);
                         }
@@ -897,7 +870,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             message.markable = packet.hasChild("markable", "urn:xmpp:chat-markers:0");
             for (Element el : packet.getChildren()) {
                 if ((el.getName().equals("query") && el.getNamespace().equals("http://jabber.org/protocol/disco#items") && el.getAttribute("node").equals("http://jabber.org/protocol/commands")) ||
-                        (el.getName().equals("fallback") && el.getNamespace().equals("urn:xmpp:fallback:0"))) {
+                    (el.getName().equals("fallback") && el.getNamespace().equals("urn:xmpp:fallback:0"))) {
                     message.addPayload(el);
                 }
                 if (el.getName().equals("thread") && (el.getNamespace() == null || el.getNamespace().equals("jabber:client"))) {
@@ -964,8 +937,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     final boolean occupantIdMatch =
                             replacedMessage.getOccupantId() != null
                                     && replacedMessage
-                                    .getOccupantId()
-                                    .equals(message.getOccupantId());
+                                            .getOccupantId()
+                                            .equals(message.getOccupantId());
                     final boolean mucUserMatches = query == null && replacedMessage.sameMucUser(message); //can not be checked when using mam
                     final boolean duplicate = conversation.hasDuplicateMessage(message);
                     if (fingerprintsMatch && (trueCountersMatch || occupantIdMatch || !conversationMultiMode || mucUserMatches) && !duplicate) {
@@ -1254,7 +1227,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                             // the 'ringing' spec'd
                             final boolean sendReceipts =
                                     (mXmppConnectionService.confirmMessages()
-                                            && contact.showInContactList())
+                                                    && contact.showInContactList())
                                             || Config.JINGLE_MESSAGE_INIT_STRICT_OFFLINE_CHECK;
                             if (remoteMsgId != null && !contact.isSelf() && sendReceipts) {
                                 processMessageReceipts(account, packet, remoteMsgId, null);
@@ -1417,7 +1390,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                             final var mStatus = message.getStatus();
                             if (mucOptions.isPrivateAndNonAnonymous()
                                     && (mStatus == Message.STATUS_SEND_RECEIVED
-                                    || mStatus == Message.STATUS_SEND)
+                                            || mStatus == Message.STATUS_SEND)
                                     && readyBy.containsAll(everyone)) {
                                 message.setStatus(Message.STATUS_SEND_DISPLAYED);
                             }
@@ -1456,7 +1429,6 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     final boolean isReceived = !mucOptions.isSelf(counterpart);
                     if (occupantId != null && message != null) {
                         final var combinedReactions =
-                            appendReactions ? Reaction.append(message.getReactions(), reactions.getReactions(), isReceived, counterpart, null, occupantId) :
                                 Reaction.withOccupantId(
                                         message.getReactions(),
                                         reactions.getReactions(),
@@ -1483,7 +1455,6 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     packet.fromAccount(account);
                     if (message != null) {
                         final var combinedReactions =
-                            appendReactions ? Reaction.append(message.getReactions(), reactions.getReactions(), isReceived, reactionFrom, null, null) :
                                 Reaction.withFrom(
                                         message.getReactions(),
                                         reactions.getReactions(),
