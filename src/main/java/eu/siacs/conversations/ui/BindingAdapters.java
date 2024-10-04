@@ -4,6 +4,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.util.TypedValue;
 
+import de.monocles.chat.EmojiSearch;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.color.MaterialColors;
@@ -15,7 +17,6 @@ import eu.siacs.conversations.entities.Reaction;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -25,15 +26,16 @@ public class BindingAdapters {
             final ChipGroup chipGroup,
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions,
+            final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
             final Runnable addReaction) {
-        setReactions(chipGroup, reactions, true, onModifiedReactions, addReaction);
+        setReactions(chipGroup, reactions, true, onModifiedReactions, onCustomReaction, addReaction);
     }
 
     public static void setReactionsOnSent(
             final ChipGroup chipGroup,
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions) {
-        setReactions(chipGroup, reactions, false, onModifiedReactions, null);
+        setReactions(chipGroup, reactions, false, onModifiedReactions, null, null);
     }
 
     private static void setReactions(
@@ -41,34 +43,29 @@ public class BindingAdapters {
             final Reaction.Aggregated aggregated,
             final boolean onReceived,
             final Consumer<Collection<String>> onModifiedReactions,
+            final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
             final Runnable addReaction) {
         final var context = chipGroup.getContext();
         final var size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
         final var corner = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
         final var layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, size);
-        final List<Map.Entry<String, Integer>> reactions = aggregated.reactions;
+        final List<Map.Entry<EmojiSearch.Emoji, Integer>> reactions = aggregated.reactions;
         if (reactions == null || reactions.isEmpty()) {
             chipGroup.setVisibility(View.GONE);
         } else {
             chipGroup.removeAllViews();
             chipGroup.setVisibility(View.VISIBLE);
-            for (final Map.Entry<String, Integer> reaction : reactions) {
+            for (final var reaction : reactions) {
                 final var emoji = reaction.getKey();
                 final var count = reaction.getValue();
                 final Chip chip = new Chip(chipGroup.getContext());
                 //chip.setEnsureMinTouchTargetSize(false);
                 chip.setChipMinHeight(size-32.0f);
                 chip.ensureAccessibleTouchTarget(size);
-                chip.setChipStartPadding(0.0f);
-                chip.setChipEndPadding(0.0f);
-                chip.setChipCornerRadius(corner);
                 chip.setLayoutParams(layoutParams);
-                if (count == 1) {
-                    chip.setText(emoji);
-                } else {
-                    chip.setText(String.format(Locale.ENGLISH, "%s %d", emoji, count));
-                }
-                final boolean oneOfOurs = aggregated.ourReactions.contains(emoji);
+                chip.setChipCornerRadius(corner);
+                emoji.setupChip(chip, count);
+                final boolean oneOfOurs = aggregated.ourReactions.contains(emoji.toString());
                 // received = surface; sent = surface high matches bubbles
                 if (oneOfOurs) {
                     chip.setChipBackgroundColor(
@@ -82,6 +79,8 @@ public class BindingAdapters {
                                     context,
                                     com.google.android.material.R.attr.colorSurfaceContainerLow));
                 }
+                chip.setTextEndPadding(0.0f);
+                chip.setTextStartPadding(0.0f);
                 chip.setOnClickListener(
                         v -> {
                             if (oneOfOurs) {
@@ -89,13 +88,17 @@ public class BindingAdapters {
                                         ImmutableSet.copyOf(
                                                 Collections2.filter(
                                                         aggregated.ourReactions,
-                                                        r -> !r.equals(emoji))));
+                                                        r -> !r.equals(emoji.toString()))));
                             } else {
-                                onModifiedReactions.accept(
+                                if (emoji instanceof EmojiSearch.CustomEmoji) {
+                                    onCustomReaction.accept((EmojiSearch.CustomEmoji) emoji);
+                                } else {
+                                    onModifiedReactions.accept(
                                         new ImmutableSet.Builder<String>()
                                                 .addAll(aggregated.ourReactions)
-                                                .add(emoji)
+                                                .add(emoji.toString())
                                                 .build());
+                                }
                             }
                         });
                 chipGroup.addView(chip);
@@ -113,11 +116,11 @@ public class BindingAdapters {
                 //                com.google.android.material.R.attr.colorTertiary));
                 chip.setChipBackgroundColor(
                         MaterialColors.getColorStateListOrNull(
-                                chipGroup.getContext(),
+                                context,
                                 com.google.android.material.R.attr.colorSurfaceContainerLow));
                 chip.setChipIconTint(
                         MaterialColors.getColorStateListOrNull(
-                                chipGroup.getContext(),
+                                context,
                                 com.google.android.material.R.attr.colorOnSurface));
                 //chip.setEnsureMinTouchTargetSize(false);
                 chip.setTextEndPadding(0.0f);

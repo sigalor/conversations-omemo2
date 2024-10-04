@@ -14,8 +14,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.color.MaterialColors;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
+
+import io.ipfs.cid.Cid;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -39,6 +44,7 @@ import org.json.JSONObject;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.EmojiSearchRowBinding;
+import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 
 public class EmojiSearch {
@@ -156,6 +162,19 @@ public class EmojiSearch {
 			return new SpannableStringBuilder(unicode);
 		}
 
+		public void setupChip(Chip chip, int count) {
+			if (count < 2) {
+				chip.setText(unicode);
+			} else {
+				chip.setText(String.format(Locale.ENGLISH, "%s %d", unicode, count));
+			}
+		}
+
+		@Override
+		public String toString() {
+			return unicode;
+		}
+
 		public String uniquePart() {
 			return unicode;
 		}
@@ -173,10 +192,15 @@ public class EmojiSearch {
 
 			return uniquePart().equals(((Emoji) o).uniquePart());
 		}
+
+		@Override
+		public int hashCode() {
+			return uniquePart().hashCode();
+		}
 	}
 
 	public static class CustomEmoji extends Emoji {
-		protected final String source;
+		public final String source;
 		protected final Drawable icon;
 
 		public CustomEmoji(final String shortcode, final String source, final Drawable icon, final String tag) {
@@ -185,20 +209,39 @@ public class EmojiSearch {
 			if (tag != null) tags.add(tag);
 			this.source = source;
 			this.icon = icon;
-			if (icon == null) {
-				throw new IllegalArgumentException("icon must not be null");
-			}
 		}
 
 		public SpannableStringBuilder toInsert() {
-			SpannableStringBuilder builder = new SpannableStringBuilder(":" + shortcodes.get(0) + ":");
-			builder.setSpan(new InlineImageSpan(icon, source), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			SpannableStringBuilder builder = new SpannableStringBuilder(toString());
+			if (icon != null) builder.setSpan(new InlineImageSpan(icon, source), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			return builder;
+		}
+
+		public void setupChip(Chip chip, int count) {
+			if (icon == null) {
+				chip.setChipIconResource(R.drawable.ic_photo_24dp);
+				chip.setChipIconTint(
+						MaterialColors.getColorStateListOrNull(
+								chip.getContext(),
+								com.google.android.material.R.attr.colorOnSurface));
+			} else {
+				SpannableStringBuilder builder = new SpannableStringBuilder("😇"); // needs to be same size as an emoji
+				if (icon != null) builder.setSpan(new InlineImageSpan(icon, source), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				chip.setText(builder); // We cannot use icon because it is a hardware bitmap
+			}
+			if (count > 1) {
+				chip.append(String.format(Locale.ENGLISH, " %d", count));
+			}
 		}
 
 		@Override
 		public String uniquePart() {
 			return source;
+		}
+
+		@Override
+		public String toString() {
+			return ":" + shortcodes.get(0) + ":";
 		}
 	}
 

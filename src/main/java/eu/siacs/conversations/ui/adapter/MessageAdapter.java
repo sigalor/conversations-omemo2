@@ -67,6 +67,17 @@ import de.monocles.chat.MessageTextActionModeCallback;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcUpdate;
+import de.monocles.chat.BobTransfer;
+import de.monocles.chat.EmojiSearch;
+import de.monocles.chat.GetThumbnailForCid;
+import de.monocles.chat.MessageTextActionModeCallback;
+import de.monocles.chat.SwipeDetector;
+import de.monocles.chat.Util;
+import de.monocles.chat.WebxdcPage;
+import de.monocles.chat.WebxdcUpdate;
+
+import androidx.emoji2.emojipicker.EmojiViewItem;
+import androidx.emoji2.emojipicker.RecentEmojiProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
@@ -91,6 +102,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,6 +124,7 @@ import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Message.FileParams;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
+import eu.siacs.conversations.entities.Reaction;
 import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
@@ -296,9 +309,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             fileSize = params.size != null ? UIHelper.filesizeToString(params.size) : null;
             if (message.getStatus() == Message.STATUS_SEND_FAILED
                     || (transferable != null
-                    && (transferable.getStatus() == Transferable.STATUS_FAILED
-                    || transferable.getStatus()
-                    == Transferable.STATUS_CANCELLED))) {
+                            && (transferable.getStatus() == Transferable.STATUS_FAILED
+                                    || transferable.getStatus()
+                                            == Transferable.STATUS_CANCELLED))) {
                 error = true;
             } else {
                 error = message.getStatus() == Message.STATUS_SEND_FAILED;
@@ -498,10 +511,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (makeEdits && end < body.length() - 1 && !"\n\n".equals(body.subSequence(end, end + 2).toString())) {
             body.insert(end, "\n");
             body.setSpan(
-                    new DividerSpan(false),
-                    end,
-                    end + ("\n".equals(body.subSequence(end + 1, end + 2).toString()) ? 2 : 1),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                new DividerSpan(false),
+                end,
+                end + ("\n".equals(body.subSequence(end + 1, end + 2).toString()) ? 2 : 1),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             );
         }
         final DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
@@ -593,27 +606,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private SpannableStringBuilder getSpannableBody(final Message message) {
         Drawable fallbackImg = ResourcesCompat.getDrawable(activity.getResources(), R.drawable.ic_photo_24dp, null);
-        return message.getMergedBody((cid) -> {
-            try {
-                DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                if (f == null || !f.canRead()) {
-                    if (!message.trusted() && !message.getConversation().canInferPresence()) return null;
-
-                    try {
-                        new BobTransfer(BobTransfer.uri(cid), message.getConversation().getAccount(), message.getCounterpart(), activity.xmppConnectionService).start();
-                    } catch (final NoSuchAlgorithmException | URISyntaxException e) { }
-                    return null;
-                }
-
-                Drawable d = activity.xmppConnectionService.getFileBackend().getThumbnail(f, activity.getResources(), (int) (metrics.density * 288), true);
-                if (d == null) {
-                    new ThumbnailTask().execute(f);
-                }
-                return d;
-            } catch (final IOException e) {
-                return null;
-            }
-        }, fallbackImg);
+        return message.getMergedBody(new Thumbnailer(message), fallbackImg);
     }
 
     private void displayTextMessage(
@@ -903,8 +896,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (lastUpdate != null && (lastUpdate.getSummary() != null || lastUpdate.getDocument() != null)) {
                 viewHolder.messageBody.setVisibility(View.VISIBLE);
                 viewHolder.messageBody.setText(
-                        (lastUpdate.getDocument() == null ? "" : lastUpdate.getDocument() + "\n") +
-                                (lastUpdate.getSummary() == null ? "" : lastUpdate.getSummary())
+                    (lastUpdate.getDocument() == null ? "" : lastUpdate.getDocument() + "\n") +
+                    (lastUpdate.getSummary() == null ? "" : lastUpdate.getSummary())
                 );
             }
         }
@@ -1447,7 +1440,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                     MessageAdapter.this.mOnMessageBoxClickedListener
-                            .onContactPictureClicked(message);
+                        .onContactPictureClicked(message);
                 }
             }
 
@@ -1583,6 +1576,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         setTextColor(viewHolder.messageBody, bubbleColor);
         viewHolder.messageBody.setLinkTextColor(bubbleToOnSurfaceColor(viewHolder.messageBody, bubbleColor));
 
+        final Function<Reaction, GetThumbnailForCid> reactionThumbnailer = (r) -> new Thumbnailer(conversation.getAccount(), r, conversation.canInferPresence());
         if (type == RECEIVED) {
             if (!muted && commands != null && conversation instanceof Conversation) {
                 CommandButtonAdapter adapter = new CommandButtonAdapter(activity);
@@ -1616,16 +1610,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             CryptoHelper.encryptionTypeToText(message.getEncryption()));
                 }
             }
+            final var aggregatedReactions = conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message, reactionThumbnailer) : message.getAggregatedReactions();
             BindingAdapters.setReactionsOnReceived(
                     viewHolder.reactions,
-                    conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message) : message.getAggregatedReactions(),
+                    aggregatedReactions,
                     reactions -> sendReactions(message, reactions),
+                    emoji -> sendCustomReaction(message, emoji),
                     () -> addReaction(message));
         } else if (type == SENT) {
+            final var aggregatedReactions = conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message, reactionThumbnailer) : message.getAggregatedReactions();
             BindingAdapters.setReactionsOnReceived(
                     viewHolder.reactions,
-                    conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message) : message.getAggregatedReactions(),
+                    aggregatedReactions,
                     reactions -> sendReactions(message, reactions),
+                    emoji -> sendCustomReaction(message, emoji),
                     () -> addReaction(message));
         }
 
@@ -1701,6 +1699,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         Toast.makeText(activity, R.string.could_not_add_reaction, Toast.LENGTH_LONG).show();
     }
 
+    private void sendCustomReaction(final Message inReplyTo, final EmojiSearch.CustomEmoji emoji) {
+        final var message = inReplyTo.reply();
+        message.appendBody(emoji.toInsert());
+        Message.configurePrivateMessage(message);
+        new Thread(() -> activity.xmppConnectionService.sendMessage(message)).start();
+    }
+
     private void addReaction(final Message message) {
         activity.addReaction(message, reactions -> activity.xmppConnectionService.sendReactions(message,reactions));
     }
@@ -1728,8 +1733,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public void openDownloadable(Message message) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(
-                activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+                                activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
             ConversationFragment.registerPendingMessage(activity, message);
             ActivityCompat.requestPermissions(
                     activity,
@@ -1913,6 +1918,47 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected ListView link_descriptions;
         protected GithubIdenticonView thread_identicon;
         protected ChipGroup reactions;
+    }
+
+    class Thumbnailer implements GetThumbnailForCid {
+        final Account account;
+        final boolean canFetch;
+        final Jid counterpart;
+
+        public Thumbnailer(final Message message) {
+            account = message.getConversation().getAccount();
+            canFetch = message.trusted() || message.getConversation().canInferPresence();
+            counterpart = message.getCounterpart();
+        }
+
+        public Thumbnailer(final Account account, final Reaction reaction, final boolean allowFetch) {
+            canFetch = allowFetch;
+            counterpart = reaction.from;
+            this.account = account;
+        }
+
+        @Override
+        public Drawable getThumbnail(Cid cid) {
+            try {
+                DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                if (f == null || !f.canRead()) {
+                    if (!canFetch) return null;
+
+                    try {
+                        new BobTransfer(BobTransfer.uri(cid), account, counterpart, activity.xmppConnectionService).start();
+                    } catch (final NoSuchAlgorithmException | URISyntaxException e) { }
+                    return null;
+                }
+
+                Drawable d = activity.xmppConnectionService.getFileBackend().getThumbnail(f, activity.getResources(), (int) (metrics.density * 288), true);
+                if (d == null) {
+                    new ThumbnailTask().execute(f);
+                }
+                return d;
+            } catch (final IOException e) {
+                return null;
+            }
+        }
     }
 
     class ThumbnailTask extends AsyncTask<DownloadableFile, Void, Drawable[]> {

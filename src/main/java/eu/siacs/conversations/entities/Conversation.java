@@ -23,6 +23,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Gravity;
@@ -67,6 +68,8 @@ import com.caverock.androidsvg.SVG;
 import de.monocles.chat.ConversationPage;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
+import de.monocles.chat.BobTransfer;
+import de.monocles.chat.GetThumbnailForCid;
 
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
@@ -108,6 +111,7 @@ import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Function;
 
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
@@ -309,6 +313,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (asReaction(message) != null) continue;
                 if (message.isRead()) {
                     return first;
                 } else {
@@ -324,6 +329,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         synchronized (this.messages) {
             for (final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (asReaction(message) != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
                     final String serverMsgId = message.getServerMsgId();
                     if (serverMsgId != null && multi) {
@@ -735,26 +741,59 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     thread.first = m;
                 }
             }
-            final var reply = m.getReply();
-            if (reply != null && reply.getAttribute("id") != null) {
-                extraIds.add(reply.getAttribute("id"));
-                final var body = m.getBody(true).toString().replaceAll("\\s", "");
-                if (Emoticons.isEmoji(body)) {
-                    reactions.put(reply.getAttribute("id"), new Reaction(body, true, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId()));
-                    iterator.remove();
-                }
+            final var asReaction = asReaction(m);
+            if (asReaction != null) {
+                reactions.put(asReaction.first, asReaction.second);
+                iterator.remove();
             }
 
             if (m.wasMergedIntoPrevious(xmppConnectionService) || (m.getSubject() != null && !m.isOOb() && (m.getRawBody() == null || m.getRawBody().length() == 0)) || (getLockThread() && !extraIds.contains(m.replyId()) && (mthread == null || !mthread.getContent().equals(getThread() == null ? "" : getThread().getContent())))) {
                 iterator.remove();
             } else if (getLockThread() && mthread != null) {
+                final var reply = m.getReply();
+                if (reply != null && reply.getAttribute("id") != null) extraIds.add(reply.getAttribute("id"));
                 Element reactions = m.getReactionsEl();
                 if (reactions != null && reactions.getAttribute("id") != null) extraIds.add(reactions.getAttribute("id"));
             }
         }
     }
 
-    public Reaction.Aggregated aggregatedReactionsFor(Message m) {
+    protected Pair<String, Reaction> asReaction(Message m) {
+        final var reply = m.getReply();
+        if (reply != null && reply.getAttribute("id") != null) {
+            final var body = m.getBody(true).toString().replaceAll("\\s", "");
+            if (Emoticons.isEmoji(body)) {
+                return new Pair<>(reply.getAttribute("id"), new Reaction(body, null, m.getStatus() <= Message.STATUS_RECEIVED, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId()));
+            } else {
+                final var html = m.getHtml();
+                if (html == null) return null;
+
+                SpannableStringBuilder spannable = m.getSpannableBody(null, null, false);
+                ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
+                for (ImageSpan span : imageSpans) {
+                    final int start = spannable.getSpanStart(span);
+                    final int end = spannable.getSpanEnd(span);
+                    spannable.delete(start, end);
+                }
+                if (imageSpans.length == 1 && spannable.toString().replaceAll("\\s", "").length() < 1) {
+                    // Only one inline image, so it's a custom emoji by itself as a reply/reaction
+                    final var source = imageSpans[0].getSource();
+                    var shortcode = "";
+                    final var img = html.findChild("img");
+                    if (img != null) {
+                        shortcode = img.getAttribute("alt").replaceAll("(^:)|(:$)", "");
+                    }
+                    if (source != null && source.length() > 0 && source.substring(0, 4).equals("cid:")) {
+                        final Cid cid = BobTransfer.cid(Uri.parse(source));
+                        return new Pair<>(reply.getAttribute("id"), new Reaction(shortcode, cid, m.getStatus() <= Message.STATUS_RECEIVED, m.getCounterpart(), m.getTrueCounterpart(), m.getOccupantId()));
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public Reaction.Aggregated aggregatedReactionsFor(Message m, Function<Reaction, GetThumbnailForCid> thumbnailer) {
         Set<Reaction> result = new HashSet<>();
         if (getMode() == MODE_MULTI) {
             result.addAll(reactions.get(m.getServerMsgId()));
@@ -764,7 +803,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             result.addAll(reactions.get(m.getRemoteMsgId()));
         }
         result.addAll(m.getReactions());
-        return Reaction.aggregated(result);
+        return Reaction.aggregated(result, thumbnailer);
     }
 
     public Thread getThread(String id) {
@@ -934,15 +973,17 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
     public Message getLatestMessage() {
         synchronized (this.messages) {
-            if (this.messages.size() == 0) {
-                Message message = new Message(this, "", Message.ENCRYPTION_NONE);
-                message.setType(Message.TYPE_STATUS);
-                message.setTime(Math.max(getCreated(), getLastClearHistory().getTimestamp()));
-                message.setTimeReceived(Math.max(getCreated(), getLastClearHistory().getTimestamp()));
+            for(final Message message : Lists.reverse(this.messages)) {
+                if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (asReaction(message) != null) continue;
                 return message;
-            } else {
-                return this.messages.get(this.messages.size() - 1);
             }
+
+            Message message = new Message(this, "", Message.ENCRYPTION_NONE);
+            message.setType(Message.TYPE_STATUS);
+            message.setTime(Math.max(getCreated(), getLastClearHistory().getTimestamp()));
+            message.setTimeReceived(Math.max(getCreated(), getLastClearHistory().getTimestamp()));
+            return message;
         }
     }
 
@@ -1534,6 +1575,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             int count = 0;
             for(final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (asReaction(message) != null) continue;
                 final boolean muted = xmppConnectionService != null && message.getStatus() == Message.STATUS_RECEIVED && getMode() == Conversation.MODE_MULTI && xmppConnectionService.isMucUserMuted(new MucOptions.User(null, getJid(), message.getOccupantId(), null, null));
                 if (muted) continue;
                 if (message.isRead()) {
@@ -1553,6 +1595,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         synchronized (this.messages) {
             for (Message message : messages) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (asReaction(message) != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
                     ++count;
                 }
@@ -2454,7 +2497,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     float screenWidth = binding.getRoot().getContext().getResources().getDisplayMetrics().widthPixels;
                     TextPaint paint = ((TextView) LayoutInflater.from(binding.getRoot().getContext()).inflate(R.layout.radio_grid_item, null)).getPaint();
                     float maxColumnWidth = theOptions.stream().map((x) ->
-                            StaticLayout.getDesiredWidth(x.toString(), paint)
+                        StaticLayout.getDesiredWidth(x.toString(), paint)
                     ).max(Float::compare).orElse(new Float(0.0));
                     if (maxColumnWidth * theOptions.size() < 0.90 * screenWidth) {
                         binding.radios.setNumColumns(theOptions.size());
@@ -2547,22 +2590,22 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                             final SVG icon = getItem(position).getIcon();
                             if (icon != null) {
-                                final Element iconEl = getItem(position).getIconEl();
-                                if (height < 1) {
-                                    v.measure(0, 0);
-                                    height = v.getMeasuredHeight();
-                                }
-                                if (height < 1) return v;
-                                if (mediaSelector) {
-                                    final Drawable d = getDrawableForSVG(icon, iconEl, height * 4);
-                                    if (d != null) {
-                                        final int boundsHeight = 35 + (int)((height * 4) / xmppConnectionService.getResources().getDisplayMetrics().density);
-                                        d.setBounds(0, 0, d.getIntrinsicWidth(), boundsHeight);
-                                    }
-                                    v.setCompoundDrawables(null, d, null, null);
-                                } else {
-                                    v.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawableForSVG(icon, iconEl, height), null, null, null);
-                                }
+                                 final Element iconEl = getItem(position).getIconEl();
+                                 if (height < 1) {
+                                     v.measure(0, 0);
+                                     height = v.getMeasuredHeight();
+                                 }
+                                 if (height < 1) return v;
+                                 if (mediaSelector) {
+                                     final Drawable d = getDrawableForSVG(icon, iconEl, height * 4);
+                                     if (d != null) {
+                                         final int boundsHeight = 35 + (int)((height * 4) / xmppConnectionService.getResources().getDisplayMetrics().density);
+                                         d.setBounds(0, 0, d.getIntrinsicWidth(), boundsHeight);
+                                     }
+                                     v.setCompoundDrawables(null, d, null, null);
+                                 } else {
+                                     v.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawableForSVG(icon, iconEl, height), null, null, null);
+                                 }
                             }
 
                             return v;
@@ -2650,9 +2693,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                         final SVG defaultIcon = defaultOption.getIcon();
                         if (defaultIcon != null) {
-                            DisplayMetrics display = mPager.getContext().getResources().getDisplayMetrics();
-                            int height = (int)(display.heightPixels*display.density/4);
-                            binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, getDrawableForSVG(defaultIcon, defaultOption.getIconEl(), height), null, null);
+                             DisplayMetrics display = mPager.getContext().getResources().getDisplayMetrics();
+                             int height = (int)(display.heightPixels*display.density/4);
+                             binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, getDrawableForSVG(defaultIcon, defaultOption.getIconEl(), height), null, null);
                         }
 
                         binding.defaultButton.setText(defaultOption.toString());
@@ -2962,10 +3005,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                                 viewType = TYPE_CHECKBOX_FIELD;
                             }
                         } else if (
-                                range != null && range.getAttribute("min") != null && range.getAttribute("max") != null && (
-                                        "xs:integer".equals(datatype) || "xs:int".equals(datatype) || "xs:long".equals(datatype) || "xs:short".equals(datatype) || "xs:byte".equals(datatype) ||
-                                                "xs:decimal".equals(datatype) || "xs:double".equals(datatype)
-                                )
+                            range != null && range.getAttribute("min") != null && range.getAttribute("max") != null && (
+                                "xs:integer".equals(datatype) || "xs:int".equals(datatype) || "xs:long".equals(datatype) || "xs:short".equals(datatype) || "xs:byte".equals(datatype) ||
+                                "xs:decimal".equals(datatype) || "xs:double".equals(datatype)
+                            )
                         ) {
                             // has a range and is numeric, use a slider
                             viewType = TYPE_SLIDER_FIELD;
@@ -3196,8 +3239,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                             eu.siacs.conversations.xmpp.forms.Field fillableField = null;
                             for (eu.siacs.conversations.xmpp.forms.Field field : form.getFields()) {
                                 if ((field.getType() == null || (!field.getType().equals("hidden") && !field.getType().equals("fixed"))) && field.getFieldName() != null && !field.getFieldName().equals("http://jabber.org/protocol/commands#actions")) {
-                                    final var validate = field.findChild("validate", "http://jabber.org/protocol/xdata-validate");
-                                    final var range = validate == null ? null : validate.findChild("range", "http://jabber.org/protocol/xdata-validate");
+                                   final var validate = field.findChild("validate", "http://jabber.org/protocol/xdata-validate");
+                                   final var range = validate == null ? null : validate.findChild("range", "http://jabber.org/protocol/xdata-validate");
                                     fillableField = range == null ? field : null;
                                     fillableFieldCount++;
                                 }
@@ -3286,8 +3329,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 Data dataForm = null;
                 if (responseElement != null && responseElement.getName().equals("x") && responseElement.getNamespace().equals("jabber:x:data")) dataForm = Data.parse(responseElement);
                 if (mNode.equals("jabber:iq:register") &&
-                        xmppConnectionService.getPreferences().contains("onboarding_action") &&
-                        dataForm != null && dataForm.getFieldByName("gateway-jid") != null) {
+                    xmppConnectionService.getPreferences().contains("onboarding_action") &&
+                    dataForm != null && dataForm.getFieldByName("gateway-jid") != null) {
 
 
                     dataForm.put("gateway-jid", xmppConnectionService.getPreferences().getString("onboarding_action", ""));
@@ -3376,8 +3419,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                                             if (el.getName().equals("item")) {
                                                 for (Element subel : el.getChildren()) {
                                                     if (subel.getAttribute("var").equals(reportedField.getVar())) {
-                                                        itemField = subel;
-                                                        break;
+                                                       itemField = subel;
+                                                       break;
                                                     }
                                                 }
                                             }
@@ -3538,11 +3581,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                 String formType = responseElement == null ? null : responseElement.getAttribute("type");
                 if (!action.equals("cancel") &&
-                        !action.equals("prev") &&
-                        responseElement != null &&
-                        responseElement.getName().equals("x") &&
-                        responseElement.getNamespace().equals("jabber:x:data") &&
-                        formType != null && formType.equals("form")) {
+                    !action.equals("prev") &&
+                    responseElement != null &&
+                    responseElement.getName().equals("x") &&
+                    responseElement.getNamespace().equals("jabber:x:data") &&
+                    formType != null && formType.equals("form")) {
 
                     Data form = Data.parse(responseElement);
                     eu.siacs.conversations.xmpp.forms.Field actionList = form.getFieldByName("http://jabber.org/protocol/commands#actions");
@@ -3621,9 +3664,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     float screenWidth = ctx.getResources().getDisplayMetrics().widthPixels;
                     TextPaint paint = ((TextView) LayoutInflater.from(mPager.getContext()).inflate(R.layout.command_result_cell, null)).getPaint();
                     float tableHeaderWidth = reported.stream().reduce(
-                            0f,
-                            (total, field) -> total + StaticLayout.getDesiredWidth(field.getLabel().or("--------") + "\t", paint),
-                            (a, b) -> a + b
+                        0f,
+                        (total, field) -> total + StaticLayout.getDesiredWidth(field.getLabel().or("--------") + "\t", paint),
+                        (a, b) -> a + b
                     );
 
                     spanCount = tableHeaderWidth > 0.59 * screenWidth ? 1 : this.reported.size();
@@ -3715,11 +3758,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             }
 
             private Drawable getDrawableForSVG(SVG svg, Element svgElement, int size) {
-                if (svgElement != null && svgElement.getChildren().size() == 1 && svgElement.getChildren().get(0).getName().equals("image"))  {
-                    return getDrawableForUrl(svgElement.getChildren().get(0).getAttribute("href"));
-                } else {
-                    return xmppConnectionService.getFileBackend().drawSVG(svg, size);
-                }
+               if (svgElement != null && svgElement.getChildren().size() == 1 && svgElement.getChildren().get(0).getName().equals("image"))  {
+                   return getDrawableForUrl(svgElement.getChildren().get(0).getAttribute("href"));
+               } else {
+                   return xmppConnectionService.getFileBackend().drawSVG(svg, size);
+               }
             }
 
             private Drawable getDrawableForUrl(final String url) {
@@ -3835,8 +3878,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     final var packet = new Iq(Iq.Type.SET);
                     packet.setTo(response.getFrom());
                     final Element form = packet
-                            .addChild("query", "http://jabber.org/protocol/muc#owner")
-                            .addChild("x", "jabber:x:data");
+                        .addChild("query", "http://jabber.org/protocol/muc#owner")
+                        .addChild("x", "jabber:x:data");
                     form.setAttribute("type", "cancel");
                     xmppConnectionService.sendIqPacket(getAccount(), packet, null);
                     return true;
@@ -3849,14 +3892,14 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                 String formType = responseElement == null ? null : responseElement.getAttribute("type");
                 if (responseElement != null &&
-                        responseElement.getName().equals("x") &&
-                        responseElement.getNamespace().equals("jabber:x:data") &&
-                        formType != null && formType.equals("form")) {
+                    responseElement.getName().equals("x") &&
+                    responseElement.getNamespace().equals("jabber:x:data") &&
+                    formType != null && formType.equals("form")) {
 
                     responseElement.setAttribute("type", "submit");
                     packet
-                            .addChild("query", "http://jabber.org/protocol/muc#owner")
-                            .addChild(responseElement);
+                        .addChild("query", "http://jabber.org/protocol/muc#owner")
+                        .addChild(responseElement);
                 }
 
                 executing = true;

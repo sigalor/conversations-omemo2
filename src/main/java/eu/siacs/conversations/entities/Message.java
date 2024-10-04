@@ -1091,10 +1091,14 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public SpannableStringBuilder getSpannableBody(GetThumbnailForCid thumbnailer, Drawable fallbackImg) {
+        return getSpannableBody(thumbnailer, fallbackImg, true);
+    }
+
+    public SpannableStringBuilder getSpannableBody(GetThumbnailForCid thumbnailer, Drawable fallbackImg, final boolean includeReplyTo) {
         SpannableStringBuilder spannableBody;
         final Element html = getHtml();
         if (html == null || Build.VERSION.SDK_INT < 24) {
-            spannableBody = new SpannableStringBuilder(MessageUtils.filterLtrRtl(getBody(getInReplyTo() != null)).trim());
+            spannableBody = new SpannableStringBuilder(MessageUtils.filterLtrRtl(getBody(includeReplyTo && getInReplyTo() != null)).trim());
             spannableBody.setSpan(PLAIN_TEXT_SPAN, 0, spannableBody.length(), 0); // Let adapter know it can do more formatting
         } else {
             SpannableStringBuilder spannable = new SpannableStringBuilder(Html.fromHtml(
@@ -1143,7 +1147,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             spannableBody = (SpannableStringBuilder) spannable.subSequence(0, i+1);
         }
 
-        if (getInReplyTo() != null && getModerated() == null) {
+        if (includeReplyTo && getInReplyTo() != null && getModerated() == null) {
             // Don't show quote if it's the message right before us
             if (prev() != null && prev().getUuid().equals(getInReplyTo().getUuid())) return spannableBody;
 
