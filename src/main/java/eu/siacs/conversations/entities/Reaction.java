@@ -207,13 +207,12 @@ public class Reaction {
     }
 
     public static Aggregated aggregated(final Collection<Reaction> reactions, Function<Reaction, GetThumbnailForCid> thumbnailer) {
-        final Map<EmojiSearch.Emoji, Integer> aggregatedReactions =
-                Maps.transformValues(
-                        Multimaps.index(reactions, r -> r.cid == null ? new EmojiSearch.Emoji(r.reaction, 0) : new EmojiSearch.CustomEmoji(r.reaction, r.cid.toString(), thumbnailer.apply(r).getThumbnail(r.cid), null)).asMap(), Collection::size);
-        final List<Map.Entry<EmojiSearch.Emoji, Integer>> sortedList =
+        final Map<EmojiSearch.Emoji, Collection<Reaction>> aggregatedReactions =
+                        Multimaps.index(reactions, r -> r.cid == null ? new EmojiSearch.Emoji(r.reaction, 0) : new EmojiSearch.CustomEmoji(r.reaction, r.cid.toString(), thumbnailer.apply(r).getThumbnail(r.cid), null)).asMap();
+        final List<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>> sortedList =
                 Ordering.from(
                                 Comparator.comparingInt(
-                                        (Map.Entry<EmojiSearch.Emoji, Integer> o) -> o.getValue()))
+                                        (Map.Entry<EmojiSearch.Emoji, Collection<Reaction>> o) -> o.getValue().size()))
                         .reverse()
                         .immutableSortedCopy(aggregatedReactions.entrySet());
         return new Aggregated(
@@ -226,11 +225,11 @@ public class Reaction {
 
     public static final class Aggregated {
 
-        public final List<Map.Entry<EmojiSearch.Emoji, Integer>> reactions;
+        public final List<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>> reactions;
         public final Set<String> ourReactions;
 
         private Aggregated(
-                final List<Map.Entry<EmojiSearch.Emoji, Integer>> reactions, Set<String> ourReactions) {
+                final List<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>> reactions, Set<String> ourReactions) {
             this.reactions = reactions;
             this.ourReactions = ourReactions;
         }

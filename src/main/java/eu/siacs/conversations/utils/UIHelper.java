@@ -39,6 +39,7 @@ import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.Presence;
+import eu.siacs.conversations.entities.Reaction;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -501,6 +502,22 @@ public class UIHelper {
 
             }
         }
+    }
+
+    public static String getDisplayName(final Conversational conversation, final Reaction reaction) {
+        if (conversation.getMode() == Conversation.MODE_MULTI) {
+            if (conversation instanceof Conversation) {
+                MucOptions.User user = ((Conversation) conversation).getMucOptions().findUserByFullJid(reaction.trueJid);
+                if (user == null) user = ((Conversation) conversation).getMucOptions().findUserByOccupantId(reaction.occupantId, reaction.from);
+                if (user != null) {
+                    final String dname = getDisplayName(user);
+                    if (dname != null) return dname;
+                }
+            }
+            return getDisplayedMucCounterpart(reaction.from);
+        }
+
+        return conversation == null ? reaction.from.asBareJid().toString() : conversation.getAccount().getRoster().getContact(reaction.from).getDisplayName();
     }
 
     public static String getMessageHint(final Context context,final  Conversation conversation) {

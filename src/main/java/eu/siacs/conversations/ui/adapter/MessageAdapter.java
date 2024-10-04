@@ -1613,6 +1613,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final var aggregatedReactions = conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message, reactionThumbnailer) : message.getAggregatedReactions();
             BindingAdapters.setReactionsOnReceived(
                     viewHolder.reactions,
+                    conversation instanceof Conversation ? (Conversation) conversation : null,
                     aggregatedReactions,
                     reactions -> sendReactions(message, reactions),
                     emoji -> sendCustomReaction(message, emoji),
@@ -1621,6 +1622,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final var aggregatedReactions = conversation instanceof Conversation ? ((Conversation) conversation).aggregatedReactionsFor(message, reactionThumbnailer) : message.getAggregatedReactions();
             BindingAdapters.setReactionsOnReceived(
                     viewHolder.reactions,
+                    conversation instanceof Conversation ? (Conversation) conversation : null,
                     aggregatedReactions,
                     reactions -> sendReactions(message, reactions),
                     emoji -> sendCustomReaction(message, emoji),

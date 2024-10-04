@@ -9,37 +9,43 @@ import de.monocles.chat.EmojiSearch;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Reaction;
+import eu.siacs.conversations.utils.UIHelper;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class BindingAdapters {
 
     public static void setReactionsOnReceived(
             final ChipGroup chipGroup,
+            final Conversation conversation,
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions,
             final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
             final Runnable addReaction) {
-        setReactions(chipGroup, reactions, true, onModifiedReactions, onCustomReaction, addReaction);
+        setReactions(chipGroup, conversation, reactions, true, onModifiedReactions, onCustomReaction, addReaction);
     }
 
     public static void setReactionsOnSent(
             final ChipGroup chipGroup,
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions) {
-        setReactions(chipGroup, reactions, false, onModifiedReactions, null, null);
+        setReactions(chipGroup, null, reactions, false, onModifiedReactions, null, null);
     }
 
     private static void setReactions(
             final ChipGroup chipGroup,
+            final Conversation conversation,
             final Reaction.Aggregated aggregated,
             final boolean onReceived,
             final Consumer<Collection<String>> onModifiedReactions,
@@ -49,7 +55,7 @@ public class BindingAdapters {
         final var size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
         final var corner = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
         final var layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, size);
-        final List<Map.Entry<EmojiSearch.Emoji, Integer>> reactions = aggregated.reactions;
+        final List<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>> reactions = aggregated.reactions;
         if (reactions == null || reactions.isEmpty()) {
             chipGroup.setVisibility(View.GONE);
         } else {
@@ -57,7 +63,7 @@ public class BindingAdapters {
             chipGroup.setVisibility(View.VISIBLE);
             for (final var reaction : reactions) {
                 final var emoji = reaction.getKey();
-                final var count = reaction.getValue();
+                final var count = reaction.getValue().size();
                 final Chip chip = new Chip(chipGroup.getContext());
                 //chip.setEnsureMinTouchTargetSize(false);
                 chip.setChipMinHeight(size-32.0f);
@@ -101,6 +107,14 @@ public class BindingAdapters {
                                 }
                             }
                         });
+                chip.setOnLongClickListener(v -> {
+                    final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+                    builder.setTitle(emoji.toString());
+                    builder.setMessage(reaction.getValue().stream().map(r -> UIHelper.getDisplayName(conversation, r)).collect(Collectors.joining("\n")));
+                    builder.setPositiveButton(context.getResources().getString(R.string.ok), null);
+                    builder.create().show();
+                    return true;
+                });
                 chipGroup.addView(chip);
             }
             if (addReaction != null) {
