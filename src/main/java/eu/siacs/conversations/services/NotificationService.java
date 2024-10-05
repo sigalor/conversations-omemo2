@@ -64,6 +64,7 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.entities.Reaction;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.ConversationsActivity;
@@ -85,6 +86,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -521,6 +523,26 @@ public class NotificationService {
     }
 
     public void push(final Message message) {
+        synchronized (CATCHUP_LOCK) {
+            final XmppConnection connection =
+                    message.getConversation().getAccount().getXmppConnection();
+            if (connection != null && connection.isWaitingForSmCatchup()) {
+                connection.incrementSmCatchupMessageCounter();
+                pushFromBacklog(message);
+            } else {
+                pushNow(message);
+            }
+        }
+    }
+
+    public void push(final Message reactingTo, final Jid counterpart, final String occupantId, final Collection<String> newReactions) {
+        if (newReactions.isEmpty()) return;
+
+        final var message = reactingTo.reply();
+        message.appendBody(String.join(" ", newReactions));
+        message.setCounterpart(counterpart);
+        message.setOccupantId(occupantId);
+        message.setStatus(Message.STATUS_RECEIVED);
         synchronized (CATCHUP_LOCK) {
             final XmppConnection connection =
                     message.getConversation().getAccount().getXmppConnection();

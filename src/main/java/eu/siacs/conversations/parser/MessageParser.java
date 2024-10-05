@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import eu.siacs.conversations.crypto.OtrService;
 import eu.siacs.conversations.entities.Presence;
@@ -1432,6 +1434,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     // TODO use occupant id for isSelf assessment
                     final boolean isReceived = !mucOptions.isSelf(counterpart);
                     if (occupantId != null && message != null) {
+                        final var newReactions = new HashSet<>(reactions.getReactions());
+                        newReactions.removeAll(message.getReactions().stream().filter(r -> occupantId.equals(r.occupantId)).map(r -> r.reaction).collect(Collectors.toList()));
                         final var combinedReactions =
                                 Reaction.withOccupantId(
                                         message.getReactions(),
@@ -1443,6 +1447,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                         message.getRemoteMsgId());
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
+                        if (!isCarbon) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
                     } else {
                         Log.d(Config.LOGTAG,"not found occupant or message");
                     }
@@ -1459,6 +1464,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                     }
                     packet.fromAccount(account);
                     if (message != null) {
+                        final var newReactions = new HashSet<>(reactions.getReactions());
+                        newReactions.removeAll(message.getReactions().stream().filter(r -> reactionFrom.equals(r.from)).map(r -> r.reaction).collect(Collectors.toList()));
                         final var combinedReactions =
                                 Reaction.withFrom(
                                         message.getReactions(),
@@ -1468,6 +1475,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                         message.getRemoteMsgId());
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
+                        if (!isCarbon) mXmppConnectionService.getNotificationService().push(message, counterpart, null, newReactions);
                     }
                 }
             }
