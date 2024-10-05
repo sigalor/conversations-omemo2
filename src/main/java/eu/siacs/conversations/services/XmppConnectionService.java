@@ -5381,13 +5381,9 @@ public class XmppConnectionService extends Service {
             if (conversation.getMode() == Conversational.MODE_MULTI) {
                 final var self = conversation.getMucOptions().getSelf();
                 final String occupantId = self.getOccupantId();
-                if (Strings.isNullOrEmpty(occupantId)) {
-                    Log.d(Config.LOGTAG, "occupant id not found for reaction in MUC");
-                    return false;
-                }
                 reactToId = message.getServerMsgId();
                 combinedReactions =
-                        Reaction.withOccupantId(
+                        Reaction.withMine(
                                 message.getReactions(),
                                 reactions,
                                 false,
