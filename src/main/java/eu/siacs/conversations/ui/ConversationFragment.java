@@ -1777,6 +1777,7 @@ public class ConversationFragment extends XmppFragment
 
                         @Override
                         protected Adapter instantiateAdapter() {
+                            setupEmojiSearch();
                             adapter = emojiSearch.makeAdapter(item -> dispatchClick(item));
                             return adapter;
                         }
@@ -1816,10 +1817,6 @@ public class ConversationFragment extends XmppFragment
 
     protected void setupEmojiSearch() {
         if (activity != null && activity.xmppConnectionService != null) {
-            if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) {
-                emojiSearch = null;
-                return;
-            }
             if (emojiSearch == null) {
                 emojiSearch = activity.xmppConnectionService.emojiSearch();
             }
