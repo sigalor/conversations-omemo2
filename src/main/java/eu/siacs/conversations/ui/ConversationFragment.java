@@ -1189,6 +1189,7 @@ public class ConversationFragment extends XmppFragment
 
     protected boolean trustKeysIfNeeded(int requestCode) {
         AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+        if (axolotlService == null) return false;
         final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
         boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
         boolean hasUndecidedOwn =
