@@ -5378,6 +5378,8 @@ public class XmppConnectionService extends Service {
         if (message.getConversation() instanceof Conversation conversation) {
             final String reactToId;
             final Collection<Reaction> combinedReactions;
+            final var newReactions = new HashSet<>(reactions);
+            newReactions.removeAll(message.getAggregatedReactions().ourReactions);
             if (conversation.getMode() == Conversational.MODE_MULTI) {
                 final var self = conversation.getMucOptions().getSelf();
                 final String occupantId = self.getOccupantId();
@@ -5409,7 +5411,7 @@ public class XmppConnectionService extends Service {
                 return false;
             }
             final var reactionMessage =
-                    mMessageGenerator.reaction(conversation, message, reactToId, reactions);
+                    mMessageGenerator.reaction(conversation, message, reactToId, reactions, newReactions);
             sendMessagePacket(conversation.getAccount(), reactionMessage);
             message.setReactions(combinedReactions);
             updateMessage(message, false);

@@ -236,7 +236,7 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public im.conversations.android.xmpp.model.stanza.Message reaction(final Conversational conversation, final Message inReplyTo, final String reactingTo, final Collection<String> ourReactions) {
+    public im.conversations.android.xmpp.model.stanza.Message reaction(final Conversational conversation, final Message inReplyTo, final String reactingTo, final Collection<String> ourReactions, final Collection<String> newReactions) {
         final boolean groupChat = conversation.getMode() == Conversational.MODE_MULTI;
         final Jid to = conversation.getJid().asBareJid();
         final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
@@ -248,20 +248,22 @@ public class MessageGenerator extends AbstractGenerator {
             reactions.addExtension(new Reaction(ourReaction));
         }
 
-        final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(inReplyTo)) + "\n";
-        packet.setBody(quote + String.join(" ", ourReactions));
+        if (newReactions.size() > 0) {
+            final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(inReplyTo)) + "\n";
+            packet.setBody(quote + String.join(" ", newReactions));
 
-        packet.addChild("reply", "urn:xmpp:reply:0")
+            packet.addChild("reply", "urn:xmpp:reply:0")
                 .setAttribute("to", inReplyTo.getCounterpart())
                 .setAttribute("id", reactingTo);
-        final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
-        replyFallback.addChild("body", "urn:xmpp:fallback:0")
+            final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
+            replyFallback.addChild("body", "urn:xmpp:fallback:0")
                 .setAttribute("start", "0")
                 .setAttribute("end", "" + quote.codePointCount(0, quote.length()));
 
 
-        final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
-        fallback.addChild("body", "urn:xmpp:fallback:0");
+            final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
+            fallback.addChild("body", "urn:xmpp:fallback:0");
+        }
 
         final var thread = inReplyTo.getThread();
         if (thread != null) packet.addChild(thread);
