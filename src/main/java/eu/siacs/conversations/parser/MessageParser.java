@@ -941,7 +941,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                             .equals(message.getOccupantId());
                     final boolean mucUserMatches = query == null && replacedMessage.sameMucUser(message); //can not be checked when using mam
                     final boolean duplicate = conversation.hasDuplicateMessage(message);
-                    if (fingerprintsMatch && (trueCountersMatch || occupantIdMatch || !conversationMultiMode || mucUserMatches) && !duplicate) {
+                    if (fingerprintsMatch && (trueCountersMatch || occupantIdMatch || !conversationMultiMode || mucUserMatches || counterpart.isBareJid()) && !duplicate) {
                         synchronized (replacedMessage) {
                             final String uuid = replacedMessage.getUuid();
                             replacedMessage.setUuid(UUID.randomUUID().toString());
