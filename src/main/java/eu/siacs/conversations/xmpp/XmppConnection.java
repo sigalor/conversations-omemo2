@@ -2190,7 +2190,10 @@ public class XmppConnection implements Runnable {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": server caps came from cache");
             disco.put(account.getDomain(), discoveryResult);
         }
-        discoverMamPreferences();
+        final var features = getFeatures();
+        if (!features.bind2()) {
+            discoverMamPreferences();
+        }
         sendServiceDiscoveryInfo(account.getJid().asBareJid());
         if (!requestDiscoItemsFirst) {
             sendServiceDiscoveryItems(account.getDomain());
