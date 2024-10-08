@@ -43,6 +43,7 @@ import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
 import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -390,18 +391,20 @@ public class CallIntegrationConnectionService extends ConnectionService {
         }
     }
 
-    private static PhoneAccountHandle findPhoneAccount(final Context context, final AbstractJingleConnection.Id id) {
+    private static ArrayList<PhoneAccountHandle> findPhoneAccount(final Context context, final AbstractJingleConnection.Id id) {
         final var def = CallIntegrationConnectionService.getHandle(context, id.account);
-        if (Build.VERSION.SDK_INT < 23) return def;
+        final var lst = new ArrayList<PhoneAccountHandle>();
+        lst.add(def);
+        if (Build.VERSION.SDK_INT < 23) return lst;
 
         final var prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!prefs.getBoolean("dialler_integration_incoming", true)) return def;
+        if (!prefs.getBoolean("dialler_integration_incoming", true)) return lst;
 
         if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             // We cannot request audio permission in Dialer UI
             // when Dialer is shown over keyguard, the user cannot even necessarily
             // see notifications.
-            return def;
+            return lst;
         }
 
         /* Are video calls really coming in from a PSTN gateway?
@@ -421,10 +424,10 @@ public class CallIntegrationConnectionService extends ConnectionService {
             }
 
             final var handle = contact.phoneAccountHandle();
-            if (handle != null) return handle;
+            if (handle != null) lst.add(0, handle);
         }
 
-        return def;
+        return lst;
     }
 
     public static boolean addNewIncomingCall(
@@ -440,7 +443,7 @@ public class CallIntegrationConnectionService extends ConnectionService {
                             + ")");
             return true;
         }
-        final var phoneAccountHandle = findPhoneAccount(context, id);
+        final var phoneAccountHandles = findPhoneAccount(context, id);
         final var bundle = new Bundle();
         bundle.putString(
                 TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
@@ -450,17 +453,19 @@ public class CallIntegrationConnectionService extends ConnectionService {
         extras.putString("account", id.account.getJid().toString());
         extras.putString("with", id.with.toString());
         bundle.putBundle(TelecomManager.EXTRA_INCOMING_CALL_EXTRAS, extras);
-        try {
-            context.getSystemService(TelecomManager.class)
-                    .addNewIncomingCall(phoneAccountHandle, bundle);
-        } catch (final SecurityException e) {
-            Log.e(
-                    Config.LOGTAG,
-                    id.account.getJid().asBareJid() + ": call integration not available",
-                    e);
-            return false;
+        for (final var phoneAccountHandle : phoneAccountHandles) {
+            try {
+                context.getSystemService(TelecomManager.class)
+                        .addNewIncomingCall(phoneAccountHandle, bundle);
+                return true;
+            } catch (final SecurityException e) {
+                Log.e(
+                        Config.LOGTAG,
+                        id.account.getJid().asBareJid() + ": call integration not available",
+                        e);
+            }
         }
-        return true;
+        return false;
     }
 
     public static class ServiceConnectionService {
