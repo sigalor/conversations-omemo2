@@ -398,7 +398,6 @@ public class HttpDownloadConnection implements Transferable {
                 decryptIfNeeded();
                 finish();
                 updateImageBounds();
-                if (cb != null) cb.accept(file);
             } catch (final SSLHandshakeException e) {
                 changeStatus(STATUS_OFFER);
             } catch (final Exception e) {
@@ -410,6 +409,8 @@ public class HttpDownloadConnection implements Transferable {
                     HttpDownloadConnection.this.mXmppConnectionService.getNotificationService().push(message);
                 }
                 cancel();
+            } finally {
+                if (cb != null) cb.accept(file);
             }
         }
 
