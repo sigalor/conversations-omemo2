@@ -2,6 +2,8 @@ package eu.siacs.conversations.ui;
 
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.telephony.TelephonyManager;
 
 import android.Manifest;
@@ -41,6 +43,7 @@ import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +53,7 @@ import android.webkit.ValueCallback;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.BoolRes;
@@ -57,6 +61,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.color.MaterialColors;
@@ -328,12 +333,11 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     public void addReaction(final Message message, Consumer<Collection<String>> callback) {
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        PopupWindow popupWindow = new PopupWindow(this);
         final var layoutInflater = this.getLayoutInflater();
         final DialogAddReactionBinding viewBinding =
                 DataBindingUtil.inflate(layoutInflater, R.layout.dialog_add_reaction, null, false);
-        builder.setView(viewBinding.getRoot());
-        final var dialog = builder.create();
+        popupWindow.setContentView(viewBinding.getRoot());
         for (final String emoji : Reaction.SUGGESTIONS) {
             final Button button =
                     (Button)
@@ -353,10 +357,13 @@ public abstract class XmppActivity extends ActionBarActivity {
                             reactionBuilder.add(emoji);
                             callback.accept(reactionBuilder.build());
                         }
-                        dialog.dismiss();
+                        popupWindow.dismiss();
                     });
         }
-        dialog.show();
+        popupWindow.setAnimationStyle(androidx.appcompat.R.style.Animation_AppCompat_Tooltip);
+        popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(this,R.drawable.reactions_bubble));
+        popupWindow.setFocusable(true);
+        popupWindow.showAtLocation(viewBinding.getRoot(), Gravity.CENTER, 0, 0);
     }
 
     protected void deleteAccount(final Account account) {

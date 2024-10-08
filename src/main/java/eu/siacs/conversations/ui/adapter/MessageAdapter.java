@@ -1362,20 +1362,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
             return view;
         } else {
-            // viewHolder.message_box.setClipToOutline(true); This eats the bubble tails on A14 for some reason
+            viewHolder.message_box.setClipToOutline(true); //This eats the bubble tails on A14 for some reason
             AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
 
-        if (activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            viewHolder.message_box.setOnClickListener(v -> {
-                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    MessageAdapter.this.mOnMessageBoxClickedListener
-                            .onContactPictureClicked(message);
-                }
-            });
-        }
+        viewHolder.message_box.setOnClickListener(v -> {
+            if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                MessageAdapter.this.mOnMessageBoxClickedListener
+                        .onContactPictureClicked(message);
+            }
+        });
 
 
         // monocles swipe feature

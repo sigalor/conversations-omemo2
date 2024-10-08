@@ -1623,13 +1623,14 @@ public class ConversationFragment extends XmppFragment
             this.binding.textinput.setCustomInsertionActionModeCallback(
                     new EditMessageActionModeCallback(this.binding.textinput));
         }
-        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
-            messageListAdapter.setOnMessageBoxClicked(message -> {
+        messageListAdapter.setOnMessageBoxClicked(message -> {
+            if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 if (message.isPrivateMessage()) privateMessageWith(message.getCounterpart());
                 setThread(message.getThread());
                 conversation.setUserSelectedThread(true);
-            });
-        }
+            }
+            addReaction(message);
+        });
 
         messageListAdapter.setOnMessageBoxSwiped(message -> {
             quoteMessage(message);
@@ -2021,7 +2022,7 @@ public class ConversationFragment extends XmppFragment
                     reportAndBlock.setVisible(true);
                 }
             }
-            addReaction.setVisible(!showError && !m.isDeleted());
+            // addReaction.setVisible(!showError && !m.isDeleted());
             if (!m.isFileOrImage()
                     && !encrypted
                     && !m.isGeoUri()
