@@ -77,7 +77,7 @@ public class MessageUtils {
         return builder.toString();
     }
 
-    public static boolean treatAsDownloadable(final String body, final boolean oob) {
+    public static boolean treatAsDownloadable(final String body, final boolean oob, final boolean legacyEncryption) {
         if (oob) return true;
 
         final String[] lines = body.split("\n");
@@ -104,7 +104,7 @@ public class MessageUtils {
         final boolean followedByDataUri = lines.length == 2 && lines[1].startsWith("data:");
         final boolean validAesGcm = AesGcmURL.PROTOCOL_NAME.equalsIgnoreCase(protocol) && encrypted && (lines.length == 1 || followedByDataUri);
         final boolean validProtocol = "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
-        final boolean validOob = validProtocol && (oob || encrypted) && lines.length == 1;
+        final boolean validOob = validProtocol && (oob || encrypted || (legacyEncryption && uri.getPath() != null && (uri.getPath().endsWith(".xdc") || uri.getPath().endsWith(".webp") || uri.getPath().endsWith(".gif") || uri.getPath().endsWith(".png")))) && lines.length == 1;
         return validAesGcm || validOob;
     }
 

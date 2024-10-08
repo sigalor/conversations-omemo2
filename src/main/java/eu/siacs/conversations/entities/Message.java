@@ -1401,7 +1401,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public synchronized boolean treatAsDownloadable() {
         if (treatAsDownloadable == null) {
-            treatAsDownloadable = MessageUtils.treatAsDownloadable(this.body, isOOb());
+            treatAsDownloadable = MessageUtils.treatAsDownloadable(this.body, isOOb(), encryption != ENCRYPTION_NONE);
         }
         return treatAsDownloadable;
     }
