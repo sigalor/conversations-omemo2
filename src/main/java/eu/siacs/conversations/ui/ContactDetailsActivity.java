@@ -657,6 +657,25 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.tags.addView(tv);
                 }
             }
+            if (contact.getJid().isDomainJid()) {
+                for (final var p : contact.getPresences().getPresences()) {
+                    final var disco = p.getServiceDiscoveryResult();
+                    if (disco == null) continue;
+                    for (final var identity : disco.getIdentities()) {
+                        final var txt = identity.getCategory() + "/" + identity.getType();
+                        final TextView tv =
+                            (TextView)
+                                    inflater.inflate(
+                                            R.layout.item_tag, binding.tags, false);
+                        tv.setText(txt);
+                        tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(this,XEP0392Helper.rgbFromNick(txt))));
+                        final int id = ViewCompat.generateViewId();
+                        tv.setId(id);
+                        viewIdBuilder.add(id);
+                        binding.tags.addView(tv);
+                    }
+                }
+            }
             binding.flowWidget.setReferencedIds(Ints.toArray(viewIdBuilder.build()));
         }
 
