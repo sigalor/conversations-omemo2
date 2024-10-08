@@ -1845,6 +1845,8 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnMessageBoxClicked(null);
         messageListAdapter.setOnMessageBoxSwiped(null);
         binding.conversationViewPager.setAdapter(null);
+        unregisterForContextMenu(binding.messagesView);
+        unregisterForContextMenu(binding.textSendButton);
         if (conversation != null) conversation.setupViewPager(null, null, false, null);
     }
 
