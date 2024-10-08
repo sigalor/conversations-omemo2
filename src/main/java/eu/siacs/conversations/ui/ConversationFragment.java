@@ -1784,6 +1784,13 @@ public class ConversationFragment extends XmppFragment
                         }
 
                         @Override
+                        protected void onViewHidden() {
+                            if (getRecyclerView() == null) return;
+                            try { getRecyclerView().getItemAnimator().endAnimations(); } catch (final Exception e) { }
+                            super.onViewHidden();
+                        }
+
+                        @Override
                         protected void onQuery(@Nullable CharSequence query) {
                             if (activity != null && activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete))
                                 return;
@@ -1791,8 +1798,7 @@ public class ConversationFragment extends XmppFragment
                             emojiDebounce.removeCallbacksAndMessages(null);
                             emojiDebounce.postDelayed(() -> {
                                 if (getRecyclerView() == null) return;
-                                try { getRecyclerView().getItemAnimator().endAnimations(); } catch (final Exception e) {  }
-                                adapter.search(activity, query.toString());
+                                adapter.search(activity, getRecyclerView(), query.toString());
                             }, 100L);
                         }
                     })

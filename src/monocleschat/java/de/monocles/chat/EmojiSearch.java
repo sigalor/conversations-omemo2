@@ -291,13 +291,14 @@ public class EmojiSearch {
 			});
 		}
 
-		public void search(final Activity activity, final String q) {
+		public void search(final Activity activity, final RecyclerView view, final String q) {
 			executor.execute(() -> {
 				final List<Emoji> results = find(q);
 				try {
 					// Acquire outside so to not block UI thread
 					doingUpdate.acquire();
 					activity.runOnUiThread(() -> {
+						try { view.getItemAnimator().endAnimations(); } catch (final Exception e) {  }
 						submitList(results, () -> {
 							activity.runOnUiThread(() -> doingUpdate.release());
 						});
