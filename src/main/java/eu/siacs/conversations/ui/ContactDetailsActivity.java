@@ -666,7 +666,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                         final TextView tv =
                             (TextView)
                                     inflater.inflate(
-                                            R.layout.item_tag, binding.tags, false);
+                                            R.layout.list_item_tag, binding.tags, false);
                         tv.setText(txt);
                         tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(this,XEP0392Helper.rgbFromNick(txt))));
                         final int id = ViewCompat.generateViewId();
