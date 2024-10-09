@@ -236,7 +236,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         final long diff = SystemClock.elapsedRealtime() - mLastUiRefresh;
         if (diff > Config.REFRESH_UI_INTERVAL) {
             mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
-            runOnUiThread(mRefreshUiRunnable);
+            mRefreshUiHandler.postDelayed(mRefreshUiRunnable, 1);
         } else {
             final long next = Config.REFRESH_UI_INTERVAL - diff;
             mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
