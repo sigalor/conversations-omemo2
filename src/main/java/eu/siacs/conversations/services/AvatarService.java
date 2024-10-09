@@ -119,7 +119,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 			avatar = mXmppConnectionService.getFileBackend().getAvatar(contact.getAvatarFilename(), size);
 		}
 		if (avatar == null) {
-			avatar = get(contact.getDisplayName(), contact.getJid().asBareJid().toString(), size, false);
+			avatar = get(contact.getDisplayName(), contact.getJid().asBareJid().toString(), size, cachedOnly);
 		}
 		if (avatar != null) this.mXmppConnectionService.getDrawableCache().put(KEY, avatar);
 		return avatar;
