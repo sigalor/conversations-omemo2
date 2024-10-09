@@ -1363,7 +1363,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             return view;
         } else {
             viewHolder.message_box.setClipToOutline(true); //This eats the bubble tails on A14 for some reason
-            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_conversation_overview);
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
