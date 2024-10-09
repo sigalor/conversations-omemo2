@@ -1807,6 +1807,12 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             }
 
             if (mPager == null) {
+                if (page1 != null && page1.getParent() != null) {
+                    ((ViewGroup) page1.getParent()).removeView(page1);
+                }
+                if (page2 != null && page2.getParent() != null) {
+                    ((ViewGroup) page2.getParent()).removeView(page2);
+                }
                 page1 = null;
                 page2 = null;
                 return;
