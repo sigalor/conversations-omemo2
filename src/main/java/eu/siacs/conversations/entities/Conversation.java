@@ -89,6 +89,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.security.interfaces.DSAPublicKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -1789,54 +1790,48 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     }
 
     public class ConversationPagerAdapter extends PagerAdapter {
-        protected ViewPager mPager = null;
-        protected TabLayout mTabs = null;
+        protected WeakReference<ViewPager> mPager = new WeakReference(null);
+        protected WeakReference<TabLayout> mTabs = new WeakReference(null);
         ArrayList<ConversationPage> sessions = null;
-        protected View page1 = null;
-        protected View page2 = null;
+        protected WeakReference<View> page1 = new WeakReference(null);
+        protected WeakReference<View> page2 = new WeakReference(null);
         protected boolean mOnboarding = false;
 
         public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
-            mPager = pager;
-            mTabs = tabs;
+            mPager = new WeakReference(pager);
+            mTabs = new WeakReference(tabs);
             mOnboarding = onboarding;
 
             if (oldConversation != null) {
-                oldConversation.pagerAdapter.mPager = null;
-                oldConversation.pagerAdapter.mTabs = null;
+                oldConversation.pagerAdapter.mPager.clear();
+                oldConversation.pagerAdapter.mTabs.clear();
             }
 
-            if (mPager == null) {
-                if (page1 != null && page1.getParent() != null) {
-                    ((ViewGroup) page1.getParent()).removeView(page1);
-                }
-                if (page2 != null && page2.getParent() != null) {
-                    ((ViewGroup) page2.getParent()).removeView(page2);
-                }
-                page1 = null;
-                page2 = null;
+            if (pager == null) {
+                page1.clear();
+                page2.clear();
                 return;
             }
             if (sessions != null) show();
 
-            if (pager.getChildAt(0) != null) page1 = pager.getChildAt(0);
-            if (pager.getChildAt(1) != null) page2 = pager.getChildAt(1);
-            if (page2 != null && page2.findViewById(R.id.commands_view) == null) {
-                page1 = null;
-                page2 = null;
+            if (pager.getChildAt(0) != null) page1 = new WeakReference(pager.getChildAt(0));
+            if (pager.getChildAt(1) != null) page2 = new WeakReference(pager.getChildAt(1));
+            if (page2.get() != null && page2.get().findViewById(R.id.commands_view) == null) {
+                page1.clear();
+                page2.clear();
             }
-            if (page1 == null) page1 = oldConversation.pagerAdapter.page1;
-            if (page2 == null) page2 = oldConversation.pagerAdapter.page2;
-            if (page1 == null || page2 == null) {
+            if (page1.get() == null) page1 = new WeakReference(oldConversation.pagerAdapter.page1);
+            if (page2.get() == null) page2 = new WeakReference(oldConversation.pagerAdapter.page2);
+            if (page1.get() == null || page2.get() == null) {
                 throw new IllegalStateException("page1 or page2 were not present as child or in model?");
             }
-            pager.removeView(page1);
-            pager.removeView(page2);
+            pager.removeView(page1.get());
+            pager.removeView(page2.get());
             pager.setAdapter(this);
-            tabs.setupWithViewPager(mPager);
+            tabs.setupWithViewPager(pager);
             pager.post(() -> pager.setCurrentItem(getCurrentTab()));
 
-            mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 public void onPageScrollStateChanged(int state) { }
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
@@ -1851,13 +1846,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 sessions = new ArrayList<>();
                 notifyDataSetChanged();
             }
-            if (!mOnboarding && mTabs != null) mTabs.setVisibility(View.VISIBLE);
+            if (!mOnboarding && mTabs.get() != null) mTabs.get().setVisibility(View.VISIBLE);
         }
 
         public void hide() {
             if (sessions != null && !sessions.isEmpty()) return; // Do not hide during active session
-            if (mPager != null) mPager.setCurrentItem(0);
-            if (mTabs != null) mTabs.setVisibility(View.GONE);
+            if (mPager.get() != null) mPager.get().setCurrentItem(0);
+            if (mTabs.get() != null) mTabs.get().setVisibility(View.GONE);
             sessions = null;
             notifyDataSetChanged();
         }
@@ -1886,7 +1881,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             show();
             sessions.add(page);
             notifyDataSetChanged();
-            if (mPager != null) mPager.setCurrentItem(getCount() - 1);
+            if (mPager.get() != null) mPager.get().setCurrentItem(getCount() - 1);
         }
 
         public void startCommand(Element command, XmppConnectionService xmppConnectionService) {
@@ -1919,7 +1914,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             };
 
             if (command.getAttribute("node").equals("jabber:iq:register") && packet.getTo().asBareJid().equals(Jid.of("cheogram.com"))) {
-                new de.monocles.chat.CheogramLicenseChecker(mPager.getContext(), (signedData, signature) -> {
+                new de.monocles.chat.CheogramLicenseChecker(mPager.get().getContext(), (signedData, signature) -> {
                     if (signedData != null && signature != null) {
                         c.addChild("license", "https://ns.cheogram.com/google-play").setContent(signedData);
                         c.addChild("licenseSignature", "https://ns.cheogram.com/google-play").setContent(signature);
@@ -1933,7 +1928,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
             sessions.add(session);
             notifyDataSetChanged();
-            if (mPager != null) mPager.setCurrentItem(getCount() - 1);
+            if (mPager.get() != null) mPager.get().setCurrentItem(getCount() - 1);
         }
 
         public void startMucConfig(XmppConnectionService xmppConnectionService) {
@@ -1964,13 +1959,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
             sessions.add(session);
             notifyDataSetChanged();
-            if (mPager != null) mPager.setCurrentItem(getCount() - 1);
+            if (mPager.get() != null) mPager.get().setCurrentItem(getCount() - 1);
         }
 
         public void removeSession(ConversationPage session) {
             sessions.remove(session);
             notifyDataSetChanged();
-            if (session instanceof WebxdcPage) mPager.setCurrentItem(0);
+            if (session instanceof WebxdcPage) mPager.get().setCurrentItem(0);
         }
 
         public boolean switchToSession(final String node) {
@@ -1979,7 +1974,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             int i = 0;
             for (ConversationPage session : sessions) {
                 if (session.getNode().equals(node)) {
-                    if (mPager != null) mPager.setCurrentItem(i + 2);
+                    if (mPager.get() != null) mPager.get().setCurrentItem(i + 2);
                     return true;
                 }
                 i++;
@@ -1992,18 +1987,20 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             if (position == 0) {
-                if (page1 != null && page1.getParent() != null) {
-                    ((ViewGroup) page1.getParent()).removeView(page1);
+                final var pg1 = page1.get();
+                if (pg1 != null && pg1.getParent() != null) {
+                    ((ViewGroup) pg1.getParent()).removeView(pg1);
                 }
-                container.addView(page1);
-                return page1;
+                container.addView(pg1);
+                return pg1;
             }
             if (position == 1) {
-                if (page2 != null && page2.getParent() != null) {
-                    ((ViewGroup) page2.getParent()).removeView(page2);
+                final var pg2 = page2.get();
+                if (pg2 != null && pg2.getParent() != null) {
+                    ((ViewGroup) pg2.getParent()).removeView(pg2);
                 }
-                container.addView(page2);
-                return page2;
+                container.addView(pg2);
+                return pg2;
             }
 
             if (position-2 > sessions.size()) return null;
@@ -2028,9 +2025,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
         @Override
         public int getItemPosition(Object o) {
-            if (mPager != null) {
-                if (o == page1) return PagerAdapter.POSITION_UNCHANGED;
-                if (o == page2) return PagerAdapter.POSITION_UNCHANGED;
+            if (mPager.get() != null) {
+                if (o == page1.get()) return PagerAdapter.POSITION_UNCHANGED;
+                if (o == page2.get()) return PagerAdapter.POSITION_UNCHANGED;
             }
 
             int pos = sessions == null ? -1 : sessions.indexOf(o);
@@ -2043,12 +2040,12 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             if (sessions == null) return 1;
 
             int count = 2 + sessions.size();
-            if (mTabs == null) return count;
+            if (mTabs.get() == null) return count;
 
             if (count > 2) {
-                mTabs.setTabMode(TabLayout.MODE_SCROLLABLE);
+                mTabs.get().setTabMode(TabLayout.MODE_SCROLLABLE);
             } else {
-                mTabs.setTabMode(TabLayout.MODE_FIXED);
+                mTabs.get().setTabMode(TabLayout.MODE_FIXED);
             }
             return count;
         }
@@ -2737,7 +2734,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                         final SVG defaultIcon = defaultOption.getIcon();
                         if (defaultIcon != null) {
-                             DisplayMetrics display = mPager.getContext().getResources().getDisplayMetrics();
+                             DisplayMetrics display = mPager.get().getContext().getResources().getDisplayMetrics();
                              int height = (int)(display.heightPixels*display.density/4);
                              binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, getDrawableForSVG(defaultIcon, defaultOption.getIconEl(), height), null, null);
                         }
@@ -3201,7 +3198,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 mTitle = title;
                 mNode = node;
                 this.xmppConnectionService = xmppConnectionService;
-                if (mPager != null) setupLayoutManager(mPager.getContext());
+                if (mPager.get() != null) setupLayoutManager(mPager.get().getContext());
             }
 
             public String getTitle() {
@@ -3706,7 +3703,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
                 if (reported != null) {
                     float screenWidth = ctx.getResources().getDisplayMetrics().widthPixels;
-                    TextPaint paint = ((TextView) LayoutInflater.from(mPager.getContext()).inflate(R.layout.command_result_cell, null)).getPaint();
+                    TextPaint paint = ((TextView) LayoutInflater.from(mPager.get().getContext()).inflate(R.layout.command_result_cell, null)).getPaint();
                     float tableHeaderWidth = reported.stream().reduce(
                         0f,
                         (total, field) -> total + StaticLayout.getDesiredWidth(field.getLabel().or("--------") + "\t", paint),
