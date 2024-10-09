@@ -1484,15 +1484,17 @@ public class XmppConnectionService extends Service {
         }
         updateMemorizingTrustManager();
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 7;
+        final int cacheSize = maxMemory / 8;
         this.mDrawableCache = new LruCache<String, Drawable>(cacheSize) {
             @Override
             protected int sizeOf(final String key, final Drawable drawable) {
                 if (drawable instanceof BitmapDrawable) {
-                    Bitmap bitmap =  ((BitmapDrawable) drawable).getBitmap();
+                    Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
                     if (bitmap == null) return 1024;
 
                     return bitmap.getByteCount() / 1024;
+                } else if (drawable instanceof AvatarService.TextDrawable) {
+                    return 50;
                 } else {
                     return drawable.getIntrinsicWidth() * drawable.getIntrinsicHeight() * 40 / 1024;
                 }

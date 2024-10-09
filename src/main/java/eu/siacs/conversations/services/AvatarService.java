@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -545,14 +547,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 	}*/
 
 	public Drawable get(final String name, String seed, final int size, boolean cachedOnly) {
-		final String KEY = key(seed == null ? name : name+"\0"+seed, size);
-		Drawable bitmap = mXmppConnectionService.getDrawableCache().get(KEY);
-		if (bitmap != null || cachedOnly) {
-			return bitmap;
-		}
-		bitmap = getImpl(name, seed, size);
-		mXmppConnectionService.getDrawableCache().put(KEY, bitmap);
-		return bitmap;
+		return getImpl(name, seed, size);
 	}
 
 	public static Drawable get(final Jid jid, final int size) {
@@ -563,8 +558,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);
 		final String trimmedName = name == null ? "" : name.trim();
-		drawTile(canvas, trimmedName, seed, 0, 0, size, size);
-		return new BitmapDrawable(bitmap);
+		return new TextDrawable(name, seed, size);
 	}
 
 	private String key(String name, int size) {
@@ -692,5 +686,48 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 	public interface Avatarable {
 		@ColorInt int getAvatarBackgroundColor();
 		String getAvatarName();
+	}
+
+	public static class TextDrawable extends Drawable {
+		protected final String name;
+		protected final String seed;
+		protected final int size;
+
+		public TextDrawable(final String name, final String seed, final int size) {
+			this.name = name;
+			this.seed = seed;
+			this.size = size;
+		}
+
+		@Override
+		public void draw(Canvas canvas) {
+			final var r = getBounds();
+			drawTile(canvas, name, seed, r.left, r.top, r.right, r.bottom);
+		}
+
+		@Override
+		public void setAlpha(int alpha) {
+			// TODO?
+		}
+
+		@Override
+		public void setColorFilter(ColorFilter cf) {
+			// TODO?
+		}
+
+		@Override
+		public int getOpacity() {
+			return PixelFormat.TRANSLUCENT;
+		}
+
+		@Override
+		public int getIntrinsicWidth() {
+			return size;
+		}
+
+		@Override
+		public int getIntrinsicHeight() {
+			return size;
+		}
 	}
 }
