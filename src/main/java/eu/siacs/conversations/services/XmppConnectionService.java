@@ -827,6 +827,10 @@ public class XmppConnectionService extends Service {
         return find(getConversations(), account, jid);
     }
 
+    public Conversation find(final Account account, final Jid jid, final Jid counterpart) {
+        return find(getConversations(), account, jid, counterpart);
+    }
+
     public boolean isMuc(final Account account, final Jid jid) {
         final Conversation c = find(account, jid);
         return c != null && c.getMode() == Conversational.MODE_MULTI;
@@ -2853,6 +2857,34 @@ public class XmppConnectionService extends Service {
                 return conversation;
             }
         }
+        return null;
+    }
+
+    private Conversation find(final Iterable<Conversation> haystack, final Account account, final Jid jid, final Jid counterpart) {
+        if (jid == null) {
+            return null;
+        }
+
+        if (counterpart != null) {
+            for (final Conversation conversation : haystack) {
+                if ((account == null || conversation.getAccount() == account)
+                        && (conversation.getJid().asBareJid().equals(jid.asBareJid()))
+                        && Objects.equal(conversation.getNextCounterpart(), counterpart)
+                ) {
+                    return conversation;
+                }
+            }
+        } else {
+            for (final Conversation conversation : haystack) {
+                if ((account == null || conversation.getAccount() == account)
+                        && (conversation.getJid().asBareJid().equals(jid.asBareJid()))
+                        && conversation.getNextCounterpart() == null
+                ) {
+                    return conversation;
+                }
+            }
+        }
+
         return null;
     }
 
