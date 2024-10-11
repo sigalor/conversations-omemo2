@@ -1820,8 +1820,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                 page1.clear();
                 page2.clear();
             }
-            if (page1.get() == null) page1 = new WeakReference(oldConversation.pagerAdapter.page1);
-            if (page2.get() == null) page2 = new WeakReference(oldConversation.pagerAdapter.page2);
+            if (oldConversation != null) {
+                if (page1.get() == null) page1 = new WeakReference(oldConversation.pagerAdapter.page1);
+                if (page2.get() == null) page2 = new WeakReference(oldConversation.pagerAdapter.page2);
+            }
             if (page1.get() == null || page2.get() == null) {
                 throw new IllegalStateException("page1 or page2 were not present as child or in model?");
             }
