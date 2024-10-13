@@ -1629,7 +1629,7 @@ public class ConversationFragment extends XmppFragment
                 setThread(message.getThread());
                 conversation.setUserSelectedThread(true);
             }
-            addReaction(message);
+            if (message.getEncryption() == Message.ENCRYPTION_NONE) addReaction(message);
         });
 
         messageListAdapter.setOnMessageBoxSwiped(message -> {
