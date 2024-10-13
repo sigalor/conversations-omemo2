@@ -1535,6 +1535,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (menuItem.getItemId() == R.id.blind_trust) {
                 conversation.verifyOtrFingerprint();
                 xmppConnectionService.syncRosterToDisk(conversation.getAccount());
+                refreshUiReal();
                 return true;
             }
 
