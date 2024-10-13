@@ -1712,15 +1712,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     }
 
     public int getCurrentTab() {
-        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("jump_to_commands_tab", R.bool.jump_to_commands_tab)) {
-            if (mCurrentTab >= 0) return mCurrentTab;
-
+        if (mCurrentTab >= 0) return mCurrentTab;
         if (!isRead(null) || getContact().resourceWhichSupport(Namespace.COMMANDS) == null) {
             return 0;
         }
-
-            return 1;
-        } else return 0;
+        return 1;
     }
 
     public void refreshSessions() {

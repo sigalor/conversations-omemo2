@@ -198,12 +198,14 @@
             android:key="follow_thread_in_channel"
             android:summary="@string/pref_follow_thread_in_channel_summary"
             android:title="@string/pref_follow_thread_in_channel" />
+        <!--
         <SwitchPreferenceCompat
             android:defaultValue="@bool/jump_to_commands_tab"
             android:icon="@drawable/ic_open_with_24dp"
             android:key="jump_to_commands_tab"
             android:summary="@string/pref_jump_to_commands_tab_summary"
             android:title="@string/pref_jump_to_commands_tab" />
+        -->
         <SwitchPreferenceCompat
             android:icon="@drawable/ic_mood_24dp"
             android:defaultValue="@bool/message_autocomplete"
