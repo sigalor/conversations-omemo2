@@ -360,6 +360,14 @@ public abstract class XmppActivity extends ActionBarActivity {
                         popupWindow.dismiss();
                     });
         }
+        viewBinding.more.setOnClickListener(
+                v -> {
+                    popupWindow.dismiss();
+                    final var intent = new Intent(this, AddReactionActivity.class);
+                    intent.putExtra("conversation", message.getConversation().getUuid());
+                    intent.putExtra("message", message.getUuid());
+                    startActivity(intent);
+                });
         popupWindow.setAnimationStyle(androidx.appcompat.R.style.Animation_AppCompat_Tooltip);
         popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(this,R.drawable.reactions_bubble));
         popupWindow.setFocusable(true);

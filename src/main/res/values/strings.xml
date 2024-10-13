@@ -1166,4 +1166,6 @@
     <string name="could_not_add_reaction">Could not add reaction</string>
     <string name="add_reaction">Add reaction…</string>
     <string name="related_chats">Related chats</string>
+    <string name="add_reaction_title">Add reaction</string>
+    <string name="more_reactions">More reactions</string>
 </resources>

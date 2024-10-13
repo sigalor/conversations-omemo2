@@ -393,6 +393,7 @@
             android:name=".ui.MediaBrowserActivity"
             android:label="@string/media_browser"
             android:exported="false" />
+        <activity android:name=".ui.AddReactionActivity" />
 
         <activity
             android:name="eu.siacs.conversations.medialib.activities.EditActivity"
