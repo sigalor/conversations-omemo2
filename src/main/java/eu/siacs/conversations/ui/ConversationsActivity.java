@@ -1532,6 +1532,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         PopupMenu popup = new PopupMenu(this, view);
         popup.inflate(R.menu.verification_choices);
         popup.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.blind_trust) {
+                conversation.verifyOtrFingerprint();
+                xmppConnectionService.syncRosterToDisk(conversation.getAccount());
+                return true;
+            }
+
             Intent intent = new Intent(ConversationsActivity.this, VerifyOTRActivity.class);
             intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
             intent.putExtra("contact", conversation.getContact().getJid().asBareJid().toString());

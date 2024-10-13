@@ -1151,6 +1151,7 @@
     <string name="manual_verification_explanation">Carefully compare the fingerprint shown below with the fingerprint of your contact.\nYou can use any trusted form of communication like an encrypted e-mail or a telephone call to exchange those.</string>
     <string name="could_not_verify_fingerprint">Could not verify fingerprint</string>
     <string name="manually_verify">Manually verify</string>
+    <string name="otr_blind_trust">Blind trust</string>
     <string name="secrets_do_not_match">Secrets do not match</string>
     <string name="ask_question">Ask question</string>
     <string name="verify">Verify</string>

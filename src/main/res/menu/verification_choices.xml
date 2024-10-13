@@ -9,4 +9,8 @@
         android:id="@+id/manual_verification"
         android:title="@string/manually_verify" />
 
+    <item
+        android:id="@+id/blind_trust"
+        android:title="@string/otr_blind_trust" />
+
 </menu>
