@@ -974,10 +974,12 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                 replacedMessage.setFileParams(null);
                                 replacedMessage.addPayload(replaceElement);
                             } else {
+                                replacedMessage.clearPayloads();
                                 for (final var p : message.getPayloads()) {
                                     replacedMessage.addPayload(p);
                                 }
                             }
+                            replacedMessage.setInReplyTo(message.getInReplyTo());
                             if (replacedMessage.getServerMsgId() == null || message.getServerMsgId() != null) {
                                 replacedMessage.setServerMsgId(message.getServerMsgId());
                             }

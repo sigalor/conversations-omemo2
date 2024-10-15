@@ -436,6 +436,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void clearReplyReact() {
+        mInReplyTo = null;
         this.payloads.remove(getReactionsEl());
         this.payloads.remove(getReply());
         clearFallbacks("urn:xmpp:reply:0", "urn:xmpp:reactions:0");
