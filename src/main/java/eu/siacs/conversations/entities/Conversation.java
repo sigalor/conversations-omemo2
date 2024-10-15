@@ -1790,11 +1790,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     }
 
     public class ConversationPagerAdapter extends PagerAdapter {
-        protected WeakReference<ViewPager> mPager = new WeakReference(null);
-        protected WeakReference<TabLayout> mTabs = new WeakReference(null);
+        protected WeakReference<ViewPager> mPager = new WeakReference<>(null);
+        protected WeakReference<TabLayout> mTabs = new WeakReference<>(null);
         ArrayList<ConversationPage> sessions = null;
-        protected WeakReference<View> page1 = new WeakReference(null);
-        protected WeakReference<View> page2 = new WeakReference(null);
+        protected WeakReference<View> page1 = new WeakReference<>(null);
+        protected WeakReference<View> page2 = new WeakReference<>(null);
         protected boolean mOnboarding = false;
 
         public void setupViewPager(ViewPager pager, TabLayout tabs, boolean onboarding, Conversation oldConversation) {
@@ -1814,15 +1814,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             }
             if (sessions != null) show();
 
-            if (pager.getChildAt(0) != null) page1 = new WeakReference(pager.getChildAt(0));
-            if (pager.getChildAt(1) != null) page2 = new WeakReference(pager.getChildAt(1));
+            if (pager.getChildAt(0) != null) page1 = new WeakReference<>(pager.getChildAt(0));
+            if (pager.getChildAt(1) != null) page2 = new WeakReference<>(pager.getChildAt(1));
             if (page2.get() != null && page2.get().findViewById(R.id.commands_view) == null) {
                 page1.clear();
                 page2.clear();
             }
             if (oldConversation != null) {
-                if (page1.get() == null) page1 = new WeakReference(oldConversation.pagerAdapter.page1);
-                if (page2.get() == null) page2 = new WeakReference(oldConversation.pagerAdapter.page2);
+                if (page1.get() == null) page1 = oldConversation.pagerAdapter.page1;
+                if (page2.get() == null) page2 = oldConversation.pagerAdapter.page2;
             }
             if (page1.get() == null || page2.get() == null) {
                 throw new IllegalStateException("page1 or page2 were not present as child or in model?");
