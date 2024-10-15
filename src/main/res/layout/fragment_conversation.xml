@@ -348,6 +348,7 @@
                                 android:layout_centerVertical="true"
                                 android:text="@string/request_to_speak" />
                     </RelativeLayout>
+
                         <LinearLayout
                             android:id="@+id/emojis_sticker_layout"
                             android:layout_width="match_parent"
@@ -356,42 +357,46 @@
                             android:visibility="visible"
                             android:animateLayoutChanges="true" >
 
-                            <androidx.emoji2.emojipicker.EmojiPickerView
-                                android:id="@+id/emoji_picker"
+                            <RelativeLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:visibility="visible" />
+                                android:layout_weight="1" >
 
-                            <de.monocles.chat.GridView
-                                android:id="@+id/stickersview"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_marginLeft="4dp"
-                                android:layout_marginStart="4dp"
-                                android:layout_marginEnd="4dp"
-                                android:layout_marginRight="4dp"
-                                android:layout_marginTop="4dp"
-                                android:divider="@android:color/transparent"
-                                android:numColumns="6"
-                                android:dividerHeight="0dp"
-                                android:layout_weight="1"
-                                android:visibility="gone" />
+                                <androidx.emoji2.emojipicker.EmojiPickerView
+                                    android:id="@+id/emoji_picker"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:visibility="visible" />
 
-                            <de.monocles.chat.GridView
-                                android:id="@+id/gifsview"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_marginLeft="4dp"
-                                android:layout_marginStart="4dp"
-                                android:layout_marginEnd="4dp"
-                                android:layout_marginRight="4dp"
-                                android:layout_marginTop="4dp"
-                                android:divider="@android:color/transparent"
-                                android:numColumns="4"
-                                android:dividerHeight="0dp"
-                                android:layout_weight="1"
-                                android:visibility="gone" />
+                                <de.monocles.chat.GridView
+                                    android:id="@+id/stickersview"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="4dp"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:layout_marginRight="4dp"
+                                    android:layout_marginTop="4dp"
+                                    android:divider="@android:color/transparent"
+                                    android:numColumns="6"
+                                    android:dividerHeight="0dp"
+                                    android:visibility="gone" />
+
+                                <de.monocles.chat.GridView
+                                    android:id="@+id/gifsview"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="4dp"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:layout_marginRight="4dp"
+                                    android:layout_marginTop="4dp"
+                                    android:divider="@android:color/transparent"
+                                    android:numColumns="4"
+                                    android:dividerHeight="0dp"
+                                    android:visibility="gone" />
+
+                            </RelativeLayout>
 
                             <LinearLayout
                                 android:layout_width="fill_parent"
