@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/conversations_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" >
 
         <ImageView
             android:id="@+id/background_image"
@@ -215,12 +216,39 @@
 
                             </androidx.recyclerview.widget.RecyclerView>
 
+
+                            <ImageButton
+                                android:id="@+id/keyboardButton"
+                                android:layout_width="38dp"
+                                android:layout_height="32dp"
+                                android:layout_marginStart="-6dp"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignBottom="@+id/textinput"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/show_keyboard"
+                                android:src="@drawable/rounded_keyboard_24"
+                                android:visibility="gone" />
+
+                            <ImageButton
+                                android:id="@+id/emojiButton"
+                                android:layout_width="38dp"
+                                android:layout_height="32dp"
+                                android:layout_marginStart="-6dp"
+                                android:layout_toEndOf="@+id/keyboardButton"
+                                android:layout_alignBottom="@+id/textinput"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/choose_emoji"
+                                android:src="@drawable/outline_emoji_emotions_24"
+                                android:visibility="visible" />
+
+
                             <eu.siacs.conversations.ui.widget.EditMessage
                                 android:id="@+id/textinput"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@android:color/transparent"
                                 android:ems="10"
+                                android:layout_toEndOf="@+id/emojiButton"
                                 android:imeOptions="flagNoExtractUi|actionSend"
                                 android:inputType="textShortMessage|textMultiLine|textCapSentences"
                                 android:maxLines="8"
@@ -320,6 +348,94 @@
                                 android:layout_centerVertical="true"
                                 android:text="@string/request_to_speak" />
                     </RelativeLayout>
+                        <LinearLayout
+                            android:id="@+id/emojis_sticker_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:orientation="vertical"
+                            android:visibility="visible"
+                            android:animateLayoutChanges="true" >
+
+                            <androidx.emoji2.emojipicker.EmojiPickerView
+                                android:id="@+id/emoji_picker"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:visibility="visible" />
+
+                            <de.monocles.chat.GridView
+                                android:id="@+id/stickersview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="4dp"
+                                android:layout_marginStart="4dp"
+                                android:layout_marginEnd="4dp"
+                                android:layout_marginRight="4dp"
+                                android:layout_marginTop="4dp"
+                                android:divider="@android:color/transparent"
+                                android:numColumns="6"
+                                android:dividerHeight="0dp"
+                                android:layout_weight="1"
+                                android:visibility="gone" />
+
+                            <de.monocles.chat.GridView
+                                android:id="@+id/gifsview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="4dp"
+                                android:layout_marginStart="4dp"
+                                android:layout_marginEnd="4dp"
+                                android:layout_marginRight="4dp"
+                                android:layout_marginTop="4dp"
+                                android:divider="@android:color/transparent"
+                                android:numColumns="4"
+                                android:dividerHeight="0dp"
+                                android:layout_weight="1"
+                                android:visibility="gone" />
+
+                            <LinearLayout
+                                android:layout_width="fill_parent"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="horizontal"
+                                android:animateLayoutChanges="true" >
+
+                                <TextView
+                                    android:id="@+id/emojis_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="bottom|center_horizontal"
+                                    android:text="@string/emojis"
+                                    android:textSize="16sp" />
+
+                                <View
+                                    android:layout_width="20dp"
+                                    android:layout_height="wrap_content" />
+
+                                <TextView
+                                    android:id="@+id/stickers_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="bottom|center_horizontal"
+                                    android:text="@string/stickers"
+                                    android:textSize="16sp" />
+
+                                <View
+                                    android:layout_width="20dp"
+                                    android:layout_height="wrap_content" />
+
+                                <TextView
+                                    android:id="@+id/gifs_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="bottom|center_horizontal"
+                                    android:text="@string/gifs"
+                                    android:textSize="16sp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
                 </LinearLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -201,7 +201,7 @@
             android:launchMode="singleTask"
             android:minWidth="300dp"
             android:minHeight="300dp"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
             android:name=".ui.ScanActivity"
             android:exported="false"

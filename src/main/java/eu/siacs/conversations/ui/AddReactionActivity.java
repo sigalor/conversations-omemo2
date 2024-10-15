@@ -25,7 +25,7 @@ public class AddReactionActivity extends XmppActivity {
         binding.toolbar.setNavigationIcon(R.drawable.ic_clear_24dp);
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         setTitle(R.string.add_reaction_title);
-        binding.emojiPicker.setOnEmojiPickedListener(
+        binding.reactionPicker.setOnEmojiPickedListener(
                 emojiViewItem -> addReaction(emojiViewItem.getEmoji()));
     }
 
