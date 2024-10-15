@@ -1177,28 +1177,45 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     @Nullable
-    public XmppAxolotlMessage encrypt(Message message) {
+    public XmppAxolotlMessage encrypt(final String content, Jid counterpart) {
         final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
-        final String content;
-        if (message.hasFileOnRemoteHost()) {
-            content = message.getFileParams().url;
-        } else {
-            content = message.getRawBody();
-        }
         try {
             axolotlMessage.encrypt(content);
         } catch (CryptoFailedException e) {
             Log.w(Config.LOGTAG, getLogprefix(account) + "Failed to encrypt message: " + e.getMessage());
             return null;
         }
+        if (!buildHeader(axolotlMessage, counterpart)) return null;
+        return axolotlMessage;
+    }
 
-        final boolean success;
-        if (message.isPrivateMessage()) {
-            success = buildHeader(axolotlMessage, message.getTrueCounterpart());
-        } else {
-            success = buildHeader(axolotlMessage, (Conversation) message.getConversation());
+    @Nullable
+    public XmppAxolotlMessage encrypt(final String content, Conversation conversation) {
+        final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
+        try {
+            axolotlMessage.encrypt(content);
+        } catch (CryptoFailedException e) {
+            Log.w(Config.LOGTAG, getLogprefix(account) + "Failed to encrypt message: " + e.getMessage());
+            return null;
         }
-        return success ? axolotlMessage : null;
+        if (!buildHeader(axolotlMessage, conversation)) return null;
+        return axolotlMessage;
+    }
+
+    @Nullable
+    public XmppAxolotlMessage encrypt(Message message) {
+        final String content;
+        if (message.hasFileOnRemoteHost()) {
+            content = message.getFileParams().url;
+        } else {
+            content = message.getRawBody();
+        }
+
+        if (message.isPrivateMessage()) {
+            return encrypt(content, message.getTrueCounterpart());
+        } else {
+            return encrypt(content, (Conversation) message.getConversation());
+        }
     }
 
     public void preparePayloadMessage(final Message message, final boolean delay) {

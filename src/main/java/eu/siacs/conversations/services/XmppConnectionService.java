@@ -164,6 +164,7 @@ import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
+import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.ConversationsFileObserver;
@@ -172,6 +173,7 @@ import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.utils.EasyOnboardingInvite;
 import eu.siacs.conversations.utils.ExceptionHelper;
 import eu.siacs.conversations.utils.FileUtils;
+import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.utils.MimeUtils;
 import eu.siacs.conversations.utils.PhoneHelper;
 import eu.siacs.conversations.utils.QuickLoader;
@@ -5412,6 +5414,8 @@ public class XmppConnectionService extends Service {
         if (message.getConversation() instanceof Conversation conversation) {
             final String reactToId;
             final Collection<Reaction> combinedReactions;
+            final var newReactions = new HashSet<>(reactions);
+            newReactions.removeAll(message.getAggregatedReactions().ourReactions);
             if (conversation.getMode() == Conversational.MODE_MULTI) {
                 final var self = conversation.getMucOptions().getSelf();
                 final String occupantId = self.getOccupantId();
@@ -5442,11 +5446,43 @@ public class XmppConnectionService extends Service {
             if (Strings.isNullOrEmpty(reactToId)) {
                 return false;
             }
-            final var reactionMessage =
-                    mMessageGenerator.reaction(conversation, reactToId, reactions);
-            sendMessagePacket(conversation.getAccount(), reactionMessage);
-            message.setReactions(combinedReactions);
-            updateMessage(message, false);
+            final var packet =
+                    mMessageGenerator.reaction(conversation, message, reactToId, reactions);
+
+            final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message)) + "\n";
+            final var body  = quote + String.join(" ", newReactions);
+            if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
+                FILE_ATTACHMENT_EXECUTOR.execute(() -> {
+                    XmppAxolotlMessage axolotlMessage = conversation.getAccount().getAxolotlService().encrypt(body, conversation);
+                    packet.setAxolotlMessage(axolotlMessage.toElement());
+                    packet.addChild("encryption", "urn:xmpp:eme:0")
+                        .setAttribute("name", "OMEMO")
+                        .setAttribute("namespace", AxolotlService.PEP_PREFIX);
+                    sendMessagePacket(conversation.getAccount(), packet);
+                    message.setReactions(combinedReactions);
+                    updateMessage(message, false);
+                });
+            } else if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE || newReactions.size() < 1) {
+                if (newReactions.size() > 0) {
+                    packet.setBody(body);
+
+                    packet.addChild("reply", "urn:xmpp:reply:0")
+                        .setAttribute("to", message.getCounterpart())
+                        .setAttribute("id", reactToId);
+                    final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
+                    replyFallback.addChild("body", "urn:xmpp:fallback:0")
+                        .setAttribute("start", "0")
+                        .setAttribute("end", "" + quote.codePointCount(0, quote.length()));
+
+                    final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
+                    fallback.addChild("body", "urn:xmpp:fallback:0");
+                }
+
+                sendMessagePacket(conversation.getAccount(), packet);
+                message.setReactions(combinedReactions);
+                updateMessage(message, false);
+            }
+
             return true;
         } else {
             return false;

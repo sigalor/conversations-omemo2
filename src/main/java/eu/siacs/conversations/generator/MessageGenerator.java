@@ -17,8 +17,6 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.ui.util.QuoteHelper;
-import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -236,7 +234,7 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public im.conversations.android.xmpp.model.stanza.Message reaction(final Conversational conversation, final String reactingTo, final Collection<String> ourReactions) {
+    public im.conversations.android.xmpp.model.stanza.Message reaction(final Conversational conversation, final Message inReplyTo, final String reactingTo, final Collection<String> ourReactions) {
         final boolean groupChat = conversation.getMode() == Conversational.MODE_MULTI;
         final Jid to = conversation.getJid().asBareJid();
         final im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
@@ -247,6 +245,9 @@ public class MessageGenerator extends AbstractGenerator {
         for(final String ourReaction : ourReactions) {
             reactions.addExtension(new Reaction(ourReaction));
         }
+
+        final var thread = inReplyTo.getThread();
+        if (thread != null) packet.addChild(thread);
 
         packet.addChild("store", "urn:xmpp:hints");
         return packet;
