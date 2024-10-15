@@ -122,8 +122,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
             return R.drawable.ic_code_48dp;
         } else if (mime.equals("message/rfc822")) {
             return R.drawable.ic_email_48dp;
-        } else {
+        } else if (mime.equals("application/webxdc+zip")) {
             return R.drawable.toys_and_games_24dp;
+        } else {
+            return R.drawable.ic_help_center_48dp;
         }
     }
 
