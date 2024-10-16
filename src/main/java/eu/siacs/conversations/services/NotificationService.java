@@ -1889,8 +1889,8 @@ public class NotificationService {
             if (message.getBody() == null || (nick == null && name == null)) {
                 return false;
             }
-            final Matcher m = highlight.matcher(message.getBody());
-            final Matcher m2 = highlightName.matcher(message.getBody());
+            final Matcher m = highlight.matcher(message.getBody(true));
+            final Matcher m2 = highlightName.matcher(message.getBody(true));
             return (m.find() || m2.find() || message.isPrivateMessage());
         } else {
             return false;
