@@ -34,7 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.databinding.EmojiSearchRowBinding;
+import eu.siacs.conversations.databinding.EmojiSearchRowOldBinding;
 import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 
 public class EmojiSearchOld {
@@ -209,7 +209,7 @@ public class EmojiSearchOld {
 
         @Override
         public View getView(int position, View view, ViewGroup parent) {
-            EmojiSearchRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.emoji_search_row_old, parent, false);
+            EmojiSearchRowOldBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.emoji_search_row_old, parent, false);
             if (getItem(position) instanceof CustomEmoji) {
                 binding.nonunicode.setText(getItem(position).toInsert());
                 binding.nonunicode.setVisibility(View.VISIBLE);

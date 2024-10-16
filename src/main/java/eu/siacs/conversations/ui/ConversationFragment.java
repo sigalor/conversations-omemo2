@@ -322,6 +322,7 @@ public class ConversationFragment extends XmppFragment
     private int identiconWidth = -1;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
+    private EmojiSearchOld emojiSearchOld = null;
     File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Stickers");
     //Gifspaths
     private File[] files;
@@ -1859,6 +1860,29 @@ public class ConversationFragment extends XmppFragment
                 emojiSearch = activity.xmppConnectionService.emojiSearch();
             }
         }
+
+        if (emojiSearchOld == null && activity != null && activity.xmppConnectionService != null) {
+            emojiSearchOld = activity.xmppConnectionService.emojiSearchOld();
+        }
+        if (emojiSearchOld == null || binding.stickersview == null) return;
+
+        binding.stickersview.setAdapter(emojiSearchOld.makeAdapter(activity));
+
+        final Pattern lastColonPattern = Pattern.compile("");
+        Editable s = binding.textinput.getText();
+        Handler emojiDebounce = new Handler(Looper.getMainLooper());
+        emojiDebounce.removeCallbacksAndMessages(null);
+        emojiDebounce.postDelayed(() -> {
+            Matcher lastColonMatcher = lastColonPattern.matcher(s);
+            int lastColon = 0;
+            while(lastColonMatcher.find()) lastColon = lastColonMatcher.end();
+
+            final String q = s.toString().substring(lastColon);
+            EmojiSearchOld.EmojiSearchAdapter adapter = ((EmojiSearchOld.EmojiSearchAdapter) binding.stickersview.getAdapter());
+            if (adapter != null) {
+                adapter.search(q);
+            }
+        }, 400L);
     }
 
     protected void newThreadTutorialToast(String s) {
