@@ -1449,7 +1449,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                         message.getRemoteMsgId());
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
-                        if (!isCarbon) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
+                        if (!isCarbon && !packet.fromAccount(account)) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
                     } else {
                         Log.d(Config.LOGTAG,"not found occupant or message");
                     }
@@ -1477,7 +1477,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                         message.getRemoteMsgId());
                         message.setReactions(combinedReactions);
                         mXmppConnectionService.updateMessage(message, false);
-                        if (!isCarbon) mXmppConnectionService.getNotificationService().push(message, counterpart, null, newReactions);
+                        if (!isCarbon && !packet.fromAccount(account)) mXmppConnectionService.getNotificationService().push(message, counterpart, null, newReactions);
                     }
                 }
             }
