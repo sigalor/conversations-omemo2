@@ -327,7 +327,7 @@ public class ConversationFragment extends XmppFragment
     private File[] files;
     private String[] filesPaths;
     private String[] filesNames;
-    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Stickers");   //TODO: Change this to dedicated GIFs folder later
+    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Stickers" + File.separator + "Animoji");
 
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
     private KeyboardHeightProvider keyboardHeightProvider = null;
@@ -1826,9 +1826,6 @@ public class ConversationFragment extends XmppFragment
 
                         @Override
                         protected void onQuery(@Nullable CharSequence query) {
-                            if (activity != null && activity.xmppConnectionService != null && !activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete))
-                                return;
-
                             emojiDebounce.removeCallbacksAndMessages(null);
                             emojiDebounce.postDelayed(() -> {
                                 if (getRecyclerView() == null) return;
@@ -5576,6 +5573,7 @@ public class ConversationFragment extends XmppFragment
             binding.gifsview.setVisibility(GONE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
+            /*  //TODO: For some reason this leads to crash, fix it later
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirStickers.toPath())) {
                     Toast.makeText(activity, R.string.update_default_stickers, Toast.LENGTH_LONG).show();
@@ -5583,6 +5581,8 @@ public class ConversationFragment extends XmppFragment
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+             */
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.emojisButton.setTypeface(null, Typeface.BOLD);
@@ -5626,6 +5626,7 @@ public class ConversationFragment extends XmppFragment
             binding.gifsview.setVisibility(VISIBLE);
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.requestFocus();
+            /*  //TODO: For some reason this leads to crash, fix it later
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirGifs.toPath())) {
                     Toast.makeText(activity, R.string.copy_GIFs_to_GIFs_folder, Toast.LENGTH_LONG).show();
@@ -5633,6 +5634,8 @@ public class ConversationFragment extends XmppFragment
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+             */
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
                 binding.emojisButton.setTypeface(null, Typeface.BOLD);

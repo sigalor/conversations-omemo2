@@ -209,7 +209,7 @@ public class EmojiSearchOld {
 
         @Override
         public View getView(int position, View view, ViewGroup parent) {
-            EmojiSearchRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.emoji_search_row, parent, false);
+            EmojiSearchRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.emoji_search_row_old, parent, false);
             if (getItem(position) instanceof CustomEmoji) {
                 binding.nonunicode.setText(getItem(position).toInsert());
                 binding.nonunicode.setVisibility(View.VISIBLE);

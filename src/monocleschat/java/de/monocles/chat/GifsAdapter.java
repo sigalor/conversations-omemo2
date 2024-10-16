@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide;
 import eu.siacs.conversations.R;
 
 public class GifsAdapter extends BaseAdapter {
-    private Context ctx;
+    private final Context ctx;
     private final String[] filesNames;
     private final String[] filesPaths;
 
