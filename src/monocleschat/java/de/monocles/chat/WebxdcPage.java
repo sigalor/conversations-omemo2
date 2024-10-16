@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.util.Base64;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -216,7 +217,9 @@ public class WebxdcPage implements ConversationPage {
 			binding.webview.loadUrl("javascript:__webxdcUpdate();");
 			return getView();
 		}
-
+		if (activity != null) {
+			activity.get().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
 		binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.webxdc_page, null, false);
 		binding.webview.setWebViewClient(new WebViewClient() {
 			// `shouldOverrideUrlLoading()` is called when the user clicks a URL,
@@ -306,14 +309,14 @@ public class WebxdcPage implements ConversationPage {
 
 		binding.webview.loadUrl(baseUrl + "/index.html");
 
-		binding.actions.setAdapter(new ArrayAdapter<String>(context, R.layout.simple_list_item, new String[]{"Add to Home Screen", "Close"}) {
+		binding.actions.setAdapter(new ArrayAdapter<String>(context, R.layout.simple_list_item, new String[]{activity.get().getString(R.string.add_to_home_screen), activity.get().getString(R.string.action_close)}) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View v = super.getView(position, convertView, parent);
 				TextView tv = (TextView) v.findViewById(android.R.id.text1);
 				tv.setGravity(Gravity.CENTER);
 				tv.setTextColor(ContextCompat.getColor(context, R.color.white));
-            tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(activity.get(),UIHelper.getColorForName(getItem(position))));
+            	tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(activity.get(),UIHelper.getColorForName(getItem(position))));
 				return v;
 			}
 		});
@@ -350,7 +353,9 @@ public class WebxdcPage implements ConversationPage {
 
 	public void refresh() {
 		if (binding == null) return;
-
+		if (activity != null) {
+			activity.get().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
 		binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
 	}
 

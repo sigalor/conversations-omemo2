@@ -1178,4 +1178,5 @@
     <string name="copy_GIFs_to_GIFs_folder">Copy GIFs to GIFs folder</string>
     <string name="gif_deleted">GIF deleted</string>
     <string name="failed_to_delete_gif">Failed to delete GIF</string>
+    <string name="add_to_home_screen">Add to home screen</string>
 </resources>

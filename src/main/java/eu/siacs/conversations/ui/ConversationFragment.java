@@ -3611,6 +3611,9 @@ public class ConversationFragment extends XmppFragment
 
     private void reInit(Conversation conversation) {
         reInit(conversation, false);
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
     }
 
     private boolean reInit(final Conversation conversation, final boolean hasExtras) {
@@ -4214,6 +4217,9 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void refresh() {
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
         if (this.binding == null) {
             Log.d(
                     Config.LOGTAG,
