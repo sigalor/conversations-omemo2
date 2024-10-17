@@ -356,7 +356,8 @@
     <string name="clear_other_devices">Elimina dispositivi</string>
     <string name="clear_other_devices_desc">Sei sicuro di voler rimuovere tutti gli altri dispositivi dall\'annuncio OMEMO? La prossima volta che si connetteranno si riannunceranno, ma potrebbero non ricevere i messaggi inviati nel frattempo.</string>
     <string name="error_no_keys_to_trust_server_error">Non ci sono chiavi utilizzabili per questo contatto.\nRicezione di nuove chiavi dal server non riuscita. Forse qualcosa non va con il server del tuo contatto?</string>
-    <string name="error_no_keys_to_trust_presence">Non ci sono chiavi utilizzabili per questo contatto.\nAssicurati di avere reciprocamente la sottoscrizione sulla presenza.</string>
+    <string name="error_no_keys_to_trust_presence">Non ci sono chiavi utilizzabili per questo contatto.
+\nAssicurati di avere reciprocamente la sottoscrizione sulla presenza.</string>
     <string name="error_trustkeys_title">Qualcosa è andato storto</string>
     <string name="fetching_history_from_server">Caricamento della cronologia dal server</string>
     <string name="no_more_history_on_server">Fine cronologia sul server</string>

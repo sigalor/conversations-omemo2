@@ -626,7 +626,8 @@
     <string name="show_inactive_devices">Arată inactive</string>
     <string name="hide_inactive_devices">Ascunde inactive</string>
     <string name="distrust_omemo_key">Pierde încrederea în acest dispozitiv</string>
-    <string name="distrust_omemo_key_text">Sigur doriți să ștergeți datele de verificare pentru acest dispozitiv?\nAcest dispozitiv precum și mesajele venind de la el vor fi marcate ca ne fiind de încredere.</string>
+    <string name="distrust_omemo_key_text">Sigur doriți să ștergeți datele de verificare pentru acest dispozitiv?
+\nAcest dispozitiv precum și mesajele venind de la el vor fi marcate ca ne fiind de încredere.</string>
     <plurals name="seconds">
         <item quantity="one">%d secundă</item>
         <item quantity="few">%d secunde</item>

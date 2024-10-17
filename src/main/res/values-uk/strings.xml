@@ -269,8 +269,8 @@
 \n<small>Оновлення буде використано, щоб визначити, яку програму-клієнт (які програми-клієнти) він використовує</small>.</string>
     <string name="request_now">Надіслати запит зараз</string>
     <string name="ignore">Ігнорувати</string>
-    <string name="without_mutual_presence_updates"><b>Попередження:</b> Надсилання без взаємної згоди на оновлення присутності може спричинити неочікувані проблеми.
-\n
+    <string name="without_mutual_presence_updates"><b>Попередження:</b> Надсилання без взаємної згоди на оновлення присутності може спричинити неочікувані проблеми. 
+\n 
 \n<small>Перегляньте деталі контакту та перевірте отримання стану присутності.</small></string>
     <string name="pref_security_settings">Безпека</string>
     <string name="pref_allow_message_correction">Редагування повідомлень</string>
@@ -567,11 +567,11 @@
     <string name="remote_server_not_found">Віддалений сервер не знайдено</string>
     <string name="remote_server_timeout">Затримка відповіді сервера</string>
     <string name="unable_to_update_account">Не вдалося оновити обліковий запис</string>
-    <string name="report_jid_as_spammer">Надіслати скаргу про те, що контакт з цим ID розсилає спам.</string>
+    <string name="report_jid_as_spammer">Надіслати скаргу про те, що контакт із цим ID розсилає спам.</string>
     <string name="pref_delete_omemo_identities">Вилучити ідентифікаційні дані OMEMO</string>
     <string name="pref_delete_omemo_identities_summary">Створити наново Ваші ключі OMEMO. Всі Ваші контакти будуть змушені підтвердити Вас знову. Використовуйте це, лише якщо немає іншого вибору.</string>
     <string name="delete_selected_keys">Вилучити вибрані ключі</string>
-    <string name="error_publish_avatar_offline">Потрібно підключення, щоб можна було опублікувати піктограму користувача.</string>
+    <string name="error_publish_avatar_offline">Потрібно підключення, щоб можна було опублікувати аватар.</string>
     <string name="show_error_message">Показати повідомлення про помилку</string>
     <string name="error_message">Повідомлення про помилку</string>
     <string name="data_saver_enabled">Увімкнено заощадження трафіку</string>
@@ -581,7 +581,7 @@
     <string name="verified_fingerprints">Перевірені цифрові підписи</string>
     <string name="use_camera_icon_to_scan_barcode">Використайте камеру для сканування QR-коду контакту</string>
     <string name="please_wait_for_keys_to_be_fetched">Зачекайте поки ключі отримуються</string>
-    <string name="share_as_barcode">Поділитися через QR-код </string>
+    <string name="share_as_barcode">Поділитися через QR-код</string>
     <string name="share_as_uri">Поділитися XMPP URI</string>
     <string name="share_as_http">Поділитися посиланням HTTP</string>
     <string name="pref_blind_trust_before_verification">Довіряти наосліп до підтвердження</string>
@@ -729,7 +729,7 @@
     <string name="group_chat_name">Ім\'я</string>
     <string name="providing_a_name_is_optional">Назва не є обов\'язковою</string>
     <string name="create_dialog_group_chat_name">Назва групи</string>
-    <string name="conference_destroyed">Цю групу закрито</string>
+    <string name="conference_destroyed">Цю групу видалено</string>
     <string name="unable_to_save_recording">Неможливо зберегти запис</string>
     <string name="foreground_service_channel_name">Процес на передньому плані</string>
     <string name="notification_group_status_information">Інформація про стан</string>
@@ -767,8 +767,8 @@
     <string name="please_enter_your_phone_number">Будь ласка, введіть свій номер телефону.</string>
     <string name="search_countries">Шукати країну</string>
     <string name="verify_x">Перевірити %s</string>
-    <string name="we_have_sent_you_an_sms_to_x">Ми направили Вам SMS на <b>%s</b>.</string>
-    <string name="we_have_sent_you_another_sms">Ми направили Вам SMS із кодом з 6 цифр.</string>
+    <string name="we_have_sent_you_an_sms_to_x">SMS надіслано на <b>%s</b>.</string>
+    <string name="we_have_sent_you_another_sms">Ми надіслали Вам SMS із 6-цифровим кодом.</string>
     <string name="please_enter_pin_below">Будь ласка, введіть нижче 6 цифр коду.</string>
     <string name="resend_sms">Надіслати нове SMS</string>
     <string name="resend_sms_in">Надіслати нове SMS (%s)</string>
@@ -817,7 +817,7 @@
     <string name="enter_password_to_restore">Зазначте пароль до облікового запису %s, щоб відновити з резервної копії.</string>
     <string name="restore_warning">Не використовуйте відновлення з резервної копії з метою клонування застосунку (запускати одночасно ще один примірник). Відновлення з резервної копії призначене виключно для перенесення даних або на випадок втрати оригінального пристрою.</string>
     <string name="unable_to_restore_backup">Неможливо відновити з резервної копії.</string>
-    <string name="unable_to_decrypt_backup">Неможливо розшифрувати резервну копію. Чи правильний пароль\?</string>
+    <string name="unable_to_decrypt_backup">Неможливо розшифрувати резервну копію. Чи правильний пароль?</string>
     <string name="backup_channel_name">Створити або відновити резервну копію</string>
     <string name="enter_jabber_id">Введіть адресу XMPP</string>
     <string name="create_group_chat">Створити групу</string>
@@ -875,13 +875,13 @@
     <string name="backup">Резервне копіювання</string>
     <string name="category_about">Про застосунок</string>
     <string name="please_enable_an_account">Будь ласка, активуйте обліковий запис</string>
-    <string name="make_call">Здійснити виклик</string>
+    <string name="make_call">Виклик</string>
     <string name="rtp_state_incoming_call">Вхідний виклик</string>
     <string name="rtp_state_incoming_video_call">Вхідний відеовиклик</string>
     <string name="rtp_state_connecting">З\'єднання</string>
     <string name="rtp_state_connected">З\'єднано</string>
-    <string name="rtp_state_accepting_call">Приймаю виклик</string>
-    <string name="rtp_state_ending_call">Завершую виклик</string>
+    <string name="rtp_state_accepting_call">Приймання виклику</string>
+    <string name="rtp_state_ending_call">Завершення виклику</string>
     <string name="answer_call">Відповісти</string>
     <string name="dismiss_call">Відхилити</string>
     <string name="rtp_state_finding_device">Пошук пристроїв</string>
@@ -952,7 +952,7 @@
     </plurals>
     <string name="search_this_conversation">Ця розмова</string>
     <string name="add_contact_or_create_or_join_group_chat">Додати контакт, створити чи приєднатися до групи або знайти канали</string>
-    <string name="pref_up_push_account_title">Обліковий запис XMPP</string>
+    <string name="pref_up_push_account_title">Обліковий запис</string>
     <string name="outgoing_call_timestamp">Вихідний виклик · %s</string>
     <string name="openkeychain_required_long">%1$s використовує &lt;b&gt;OpenKeychain&lt;/b&gt; для шифрування/дешифрування повідомлень і керування публічними ключами.&lt;br&gt;&lt;br&gt;OpenKeychain поширюється на умовах ліцензії GPLv3+ і доступний для завантаження на F-Droid та Google Play.&lt;br&gt;&lt;br&gt;&lt;small&gt;(Після встановлення необхідно перезапустити %1$s.)&lt;/small&gt;</string>
     <string name="more_options">Додатково</string>
@@ -1017,12 +1017,12 @@
     <string name="exit">Вийти</string>
     <string name="invite_to_app">Запросити до monocles chat</string>
     <string name="plain_text_document">Текстовий документ</string>
-    <string name="no_xmpp_adddress_found">Не знайдено адреси XMPP</string>
+    <string name="no_xmpp_adddress_found">Не знайдено Jabber ID</string>
     <string name="no_account_deactivated">Немає (вимкнено)</string>
     <string name="decline">Відхилити</string>
-    <string name="your_avatar">Ваша піктограма</string>
-    <string name="avatar_for_x">Піктограма для %s</string>
-    <string name="delete_avatar">Вилучити піктограму</string>
+    <string name="your_avatar">Ваш аватар</string>
+    <string name="avatar_for_x">Аватар для %s</string>
+    <string name="delete_avatar">Видалити аватар</string>
     <string name="unable_to_parse_invite">Не вдалося обробити запрошення</string>
     <string name="server_does_not_support_easy_onboarding_invites">Створення запрошень не підтримується сервером</string>
     <string name="account_registrations_are_not_supported">Реєстрація облікових записів не підтримується</string>
@@ -1100,7 +1100,7 @@
     <string name="pref_light_dark_mode">Світлий/темний режим</string>
     <string name="pref_title_trust_system_ca_store_summary">Довіряти сертифікатам системних ЦС</string>
     <string name="detect_mim">Вимагати прив\'язки каналу</string>
-    <string name="detect_mim_summary">Прив\'язка каналу може виявити деякі атаки типу «машина посередині»</string>
+    <string name="detect_mim_summary">УВАГА: з\'єднання буде розірвано, якщо не підтримується вашим сервером</string>
     <string name="pref_category_server_connection">З\'єднання з сервером</string>
     <string name="pref_category_application">Застосунок</string>
     <string name="pref_category_engagement_notifications">Сповіщення про активність</string>
@@ -1117,4 +1117,84 @@
     <string name="pref_fullscreen_notification_summary">Показувати сповіщення про вхідні виклики на весь екран, коли пристрій заблоковано.</string>
     <string name="pref_backup_summary">Створити резервну копію, запланувати повторюване резервування</string>
     <string name="pref_create_backup_one_off_summary">Створити резервну копію</string>
+    <string name="send_otr_message">Написати повідомлення…</string>
+    <string name="action_add">Нова розмова</string>
+    <string name="otr_fingerprint">Відбиток OTR</string>
+    <string name="verify_otr">Підтвердити OTR</string>
+    <string name="are_you_sure_verify_fingerprint">Ви впевнені, що хочете перевірити відбиток OTR вашого контакту?</string>
+    <string name="pref_enable_otr">Увімкнути шифрування OTR (beta)</string>
+    <string name="add_to_home_screen">Додати на головний екран</string>
+    <string name="smp_explain_answer">Ваш контакт бажає перевірити ваш цифровий підпис. Для цього ви маєте зазначити ваш спільний секрет. Контакт надав вам таку підказку чи запитання.</string>
+    <string name="shared_secret_can_not_be_empty">Спільний секрет має містити якусь інформацію</string>
+    <string name="stickers">Наклейки</string>
+    <string name="update_default_stickers">Оновити наклейки за замовчуванням</string>
+    <string name="action_dialpad">Клавіатура</string>
+    <string name="could_not_add_reaction">Не вдалося додати реакцію</string>
+    <string name="shared_secret_secret">Спільний секрет</string>
+    <string name="shared_secret_hint">Підказка чи запитання</string>
+    <string name="remote_fingerprint">Віддалений цифровий підпис</string>
+    <string name="your_fingerprint">Ваш цифровий підпис</string>
+    <string name="finish">Завершити</string>
+    <string name="in_progress">У процесі</string>
+    <string name="verify">Перевірити</string>
+    <string name="respond">Відповісти</string>
+    <string name="ask_question">Поставити запитання</string>
+    <string name="manually_verify">Перевірити вручну</string>
+    <string name="otr_blind_trust">Довіряти наосліп</string>
+    <string name="could_not_verify_fingerprint">Неможливо перевірити цифровий підпис</string>
+    <string name="shared_secret_hint_should_not_be_empty">Підказка має містити інформацію</string>
+    <string name="smp_requested">Контакт надіслав запит на підтвердження за допомогою SMP</string>
+    <string name="verified">Перевірено!</string>
+    <string name="otr_warning">Підтримка шифрування OTR перебуває в бета-режимі. Натисніть «Дізнатися більше», щоб отримати додаткову інформацію. Відкриється посилання в браузері.</string>
+    <string name="otr_session_not_started">Надішліть повідомлення, щоб почати зашифрований чат</string>
+    <string name="copy_otr_clipboard_description">Копіювати відбиток OTR</string>
+    <string name="no_otr_session_found">Не знайдено жодної дійсної сесії OTR!</string>
+    <string name="toast_message_otr_fingerprint">Відбиток OTR скопійовано!</string>
+    <string name="otr_fingerprint_selected_message">OTR-відбиток повідомлення</string>
+    <string name="unknown_otr_fingerprint">Невідомий відбиток OTR</string>
+    <string name="more_reactions">Більше реакцій</string>
+    <string name="add_reaction_title">Додати реакцію</string>
+    <string name="encrypted_with_otr">Зашифроване за допомогою OTR</string>
+    <string name="pref_enable_otr_summary">Увімкнути OTR для шифрування повідомлень. OTR усе ще дуже нестабільний, будь ласка, використовуйте його тільки якщо знаєте, що робите.</string>
+    <string name="add_reaction">Додати реакцію…</string>
+    <string name="secrets_do_not_match">Секрети не збігаються</string>
+    <string name="failed">Невдача</string>
+    <string name="manual_verification_explanation">Ретельно порівняйте цифровий підпис, який подано нижче, з цифровим підписом вашого контакту.
+\nДля обміну ними ви можете скористатися будь-яким засобом комунікації, якому довіряєте, як-от зашифроване листування або дзвінок.</string>
+    <string name="smp_explain_question">Якщо ви і ваш контакт маєте спільний секрет, який ніхто інший не знає (наприклад, якийсь жарт, про який відомо лише вам, чи що ви їли на обід під час зустрічі), то ви можете його використати для підтвердження цифрових підписів один одного.
+\n
+\nВи надаєте підказку чи ставите запитання контакту, який має надати відповідь — зверніть увагу, що регістр має значення.</string>
+    <string name="related_chats">Схожі чати</string>
+    <string name="show_keyboard">Показати клавіатуру</string>
+    <string name="choose_emoji">Виберіть емоджі</string>
+    <string name="emojis">Емоджі</string>
+    <string name="gifs">GIF</string>
+    <string name="pref_show_less_avatars">Показувати менше аватарів</string>
+    <string name="pref_show_less_avatars_summary">У розмовах будуть показані лише необхідні аватари</string>
+    <string name="pref_send_link_previews">Надсилати перегляд посилань</string>
+    <string name="add_subject">Додати тему</string>
+    <string name="pref_show_mappreview_inside">Попередній перегляд мап</string>
+    <string name="pref_show_own_accounts_summary">Показувати власний обліковий запис в огляді повідомлень і деталях</string>
+    <string name="pref_show_own_accounts">Показувати мій обліковий запис</string>
+    <string name="note_to_self">Нотатка для себе</string>
+    <string name="show_less">... згорнути</string>
+    <string name="allow_private_messages">Дозволити приватні повідомлення</string>
+    <string name="block_avatar">Заблокувати аватар</string>
+    <string name="otr_message">Повідомлення OTR</string>
+    <string name="pref_theme_obsidian">Обсидіан</string>
+    <string name="incoming_call_timestamp">Вхідний виклик · %s</string>
+    <string name="could_not_disable_video">Не вдалося вимкнути відео.</string>
+    <string name="edit_nick">Змінити прізвисько</string>
+    <string name="delete_pgp_key">Видалити ключ OpenPGP</string>
+    <string name="options">Налаштування</string>
+    <string name="pref_show_mappreview_inside_summary">Завантажувати попередній перегляд мапи для спільного місця розташування у вікні чату</string>
+    <string name="encryption">Шифрування</string>
+    <string name="choose_widget">Вибрати віджет</string>
+    <string name="store_media_only_in_cache">Зберігати медіа лише в кеші</string>
+    <string name="cant_open_file">Не вдається відкрити файл</string>
+    <string name="show_avatar">Показати аватар</string>
+    <string name="how_the_xmpp_network_works">Як працює мережа XMPP</string>
+    <string name="show_more">... розгорнути</string>
+    <string name="pref_jump_to_commands_tab">Перехід до команд</string>
+    <string name="pref_jump_to_commands_tab_summary">Автоматично переходити на сторінку команд, коли вони доступні</string>
 </resources>

@@ -671,7 +671,7 @@
     <string name="open_website">Abrir página web</string>
     <string name="application_found_to_open_website">No se ha encontrado aplicación para abrir el sitio web</string>
     <string name="pref_headsup_notifications">Notificaciones emergentes</string>
-    <string name="pref_headsup_notifications_summary">Mostrar ventana emergente al recibir una notificación </string>
+    <string name="pref_headsup_notifications_summary">Mostrar ventana emergente al recibir una notificación</string>
     <string name="today">Hoy</string>
     <string name="yesterday">Ayer</string>
     <string name="pref_validate_hostname">Validar hostname con DNSSEC</string>

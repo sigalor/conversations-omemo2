@@ -359,7 +359,8 @@
     <string name="clear_other_devices">Wyczyść urządzenia</string>
     <string name="clear_other_devices_desc">Czy na pewno chcesz usunąć wszystkie inne urządzenia z ogłoszenia OMEMO? Następnym razem gdy połączą się Twoje urządzenia, ogłoszą się one ponownie, ale mogą nie otrzymać wiadomości wysłanych w międzyczasie.</string>
     <string name="error_no_keys_to_trust_server_error">Nie ma dostępnych kluczy dla tego kontaktu.\nPobieranie nowych kluczy z serwera nie powiodło się. Być może jest coś nie tak z serwerem którego używa kontakt?</string>
-    <string name="error_no_keys_to_trust_presence">Brak dostępnych kluczy dla tego kontaktu.\nUpewnij się, że wzajemnie powiadamiacie się o obecności.</string>
+    <string name="error_no_keys_to_trust_presence">Brak dostępnych kluczy dla tego kontaktu.
+\nUpewnij się, że wzajemnie powiadamiacie się o obecności.</string>
     <string name="error_trustkeys_title">Coś poszło źle</string>
     <string name="fetching_history_from_server">Pobieranie historii z serwera</string>
     <string name="no_more_history_on_server">Koniec historii na serwerze</string>
@@ -628,7 +629,8 @@
     <string name="show_inactive_devices">Pokaż nieaktywne</string>
     <string name="hide_inactive_devices">Ukryj nieaktywne</string>
     <string name="distrust_omemo_key">Przestań ufać urządzeniu</string>
-    <string name="distrust_omemo_key_text">Czy jesteś pewien, że chcesz cofnąć weryfikację tego urządzenia?\nUrządzenie to, i wiadomości z niego przychodzące będą oznaczane jako niezaufane.</string>
+    <string name="distrust_omemo_key_text">Czy jesteś pewien, że chcesz cofnąć weryfikację tego urządzenia?
+\nUrządzenie to, i wiadomości z niego przychodzące będą oznaczane jako niezaufane.</string>
     <plurals name="seconds">
         <item quantity="one">%d sekunda</item>
         <item quantity="few">%d sekundy</item>
