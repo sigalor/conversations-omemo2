@@ -10,5 +10,5 @@
         android:left="10dp"
         android:right="10dp"
         android:top="2dp" />
-    <solid android:color="?attr/colorAccent" />
+    <solid android:color="@color/md_theme_light_secondaryContainer" />
 </shape>
