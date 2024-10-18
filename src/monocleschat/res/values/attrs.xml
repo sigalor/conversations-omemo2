@@ -10,6 +10,7 @@
     <attr name="ic_accounts_selected" format="reference" />
     <attr name="ic_group_unselected" format="reference" />
     <attr name="ic_group_selected" format="reference" />
+    <attr name="chat_bg" format="reference|color" />
 
     <declare-styleable name="ReadMoreTextView">
         <attr name="trimExpandedText" format="string" />

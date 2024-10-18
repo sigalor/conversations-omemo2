@@ -1000,6 +1000,10 @@ public abstract class XmppActivity extends ActionBarActivity {
         return getBooleanPreference(AppSettings.MANUALLY_CHANGE_PRESENCE, R.bool.manually_change_presence);
     }
 
+    public boolean unicoloredBG() {
+        return getBooleanPreference("unicolored_chatbg", R.bool.use_unicolored_chatbg); // || getPreferences().getString(SettingsActivity.THEME, getString(R.string.theme)).equals("black");
+    }
+
     protected String getShareableUri() {
         return getShareableUri(false);
     }

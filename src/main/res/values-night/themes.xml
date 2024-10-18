@@ -35,6 +35,8 @@
         <item name="ic_accounts_selected" type="reference">@drawable/accounts_selected_white_24</item>
         <item name="ic_group_unselected" type="reference">@drawable/outline_group_white_24</item>
         <item name="ic_group_selected" type="reference">@drawable/ic_group_selected_white_24</item>
+
+        <item name="chat_bg">@drawable/bg_dark_blue</item>
     </style>
 
     <style name="Theme.Conversations3.SplashScreen" parent="@style/Theme.Conversations3">

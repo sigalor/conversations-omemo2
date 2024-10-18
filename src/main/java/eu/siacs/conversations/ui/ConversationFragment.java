@@ -2893,13 +2893,22 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void updateChatBG() {
-        if (activity != null && conversation != null && conversation.getUuid() != null) {
-            Uri uri = ChatBackgroundHelper.getBgUri(activity, conversation.getUuid());
-            if (uri != null) {
-                binding.backgroundImage.setImageURI(uri);
-                binding.backgroundImage.setVisibility(View.VISIBLE);
+        if (activity != null) {
+            if (activity.unicoloredBG()) {
+                binding.conversationsFragment.setBackgroundResource(0);
             } else {
-                binding.backgroundImage.setVisibility(View.GONE);
+                if (activity != null && conversation != null && conversation.getUuid() != null) {
+                    Uri uri = ChatBackgroundHelper.getBgUri(activity, conversation.getUuid());
+                    if (uri != null) {
+                        binding.backgroundImage.setImageURI(uri);
+                        binding.backgroundImage.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.backgroundImage.setVisibility(View.GONE);
+                        binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                    }
+                } else {
+                    binding.conversationsFragment.setBackground(ContextCompat.getDrawable(activity, R.drawable.chatbg));
+                }
             }
         }
     }

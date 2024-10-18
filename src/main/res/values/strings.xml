@@ -1179,4 +1179,6 @@
     <string name="gif_deleted">GIF deleted</string>
     <string name="failed_to_delete_gif">Failed to delete GIF</string>
     <string name="add_to_home_screen">Add to home screen</string>
+    <string name="pref_use_unicolored_chatbg">Unicolored background</string>
+    <string name="pref_use_unicolored_chatbg_summary">Use unicolored background in chats</string>
 </resources>

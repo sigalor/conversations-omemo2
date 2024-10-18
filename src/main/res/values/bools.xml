@@ -9,4 +9,5 @@
     <bool name="show_nav_drawer">false</bool>
     <bool name="internal_meda_viewer">true</bool>
     <bool name="enable_otr">false</bool>
+    <bool name="use_unicolored_chatbg">false</bool>
 </resources>

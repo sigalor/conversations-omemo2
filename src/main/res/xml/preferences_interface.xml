@@ -83,7 +83,7 @@
     <PreferenceCategory android:title="@string/appearance">
         <Preference
             android:key="import_background"
-            android:icon="@drawable/ic_add_24dp"
+            android:icon="@drawable/ic_image_24dp"
             android:summary="@string/pref_chat_background_summary"
             android:title="@string/custom_background" />
         <Preference
@@ -91,6 +91,12 @@
             android:icon="@drawable/ic_delete_24dp"
             android:summary="@string/pref_delete_background_summary"
             android:title="@string/delete_background" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/use_unicolored_chatbg"
+            android:icon="@drawable/rounded_hide_image_24"
+            android:key="unicolored_chatbg"
+            android:summary="@string/pref_use_unicolored_chatbg_summary"
+            android:title="@string/pref_use_unicolored_chatbg" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_less_avatars"
             android:icon="@drawable/ic_person_24dp"
