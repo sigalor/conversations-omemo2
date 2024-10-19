@@ -5425,9 +5425,9 @@ public class ConversationFragment extends XmppFragment
                 boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
                 int keyboardHeight = 0;
                 if (activity != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
-                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 25;
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
                 } else if (activity != null) {
-                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 25;
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
                 }
                 if (keyboardHeight > 100 && !(secondaryFragment instanceof ConversationFragment)) {
                     binding.keyboardButton.setVisibility(GONE);
@@ -5437,7 +5437,7 @@ public class ConversationFragment extends XmppFragment
                 } else if (keyboardHeight > 100) {
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
-                    params.height = keyboardHeight - 142;
+                    params.height = keyboardHeight - 117;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.keyboardButton.setVisibility(GONE);
@@ -5464,12 +5464,12 @@ public class ConversationFragment extends XmppFragment
                 if (keyboardOpen && !(secondaryFragment instanceof ConversationFragment)) {
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
-                    params.height = keyboardHeight - 25;
+                    params.height = keyboardHeight;
                     emojipickerview.setLayoutParams(params);
                 } else if (keyboardOpen) {
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
-                    params.height = keyboardHeight - 150;
+                    params.height = keyboardHeight - 125;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.keyboardButton.setVisibility(GONE);
