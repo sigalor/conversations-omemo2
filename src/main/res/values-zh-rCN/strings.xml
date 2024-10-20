@@ -1194,4 +1194,6 @@
     <string name="gif_deleted">GIF 已删除</string>
     <string name="internal_meda_viewer_title">内部媒体查看器</string>
     <string name="internal_meda_viewer_summary">使用内部媒体查看器打开 monocles chat 中的图片和视频文件</string>
+    <string name="pref_use_unicolored_chatbg">单色背景</string>
+    <string name="pref_use_unicolored_chatbg_summary">在聊天中使用单色背景</string>
 </resources>

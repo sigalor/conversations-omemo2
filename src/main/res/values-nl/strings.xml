@@ -802,4 +802,13 @@
     <string name="action_archive_chat">Chat archiveren</string>
     <string name="unable_to_connect_to_keychain">Kan niet verbinden met OpenKeychain</string>
     <string name="start_chat">Chat starten</string>
+    <string name="emojis">Emoji\'s</string>
+    <string name="stickers">Stickers</string>
+    <string name="gifs">GIF\'s</string>
+    <string name="copy_GIFs_to_GIFs_folder">GIF\'s kopiëren naar de GIF-map</string>
+    <string name="gif_deleted">GIF verwijderd</string>
+    <string name="failed_to_delete_gif">GIF kon niet worden verwijderd</string>
+    <string name="update_default_stickers">Standaardstickers wijzigen</string>
+    <string name="add_to_home_screen">Toevoegen aan beginscherm</string>
+    <string name="show_keyboard">Toetsenbord tonen</string>
 </resources>
