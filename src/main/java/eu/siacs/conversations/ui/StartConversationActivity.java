@@ -558,7 +558,7 @@ public class StartConversationActivity extends XmppActivity
         super.onStart();
         mConferenceAdapter.refreshSettings();
         mContactsAdapter.refreshSettings();
-        if (pendingViewIntent.peek() == null) {
+        if (!createdByViewIntent) {
             askForContactsPermissions();
             requestNotificationPermissionIfNeeded();
         }
@@ -1080,10 +1080,7 @@ public class StartConversationActivity extends XmppActivity
             final String consent =
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                             .getString(PREF_KEY_CONTACT_INTEGRATION_CONSENT, null);
-            final boolean requiresConsent =
-                    (QuickConversationsService.isQuicksy()
-                            || QuickConversationsService.isPlayStoreFlavor())
-                            && !"agreed".equals(consent);
+            final boolean requiresConsent = !"agreed".equals(consent);
             if (requiresConsent && "declined".equals(consent)) {
                 Log.d(
                         Config.LOGTAG,
