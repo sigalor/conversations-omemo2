@@ -1322,7 +1322,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
         final String sql =
-                "select * from messages where conversationUuid=? and serverMsgId=? LIMIT 1";
+                "select * from messages LEFT JOIN monocles.messages USING (uuid) where conversationUuid=? and serverMsgId=? LIMIT 1";
         final String[] args = {conversation.getUuid(), messageId};
         final Cursor cursor = db.rawQuery(sql, args);
         if (cursor == null) {
@@ -1342,7 +1342,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
         final String sql =
-                "select * from messages where conversationUuid=? and (uuid=? OR remoteMsgId=?) LIMIT 1";
+                "select * from messages LEFT JOIN monocles.messages USING (uuid) where conversationUuid=? and (uuid=? OR remoteMsgId=?) LIMIT 1";
         final String[] args = {conversation.getUuid(), messageId, messageId};
         final Cursor cursor = db.rawQuery(sql, args);
         if (cursor == null) {
