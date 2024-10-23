@@ -33,7 +33,6 @@
     <plurals name="x_unread_conversations">
         <item quantity="one">%d unread chat</item>
         <item quantity="other">%d unread chats</item>
-
     </plurals>
     <string name="sending">sending…</string>
     <string name="message_decrypting">Decrypting message. Please wait…</string>
@@ -701,7 +700,7 @@
     <string name="mtm_accept_cert">Accept Unknown Certificate?</string>
     <string name="mtm_trust_anchor">The server certificate is not signed by a known Certificate Authority.</string>
     <string name="mtm_accept_servername">Accept Mismatching Server Name?</string>
-    <string name="mtm_hostname_mismatch">Server could not authenticate as \&quot;%s\&quot;. The certificate is only valid for:</string>
+    <string name="mtm_hostname_mismatch">Server could not authenticate as \"%s\". The certificate is only valid for:</string>
     <string name="mtm_connect_anyway">Do you want to connect anyway?</string>
     <string name="mtm_cert_details">Certificate details:</string>
     <string name="once">Once</string>
@@ -887,7 +886,7 @@
     <string name="discover_channels">Discover channels</string>
     <string name="search_channels">Search channels</string>
     <string name="channel_discovery_opt_in_title">Possible privacy violation!</string>
-    <string name="channel_discover_opt_in_message">Channel discovery uses a third party service called &lt;a href=&quot;https://search.jabber.network&quot;>search.jabber.network&lt;/a>.&lt;br>&lt;br>Using this feature will transmit your IP address and search terms to that service. See their &lt;a href=&quot;https://search.jabber.network/privacy&quot;>Privacy Policy&lt;/a> for more information.</string>
+    <string name="channel_discover_opt_in_message">Channel discovery uses a third party service called &lt;a href="https://search.jabber.network"&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Using this feature will transmit your IP address and search terms to that service. See their &lt;a href="https://search.jabber.network/privacy"&gt;Privacy Policy&lt;/a&gt; for more information.</string>
     <string name="add_existing_account">Add existing account</string>
     <string name="register_new_account">Register new account</string>
     <string name="this_looks_like_a_domain">This looks like a domain address</string>
@@ -1122,7 +1121,6 @@
     <string name="show_link_previews_summary">Show a link description when sender included it</string>
     <string name="internal_meda_viewer_title">Internal media viewer</string>
     <string name="internal_meda_viewer_summary">Use internal media viewer to open image or video files inside monocles chat</string>
-
     <string name="send_otr_message">Write message…</string>
     <string name="unknown_otr_fingerprint">Unknown OTR fingerprint</string>
     <string name="otr_fingerprint">OTR fingerprint</string>
@@ -1175,7 +1173,6 @@
     <string name="add_to_home_screen">Add to home screen</string>
     <string name="pref_use_unicolored_chatbg">Unicolored background</string>
     <string name="pref_use_unicolored_chatbg_summary">Use unicolored background in chats</string>
-
     <string name="pick_a_server">Pick your XMPP service</string>
     <string name="use_conversations.im">Use monocles</string>
     <string name="get_jabber_id">Get XMPP ID</string>
@@ -1224,7 +1221,6 @@
     <string name="block_inviter">Block inviter</string>
     <string name="add_bookmark">Add Chat</string>
     <string name="received_invite_from_stranger">Received invite from stranger</string>
-
     <string name="avater_shape_oval">Round</string>
     <string name="avater_shape_rounded_square">Rounded Square</string>
     <string name="avater_shape_square">Square</string>
@@ -1274,9 +1270,9 @@
     <string name="other_aspect_ratio">Other</string>
     <string name="thumbnails">Thumbnails</string>
     <string name="saving">saving</string>
-    <string name="out_of_memory_error">out_of_memory_error</string>
-    <string name="file_saved">file_saved</string>
-    <string name="simple_commons">simple_commons</string>
+    <string name="out_of_memory_error">Out of memory error</string>
+    <string name="file_saved">File saved</string>
+    <string name="simple_commons">Simple commons</string>
     <string name="value_copied_to_clipboard_show">value_copied_to_clipboard_show</string>
     <string name="default_color">default_color</string>
     <string name="unknown_error_occurred">unknown_error_occurred</string>

@@ -165,7 +165,7 @@
     <string name="account_settings_example_jabber_id">gebruikersnaam@voorbeeld.nl</string>
     <string name="password">Wachtwoord</string>
     <string name="invalid_jid">Dit is geen geldig XMPP-adres</string>
-    <string name="error_out_of_memory">Geen geheugen beschikbaar. Afbeelding is te groot</string>
+    <string name="error_out_of_memory">Onvoldoende geheugen: afbeelding is te groot</string>
     <string name="add_phone_book_text">Wil je %s toevoegen aan je adresboek?</string>
     <string name="server_info_show_more">Server-info</string>
     <string name="server_info_mam">XEP-0313: MAM</string>
@@ -226,7 +226,7 @@
     <string name="add_back">Ook toevoegen</string>
     <string name="contact_has_read_up_to_this_point">%s heeft tot hier gelezen</string>
     <string name="contacts_have_read_up_to_this_point">%s hebben tot hier gelezen</string>
-    <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s en nog %2$d meer hebben tot hier gelezen</string>
+    <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s+%2$d anderen hebben tot hier gelezen</string>
     <string name="everyone_has_read_up_to_this_point">Iedereen heeft tot hier gelezen</string>
     <string name="publish">Publiceer</string>
     <string name="touch_to_choose_picture">Tik op avatar om een foto uit de galerij te kiezen</string>
@@ -235,7 +235,7 @@
     <string name="error_publish_avatar_converting">Kon de afbeelding niet converteren</string>
     <string name="error_saving_avatar">Fout bij opslaan van avatar</string>
     <string name="or_long_press_for_default">(Of hou lang ingedrukt om de oorspronkelijke terug te zetten)</string>
-    <string name="error_publish_avatar_no_server_support">Je server ondersteunt de publicatie van avatars niet</string>
+    <string name="error_publish_avatar_no_server_support">Je server ondersteunt het publiceren van avatars niet</string>
     <string name="private_message">gefluisterd</string>
     <string name="private_message_to">naar %s</string>
     <string name="send_private_message_to">Privébericht sturen naar %s</string>
@@ -264,7 +264,7 @@
     <string name="pref_expert_options_other">Andere</string>
     <string name="toast_message_omemo_fingerprint">OMEMO-vingerafdruk gekopieerd naar klembord</string>
     <string name="conference_banned">Je bent verbannen uit dit groepsgesprek</string>
-    <string name="conference_members_only">Dit groepsgesprek is enkel voor leden</string>
+    <string name="conference_members_only">Dit groepsgesprek is enkel voor leden toegankelijk</string>
     <string name="conference_resource_constraint">Bronbeperking</string>
     <string name="conference_kicked">Je bent uit dit groepsgesprek verwijderd</string>
     <string name="conference_shutdown">Het groepsgesprek is uitgeschakeld</string>
@@ -346,7 +346,7 @@
     <string name="remove_from_room">Verwijderen uit groepsgesprek</string>
     <string name="remove_from_channel">Verwijderen uit kanaal</string>
     <string name="could_not_change_affiliation">Kon aansluiting niet wijzigen</string>
-    <string name="ban_from_conference">Verbannen uit groepsgesprek</string>
+    <string name="ban_from_conference">Uit groepsgesprek verbannen</string>
     <string name="ban_from_channel">Verbannen uit kanaal</string>
     <string name="ban_now">Nu verbannen</string>
     <string name="could_not_change_role">Kon rol van %s niet wijzigen</string>
@@ -811,4 +811,16 @@
     <string name="update_default_stickers">Standaardstickers wijzigen</string>
     <string name="add_to_home_screen">Toevoegen aan beginscherm</string>
     <string name="show_keyboard">Toetsenbord tonen</string>
+    <string name="i_am_snikket_user">Ik gebruik Snikket</string>
+    <string name="action_dialpad">Toetsenblok</string>
+    <string name="pref_use_unicolored_chatbg_summary">Effen achtergrond in gesprekken gebruiken</string>
+    <string name="openkeychain_required_long">%1$s gebruikt een app genaamd <b>OpenKeychain</b> om berichten te versleutelen/ontsleutelen en om publieke sleutels te beheren.
+\n
+\nOpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en Google Play.
+\n
+\n<small>(Herstart %1$s na de installatie.)</small></string>
+    <string name="pick_a_server">Kies een XMPP-service</string>
+    <string name="use_conversations.im">Monocles gebruiken</string>
+    <string name="get_jabber_id">XMPP-ID verkrijgen</string>
+    <string name="create_new_account">Nieuw account aanmaken</string>
 </resources>

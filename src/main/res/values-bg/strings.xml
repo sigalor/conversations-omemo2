@@ -524,7 +524,8 @@
     <string name="no_application_to_share_uri">Няма намерено приложение за споделяне на адреса</string>
     <string name="share_uri_with">Споделяне на адреса с…</string>
     <string name="agree_and_continue">Съгласяване и продължаване</string>
-    <string name="magic_create_text">На monocles.eu има ръководство за създаване на профил.\nИзбирайки conversations.im за доставчик, Вие ще можете да общувате и с потребители на други доставчици, като им предоставите своя пълен адрес за XMPP.</string>
+    <string name="magic_create_text">На monocles.eu има ръководство за създаване на профил.
+\nИзбирайки conversations.im за доставчик, Вие ще можете да общувате и с потребители на други доставчици, като им предоставите своя пълен адрес за XMPP.</string>
     <string name="your_full_jid_will_be">Пълният Ви XMPP адрес ще бъде: %s</string>
     <string name="create_account">Създаване на профил</string>
     <string name="use_own_provider">Използване на собствен доставчик</string>
