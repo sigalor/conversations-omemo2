@@ -3762,7 +3762,7 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void refreshForNewCaps(final Set<Jid> newCapsJids) {
-        if (newCapsJids.isEmpty() || newCapsJids.contains(conversation.getJid().asBareJid())) {
+        if (newCapsJids.isEmpty() || (conversation != null && newCapsJids.contains(conversation.getJid().asBareJid()))) {
             refreshCommands(true);
         }
     }
