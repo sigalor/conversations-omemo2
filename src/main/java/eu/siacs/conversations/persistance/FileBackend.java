@@ -222,7 +222,7 @@ public class FileBackend {
         final String androidDataPath =
                 Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/";
         final File f = new File(path);
-        return path.startsWith(androidDataPath) || !f.canRead();
+        return path.startsWith(androidDataPath) || path.contains(".transforms/synthetic") || !f.canRead();
     }
 
     private static Paint createAntiAliasingPaint() {
