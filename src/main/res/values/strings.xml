@@ -1289,4 +1289,15 @@
     <string name="xmpp_network_description">The XMPP network is powered by a protocol called XMPP. It is a decentralized network, which means no one owns or controls the whole thing. It is a federated network which means anyone can run a XMPP service. Messages to other XMPP users are per default end-to-end encrypted with OMEMO.\\n\\nAddresses are called XMPP IDs and look similar to email addresses:</string>
     <string name="example_jid">username@monocles.eu</string>
     <string name="view_privacy_policy">View privacy policy</string>
+    <string name="pref_theme_title">Theme</string>
+    <string name="follow_system_dark_mode">Follow system dark mode</string>
+    <string name="custom_theme_is_dark">Custom theme is dark</string>
+    <string name="color_match">Color match</string>
+    <string name="stay_true_to_my_color_inputs">Stay true to my color inputs</string>
+    <string name="custom_primary_color">Custom primary color</string>
+    <string name="custom_secondary_color">Custom secondary color</string>
+    <string name="custom_tertiary_color">Custom tertiary color</string>
+    <string name="custom_background_color">Custom background color</string>
+    <string name="compose_using_rich_text">Compose using rich text</string>
+    <string name="compose_using_rich_text_summary">The message editor will show formatting as you type</string>
 </resources>

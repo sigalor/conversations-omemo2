@@ -13,70 +13,70 @@
             android:entryValues="@array/themes_values"
             android:icon="@drawable/ic_dark_mode_24dp"
             android:key="theme"
-            android:title="Theme"
+            android:title="@string/pref_theme_title"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/ic_dark_mode_24dp"
             android:key="custom_theme_automatic"
-            android:title="Follow System Dark Mode" />
+            android:title="@string/follow_system_dark_mode" />
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_dark_mode_24dp"
             android:key="custom_theme_dark"
-            android:title="Custom Theme is Dark" />
+            android:title="@string/custom_theme_is_dark" />
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_theme_color_match"
-            android:title="Color Match"
-            android:summary="Stay true to my color inputs" />
+            android:title="@string/color_match"
+            android:summary="@string/stay_true_to_my_color_inputs" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_theme_primary"
-            android:title="Custom Primary Color"
+            android:title="@string/custom_primary_color"
             android:defaultValue="@color/md_theme_light_primary"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_theme_primary_dark"
-            android:title="Custom Secondary Color"
+            android:title="@string/custom_secondary_color"
             android:defaultValue="@color/md_theme_light_secondary"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_theme_accent"
-            android:title="Custom Tertiary Color"
+            android:title="@string/custom_tertiary_color"
             android:defaultValue="@color/md_theme_light_tertiary"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_theme_background_primary"
-            android:title="Custom Background Color"
+            android:title="@string/custom_background_color"
             android:defaultValue="@color/md_theme_light_surface"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_dark_theme_primary"
-            android:title="Custom Primary Color"
+            android:title="@string/custom_primary_color"
             android:defaultValue="@color/md_theme_dark_primary"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_dark_theme_primary_dark"
-            android:title="Custom Secondary Color"
+            android:title="@string/custom_secondary_color"
             android:defaultValue="@color/md_theme_dark_secondary"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_dark_theme_accent"
-            android:title="Custom Tertiary Color"
+            android:title="@string/custom_tertiary_color"
             android:defaultValue="@color/md_theme_dark_tertiary"
             app:colorpicker_showAlpha="false" />
         <com.rarepebble.colorpicker.ColorPreference
             android:icon="@drawable/ic_palette_24dp"
             android:key="custom_dark_theme_background_primary"
-            android:title="Custom Background Color"
+            android:title="@string/custom_background_color"
             android:defaultValue="@color/md_theme_dark_surface"
             app:colorpicker_showAlpha="false" />
     </PreferenceCategory>>
@@ -220,8 +220,8 @@
             android:icon="@drawable/ic_format_size_24dp"
             android:defaultValue="@bool/compose_rich_text"
             android:key="compose_rich_text"
-            android:summary="The message editor will show formatting as you type"
-            android:title="Compose using rich text" />
+            android:summary="@string/compose_using_rich_text_summary"
+            android:title="@string/compose_using_rich_text" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_keyboard_options">
         <SwitchPreferenceCompat
