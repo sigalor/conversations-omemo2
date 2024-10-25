@@ -34,7 +34,7 @@
     <item
         android:id="@+id/action_block_avatar"
         android:orderInCategory="50"
-        android:title="Block Avatar"
+        android:title="@string/block_avatar"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_archive"

@@ -155,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:fontFamily="@font/poppins"
-            android:text="The Jabber network is powered by a protocol called XMPP. It is a decentralized network, which means no one owns or controls the whole thing. It is a federated network which means anyone can run a Jabber service. Messages to other XMPP users can be end-to-end encrypted by enabling OMEMO for the conversation.\n\nAddresses are called XMPP IDs and look similar to email addresses:" />
+            android:text="@string/xmpp_network_description" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -165,7 +165,7 @@
             android:fontFamily="@font/archivoblack"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
-            android:text="username@monocles.eu" />
+            android:text="@string/example_jid" />
 
         <com.caverock.androidsvg.SVGImageView
            android:layout_width="match_parent"
@@ -324,7 +324,7 @@
             android:layout_marginEnd="32dp"
             android:layout_marginRight="32dp"
             android:layout_marginBottom="32dp"
-            android:text="View Privacy Policy"
+            android:text="@string/view_privacy_policy"
             android:textColor="?colorOnTertiary"
             android:visibility="gone"
             app:backgroundTint="?colorTertiary"

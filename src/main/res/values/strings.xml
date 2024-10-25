@@ -1283,4 +1283,10 @@
     <string name="save_to_downloads">Save to Downloads</string>
     <string name="save_to_downloads_success">File successfully saved to Downloads folder</string>
     <string name="mappreview_url">https://staticmap.monocles.eu/map.png</string>
+    <string name="mute_locally">Mute locally</string>
+    <string name="unmute_locally">Unmute locally</string>
+    <string name="invite_to_start_chat">Invite to start chat</string>
+    <string name="xmpp_network_description">The XMPP network is powered by a protocol called XMPP. It is a decentralized network, which means no one owns or controls the whole thing. It is a federated network which means anyone can run a XMPP service. Messages to other XMPP users are per default end-to-end encrypted with OMEMO.\\n\\nAddresses are called XMPP IDs and look similar to email addresses:</string>
+    <string name="example_jid">username@monocles.eu</string>
+    <string name="view_privacy_policy">View privacy policy</string>
 </resources>

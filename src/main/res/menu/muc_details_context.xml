@@ -14,15 +14,15 @@
         android:visible="false" />
     <item
         android:id="@+id/action_block_avatar"
-        android:title="Block Avatar"
+        android:title="@string/block_avatar"
         android:visible="false" />
     <item
         android:id="@+id/action_mute_participant"
-        android:title="Mute Locally"
+        android:title="@string/mute_locally"
         android:visible="false" />
     <item
         android:id="@+id/action_unmute_participant"
-        android:title="Unmute Locally"
+        android:title="@string/unmute_locally"
         android:visible="false" />
     <item
         android:id="@+id/invite"
@@ -34,7 +34,7 @@
         android:visible="false" />
     <item
         android:id="@+id/share_contact_details"
-        android:title="Invite to start chat"
+        android:title="@string/invite_to_start_chat"
         android:visible="false" />
     <item
         android:id="@+id/manage_permissions"
