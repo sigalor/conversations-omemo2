@@ -5379,6 +5379,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setupFileObserver(final File directory) {
+    	outputFileWrittenLatch = new CountDownLatch(1);
         mFileObserver =
                 new FileObserver(directory.getAbsolutePath()) {
                     @Override
