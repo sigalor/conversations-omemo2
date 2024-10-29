@@ -71,7 +71,13 @@ public final class BlockContactDialog {
 				xmppActivity.xmppConnectionService.sendUnblockRequest(blockable);
 			} else {
 				boolean toastShown = false;
-				if (xmppActivity.xmppConnectionService.sendBlockRequest(blockable, binding.reportSpam.isChecked(), serverMsgId)) {
+				var finalServerId = serverMsgId;
+				if (serverMsgId == null && binding.reportSpam.isChecked() && blockable instanceof Conversation) {
+					final var lastM = ((Conversation) blockable).getLatestMessage();
+					if (lastM != null) finalServerId = lastM.getServerMsgId();
+				}
+
+				if (xmppActivity.xmppConnectionService.sendBlockRequest(blockable, binding.reportSpam.isChecked(), finalServerId)) {
 					Toast.makeText(xmppActivity, R.string.corresponding_chats_closed, Toast.LENGTH_SHORT).show();
 					toastShown = true;
 				}
