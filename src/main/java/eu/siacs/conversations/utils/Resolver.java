@@ -498,8 +498,6 @@ public class Resolver {
                             return result;
                         } catch (DnssecValidationFailedException e) {
                             Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", e);
-                        } catch (IOException e) {
-                            throw e;
                         } catch (Throwable throwable) {
                             Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", throwable);
                         }
