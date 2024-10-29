@@ -22,4 +22,11 @@
         android:title="@string/scan_qr_code"
         android:visible="@bool/show_qr_code_scan"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_report_spam"
+        android:icon="@drawable/ic_report_24dp"
+        android:orderInCategory="11"
+        android:title="@string/report_spam"
+        android:visible="false"
+        app:showAsAction="always" />
 </menu>

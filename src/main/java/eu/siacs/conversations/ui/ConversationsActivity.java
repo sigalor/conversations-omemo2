@@ -1066,16 +1066,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_conversations, menu);
         final MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
+        final var reportSpamItem = menu.findItem(R.id.action_report_spam);
+        final var fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
+        final var overview = fragment instanceof ConversationsOverviewFragment;
         if (qrCodeScanMenuItem != null) {
             if (isCameraFeatureAvailable() && (xmppConnectionService == null || !xmppConnectionService.isOnboarding())) {
-                Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
-                boolean visible = getResources().getBoolean(R.bool.show_qr_code_scan)
-                        && fragment instanceof ConversationsOverviewFragment;
+                final var visible = getResources().getBoolean(R.bool.show_qr_code_scan) && overview;
                 qrCodeScanMenuItem.setVisible(visible);
             } else {
                 qrCodeScanMenuItem.setVisible(false);
             }
         }
+        reportSpamItem.setVisible(overview && mainFilter == DRAWER_CHAT_REQUESTS);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -1255,7 +1257,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             case R.id.action_search_all_conversations:
                 startActivity(new Intent(this, SearchActivity.class));
                 return true;
-            case R.id.action_search_this_conversation:
+            case R.id.action_search_this_conversation: {
                 final Conversation conversation = ConversationFragment.getConversation(this);
                 if (conversation == null) {
                     return true;
@@ -1264,6 +1266,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 intent.putExtra(SearchActivity.EXTRA_CONVERSATION_UUID, conversation.getUuid());
                 startActivity(intent);
                 return true;
+            }
+            case R.id.action_report_spam: {
+                final var list = new ArrayList<Conversation>();
+                populateWithOrderedConversations(list, true, false);
+                new AlertDialog.Builder(this)
+                    .setTitle(R.string.report_spam)
+                    .setMessage("Do you really want to block all these users and report as SPAM?")
+                    .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                        for (final var conversation : list) {
+                            final var m = conversation.getLatestMessage();
+                            xmppConnectionService.sendBlockRequest(conversation, true, m == null ? null : m.getServerMsgId());
+                        }
+                    })
+                    .setNegativeButton(R.string.no, null).show();
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
