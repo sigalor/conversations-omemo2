@@ -859,6 +859,22 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.command.setText(uri.getSchemeSpecificPart());
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_email_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("bitcoin")) {
+                    binding.command.setText(uri.getSchemeSpecificPart());
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.bitcoin_24dp), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("bitcoincash")) {
+                    binding.command.setText(uri.getSchemeSpecificPart());
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.bitcoin_cash_24dp), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("https") && "liberapay.com".equals(uri.getHost())) {
+                    binding.command.setText(uri.getPath().substring(1));
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.liberapay), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("https") && ("www.patreon.com".equals(uri.getHost()) || "patreon.com".equals(uri.getHost()))) {
+                    binding.command.setText(uri.getPath().replaceAll("^/(?:c/)?", ""));
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.patreon), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                     binding.command.setText(uri.toString());
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_link_24dp), null, null, null);
