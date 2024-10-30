@@ -490,16 +490,20 @@ public class Resolver {
                 () -> {
                     final Question question = new Question(dnsName, Record.TYPE.getType(type));
                     if (!DNSSECLESS_TLDS.contains(dnsName.getLabels()[0].toString())) {
-                        try {
-                            ResolverResult<D> result = DnssecResolverApi.INSTANCE.resolve(question);
-                            if (result.wasSuccessful() && !result.isAuthenticData()) {
-                                Log.d(Config.LOGTAG, "DNSSEC validation failed for " + type.getSimpleName() + " : " + result.getUnverifiedReasons());
+                        for (int i = 0; i < 3; i++) {
+                            try {
+                                ResolverResult<D> result = DnssecResolverApi.INSTANCE.resolve(question);
+                                if (result.wasSuccessful() && !result.isAuthenticData()) {
+                                    Log.d(Config.LOGTAG, "DNSSEC validation failed for " + type.getSimpleName() + " : " + result.getUnverifiedReasons());
+                                }
+                                return result;
+                            } catch (DnssecValidationFailedException e) {
+                                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", e);
+                                // Try again, may be transient DNSSEC failure https://github.com/MiniDNS/minidns/issues/132
+                            } catch (Throwable throwable) {
+                                Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", throwable);
+                                break;
                             }
-                            return result;
-                        } catch (DnssecValidationFailedException e) {
-                            Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", e);
-                        } catch (Throwable throwable) {
-                            Log.d(Config.LOGTAG, Resolver.class.getSimpleName() + ": error resolving " + type.getSimpleName() + " with DNSSEC. Trying DNS instead.", throwable);
                         }
                     }
                     return ResolverApi.INSTANCE.resolve(question);
