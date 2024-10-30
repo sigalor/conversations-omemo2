@@ -1492,6 +1492,7 @@ public class XmppConnectionService extends Service {
         } catch (Throwable throwable) {
             Log.e(Config.LOGTAG, "unable to initialize security provider", throwable);
         }
+        Resolver.init(this);
         updateMemorizingTrustManager();
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int cacheSize = maxMemory / 8;
