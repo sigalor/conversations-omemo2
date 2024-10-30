@@ -238,6 +238,10 @@ public class Resolver {
         if (client instanceof ReliableDnsClient) {
             ((ReliableDnsClient) client).setUseHardcodedDnsServers(false);
         }
+        final AbstractDnsClient dnssecclient = DnssecResolverApi.INSTANCE.getClient();
+        if (client instanceof ReliableDnsClient) {
+            ((ReliableDnsClient) client).setUseHardcodedDnsServers(false);
+        }
     }
 
     public static List<Result> fromHardCoded(final String hostname, final int port) {
