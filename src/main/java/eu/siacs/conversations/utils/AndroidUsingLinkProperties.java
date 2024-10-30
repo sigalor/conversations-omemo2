@@ -13,6 +13,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.minidns.dnsserverlookup.AbstractDnsServerLookupMechanism;
 import org.minidns.dnsserverlookup.AndroidUsingExec;
@@ -41,7 +42,7 @@ public class AndroidUsingLinkProperties extends AbstractDnsServerLookupMechanism
         }
         final Network activeNetwork = getActiveNetwork(connectivityManager);
         final List<String> servers = new ArrayList<>();
-        int vpnOffset = 0;
+        int offset = 0;
         for(Network network : networks) {
             LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
             if (linkProperties == null) {
@@ -50,15 +51,15 @@ public class AndroidUsingLinkProperties extends AbstractDnsServerLookupMechanism
             final NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
             final boolean isActiveNetwork = network.equals(activeNetwork);
             final boolean isVpn = networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_VPN;
-            if (isActiveNetwork && isVpn) {
+            if (isActiveNetwork) {
                 final List<String> tmp = getIPv4First(linkProperties.getDnsServers());
                 servers.addAll(0, tmp);
-                vpnOffset += tmp.size();
+                offset += tmp.size();
             } else if (hasDefaultRoute(linkProperties) || isActiveNetwork || activeNetwork == null || isVpn) {
-                servers.addAll(vpnOffset, getIPv4First(linkProperties.getDnsServers()));
+				servers.addAll(offset, getIPv4First(linkProperties.getDnsServers()));
             }
         }
-        return servers;
+        return servers.stream().distinct().collect(Collectors.toList());
     }
 
     @TargetApi(23)
