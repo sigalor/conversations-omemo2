@@ -239,8 +239,8 @@ public class Resolver {
             ((ReliableDnsClient) client).setUseHardcodedDnsServers(false);
         }
         final AbstractDnsClient dnssecclient = DnssecResolverApi.INSTANCE.getClient();
-        if (client instanceof ReliableDnsClient) {
-            ((ReliableDnsClient) client).setUseHardcodedDnsServers(false);
+        if (dnssecclient instanceof ReliableDnsClient) {
+            ((ReliableDnsClient) dnssecclient).setUseHardcodedDnsServers(false);
         }
     }
 
