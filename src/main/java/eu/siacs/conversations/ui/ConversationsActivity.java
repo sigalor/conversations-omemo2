@@ -919,10 +919,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                         break;
                 }
             } else {
-                showDialogsIfMainIsOverview();
+                if (requestCode != REQUEST_POST_NOTIFICATION) showDialogsIfMainIsOverview();
             }
         } else {
-            showDialogsIfMainIsOverview();
+            if (requestCode != REQUEST_POST_NOTIFICATION) showDialogsIfMainIsOverview();
         }
     }
 
