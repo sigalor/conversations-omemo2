@@ -1311,13 +1311,15 @@ public class FileBackend {
                             if (parts[0].equals("image/blurhash")) continue; // blurhash only for fallback
                             if (parts[0].equals("image/thumbhash")) continue; // thumbhash only for fallback
 
-                            ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
-                            thumbnail = ImageDecoder.decodeDrawable(source, (decoder, info, src) -> {
-                                int w = info.getSize().getWidth();
-                                int h = info.getSize().getHeight();
-                                Rect r = rectForSize(w, h, size);
-                                decoder.setTargetSize(r.width(), r.height());
-                            });
+                            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                                ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
+                                thumbnail = ImageDecoder.decodeDrawable(source, (decoder, info, src) -> {
+                                    int w = info.getSize().getWidth();
+                                    int h = info.getSize().getHeight();
+                                    Rect r = rectForSize(w, h, size);
+                                    decoder.setTargetSize(r.width(), r.height());
+                                });
+                            }
 
                             if (thumbnail != null && file.getAbsolutePath() != null) {
                                 cache.put(file.getAbsolutePath(), thumbnail);
