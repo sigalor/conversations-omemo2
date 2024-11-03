@@ -4378,6 +4378,7 @@ public class ConversationFragment extends XmppFragment
         }
         storeNextMessage();
         updateChatMsgHint();
+        if (activity == null) return;
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
         final boolean prefScrollToBottom =
                 p.getBoolean(
