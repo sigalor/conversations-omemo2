@@ -240,13 +240,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             for (final var c : conversations) {
                 final var unread = c.unreadCount(xmppConnectionService);
                 if (selectedAccount == null || selectedAccount.getUuid().equals(c.getAccount().getUuid())) {
-                    totalUnread += unread;
-                    if (c.getMode() == Conversation.MODE_MULTI) {
-                        channelUnread += unread;
+                    if (c.isChatRequest(chatRequestsPref)) {
+                        chatRequests++;
                     } else {
-                        dmUnread += unread;
+                        totalUnread += unread;
+                        if (c.getMode() == Conversation.MODE_MULTI) {
+                            channelUnread += unread;
+                        } else {
+                            dmUnread += unread;
+                        }
                     }
-                    if (c.isChatRequest(chatRequestsPref)) chatRequests++;
                 }
                 var accountUnread = accountUnreads.get(c.getAccount());
                 if (accountUnread == null) accountUnread = 0;
