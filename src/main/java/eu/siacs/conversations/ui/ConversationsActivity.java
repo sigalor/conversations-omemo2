@@ -339,7 +339,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 }
             }
 
-            items.subList(endOfMainFilters, endOfMainFilters + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
+            items.subList(endOfMainFilters, Math.min(endOfMainFilters + tags.size(), items.size())).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
             binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
             return kotlin.Unit.INSTANCE;
         });
