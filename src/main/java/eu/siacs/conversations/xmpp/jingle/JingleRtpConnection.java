@@ -1702,10 +1702,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
         ringingTimeoutFuture =
                 jingleConnectionManager.schedule(
                         this::ringingTimeout, BUSY_TIME_OUT, TimeUnit.SECONDS);
-        if (CallIntegration.selfManaged(xmppConnectionService)) {
-            if (CallIntegrationConnectionService.addNewIncomingCall(xmppConnectionService, getId())) {
-                return;
-            }
+        if (CallIntegrationConnectionService.addNewIncomingCall(xmppConnectionService, getId())) {
+            return;
         }
         xmppConnectionService.getNotificationService().startRinging(id, getMedia());
     }

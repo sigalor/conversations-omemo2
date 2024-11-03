@@ -394,7 +394,7 @@ public class CallIntegrationConnectionService extends ConnectionService {
     private static ArrayList<PhoneAccountHandle> findPhoneAccount(final Context context, final AbstractJingleConnection.Id id) {
         final var def = CallIntegrationConnectionService.getHandle(context, id.account);
         final var lst = new ArrayList<PhoneAccountHandle>();
-        lst.add(def);
+        if (CallIntegration.selfManaged(context)) lst.add(def);
         if (Build.VERSION.SDK_INT < 23) return lst;
 
         final var prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -433,7 +433,8 @@ public class CallIntegrationConnectionService extends ConnectionService {
     public static boolean addNewIncomingCall(
             final Context context, final AbstractJingleConnection.Id id) {
         if (NotificationService.isQuietHours(context, id.getContact().getAccount())) return true;
-        if (CallIntegration.notSelfManaged(context)) {
+        final var phoneAccountHandles = findPhoneAccount(context, id);
+        if (phoneAccountHandles.isEmpty()) {
             Log.d(
                     Config.LOGTAG,
                     "not adding incoming call to TelecomManager on Android "
@@ -441,9 +442,8 @@ public class CallIntegrationConnectionService extends ConnectionService {
                             + " ("
                             + Build.DEVICE
                             + ")");
-            return true;
+            return false;
         }
-        final var phoneAccountHandles = findPhoneAccount(context, id);
         final var bundle = new Bundle();
         bundle.putString(
                 TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
