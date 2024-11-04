@@ -114,8 +114,8 @@ public class QuickConversationsService extends AbstractQuickConversationsService
 
     protected Set<String> gateways(final Account account) {
         return Stream.concat(
-            account.getGateways("pstn").stream(),
-            account.getGateways("sms").stream()
+            ImmutableList.copyOf(account.getGateways("pstn")).stream(),
+            ImmutableList.copyOf(account.getGateways("sms")).stream()
         ).map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
     }
 
