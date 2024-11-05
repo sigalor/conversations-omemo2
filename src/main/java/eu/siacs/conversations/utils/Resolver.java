@@ -490,7 +490,7 @@ public class Resolver {
                 () -> {
                     final Question question = new Question(dnsName, Record.TYPE.getType(type));
                     if (!DNSSECLESS_TLDS.contains(dnsName.getLabels()[0].toString())) {
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 0; i < 5; i++) {
                             try {
                                 ResolverResult<D> result = DnssecResolverApi.INSTANCE.resolve(question);
                                 if (result.wasSuccessful() && !result.isAuthenticData()) {
