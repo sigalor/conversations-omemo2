@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- This preference links to the OS notification settings and only shows up on API >= 26 (Android 8) -->
     <PreferenceScreen
         android:icon="@drawable/ic_chat_24dp"
@@ -65,12 +66,14 @@
         android:key="grace_period_length"
         android:summary="@string/pref_notification_grace_period_summary"
         android:title="@string/pref_notification_grace_period" />
-    <SwitchPreferenceCompat
-        android:defaultValue="@bool/notifications_from_strangers"
+    <ListPreference
+        android:defaultValue="@string/default_chat_requests"
+        android:entries="@array/chat_requests_entries"
+        android:entryValues="@array/chat_requests_values"
         android:icon="@drawable/ic_domino_mask_24dp"
-        android:key="notifications_from_strangers"
-        android:summary="@string/pref_notifications_from_strangers_summary"
-        android:title="@string/pref_notifications_from_strangers" />
+        android:key="chat_requests"
+        android:title="@string/pref_chat_requests"
+        app:useSimpleSummaryProvider="true" />
 
     <SwitchPreferenceCompat
         android:defaultValue="@bool/enable_foreground_service"

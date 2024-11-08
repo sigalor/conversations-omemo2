@@ -234,6 +234,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     private byte[] symmetricKey;
     private String mLastReceivedOtrMessageId = null;
 
+    protected boolean anyMatchSpam = false;
 
     public Conversation(final String name, final Account account, final Jid contactJid,
                         final int mode) {
@@ -1553,19 +1554,36 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         }
     }
 
+    public void checkSpam(Message... messages) {
+        if (anyMatchSpam) return;
+
+        final var locale = java.util.Locale.getDefault();
+        final var script = locale.getScript();
+        for (final var m : messages) {
+            final var body = m.getRawBody();
+            if (body.length() > 320 || (!"Cyrl".equals(script) && body.matches(".*\\p{IsCyrillic}.*")) || body.matches(".*(?:\\n.*\\n.*\\n|[Aa]\\s*d\\s*v\\s*v\\s*e\\s*r\\s*t|[Pp]romotion|[Dd][Dd][Oo][Ss]|[Ee]scrow|payout|seller|write me when will be|[Pp]rii?vee?t|there online|bit\\.ly|goo\\.gl|tinyurl\\.com|tiny\\.cc|lc\\.chat|is\\.gd|soo\\.gd|s2r\\.co|clicky\\.me|budrul\\.com|bc\\.vc|uguu\\.se).*")) {
+                anyMatchSpam = true;
+                return;
+            }
+        }
+    }
+
     public void add(Message message) {
+        checkSpam(message);
         synchronized (this.messages) {
             this.messages.add(message);
         }
     }
 
     public void prepend(int offset, Message message) {
+        checkSpam(message);
         synchronized (this.messages) {
             this.messages.add(Math.min(offset, this.messages.size()), message);
         }
     }
 
     public void addAll(int index, List<Message> messages) {
+        checkSpam(messages.toArray(new Message[0]));
         synchronized (this.messages) {
             this.messages.addAll(index, messages);
         }
@@ -1657,6 +1675,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         final Contact contact = getContact();
         if (contact != null && contact.canInferPresence()) return true;
         return sentMessagesCount() > 0;
+    }
+
+    public boolean isChatRequest(final String pref) {
+        if ("disable".equals(pref)) return false;
+        if ("strangers".equals(pref)) return isWithStranger();
+        if (!isWithStranger() && !strangerInvited()) return false;
+        return anyMatchSpam;
     }
 
     public boolean isWithStranger() {

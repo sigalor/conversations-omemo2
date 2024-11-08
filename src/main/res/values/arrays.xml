@@ -118,6 +118,18 @@
 		<item>@string/video_original</item>
 	</string-array>
 
+	<string-array name="chat_requests_entries">
+		<item>Never</item>
+		<item>Suspected SPAM</item>
+		<item>Chats from strangers</item>
+	</string-array>
+
+	<string-array name="chat_requests_values">
+		<item>disable</item>
+		<item>spam</item>
+		<item>strangers</item>
+	</string-array>
+
 	<string-array name="channel_discovery_entries">
 		<item>@string/jabber_network</item>
 		<item>@string/local_server</item>

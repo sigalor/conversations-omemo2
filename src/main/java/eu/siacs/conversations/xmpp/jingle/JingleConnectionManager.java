@@ -16,6 +16,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableSet;
 
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
@@ -255,13 +256,9 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     }
 
     private boolean isWithStrangerAndStrangerNotificationsAreOff(final Account account, Jid with) {
-        final boolean notifyForStrangers =
-                mXmppConnectionService.getNotificationService().notificationsFromStrangers();
-        if (notifyForStrangers) {
-            return false;
-        }
-        final Contact contact = account.getRoster().getContact(with);
-        return !contact.showInContactList();
+        final var chatRequestsPref = mXmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
+        final var conversation = mXmppConnectionService.findOrCreateConversation(account, with, false, true);
+        return conversation.isChatRequest(chatRequestsPref);
     }
 
     ScheduledFuture<?> schedule(

@@ -170,13 +170,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final long DRAWER_MANAGE_ACCOUNT = 4;
     public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 5;
     public static final long DRAWER_CHANNELS = 6;
-    public static final long DRAWER_SETTINGS = 7;
-    public static final long DRAWER_START_CHAT = 8;
-    public static final long DRAWER_START_CHAT_CONTACT = 9;
-    public static final long DRAWER_START_CHAT_NEW = 10;
-    public static final long DRAWER_START_CHAT_GROUP = 11;
-    public static final long DRAWER_START_CHAT_PUBLIC = 12;
-    public static final long DRAWER_START_CHAT_DISCOVER = 13;
+    public static final long DRAWER_CHAT_REQUESTS = 7;
+    public static final long DRAWER_SETTINGS = 8;
+    public static final long DRAWER_START_CHAT = 9;
+    public static final long DRAWER_START_CHAT_CONTACT = 10;
+    public static final long DRAWER_START_CHAT_NEW = 11;
+    public static final long DRAWER_START_CHAT_GROUP = 12;
+    public static final long DRAWER_START_CHAT_PUBLIC = 13;
+    public static final long DRAWER_START_CHAT_DISCOVER = 14;
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -224,6 +225,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
         if (accountHeader == null) return;
 
+        final var chatRequestsPref = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
         final var accountUnreads = new HashMap<Account, Integer>();
         binding.drawer.apply(dr -> {
             final var items = binding.drawer.getItemAdapter().getAdapterItems();
@@ -232,6 +234,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             var totalUnread = 0;
             var dmUnread = 0;
             var channelUnread = 0;
+            var chatRequests = 0;
             final var selectedAccount = selectedAccount();
             populateWithOrderedConversations(conversations, false, false);
             for (final var c : conversations) {
@@ -243,6 +246,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     } else {
                         dmUnread += unread;
                     }
+                    if (c.isChatRequest(chatRequestsPref)) chatRequests++;
                 }
                 var accountUnread = accountUnreads.get(c.getAccount());
                 if (accountUnread == null) accountUnread = 0;
@@ -279,6 +283,27 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 new com.mikepenz.materialdrawer.holder.StringHolder(channelUnread > 0 ? new Integer(channelUnread).toString() : null)
             );
 
+            if (chatRequests > 0) {
+                if (binding.drawer.getItemAdapter().getAdapterPosition(DRAWER_CHAT_REQUESTS) < 0) {
+                    final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
+                    final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
+                    final var requests = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+                    requests.setIdentifier(DRAWER_CHAT_REQUESTS);
+                    com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(requests, "Chat Requests");
+                    com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(requests, R.drawable.ic_person_add_24dp);
+                    requests.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
+                    binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(binding.drawer.getItemAdapter().getAdapterPosition(DRAWER_CHANNELS) + 1), requests);
+                }
+                com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
+                    binding.drawer,
+                    DRAWER_CHAT_REQUESTS,
+                    new com.mikepenz.materialdrawer.holder.StringHolder(chatRequests > 0 ? new Integer(chatRequests).toString() : null)
+                );
+            } else {
+                binding.drawer.getItemAdapter().removeByIdentifier(DRAWER_CHAT_REQUESTS);
+            }
+
+            final var endOfMainFilters = chatRequests > 0 ? 6 : 5;
             long id = 1000;
             final var inDrawer = new HashMap<Tag, Long>();
             for (final var item : ImmutableList.copyOf(items)) {
@@ -307,11 +332,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
                     final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
                     item.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
-                    binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(5), item);
+                    binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(endOfMainFilters), item);
                 }
             }
 
-            items.subList(5, 5 + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
+            items.subList(endOfMainFilters, endOfMainFilters + tags.size()).sort((x, y) -> x.getTag() == null ? -1 : ((Comparable) x.getTag()).compareTo(y.getTag()));
             binding.drawer.getItemAdapter().getFastAdapter().notifyDataSetChanged();
             return kotlin.Unit.INSTANCE;
         });
@@ -513,7 +538,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 launchStartConversation(R.id.create_public_channel);
             } else if (id == DRAWER_START_CHAT_DISCOVER) {
                 launchStartConversation(R.id.discover_public_channels);
-            } else if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
+            } else if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS || id == DRAWER_CHAT_REQUESTS) {
                 selectedTag.clear();
                 mainFilter = id;
                 binding.drawer.getSelectExtension().deselect();
@@ -540,7 +565,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         binding.drawer.setOnDrawerItemLongClickListener((v, drawerItem, pos) -> {
             final var id = drawerItem.getIdentifier();
-            if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS) {
+            if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS || id == DRAWER_CHAT_REQUESTS) {
                 selectedTag.clear();
                 mainFilter = id;
                 binding.drawer.getSelectExtension().deselect();
@@ -663,12 +688,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     }
 
     protected void filterByMainFilter(List<Conversation> list) {
+         final var chatRequests = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
          for (final var c : ImmutableList.copyOf(list)) {
             if (mainFilter == DRAWER_CHANNELS && c.getMode() != Conversation.MODE_MULTI) {
                 list.remove(c);
             } else if (mainFilter == DRAWER_DIRECT_MESSAGES && c.getMode() == Conversation.MODE_MULTI) {
                 list.remove(c);
             } else if (mainFilter == DRAWER_UNREAD_CHATS && c.unreadCount(xmppConnectionService) < 1) {
+                list.remove(c);
+            } else if (mainFilter == DRAWER_CHAT_REQUESTS && !c.isChatRequest(chatRequests)) {
+                list.remove(c);
+            }
+            if (mainFilter != DRAWER_CHAT_REQUESTS && c.isChatRequest(chatRequests)) {
                 list.remove(c);
             }
         }

@@ -1307,4 +1307,5 @@
     <string name="close_format_text">Do you really want to close the text formatting toolbar? You can enable the toolbar in the settings again.</string>
     <string name="pref_showtextformatting_sum">Show text formatting toolbar in chat while keyboard is shown</string>
     <string name="pref_showtextformatting">Text formatting toolbar</string>
+    <string name="pref_chat_requests">Hide chats in Chat Requests area</string>
 </resources>

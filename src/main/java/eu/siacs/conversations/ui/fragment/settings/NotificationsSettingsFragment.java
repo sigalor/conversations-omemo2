@@ -15,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
+import androidx.preference.ListPreference;
 
 import com.google.common.base.Optional;
 
@@ -65,6 +66,7 @@ public class NotificationsSettingsFragment extends XmppPreferenceFragment {
         final var notificationHeadsUp = findPreference(AppSettings.NOTIFICATION_HEADS_UP);
         final var notificationVibrate = findPreference(AppSettings.NOTIFICATION_VIBRATE);
         final var notificationLed = findPreference(AppSettings.NOTIFICATION_LED);
+        final var chatRequests = (ListPreference) findPreference("chat_requests");
         final var foregroundService = findPreference(AppSettings.KEEP_FOREGROUND_SERVICE);
         if (messageNotificationSettings == null
                 || fullscreenNotification == null
@@ -90,6 +92,11 @@ public class NotificationsSettingsFragment extends XmppPreferenceFragment {
                         .getSystemService(NotificationManager.class)
                         .canUseFullScreenIntent()) {
             fullscreenNotification.setVisible(false);
+        }
+
+        final var sharedPreferences = getPreferenceManager().getSharedPreferences();
+        if (!sharedPreferences.getBoolean("notifications_from_strangers", true) && sharedPreferences.getString("chat_requests", null) == null) {
+            chatRequests.setValue("strangers");
         }
     }
 

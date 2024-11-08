@@ -5126,6 +5126,10 @@ public class XmppConnectionService extends Service {
         return getPreferences().getBoolean(name, getResources().getBoolean(res));
     }
 
+    public String getStringPreference(String name, @BoolRes int res) {
+        return getPreferences().getString(name, getResources().getString(res));
+    }
+
     public boolean confirmMessages() {
         return getBooleanPreference("confirm_messages", R.bool.confirm_messages);
     }

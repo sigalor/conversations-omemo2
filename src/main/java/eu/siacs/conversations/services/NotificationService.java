@@ -389,21 +389,17 @@ public class NotificationService {
 
     private boolean notifyMessage(final Message message) {
         final Conversation conversation = (Conversation) message.getConversation();
+        final var chatRequestsPref = mXmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
         return message.getStatus() == Message.STATUS_RECEIVED
                 && !conversation.isMuted()
                 && (conversation.alwaysNotify() || (wasHighlightedOrPrivate(message) || (conversation.notifyReplies() && wasReplyToMe(message))))
-                && (!conversation.isWithStranger() || notificationsFromStrangers())
+                && !conversation.isChatRequest(chatRequestsPref)
                 && message.getType() != Message.TYPE_RTP_SESSION;
     }
 
     private boolean notifyMissedCall(final Message message) {
         return message.getType() == Message.TYPE_RTP_SESSION
                 && message.getStatus() == Message.STATUS_RECEIVED;
-    }
-
-    public boolean notificationsFromStrangers() {
-        return mXmppConnectionService.getBooleanPreference(
-                "notifications_from_strangers", R.bool.notifications_from_strangers);
     }
 
     private boolean isQuietHours(Account account) {

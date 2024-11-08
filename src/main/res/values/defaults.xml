@@ -58,4 +58,5 @@
     <string name="avatar_shape">oval</string>
     <bool name="show_nav_bar">true</bool>
     <bool name="enforce_dane">false</bool>
+    <string name="default_chat_requests">spam</string>
 </resources>
