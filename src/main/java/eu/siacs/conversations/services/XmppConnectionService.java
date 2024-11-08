@@ -5134,6 +5134,10 @@ public class XmppConnectionService extends Service {
         return getBooleanPreference("allow_message_correction", R.bool.allow_message_correction);
     }
 
+    public boolean showTextFormatting() {
+        return getBooleanPreference("showtextformatting", R.bool.showtextformatting);
+    }
+
     public boolean sendChatStates() {
         return getBooleanPreference("chat_states", R.bool.chat_states);
     }

@@ -177,10 +177,16 @@
                             android:id="@+id/textsend"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentBottom="true"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="6dp">
+                            android:paddingVertical="6dp"
+                            android:animateLayoutChanges="true">
+
+
+                            <RelativeLayout
+                                android:id="@+id/textinput_layout_new"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:animateLayoutChanges="true" >
 
                         <RelativeLayout
                             android:id="@+id/input_layout"
@@ -350,9 +356,92 @@
                     </RelativeLayout>
 
                         <LinearLayout
+                            android:id="@+id/textformat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/textinput_layout_new"
+                            android:paddingEnd="8dp"
+                            android:paddingRight="8dp"
+                            android:paddingStart="8dp"
+                            android:paddingLeft="8dp"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:animateLayoutChanges="true"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/me"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/me"
+                                android:gravity="center"
+                                android:text="/me"
+                                android:textSize="18sp"
+                                android:visibility="visible" />
+
+                            <TextView
+                                android:id="@+id/quote"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/quote"
+                                android:gravity="center"
+                                android:text=">"
+                                android:textSize="18sp"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/bold"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/bold"
+                                android:src="@drawable/rounded_format_bold_24"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/italic"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/italic"
+                                android:src="@drawable/rounded_format_italic_24"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/monospace"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/monospace"
+                                android:src="@drawable/rounded_code_24"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/strikethrough"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/strikethrough"
+                                android:src="@drawable/rounded_strikethrough_s_24"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/close"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/action_close"
+                                android:src="@drawable/rounded_close_24"
+                                android:visibility="visible" />
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:id="@+id/emojis_sticker_layout"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
+                            android:layout_below="@+id/textformat"
                             android:orientation="vertical"
                             android:visibility="visible"
                             android:animateLayoutChanges="true" >
@@ -437,10 +526,9 @@
                                     android:gravity="bottom|center_horizontal"
                                     android:text="@string/gifs"
                                     android:textSize="16sp" />
-
                             </LinearLayout>
-
                         </LinearLayout>
+                    </RelativeLayout>
                 </LinearLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton

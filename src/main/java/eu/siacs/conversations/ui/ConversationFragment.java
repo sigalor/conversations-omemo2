@@ -89,7 +89,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
@@ -135,6 +134,7 @@ import net.java.otr4j.session.SessionStatus;
 import org.jetbrains.annotations.NotNull;
 
 import eu.siacs.conversations.medialib.activities.EditActivity;
+import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import io.ipfs.cid.Cid;
 
@@ -394,6 +394,97 @@ public class ConversationFragment extends XmppFragment
                             });
                 }
             };
+
+
+    private final OnClickListener meCommand = v -> Objects.requireNonNull(binding.textinput.getText()).insert(0, Message.ME_COMMAND + " ");
+    private final OnClickListener quote = v -> insertQuote();
+    private final OnClickListener boldText = v -> insertFormatting("bold");
+    private final OnClickListener italicText = v -> insertFormatting("italic");
+    private final OnClickListener monospaceText = v -> insertFormatting("monospace");
+    private final OnClickListener strikethroughText = v -> insertFormatting("strikethrough");
+    private final OnClickListener close = v -> closeFormatting();
+
+    private void closeFormatting() {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        builder.setTitle(R.string.action_close);
+        builder.setMessage(R.string.close_format_text);
+        builder.setPositiveButton(getString(R.string.action_close),
+                (dialog, which) -> {
+                    final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                    preferences.edit().putBoolean("showtextformatting", false).apply();
+                    binding.textformat.setVisibility(GONE);
+                    updateSendButton();
+                });
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.create().show();
+    }
+
+    private void insertFormatting(String format) {
+        final String BOLD = "*";
+        final String ITALIC = "_";
+        final String MONOSPACE = "`";
+        final String STRIKETHROUGH = "~";
+
+        int selStart = this.binding.textinput.getSelectionStart();
+        int selEnd = this.binding.textinput.getSelectionEnd();
+        int min = 0;
+        int max = this.binding.textinput.getText().length();
+        if (this.binding.textinput.isFocused()) {
+            selStart = this.binding.textinput.getSelectionStart();
+            selEnd = this.binding.textinput.getSelectionEnd();
+            min = Math.max(0, Math.min(selStart, selEnd));
+            max = Math.max(0, Math.max(selStart, selEnd));
+        }
+        final CharSequence selectedText = this.binding.textinput.getText().subSequence(min, max);
+
+        if (format.equals("bold")) {
+            if (selectedText.length() != 0) {
+                this.binding.textinput.getText().replace(Math.min(selStart, selEnd), Math.max(selStart, selEnd),
+                        BOLD + selectedText + BOLD, 0, selectedText.length() + 2);
+            } else {
+                this.binding.textinput.getText().insert(this.binding.textinput.getSelectionStart(), (BOLD));
+            }
+            return;
+        } else if (format.equals("italic")) {
+            if (selectedText.length() != 0) {
+                this.binding.textinput.getText().replace(Math.min(selStart, selEnd), Math.max(selStart, selEnd),
+                        ITALIC + selectedText + ITALIC, 0, selectedText.length() + 2);
+            } else {
+                this.binding.textinput.getText().insert(this.binding.textinput.getSelectionStart(), (ITALIC));
+            }
+            return;
+        } else if (format.equals("monospace")) {
+            if (selectedText.length() != 0) {
+                this.binding.textinput.getText().replace(Math.min(selStart, selEnd), Math.max(selStart, selEnd),
+                        MONOSPACE + selectedText + MONOSPACE, 0, selectedText.length() + 2);
+            } else {
+                this.binding.textinput.getText().insert(this.binding.textinput.getSelectionStart(), (MONOSPACE));
+            }
+            return;
+        } else if (format.equals("strikethrough")) {
+            if (selectedText.length() != 0) {
+                this.binding.textinput.getText().replace(Math.min(selStart, selEnd), Math.max(selStart, selEnd),
+                        STRIKETHROUGH + selectedText + STRIKETHROUGH, 0, selectedText.length() + 2);
+            } else {
+                this.binding.textinput.getText().insert(this.binding.textinput.getSelectionStart(), (STRIKETHROUGH));
+            }
+            return;
+        }
+    }
+
+    private void insertQuote() {
+        int pos = 0;
+        if (this.binding.textinput.getSelectionStart() == this.binding.textinput.getSelectionEnd()) {
+            pos = this.binding.textinput.getSelectionStart();
+        }
+        if (pos == 0) {
+            Objects.requireNonNull(binding.textinput.getText()).insert(0, QuoteHelper.QUOTE_CHAR + " ");
+        } else {
+            Objects.requireNonNull(binding.textinput.getText()).insert(pos, System.getProperty("line.separator") + QuoteHelper.QUOTE_CHAR + " ");
+        }
+    }
+
+
     private final OnScrollListener mOnScrollListener =
             new OnScrollListener() {
 
@@ -2187,7 +2278,7 @@ public class ConversationFragment extends XmppFragment
                 correctMessage(selectedMessage);
                 return true;
             case R.id.retract_message:
-                new AlertDialog.Builder(activity)
+                new MaterialAlertDialogBuilder(activity)
                         .setTitle(R.string.retract_message)
                         .setMessage(R.string.do_you_really_want_to_retract_this_message)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
@@ -2261,7 +2352,7 @@ public class ConversationFragment extends XmppFragment
                 retryDecryption(selectedMessage);
                 return true;
             case R.id.block_media:
-                new AlertDialog.Builder(activity)
+                new MaterialAlertDialogBuilder(activity)
                         .setTitle(R.string.block_media)
                         .setMessage("Do you really want to block this media in all messages?")
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
@@ -2417,7 +2508,7 @@ public class ConversationFragment extends XmppFragment
                 addShortcut();
                 break;
             case R.id.action_block_avatar:
-                new AlertDialog.Builder(activity)
+                new MaterialAlertDialogBuilder(activity)
                         .setTitle(R.string.block_media)
                         .setMessage("Do you really want to block this avatar?")
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
@@ -3641,7 +3732,7 @@ public class ConversationFragment extends XmppFragment
             activity.onConversationArchived(this.conversation);
             return false;
         }
-        updateinputfield();
+        updateinputfield(canSendMeCommand());
         if (activity != null) {
             activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
@@ -5416,7 +5507,7 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    public void updateinputfield() {
+    public void updateinputfield(final boolean me) {
         LinearLayout emojipickerview = binding.emojisStickerLayout;
         ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
         Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
@@ -5452,6 +5543,11 @@ public class ConversationFragment extends XmppFragment
                     params.height = keyboardHeight;
                     emojipickerview.setLayoutParams(params);
                 }
+                if (activity != null && activity.xmppConnectionService != null && isKeyboardVisible && activity.xmppConnectionService.showTextFormatting()) {
+                    showTextFormat(me);
+                } else {
+                    hideTextFormat();
+                }
                 return ViewCompat.onApplyWindowInsets(v, insets);
             });
         } else {
@@ -5483,6 +5579,11 @@ public class ConversationFragment extends XmppFragment
                     binding.emojiButton.setVisibility(GONE);
                     params.height = keyboardHeight;
                     emojipickerview.setLayoutParams(params);
+                }
+                if (activity != null && activity.xmppConnectionService != null && keyboardOpen && activity.xmppConnectionService.showTextFormatting()) {
+                    showTextFormat(me);
+                } else {
+                    hideTextFormat();
                 }
             };
             keyboardHeightProvider = new KeyboardHeightProvider(activity, activity.getWindowManager(), llRoot, keyboardHeightListener);
@@ -5795,5 +5896,39 @@ public class ConversationFragment extends XmppFragment
                 return true;
             }
         });
+    }
+
+    private boolean canSendMeCommand() {
+        if (conversation != null) {
+            final String body = binding.textinput.getText().toString();
+            return body.isEmpty();
+        }
+        return false;
+    }
+
+    private void showTextFormat(final boolean me) {
+        this.binding.textformat.setVisibility(View.VISIBLE);
+        this.binding.me.setEnabled(me);
+        this.binding.me.setOnClickListener(meCommand);
+        this.binding.quote.setOnClickListener(quote);
+        this.binding.bold.setOnClickListener(boldText);
+        this.binding.italic.setOnClickListener(italicText);
+        this.binding.monospace.setOnClickListener(monospaceText);
+        this.binding.strikethrough.setOnClickListener(strikethroughText);
+        this.binding.close.setOnClickListener(close);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.binding.me.setTooltipText(activity.getString(R.string.me));
+            this.binding.quote.setTooltipText(activity.getString(R.string.quote));
+            this.binding.bold.setTooltipText(activity.getString(R.string.bold));
+            this.binding.italic.setTooltipText(activity.getString(R.string.italic));
+            this.binding.monospace.setTooltipText(activity.getString(R.string.monospace));
+            this.binding.monospace.setTooltipText(activity.getString(R.string.monospace));
+            this.binding.strikethrough.setTooltipText(activity.getString(R.string.strikethrough));
+            this.binding.close.setTooltipText(activity.getString(R.string.action_close));
+        }
+    }
+
+    private void hideTextFormat() {
+        this.binding.textformat.setVisibility(View.GONE);
     }
 }

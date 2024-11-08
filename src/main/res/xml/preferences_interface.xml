@@ -177,6 +177,12 @@
             android:icon="@drawable/thread_hint"
             android:summary="@string/pref_show_thread_feature_summary"
             android:title="@string/pref_show_thread_feature" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/showtextformatting"
+            android:key="showtextformatting"
+            android:icon="@drawable/rounded_format_bold_24"
+            android:summary="@string/pref_showtextformatting_sum"
+            android:title="@string/pref_showtextformatting" />
         <ListPreference
             android:defaultValue="@string/quick_action"
             android:dialogTitle="@string/choose_quick_action"

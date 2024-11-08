@@ -1282,7 +1282,7 @@
     <string name="could_not_create_file">could_not_create_file</string>
     <string name="save_to_downloads">Save to Downloads</string>
     <string name="save_to_downloads_success">File successfully saved to Downloads folder</string>
-    <string name="mappreview_url">https://staticmap.monocles.eu/map.png</string>
+    <string name="mappreview_url" translatable="false">https://staticmap.monocles.eu/map.png</string>
     <string name="mute_locally">Mute locally</string>
     <string name="unmute_locally">Unmute locally</string>
     <string name="invite_to_start_chat">Invite to start chat</string>
@@ -1300,4 +1300,11 @@
     <string name="custom_background_color">Custom background color</string>
     <string name="compose_using_rich_text">Compose using rich text</string>
     <string name="compose_using_rich_text_summary">The message editor will show formatting as you type</string>
+    <string name="bold">Bold</string>
+    <string name="italic">Italic</string>
+    <string name="monospace">Monospace</string>
+    <string name="strikethrough">Strikethrough</string>
+    <string name="close_format_text">Do you really want to close the text formatting toolbar? You can enable the toolbar in the settings again.</string>
+    <string name="pref_showtextformatting_sum">Show text formatting toolbar in chat while keyboard is shown</string>
+    <string name="pref_showtextformatting">Text formatting toolbar</string>
 </resources>
