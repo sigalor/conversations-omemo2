@@ -867,6 +867,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.command.setText(uri.getSchemeSpecificPart());
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.bitcoin_cash_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("monero")) {
+                    binding.command.setText(uri.getSchemeSpecificPart());
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.monero_24dp), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("https") && "liberapay.com".equals(uri.getHost())) {
                     binding.command.setText(uri.getPath().substring(1));
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.liberapay), null, null, null);
