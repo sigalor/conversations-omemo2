@@ -935,6 +935,29 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.download_button.setOnClickListener(v -> openDownloadable(message));
     }
 
+    private void displayURIMessage(
+            ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
+        displayTextMessage(viewHolder, message, bubbleColor, type);
+        viewHolder.messageBody.setVisibility(View.GONE);
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.audioPlayer.setVisibility(View.GONE);
+        viewHolder.download_button.setVisibility(View.VISIBLE);
+        final var uri = message.wholeIsKnownURI();
+        final var amount = uri.getQueryParameter("amount");
+        final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
+        if ("bitcoin".equals(uri.getScheme())) {
+            viewHolder.download_button.setIconResource(R.drawable.bitcoin_24dp);
+            viewHolder.download_button.setText("Send " + formattedAmount + "Bitcoin");
+        } else if ("bitcoincash".equals(uri.getScheme())) {
+            viewHolder.download_button.setIconResource(R.drawable.bitcoin_cash_24dp);
+            viewHolder.download_button.setText("Send " + formattedAmount + "Bitcoin Cash");
+        } else if ("monero".equals(uri.getScheme())) {
+            viewHolder.download_button.setIconResource(R.drawable.monero_24dp);
+            viewHolder.download_button.setText("Send " + formattedAmount + "Monero");
+        }
+        viewHolder.download_button.setOnClickListener(v -> new FixedURLSpan(message.getRawBody()).onClick(v));
+    }
+
     private void displayLocationMessage(
             ViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
@@ -1537,7 +1560,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             displayInfoMessage(
                     viewHolder, activity.getString(R.string.omemo_decryption_failed), bubbleColor);
         } else {
-            if (message.isGeoUri()) {
+            if (message.wholeIsKnownURI() != null) {
+                displayURIMessage(viewHolder, message, bubbleColor, type);
+            } else if (message.isGeoUri()) {
                 displayLocationMessage(viewHolder, message, bubbleColor, type);
             } else if (message.treatAsDownloadable()) {
                 try {
