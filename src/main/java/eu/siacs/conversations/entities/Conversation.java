@@ -1560,6 +1560,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         final var locale = java.util.Locale.getDefault();
         final var script = locale.getScript();
         for (final var m : messages) {
+            if (getMode() != MODE_MULTI) {
+                final var resource = m.getCounterpart().getResource();
+                if (resource != null && resource.length() < 10) {
+                    anyMatchSpam = true;
+                    return;
+                }
+            }
             final var body = m.getRawBody();
             try {
                 if (!"Cyrl".equals(script) && body.matches(".*\\p{IsCyrillic}.*")) {
