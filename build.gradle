@@ -42,6 +42,8 @@ configurations {
 }
 
 dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation 'junit:junit:4.13.2'
     androidTestImplementation 'tools.fastlane:screengrab:2.1.1'
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.6.2'
@@ -82,7 +84,6 @@ dependencies {
 
     implementation 'org.bouncycastle:bcmail-jdk18on:1.78.1'
     implementation 'com.google.zxing:core:3.5.3'
-    implementation 'org.minidns:minidns-hla:1.1.1'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
     implementation "com.wefika:flowlayout:0.4.1"
@@ -307,7 +308,7 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += ['META-INF/BCKEY.DSA', 'META-INF/BCKEY.SF', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+            excludes += ['META-INF/BCKEY.DSA', 'META-INF/BCKEY.SF', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF', 'META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
         }
     }
     lint {
