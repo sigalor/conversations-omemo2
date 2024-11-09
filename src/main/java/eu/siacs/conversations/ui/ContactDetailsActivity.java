@@ -79,6 +79,7 @@ import eu.siacs.conversations.services.XmppConnectionService.OnAccountUpdate;
 import eu.siacs.conversations.services.XmppConnectionService.OnRosterUpdate;
 import eu.siacs.conversations.ui.adapter.MediaAdapter;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
+import eu.siacs.conversations.ui.text.FixedURLSpan;
 import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.GridManager;
@@ -746,17 +747,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.profileItems.setOnItemClickListener((a0, v, pos, a3) -> {
                 final Uri uri = items.getUri(pos);
                 if (uri == null) return;
-
-                if ("xmpp".equals(uri.getScheme())) {
-                    switchToConversation(xmppConnectionService.findOrCreateConversation(account, Jid.of(uri.getSchemeSpecificPart()), false, true));
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    try {
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(this, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
-                    }
-                }
+                new FixedURLSpan(uri.toString()).onClick(v);
             });
             binding.profileItems.setOnItemLongClickListener((a0, v, pos, a3) -> {
                 String toCopy = null;
