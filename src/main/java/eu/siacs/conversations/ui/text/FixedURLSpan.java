@@ -117,7 +117,11 @@ public class FixedURLSpan extends URLSpan {
 			context.startActivity(intent);
 			widget.playSoundEffect(SoundEffectConstants.CLICK);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+			if ("bitcoin".equals(uri.getScheme()) || "bitcoincash".equals(uri.getScheme()) || "monero".equals(uri.getScheme())) {
+			    Toast.makeText(context, "No compatible wallet app found", Toast.LENGTH_SHORT).show();
+			} else {
+			    Toast.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+		    }
 		}
 	}
 }
