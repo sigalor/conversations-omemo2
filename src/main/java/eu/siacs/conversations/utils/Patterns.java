@@ -33,6 +33,18 @@ public class Patterns {
                     + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
                     + "|(?:\\%[a-fA-F0-9]{2}))+");
 
+    public static final Pattern BITCOIN_URI = Pattern
+            .compile("bitcoin\\:(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|[bB][cC]1[pPqQ][a-zA-Z0-9]{38,58})(?:\\?(?:(?:["
+                    + Patterns.GOOD_IRI_CHAR
+                    + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
+                    + "|(?:\\%[a-fA-F0-9]{2}))+)?");
+
+    public static final Pattern BITCOINCASH_URI = Pattern
+            .compile("bitcoincash\\:(?:[13][a-km-zA-HJ-NP-Z1-9]{33}|[qp][a-z0-9]{41})(?:\\?(?:(?:["
+                    + Patterns.GOOD_IRI_CHAR
+                    + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
+                    + "|(?:\\%[a-fA-F0-9]{2}))+)?");
+
     /**
      *  Regular expression to match all IANA top-level domains.
      *  List accurate as of 2011/07/18.  List taken from:

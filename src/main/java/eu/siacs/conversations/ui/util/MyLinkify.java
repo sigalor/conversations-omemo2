@@ -132,6 +132,8 @@ public class MyLinkify {
         Linkify.addLinks(body, Patterns.XMPP_PATTERN, "xmpp", XMPPURI_MATCH_FILTER, null);
         Linkify.addLinks(body, Patterns.TEL_URI, "tel");
         Linkify.addLinks(body, Patterns.SMS_URI, "sms");
+        Linkify.addLinks(body, Patterns.BITCOIN_URI, "bitcoin");
+        Linkify.addLinks(body, Patterns.BITCOINCASH_URI, "bitcoincash");
         Linkify.addLinks(body, Patterns.AUTOLINK_WEB_URL, "http", WEBURL_MATCH_FILTER, WEBURL_TRANSFORM_FILTER);
         if (includeGeo) {
             Linkify.addLinks(body, GeoHelper.GEO_URI, "geo");
