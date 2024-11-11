@@ -103,7 +103,7 @@ public class DnsRootServer {
         }
 
         public static Inet6Address getRandomIpv6RootServer(Random random) {
-            if (getApplicationContext().getString(R.string.default_dns_server_ipv6).equals("2a01:4f8:151:34aa::198")) {
+            if (getApplicationContext().getString(R.string.default_dns_server_ipv6).equals("[2a01:4f8:151:34aa::198]")) {
                 return IPV6_ROOT_SERVERS[random.nextInt(IPV6_ROOT_SERVERS.length)];
             } else {
                 return null;
