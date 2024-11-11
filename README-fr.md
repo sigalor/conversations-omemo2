@@ -12,7 +12,7 @@ L'équipe monocles
 
 -----
 
-# <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/src/main/ic_launcher-playstore.png" width="30"> monocles chat
+# <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
 🇩🇪… [Deutsche Version der Readme hier verfügbar.](README.md) / 🇬🇧🇺🇸… [English Readme version available here](README-en.md)
 
