@@ -10,6 +10,10 @@
  */
 package org.minidns.constants;
 
+import static org.webrtc.ApplicationContextProvider.getApplicationContext;
+
+import android.content.res.Resources;
+
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -17,6 +21,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import eu.siacs.conversations.R;
 
 public class DnsRootServer {
 
@@ -89,11 +95,19 @@ public class DnsRootServer {
         }
 
         public static Inet4Address getRandomIpv4RootServer(Random random) {
-            return IPV4_ROOT_SERVERS[random.nextInt(IPV4_ROOT_SERVERS.length)];
+            if (getApplicationContext().getString(R.string.default_dns_server_ipv4).equals("176.9.93.198")) {
+                return IPV4_ROOT_SERVERS[random.nextInt(IPV4_ROOT_SERVERS.length)];
+            } else {
+                return null;
+            }
         }
 
         public static Inet6Address getRandomIpv6RootServer(Random random) {
-            return IPV6_ROOT_SERVERS[random.nextInt(IPV6_ROOT_SERVERS.length)];
+            if (getApplicationContext().getString(R.string.default_dns_server_ipv6).equals("2a01:4f8:151:34aa::198")) {
+                return IPV6_ROOT_SERVERS[random.nextInt(IPV6_ROOT_SERVERS.length)];
+            } else {
+                return null;
+            }
         }
 
         public static Inet4Address getIpv4RootServerById(char id) {

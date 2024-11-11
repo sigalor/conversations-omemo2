@@ -10,6 +10,8 @@
  */
 package org.minidns;
 
+import static org.webrtc.ApplicationContextProvider.getApplicationContext;
+
 import org.minidns.MiniDnsException.ErrorResponseException;
 import org.minidns.MiniDnsException.NoQueryPossibleException;
 import org.minidns.dnsmessage.DnsMessage;
@@ -40,6 +42,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
 
+import eu.siacs.conversations.R;
+
 /**
  * A minimal DNS client for SRV/A/AAAA/NS and CNAME lookups, with IDN support.
  * This circumvents the missing javax.naming package on android.
@@ -57,14 +61,14 @@ public class DnsClient extends AbstractDnsClient {
         addDnsServerLookupMechanism(UnixUsingEtcResolvConf.INSTANCE);
 
         try {
-            Inet4Address dnsforgeV4Dns = InetAddressUtil.ipv4From("176.9.93.198");
+            Inet4Address dnsforgeV4Dns = InetAddressUtil.ipv4From(eu.siacs.conversations.Conversations.getContext().getString(R.string.default_dns_server_ipv4));
             STATIC_IPV4_DNS_SERVERS.add(dnsforgeV4Dns);
         } catch (IllegalArgumentException e) {
             LOGGER.log(Level.WARNING, "Could not add static IPv4 DNS Server", e);
         }
 
         try {
-            Inet6Address dnsforgeV6Dns = InetAddressUtil.ipv6From("[2a01:4f8:151:34aa::198]");
+            Inet6Address dnsforgeV6Dns = InetAddressUtil.ipv6From(eu.siacs.conversations.Conversations.getContext().getString(R.string.default_dns_server_ipv6));
             STATIC_IPV6_DNS_SERVERS.add(dnsforgeV6Dns);
         } catch (IllegalArgumentException e) {
             LOGGER.log(Level.WARNING, "Could not add static IPv6 DNS Server", e);
