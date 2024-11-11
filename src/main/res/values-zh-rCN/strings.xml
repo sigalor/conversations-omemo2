@@ -93,7 +93,7 @@
     <string name="send_unencrypted">发送未加密</string>
     <string name="decryption_failed">解密失败。也许您没有正确的私钥。</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">%1$s 使用 &lt;b&gt;OpenKeychain&lt;/b&gt; 来加密和解密消息并管理公钥。&lt;br&gt;&lt;br&gt;它在 GPLv3+ 许可证下授权并可在 F-Droid 和 Google Play 上获得。&lt;br&gt;&lt;br&gt;&lt;small&gt;（请之后重启 %1$s。）&lt;/small&gt;</string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s 使用 <b>OpenKeychain</b> 来加密和解密消息并管理公钥。<br><br>它在 GPLv3+ 许可证下授权并可在 F-Droid 和 Google Play 上获取。<br><br><small>（请之后重启 %1$s。）</small>]]></string>
     <string name="restart">重启</string>
     <string name="install">安装</string>
     <string name="openkeychain_not_installed">请安装 OpenKeychain</string>
@@ -783,12 +783,12 @@
     <string name="phone_number">电话号码</string>
     <string name="verify_your_phone_number">验证您的电话号码</string>
     <string name="enter_country_code_and_phone_number">Quicksy 将发送短信（运营商可能收费）来验证电话号码。请输入您的国家/地区代码和电话号码：</string>
-    <string name="we_will_be_verifying">我们将验证这个电话号码 <br/><br/><b>%s</b><br/><br/> 可以吗？是否编辑号码？</string>
+    <string name="we_will_be_verifying"><![CDATA[我们将验证这个电话号码 <br/><br/><b>%s</b><br/><br/> 可以吗？是否编辑号码？]]></string>
     <string name="not_a_valid_phone_number">%s 不是有效的电话号码。</string>
     <string name="please_enter_your_phone_number">请输入您的电话号码。</string>
     <string name="search_countries">搜索国家/地区</string>
     <string name="verify_x">验证 %s</string>
-    <string name="we_have_sent_you_an_sms_to_x">我们已向您发送短信至 <b>%s</b>。</string>
+    <string name="we_have_sent_you_an_sms_to_x"><![CDATA[我们已向您发送短信至 <b>%s</b>。]]></string>
     <string name="we_have_sent_you_another_sms">我们已经向您发送了另一条带有 6 位数验证码的短信。</string>
     <string name="please_enter_pin_below">请在下方输入 6 位 PIN 码。</string>
     <string name="resend_sms">重新发送短信</string>
@@ -888,7 +888,7 @@
     <string name="unable_to_perform_this_action">无法执行此操作</string>
     <string name="open_join_dialog">加入公开频道…</string>
     <string name="sharing_application_not_grant_permission">共享应用未授予访问此文件的权限。</string>
-    <string name="group_chats_and_channels">群聊和频道</string>
+    <string name="group_chats_and_channels"><![CDATA[群聊和频道]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">本地服务器</string>
     <string name="pref_channel_discovery_summary">大多数用户应该选择“jabber.network”以便从整个公共 XMPP 生态系统中获得更好的建议。</string>
@@ -1299,4 +1299,21 @@
     <string name="out_of_memory_error">内存不足错误</string>
     <string name="value_copied_to_clipboard_show">显示复制到剪贴板的值</string>
     <string name="save_to_downloads_success">文件已成功保存到下载文件夹</string>
+    <string name="custom_primary_color">自定义原色</string>
+    <string name="custom_tertiary_color">自定义三次色</string>
+    <string name="custom_background_color">自定义背景颜色</string>
+    <string name="compose_using_rich_text">使用富文本编写</string>
+    <string name="compose_using_rich_text_summary">消息编辑器将在您输入时显示格式</string>
+    <string name="custom_secondary_color">自定义二次色</string>
+    <string name="mute_locally">本地静音</string>
+    <string name="unmute_locally">本地取消静音</string>
+    <string name="invite_to_start_chat">邀请开始聊天</string>
+    <string name="example_jid">用户名@monocles.eu</string>
+    <string name="view_privacy_policy">查看隐私政策</string>
+    <string name="pref_theme_title">主题</string>
+    <string name="follow_system_dark_mode">跟随系统深色模式</string>
+    <string name="xmpp_network_description">XMPP 网络由名为 XMPP 的协议提供支持。它是去中心化的网络，这意味着没有人拥有或控制整个网络。它是联合网络，这意味着任何人都可以运行 XMPP 服务。发送给其他 XMPP 用户的消息默认使用 OMEMO 进行端到端加密。\\n\\n地址称为 XMPP ID，和电子邮件地址类似：</string>
+    <string name="custom_theme_is_dark">自定义主题为深色</string>
+    <string name="color_match">色彩搭配</string>
+    <string name="stay_true_to_my_color_inputs">按照指定的颜色输入</string>
 </resources>

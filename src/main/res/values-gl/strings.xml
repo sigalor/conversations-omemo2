@@ -18,7 +18,7 @@
     <string name="action_unblock_participant">Desbloquear persoa</string>
     <string name="title_activity_manage_accounts">Xestionar Contas</string>
     <string name="title_activity_settings">Axustes</string>
-    <string name="title_activity_choose_contact">Escoller Contacto</string>
+    <string name="title_activity_choose_contact">Elixir Contacto</string>
     <string name="title_activity_choose_contacts">Seleccionar contactos</string>
     <string name="title_activity_share_via_account">Compartir coa conta</string>
     <string name="title_activity_block_list">Lista de bloqueo</string>

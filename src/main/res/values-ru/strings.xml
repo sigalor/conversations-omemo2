@@ -9,7 +9,7 @@
     <string name="action_add_account">Добавить учётную запись</string>
     <string name="action_edit_contact">Редактировать контакт</string>
     <string name="action_add_phone_book">Добавить в адресную книгу</string>
-    <string name="action_delete_contact">Удалить из списка</string>
+    <string name="action_delete_contact">Удалить контакт</string>
     <string name="action_block_contact">Заблокировать контакт</string>
     <string name="action_unblock_contact">Разблокировать контакт</string>
     <string name="action_block_domain">Заблокировать домен</string>
@@ -1191,7 +1191,7 @@
     <string name="smp_explain_question">Если у вас и вашего контакта есть общий секрет, который никто другой не знает (например, шутка изнутри или просто то, что вы ели на обед в последний раз, когда встречались), вы можете использовать этот секрет, чтобы проверить отпечатки пальцев друг друга.
 \n
 \nВы даете подсказку или вопрос своему контакту, который ответит ответом, учитывающим регистр.</string>
-    <string name="finish">Финиш</string>
+    <string name="finish">Готово</string>
     <string name="could_not_add_reaction">Не удалось добавить реакцию</string>
     <string name="pref_show_show_nav_drawer_summary">Активируйте панель навигации для лучшей сортировки чатов</string>
     <string name="no_otr_session_found">Действительный сеанс OTR не найден!</string>
@@ -1253,9 +1253,9 @@
     <string name="other_aspect_ratio">Другой</string>
     <string name="thumbnails">Миниатюры</string>
     <string name="saving">экономия</string>
-    <string name="out_of_memory_error">ошибка недостатка памяти</string>
-    <string name="file_saved">файл сохранен</string>
-    <string name="simple_commons">простые общие ресурсы</string>
+    <string name="out_of_memory_error">Ошибка нехватки памяти</string>
+    <string name="file_saved">Файл сохранен</string>
+    <string name="simple_commons">Простое достояние</string>
     <string name="value_copied_to_clipboard_show">значение скопировано в буфер обмена показать</string>
     <string name="default_color">цвет по умолчанию</string>
     <string name="unknown_error_occurred">произошла неизвестная ошибка</string>
@@ -1280,7 +1280,7 @@
     <string name="action_cancel">Отмена</string>
     <string name="action_next">Следующий</string>
     <string name="action_prev">Назад</string>
-    <string name="action_complete">Финиш</string>
+    <string name="action_complete">Готово</string>
     <string name="action_close">Закрыть</string>
     <string name="action_execute">Дальше</string>
     <string name="pref_theme_oledblack">OLED черный</string>
@@ -1322,4 +1322,33 @@
     <string name="resize">изменить размер</string>
     <string name="save_to_downloads_success">Файл успешно сохранен в папке «Загрузки»</string>
     <string name="mappreview_url">https://staticmap.monocles.eu/map.png</string>
+    <string name="mute_locally">Отключить звук локально</string>
+    <string name="unmute_locally">Включить звук локально</string>
+    <string name="invite_to_start_chat">Пригласить начать чат</string>
+    <string name="example_jid">username@monocles.eu</string>
+    <string name="view_privacy_policy">Просмотреть политику конфиденциальности</string>
+    <string name="pref_theme_title">Тема</string>
+    <string name="follow_system_dark_mode">Следуйте системному темному режиму</string>
+    <string name="custom_theme_is_dark">Пользовательская тема темная</string>
+    <string name="color_match">Соответствие цвета</string>
+    <string name="stay_true_to_my_color_inputs">Оставайтесь верны своим цветовым предпочтениям</string>
+    <string name="custom_primary_color">Основной цвет по выбору</string>
+    <string name="custom_secondary_color">Пользовательский вторичный цвет</string>
+    <string name="custom_tertiary_color">Пользовательский третий цвет</string>
+    <string name="compose_using_rich_text">Текст с использованием форматированного текста</string>
+    <string name="compose_using_rich_text_summary">Редактор сообщений будет отображать форматирование по мере ввода текста</string>
+    <string name="xmpp_network_description">Сеть XMPP работает на основе протокола XMPP. Это децентрализованная сеть, что означает, что никто не владеет и не контролирует все это. Это федеративная сеть, что означает, что любой может запустить службу XMPP. Сообщения другим пользователям XMPP по умолчанию шифруются сквозным шифрованием с помощью OMEMO.\\n\\nАдреса называются идентификаторами XMPP и выглядят так же, как адреса электронной почты:</string>
+    <string name="custom_background_color">Пользовательский цвет фона</string>
+    <string name="italic">Курсив</string>
+    <string name="monospace">Моноширинный</string>
+    <string name="strikethrough">Зачеркивание</string>
+    <string name="pref_showtextformatting">Панель инструментов форматирования текста</string>
+    <string name="pref_chat_requests">Скрыть чаты в области запросов чата</string>
+    <string name="pref_showtextformatting_sum">Показывать панель инструментов форматирования текста в чате, пока отображается клавиатура</string>
+    <string name="close_format_text">Вы действительно хотите закрыть панель инструментов форматирования текста? Вы можете снова включить панель инструментов в настройках.</string>
+    <string name="bold">Жирный</string>
+    <string name="pref_dns_server_ipv4_title">DNS-сервер IPv4</string>
+    <string name="pref_dns_server_ipv6_title">DNS-сервер IPv6</string>
+    <string name="pref_dns_server_ipv4_summary">Измените DNS-сервер IPv4, используемый чатом monocles</string>
+    <string name="pref_dns_server_ipv6_summary">Изменить DNS-сервер IPv6 по умолчанию</string>
 </resources>
