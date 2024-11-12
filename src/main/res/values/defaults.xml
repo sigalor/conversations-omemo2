@@ -59,6 +59,6 @@
     <bool name="show_nav_bar">true</bool>
     <bool name="enforce_dane">false</bool>
     <string name="default_chat_requests">spam</string>
-    <string name="default_dns_server_ipv4">176.9.93.198</string>
-    <string name="default_dns_server_ipv6">[2a01:4f8:151:34aa::198]</string>
+    <string name="default_dns_server_ipv4">194.242.2.2</string>
+    <string name="default_dns_server_ipv6">[2a07:e340::2]</string>
 </resources>

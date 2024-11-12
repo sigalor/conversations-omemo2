@@ -14,6 +14,8 @@ import static org.webrtc.ApplicationContextProvider.getApplicationContext;
 
 import android.content.res.Resources;
 
+import org.minidns.util.InetAddressUtil;
+
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -95,18 +97,18 @@ public class DnsRootServer {
         }
 
         public static Inet4Address getRandomIpv4RootServer(Random random) {
-            if (getApplicationContext().getString(R.string.default_dns_server_ipv4).equals("176.9.93.198")) {
+            if (getApplicationContext().getString(R.string.default_dns_server_ipv4).equals("194.242.2.2")) {
                 return IPV4_ROOT_SERVERS[random.nextInt(IPV4_ROOT_SERVERS.length)];
             } else {
-                return null;
+                return InetAddressUtil.ipv4From(eu.siacs.conversations.Conversations.getContext().getString(R.string.default_dns_server_ipv4));
             }
         }
 
         public static Inet6Address getRandomIpv6RootServer(Random random) {
-            if (getApplicationContext().getString(R.string.default_dns_server_ipv6).equals("[2a01:4f8:151:34aa::198]")) {
+            if (getApplicationContext().getString(R.string.default_dns_server_ipv6).equals("[2a07:e340::2]")) {
                 return IPV6_ROOT_SERVERS[random.nextInt(IPV6_ROOT_SERVERS.length)];
             } else {
-                return null;
+                return InetAddressUtil.ipv6From(eu.siacs.conversations.Conversations.getContext().getString(R.string.default_dns_server_ipv6));
             }
         }
 
