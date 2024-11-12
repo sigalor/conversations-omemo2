@@ -225,7 +225,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         if (this.mPostponedActivityResult != null) {
             this.onActivityResult(mPostponedActivityResult.first, RESULT_OK, mPostponedActivityResult.second);
         }
-        if (Config.X509_VERIFICATION && this.accountList.size() == 0) {
+        if (Config.X509_VERIFICATION && this.accountList.isEmpty()) {
             if (mInvokedAddAccount.compareAndSet(false, true)) {
                 addAccountFromKey();
             }
@@ -333,13 +333,14 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0) {
             if (allGranted(grantResults)) {
                 switch (requestCode) {
                     case REQUEST_MICROPHONE:
                         try {
                             startActivity(mMicIntent);
-                        } catch (final android.content.ActivityNotFoundException e) {
+                        } catch (final ActivityNotFoundException e) {
                             Toast.makeText(this, "Your OS has blocked dialler integration", Toast.LENGTH_SHORT).show();
                         }
                         mMicIntent = null;
@@ -365,7 +366,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 
     @Override
     public boolean onNavigateUp() {
-        if (xmppConnectionService.getConversations().size() == 0) {
+        if (xmppConnectionService.getConversations().isEmpty()) {
             Intent contactsIntent = new Intent(this,
                     StartConversationActivity.class);
             contactsIntent.setFlags(
