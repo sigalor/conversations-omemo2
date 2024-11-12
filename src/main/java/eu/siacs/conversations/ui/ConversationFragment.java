@@ -1755,7 +1755,8 @@ public class ConversationFragment extends XmppFragment
                 setThread(message.getThread());
                 conversation.setUserSelectedThread(true);
             }
-            addReaction(message);
+            if (conversation.getMode() == Conversational.MODE_SINGLE
+                    || conversation.getMucOptions().participating()) addReaction(message);
         });
 
         messageListAdapter.setOnMessageBoxSwiped(message -> {

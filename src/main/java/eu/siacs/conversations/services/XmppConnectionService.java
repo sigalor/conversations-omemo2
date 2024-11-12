@@ -5430,7 +5430,12 @@ public class XmppConnectionService extends Service {
             final var newReactions = new HashSet<>(reactions);
             newReactions.removeAll(message.getAggregatedReactions().ourReactions);
             if (conversation.getMode() == Conversational.MODE_MULTI) {
-                final var self = conversation.getMucOptions().getSelf();
+                final var mucOptions = conversation.getMucOptions();
+                if (!mucOptions.participating()) {
+                    Log.d(Config.LOGTAG,"not participating in MUC");
+                    return false;
+                }
+                final var self = mucOptions.getSelf();
                 final String occupantId = self.getOccupantId();
                 reactToId = message.getServerMsgId();
                 combinedReactions =
