@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.common.base.Strings;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,12 +63,10 @@ public class MucOptions {
     private User self;
     private String password = null;
 
-    private boolean tookProposedNickFromBookmark = false;
-
-    public MucOptions(Conversation conversation) {
+    public MucOptions(final Conversation conversation) {
         this.account = conversation.getAccount();
         this.conversation = conversation;
-        final String nick = getProposedNick(conversation.getAttribute("mucNick"));
+        final String nick = getProposedNickPure(conversation.getAttribute("mucNick"));
         this.self = new User(this, createJoinJid(nick), null, nick, new HashSet<>());
         this.self.affiliation = Affiliation.of(conversation.getAttribute("affiliation"));
         this.self.role = Role.of(conversation.getAttribute("role"));
@@ -117,17 +117,6 @@ public class MucOptions {
         }
     }
 
-    public boolean isTookProposedNickFromBookmark() {
-        return tookProposedNickFromBookmark;
-    }
-
-    void notifyOfBookmarkNick(final String nick) {
-        final String normalized = normalize(account.getJid(),nick);
-        if (normalized != null && normalized.equals(getSelf().getNick())) {
-            this.tookProposedNickFromBookmark = true;
-        }
-    }
-
     public boolean mamSupport() {
         return MessageArchiveService.Version.has(getFeatures());
     }
@@ -139,8 +128,8 @@ public class MucOptions {
         if (roomConfigName != null) {
             name = roomConfigName.getValue();
         } else {
-            List<ServiceDiscoveryResult.Identity> identities = serviceDiscoveryResult.getIdentities();
-            String identityName = identities.size() > 0 ? identities.get(0).getName() : null;
+            final var identities = serviceDiscoveryResult.getIdentities();
+            final String identityName = !identities.isEmpty() ? identities.get(0).getName() : null;
             final Jid jid = conversation.getJid();
             if (identityName != null && !identityName.equals(jid == null ? null : jid.getEscapedLocal())) {
                 name = identityName;
@@ -157,7 +146,7 @@ public class MucOptions {
 
     private Data getRoomInfoForm() {
         final List<Data> forms = serviceDiscoveryResult == null ? Collections.emptyList() : serviceDiscoveryResult.forms;
-        return forms.size() == 0 ? new Data() : forms.get(0);
+        return forms.isEmpty() ? new Data() : forms.get(0);
     }
 
     public String getAvatar() {
@@ -500,20 +489,31 @@ public class MucOptions {
         }
     }
 
-    public String getProposedNick() {
-        return getProposedNick(null);
+    private String getProposedNick() {
+        final Bookmark bookmark = this.conversation.getBookmark();
+        if (bookmark != null) {
+            // if we already have a bookmark we consider this the source of truth
+            return getProposedNickPure();
+        }
+        final var storedJid = conversation.getJid();
+        if (storedJid.isBareJid()) {
+            return defaultNick(account);
+        } else {
+            return storedJid.getResource();
+        }
     }
 
-    public String getProposedNick(final String mucNick) {
+    public String getProposedNickPure() {
+        return getProposedNickPure(null);
+    }
+
+    public String getProposedNickPure(final String mucNick) {
         final Bookmark bookmark = this.conversation.getBookmark();
         final String bookmarkedNick = normalize(account.getJid(), bookmark == null ? null : bookmark.getNick());
         if (bookmarkedNick != null) {
-            this.tookProposedNickFromBookmark = true;
             return bookmarkedNick;
         } else if (mucNick != null) {
             return mucNick;
-        } else if (!conversation.getJid().isBareJid()) {
-            return conversation.getJid().getResource();
         } else {
             return defaultNick(account);
         }
@@ -528,14 +528,14 @@ public class MucOptions {
         }
     }
 
-    private static String normalize(Jid account, String nick) {
-        if (account == null || TextUtils.isEmpty(nick)) {
+    private static String normalize(final Jid account, final String nick) {
+        if (account == null || Strings.isNullOrEmpty(nick)) {
             return null;
         }
 
         try {
             return account.withResource(nick).getResource();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             return nick;
         }
     }
