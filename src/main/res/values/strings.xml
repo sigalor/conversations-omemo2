@@ -1312,4 +1312,9 @@
     <string name="pref_dns_server_ipv4_title">IPv4 DNS server</string>
     <string name="pref_dns_server_ipv6_title">IPv6 DNS server</string>
     <string name="pref_dns_server_ipv6_summary">Change the default IPv6 DNS server</string>
+    <string name="all_chats">All chats</string>
+    <string name="unread_chats">Unread chats</string>
+    <string name="direct_messages">Direct messages</string>
+    <string name="channels">Channels</string>
+    <string name="manage_account">Manage account</string>
 </resources>

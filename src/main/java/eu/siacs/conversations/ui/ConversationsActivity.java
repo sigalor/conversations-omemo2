@@ -467,7 +467,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         accountHeader = new com.mikepenz.materialdrawer.widget.AccountHeaderView(this);
         final var manageAccount = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
         manageAccount.setIdentifier(DRAWER_MANAGE_ACCOUNT);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, xmppConnectionService.getAccounts().size() > 1 ? "Manage Accounts" : "Manage Account");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, xmppConnectionService.getAccounts().size() > 1 ? getString(R.string.title_activity_manage_accounts) : getString(R.string.manage_account));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(manageAccount, R.drawable.ic_settings_24dp);
         accountHeader.addProfiles(manageAccount);
 
@@ -476,24 +476,24 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         final var allChats = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         allChats.setIdentifier(DRAWER_ALL_CHATS);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(allChats, "All Chats");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(allChats, getString(R.string.all_chats));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(allChats, R.drawable.ic_chat_24dp);
 
         final var unreadChats = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         unreadChats.setIdentifier(DRAWER_UNREAD_CHATS);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(unreadChats, "Unread Chats");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(unreadChats, getString(R.string.unread_chats));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(unreadChats, R.drawable.chat_unread_24dp);
         unreadChats.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
         final var directMessages = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         directMessages.setIdentifier(DRAWER_DIRECT_MESSAGES);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(directMessages, "Direct Messages");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(directMessages, getString(R.string.direct_messages));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(directMessages, R.drawable.ic_person_24dp);
         directMessages.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
         final var channels = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         channels.setIdentifier(DRAWER_CHANNELS);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, "Channels");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(channels, getString(R.string.channels));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(channels, R.drawable.ic_group_24dp);
         channels.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
@@ -508,7 +508,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         settings.setIdentifier(DRAWER_SETTINGS);
         settings.setSelectable(false);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, "Settings");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, getString(R.string.action_settings));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(settings, R.drawable.ic_settings_24dp);
         com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, settings);
 
@@ -615,9 +615,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             // Clicked on an actual profile
             if (profile.getTag() == null) {
-                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, "Manage Accounts");
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, getString(R.string.title_activity_manage_accounts));
             } else {
-                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, "Manage Account");
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, getString(R.string.manage_account));
             }
             accountHeader.updateProfile(manageAccount);
 
