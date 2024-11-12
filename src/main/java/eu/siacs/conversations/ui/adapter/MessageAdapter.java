@@ -943,15 +943,19 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.audioPlayer.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
         final var uri = message.wholeIsKnownURI();
-        final var amount = uri.getQueryParameter("amount");
-        final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
         if ("bitcoin".equals(uri.getScheme())) {
+            final var amount = uri.getQueryParameter("amount");
+            final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
             viewHolder.download_button.setIconResource(R.drawable.bitcoin_24dp);
             viewHolder.download_button.setText("Send " + formattedAmount + "Bitcoin");
         } else if ("bitcoincash".equals(uri.getScheme())) {
+            final var amount = uri.getQueryParameter("amount");
+            final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
             viewHolder.download_button.setIconResource(R.drawable.bitcoin_cash_24dp);
             viewHolder.download_button.setText("Send " + formattedAmount + "Bitcoin Cash");
         } else if ("monero".equals(uri.getScheme())) {
+            final var amount = uri.getQueryParameter("tx_amount");
+            final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
             viewHolder.download_button.setIconResource(R.drawable.monero_24dp);
             viewHolder.download_button.setText("Send " + formattedAmount + "Monero");
         }
