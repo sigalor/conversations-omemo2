@@ -26,6 +26,11 @@
             android:key="dns_server_ipv6"
             android:summary="@string/pref_dns_server_ipv6_summary"
             android:title="@string/pref_dns_server_ipv6_title" />
+        <Preference
+            android:key="reset_dns_server"
+            android:icon="@drawable/outline_reset_settings_24"
+            android:summary="@string/pref_reset_dns_server_summary"
+            android:title="@string/pref_reset_dns_server_title" />
     </PreferenceCategory>
 
     <PreferenceCategory
