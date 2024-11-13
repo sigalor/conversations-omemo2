@@ -374,7 +374,7 @@
     <string name="remove_membership">Снять права участника</string>
     <string name="grant_admin_privileges">Назначить администратором</string>
     <string name="remove_admin_privileges">Снять административные права</string>
-    <string name="grant_owner_privileges">Назначить администратором</string>
+    <string name="grant_owner_privileges">Назначить овнером</string>
     <string name="remove_owner_privileges">Снять права администратора</string>
     <string name="remove_from_room">Убрать из конференции</string>
     <string name="remove_from_channel">Исключить</string>
@@ -1351,4 +1351,19 @@
     <string name="pref_dns_server_ipv6_title">DNS-сервер IPv6</string>
     <string name="pref_dns_server_ipv4_summary">Измените DNS-сервер IPv4, используемый чатом monocles</string>
     <string name="pref_dns_server_ipv6_summary">Изменить DNS-сервер IPv6 по умолчанию</string>
+    <string name="unread_chats">Непрочитанные чаты</string>
+    <string name="direct_messages">Личные сообщения</string>
+    <string name="channels">Каналы</string>
+    <string name="all_chats">Все чаты</string>
+    <string name="manage_account">Управление аккаунтом</string>
+    <string name="pref_category_settings">Настройки</string>
+    <string name="pref_import_settings_summary">Импортируйте файл settings.dat из папки резервной копии</string>
+    <string name="pref_reset_dns_server_summary">Сброс DNS серверов по умолчанию</string>
+    <string name="pref_reset_dns_server_title">Сбросить DNS</string>
+    <string name="dns_server_reset">Сброс DNS</string>
+    <string name="pref_import_settings">Импорт настроек</string>
+    <string name="pref_export_settings">Экспорт настроек</string>
+    <string name="pref_export_settings_summary">Экспортируйте настройки приложения в папку резервного копирования</string>
+    <string name="success_import_settings">Настройки успешно импортированы</string>
+    <string name="error_import_settings">Ошибка при импорте настроек</string>
 </resources>

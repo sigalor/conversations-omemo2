@@ -9,7 +9,7 @@
     <string name="action_add_account">Account toevoegen</string>
     <string name="action_edit_contact">Contact bewerken</string>
     <string name="action_add_phone_book">Toevoegen aan adresboek</string>
-    <string name="action_delete_contact">Verwijderen uit contactlijst</string>
+    <string name="action_delete_contact">Contact verwijderen</string>
     <string name="action_block_contact">Contact blokkeren</string>
     <string name="action_unblock_contact">Contact deblokkeren</string>
     <string name="action_block_domain">Domein blokkeren</string>
@@ -1300,4 +1300,16 @@
     <string name="invalid_values">Voer geldige afmetingen in</string>
     <string name="unknown_file_location">Onbekende bestandslocatie</string>
     <string name="other_aspect_ratio">Aangepast</string>
+    <string name="bold">Vet</string>
+    <string name="italic">Cursief</string>
+    <string name="monospace">Monospace</string>
+    <string name="strikethrough">Doorstrepen</string>
+    <string name="pref_showtextformatting_sum">Toon in gesprekken de werkbalk voor tekstopmaak als het toetsenbord is geopend</string>
+    <string name="pref_chat_requests">Gesprekken in Verzoeken verbergen</string>
+    <string name="pref_dns_server_ipv4_title">IPv4 DNS-server</string>
+    <string name="pref_dns_server_ipv6_title">IPv6 DNS-server</string>
+    <string name="pref_dns_server_ipv6_summary">Verander de IPv6 DNS-server</string>
+    <string name="close_format_text">De werkbalk voor tekstopmaak echt sluiten? Je kunt de werkbalk weer inschakelen via de instellingen.</string>
+    <string name="pref_dns_server_ipv4_summary">Verander de IPv4 DNS-server die monocles chat gebruikt</string>
+    <string name="pref_showtextformatting">Werkbalk voor tekstopmaak tonen</string>
 </resources>

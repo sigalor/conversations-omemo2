@@ -1326,4 +1326,19 @@
     <string name="color_match">Farbliche Übereinstimmung</string>
     <string name="stay_true_to_my_color_inputs">Meinen Farbvorgaben treu bleiben</string>
     <string name="custom_primary_color">Benutzerdefinierte Primärfarbe</string>
+    <string name="all_chats">Alle Chats</string>
+    <string name="unread_chats">Ungelesen</string>
+    <string name="direct_messages">Direkte Nachrichten</string>
+    <string name="channels">Gruppen</string>
+    <string name="manage_account">Verwalte Konto</string>
+    <string name="pref_import_settings_summary">Importiere die settings.dat aus dem Backup Ordner</string>
+    <string name="pref_reset_dns_server_summary">Setze den standard DNS Server zurück</string>
+    <string name="pref_reset_dns_server_title">DNS Server zurücksetzen</string>
+    <string name="dns_server_reset">DNS server zurückgesetzt</string>
+    <string name="pref_category_settings">Einstellungen</string>
+    <string name="pref_import_settings">Importiere Einstellungen</string>
+    <string name="pref_export_settings">Exportiere Einstellungen</string>
+    <string name="pref_export_settings_summary">Exportiere die monocles chat App Einstellungen in den Backup Ordner</string>
+    <string name="success_import_settings">Einstellungen erfolgreich importiert</string>
+    <string name="error_import_settings">Fehler beim Importieren der Einstellungen</string>
 </resources>

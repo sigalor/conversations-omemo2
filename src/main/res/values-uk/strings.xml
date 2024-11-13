@@ -1185,7 +1185,7 @@
     <string name="could_not_disable_video">Не вдалося вимкнути відео.</string>
     <string name="edit_nick">Змінити прізвисько</string>
     <string name="delete_pgp_key">Видалити ключ OpenPGP</string>
-    <string name="options">Налаштування</string>
+    <string name="options">Параметри</string>
     <string name="pref_show_mappreview_inside_summary">Завантажувати попередній перегляд мапи для спільного місця розташування у вікні чату</string>
     <string name="encryption">Шифрування</string>
     <string name="choose_widget">Вибрати віджет</string>
@@ -1347,7 +1347,7 @@
     <string name="example_jid">username@monocles.eu</string>
     <string name="stay_true_to_my_color_inputs">Дотримуватися вказаних кольорів</string>
     <string name="xmpp_network_description">Мережа XMPP працює на основі протоколу під назвою XMPP. Це децентралізована мережа, що означає, що нею ніхто не володіє і не контролює її. Це федеративна мережа, тобто будь-хто може запустити службу XMPP. Повідомлення іншим користувачам XMPP за замовчуванням наскрізь зашифровані за допомогою OMEMO.\\n\\nАдреси XMPP схожі на адреси електронної пошти:</string>
-    <string name="request_to_speak">Запит про надання слова</string>
+    <string name="request_to_speak">Запит на розмову</string>
     <string name="invite_to_start_chat">Запросити почати розмову</string>
     <string name="saving">збереження</string>
     <string name="value_copied_to_clipboard_show">Значення скопійовано до буфера обміну</string>
@@ -1365,4 +1365,24 @@
     <string name="strikethrough">Закреслений</string>
     <string name="pref_showtextformatting_sum">Показувати панель форматування тексту в розмовах, коли відображається клавіатура</string>
     <string name="bold">Жирний</string>
+    <string name="pref_dns_server_ipv6_summary">Змінити DNS-сервер IPv6 за замовчуванням</string>
+    <string name="pref_dns_server_ipv6_title">DNS-сервер IPv6</string>
+    <string name="pref_dns_server_ipv4_summary">Змінити DNS-сервер IPv4, який використовує monocles chat</string>
+    <string name="pref_chat_requests">Приховати чати в області запитів на розмову</string>
+    <string name="pref_dns_server_ipv4_title">DNS-сервер IPv4</string>
+    <string name="all_chats">Усі розмови</string>
+    <string name="unread_chats">Непрочитані розмови</string>
+    <string name="direct_messages">Приватні повідомлення</string>
+    <string name="channels">Канали</string>
+    <string name="manage_account">Мій обліковий запис</string>
+    <string name="pref_reset_dns_server_summary">Скидання DNS-серверів за замовчуванням</string>
+    <string name="pref_reset_dns_server_title">Скинути DNS</string>
+    <string name="dns_server_reset">DNS скинуто</string>
+    <string name="pref_category_settings">Налаштування</string>
+    <string name="pref_import_settings">Імпортувати налаштування</string>
+    <string name="pref_export_settings">Експортувати налаштування</string>
+    <string name="pref_import_settings_summary">Імпорт settings.dat із теки резервних копій</string>
+    <string name="success_import_settings">Налаштування успішно імпортовано</string>
+    <string name="pref_export_settings_summary">Експорт налаштувань monocles chat у теку резервних копій</string>
+    <string name="error_import_settings">Помилка під час імпорту налаштувань</string>
 </resources>
