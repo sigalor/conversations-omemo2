@@ -1317,7 +1317,7 @@
     <string name="direct_messages">Direct messages</string>
     <string name="channels">Channels</string>
     <string name="manage_account">Manage account</string>
-    <string name="pref_reset_dns_server_summary">Reset to the default DNS servers. A phone restart is needed.</string>
+    <string name="pref_reset_dns_server_summary">Reset the default DNS servers</string>
     <string name="pref_reset_dns_server_title">Reset DNS</string>
     <string name="dns_server_reset">DNS reset</string>
 </resources>
