@@ -17,4 +17,18 @@
         android:key="backup_directory"
         android:summary="@string/pref_create_backup_summary" />
 
+    <PreferenceCategory
+        android:title="@string/pref_category_settings">
+        <Preference
+            android:icon="@drawable/rounded_settings_backup_restore_24"
+            android:key="import_settings"
+            android:summary="@string/pref_import_settings_summary"
+            android:title="@string/pref_import_settings" />
+        <Preference
+            android:icon="@drawable/rounded_settings_b_roll_24"
+            android:key="export_settings"
+            android:summary="@string/pref_export_settings_summary"
+            android:title="@string/pref_export_settings" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

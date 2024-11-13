@@ -1320,4 +1320,11 @@
     <string name="pref_reset_dns_server_summary">Reset the default DNS servers</string>
     <string name="pref_reset_dns_server_title">Reset DNS</string>
     <string name="dns_server_reset">DNS reset</string>
+    <string name="pref_category_settings">Settings</string>
+    <string name="pref_import_settings">Import settings</string>
+    <string name="pref_import_settings_summary">Import the settings.dat from the backup folder</string>
+    <string name="pref_export_settings">Export settings</string>
+    <string name="pref_export_settings_summary">Export the monocles chat app settings to the backup folder</string>
+    <string name="success_import_settings">Settings successfully imported</string>
+    <string name="error_import_settings">Error while importing the settings</string>
 </resources>
