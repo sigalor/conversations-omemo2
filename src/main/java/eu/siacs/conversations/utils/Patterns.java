@@ -51,6 +51,12 @@ public class Patterns {
                     + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
                     + "|(?:\\%[a-fA-F0-9]{2}))+)?");
 
+    public static final Pattern WOWNERO_URI = Pattern
+            .compile("wownero\\:(?:W(?:[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{96}|[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{106}|[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{187}))(?:\\?(?:(?:["
+                    + Patterns.GOOD_IRI_CHAR
+                    + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
+                    + "|(?:\\%[a-fA-F0-9]{2}))+)?");
+
     /**
      *  Regular expression to match all IANA top-level domains.
      *  List accurate as of 2011/07/18.  List taken from:

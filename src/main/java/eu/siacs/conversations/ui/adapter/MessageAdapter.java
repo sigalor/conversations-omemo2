@@ -958,6 +958,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
             viewHolder.download_button.setIconResource(R.drawable.monero_24dp);
             viewHolder.download_button.setText("Send " + formattedAmount + "Monero");
+        } else if ("wownero".equals(uri.getScheme())) {
+            final var amount = uri.getQueryParameter("tx_amount");
+            final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
+            viewHolder.download_button.setIconResource(R.drawable.wownero_24dp);
+            viewHolder.download_button.setText("Send " + formattedAmount + "Wownero");
         }
         viewHolder.download_button.setOnClickListener(v -> new FixedURLSpan(message.getRawBody()).onClick(v));
     }
