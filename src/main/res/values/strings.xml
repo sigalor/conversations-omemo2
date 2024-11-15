@@ -1329,4 +1329,5 @@
     <string name="pref_export_settings_summary">Export the monocles chat app settings to the backup folder</string>
     <string name="success_import_settings">Settings successfully imported</string>
     <string name="error_import_settings">Error while importing the settings</string>
+    <string name="could_not_modify_call">Could not modify call</string>
 </resources>

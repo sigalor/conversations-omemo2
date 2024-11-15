@@ -32,6 +32,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -100,7 +101,8 @@ public class RtpSessionActivity extends XmppActivity
     public static final String ACTION_MAKE_VOICE_CALL = "action_make_voice_call";
     public static final String ACTION_MAKE_VIDEO_CALL = "action_make_video_call";
 
-    private static final int CALL_DURATION_UPDATE_INTERVAL = 333;
+    private static final int CALL_DURATION_UPDATE_INTERVAL = 250;
+    private static final int BUTTON_VISIBILITY_TIMEOUT = 10_000;
 
     public static final List<RtpEndUserState> END_CARD =
             Arrays.asList(
@@ -155,6 +157,8 @@ public class RtpSessionActivity extends XmppActivity
                     mHandler.postDelayed(mTickExecutor, CALL_DURATION_UPDATE_INTERVAL);
                 }
             };
+    private boolean buttonsHiddenAfterTimeout = false;
+    private final Runnable mVisibilityToggleExecutor = this::updateButtonInVideoCallVisibility;
 
     public static Set<Media> actionToMedia(final String action) {
         if (ACTION_MAKE_VIDEO_CALL.equals(action)) {
@@ -191,6 +195,8 @@ public class RtpSessionActivity extends XmppActivity
                                 | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_rtp_session);
+        this.binding.remoteVideo.setOnClickListener(this::onVideoScreenClick);
+        this.binding.localVideo.setOnClickListener(this::onVideoScreenClick);
         setSupportActionBar(binding.toolbar);
 
         binding.dialpad.setClickConsumer(tag -> {
@@ -205,6 +211,10 @@ public class RtpSessionActivity extends XmppActivity
         }
 
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
+    }
+
+    private void onVideoScreenClick(final View view) {
+        resetVisibilityExecutorShowButtons();
     }
 
     @Override
@@ -655,12 +665,20 @@ public class RtpSessionActivity extends XmppActivity
     public void onStart() {
         super.onStart();
         mHandler.postDelayed(mTickExecutor, CALL_DURATION_UPDATE_INTERVAL);
+        mHandler.postDelayed(mVisibilityToggleExecutor, BUTTON_VISIBILITY_TIMEOUT);
         this.binding.remoteVideo.setOnAspectRatioChanged(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        resetVisibilityExecutorShowButtons();
     }
 
     @Override
     public void onStop() {
         mHandler.removeCallbacks(mTickExecutor);
+        mHandler.removeCallbacks(mVisibilityToggleExecutor);
         binding.remoteVideo.release();
         binding.remoteVideo.setOnAspectRatioChanged(null);
         binding.localVideo.release();
@@ -782,6 +800,17 @@ public class RtpSessionActivity extends XmppActivity
         }
     }
 
+    private boolean isInConnectedVideoCall() {
+        final JingleRtpConnection rtpConnection;
+        try {
+            rtpConnection = requireRtpConnection();
+        } catch (final IllegalStateException e) {
+            return false;
+        }
+        return rtpConnection.getMedia().contains(Media.VIDEO)
+                && rtpConnection.getEndUserState() == RtpEndUserState.CONNECTED;
+    }
+
     private boolean initializeActivityWithRunningRtpSession(
             final Account account, Jid with, String sessionId) {
         final WeakReference<JingleRtpConnection> reference =
@@ -885,7 +914,7 @@ public class RtpSessionActivity extends XmppActivity
             final ContentAddition contentAddition) {
         switch (state) {
             case INCOMING_CALL -> {
-                Preconditions.checkArgument(media.size() > 0, "Media must not be empty");
+                Preconditions.checkArgument(!media.isEmpty(), "Media must not be empty");
                 if (media.contains(Media.VIDEO)) {
                     setTitle(R.string.rtp_state_incoming_video_call);
                 } else {
@@ -976,7 +1005,9 @@ public class RtpSessionActivity extends XmppActivity
             final RtpEndUserState state,
             final Set<Media> media,
             final ContentAddition contentAddition) {
-        if (state == RtpEndUserState.ENDING_CALL || isPictureInPicture()) {
+        if (state == RtpEndUserState.ENDING_CALL
+                || isPictureInPicture()
+                || this.buttonsHiddenAfterTimeout) {
             this.binding.rejectCall.setVisibility(View.INVISIBLE);
             this.binding.endCall.setVisibility(View.INVISIBLE);
             this.binding.acceptCall.setVisibility(View.INVISIBLE);
@@ -1033,10 +1064,15 @@ public class RtpSessionActivity extends XmppActivity
             this.binding.endCall.setContentDescription(getString(R.string.hang_up));
             this.binding.endCall.setOnClickListener(this::endCall);
             this.binding.endCall.setImageResource(R.drawable.ic_call_end_24dp);
-            this.binding.endCall.setVisibility(View.VISIBLE);
+            setVisibleAndShow(this.binding.endCall);
             this.binding.acceptCall.setVisibility(View.INVISIBLE);
         }
         updateInCallButtonConfiguration(state, media);
+    }
+
+    private static void setVisibleAndShow(final FloatingActionButton button) {
+        button.show();
+        button.setVisibility(View.VISIBLE);
     }
 
     private boolean isPictureInPicture() {
@@ -1055,7 +1091,8 @@ public class RtpSessionActivity extends XmppActivity
     @SuppressLint("RestrictedApi")
     private void updateInCallButtonConfiguration(
             final RtpEndUserState state, final Set<Media> media) {
-        if (STATES_CONSIDERED_CONNECTED.contains(state) && !isPictureInPicture()) {
+        final var showButtons = !isPictureInPicture() && !buttonsHiddenAfterTimeout;
+        if (STATES_CONSIDERED_CONNECTED.contains(state) && showButtons) {
             Preconditions.checkArgument(!media.isEmpty(), "Media must not be empty");
             if (media.contains(Media.VIDEO)) {
                 final JingleRtpConnection rtpConnection = requireRtpConnection();
@@ -1075,7 +1112,7 @@ public class RtpSessionActivity extends XmppActivity
                 this.binding.inCallActionLeft.setVisibility(View.GONE);
             }
         } else if (STATES_SHOWING_SPEAKER_CONFIGURATION.contains(state)
-                && !isPictureInPicture()
+                && showButtons
                 && Media.audioOnly(media)) {
             final CallIntegration callIntegration;
             try {
@@ -1140,17 +1177,17 @@ public class RtpSessionActivity extends XmppActivity
                 this.binding.inCallActionRight.setClickable(false);
             }
         }
-        this.binding.inCallActionRight.setVisibility(View.VISIBLE);
+        setVisibleAndShow(this.binding.inCallActionRight);
     }
 
     @SuppressLint("RestrictedApi")
     private void updateInCallButtonConfigurationVideo(
             final boolean videoEnabled, final boolean isCameraSwitchable) {
-        this.binding.inCallActionRight.setVisibility(View.VISIBLE);
+        setVisibleAndShow(this.binding.inCallActionRight);
         if (isCameraSwitchable) {
             this.binding.inCallActionFarRight.setImageResource(
                     R.drawable.ic_flip_camera_android_24dp);
-            this.binding.inCallActionFarRight.setVisibility(View.VISIBLE);
+            setVisibleAndShow(this.binding.inCallActionFarRight);
             this.binding.inCallActionFarRight.setOnClickListener(this::switchCamera);
             this.binding.inCallActionFarRight.setContentDescription(
                     getString(R.string.flip_camera));
@@ -1171,6 +1208,7 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void switchCamera(final View view) {
+        resetVisibilityToggleExecutor();
         Futures.addCallback(
                 requireRtpConnection().switchCamera(),
                 new FutureCallback<>() {
@@ -1196,6 +1234,7 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void enableVideo(final View view) {
+        resetVisibilityToggleExecutor();
         try {
             requireRtpConnection().setVideoEnabled(true);
         } catch (final IllegalStateException e) {
@@ -1206,6 +1245,7 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void disableVideo(final View view) {
+        resetVisibilityToggleExecutor();
         final JingleRtpConnection rtpConnection = requireRtpConnection();
         final ContentAddition pending = rtpConnection.getPendingContentAddition();
         if (pending != null && pending.direction == ContentAddition.Direction.OUTGOING) {
@@ -1230,7 +1270,7 @@ public class RtpSessionActivity extends XmppActivity
             this.binding.inCallActionLeft.setImageResource(R.drawable.ic_mic_off_24dp);
             this.binding.inCallActionLeft.setOnClickListener(this::enableMicrophone);
         }
-        this.binding.inCallActionLeft.setVisibility(View.VISIBLE);
+        setVisibleAndShow(this.binding.inCallActionLeft);
     }
 
     private void updateCallDuration() {
@@ -1247,6 +1287,47 @@ public class RtpSessionActivity extends XmppActivity
                     TimeFrameUtils.formatElapsedTime(connection.getCallDuration(), false));
             this.binding.duration.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void resetVisibilityToggleExecutor() {
+        mHandler.removeCallbacks(this.mVisibilityToggleExecutor);
+        mHandler.postDelayed(this.mVisibilityToggleExecutor, BUTTON_VISIBILITY_TIMEOUT);
+    }
+
+    private void updateButtonInVideoCallVisibility() {
+        if (isInConnectedVideoCall()) {
+            if (isPictureInPicture()) {
+                return;
+            }
+            Log.d(Config.LOGTAG, "hiding in-call buttons after timeout was reached");
+            hideInCallButtons();
+        }
+    }
+
+    private void hideInCallButtons() {
+        binding.inCallActionLeft.hide();
+        binding.endCall.hide();
+        binding.inCallActionRight.hide();
+        binding.inCallActionFarRight.hide();
+    }
+
+    private void showInCallButtons() {
+        this.buttonsHiddenAfterTimeout = false;
+        final JingleRtpConnection rtpConnection;
+        try {
+            rtpConnection = requireRtpConnection();
+        } catch (final IllegalStateException e) {
+            return;
+        }
+        updateButtonConfiguration(
+                rtpConnection.getEndUserState(),
+                rtpConnection.getMedia(),
+                rtpConnection.getPendingContentAddition());
+    }
+
+    private void resetVisibilityExecutorShowButtons() {
+        resetVisibilityToggleExecutor();
+        showInCallButtons();
     }
 
     private void updateVideoViews(final RtpEndUserState state) {
@@ -1343,17 +1424,23 @@ public class RtpSessionActivity extends XmppActivity
         return connection.getRemoteVideoTrack();
     }
 
-    private void disableMicrophone(View view) {
-        final JingleRtpConnection rtpConnection = requireRtpConnection();
-        if (rtpConnection.setMicrophoneEnabled(false)) {
-            updateInCallButtonConfiguration();
-        }
+    private void disableMicrophone(final View view) {
+        setMicrophoneEnabled(false);
     }
 
-    private void enableMicrophone(View view) {
-        final JingleRtpConnection rtpConnection = requireRtpConnection();
-        if (rtpConnection.setMicrophoneEnabled(true)) {
-            updateInCallButtonConfiguration();
+    private void enableMicrophone(final View view) {
+        setMicrophoneEnabled(true);
+    }
+
+    private void setMicrophoneEnabled(final boolean enabled) {
+        resetVisibilityExecutorShowButtons();
+        try {
+            final JingleRtpConnection rtpConnection = requireRtpConnection();
+            if (rtpConnection.setMicrophoneEnabled(enabled)) {
+                updateInCallButtonConfiguration();
+            }
+        } catch (final IllegalStateException e) {
+            Toast.makeText(this, R.string.could_not_modify_call, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1362,7 +1449,7 @@ public class RtpSessionActivity extends XmppActivity
             requireCallIntegration().setAudioDevice(CallIntegration.AudioDevice.EARPIECE);
             acquireProximityWakeLock();
         } catch (final IllegalStateException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.could_not_modify_call, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1371,7 +1458,7 @@ public class RtpSessionActivity extends XmppActivity
             requireCallIntegration().setAudioDevice(CallIntegration.AudioDevice.SPEAKER_PHONE);
             releaseProximityWakeLock();
         } catch (final IllegalStateException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.could_not_modify_call, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1461,6 +1548,7 @@ public class RtpSessionActivity extends XmppActivity
                     () -> getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
         }
         if (with.isBareJid()) {
+            // TODO check for ENDED
             updateRtpSessionProposalState(account, with, state);
             return;
         }
@@ -1484,6 +1572,7 @@ public class RtpSessionActivity extends XmppActivity
                 finish();
                 return;
             }
+            resetVisibilityToggleExecutor();
             runOnUiThread(
                     () -> {
                         updateStateDisplay(state, media, contentAddition);
