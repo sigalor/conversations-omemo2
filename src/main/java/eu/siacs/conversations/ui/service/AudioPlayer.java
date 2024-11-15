@@ -124,19 +124,19 @@ public class AudioPlayer
         final Context context = viewHolder.playPause.getContext();
         if (message == currentlyPlayingMessage) {
             if (AudioPlayer.player != null && AudioPlayer.player.isPlaying()) {
-                viewHolder.playPause.setImageResource(R.drawable.ic_pause_24dp);
+                viewHolder.playPause.setImageResource(R.drawable.rounded_pause_36);
                 MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
                 viewHolder.playPause.setContentDescription(context.getString(R.string.pause_audio));
                 viewHolder.progress.setEnabled(true);
             } else {
                 viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
-                viewHolder.playPause.setImageResource(R.drawable.ic_play_arrow_24dp);
+                viewHolder.playPause.setImageResource(R.drawable.rounded_play_arrow_36);
                 MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
                 viewHolder.progress.setEnabled(false);
             }
             return true;
         } else {
-            viewHolder.playPause.setImageResource(R.drawable.ic_play_arrow_24dp);
+            viewHolder.playPause.setImageResource(R.drawable.rounded_play_arrow_36);
             MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
             viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
             viewHolder.runtime.setText(formatTime(message.getFileParams().runtime));
@@ -186,7 +186,7 @@ public class AudioPlayer
             player.pause();
             messageAdapter.flagScreenOff();
             releaseProximityWakeLock();
-            viewHolder.playPause.setImageResource(R.drawable.ic_play_arrow_24dp);
+            viewHolder.playPause.setImageResource(R.drawable.rounded_play_arrow_36);
             MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
             viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
         } else {
@@ -195,7 +195,7 @@ public class AudioPlayer
             messageAdapter.flagScreenOn();
             acquireProximityWakeLock();
             this.stopRefresher(true);
-            viewHolder.playPause.setImageResource(R.drawable.ic_pause_24dp);
+            viewHolder.playPause.setImageResource(R.drawable.rounded_pause_36);
             MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
             viewHolder.playPause.setContentDescription(context.getString(R.string.pause_audio));
         }
@@ -222,7 +222,7 @@ public class AudioPlayer
             messageAdapter.flagScreenOn();
             acquireProximityWakeLock();
             viewHolder.progress.setEnabled(true);
-            viewHolder.playPause.setImageResource(R.drawable.ic_pause_24dp);
+            viewHolder.playPause.setImageResource(R.drawable.rounded_pause_36);
             MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
             viewHolder.playPause.setContentDescription(
                     viewHolder.playPause.getContext().getString(R.string.pause_audio));
@@ -283,7 +283,7 @@ public class AudioPlayer
         final Message message = (Message) audioPlayer.getTag();
         viewHolder.playPause.setContentDescription(
                 viewHolder.playPause.getContext().getString(R.string.play_audio));
-        viewHolder.playPause.setImageResource(R.drawable.ic_play_arrow_24dp);
+        viewHolder.playPause.setImageResource(R.drawable.rounded_play_arrow_36);
         MessageAdapter.setImageTint(viewHolder.playPause, viewHolder.bubbleColor);
         if (message != null) {
             viewHolder.runtime.setText(formatTime(message.getFileParams().runtime));
