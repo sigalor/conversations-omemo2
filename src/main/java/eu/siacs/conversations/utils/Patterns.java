@@ -45,6 +45,15 @@ public class Patterns {
                     + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
                     + "|(?:\\%[a-fA-F0-9]{2}))+)?");
 
+    public static final Pattern ETHEREUM_URI = Pattern
+            .compile("ethereum\\:(?:pay\\-)?(0x[0-9a-f]{40})(?:@[0-9]+)?(?:/(?:(?:["
+                    + Patterns.GOOD_IRI_CHAR
+                    + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
+                    + "|(?:\\%[a-fA-F0-9]{2}))+)?(?:\\?(?:(?:["
+                    + Patterns.GOOD_IRI_CHAR
+                    + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
+                    + "|(?:\\%[a-fA-F0-9]{2}))+)?");
+
     public static final Pattern MONERO_URI = Pattern
             .compile("monero\\:(?:[48][0-9AB][1-9A-HJ-NP-Za-km-z]{93})(?:\\?(?:(?:["
                     + Patterns.GOOD_IRI_CHAR

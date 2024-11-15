@@ -953,6 +953,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
             viewHolder.download_button.setIconResource(R.drawable.bitcoin_cash_24dp);
             viewHolder.download_button.setText("Send " + formattedAmount + "Bitcoin Cash");
+        } else if ("ethereum".equals(uri.getScheme())) {
+            final var amount = uri.getQueryParameter("value");
+            final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";
+            viewHolder.download_button.setIconResource(R.drawable.eth_24dp);
+            viewHolder.download_button.setText("Send " + formattedAmount + "via Ethereum");
         } else if ("monero".equals(uri.getScheme())) {
             final var amount = uri.getQueryParameter("tx_amount");
             final var formattedAmount = amount == null || amount.equals("") ? "" : amount + " ";

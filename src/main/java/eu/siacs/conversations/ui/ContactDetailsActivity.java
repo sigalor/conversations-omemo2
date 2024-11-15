@@ -858,6 +858,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     binding.command.setText(uri.getSchemeSpecificPart());
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.bitcoin_cash_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("ethereum")) {
+                    binding.command.setText(uri.getSchemeSpecificPart());
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.eth_24dp), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("monero")) {
                     binding.command.setText(uri.getSchemeSpecificPart());
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.monero_24dp), null, null, null);

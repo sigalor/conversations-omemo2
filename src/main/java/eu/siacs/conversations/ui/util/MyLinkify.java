@@ -134,6 +134,7 @@ public class MyLinkify {
         Linkify.addLinks(body, Patterns.SMS_URI, "sms");
         Linkify.addLinks(body, Patterns.BITCOIN_URI, "bitcoin");
         Linkify.addLinks(body, Patterns.BITCOINCASH_URI, "bitcoincash");
+        Linkify.addLinks(body, Patterns.ETHEREUM_URI, "ethereum");
         Linkify.addLinks(body, Patterns.MONERO_URI, "monero");
         Linkify.addLinks(body, Patterns.WOWNERO_URI, "wownero");
         Linkify.addLinks(body, Patterns.AUTOLINK_WEB_URL, "http", WEBURL_MATCH_FILTER, WEBURL_TRANSFORM_FILTER);
