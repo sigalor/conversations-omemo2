@@ -397,7 +397,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
                 final String displayName = UIHelper.getMessageDisplayName(message);
                 if (displayName != null) {
-                    timeInfoBuilder.add(displayName);
+                    timeInfoBuilder.add("");
+                    viewHolder.username.setVisibility(View.VISIBLE);
+                    viewHolder.username.setText(displayName);
                 }
             }
             if (bodyLanguage != null) {
@@ -1181,6 +1183,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         viewHolder.messageBody = view.findViewById(R.id.message_body);
                     }
                     viewHolder.time = view.findViewById(R.id.message_time);
+                    viewHolder.username = view.findViewById(R.id.username);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
                     viewHolder.inReplyTo = view.findViewById(R.id.in_reply_to);
                     viewHolder.inReplyToBox = view.findViewById(R.id.in_reply_to_box);
@@ -1210,6 +1213,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         viewHolder.messageBody = view.findViewById(R.id.message_body);
                     }
                     viewHolder.time = view.findViewById(R.id.message_time);
+                    viewHolder.username = view.findViewById(R.id.username);
                     viewHolder.subject = view.findViewById(R.id.message_subject);
                     viewHolder.inReplyTo = view.findViewById(R.id.in_reply_to);
                     viewHolder.inReplyToQuote = view.findViewById(R.id.in_reply_to_quote);
@@ -1967,6 +1971,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected ImageView indicator;
         protected ImageView indicatorReceived;
         protected TextView time;
+        protected TextView username;
         protected TextView subject;
         protected TextView inReplyTo;
         protected TextView inReplyToQuote;
