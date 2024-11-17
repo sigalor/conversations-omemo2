@@ -169,6 +169,12 @@
             android:key="allow_screenshots"
             android:summary="@string/pref_allow_screenshots_summary"
             android:title="@string/pref_allow_screenshots" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/default_custom_tab"
+            android:icon="@drawable/ic_link_24dp"
+            android:key="custom_tab"
+            android:summary="@string/pref_custom_tab_summary"
+            android:title="@string/pref_custom_tab" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_input_options">
         <SwitchPreferenceCompat

@@ -1337,4 +1337,6 @@
     <string name="pref_auto_accept_unmetered_summary">Don\'t use the above size limit on unmetered networks</string>
     <string name="unban_from_group_chat">Unban from group chat</string>
     <string name="unban_from_channel">Unban from channel</string>
+    <string name="pref_custom_tab">Integrate Browser UI</string>
+    <string name="pref_custom_tab_summary">Ask your browser to render as if integrated with this app ("custom tab")</string>
 </resources>

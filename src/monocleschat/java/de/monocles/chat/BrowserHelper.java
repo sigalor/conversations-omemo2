@@ -9,7 +9,9 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.content.ActivityNotFoundException;
+import android.widget.Toast;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,6 +80,18 @@ public class BrowserHelper {
 		boolean launched = Build.VERSION.SDK_INT >= 30 ?
 				launchNativeApi30(context, uri) :
 				launchNativeBeforeApi30(context, uri);
+
+      final var custom_tab = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("custom_tab", context.getResources().getBoolean(R.bool.default_custom_tab));
+		if (!custom_tab) {
+			try {
+				final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+				context.startActivity(intent);
+				return;
+			} catch (ActivityNotFoundException e) {
+			    Toast.makeText(context, R.string.no_application_found_to_open_link, Toast.LENGTH_SHORT).show();
+			}
+		}
 
 		if (!launched) {
 			var builder = new CustomTabsIntent.Builder()
