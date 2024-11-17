@@ -30,10 +30,10 @@
             android:defaultValue="@bool/auto_accept_unmetered"
             android:icon="@drawable/ic_wifi_24dp"
             android:key="auto_accept_unmetered"
-            android:title="Always Accept When Unmetered"
-            android:summary="Don't use the above size limit on unmetered networks" />
+            android:title="@string/always_accept_when_unmetered"
+            android:summary="@string/pref_auto_accept_unmetered_summary" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Advanced">
+    <PreferenceCategory android:title="@string/pref_advanced_options">
         <SwitchPreferenceCompat
             android:defaultValue="@bool/internal_meda_viewer"
             android:icon="@drawable/outline_perm_media_24"
@@ -41,16 +41,16 @@
             android:title="@string/internal_meda_viewer_title"
             android:summary="@string/internal_meda_viewer_summary" />
         <Preference
-            android:title="Change Stickers Location"
+            android:title="@string/change_stickers_location"
             android:key="sticker_directory" />
         <Preference
-            android:title="Update Default Stickers"
+            android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />
         <Preference
-            android:title="Clear Blocked Media"
+            android:title="@string/clear_blocked_media"
             android:key="clear_blocked_media" />
         <ListPreference
-            android:title="Voice Message Codec"
+            android:title="@string/voice_message_codec"
             android:defaultValue="mpeg4"
             android:entries="@array/voice_codec_entries"
             android:entryValues="@array/voice_codec_values"

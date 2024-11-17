@@ -141,7 +141,7 @@
             <item
                 android:id="@+id/action_add_shortcut"
                 android:orderInCategory="73"
-                android:title="Add to Home Screen"
+                android:title="@string/add_to_home_screen"
                 app:showAsAction="never" />
 
             <item

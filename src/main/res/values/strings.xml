@@ -1330,4 +1330,11 @@
     <string name="success_import_settings">Settings successfully imported</string>
     <string name="error_import_settings">Error while importing the settings</string>
     <string name="could_not_modify_call">Could not modify call</string>
+    <string name="change_stickers_location">Change stickers location</string>
+    <string name="clear_blocked_media">Clear blocked media</string>
+    <string name="voice_message_codec">Voice message codec</string>
+    <string name="always_accept_when_unmetered">Always accept when unmetered</string>
+    <string name="pref_auto_accept_unmetered_summary">Don\'t use the above size limit on unmetered networks</string>
+    <string name="unban_from_group_chat">Unban from group chat</string>
+    <string name="unban_from_channel">Unban from channel</string>
 </resources>

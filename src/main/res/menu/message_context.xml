@@ -82,7 +82,7 @@
         android:visible="false" />
     <item
         android:id="@+id/block_media"
-        android:title="Block Media"
+        android:title="@string/block_media"
         android:visible="false" />
     <item
         android:id="@+id/delete_file"
