@@ -149,8 +149,8 @@
                         android:gravity="center_vertical"
                         android:visibility="gone"
                         android:textStyle="bold"
-                        android:textAppearance="?textAppearanceBodySmall"
-                        android:textColor="?colorOnTertiaryContainer" />
+                        android:textSize="12sp"
+                        android:textAppearance="?textAppearanceBodySmall" />
                 </com.wefika.flowlayout.FlowLayout>
             </LinearLayout>
         </LinearLayout>
