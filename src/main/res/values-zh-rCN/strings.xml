@@ -1335,7 +1335,7 @@
     <string name="manage_account">管理账号</string>
     <string name="pref_reset_dns_server_summary">重置默认 DNS 服务器</string>
     <string name="pref_reset_dns_server_title">重置 DNS</string>
-    <string name="dns_server_reset">DNS 重置</string>
+    <string name="dns_server_reset">DNS 已重置</string>
     <string name="pref_category_settings">设置</string>
     <string name="pref_import_settings">导入设置</string>
     <string name="pref_export_settings">导出设置</string>
@@ -1343,4 +1343,7 @@
     <string name="success_import_settings">设置已成功导入</string>
     <string name="error_import_settings">导入设置时出错</string>
     <string name="pref_import_settings_summary">从备份文件夹导入 settings.dat</string>
+    <string name="could_not_modify_call">无法修改通话</string>
+    <string name="pref_accept_invites_from_strangers">接受来自陌生人的邀请</string>
+    <string name="pref_accept_invites_from_strangers_summary">接受来自陌生人的群聊邀请</string>
 </resources>

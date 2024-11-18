@@ -1341,4 +1341,16 @@
     <string name="pref_export_settings_summary">Exportiere die monocles chat App Einstellungen in den Backup Ordner</string>
     <string name="success_import_settings">Einstellungen erfolgreich importiert</string>
     <string name="error_import_settings">Fehler beim Importieren der Einstellungen</string>
+    <string name="could_not_modify_call">Konnte Anruf nicht bearbeiten</string>
+    <string name="change_stickers_location">Ändere Sticker Speicherort</string>
+    <string name="clear_blocked_media">Leere blockierte Medien</string>
+    <string name="voice_message_codec">Sprachnachrichten-Codec</string>
+    <string name="always_accept_when_unmetered">Im WLAN immer akzeptieren</string>
+    <string name="unban_from_group_chat">Aufhebung der Sperre im Gruppenchat</string>
+    <string name="pref_auto_accept_unmetered_summary">Im WLAN nicht die bestimmte Dateigröße überschreiten</string>
+    <string name="unban_from_channel">Aufhebung der Sperre vom Raum</string>
+    <string name="pref_custom_tab">Integriere Browser UI</string>
+    <string name="pref_custom_tab_summary">Bitten Sie Ihren Browser, so zu arbeiten, als ob er mit dieser Anwendung integriert wäre (benutzerdefinierte Registerkarte)</string>
+    <string name="pref_export">Daten exportieren (experimentell)</string>
+    <string name="pref_export_summary">Exportieren Sie die Daten, um sie in eine andere Anwendung zu importieren. Keine vollständige Sicherung.</string>
 </resources>

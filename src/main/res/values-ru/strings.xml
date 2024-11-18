@@ -1081,7 +1081,7 @@
     <string name="pref_large_font">Крупный шрифт</string>
     <string name="pref_large_font_summary">Увеличить размер шрифта сообещний</string>
     <string name="pref_summary_security">Сквозное шифрование, слепое доверие до подтверждения, обнаружение атаки посредника</string>
-    <string name="send_encrypted_message">Отправить зашифрованное сообщение</string>
+    <string name="send_encrypted_message">Зшифрованное сообщение</string>
     <string name="corresponding_chats_closed">Соответствующие беседы архивированы.</string>
     <string name="pref_title_trust_system_ca_store_summary">Доверять сертификатам системных УЦ</string>
     <string name="pref_connection_summary_w_cd">Имя хоста и порт, Тор, обзор каналов</string>
@@ -1366,4 +1366,14 @@
     <string name="pref_export_settings_summary">Экспортируйте настройки приложения в папку резервного копирования</string>
     <string name="success_import_settings">Настройки успешно импортированы</string>
     <string name="error_import_settings">Ошибка при импорте настроек</string>
+    <string name="pref_accept_invites_from_strangers_summary">Принимайте приглашения от незнакомцев на MUC</string>
+    <string name="could_not_modify_call">Не удалось изменить вызов</string>
+    <string name="pref_accept_invites_from_strangers">Принимать приглашения от незнакомцев</string>
+    <string name="pref_auto_accept_unmetered_summary">Не используйте указанный выше предел размера в сетях без ограничений</string>
+    <string name="change_stickers_location">Изменить расположение стикеров</string>
+    <string name="clear_blocked_media">Очистить заблокированные носители</string>
+    <string name="unban_from_group_chat">Разблокировать в групповом чате</string>
+    <string name="unban_from_channel">Разблокировать в канале</string>
+    <string name="voice_message_codec">Кодек голосовых сообщений</string>
+    <string name="always_accept_when_unmetered">Всегда принимайте, когда нет счетчика</string>
 </resources>

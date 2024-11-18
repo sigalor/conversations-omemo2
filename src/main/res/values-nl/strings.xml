@@ -625,7 +625,7 @@
     <string name="copy_jabber_id">JID kopiëren</string>
     <string name="p1_s3_filetransfer">HTTP Bestandsdeling voor S3</string>
     <string name="pref_start_search">Rechtstreeks zoeken</string>
-    <string name="pref_start_search_summary">Open het toetsenbord op het scherm ‘Gesprek starten’ en plaats de cursor in het zoekveld</string>
+    <string name="pref_start_search_summary">Open het toetsenbord op het scherm ‘Nieuw gesprek’ en plaats de cursor in het zoekveld</string>
     <string name="group_chat_avatar">Groepsafbeelding</string>
     <string name="host_does_not_support_group_chat_avatars">De server ondersteunt geen avatars voor groepsgesprekken</string>
     <string name="only_the_owner_can_change_group_chat_avatar">Alleen de eigenaar kan de avatar veranderen</string>
@@ -799,7 +799,7 @@
     <string name="action_add_account_with_certificate">Account met certificaat toevoegen</string>
     <string name="action_archive_chat">Chat archiveren</string>
     <string name="unable_to_connect_to_keychain">Verbinden met OpenKeychain mislukt</string>
-    <string name="start_chat">Chat starten</string>
+    <string name="start_chat">Nieuw gesprek</string>
     <string name="emojis">Emoji\'s</string>
     <string name="stickers">Stickers</string>
     <string name="gifs">GIF\'s</string>
@@ -1125,7 +1125,7 @@
     <string name="action_open">Openen</string>
     <string name="mute_locally">Lokaal dempen</string>
     <string name="unmute_locally">Lokaal niet dempen</string>
-    <string name="invite_to_start_chat">Uitnodigen om chat te starten</string>
+    <string name="invite_to_start_chat">Uitnodigen om gesprek te beginnen</string>
     <string name="archive_this_chat">Het gesprek verwijderen</string>
     <string name="send_encrypted_message">Versleuteld bericht versturen</string>
     <string name="hosted_on">gehost door %s</string>
@@ -1312,4 +1312,22 @@
     <string name="close_format_text">De werkbalk voor tekstopmaak echt sluiten? Je kunt de werkbalk weer inschakelen via de instellingen.</string>
     <string name="pref_dns_server_ipv4_summary">Verander de IPv4 DNS-server die monocles chat gebruikt</string>
     <string name="pref_showtextformatting">Werkbalk voor tekstopmaak tonen</string>
+    <string name="channels">Kanalen</string>
+    <string name="manage_account">Account beheren</string>
+    <string name="pref_import_settings_summary">Importeer de instellingen uit settings.dat in de back-upmap</string>
+    <string name="unread_chats">Ongelezen</string>
+    <string name="direct_messages">Rechtstreekse berichten</string>
+    <string name="pref_reset_dns_server_summary">Herstel de standaardinstellingen voor DNS-servers</string>
+    <string name="pref_reset_dns_server_title">DNS resetten</string>
+    <string name="dns_server_reset">DNS reset</string>
+    <string name="success_import_settings">Instellingen zijn geïmporteerd</string>
+    <string name="pref_export_settings_summary">Exporteer de instellingen van monocles chat naar de back-upmap</string>
+    <string name="pref_export_settings">Instellingen exporteren</string>
+    <string name="pref_import_settings">Instellingen importeren</string>
+    <string name="pref_category_settings">Instellingen</string>
+    <string name="all_chats">Alle gesprekken</string>
+    <string name="error_import_settings">Fout bij het importeren van de instellingen</string>
+    <string name="pref_accept_invites_from_strangers_summary">Accepteer uitnodigingen van onbekenden voor groepsgesprekken</string>
+    <string name="could_not_modify_call">Oproep kon niet worden aangepast</string>
+    <string name="pref_accept_invites_from_strangers">Uitnodigingen van onbekenden accepteren</string>
 </resources>

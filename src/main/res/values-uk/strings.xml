@@ -1385,4 +1385,14 @@
     <string name="success_import_settings">Налаштування успішно імпортовано</string>
     <string name="pref_export_settings_summary">Експорт налаштувань monocles chat у теку резервних копій</string>
     <string name="error_import_settings">Помилка під час імпорту налаштувань</string>
+    <string name="pref_accept_invites_from_strangers">Запрошення від незнайомців</string>
+    <string name="pref_accept_invites_from_strangers_summary">Приймати запрошення до групових чатів від незнайомців</string>
+    <string name="could_not_modify_call">Не вдалося змінити виклик</string>
+    <string name="change_stickers_location">Змінити розташування наклейок</string>
+    <string name="voice_message_codec">Кодек голосових повідомлень</string>
+    <string name="always_accept_when_unmetered">Завжди приймати в нетарифікованій мережі</string>
+    <string name="unban_from_group_chat">Розблокувати доступ до групи</string>
+    <string name="unban_from_channel">Розблокувати в каналі</string>
+    <string name="clear_blocked_media">Стерти заблоковані медіа</string>
+    <string name="pref_auto_accept_unmetered_summary">Не зважати на вказане обмеження розміру в мережах без тарифікації</string>
 </resources>
