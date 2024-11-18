@@ -677,6 +677,7 @@ public class FileBackend {
             cursor = mXmppConnectionService.getContentResolver().query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex < 0) return 0;
                 return cursor.getLong(sizeIndex);
             }
         } finally {
