@@ -298,7 +298,6 @@ public class EmojiSearch {
 					// Acquire outside so to not block UI thread
 					doingUpdate.acquire();
 					activity.runOnUiThread(() -> {
-						try { view.getItemAnimator().endAnimations(); } catch (final Exception e) {  }
 						submitList(results, () -> {
 							activity.runOnUiThread(() -> doingUpdate.release());
 						});
