@@ -164,6 +164,10 @@ public class Bookmark extends Element implements ListItem {
 			return 1;
 		}
 
+		if (getDisplayName().equals(another.getDisplayName())) {
+			return getJid().compareTo(another.getJid());
+		}
+
 		return this.getDisplayName().compareToIgnoreCase(
 				another.getDisplayName());
 	}
