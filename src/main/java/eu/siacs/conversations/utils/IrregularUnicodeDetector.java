@@ -94,7 +94,9 @@ public class IrregularUnicodeDetector {
 			String[] labels = jid.getDomain().toEscapedString().split("\\.");
 			for (int i = 0; i < labels.length; ++i) {
 				SpannableString spannableString = new SpannableString(labels[i]);
-				colorize(spannableString, patternTuple.domain.get(i), color);
+				if (patternTuple.domain.size() > i) {
+					colorize(spannableString, patternTuple.domain.get(i), color);
+				}
 				if (i != 0) {
 					builder.append('.');
 				}
