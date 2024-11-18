@@ -1722,6 +1722,9 @@ public class XmppConnectionService extends Service {
                 || ongoingVideoTranscoding
                 || ongoing != null
                 || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
+            if (Compatibility.runsTwentySix()) {
+                mNotificationService.initializeChannels();
+            }
             final Notification notification;
             if (ongoing != null && !diallerIntegrationActive.get()) {
                 notification = this.mNotificationService.getOngoingCallNotification(ongoing);
