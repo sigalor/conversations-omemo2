@@ -1346,4 +1346,16 @@
     <string name="could_not_modify_call">无法修改通话</string>
     <string name="pref_accept_invites_from_strangers">接受来自陌生人的邀请</string>
     <string name="pref_accept_invites_from_strangers_summary">接受来自陌生人的群聊邀请</string>
+    <string name="clear_blocked_media">清除屏蔽的媒体</string>
+    <string name="unban_from_group_chat">从群聊中解除封禁</string>
+    <string name="unban_from_channel">从频道中解除封禁</string>
+    <string name="voice_message_codec">语音消息编解码器</string>
+    <string name="change_stickers_location">更改贴纸位置</string>
+    <string name="always_accept_when_unmetered">不按流量计费时始终接收</string>
+    <string name="pref_custom_tab_summary">要求您的浏览器像与此应用集成一样渲染（自定义标签页）</string>
+    <string name="pref_export">导出数据（实验性）</string>
+    <string name="pref_auto_accept_unmetered_summary">不要在不按流量计费的网络上使用上述大小限制</string>
+    <string name="pref_custom_tab">集成浏览器 UI</string>
+    <string name="pref_export_summary">导出可用于导入其他应用的数据。不是完全备份。</string>
+    <string name="request_to_speak_send">已将您的请求发送给主持人</string>
 </resources>

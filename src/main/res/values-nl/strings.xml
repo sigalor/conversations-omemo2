@@ -345,7 +345,7 @@
     <string name="remove_from_room">Verwijderen uit groepsgesprek</string>
     <string name="remove_from_channel">Uit kanaal verwijderen</string>
     <string name="could_not_change_affiliation">Kon het lidmaatschap van %s niet wijzigen</string>
-    <string name="ban_from_conference">Verbannen uit groepsgesprek</string>
+    <string name="ban_from_conference">Uit groepsgesprek verbannen</string>
     <string name="ban_from_channel">Uit kanaal verbannen</string>
     <string name="ban_now">Nu verbannen</string>
     <string name="could_not_change_role">Kon rol van %s niet wijzigen</string>
@@ -1330,4 +1330,15 @@
     <string name="pref_accept_invites_from_strangers_summary">Accepteer uitnodigingen van onbekenden voor groepsgesprekken</string>
     <string name="could_not_modify_call">Oproep kon niet worden aangepast</string>
     <string name="pref_accept_invites_from_strangers">Uitnodigingen van onbekenden accepteren</string>
+    <string name="voice_message_codec">Codec voor spraakberichten</string>
+    <string name="clear_blocked_media">Geblokkeerde media weer toestaan</string>
+    <string name="pref_export">Gegevens exporteren (experimenteel)</string>
+    <string name="unban_from_group_chat">In groepsgesprek toelaten</string>
+    <string name="unban_from_channel">In kanaal toelaten</string>
+    <string name="pref_custom_tab">Browserinterface integreren</string>
+    <string name="pref_auto_accept_unmetered_summary">Gebruik deze limieten alleen bij verbindingen met een datalimiet</string>
+    <string name="always_accept_when_unmetered">Alleen voor netwerken met datalimiet</string>
+    <string name="change_stickers_location">Locatie voor stickers wijzigen</string>
+    <string name="pref_export_summary">Exporteer gegevens die je kunt importeren in een andere app. Dit is geen volledige back-up.</string>
+    <string name="pref_custom_tab_summary">Vraag je browser om de pagina in deze app te tonen (custom tab)</string>
 </resources>

@@ -1395,4 +1395,9 @@
     <string name="unban_from_channel">Розблокувати в каналі</string>
     <string name="clear_blocked_media">Стерти заблоковані медіа</string>
     <string name="pref_auto_accept_unmetered_summary">Не зважати на вказане обмеження розміру в мережах без тарифікації</string>
+    <string name="pref_custom_tab">Інтеграція UI браузера</string>
+    <string name="pref_export">Експортувати дані (експериментально)</string>
+    <string name="pref_export_summary">Експорт даних, корисних для імпорту до іншого застосунку. Не є повною резервною копією.</string>
+    <string name="pref_custom_tab_summary">Браузер працюватиме так, ніби він інтегрований із цим застосунком (окрема вкладка)</string>
+    <string name="request_to_speak_send">Ваш запит надіслано модераторам</string>
 </resources>

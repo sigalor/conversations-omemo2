@@ -1353,4 +1353,5 @@
     <string name="pref_custom_tab_summary">Bitten Sie Ihren Browser, so zu arbeiten, als ob er mit dieser Anwendung integriert wäre (benutzerdefinierte Registerkarte)</string>
     <string name="pref_export">Daten exportieren (experimentell)</string>
     <string name="pref_export_summary">Exportieren Sie die Daten, um sie in eine andere Anwendung zu importieren. Keine vollständige Sicherung.</string>
+    <string name="request_to_speak_send">Deine Anfrage wurde an die Moderatoren gesendet</string>
 </resources>

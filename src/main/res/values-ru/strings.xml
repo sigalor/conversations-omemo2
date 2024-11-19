@@ -1376,4 +1376,8 @@
     <string name="unban_from_channel">Разблокировать в канале</string>
     <string name="voice_message_codec">Кодек голосовых сообщений</string>
     <string name="always_accept_when_unmetered">Всегда принимайте, когда нет счетчика</string>
+    <string name="pref_export">Экспорт данных (экспериментальный)</string>
+    <string name="pref_custom_tab">Интеграция пользовательского интерфейса браузера</string>
+    <string name="pref_custom_tab_summary">Отобразите браузер так, как будто он интегрирован с этим приложением (пользовательская вкладка)</string>
+    <string name="pref_export_summary">Экспорт данных полезен для импорта в другое приложение. Не полная резервная копия.</string>
 </resources>
