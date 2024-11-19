@@ -1342,4 +1342,5 @@
     <string name="pref_export">Export Data (experimental)</string>
     <string name="pref_export_summary">Export data useful for importing into another app. Not a full backup.</string>
     <string name="request_to_speak_send">Your request has been sent to the moderators</string>
+    <string name="pref_create_backup_warning">Full backups are meant for restore after a device loss, or for migrating to a new device. You cannot restore a backup to another app while still being connected with this one!</string>
 </resources>

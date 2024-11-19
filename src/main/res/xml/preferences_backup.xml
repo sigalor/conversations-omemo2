@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <Preference
+        android:key="backup_warning"
+        android:summary="@string/pref_create_backup_warning" />
+
     <ListPreference
         android:defaultValue="@integer/automatic_message_deletion"
         android:icon="@drawable/ic_calendar_month_24dp"
