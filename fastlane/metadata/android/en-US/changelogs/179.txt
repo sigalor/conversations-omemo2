@@ -27,11 +27,9 @@
 * Hide button in video call after timeout
 * Fix and improve private message hint
 * Bold nicknames in message bubbles
-* Add further strings
-* Update translations
 * Option to disable custom tab
 * Experimental data export option
 * Update better link movement method version
 * Try to fix occasional sorting crashes
-* Adding further string
+* Adding further strings
 * Update translations
