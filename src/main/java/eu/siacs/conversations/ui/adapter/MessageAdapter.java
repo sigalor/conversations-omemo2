@@ -401,6 +401,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.username.setVisibility(View.VISIBLE);
                     viewHolder.username.setText(displayName);
                 }
+            } else {
+                viewHolder.username.setText(null);
+                viewHolder.username.setVisibility(View.GONE);
             }
             if (bodyLanguage != null) {
                 timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
