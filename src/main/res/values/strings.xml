@@ -1341,4 +1341,5 @@
     <string name="pref_custom_tab_summary">Ask your browser to render as if integrated with this app ("custom tab")</string>
     <string name="pref_export">Export Data (experimental)</string>
     <string name="pref_export_summary">Export data useful for importing into another app. Not a full backup.</string>
+    <string name="request_to_speak_send">Your request has been sent to the moderators</string>
 </resources>
