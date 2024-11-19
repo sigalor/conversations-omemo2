@@ -1183,6 +1183,10 @@ public class ConversationFragment extends XmppFragment
         }
         Editable body = this.binding.textinput.getText();
         if (body == null) body = new SpannableStringBuilder("");
+        if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
+            Toast.makeText(activity, "Message is too long", Toast.LENGTH_SHORT).show();
+            return;
+        }
         final Conversation conversation = this.conversation;
         final boolean hasSubject = binding.textinputSubject.getText().length() > 0;
         if (conversation == null || (body.length() == 0 && (conversation.getThread() == null || !hasSubject))) {
