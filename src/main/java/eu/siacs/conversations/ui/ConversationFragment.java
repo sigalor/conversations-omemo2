@@ -5422,9 +5422,9 @@ public class ConversationFragment extends XmppFragment
                         () -> {
                             activity.setResult(
                                     Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
-                            //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
-                            //toggleInputMethod();
-                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/oga;codecs=opus");
+                            mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                            toggleInputMethod();
+                            //attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/oga;codecs=opus");
                             binding.recordingVoiceActivity.setVisibility(View.GONE);
                         });
             } else if ("mpeg4".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
@@ -5443,9 +5443,9 @@ public class ConversationFragment extends XmppFragment
                         () -> {
                             activity.setResult(
                                     Activity.RESULT_OK, new Intent().setData(Uri.fromFile(outputFile)));
-                            //mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
-                            //toggleInputMethod();
-                            attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
+                            mediaPreviewAdapter.addMediaPreviews(Attachment.of(getActivity(), Uri.fromFile(outputFile), Attachment.Type.RECORDING));
+                            toggleInputMethod();
+                            //attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/mp4");
                             binding.recordingVoiceActivity.setVisibility(View.GONE);
                         });
             }
