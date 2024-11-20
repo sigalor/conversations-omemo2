@@ -256,9 +256,10 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     }
 
     private boolean isWithStrangerAndStrangerNotificationsAreOff(final Account account, Jid with) {
-        final var chatRequestsPref = mXmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
+        final var ringFromStrangers = mXmppConnectionService.getBooleanPreference("ring_from_strangers", R.bool.notifications_from_strangers);
+        if (ringFromStrangers) return false;
         final var conversation = mXmppConnectionService.findOrCreateConversation(account, with, false, true);
-        return conversation.isChatRequest(chatRequestsPref);
+        return conversation.isWithStranger();
     }
 
     ScheduledFuture<?> schedule(

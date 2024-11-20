@@ -74,6 +74,12 @@
         android:key="chat_requests"
         android:title="@string/pref_chat_requests"
         app:useSimpleSummaryProvider="true" />
+    <SwitchPreferenceCompat
+        android:icon="@drawable/ring_volume_24dp"
+        android:defaultValue="@bool/notifications_from_strangers"
+        android:key="ring_from_strangers"
+        android:summary="@string/pref_ring_from_strangers_summary"
+        android:title="@string/pref_ring_from_strangers" />
 
     <SwitchPreferenceCompat
         android:defaultValue="@bool/enable_foreground_service"
