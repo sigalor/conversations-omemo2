@@ -168,16 +168,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
     public static final long DRAWER_UNREAD_CHATS = 2;
     public static final long DRAWER_DIRECT_MESSAGES = 3;
     public static final long DRAWER_MANAGE_ACCOUNT = 4;
-    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 5;
-    public static final long DRAWER_CHANNELS = 6;
-    public static final long DRAWER_CHAT_REQUESTS = 7;
-    public static final long DRAWER_SETTINGS = 8;
-    public static final long DRAWER_START_CHAT = 9;
-    public static final long DRAWER_START_CHAT_CONTACT = 10;
-    public static final long DRAWER_START_CHAT_NEW = 11;
-    public static final long DRAWER_START_CHAT_GROUP = 12;
-    public static final long DRAWER_START_CHAT_PUBLIC = 13;
-    public static final long DRAWER_START_CHAT_DISCOVER = 14;
+    public static final long DRAWER_ADD_ACCOUNT = 5;
+    public static final long DRAWER_MANAGE_PHONE_ACCOUNTS = 6;
+    public static final long DRAWER_CHANNELS = 7;
+    public static final long DRAWER_CHAT_REQUESTS = 8;
+    public static final long DRAWER_SETTINGS = 9;
+    public static final long DRAWER_START_CHAT = 10;
+    public static final long DRAWER_START_CHAT_CONTACT = 11;
+    public static final long DRAWER_START_CHAT_NEW = 12;
+    public static final long DRAWER_START_CHAT_GROUP = 13;
+    public static final long DRAWER_START_CHAT_PUBLIC = 14;
+    public static final long DRAWER_START_CHAT_DISCOVER = 15;
 
     //secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
     private static final @IdRes
@@ -377,7 +378,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 phoneAccounts.setIdentifier(DRAWER_MANAGE_PHONE_ACCOUNTS);
                 com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(phoneAccounts, "Manage Phone Accounts");
                 com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(phoneAccounts, R.drawable.ic_call_24dp);
-                accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 1);
+                accountHeader.addProfile(phoneAccounts, accountHeader.getProfiles().size() - 2);
             }
 
             final boolean nightMode = Activities.isNightMode(this);
@@ -414,7 +415,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 final var badgeNumber = accountUnreads.get(a);
                 p.setBadge(new com.mikepenz.materialdrawer.holder.StringHolder(badgeNumber == null || badgeNumber < 1 ? " " : badgeNumber.toString()));
                 if (alreadyInHeader == null) {
-                    accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 2 : 1));
+                    accountHeader.addProfile(p, accountHeader.getProfiles().size() - (hasPhoneAccounts ? 3 : 2));
                 } else {
                     accountHeader.updateProfile(p);
                 }
@@ -467,9 +468,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         accountHeader = new com.mikepenz.materialdrawer.widget.AccountHeaderView(this);
         final var manageAccount = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
         manageAccount.setIdentifier(DRAWER_MANAGE_ACCOUNT);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, getString(R.string.title_activity_manage_accounts));
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(manageAccount, getResources().getString(R.string.action_accounts));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(manageAccount, R.drawable.ic_settings_24dp);
         accountHeader.addProfiles(manageAccount);
+
+        final var addAccount = new com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem();
+        addAccount.setIdentifier(DRAWER_ADD_ACCOUNT);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(addAccount, getResources().getString(R.string.action_add_account));
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(addAccount, R.drawable.ic_add_24dp);
+        accountHeader.addProfiles(addAccount);
 
         final var color = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorPrimaryContainer);
         final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
@@ -594,6 +601,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
             if (id == DRAWER_MANAGE_ACCOUNT) {
                 AccountUtils.launchManageAccounts(this);
+                return false;
+            }
+
+            if (id == DRAWER_ADD_ACCOUNT) {
+                startActivity(new Intent(this, EditAccountActivity.class));
                 return false;
             }
 

@@ -96,6 +96,9 @@ import eu.siacs.conversations.xmpp.XmppConnection.Features;
 import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.pep.Avatar;
 
+import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
+import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
+
 import okhttp3.HttpUrl;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
@@ -117,6 +120,7 @@ public class EditAccountActivity extends OmemoActivity
     public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
     public static final String EXTRA_FORCE_REGISTER = "force_register";
 
+    private static final int REQUEST_IMPORT_BACKUP = 0x63fb;
     private static final int REQUEST_DATA_SAVER = 0xf244;
     private static final int REQUEST_CHANGE_STATUS = 0xee11;
     private static final int REQUEST_ORBOT = 0xff22;
@@ -842,9 +846,11 @@ public class EditAccountActivity extends OmemoActivity
         final MenuItem mamPrefs = menu.findItem(R.id.action_mam_prefs);
         final MenuItem changePresence = menu.findItem(R.id.action_change_presence);
         final MenuItem share = menu.findItem(R.id.action_share);
+        final MenuItem importBackup = menu.findItem(R.id.action_import_backup);
         renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
 
         share.setVisible(mAccount != null && !mInitMode);
+        importBackup.setVisible(mAccount == null || mInitMode);
 
         if (mAccount != null && mAccount.isOnlineAndConnected()) {
             if (!mAccount.getXmppConnection().getFeatures().blocking()) {
@@ -1093,6 +1099,11 @@ public class EditAccountActivity extends OmemoActivity
                 break;
             case R.id.action_change_presence:
                 changePresence();
+                break;
+            case R.id.action_import_backup:
+                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
+                    startActivity(new Intent(this, ImportBackupActivity.class));
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -1804,5 +1815,25 @@ public class EditAccountActivity extends OmemoActivity
     @Override
     public void OnUpdateBlocklist(Status status) {
         refreshUi();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults.length > 0) {
+            if (allGranted(grantResults)) {
+                switch (requestCode) {
+                    case REQUEST_IMPORT_BACKUP:
+                        startActivity(new Intent(this, ImportBackupActivity.class));
+                        break;
+                }
+            } else {
+                Toast.makeText(this, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (writeGranted(grantResults, permissions)) {
+            if (xmppConnectionService != null) {
+                xmppConnectionService.restartFileObserver();
+            }
+        }
     }
 }
