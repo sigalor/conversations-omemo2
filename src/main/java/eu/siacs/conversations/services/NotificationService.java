@@ -535,7 +535,9 @@ public class NotificationService {
         if (newReactions.isEmpty()) return;
 
         final var message = reactingTo.reply();
-        message.appendBody(String.join(" ", newReactions));
+        final var quoteable = reactingTo.getQuoteableBody();
+        final var parentTxt = reactingTo.isOOb() ? "media" : "'" + (quoteable.length() > 35 ? quoteable.substring(0, 35) + "…" : quoteable) + "'";
+        message.appendBody(String.join(" ", newReactions) + " to " + parentTxt);
         message.setCounterpart(counterpart);
         message.setOccupantId(occupantId);
         message.setStatus(Message.STATUS_RECEIVED);
