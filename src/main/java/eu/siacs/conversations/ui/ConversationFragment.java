@@ -1223,7 +1223,6 @@ public class ConversationFragment extends XmppFragment
                     reactionBuilder.addAll(aggregated.ourReactions);
                     reactionBuilder.add(body.toString().replaceAll("\\s", ""));
                     activity.xmppConnectionService.sendReactions(conversation.getReplyTo(), reactionBuilder.build());
-                    setupReply(null);
                     messageSent();
                     return;
                 } else {
@@ -1287,7 +1286,6 @@ public class ConversationFragment extends XmppFragment
             if (message.getStatus() == Message.STATUS_WAITING) {
                 if (sendAt != null) message.setTime(sendAt);
                 activity.xmppConnectionService.updateMessage(message);
-                setupReply(null);
                 messageSent();
                 return;
             } else {
@@ -4386,6 +4384,7 @@ public class ConversationFragment extends XmppFragment
         binding.textinputSubject.setText("");
         binding.textinputSubject.setVisibility(View.GONE);
         setThread(null);
+        setupReply(null);
         conversation.setUserSelectedThread(false);
         mSendingPgpMessage.set(false);
         this.binding.textinput.setText("");
