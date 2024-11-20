@@ -111,6 +111,10 @@ public class HttpConnectionManager extends AbstractConnectionManager {
     }
 
     public void createNewUploadConnection(final Message message, boolean delay) {
+        createNewUploadConnection(message, delay, null);
+    }
+
+    public void createNewUploadConnection(final Message message, boolean delay, final Runnable cb) {
         synchronized (this.uploadConnections) {
             for (HttpUploadConnection connection : this.uploadConnections) {
                 if (connection.getMessage() == message) {
@@ -118,7 +122,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
                     return;
                 }
             }
-            HttpUploadConnection connection = new HttpUploadConnection(message, Method.determine(message.getConversation().getAccount()), this);
+            HttpUploadConnection connection = new HttpUploadConnection(message, Method.determine(message.getConversation().getAccount()), this, cb);
             connection.init(delay);
             this.uploadConnections.add(connection);
         }

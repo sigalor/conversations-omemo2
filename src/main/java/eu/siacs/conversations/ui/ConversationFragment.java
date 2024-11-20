@@ -1076,7 +1076,7 @@ public class ConversationFragment extends XmppFragment
                 });
     }
 
-    private void attachFileToConversation(Conversation conversation, Uri uri, String type) {
+    private void attachFileToConversation(Conversation conversation, Uri uri, String type, Runnable next) {
         if (conversation == null) {
             return;
         }
@@ -1100,10 +1100,14 @@ public class ConversationFragment extends XmppFragment
 
                     @Override
                     public void success(Message message) {
-                        runOnUiThread(() -> {
-                            activity.hideToast();
-                            messageSent();
-                        });
+                        if (next == null) {
+                            runOnUiThread(() -> {
+                                activity.hideToast();
+                                messageSent();
+                            });
+                        } else {
+                            runOnUiThread(next);
+                        }
                         hidePrepareFileToast(prepareFileToast);
                     }
 
@@ -1126,7 +1130,7 @@ public class ConversationFragment extends XmppFragment
         toggleInputMethod();
     }
 
-    private void attachImageToConversation(Conversation conversation, Uri uri, String type) {
+    private void attachImageToConversation(Conversation conversation, Uri uri, String type, Runnable next) {
         if (conversation == null) {
             return;
         }
@@ -1150,7 +1154,11 @@ public class ConversationFragment extends XmppFragment
                     @Override
                     public void success(Message message) {
                         hidePrepareFileToast(prepareFileToast);
-                        runOnUiThread(() -> messageSent());
+                        if (next == null) {
+                            runOnUiThread(() -> messageSent());
+                        } else {
+                            runOnUiThread(next);
+                        }
                     }
 
                     @Override
@@ -1506,26 +1514,31 @@ public class ConversationFragment extends XmppFragment
         }
         final PresenceSelector.OnPresenceSelected callback =
                 () -> {
-                    for (Iterator<Attachment> i = attachments.iterator(); i.hasNext(); i.remove()) {
-                        final Attachment attachment = i.next();
-                        if (attachment.getType() == Attachment.Type.LOCATION) {
-                            attachLocationToConversation(conversation, attachment.getUri());
-                        } else if (attachment.getType() == Attachment.Type.IMAGE) {
-                            Log.d(
-                                    Config.LOGTAG,
-                                    "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
-                            attachImageToConversation(
-                                    conversation, attachment.getUri(), attachment.getMime());
-                        } else {
-                            Log.d(
-                                    Config.LOGTAG,
-                                    "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
-                            attachFileToConversation(
-                                    conversation, attachment.getUri(), attachment.getMime());
+                    final Iterator<Attachment> i = attachments.iterator();
+                    final Runnable next = new Runnable() {
+                        @Override
+                        public void run() {
+                            final Attachment attachment = i.next();
+                            if (attachment.getType() == Attachment.Type.LOCATION) {
+                                attachLocationToConversation(conversation, attachment.getUri());
+                                if (i.hasNext()) runOnUiThread(this);
+                            } else if (attachment.getType() == Attachment.Type.IMAGE) {
+                                Log.d(
+                                      Config.LOGTAG,
+                                      "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
+                                attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), i.hasNext() ? this : null);
+                            } else {
+                                Log.d(
+                                      Config.LOGTAG,
+                                      "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
+                                attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), i.hasNext() ? this : null);
+                            }
+                            i.remove();
+                            mediaPreviewAdapter.notifyDataSetChanged();
+                            toggleInputMethod();
                         }
-                    }
-                    mediaPreviewAdapter.notifyDataSetChanged();
-                    toggleInputMethod();
+                    };
+                    next.run();
                 };
         if (conversation == null
                 || conversation.getMode() == Conversation.MODE_MULTI
@@ -1856,42 +1869,42 @@ public class ConversationFragment extends XmppFragment
                                             })));
                         }
 
-                        @Override
-                        protected AutocompletePresenter.PopupDimensions getPopupDimensions() {
-                            final var dim = new AutocompletePresenter.PopupDimensions();
-                            dim.width = displayMetrics.widthPixels * 4 / 5;
-                            return dim;
-                        }
-                    })
-                    .with(new AutocompleteCallback<MucOptions.User>() {
-                        @Override
-                        public boolean onPopupItemClicked(Editable editable, MucOptions.User user) {
-                            int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
-                            if (range == null) return false;
-                            range[0] -= 1;
-                            if ("\0attention".equals(user.getOccupantId())) {
-                                editable.delete(Math.max(0, range[0]), Math.min(editable.length(), range[1]));
-                                editable.insert(0, "@here ");
-                                return true;
-                            }
-                            int colon = editable.toString().indexOf(':');
-                            final var beforeColon = range[0] < colon;
-                            String prefix = "";
-                            String suffix = " ";
-                            if (beforeColon) suffix = ", ";
-                            if (colon < 0 && range[0] == 0) suffix = ": ";
-                            if (colon > 0 && colon == range[0] - 2) {
-                                prefix = ", ";
-                                suffix = ": ";
-                                range[0] -= 2;
-                            }
-                            var insert = user.getNick();
-                            if ("\0role:moderator".equals(user.getOccupantId())) {
-                                insert = conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).stream().map(MucOptions.User::getNick).collect(Collectors.joining(", "));
-                            }
-                            editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), prefix + insert + suffix);
-                            return true;
-                        }
+                @Override
+                protected AutocompletePresenter.PopupDimensions getPopupDimensions() {
+                    final var dim = new AutocompletePresenter.PopupDimensions();
+                    dim.width = displayMetrics.widthPixels * 4/5;
+                    return dim;
+                }
+            })
+            .with(new AutocompleteCallback<MucOptions.User>() {
+                @Override
+                public boolean onPopupItemClicked(Editable editable, MucOptions.User user) {
+                    int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
+                    if (range == null) return false;
+                    range[0] -= 1;
+                    if ("\0attention".equals(user.getOccupantId())) {
+                        editable.delete(Math.max(0, range[0]), Math.min(editable.length(), range[1]));
+                        editable.insert(0, "@here ");
+                        return true;
+                    }
+                    int colon = editable.toString().indexOf(':');
+                    final var beforeColon = range[0] < colon;
+                    String prefix = "";
+                    String suffix = " ";
+                    if (beforeColon) suffix = ", ";
+                    if (colon < 0 && range[0] == 0) suffix = ": ";
+                    if (colon > 0 && colon == range[0] - 2) {
+                        prefix = ", ";
+                        suffix = ": ";
+                        range[0] -= 2;
+                    }
+                    var insert = user.getNick();
+                    if ("\0role:moderator".equals(user.getOccupantId())) {
+                        insert = conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).stream().map(MucOptions.User::getNick).collect(Collectors.joining(", "));
+                    }
+                    editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), prefix + insert + suffix);
+                    return true;
+                }
 
                         @Override
                         public void onPopupVisibilityChanged(boolean shown) {

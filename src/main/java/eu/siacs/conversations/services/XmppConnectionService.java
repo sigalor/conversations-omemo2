@@ -747,8 +747,7 @@ public class XmppConnectionService extends Service {
                     callback.error(R.string.unable_to_connect_to_keychain, null);
                 }
             } else {
-                sendMessage(message);
-                callback.success(message);
+                sendMessage(message, false, false, false, () -> callback.success(message));
             }
         });
     }
@@ -1912,22 +1911,27 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    private void sendFileMessage(final Message message, final boolean delay) {
+    private void sendFileMessage(final Message message, final boolean delay, final Runnable cb) {
         Log.d(Config.LOGTAG, "send file message");
         final Account account = message.getConversation().getAccount();
         if (account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
                 || message.getConversation().getMode() == Conversation.MODE_MULTI) {
-            mHttpConnectionManager.createNewUploadConnection(message, delay);
+            mHttpConnectionManager.createNewUploadConnection(message, delay, cb);
         } else {
             mJingleConnectionManager.startJingleFileTransfer(message);
+            if (cb != null) cb.run();
         }
     }
 
     public void sendMessage(final Message message) {
-        sendMessage(message, false, false, false);
+        sendMessage(message, false, false, false, null);
     }
 
-    private void sendMessage(final Message message, final boolean resend, final boolean previewedLinks, final boolean delay) {
+    public void sendMessage(final Message message, final Runnable cb) {
+        sendMessage(message, false, false, false, cb);
+    }
+
+    private void sendMessage(final Message message, final boolean resend, final boolean previewedLinks, final boolean delay, final Runnable cb) {
         final Account account = message.getConversation().getAccount();
         if (account.setShowErrorNotification(true)) {
             databaseBackend.updateAccount(account);
@@ -1935,7 +1939,6 @@ public class XmppConnectionService extends Service {
         }
         final Conversation conversation = (Conversation) message.getConversation();
         account.deactivateGracePeriod();
-
 
         if (QuickConversationsService.isQuicksy() && conversation.getMode() == Conversation.MODE_SINGLE) {
             final Contact contact = conversation.getContact();
@@ -2014,7 +2017,7 @@ public class XmppConnectionService extends Service {
                                         getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
                                             message.setEncryption(encryption);
                                             synchronized (message.getConversation()) {
-                                                if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false);
+                                                if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false, cb);
                                             }
                                         });
                                         return;
@@ -2068,13 +2071,14 @@ public class XmppConnectionService extends Service {
                             }
                         }
                         synchronized (message.getConversation()) {
-                            if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false);
+                            if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false, cb);
                         }
                     });
                 }
             }
         }
 
+        boolean passedCbOn = false;
         if (account.isOnlineAndConnected() && !inProgressJoin && !waitForPreview && message.getTimeSent() <= System.currentTimeMillis()) {
             switch (message.getEncryption()) {
                 case Message.ENCRYPTION_NONE:
@@ -2082,7 +2086,8 @@ public class XmppConnectionService extends Service {
                         if (account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
-                            this.sendFileMessage(message, delay);
+                            this.sendFileMessage(message, delay, cb);
+                            passedCbOn = true;
                         } else {
                             break;
                         }
@@ -2096,7 +2101,8 @@ public class XmppConnectionService extends Service {
                         if (account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
-                            this.sendFileMessage(message, delay);
+                            this.sendFileMessage(message, delay, cb);
+                            passedCbOn = true;
                         } else {
                             break;
                         }
@@ -2134,7 +2140,8 @@ public class XmppConnectionService extends Service {
                         if (account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
-                            this.sendFileMessage(message, delay);
+                            this.sendFileMessage(message, delay, cb);
+                            passedCbOn = true;
                         } else {
                             break;
                         }
@@ -2172,6 +2179,7 @@ public class XmppConnectionService extends Service {
                                 Log.e(Config.LOGTAG, "error updated message in DB after edit");
                             }
                             updateConversationUi();
+                            if (!waitForPreview && cb != null) cb.run();
                             return;
                         } else {
                             databaseBackend.createMessage(message);
@@ -2242,6 +2250,7 @@ public class XmppConnectionService extends Service {
                 if (message.getConversation() instanceof Conversation) presenceToMuc((Conversation) message.getConversation());
             }
         }
+        if (!waitForPreview && !passedCbOn && cb != null) { Log.d("WUT cb", message.getRawBody()); cb.run(); }
     }
 
     private boolean isJoinInProgress(final Conversation conversation) {
@@ -2268,11 +2277,15 @@ public class XmppConnectionService extends Service {
     }
 
     public void resendMessage(final Message message, final boolean delay) {
-        sendMessage(message, true, false, delay);
+        sendMessage(message, true, false, delay, null);
+    }
+
+    public void resendMessage(final Message message, final boolean delay, final Runnable cb) {
+        sendMessage(message, true, false, delay, cb);
     }
 
     public void resendMessage(final Message message, final boolean delay, final boolean previewedLinks) {
-        sendMessage(message, true, previewedLinks, delay);
+        sendMessage(message, true, previewedLinks, delay, null);
     }
 
     public Pair<Account,Account> onboardingIncomplete() {

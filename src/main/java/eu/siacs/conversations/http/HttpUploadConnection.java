@@ -52,12 +52,14 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
     private long transmitted = 0;
     private Call mostRecentCall;
     private ListenableFuture<SlotRequester.Slot> slotFuture;
+    private Runnable cb;
 
-    public HttpUploadConnection(Message message, Method method, HttpConnectionManager httpConnectionManager) {
+    public HttpUploadConnection(Message message, Method method, HttpConnectionManager httpConnectionManager, Runnable cb) {
         this.message = message;
         this.method = method;
         this.mHttpConnectionManager = httpConnectionManager;
         this.mXmppConnectionService = httpConnectionManager.getXmppConnectionService();
+        this.cb = cb;
     }
 
     @Override
@@ -104,6 +106,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         final Future<SlotRequester.Slot> slotFuture = this.slotFuture;
         final boolean cancelled = (call != null && call.isCanceled()) || (slotFuture != null && slotFuture.isCancelled());
         mXmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED, cancelled ? Message.ERROR_MESSAGE_CANCELLED : errorMessage);
+        if (cb != null) cb.run();
     }
 
     private void finish() {
@@ -191,7 +194,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
                     if (!message.isPrivateMessage()) {
                         message.setCounterpart(message.getConversation().getJid().asBareJid());
                     }
-                    mXmppConnectionService.resendMessage(message, delayed);
+                    mXmppConnectionService.resendMessage(message, delayed, cb);
                 } else {
                     Log.d(Config.LOGTAG, "http upload failed because response code was " + code);
                     fail("http upload failed because response code was " + code);

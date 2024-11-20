@@ -63,8 +63,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
             final int encryption = message.getEncryption();
             mXmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
                 message.setEncryption(encryption);
-                mXmppConnectionService.sendMessage(message);
-                callback.success(message);
+                mXmppConnectionService.sendMessage(message, () -> callback.success(message));
             });
         } else if (path != null && !FileBackend.isPathBlacklisted(path)) {
             message.setRelativeFilePath(path);
@@ -72,8 +71,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
             if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
                 mXmppConnectionService.getPgpEngine().encrypt(message, callback);
             } else {
-                mXmppConnectionService.sendMessage(message);
-                callback.success(message);
+                mXmppConnectionService.sendMessage(message, () -> callback.success(message));
             }
         } else {
             try {
@@ -87,8 +85,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
                         callback.error(R.string.unable_to_connect_to_keychain, null);
                     }
                 } else {
-                    mXmppConnectionService.sendMessage(message);
-                    callback.success(message);
+                    mXmppConnectionService.sendMessage(message, () -> callback.success(message));
                 }
             } catch (FileBackend.FileCopyException e) {
                 callback.error(e.getResId(), message);
@@ -163,8 +160,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
         if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
             mXmppConnectionService.getPgpEngine().encrypt(message, callback);
         } else {
-            mXmppConnectionService.sendMessage(message);
-            callback.success(message);
+            mXmppConnectionService.sendMessage(message, () -> callback.success(message));
         }
     }
 
