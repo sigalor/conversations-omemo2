@@ -218,6 +218,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
+                                android:layout_toEndOf="@id/emojiButton"
                                 android:requiresFadingEdge="horizontal"
                                 android:visibility="gone"
                                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -274,6 +275,8 @@
                                 android:id="@+id/quickButtons"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignBottom="@+id/textinput"
                                 android:orientation="horizontal"
                                 android:animateLayoutChanges="true" >
 
@@ -306,8 +309,8 @@
                         </RelativeLayout>
                             <RelativeLayout
                                 android:id="@+id/thread_identicon_layout"
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
                                 android:layout_alignParentStart="true"
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"

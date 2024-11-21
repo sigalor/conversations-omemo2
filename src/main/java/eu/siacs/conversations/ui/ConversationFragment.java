@@ -4464,6 +4464,8 @@ public class ConversationFragment extends XmppFragment
         final SendButtonAction action;
         if (hasAttachments) {
             action = SendButtonAction.TEXT;
+            binding.emojiButton.setVisibility(GONE);
+            binding.keyboardButton.setVisibility(GONE);
         } else {
             action = SendButtonTool.getAction(getActivity(), c, text, binding.textinputSubject.getText().toString());
         }
@@ -4489,22 +4491,24 @@ public class ConversationFragment extends XmppFragment
         final Activity activity = getActivity();
         if (activity != null) {
             this.binding.textSendButton.setIconResource(
-                    SendButtonTool.getSendButtonImageResource(action, text.length() > 0 || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
+                    SendButtonTool.getSendButtonImageResource(action, !text.isEmpty() || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
         }
         if (activity == null) return;
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
         ViewGroup.LayoutParams params = binding.threadIdenticonLayout.getLayoutParams();
         if (identiconWidth < 0) identiconWidth = params.width;
-        if (hasAttachments || !binding.textinput.getText().toString().isEmpty()) {
+        if (hasAttachments || !binding.textinput.getText().toString().replaceFirst("^(\\w|[, ])+:\\s*", "").isEmpty()) {
             binding.conversationViewPager.setCurrentItem(0);
             params.width = conversation.getThread() == null ? 0 : identiconWidth;
-            binding.quickButtons.setVisibility(GONE);
         } else if (pref != null && pref.getBoolean("show_thread_feature", getResources().getBoolean(R.bool.show_thread_feature))) {
             params.width = identiconWidth;
-            binding.quickButtons.setVisibility(VISIBLE);
+        } else {
+            params.width = 0;
+        }
+        if (!binding.textinput.getText().toString().isEmpty()) {
+            binding.quickButtons.setVisibility(GONE);
         } else {
             binding.quickButtons.setVisibility(VISIBLE);
-            params.width = 0;
         }
         if (!canWrite()) params.width = 0;
         binding.threadIdenticonLayout.setLayoutParams(params);
