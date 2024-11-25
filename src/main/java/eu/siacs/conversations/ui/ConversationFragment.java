@@ -5469,12 +5469,16 @@ public class ConversationFragment extends XmppFragment
         final String filename =
                 String.format("RECORDING_%s.%s", dateFormat.format(new Date()), extension);
         final File parentDirectory;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RECORDINGS);
+        if (conversation.storeInCache()) {
+            parentDirectory = new File(activity.xmppConnectionService.getCacheDir(), "/media");
         } else {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                parentDirectory =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RECORDINGS);
+            } else {
+                parentDirectory =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            }
         }
         final File conversationsDirectory = new File(parentDirectory, getString(R.string.app_name));
         return new File(conversationsDirectory, filename);
