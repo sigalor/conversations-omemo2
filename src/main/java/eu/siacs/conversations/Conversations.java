@@ -5,6 +5,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -12,8 +14,12 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 
 import eu.siacs.conversations.services.EmojiInitializationService;
+import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.utils.ExceptionHelper;
 import eu.siacs.conversations.utils.ThemeHelper;
+import p32929.easypasscodelock.Utils.EasyLock;
+import p32929.easypasscodelock.Utils.EasylockSP;
 
 public class Conversations extends Application {
 
@@ -26,6 +32,7 @@ public class Conversations extends Application {
 
     @Override
     public void onCreate() {
+        EasylockSP.init(getApplicationContext());
         super.onCreate();
         CONTEXT = this.getApplicationContext();
         EmojiInitializationService.execute(getApplicationContext());

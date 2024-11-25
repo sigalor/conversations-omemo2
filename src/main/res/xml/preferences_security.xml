@@ -51,6 +51,11 @@
             android:title="@string/detect_mim" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_on_this_device">
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/app_lock_enabled"
+            android:key="app_lock_enabled"
+            android:summary="@string/pref_app_lock_enable_summary"
+            android:title="@string/pref_app_lock_enable_title" />
         <ListPreference
             android:defaultValue="@integer/automatic_message_deletion"
             android:icon="@drawable/ic_auto_delete_24dp"

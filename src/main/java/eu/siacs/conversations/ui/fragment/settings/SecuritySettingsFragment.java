@@ -20,6 +20,9 @@ import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.OmemoSetting;
 import eu.siacs.conversations.services.MemorizingTrustManager;
+import eu.siacs.conversations.ui.ConversationsActivity;
+import eu.siacs.conversations.ui.activity.SettingsActivity;
+import p32929.easypasscodelock.Utils.EasyLock;
 
 import java.security.KeyStoreException;
 import java.util.ArrayList;
@@ -44,6 +47,19 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 automaticMessageDeletion,
                 R.array.automatic_message_deletion_values,
                 value -> timeframeValueToName(requireContext(), value));
+
+        final var appLockPreference = findPreference("app_lock_enabled");
+        if (appLockPreference != null) {
+            appLockPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!requireSettingsActivity().getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+                    EasyLock.setBackgroundColor(requireContext().getColor(R.color.black26));
+                    EasyLock.setPassword(requireContext(), ConversationsActivity.class);
+                } else {
+                    EasyLock.disablePassword(requireContext(), ConversationsActivity.class);
+                }
+                return true;
+            });
+        }
     }
 
     @Override
@@ -172,5 +188,16 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 default -> context.getString(R.string.pref_omemo_setting_summary_default_on);
             };
         }
+    }
+
+    public SettingsActivity requireSettingsActivity() {
+        final var activity = requireActivity();
+        if (activity instanceof SettingsActivity settingsActivity) {
+            return settingsActivity;
+        }
+        throw new IllegalStateException(
+                String.format(
+                        "%s is not %s",
+                        activity.getClass().getName(), SettingsActivity.class.getName()));
     }
 }

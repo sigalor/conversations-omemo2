@@ -619,7 +619,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         return PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
 
-    protected boolean getBooleanPreference(String name, @BoolRes int res) {
+    public boolean getBooleanPreference(String name, @BoolRes int res) {
         return getPreferences().getBoolean(name, getResources().getBoolean(res));
     }
 

@@ -11,4 +11,5 @@
     <bool name="enable_otr">false</bool>
     <bool name="use_unicolored_chatbg">false</bool>
     <bool name="showtextformatting">false</bool>
+    <bool name="app_lock_enabled">false</bool>
 </resources>
