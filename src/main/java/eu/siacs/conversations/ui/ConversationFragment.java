@@ -1588,8 +1588,7 @@ public class ConversationFragment extends XmppFragment
         } else {
             this.postponedActivityResult.push(activityResult);
         }
-
-        ChatBackgroundHelper.onActivityResult(activity, requestCode, resultCode, data, conversation.getUuid());
+        if (conversation != null && conversation.getUuid() != null) ChatBackgroundHelper.onActivityResult(activity, requestCode, resultCode, data, conversation.getUuid());
 
         if (requestCode == ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND) {
             refresh();
