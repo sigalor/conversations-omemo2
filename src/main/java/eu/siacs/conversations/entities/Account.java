@@ -46,6 +46,7 @@ import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.utils.XmppUri;
+import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
@@ -123,6 +124,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     private final HashMultimap<String, Contact> gateways = HashMultimap.create();
     private String otrFingerprint;
     private OtrService mOtrService = null;
+    private Element mamPrefs = null;
 
     public Account(final Jid jid, final String password) {
         this(
@@ -220,6 +222,14 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                 cursor.getString(cursor.getColumnIndexOrThrow(PINNED_CHANNEL_BINDING)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FAST_MECHANISM)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FAST_TOKEN)));
+    }
+
+    public void setMamPrefs(Element prefs) {
+        mamPrefs = prefs;
+    }
+
+    public Element mamPrefs() {
+        return mamPrefs;
     }
 
     public boolean httpUploadAvailable(long size) {

@@ -1345,7 +1345,6 @@
     <string name="pref_create_backup_warning">Full backups are meant for restore after a device loss, or for migrating to a new device. You cannot restore a backup to another app while still being connected with this one!</string>
     <string name="pref_ring_from_strangers">Ring calls from strangers</string>
     <string name="pref_ring_from_strangers_summary">A stranger is someone not in your contacts to whom you have never sent a message</string>
-
     <string name="enter_a_new_password_txt">Enter a New Password</string>
     <string name="confirm_password_txt">Confirm Password</string>
     <string name="password_changed_txt">Password Changed</string>
@@ -1362,5 +1361,5 @@
     <string name="pref_app_lock_enable_summary">Enable the app lock. Be aware you can\'t open the app anymore when you forgot the PIN.</string>
     <string name="app_lock_forgot_password">Reinstall app and load chat backup</string>
     <string name="new_message">New message</string>
-
+    <string name="action_fix">Fix</string>
 </resources>

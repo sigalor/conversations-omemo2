@@ -451,6 +451,7 @@ public class XmppConnectionService extends Service {
                 for (Conversation conversation : pendingJoins) {
                     joinMuc(conversation);
                 }
+                fetchMamPreferences(account, null);
                 scheduleWakeUpCall(Config.PING_MAX_INTERVAL, account.getUuid().hashCode());
             } else if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.DISABLED || account.getStatus() == Account.State.LOGGED_OUT) {
                 resetSendingToWaiting(account);
@@ -5985,9 +5986,10 @@ public class XmppConnectionService extends Service {
         sendIqPacket(account, request, (packet) -> {
             final Element prefs = packet.findChild("prefs", version.namespace);
             if (packet.getType() == Iq.Type.RESULT && prefs != null) {
-                callback.onPreferencesFetched(prefs);
+                account.setMamPrefs(prefs);
+                if (callback != null) callback.onPreferencesFetched(prefs);
             } else {
-                callback.onPreferencesFetchFailed();
+                if (callback != null) callback.onPreferencesFetchFailed();
             }
         });
     }
@@ -6095,6 +6097,7 @@ public class XmppConnectionService extends Service {
     public void pushMamPreferences(Account account, Element prefs) {
         final Iq set = new Iq(Iq.Type.SET);
         set.addChild(prefs);
+        account.setMamPrefs(prefs);
         sendIqPacket(account, set, null);
     }
 
