@@ -1427,7 +1427,12 @@ public class ConversationFragment extends XmppFragment
             case REQUEST_START_VIDEO_CALL:
                 triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
                 break;
-            case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
+            case ATTACHMENT_CHOICE_CHOOSE_IMAGE: {
+                final Uri takePhotoUri = pendingTakePhotoUri.pop();
+                if (takePhotoUri != null && data.getData() == null && data.getClipData() == null) {
+                    mediaPreviewAdapter.addMediaPreviews(
+                            Attachment.of(getActivity(), takePhotoUri, Attachment.Type.IMAGE));
+                }
                 final List<Attachment> imageUris =
                         Attachment.extractAttachments(getActivity(), data, Attachment.Type.IMAGE);
                 if (imageUris.size() == 1) {
@@ -1437,7 +1442,8 @@ public class ConversationFragment extends XmppFragment
                     toggleInputMethod();
                 }
                 break;
-            case ATTACHMENT_CHOICE_TAKE_PHOTO:
+            }
+            case ATTACHMENT_CHOICE_TAKE_PHOTO: {
                 final Uri takePhotoUri = pendingTakePhotoUri.pop();
                 if (takePhotoUri != null) {
                     editImage(takePhotoUri);
@@ -1454,6 +1460,7 @@ public class ConversationFragment extends XmppFragment
                     Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
                 }
                 break;
+            }
             case ATTACHMENT_CHOICE_CHOOSE_FILE:
             case ATTACHMENT_CHOICE_RECORD_VIDEO:
             case ATTACHMENT_CHOICE_RECORD_VOICE:
