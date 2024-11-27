@@ -1354,4 +1354,23 @@
     <string name="pref_export">Daten exportieren (experimentell)</string>
     <string name="pref_export_summary">Exportieren Sie die Daten, um sie in eine andere Anwendung zu importieren. Keine vollständige Sicherung.</string>
     <string name="request_to_speak_send">Deine Anfrage wurde an die Moderatoren gesendet</string>
+    <string name="pref_ring_from_strangers">Anrufe von Fremden</string>
+    <string name="pref_ring_from_strangers_summary">Ein Fremder ist jemand, der nicht in Ihren Kontakten ist und dem Sie noch nie eine Nachricht geschickt haben</string>
+    <string name="please_enter_a_new_password_again_txt">Bitte gebe noch einmal ein neues Passwort ein</string>
+    <string name="max_8_characters_txt">Maximal 8 Zeichen</string>
+    <string name="password_is_set_txt">Passwort gesetzt</string>
+    <string name="incorrect_password_txt">Falsches Passwort</string>
+    <string name="password_disabled_txt">Passwort deaktiviert</string>
+    <string name="enter_your_password_txt">Gebe Dein Passwort ein</string>
+    <string name="clear_txt">Löschen</string>
+    <string name="forgot_password_txt">Passwort vergessen?</string>
+    <string name="pref_app_lock_enable_title">Aktiviere App Schloss</string>
+    <string name="app_lock_forgot_password">Installiere App neu und lade ein Chat Backup</string>
+    <string name="new_message">Neue Nachricht</string>
+    <string name="pref_create_backup_warning">Vollständige Backups sind für die Wiederherstellung nach einem Geräteverlust oder für die Migration auf ein neues Gerät gedacht. Sie können ein Backup nicht in einer anderen App wiederherstellen, während Sie noch mit dieser App verbunden sind!</string>
+    <string name="enter_a_new_password_txt">Neues Passwort eingeben</string>
+    <string name="confirm_password_txt">Bestätige Passwort</string>
+    <string name="password_changed_txt">Passwort geändert</string>
+    <string name="please_enter_current_password_txt">Bitte gebe das aktuelle Passwort ein</string>
+    <string name="pref_app_lock_enable_summary">Aktiviere das App-Schloss. Beachte, dass die App nicht mehr geöffnet werden kann, wenn die PIN vergessen wurde.</string>
 </resources>

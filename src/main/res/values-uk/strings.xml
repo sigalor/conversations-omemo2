@@ -884,7 +884,7 @@
     <string name="answer_call">Відповісти</string>
     <string name="dismiss_call">Відхилити</string>
     <string name="rtp_state_finding_device">Пошук пристроїв</string>
-    <string name="rtp_state_ringing">Викликаю</string>
+    <string name="rtp_state_ringing">Виклик</string>
     <string name="rtp_state_declined_or_busy">Зайнято</string>
     <string name="rtp_state_connectivity_error">Неможливо здійснити виклик</string>
     <string name="rtp_state_connectivity_lost_error">З\'єднання втрачено</string>
@@ -1400,4 +1400,7 @@
     <string name="pref_export_summary">Експорт даних, корисних для імпорту до іншого застосунку. Не є повною резервною копією.</string>
     <string name="pref_custom_tab_summary">Браузер працюватиме так, ніби він інтегрований із цим застосунком (окрема вкладка)</string>
     <string name="request_to_speak_send">Ваш запит надіслано модераторам</string>
+    <string name="pref_create_backup_warning">Повні резервні копії призначені для відновлення у випадку втрати пристрою або для перенесення даних на новий пристрій. Не можна відновлювати резервну копію в іншому застосунку, залишаючи цей підключеним!</string>
+    <string name="pref_ring_from_strangers_summary">Незнайомець — контакт, якого немає у Вашому списку, кому Ви ніколи не надсилали повідомлення</string>
+    <string name="pref_ring_from_strangers">Дзвонити при викликах від незнайомців</string>
 </resources>

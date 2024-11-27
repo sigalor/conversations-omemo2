@@ -327,7 +327,7 @@
     <string name="change_password">Wachtwoord wijzigen</string>
     <string name="current_password">Huidig wachtwoord</string>
     <string name="new_password">Nieuw wachtwoord</string>
-    <string name="password_should_not_be_empty">Wachtwoord zou niet leeg mogen zijn</string>
+    <string name="password_should_not_be_empty">Wachtwoord mag niet leeg zijn</string>
     <string name="enable_all_accounts">Alle accounts inschakelen</string>
     <string name="disable_all_accounts">Alle accounts uitschakelen</string>
     <string name="perform_action_with">Actie uitvoeren met</string>
@@ -471,7 +471,7 @@
     <string name="presence_away">Afwezig</string>
     <string name="presence_xa">Niet beschikbaar</string>
     <string name="presence_dnd">Bezig</string>
-    <string name="secure_password_generated">Een veilig wachtwoord is aangemaakt</string>
+    <string name="secure_password_generated">Er is een veilig wachtwoord aangemaakt</string>
     <string name="device_does_not_support_battery_op">Je apparaat ondersteunt het uitschakelen van batterij-optimalisatie niet</string>
     <string name="registration_please_wait">Registratie mislukt: probeer later opnieuw</string>
     <string name="registration_password_too_weak">Registratie mislukt: wachtwoord te zwak</string>
@@ -1050,7 +1050,7 @@
     <string name="application_found_to_open_website">Geen applicatie om website te openen</string>
     <string name="pref_headsup_notifications_summary">Heads-up-meldingen weergeven</string>
     <string name="foreground_service_channel_description">Deze meldingscategorie wordt gebruikt om een permanente melding te tonen die aangeeft dat monocles chat actief is.</string>
-    <string name="unable_to_decrypt_backup">Kan back-up niet ontsleutelen. Is het wachtwoord juist?</string>
+    <string name="unable_to_decrypt_backup">Kan de back-up niet ontsleutelen. Is het wachtwoord juist?</string>
     <string name="unable_to_set_channel_configuration">Fout bij het doorvoeren van de kanaalinstellingen</string>
     <string name="sharing_application_not_grant_permission">De app die het bestand deelde heeft geen toegang tot het bestand gegeven.</string>
     <string name="jabber_network">jabber.network</string>
@@ -1341,4 +1341,24 @@
     <string name="change_stickers_location">Locatie voor stickers wijzigen</string>
     <string name="pref_export_summary">Exporteer gegevens die je kunt importeren in een andere app. Dit is geen volledige back-up.</string>
     <string name="pref_custom_tab_summary">Vraag je browser om de pagina in deze app te tonen (custom tab)</string>
+    <string name="request_to_speak_send">Je verzoek is verstuurd naar de moderators</string>
+    <string name="pref_create_backup_warning">Volledige back-ups zijn bedoeld voor herstel na verlies van je apparaat of voor migratie naar een nieuw apparaat. Je kunt geen back-up terugzetten naar een andere app terwijl je nog verbonden bent via deze app!</string>
+    <string name="pref_ring_from_strangers_summary">Een onbekende is iemand die niet in je contacten staat en aan wie je nog nooit een bericht hebt gestuurd</string>
+    <string name="pref_ring_from_strangers">Oproepen van vreemden toestaan</string>
+    <string name="password_disabled_txt">Wachtwoord uitgeschakeld</string>
+    <string name="enter_your_password_txt">Voer je wachtwoord in</string>
+    <string name="clear_txt">Wissen</string>
+    <string name="forgot_password_txt">Wachtwoord vergeten?</string>
+    <string name="app_lock_forgot_password">De app opnieuw installeren en een back-up herstellen</string>
+    <string name="new_message">Nieuw bericht</string>
+    <string name="enter_a_new_password_txt">Voer een nieuw wachtwoord in</string>
+    <string name="confirm_password_txt">Wachtwoord bevestigen</string>
+    <string name="password_changed_txt">Wachtwoord gewijzigd</string>
+    <string name="max_8_characters_txt">Maximaal 8 tekens</string>
+    <string name="please_enter_current_password_txt">Voer het huidige wachtwoord in</string>
+    <string name="password_is_set_txt">Het wachtwoord is ingesteld</string>
+    <string name="please_enter_a_new_password_again_txt">Voer nogmaals het nieuwe wachtwoord in</string>
+    <string name="pref_app_lock_enable_summary">Schakel de app-vergrendeling in. Pas op: je kunt de app niet meer openen als je de pincode bent vergeten.</string>
+    <string name="incorrect_password_txt">Onjuist wachtwoord</string>
+    <string name="pref_app_lock_enable_title">App-vergrendeling inschakelen</string>
 </resources>

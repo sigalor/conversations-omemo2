@@ -37,7 +37,7 @@
     <string name="owner">所有者</string>
     <string name="moderator">主持人</string>
     <string name="participant">参与者</string>
-    <string name="visitor">已禁言</string>
+    <string name="visitor">访客</string>
     <string name="remove_contact_text">是否从联系人列表中移除 %s？将不会移除与对方的聊天。</string>
     <string name="block_contact_text">是否屏蔽 %s 向您发送消息？</string>
     <string name="unblock_contact_text">是否解除屏蔽 %s 并允许对方向您发送消息？</string>
@@ -1358,4 +1358,23 @@
     <string name="pref_custom_tab">集成浏览器 UI</string>
     <string name="pref_export_summary">导出可用于导入其他应用的数据。不是完全备份。</string>
     <string name="request_to_speak_send">已将您的请求发送给主持人</string>
+    <string name="pref_create_backup_warning">完全备份用于在设备丢失后恢复，或用于迁移到新设备。您无法在仍与此应用连接的情况下将备份恢复到其他应用！</string>
+    <string name="pref_ring_from_strangers">陌生人打来的电话</string>
+    <string name="pref_ring_from_strangers_summary">陌生人是指不在您的联系人中且您从未向其发送过消息的人</string>
+    <string name="enter_a_new_password_txt">输入新密码</string>
+    <string name="confirm_password_txt">确认密码</string>
+    <string name="password_changed_txt">密码已更改</string>
+    <string name="please_enter_a_new_password_again_txt">请再次输入新密码</string>
+    <string name="max_8_characters_txt">最多 8 个数字</string>
+    <string name="please_enter_current_password_txt">请输入当前密码</string>
+    <string name="password_is_set_txt">密码已设置</string>
+    <string name="incorrect_password_txt">密码错误</string>
+    <string name="password_disabled_txt">密码已禁用</string>
+    <string name="enter_your_password_txt">请输入您的密码</string>
+    <string name="clear_txt">清空</string>
+    <string name="forgot_password_txt">忘记密码？</string>
+    <string name="pref_app_lock_enable_title">启用应用锁</string>
+    <string name="pref_app_lock_enable_summary">启用应用锁。请注意，如果您忘记了 PIN，您将无法再打开此应用。</string>
+    <string name="app_lock_forgot_password">重新安装应用并加载聊天备份</string>
+    <string name="new_message">新消息</string>
 </resources>
