@@ -41,7 +41,7 @@ public class InterfaceSettingsFragment extends XmppPreferenceFragment {
                     updateCustomVisibility("custom".equals(newValue));
                     return true;
                 });
-        updateCustomVisibility("Custom".equals(themePreference.getSummary()));
+        updateCustomVisibility(getString(R.string.pref_theme_custom).equals(themePreference.getSummary()));
         dynamicColors.setOnPreferenceChangeListener(
                 (preference, newValue) -> {
                     requireSettingsActivity().setDynamicColors(Boolean.TRUE.equals(newValue));
