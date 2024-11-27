@@ -119,9 +119,9 @@
 	</string-array>
 
 	<string-array name="chat_requests_entries">
-		<item>Never</item>
-		<item>Suspected SPAM</item>
-		<item>Chats from strangers</item>
+		<item>@string/never</item>
+		<item>@string/suspected_spam</item>
+		<item>@string/chats_from_strangers</item>
 	</string-array>
 
 	<string-array name="chat_requests_values">
@@ -151,4 +151,6 @@
 		<item>mpeg4</item>
 		<item>3gpp</item>
 	</string-array>
+	<string name="suspected_spam">Suspected SPAM</string>
+	<string name="chats_from_strangers">Chats from strangers</string>
 </resources>
