@@ -756,7 +756,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (offerToSetupDiallerIntegration()) return;
             if (offerToDownloadStickers()) return;
             if (openBatteryOptimizationDialogIfNeeded()) return;
-            requestNotificationPermissionIfNeeded();
+            if (requestNotificationPermissionIfNeeded()) return;
             xmppConnectionService.rescanStickers();
         }
     }
@@ -794,10 +794,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         return false;
     }
 
-    private void requestNotificationPermissionIfNeeded() {
+    private boolean requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION);
+            return true;
         }
+        return false;
     }
 
     private boolean offerToDownloadStickers() {
