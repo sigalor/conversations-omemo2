@@ -2676,7 +2676,7 @@ public class XmppConnectionService extends Service {
     private void restoreMessages(Conversation conversation) {
         conversation.addAll(0, databaseBackend.getMessages(conversation, Config.PAGE_SIZE));
         conversation.findUnsentTextMessages(message -> markMessage(message, Message.STATUS_WAITING));
-        conversation.findUnreadMessagesAndCalls(mNotificationService::pushFromBacklog);
+        conversation.findMessagesAndCallsToNotify(mNotificationService::pushFromBacklog);
     }
 
     public void loadPhoneContacts() {
@@ -5330,6 +5330,16 @@ public class XmppConnectionService extends Service {
         } else {
             return readMessages;
         }
+    }
+
+    public void markNotificationDismissed(final List<Message> messages) {
+        Runnable runnable = () -> {
+            for (final var message : messages) {
+                message.markNotificationDismissed();
+                databaseBackend.updateMessage(message, false);
+            }
+        };
+        mDatabaseWriterExecutor.execute(runnable);
     }
 
     public synchronized void updateUnreadCountBadge() {

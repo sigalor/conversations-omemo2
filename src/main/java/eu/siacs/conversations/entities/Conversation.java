@@ -401,11 +401,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         }
     }
 
-    public void findUnreadMessagesAndCalls(OnMessageFound onMessageFound) {
+    public void findMessagesAndCallsToNotify(OnMessageFound onMessageFound) {
         final ArrayList<Message> results = new ArrayList<>();
         synchronized (this.messages) {
             for (final Message message : this.messages) {
-                if (message.isRead()) {
+                if (message.isRead() || message.notificationWasDismissed()) {
                     continue;
                 }
                 results.add(message);

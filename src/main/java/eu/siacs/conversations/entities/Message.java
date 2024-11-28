@@ -157,6 +157,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     protected List<Edit> edits = new ArrayList<>();
     protected String relativeFilePath;
     protected boolean read = true;
+    protected boolean notificationDismissed = false;
     protected String remoteMsgId = null;
     private String bodyLanguage = null;
     protected String serverMsgId = null;
@@ -334,6 +335,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         );
         final var legacyOccupant = cursor.getString(cursor.getColumnIndex("occupant_id"));
         if (legacyOccupant != null) m.setOccupantId(legacyOccupant);
+        if (cursor.getInt(cursor.getColumnIndex("notificationDismissed")) > 0) m.markNotificationDismissed();
         return m;
     }
 
@@ -379,6 +381,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         }
         values.put("payloads", payloads.size() < 1 ? null : payloads.stream().map(Object::toString).collect(Collectors.joining()));
         values.put("occupant_id", occupantId);
+        values.put("timeReceived", timeReceived);
+        values.put("notificationDismissed", notificationDismissed ? 1 : 0);
         return values;
     }
 
@@ -777,6 +781,10 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return this.read;
     }
 
+    public boolean notificationWasDismissed() {
+        return this.notificationDismissed;
+    }
+
     public boolean isDeleted() {
         return this.deleted;
     }
@@ -804,6 +812,10 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public void markUnread() {
         this.read = false;
     }
+
+    public void markNotificationDismissed() {
+        this.notificationDismissed = true;
+	}
 
     public void setTime(long time) {
         this.timeSent = time;

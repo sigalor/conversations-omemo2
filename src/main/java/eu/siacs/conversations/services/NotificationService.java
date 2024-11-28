@@ -953,6 +953,7 @@ public class NotificationService {
         synchronized (notifications) {
             for (ArrayList<Message> messages : notifications.values()) {
                 markAsReadIfHasDirectReply(messages);
+                markAsNotificationDismissed(messages);
             }
             notifications.clear();
             updateNotification(false);
@@ -965,6 +966,7 @@ public class NotificationService {
         }
         synchronized (notifications) {
             markAsReadIfHasDirectReply(conversation);
+            markAsNotificationDismissed(conversation);
             if (notifications.remove(conversation.getUuid()) != null) {
                 cancel(conversation.getUuid(), NOTIFICATION_ID);
                 updateNotification(false, null, true);
@@ -1026,6 +1028,16 @@ public class NotificationService {
                     mXmppConnectionService.updateConversationUi();
                 }
             }
+        }
+    }
+
+    private void markAsNotificationDismissed(final Conversation conversation) {
+        markAsNotificationDismissed(notifications.get(conversation.getUuid()));
+    }
+
+    private void markAsNotificationDismissed(final ArrayList<Message> messages) {
+        if (messages != null && !messages.isEmpty()) {
+            mXmppConnectionService.markNotificationDismissed(messages);
         }
     }
 
