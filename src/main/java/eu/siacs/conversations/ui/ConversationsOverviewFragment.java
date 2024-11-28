@@ -541,13 +541,13 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		}
 		setupSwipe();
 
-		binding.snackbar.setVisibility(View.GONE);
+		binding.overviewSnackbar.setVisibility(View.GONE);
 		if (activity.xmppConnectionService == null) return;
 		for (final var account : activity.xmppConnectionService.getAccounts()) {
 			if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
-				binding.snackbar.setVisibility(View.VISIBLE);
-				binding.snackbarMessage.setText("Your account " + account.getJid().asBareJid().toEscapedString() + " does not have archiving fully enabled. This may result in missed messages if you use multiple devices or apps.");
-				binding.snackbarAction.setOnClickListener((v) -> {
+				binding.overviewSnackbar.setVisibility(View.VISIBLE);
+				binding.overviewSnackbarMessage.setText("Your account " + account.getJid().asBareJid().toEscapedString() + " does not have archiving fully enabled. This may result in missed messages if you use multiple devices or apps.");
+				binding.overviewSnackbarAction.setOnClickListener((v) -> {
 					final var prefs = account.mamPrefs();
 					prefs.setAttribute("default", "always");
 					activity.xmppConnectionService.pushMamPreferences(account, prefs);
