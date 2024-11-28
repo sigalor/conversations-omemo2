@@ -45,6 +45,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -544,6 +545,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		binding.overviewSnackbar.setVisibility(View.GONE);
 		if (activity.xmppConnectionService == null) return;
 		for (final var account : activity.xmppConnectionService.getAccounts()) {
+			if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
 			if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
 				binding.overviewSnackbar.setVisibility(View.VISIBLE);
 				binding.overviewSnackbarMessage.setText("Your account " + account.getJid().asBareJid().toEscapedString() + " does not have archiving fully enabled. This may result in missed messages if you use multiple devices or apps.");
@@ -552,6 +554,24 @@ public class ConversationsOverviewFragment extends XmppFragment {
 					prefs.setAttribute("default", "always");
 					activity.xmppConnectionService.pushMamPreferences(account, prefs);
 					refresh();
+				});
+
+				binding.overviewSnackbarAction.setOnLongClickListener((v) -> {
+					PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+					popupMenu.inflate(R.menu.mam_pref_fix);
+					popupMenu.setOnMenuItemClickListener(menuItem -> {
+							switch (menuItem.getItemId()) {
+							case R.id.ignore:
+								final var editor = activity.getPreferences().edit();
+								editor.putBoolean("no_mam_pref_warn:" + account.getUuid(), true).apply();
+								editor.apply();
+								refresh();
+								return true;
+							}
+							return true;
+					});
+					popupMenu.show();
+					return true;
 				});
 				break;
 			}
