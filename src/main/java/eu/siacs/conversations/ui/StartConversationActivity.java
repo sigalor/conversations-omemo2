@@ -963,11 +963,15 @@ public class StartConversationActivity extends XmppActivity
         boolean navBarVisible = binding.bottomNavigation.getVisibility() == VISIBLE;
         MenuItem manageAccount = menu.findItem(R.id.action_account);
         MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+        MenuItem noteToSelf = menu.findItem(R.id.action_note_to_self);
         if (navBarVisible) {
             manageAccount.setVisible(false);
             manageAccounts.setVisible(false);
         } else {
             AccountUtils.showHideMenuItems(menu);
+        }
+        if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() != 1) {
+            noteToSelf.setVisible(false);
         }
 
         return res;

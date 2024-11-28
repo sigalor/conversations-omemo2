@@ -133,6 +133,7 @@ import net.java.otr4j.session.SessionStatus;
 
 import org.jetbrains.annotations.NotNull;
 
+import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
@@ -1633,6 +1634,7 @@ public class ConversationFragment extends XmppFragment
 
         menuInflater.inflate(R.menu.fragment_conversation, menu);
         final MenuItem menuMucDetails = menu.findItem(R.id.action_muc_details);
+        final MenuItem menuMucParticipants = menu.findItem(R.id.action_muc_participants);
         final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
         final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
         final MenuItem menuMute = menu.findItem(R.id.action_mute);
@@ -1654,6 +1656,7 @@ public class ConversationFragment extends XmppFragment
                 menuCall.setVisible(false);
                 menuOngoingCall.setVisible(false);
             } else {
+                menuMucParticipants.setVisible(false);
                 final XmppConnectionService service =
                         activity == null ? null : activity.xmppConnectionService;
                 final Optional<OngoingRtpSession> ongoingRtpSession =
@@ -2467,6 +2470,11 @@ public class ConversationFragment extends XmppFragment
             case R.id.action_muc_details:
                 ConferenceDetailsActivity.open(activity, conversation);
                 break;
+            case R.id.action_muc_participants:
+                Intent intent_user = new Intent(activity, MucUsersActivity.class);
+                intent_user.putExtra("uuid", conversation.getUuid());
+                activity.startActivity(intent_user);
+                break;
             case R.id.action_invite:
                 startActivityForResult(
                         ChooseContactActivity.create(activity, conversation),
@@ -2998,7 +3006,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void updateChatBG() {
-        if (activity != null) {
+        if (activity != null && conversation != null) {
             if (activity.unicoloredBG()) {
                 binding.conversationsFragment.setBackgroundResource(0);
             } else {
@@ -4375,6 +4383,26 @@ public class ConversationFragment extends XmppFragment
                 updateSendButton();
                 updateEditablity();
                 conversation.refreshSessions();
+
+
+                if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
+                    String subject = conversation.getMucOptions().getSubject();
+                    Boolean hidden = conversation.getMucOptions().subjectHidden();
+
+                    if (Bookmark.printableValue(subject) && !hidden) {
+                        binding.mucSubjectText.setText(subject);
+                        binding.mucSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
+                        binding.mucSubjectHide.setOnClickListener(v -> {
+                            conversation.getMucOptions().hideSubject();
+                            binding.mucSubject.setVisibility(View.GONE);
+                        });
+                        binding.mucSubject.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.mucSubject.setVisibility(View.GONE);
+                    }
+                } else {
+                    binding.mucSubject.setVisibility(View.GONE);
+                }
             }
         }
     }

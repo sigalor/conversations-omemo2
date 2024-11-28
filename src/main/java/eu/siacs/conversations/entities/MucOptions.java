@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import io.ipfs.cid.Cid;
@@ -585,11 +586,35 @@ public class MucOptions {
     }
 
     public boolean setSubject(String subject) {
+        if (!Objects.equals(getSubject(), subject)) {
+            this.conversation.setAttribute("subjectTs", String.valueOf(System.currentTimeMillis()));
+        }
         return this.conversation.setAttribute("subject", subject);
     }
 
     public String getSubject() {
         return this.conversation.getAttribute("subject");
+    }
+
+    public void hideSubject() {
+        String subjectTs = this.conversation.getAttribute("subjectTs");
+
+        if (subjectTs == null) {
+            this.conversation.setAttribute("subjectTs", String.valueOf(System.currentTimeMillis() - 1));
+        }
+
+        this.conversation.setAttribute("subjectHideTs", String.valueOf(System.currentTimeMillis()));
+    }
+
+    public boolean subjectHidden() {
+        String subjectTs = this.conversation.getAttribute("subjectTs");
+        String hideTs = this.conversation.getAttribute("subjectHideTs");
+
+        if (subjectTs == null || hideTs == null) {
+            return false;
+        } else {
+            return Long.parseLong(hideTs) >= Long.parseLong(subjectTs);
+        }
     }
 
     public String getName() {
