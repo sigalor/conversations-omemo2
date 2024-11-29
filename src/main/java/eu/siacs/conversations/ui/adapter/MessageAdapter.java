@@ -6,14 +6,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.Spannable;
@@ -29,15 +27,12 @@ import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.LruCache;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -51,6 +46,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -67,26 +63,15 @@ import de.monocles.chat.MessageTextActionModeCallback;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcUpdate;
-import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GetThumbnailForCid;
-import de.monocles.chat.MessageTextActionModeCallback;
-import de.monocles.chat.SwipeDetector;
-import de.monocles.chat.Util;
-import de.monocles.chat.WebxdcPage;
-import de.monocles.chat.WebxdcUpdate;
-
-import androidx.emoji2.emojipicker.EmojiViewItem;
-import androidx.emoji2.emojipicker.RecentEmojiProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import com.lelloman.identicon.view.GithubIdenticonView;
 import com.daimajia.swipe.SwipeLayout;
@@ -115,9 +100,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
 import eu.siacs.conversations.databinding.LinkDescriptionBinding;
-import eu.siacs.conversations.databinding.DialogAddReactionBinding;
 import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
@@ -125,7 +108,6 @@ import eu.siacs.conversations.entities.Message.FileParams;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.Reaction;
-import eu.siacs.conversations.entities.Roster;
 import eu.siacs.conversations.entities.RtpSessionStatus;
 import eu.siacs.conversations.entities.Transferable;
 import eu.siacs.conversations.persistance.FileBackend;
@@ -156,16 +138,9 @@ import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.mam.MamReference;
 import eu.siacs.conversations.xml.Element;
-import kotlin.coroutines.Continuation;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MessageAdapter extends ArrayAdapter<Message> {
 
@@ -266,7 +241,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         return 5;
     }
 
-    private int getItemViewType(Message message) {
+    private static int getItemViewType(final Message message) {
         if (message.getType() == Message.TYPE_STATUS) {
             if (DATE_SEPARATOR_BODY.equals(message.getBody())) {
                 return DATE_SEPARATOR;
@@ -283,9 +258,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return this.getItemViewType(getItem(position));
+    public int getItemViewType(final int position) {
+        return getItemViewType(getItem(position));
     }
+
 
     private void displayStatus(
             final ViewHolder viewHolder,
@@ -1147,7 +1123,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final Conversational conversation = message.getConversation();
         final Account account = conversation.getAccount();
         final List<Element> commands = message.getCommands();
-        final int type = getItemViewType(position);
+        final int type = getItemViewType(message);
         ViewHolder viewHolder;
         if (view == null) {
             viewHolder = new ViewHolder();
@@ -1171,6 +1147,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     view = activity.getLayoutInflater().inflate(R.layout.item_message_sent, parent, false);
                     viewHolder.status_line = view.findViewById(R.id.status_line);
                     viewHolder.message_box_inner = view.findViewById(R.id.message_box_inner);
+                    viewHolder.root = (SwipeLayout) view;
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
@@ -1198,6 +1175,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     view = activity.getLayoutInflater().inflate(R.layout.item_message_received, parent, false);
                     viewHolder.status_line = view.findViewById(R.id.status_line);
                     viewHolder.message_box_inner = view.findViewById(R.id.message_box_inner);
+                    viewHolder.root = (SwipeLayout) view;
                     viewHolder.message_box = view.findViewById(R.id.message_box);
                     viewHolder.contact_picture = view.findViewById(R.id.message_photo);
                     viewHolder.download_button = view.findViewById(R.id.download_button);
@@ -1384,7 +1362,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 } else if (message.getCounterpart() != null
                         || message.getTrueCounterpart() != null
                         || (message.getCounterparts() != null
-                                && message.getCounterparts().size() > 0)) {
+                                && !message.getCounterparts().isEmpty())) {
                     showAvatar = true;
                     AvatarWorkerTask.loadAvatar(
                             message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
@@ -1400,6 +1378,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
             return view;
         } else {
+            // sent and received bubbles
+            final var mergeIntoTop = mergeIntoTop(position, message);
+            final var mergeIntoBottom = mergeIntoBottom(position, message);
+            final var requiresAvatar = type == SENT ? !mergeIntoBottom : !mergeIntoTop;
+            setBubblePadding(viewHolder.root, mergeIntoTop, mergeIntoBottom);
+            setRequiresAvatar(viewHolder, requiresAvatar);
             viewHolder.message_box.setClipToOutline(true); //This eats the bubble tails on A14 for some reason
             AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_conversation_overview);
         }
@@ -1734,6 +1718,82 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         return view;
     }
 
+
+    private void setBubblePadding(
+            final SwipeLayout root,
+            final boolean mergeIntoTop,
+            final boolean mergeIntoBottom) {
+        final var resources = root.getResources();
+        final var horizontal = resources.getDimensionPixelSize(R.dimen.bubble_horizontal_padding);
+        final int top =
+                resources.getDimensionPixelSize(
+                        mergeIntoTop
+                                ? R.dimen.bubble_vertical_padding_minimum
+                                : R.dimen.bubble_vertical_padding);
+        final int bottom =
+                resources.getDimensionPixelSize(
+                        mergeIntoBottom
+                                ? R.dimen.bubble_vertical_padding_minimum
+                                : R.dimen.bubble_vertical_padding);
+        root.setPadding(horizontal, top, horizontal, bottom);
+    }
+
+    private void setRequiresAvatar(final ViewHolder viewHolder, final boolean requiresAvatar) {
+        final var layoutParams = viewHolder.contact_picture.getLayoutParams();
+        if (requiresAvatar) {
+            final var resources = viewHolder.contact_picture.getResources();
+            final var avatarSize = resources.getDimensionPixelSize(R.dimen.bubble_avatar_size);
+            layoutParams.height = avatarSize;
+            viewHolder.contact_picture.setVisibility(View.VISIBLE);
+            viewHolder.message_box.setMinimumHeight(avatarSize);
+        } else {
+            layoutParams.height = 0;
+            viewHolder.contact_picture.setVisibility(View.INVISIBLE);
+            viewHolder.message_box.setMinimumHeight(0);
+        }
+        viewHolder.contact_picture.setLayoutParams(layoutParams);
+    }
+
+    private boolean mergeIntoTop(final int position, final Message message) {
+        if (position < 0) {
+            return false;
+        }
+        final var top = getItem(position - 1);
+        return merge(top, message);
+    }
+
+    private boolean mergeIntoBottom(final int position, final Message message) {
+        final Message bottom;
+        try {
+            bottom = getItem(position + 1);
+        } catch (final IndexOutOfBoundsException e) {
+            return false;
+        }
+        return merge(message, bottom);
+    }
+
+    private static boolean merge(final Message a, final Message b) {
+        if (getItemViewType(a) != getItemViewType(b)) {
+            return false;
+        }
+        if (a.getConversation().getMode() == Conversation.MODE_MULTI
+                && a.getStatus() == Message.STATUS_RECEIVED) {
+            final var occupantIdA = a.getOccupantId();
+            final var occupantIdB = b.getOccupantId();
+            if (occupantIdA != null && occupantIdB != null) {
+                if (!occupantIdA.equals(occupantIdB)) {
+                    return false;
+                }
+            }
+            final var counterPartA = a.getCounterpart();
+            final var counterPartB = b.getCounterpart();
+            if (counterPartA == null || !counterPartA.equals(counterPartB)) {
+                return false;
+            }
+        }
+        return b.getTimeSent() - a.getTimeSent() <= Config.MESSAGE_MERGE_WINDOW;
+    }
+
     private void sendReactions(final Message message, final Collection<String> reactions) {
         if (activity.xmppConnectionService.sendReactions(message, reactions)) {
             return;
@@ -1957,6 +2017,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private static class ViewHolder {
 
+        private SwipeLayout root;
         public MaterialButton load_more_messages;
         public ImageView edit_indicator;
         public RelativeLayout audioPlayer;

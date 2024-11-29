@@ -23,8 +23,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="4dp">
+        android:paddingHorizontal="@dimen/bubble_horizontal_padding"
+        android:paddingVertical="@dimen/bubble_vertical_padding">
 
 
         <LinearLayout
@@ -37,10 +37,10 @@
             android:orientation="vertical">
 
         <eu.siacs.conversations.ui.widget.AvatarView
-                android:id="@+id/message_photo"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="centerCrop" />
+            android:id="@+id/message_photo"
+            android:layout_width="@dimen/bubble_avatar_size"
+            android:layout_height="@dimen/bubble_avatar_size"
+            android:scaleType="centerCrop" />
         </LinearLayout>
 
         <LinearLayout
@@ -50,7 +50,7 @@
             android:background="@drawable/message_bubble_sent"
             android:backgroundTint="?colorSecondaryContainer"
             android:longClickable="true"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/bubble_avatar_size"
             android:paddingRight="7dp"
             android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
