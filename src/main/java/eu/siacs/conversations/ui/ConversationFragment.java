@@ -1851,6 +1851,7 @@ public class ConversationFragment extends XmppFragment
                                 allUsers.add(u);
                             }
                             final String needle = query.toString().toLowerCase(Locale.getDefault());
+                            if (getRecyclerView() != null) getRecyclerView().setItemAnimator(null);
                             adapter.submitList(
                                     Ordering.natural().immutableSortedCopy(Collections2.filter(
                                             allUsers,
