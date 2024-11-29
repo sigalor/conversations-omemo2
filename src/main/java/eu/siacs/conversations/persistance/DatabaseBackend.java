@@ -363,12 +363,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 db.execSQL("PRAGMA monocles.user_version = 11");
             }
 
-            if(cheogramVersion < 12) {
+            if(monoclesVersion < 12) {
                 db.execSQL(
-                    "ALTER TABLE cheogram." + Message.TABLENAME + " " +
+                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
                     "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
                 );
-                db.execSQL("PRAGMA cheogram.user_version = 12");
+                db.execSQL("PRAGMA monocles.user_version = 12");
             }
 
             db.setTransactionSuccessful();

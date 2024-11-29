@@ -1451,6 +1451,7 @@ public class ConversationFragment extends XmppFragment
                     Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
                 }
                 break;
+            }
             case ATTACHMENT_CHOICE_EDIT_PHOTO:
                 final Uri editedUriPhoto = data.getParcelableExtra(EditActivity.KEY_EDITED_URI);
                 if (editedUriPhoto != null) {
@@ -1460,7 +1461,6 @@ public class ConversationFragment extends XmppFragment
                     Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
                 }
                 break;
-            }
             case ATTACHMENT_CHOICE_CHOOSE_FILE:
             case ATTACHMENT_CHOICE_RECORD_VIDEO:
             case ATTACHMENT_CHOICE_RECORD_VOICE:
