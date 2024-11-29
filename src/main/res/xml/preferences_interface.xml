@@ -98,12 +98,6 @@
             android:summary="@string/pref_use_unicolored_chatbg_summary"
             android:title="@string/pref_use_unicolored_chatbg" />
         <SwitchPreferenceCompat
-            android:defaultValue="@bool/show_less_avatars"
-            android:icon="@drawable/ic_person_24dp"
-            android:key="show_less_avatars"
-            android:summary="@string/pref_show_less_avatars_summary"
-            android:title="@string/pref_show_less_avatars" />
-        <SwitchPreferenceCompat
             android:defaultValue="@bool/show_own_accounts"
             android:icon="@drawable/ic_person_24dp"
             android:key="show_own_accounts"
