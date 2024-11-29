@@ -131,18 +131,11 @@
             android:summary="@string/pref_set_text_collapsable_summary"
             android:title="@string/pref_set_text_collapsable" />
             -->
-        <SwitchPreferenceCompat
-            android:defaultValue="@bool/use_green_background"
+        <Preference
             android:icon="@drawable/ic_forum_24dp"
-            android:key="use_green_background"
-            android:summary="@string/pref_use_colorful_bubbles_summary"
-            android:title="@string/pref_use_colorful_bubbles" />
-        <SwitchPreferenceCompat
-            android:defaultValue="@bool/large_font"
-            android:icon="@drawable/ic_format_size_24dp"
-            android:key="large_font"
-            android:summary="@string/pref_large_font_summary"
-            android:title="@string/pref_large_font" />
+            app:fragment="eu.siacs.conversations.ui.fragment.settings.InterfaceBubblesSettingsFragment"
+            app:summary="@string/pref_chat_bubbles_summary"
+            app:title="@string/pref_chat_bubbles" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_dynamic_tags"
             android:icon="@drawable/ic_label_24dp"

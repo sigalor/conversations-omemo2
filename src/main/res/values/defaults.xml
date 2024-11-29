@@ -19,6 +19,7 @@
     <string name="picture_compression">auto</string>
     <bool name="use_green_background">false</bool>
     <bool name="large_font">false</bool>
+    <bool name="show_avatars">false</bool>
     <string name="quick_action">none</string>
     <bool name="show_dynamic_tags">true</bool>
     <bool name="btbv">true</bool>

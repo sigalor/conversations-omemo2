@@ -161,7 +161,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
     private OnInlineImageLongClicked mOnInlineImageLongClickedListener;
     private boolean mUseGreenBackground = false;
-    private BubbleDesign bubbleDesign = new BubbleDesign(false, false);
+    private BubbleDesign bubbleDesign = new BubbleDesign(false, false, true);
     private final boolean mForceNames;
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
     private String selectionUuid = null;
@@ -1114,6 +1114,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
     }
 
+    @NonNull
     @Override
     public View getView(final int position, View view, final @NonNull ViewGroup parent) {
         final Message message = getItem(position);
@@ -1381,11 +1382,21 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             // sent and received bubbles
             final var mergeIntoTop = mergeIntoTop(position, message);
             final var mergeIntoBottom = mergeIntoBottom(position, message);
-            final var requiresAvatar = type == SENT ? !mergeIntoBottom : !mergeIntoTop;
+            final var showAvatar =
+                    bubbleDesign.showAvatars
+                            || (type == RECEIVED
+                            && message.getConversation().getMode()
+                            == Conversation.MODE_MULTI);
             setBubblePadding(viewHolder.root, mergeIntoTop, mergeIntoBottom);
-            setRequiresAvatar(viewHolder, requiresAvatar);
-            viewHolder.message_box.setClipToOutline(true); //This eats the bubble tails on A14 for some reason
-            AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_conversation_overview);
+            if (showAvatar) {
+                final var requiresAvatar = type == SENT ? !mergeIntoBottom : !mergeIntoTop;
+                setRequiresAvatar(viewHolder, requiresAvatar);
+                AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
+            } else {
+                viewHolder.contact_picture.setVisibility(View.GONE);
+            }
+            setAvatarDistance(viewHolder.message_box, type, showAvatar);
+            viewHolder.message_box.setClipToOutline(true);
         }
 
         resetClickListener(viewHolder.message_box, viewHolder.messageBody);
@@ -1719,6 +1730,30 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
 
+    private void setAvatarDistance(
+            final LinearLayout messageBox, final int type, final boolean showAvatar) {
+        final ViewGroup.MarginLayoutParams layoutParams =
+                (ViewGroup.MarginLayoutParams) messageBox.getLayoutParams();
+        if (showAvatar) {
+            final var resources = messageBox.getResources();
+            if (type == RECEIVED) {
+                layoutParams.setMarginStart(
+                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance));
+                layoutParams.setMarginEnd(0);
+            } else if (type == SENT) {
+                layoutParams.setMarginStart(0);
+                layoutParams.setMarginEnd(
+                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance));
+            } else {
+                throw new AssertionError("Avatar distances are not available on this view type");
+            }
+        } else {
+            layoutParams.setMarginStart(0);
+            layoutParams.setMarginEnd(0);
+        }
+        messageBox.setLayoutParams(layoutParams);
+    }
+
     private void setBubblePadding(
             final SwipeLayout root,
             final boolean mergeIntoTop,
@@ -1884,8 +1919,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public void updatePreferences() {
+        final AppSettings appSettings = new AppSettings(activity);
         this.bubbleDesign =
-                new BubbleDesign(appSettings.isColorfulChatBubbles(), appSettings.isLargeFont());
+                new BubbleDesign(
+                        appSettings.isColorfulChatBubbles(),
+                        appSettings.isLargeFont(),
+                        appSettings.isShowAvatars());
     }
 
     public void setHighlightedTerm(List<String> terms) {
@@ -2008,10 +2047,15 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private static class BubbleDesign {
         public final boolean colorfulChatBubbles;
         public final boolean largeFont;
+        public final boolean showAvatars;
 
-        private BubbleDesign(final boolean colorfulChatBubbles, final boolean largeFont) {
+        private BubbleDesign(
+                final boolean colorfulChatBubbles,
+                final boolean largeFont,
+                final boolean showAvatars) {
             this.colorfulChatBubbles = colorfulChatBubbles;
             this.largeFont = largeFont;
+            this.showAvatars = showAvatars;
         }
     }
 
