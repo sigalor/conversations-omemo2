@@ -1362,4 +1362,13 @@
     <string name="app_lock_forgot_password">Reinstall app and load chat backup</string>
     <string name="new_message">New message</string>
     <string name="action_fix">Fix</string>
+    <string name="download_stickers_title">Download stickers?</string>
+    <string name="download_stickers_text">Would you like to download some default sticker packs?</string>
+    <string name="dialler_integration_title">Dialler integration</string>
+    <string name="call">Call</string>
+    <string name="write">Write</string>
+    <string name="search_chats">Search chats</string>
+    <string name="save_as_contact_bookmark">Save as contact / bookmark</string>
+    <string name="suspected_spam">Suspected SPAM</string>
+    <string name="chats_from_strangers">Chats from strangers</string>
 </resources>

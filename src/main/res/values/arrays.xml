@@ -151,6 +151,4 @@
 		<item>mpeg4</item>
 		<item>3gpp</item>
 	</string-array>
-	<string name="suspected_spam">Suspected SPAM</string>
-	<string name="chats_from_strangers">Chats from strangers</string>
 </resources>

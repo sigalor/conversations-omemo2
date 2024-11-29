@@ -731,9 +731,9 @@ public class StartConversationActivity extends XmppActivity
         ft.addToBackStack(null);
         EnterJidDialog dialog = EnterJidDialog.newInstance(
                 mActivatedAccounts,
-                "Start Conversation",
-                getString(R.string.message),
-                "Call",
+                getString(R.string.start_chat),
+                getString(R.string.write),
+                getString(R.string.call),
                 prefilledJid,
                 invite == null ? null : invite.account,
                 invite == null || !invite.hasFingerprints(),
@@ -900,8 +900,8 @@ public class StartConversationActivity extends XmppActivity
             return;
         }
         if (binding.startConversationViewPager.getCurrentItem() == 0) {
-            mSearchEditText.setHint("Search chats");
-            mSearchEditText.setContentDescription("Search chats");
+            mSearchEditText.setHint(getString(R.string.search_chats));
+            mSearchEditText.setContentDescription(getString(R.string.search_chats));
         } else {
             mSearchEditText.setHint(R.string.search_group_chats);
             mSearchEditText.setContentDescription(getString(R.string.search_group_chats));

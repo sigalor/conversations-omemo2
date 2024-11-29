@@ -807,9 +807,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (offered > 0) return false;
         getPreferences().edit().putInt("default_stickers_offered", 1).apply();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Download Stickers?");
-        builder.setMessage("Would you like to download some default sticker packs?");
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(getString(R.string.download_stickers_title));
+        builder.setMessage(getString(R.string.download_stickers_text));
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (hasStoragePermission(REQUEST_DOWNLOAD_STICKERS)) {
                 downloadStickers();
@@ -848,8 +848,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
         if (fromPrefs.contains("UPGRADE")) return false;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Dialler Integration");
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(getString(R.string.dialler_integration_title));
         builder.setMessage("monocles Android is able to integrate with your system's dialler app to allow dialling calls via your configured gateway " + String.join(", ", pstnGateways) + ".\n\nEnabling this integration will require granting microphone permission to the app.  Would you like to enable it now?");
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             final String[] permissions;
