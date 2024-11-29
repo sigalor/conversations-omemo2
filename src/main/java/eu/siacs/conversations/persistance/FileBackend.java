@@ -1149,6 +1149,26 @@ public class FileBackend {
         }
     }
 
+    public void setupNomedia(final boolean nomedia) {
+        final var pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        final var app = mXmppConnectionService.getString(R.string.app_name);
+        final var picturesNomedia = new File(new File(pictures, app), ".nomedia");
+        final var movies = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        final var moviesNomedia = new File(new File(movies, app), ".nomedia");
+        var rescan = false;
+        if (nomedia) {
+            rescan = rescan || picturesNomedia.mkdir();
+            rescan = rescan || moviesNomedia.mkdir();
+        } else {
+            rescan = rescan || picturesNomedia.delete();
+            rescan = rescan || moviesNomedia.delete();
+        }
+        if (rescan) {
+            updateMediaScanner(new File(pictures, app));
+            updateMediaScanner(new File(movies, app));
+        }
+    }
+
     public static boolean inConversationsDirectory(final Context context, String path) {
         final File fileDirectory = new File(path).getParentFile();
         for (final String type : STORAGE_TYPES) {

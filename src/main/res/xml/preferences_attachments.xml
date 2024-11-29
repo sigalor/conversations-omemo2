@@ -32,6 +32,12 @@
             android:key="auto_accept_unmetered"
             android:title="@string/always_accept_when_unmetered"
             android:summary="@string/pref_auto_accept_unmetered_summary" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/default_nomedia"
+            android:icon="@drawable/browse_24dp"
+            android:key="nomedia"
+            android:title="Hide media in gallery"
+            android:summary="Hide received and sent media from system gallery views" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_advanced_options">
         <SwitchPreferenceCompat

@@ -757,6 +757,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (offerToDownloadStickers()) return;
             if (openBatteryOptimizationDialogIfNeeded()) return;
             if (requestNotificationPermissionIfNeeded()) return;
+            if (askAboutNomedia()) return;
             xmppConnectionService.rescanStickers();
         }
     }
@@ -800,6 +801,24 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             return true;
         }
         return false;
+    }
+
+    private boolean askAboutNomedia() {
+        if (getPreferences().contains("nomedia")) return false;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Show media in gallery");
+        builder.setMessage("Would you like to show received and sent media in your system gallery?");
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> {
+            getPreferences().edit().putBoolean("nomedia", false).apply();
+        });
+        builder.setNegativeButton(R.string.no, (dialog, which) -> {
+            getPreferences().edit().putBoolean("nomedia", true).apply();
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        return true;
     }
 
     private boolean offerToDownloadStickers() {

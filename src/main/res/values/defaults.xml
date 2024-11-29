@@ -65,4 +65,5 @@
     <bool name="default_custom_tab">true</bool>
     <integer name="automatic_backup">86400</integer>
     <bool name="call_integration">true</bool>
+    <bool name="default_nomedia">true</bool>
 </resources>

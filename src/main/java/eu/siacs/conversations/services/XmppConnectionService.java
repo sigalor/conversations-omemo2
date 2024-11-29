@@ -847,6 +847,8 @@ public class XmppConnectionService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        final var nomedia = getBooleanPreference("nomedia", R.bool.default_nomedia);
+        fileBackend.setupNomedia(nomedia);
         final String action = Strings.nullToEmpty(intent == null ? null : intent.getAction());
         final boolean needsForegroundService = intent != null && intent.getBooleanExtra(SystemEventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
         if (needsForegroundService) {
