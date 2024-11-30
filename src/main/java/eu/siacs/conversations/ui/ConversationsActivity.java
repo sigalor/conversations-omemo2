@@ -294,7 +294,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     final var textColor = MaterialColors.getColor(binding.drawer, com.google.android.material.R.attr.colorOnPrimaryContainer);
                     final var requests = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
                     requests.setIdentifier(DRAWER_CHAT_REQUESTS);
-                    com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(requests, "Chat Requests");
+                    com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(requests, getString(R.string.chat_requests));
                     com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(requests, R.drawable.ic_person_add_24dp);
                     requests.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
                     binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(binding.drawer.getItemAdapter().getAdapterPosition(DRAWER_CHANNELS) + 1), requests);
@@ -1288,7 +1288,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 populateWithOrderedConversations(list, true, false);
                 new AlertDialog.Builder(this)
                     .setTitle(R.string.report_spam)
-                    .setMessage("Do you really want to block all these users and report as SPAM?")
+                    .setMessage(R.string.block_user_and_spam_question)
                     .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                         for (final var conversation : list) {
                             final var m = conversation.getLatestMessage();

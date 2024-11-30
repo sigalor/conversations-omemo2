@@ -254,7 +254,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                     case R.id.action_block_avatar:
                         new AlertDialog.Builder(this)
                                 .setTitle(R.string.block_media)
-                                .setMessage("Do you really want to block this avatar?")
+                                .setMessage(R.string.block_avatar_question)
                                 .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                                     xmppConnectionService.blockMedia(xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()));
                                     xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()).delete();

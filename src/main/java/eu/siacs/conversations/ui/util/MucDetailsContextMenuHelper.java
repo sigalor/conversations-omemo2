@@ -192,10 +192,10 @@ public final class MucDetailsContextMenuHelper {
         if (!conversation.getMucOptions().getSelf().getRole().ranks(MucOptions.Role.MODERATOR) || !conversation.getMucOptions().hasFeature("urn:xmpp:message-moderate:0")) return;
 
         DialogQuickeditBinding binding = DataBindingUtil.inflate(activity.getLayoutInflater(), R.layout.dialog_quickedit, null, false);
-        binding.inputEditText.setText("Spam");
+        binding.inputEditText.setText(R.string.spam);
         new AlertDialog.Builder(activity)
             .setTitle(R.string.moderate_recent)
-            .setMessage("Do you want to moderate all recent messages from this user?")
+            .setMessage(R.string.moderate_recent_question)
             .setView(binding.getRoot())
             .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                 for (Message m : conversation.findMessagesBy(user)) {
@@ -224,7 +224,7 @@ public final class MucDetailsContextMenuHelper {
             case R.id.action_block_avatar:
                 new AlertDialog.Builder(activity)
                     .setTitle(R.string.block_media)
-                    .setMessage("Do you really want to block this avatar?")
+                    .setMessage(R.string.block_avatar_question)
                     .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                         activity.xmppConnectionService.blockMedia(
                             activity.xmppConnectionService.getFileBackend().getAvatarFile(user.getAvatar())

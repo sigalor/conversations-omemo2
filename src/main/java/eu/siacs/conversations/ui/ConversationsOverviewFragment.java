@@ -548,7 +548,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
 			if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
 				binding.overviewSnackbar.setVisibility(View.VISIBLE);
-				binding.overviewSnackbarMessage.setText("Your account " + account.getJid().asBareJid().toEscapedString() + " does not have archiving fully enabled. This may result in missed messages if you use multiple devices or apps.");
+				binding.overviewSnackbarMessage.setText(R.string.your_account + " " + account.getJid().asBareJid().toEscapedString() + " " + R.string.archiving_not_enabled_text);
 				binding.overviewSnackbarAction.setOnClickListener((v) -> {
 					final var prefs = account.mamPrefs();
 					prefs.setAttribute("default", "always");

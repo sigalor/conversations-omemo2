@@ -190,8 +190,8 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
 
     private boolean onBackupPreferenceClicked(final Preference preference) {
         new AlertDialog.Builder(requireActivity())
-            .setTitle("Disable accounts")
-            .setMessage("Do you want to disable your accounts before making a backup (recommended)?")
+            .setTitle(R.string.disable_all_accounts)
+            .setMessage(R.string.disable_all_accounts_question)
             .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                 for (final var account : requireService().getAccounts()) {
                     account.setOption(Account.OPTION_DISABLED, true);

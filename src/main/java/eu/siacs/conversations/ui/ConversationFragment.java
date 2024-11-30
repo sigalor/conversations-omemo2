@@ -2384,7 +2384,7 @@ public class ConversationFragment extends XmppFragment
             case R.id.block_media:
                 new MaterialAlertDialogBuilder(activity)
                         .setTitle(R.string.block_media)
-                        .setMessage("Do you really want to block this media in all messages?")
+                        .setMessage(R.string.block_media_question)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
                             if (thumbs != null && !thumbs.isEmpty()) {
@@ -2545,7 +2545,7 @@ public class ConversationFragment extends XmppFragment
             case R.id.action_block_avatar:
                 new MaterialAlertDialogBuilder(activity)
                         .setTitle(R.string.block_media)
-                        .setMessage("Do you really want to block this avatar?")
+                        .setMessage(R.string.block_avatar_question)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             activity.xmppConnectionService.blockMedia(activity.xmppConnectionService.getFileBackend().getAvatarFile(conversation.getContact().getAvatarFilename()));
                             activity.xmppConnectionService.getFileBackend().getAvatarFile(conversation.getContact().getAvatarFilename()).delete();

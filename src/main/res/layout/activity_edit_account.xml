@@ -555,7 +555,7 @@
                                     android:id="@+id/verification_message"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Not DNSSEC Verified"
+                                    android:text="@string/not_dnssec_verified"
                                     android:textAppearance="?textAppearanceBodyMedium" />
                             </LinearLayout>
 
@@ -630,14 +630,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Account Color"
+                                    android:text="@string/account_color"
                                     android:textAppearance="?textAppearanceBodyMedium"/>
 
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Used on conversation and contact lists, and notifications"
+                                    android:text="@string/account_color_used_on"
                                     android:textAppearance="?textAppearanceBodyMedium"/>
                             </LinearLayout>
 

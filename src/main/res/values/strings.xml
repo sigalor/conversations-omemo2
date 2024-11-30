@@ -1376,4 +1376,17 @@
     <string name="pref_chat_bubbles">Chat bubbles</string>
     <string name="pref_chat_bubbles_summary">Background color, Font size, Avatars</string>
     <string name="pref_title_bubbles">Chat Bubbles</string>
+    <string name="block_avatar_question">Do you really want to block this avatar?</string>
+    <string name="block_media_question">Do you really want to block this media in all messages?</string>
+    <string name="block_user_and_spam_question">Do you really want to block all these users and report as SPAM?</string>
+    <string name="disable_all_accounts_question">Do you want to disable your accounts before making a backup (recommended)?</string>
+    <string name="spam">Spam</string>
+    <string name="moderate_recent_question">Do you want to moderate all recent messages from this user?</string>
+    <string name="chat_requests">Chat requests</string>
+    <string name="archiving_not_enabled_text">does not have archiving fully enabled. This may result in missed messages if you use multiple devices or apps.</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE verified</string>
+    <string name="dnssec_verified">DNSSEC verified</string>
+    <string name="not_dnssec_verified">Not DNSSEC verified</string>
+    <string name="account_color">Account color</string>
+    <string name="account_color_used_on">Used on conversation and contact lists, and notifications</string>
 </resources>
