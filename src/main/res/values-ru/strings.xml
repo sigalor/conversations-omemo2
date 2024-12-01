@@ -1206,7 +1206,7 @@
     <string name="manual_verification_explanation">Внимательно сравните показанный ниже отпечаток с отпечатком вашего контакта.
 \nВы можете использовать любую доверенную форму связи, например зашифрованную электронную почту или телефонный звонок, чтобы обменяться ими.</string>
     <string name="failed">Не успешный</string>
-    <string name="pref_show_less_avatars_summary">Показывать в чатах только нужные аватары</string>
+    <string name="pref_show_less_avatars_summary">Не показывать в чатах свои аватар</string>
     <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
     <string name="pref_jump_to_commands_tab">Перейти к командам</string>
     <string name="pref_jump_to_commands_tab_summary">Автоматически переходить на страницу команд, если она доступна</string>
@@ -1400,4 +1400,32 @@
     <string name="new_message">Новое сообщение</string>
     <string name="pref_app_lock_enable_summary">Включите блокировку приложения. Имейте в виду, что вы больше не сможете открыть приложение, если забудете PIN-код.</string>
     <string name="app_lock_forgot_password">Переустановите приложение и загрузите резервную копию чата</string>
+    <string name="action_fix">Исправить</string>
+    <string name="download_stickers_title">Скачать стикеры?</string>
+    <string name="download_stickers_text">Хотите загрузить несколько наборов наклеек по умолчанию?</string>
+    <string name="dialler_integration_title">Интеграция звонилки</string>
+    <string name="call">Вызов</string>
+    <string name="write">Писать</string>
+    <string name="search_chats">Поиск чатов</string>
+    <string name="save_as_contact_bookmark">Сохранить как контакт/в закладки</string>
+    <string name="suspected_spam">Подозрение на СПАМ</string>
+    <string name="chats_from_strangers">Чаты от незнакомцев</string>
+    <string name="pref_show_avatars">Показать аватары</string>
+    <string name="pref_chat_bubbles">Пузыри чата</string>
+    <string name="pref_chat_bubbles_summary">Цвет фона, Размер шрифта, Аватары</string>
+    <string name="pref_title_bubbles">Чат-пузыри</string>
+    <string name="pref_show_avatars_summary">Отображайте аватары для своих сообщений и в чатах 1:1, а также в групповых чатах.</string>
+    <string name="block_media_question">Вы действительно хотите заблокировать этот носитель во всех сообщениях?</string>
+    <string name="archiving_not_enabled_text">не имеет полностью включенного архивирования. Это может привести к пропущенным сообщениям, если вы используете несколько устройств или приложений.</string>
+    <string name="account_color_used_on">Используется в разговорах, контактах и уведомлениях</string>
+    <string name="block_avatar_question">Вы действительно хотите заблокировать этот аватар?</string>
+    <string name="disable_all_accounts_question">Хотите ли вы отключить свои учетные записи перед созданием резервной копии (рекомендуется)?</string>
+    <string name="block_user_and_spam_question">Вы действительно хотите заблокировать всех этих пользователей и сообщить о них как о СПАМе?</string>
+    <string name="spam">Спам</string>
+    <string name="moderate_recent_question">Вы хотите модерировать все последние сообщения от этого пользователя?</string>
+    <string name="chat_requests">Запросы в чат</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE проверено</string>
+    <string name="dnssec_verified">DNSSEC проверен</string>
+    <string name="not_dnssec_verified">DNSSEC не проверен</string>
+    <string name="account_color">Цвет аккаунта</string>
 </resources>
