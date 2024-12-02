@@ -678,7 +678,7 @@ class EditActivity : AppCompatActivity(), CropImageView.OnCropImageCompleteListe
     }
 
     private fun saveBitmapToFile(bitmap: Bitmap, showSavingToast: Boolean) {
-        val file = File(cacheDir, "editedImages/${UUID.randomUUID()}.jpg")
+        val file = File(cacheDir, "media/${UUID.randomUUID()}.jpg")
 
         file.deleteRecursively()
         file.parentFile?.mkdirs()
