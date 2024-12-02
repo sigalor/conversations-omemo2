@@ -716,7 +716,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 final String role = form.getValue("muc#role");
                 final String nick = form.getValue("muc#roomnick");
                 if ("http://jabber.org/protocol/muc#request".equals(form.getFormType()) && "participant".equals(role)) {
-                    body = new LocalizedContent("" + nick + " is requesting to speak", "en", 1);
+                    body = new LocalizedContent("" + nick + " " + R.string.is_requesting_to_speak, "en", 1);
                 }
             }
         }

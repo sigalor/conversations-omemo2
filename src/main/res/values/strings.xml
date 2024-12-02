@@ -1389,4 +1389,6 @@
     <string name="not_dnssec_verified">Not DNSSEC verified</string>
     <string name="account_color">Account color</string>
     <string name="account_color_used_on">Used on conversation and contact lists, and notifications</string>
+    <string name="all_accounts">All accounts</string>
+    <string name="is_requesting_to_speak">is requesting to speak</string>
 </resources>

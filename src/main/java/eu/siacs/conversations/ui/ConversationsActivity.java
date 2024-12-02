@@ -367,7 +367,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
             if (accounts.size() > 1 && !inHeader.containsKey(null)) {
                 final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
                 all.setIdentifier(100);
-                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, "All Accounts");
+                com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, getString(R.string.all_accounts));
                 com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
                 accountHeader.addProfile(all, 0);
             }
