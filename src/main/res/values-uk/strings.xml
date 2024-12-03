@@ -1026,7 +1026,7 @@
     <string name="server_does_not_support_easy_onboarding_invites">Створення запрошень не підтримується сервером</string>
     <string name="account_registrations_are_not_supported">Реєстрація облікових записів не підтримується</string>
     <string name="switch_to_video">Перемкнути на відео</string>
-    <string name="reject_switch_to_video">Відхиляти запит перемкнути на відео</string>
+    <string name="reject_switch_to_video">Відхилити запит перемкнути на відео</string>
     <string name="could_not_delete_account_from_server">Не вдалося вилучити обліковий запис із сервера</string>
     <string name="failed_deliveries">Ненадіслані повідомлення</string>
     <string name="backup_started_message">Створення резервної копії. Ви отримаєте сповіщення щойно резервування завершиться.</string>
@@ -1365,9 +1365,9 @@
     <string name="strikethrough">Закреслений</string>
     <string name="pref_showtextformatting_sum">Показувати панель форматування тексту в розмовах, коли відображається клавіатура</string>
     <string name="bold">Жирний</string>
-    <string name="pref_dns_server_ipv6_summary">Змінити DNS-сервер IPv6 за замовчуванням</string>
+    <string name="pref_dns_server_ipv6_summary">Змінити типовий DNS-сервер IPv6, орієнтований на конфіденційність (Mullvad). Залиште порожнім для використання DNS-сервера Вашого пристрою або VPN</string>
     <string name="pref_dns_server_ipv6_title">DNS-сервер IPv6</string>
-    <string name="pref_dns_server_ipv4_summary">Змінити DNS-сервер IPv4, який використовує monocles chat</string>
+    <string name="pref_dns_server_ipv4_summary">Змінити типовий DNS-сервер IPv4, орієнтований на конфіденційність (Mullvad). Залиште порожнім для використання DNS-сервера Вашого пристрою або VPN</string>
     <string name="pref_chat_requests">Приховати чати в області запитів на розмову</string>
     <string name="pref_dns_server_ipv4_title">DNS-сервер IPv4</string>
     <string name="all_chats">Усі розмови</string>
@@ -1375,7 +1375,7 @@
     <string name="direct_messages">Приватні повідомлення</string>
     <string name="channels">Канали</string>
     <string name="manage_account">Мій обліковий запис</string>
-    <string name="pref_reset_dns_server_summary">Скидання DNS-серверів за замовчуванням</string>
+    <string name="pref_reset_dns_server_summary">Скидання типових DNS-серверів на DNS-провайдера Mullvad, орієнтованого на конфіденційність</string>
     <string name="pref_reset_dns_server_title">Скинути DNS</string>
     <string name="dns_server_reset">DNS скинуто</string>
     <string name="pref_category_settings">Налаштування</string>
@@ -1447,4 +1447,6 @@
     <string name="dnssec_dane_verified">Перевірено DNSSEC + DANE</string>
     <string name="dnssec_verified">Перевірено DNSSEC</string>
     <string name="not_dnssec_verified">Не перевірено DNSSEC</string>
+    <string name="all_accounts">Усі облікові записи</string>
+    <string name="is_requesting_to_speak">запитує дозвіл на розмову</string>
 </resources>

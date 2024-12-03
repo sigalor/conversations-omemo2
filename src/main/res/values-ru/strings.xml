@@ -1349,8 +1349,8 @@
     <string name="bold">Жирный</string>
     <string name="pref_dns_server_ipv4_title">DNS-сервер IPv4</string>
     <string name="pref_dns_server_ipv6_title">DNS-сервер IPv6</string>
-    <string name="pref_dns_server_ipv4_summary">Измените DNS-сервер IPv4, используемый чатом monocles</string>
-    <string name="pref_dns_server_ipv6_summary">Изменить DNS-сервер IPv6 по умолчанию</string>
+    <string name="pref_dns_server_ipv4_summary">Измените DNS-сервер IPv4, ориентированный на конфиденциальность по умолчанию (Mullvad). Очистите поле, чтобы использовать DNS-сервер вашего устройства или VPN</string>
+    <string name="pref_dns_server_ipv6_summary">Измените DNS-сервер IPv6, ориентированный на конфиденциальность по умолчанию (Mullvad). Очистите поле, чтобы использовать DNS-сервер вашего устройства или VPN</string>
     <string name="unread_chats">Непрочитанные чаты</string>
     <string name="direct_messages">Личные сообщения</string>
     <string name="channels">Каналы</string>
@@ -1358,7 +1358,7 @@
     <string name="manage_account">Управление аккаунтом</string>
     <string name="pref_category_settings">Настройки</string>
     <string name="pref_import_settings_summary">Импортируйте файл settings.dat из папки резервной копии</string>
-    <string name="pref_reset_dns_server_summary">Сброс DNS серверов по умолчанию</string>
+    <string name="pref_reset_dns_server_summary">Сбросьте DNS-серверы по умолчанию на DNS-провайдера Mullvad, ориентированного на конфиденциальность</string>
     <string name="pref_reset_dns_server_title">Сбросить DNS</string>
     <string name="dns_server_reset">Сброс DNS</string>
     <string name="pref_import_settings">Импорт настроек</string>
@@ -1428,4 +1428,6 @@
     <string name="dnssec_verified">DNSSEC проверен</string>
     <string name="not_dnssec_verified">DNSSEC не проверен</string>
     <string name="account_color">Цвет аккаунта</string>
+    <string name="is_requesting_to_speak">просит говорить</string>
+    <string name="all_accounts">Все аккаунты</string>
 </resources>
