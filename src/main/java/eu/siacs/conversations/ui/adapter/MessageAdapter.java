@@ -1472,13 +1472,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             Consumer<Collection<String>> callback = reactions -> activity.xmppConnectionService.sendReactions(message, reactions);
             ReactionsConfig config = new ReactionsConfigBuilder(activity)
                     .withReactions(new int[]{
-                            R.drawable.red_heart_2764_fe0f,
-                            R.drawable.thumbs_up_1f44d,
-                            R.drawable.thumbs_down_1f44e,
-                            R.drawable.face_with_tears_of_joy_1f602,
-                            R.drawable.astonished_face_1f632,
-                            R.drawable.crying_face_1f622,
-                            R.drawable.ic_more_horiz_24dp
+                            R.drawable.heart,
+                            R.drawable.thumbs_up,
+                            R.drawable.thumbs_down,
+                            R.drawable.tears_of_joy,
+                            R.drawable.astonished,
+                            R.drawable.crying,
+                            R.drawable.outline_more_horiz_48
                     })
                     .withPopupAlpha(170)
                     .build();
