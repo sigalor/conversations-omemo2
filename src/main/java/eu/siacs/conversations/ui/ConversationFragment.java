@@ -1783,9 +1783,9 @@ public class ConversationFragment extends XmppFragment
                 if (message.isPrivateMessage()) privateMessageWith(message.getCounterpart());
                 setThread(message.getThread());
                 conversation.setUserSelectedThread(true);
+                conversation.setUserSelectedThread(true);
             }
-            if (conversation.getMode() == Conversational.MODE_SINGLE
-                    || conversation.getMucOptions().participating()) addReaction(message);
+           // if (conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating()) addReaction(message);
         });
 
         messageListAdapter.setOnMessageBoxSwiped(message -> {

@@ -333,6 +333,8 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     public void addReaction(final Message message, Consumer<Collection<String>> callback) {
+
+
         PopupWindow popupWindow = new PopupWindow(this);
         final var layoutInflater = this.getLayoutInflater();
         final DialogAddReactionBinding viewBinding =

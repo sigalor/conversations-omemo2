@@ -135,6 +135,7 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'com.mikepenz:materialdrawer:9.0.1'
     implementation 'org.jitsi:org.otr4j:0.23'
+    implementation "com.github.pgreze:android-reactions:1.6"
 }
 
 ext {

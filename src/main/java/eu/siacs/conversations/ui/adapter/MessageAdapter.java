@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui.adapter;
 import static android.view.View.GONE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -54,6 +55,9 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.bumptech.glide.Glide;
+import com.github.pgreze.reactions.ReactionPopup;
+import com.github.pgreze.reactions.ReactionsConfig;
+import com.github.pgreze.reactions.ReactionsConfigBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -73,9 +77,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+import com.google.common.collect.ImmutableSet;
 import com.lelloman.identicon.view.GithubIdenticonView;
 import com.daimajia.swipe.SwipeLayout;
 
+import eu.siacs.conversations.ui.AddReactionActivity;
 import io.ipfs.cid.Cid;
 
 import java.io.IOException;
@@ -87,6 +93,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1460,23 +1467,109 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
         });
 
-
-
-
-
-
-        // Treat touch-up as click so we don't have to touch twice
-        // (touch twice is because it's waiting to see if you double-touch for text selection)
-        viewHolder.messageBody.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    MessageAdapter.this.mOnMessageBoxClickedListener
-                        .onContactPictureClicked(message);
+        // new reactions popup
+        new Thread(() -> activity.runOnUiThread(() -> {
+            Consumer<Collection<String>> callback = reactions -> activity.xmppConnectionService.sendReactions(message, reactions);
+            ReactionsConfig config = new ReactionsConfigBuilder(activity)
+                    .withReactions(new int[]{
+                            R.drawable.red_heart_2764_fe0f,
+                            R.drawable.thumbs_up_1f44d,
+                            R.drawable.thumbs_down_1f44e,
+                            R.drawable.face_with_tears_of_joy_1f602,
+                            R.drawable.astonished_face_1f632,
+                            R.drawable.crying_face_1f622,
+                            R.drawable.ic_more_horiz_24dp
+                    })
+                    .withPopupAlpha(170)
+                    .build();
+            ReactionPopup popup = new ReactionPopup(activity, config, (positionPopup) -> {
+                if (positionPopup.equals(0)) {
+                    final var aggregated = message.getAggregatedReactions();
+                    if (aggregated.ourReactions.contains("❤\uFE0F")) {
+                        callback.accept(aggregated.ourReactions);
+                    } else {
+                        final ImmutableSet.Builder<String> reactionBuilder =
+                                new ImmutableSet.Builder<>();
+                        reactionBuilder.addAll(aggregated.ourReactions);
+                        reactionBuilder.add("❤\uFE0F");
+                        callback.accept(reactionBuilder.build());
+                    }
+                } else if (positionPopup.equals(1)) {
+                    final var aggregated = message.getAggregatedReactions();
+                    if (aggregated.ourReactions.contains("\uD83D\uDC4D")) {
+                        callback.accept(aggregated.ourReactions);
+                    } else {
+                        final ImmutableSet.Builder<String> reactionBuilder =
+                                new ImmutableSet.Builder<>();
+                        reactionBuilder.addAll(aggregated.ourReactions);
+                        reactionBuilder.add("\uD83D\uDC4D");
+                        callback.accept(reactionBuilder.build());
+                    }
+                } else if (positionPopup.equals(2)) {
+                    final var aggregated = message.getAggregatedReactions();
+                    if (aggregated.ourReactions.contains("\uD83D\uDC4E")) {
+                        callback.accept(aggregated.ourReactions);
+                    } else {
+                        final ImmutableSet.Builder<String> reactionBuilder =
+                                new ImmutableSet.Builder<>();
+                        reactionBuilder.addAll(aggregated.ourReactions);
+                        reactionBuilder.add("\uD83D\uDC4E");
+                        callback.accept(reactionBuilder.build());
+                    }
+                } else if (positionPopup.equals(3)) {
+                    final var aggregated = message.getAggregatedReactions();
+                    if (aggregated.ourReactions.contains("\uD83D\uDE02")) {
+                        callback.accept(aggregated.ourReactions);
+                    } else {
+                        final ImmutableSet.Builder<String> reactionBuilder =
+                                new ImmutableSet.Builder<>();
+                        reactionBuilder.addAll(aggregated.ourReactions);
+                        reactionBuilder.add("\uD83D\uDE02");
+                        callback.accept(reactionBuilder.build());
+                    }
+                } else if (positionPopup.equals(4)) {
+                    final var aggregated = message.getAggregatedReactions();
+                    if (aggregated.ourReactions.contains("\uD83D\uDE32")) {
+                        callback.accept(aggregated.ourReactions);
+                    } else {
+                        final ImmutableSet.Builder<String> reactionBuilder =
+                                new ImmutableSet.Builder<>();
+                        reactionBuilder.addAll(aggregated.ourReactions);
+                        reactionBuilder.add("\uD83D\uDE32");
+                        callback.accept(reactionBuilder.build());
+                    }
+                } else if (positionPopup.equals(5)) {
+                    final var aggregated = message.getAggregatedReactions();
+                    if (aggregated.ourReactions.contains("\uD83D\uDE22")) {
+                        callback.accept(aggregated.ourReactions);
+                    } else {
+                        final ImmutableSet.Builder<String> reactionBuilder =
+                                new ImmutableSet.Builder<>();
+                        reactionBuilder.addAll(aggregated.ourReactions);
+                        reactionBuilder.add("\uD83D\uDE22");
+                        callback.accept(reactionBuilder.build());
+                    }
+                } else if (positionPopup.equals(6)) {
+                    final var intent = new Intent(activity, AddReactionActivity.class);
+                    intent.putExtra("conversation", message.getConversation().getUuid());
+                    intent.putExtra("message", message.getUuid());
+                    activity.startActivity(intent);
                 }
-            }
+                return true; // true is closing popup, false is requesting a new selection
+            });
 
-            return false;
-        });
+            viewHolder.message_box.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                        popup.onTouch(v, event);
+                    }
+                }
+
+                return false;
+            });
+        })).start();
+
+
         viewHolder.messageBody.setOnClickListener(v -> {
             if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                 MessageAdapter.this.mOnMessageBoxClickedListener
@@ -1864,7 +1957,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void addReaction(final Message message) {
-        activity.addReaction(message, reactions -> activity.xmppConnectionService.sendReactions(message,reactions));
+        final var intent = new Intent(activity, AddReactionActivity.class);
+        intent.putExtra("conversation", message.getConversation().getUuid());
+        intent.putExtra("message", message.getUuid());
+        activity.startActivity(intent);
     }
 
     private void promptOpenKeychainInstall(View view) {
