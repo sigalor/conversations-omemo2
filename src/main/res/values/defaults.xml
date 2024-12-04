@@ -64,4 +64,5 @@
     <string name="default_dns_server_ipv6">[2a07:e340::2]</string>
     <bool name="default_custom_tab">true</bool>
     <integer name="automatic_backup">86400</integer>
+    <bool name="call_integration">true</bool>
 </resources>
