@@ -1561,11 +1561,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.message_box.setOnTouchListener((v, event) -> {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                        popup.setFocusable(false);
                         popup.onTouch(v, event);
                     }
                 }
-
-                return false;
+                return true;
             });
         })).start();
 
