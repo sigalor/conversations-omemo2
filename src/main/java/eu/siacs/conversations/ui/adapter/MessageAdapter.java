@@ -856,7 +856,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.audioPlayer.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
         viewHolder.download_button.setIconResource(0);
-        viewHolder.download_button.setText("Open " + webxdc.getName());
+        viewHolder.download_button.setText(activity.getString(R.string.open) + " " + webxdc.getName());
         viewHolder.download_button.setOnClickListener(v -> {
             Conversation conversation = (Conversation) message.getConversation();
             if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
