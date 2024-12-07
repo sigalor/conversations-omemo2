@@ -1468,7 +1468,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         });
 
         // new reactions popup
-        new Thread(() -> activity.runOnUiThread(() -> {
             Consumer<Collection<String>> callback = reactions -> activity.xmppConnectionService.sendReactions(message, reactions);
             ReactionsConfig config = new ReactionsConfigBuilder(activity)
                     .withReactions(new int[]{
@@ -1478,9 +1477,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             R.drawable.tears_of_joy,
                             R.drawable.astonished,
                             R.drawable.crying,
-                            R.drawable.outline_more_horiz_48
+                            R.drawable.ic_more_horiz_24dp
                     })
-                    .withPopupAlpha(170)
+                    .withPopupAlpha(255)
+                    .withPopupColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface))
                     .build();
             ReactionPopup popup = new ReactionPopup(activity, config, (positionPopup) -> {
                 if (positionPopup.equals(0)) {
@@ -1567,7 +1567,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
                 return true;
             });
-        })).start();
 
 
         viewHolder.messageBody.setOnClickListener(v -> {
