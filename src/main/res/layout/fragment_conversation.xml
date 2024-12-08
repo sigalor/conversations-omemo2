@@ -85,7 +85,8 @@
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
                     android:layout_below="@+id/muc_subject"
-                    tools:listitem="@layout/item_message_sent" />
+                    tools:listitem="@layout/item_message_sent"
+                    android:animateLayoutChanges="true" />
 
                     <LinearLayout
                         android:id="@+id/input_area"
