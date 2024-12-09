@@ -167,7 +167,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private ConversationFragment mConversationFragment = null;
     private OnContactPictureClicked mOnContactPictureClickedListener;
     private OnContactPictureClicked mOnMessageBoxClickedListener;
-    private OnContactPictureClicked mOnMessageBoxSwipedListener;
     private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
     private OnInlineImageLongClicked mOnInlineImageLongClickedListener;
     private boolean mUseGreenBackground = false;
@@ -216,10 +215,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     public void setOnMessageBoxClicked(OnContactPictureClicked listener) {
         this.mOnMessageBoxClickedListener = listener;
-    }
-
-    public void setOnMessageBoxSwiped(OnContactPictureClicked listener) {
-        this.mOnMessageBoxSwipedListener = listener;
     }
 
     public void setConversationFragment(ConversationFragment frag) {
@@ -1309,8 +1304,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             public void onOpen(SwipeLayout layout) {
                 swipeLayout.refreshDrawableState();
                 //when the BottomView totally show.
-                if (mOnMessageBoxSwipedListener != null)
-                    mOnMessageBoxSwipedListener.onContactPictureClicked(message);
+                mConversationFragment.setupReply(message);
                 swipeLayout.close(true);
                 swipeLayout.setClickToClose(true);
             }

@@ -1789,10 +1789,6 @@ public class ConversationFragment extends XmppFragment
            // if (conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating()) addReaction(message);
         });
 
-        messageListAdapter.setOnMessageBoxSwiped(message -> {
-            quoteMessage(message);
-        });
-
         binding.threadIdenticonLayout.setOnClickListener(v -> {
             boolean wasLocked = conversation.getLockThread();
             conversation.setLockThread(false);
@@ -2026,7 +2022,6 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnInlineImageLongClicked(null);
         messageListAdapter.setConversationFragment(null);
         messageListAdapter.setOnMessageBoxClicked(null);
-        messageListAdapter.setOnMessageBoxSwiped(null);
         binding.conversationViewPager.setAdapter(null);
         if (conversation != null) conversation.setupViewPager(null, null, false, null);
     }
@@ -2070,7 +2065,7 @@ public class ConversationFragment extends XmppFragment
         return false;
     }
 
-    private void setupReply(Message message) {
+    public void setupReply(Message message) {
         conversation.setReplyTo(message);
         if (message == null) {
             binding.contextPreview.setVisibility(View.GONE);
