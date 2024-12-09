@@ -103,7 +103,7 @@ public class ExtensionSettingsFragment extends androidx.fragment.app.Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		getActivity().setTitle("Extensions");
+		getActivity().setTitle(getString(R.string.pref_extensions_title));
 	}
 
 	public void addExtension(Uri uri) {
