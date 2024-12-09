@@ -144,7 +144,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -5834,17 +5833,6 @@ public class ConversationFragment extends XmppFragment
             }
         }
     };
-
-    public boolean isEmpty(Path path) throws IOException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (Files.isDirectory(path)) {
-                try (Stream<Path> entries = Files.list(path)) {
-                    return !entries.findFirst().isPresent();
-                }
-            }
-        }
-        return false;
-    }
 
     private final OnClickListener mgifsButtonListener = new OnClickListener() {
         @Override

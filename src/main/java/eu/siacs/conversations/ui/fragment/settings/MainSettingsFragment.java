@@ -40,7 +40,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         up.setVisible(!Strings.isNullOrEmpty(getString(R.string.default_push_server)));
         findPreference("extensions").setOnPreferenceClickListener((p) -> {
             getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new com.cheogram.android.ExtensionSettingsFragment())
+                .replace(R.id.fragment_container, new de.monocles.chat.ExtensionSettingsFragment())
                 .addToBackStack(null)
                 .commit();
             return true;

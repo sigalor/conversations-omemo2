@@ -1394,4 +1394,9 @@
     <string name="open">Open</string>
     <string name="pref_call_integration">Call integration</string>
     <string name="pref_call_integration_summary">Calls from this app interact with regular phone calls, such as ending one call when another starts.</string>
+    <string name="pref_extensions_summary">Add, remove, and configure extensions</string>
+    <string name="pref_extensions_title">Extensions</string>
+    <string name="add_extension">Add extension</string>
+    <string name="show_media_title">Show media in gallery?</string>
+    <string name="show_media_summary">Would you like to show received and sent media in your system gallery?</string>
 </resources>

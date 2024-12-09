@@ -807,8 +807,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (getPreferences().contains("nomedia")) return false;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Show media in gallery");
-        builder.setMessage("Would you like to show received and sent media in your system gallery?");
+        builder.setTitle(R.string.show_media_title);
+        builder.setMessage(R.string.show_media_summary);
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             getPreferences().edit().putBoolean("nomedia", false).apply();
         });
