@@ -1399,4 +1399,5 @@
     <string name="add_extension">Add extension</string>
     <string name="show_media_title">Show media in gallery?</string>
     <string name="show_media_summary">Would you like to show received and sent media in your system gallery?</string>
+    <string name="reaction_to">to</string>
 </resources>
