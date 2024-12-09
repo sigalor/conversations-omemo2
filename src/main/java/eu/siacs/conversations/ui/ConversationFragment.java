@@ -2483,7 +2483,7 @@ public class ConversationFragment extends XmppFragment
                 handleAttachmentSelection(item);
                 break;
             case R.id.attach_webxdc:
-                final Intent intent = new Intent(getActivity(), WebxdcStore.class);
+                final Intent intent = new Intent(activity, WebxdcStore.class);
                 startActivityForResult(intent, REQUEST_WEBXDC_STORE);
                 break;
             case R.id.attach_subject:
