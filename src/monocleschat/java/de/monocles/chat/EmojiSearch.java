@@ -213,7 +213,7 @@ public class EmojiSearch {
 
 		public SpannableStringBuilder toInsert() {
 			SpannableStringBuilder builder = new SpannableStringBuilder(toString());
-			if (icon != null) builder.setSpan(new InlineImageSpan(icon, source), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			builder.setSpan(new InlineImageSpan(icon == null ? new android.graphics.drawable.ColorDrawable(0) : icon, source), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			return builder;
 		}
 
