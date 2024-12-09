@@ -813,7 +813,7 @@ public class FileBackend {
         }
     }
 
-    private InputStream openInputStream(Uri uri) throws IOException {
+    public InputStream openInputStream(Uri uri) throws IOException {
         if (uri != null && "data".equals(uri.getScheme())) {
             String[] parts = uri.getSchemeSpecificPart().split(",", 2);
             byte[] data;
@@ -835,7 +835,7 @@ public class FileBackend {
         return is;
     }
 
-    private void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
+    public void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
         final var parentDirectory = file.getParentFile();
         if (parentDirectory != null && parentDirectory.mkdirs()) {
             Log.d(Config.LOGTAG,"created directory "+parentDirectory.getAbsolutePath());
@@ -1959,7 +1959,7 @@ public class FileBackend {
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = calcSampleSize(image, size);
-            is = mXmppConnectionService.getContentResolver().openInputStream(image);
+            is = openInputStream(image);
             if (is == null) {
                 return null;
             }
@@ -1970,7 +1970,7 @@ public class FileBackend {
                 input = rotate(input, getRotation(image));
                 return cropCenterSquare(input, size);
             }
-        } catch (FileNotFoundException | SecurityException e) {
+        } catch (SecurityException  | IOException e) {
             Log.d(Config.LOGTAG, "unable to open file " + image.toString(), e);
             return null;
         } finally {
@@ -2014,7 +2014,7 @@ public class FileBackend {
             return dest;
         } catch (SecurityException e) {
             return null; // android 6.0 with revoked permissions for example
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             return null;
         } finally {
             close(is);
@@ -2043,11 +2043,10 @@ public class FileBackend {
     }
 
     private int calcSampleSize(Uri image, int size)
-            throws FileNotFoundException, SecurityException {
+            throws IOException, SecurityException {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        final InputStream inputStream =
-                mXmppConnectionService.getContentResolver().openInputStream(image);
+        final InputStream inputStream = openInputStream(image);
         BitmapFactory.decodeStream(inputStream, null, options);
         close(inputStream);
         return calcSampleSize(options, size);
