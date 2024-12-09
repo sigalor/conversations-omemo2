@@ -486,11 +486,13 @@ public class Resolver {
 
     private static <D extends Data> ListenableFuture<ResolverResult<D>> resolveAsFuture(
             final DnsName dnsName, final Class<D> type) {
+        final var start = System.currentTimeMillis();
         return Futures.submit(
                 () -> {
                     final Question question = new Question(dnsName, Record.TYPE.getType(type));
                     if (!DNSSECLESS_TLDS.contains(dnsName.getLabels()[0].toString())) {
                         for (int i = 0; i < 5; i++) {
+                            if (System.currentTimeMillis() - start > 5000) break;
                             try {
                                 ResolverResult<D> result = DnssecResolverApi.INSTANCE.resolve(question);
                                 if (result.wasSuccessful() && !result.isAuthenticData()) {
