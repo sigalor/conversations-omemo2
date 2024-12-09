@@ -84,10 +84,13 @@
                 android:id="@+id/attach_subject"
                 android:icon="@drawable/subject"
                 android:title="@string/add_subject" />
+                android:orderInCategory="2" />
+
             <item
                 android:id="@+id/attach_schedule"
                 android:icon="@drawable/schedule_message"
-                android:title="@string/schedule_message" />
+                android:title="@string/schedule_message"
+                android:orderInCategory="3" />
         </menu>
     </item>
     <item

@@ -122,6 +122,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.io.Files;
 
 import com.otaliastudios.autocomplete.Autocomplete;
 import com.otaliastudios.autocomplete.AutocompleteCallback;
@@ -311,6 +312,7 @@ public class ConversationFragment extends XmppFragment
     private final PendingItem<String> pendingLastMessageUuid = new PendingItem<>();
     private final PendingItem<Message> pendingMessage = new PendingItem<>();
     public Uri mPendingEditorContent = null;
+    protected ArrayList<WebxdcPage> extensions = new ArrayList<>();
     protected MessageAdapter messageListAdapter;
     protected CommandAdapter commandAdapter;
     private MediaPreviewAdapter mediaPreviewAdapter;
@@ -2127,6 +2129,22 @@ public class ConversationFragment extends XmppFragment
                 MenuItem newItem = menu.add(item.getGroupId(), item.getItemId(), item.getOrder(), item.getTitle());
                 newItem.setIcon(item.getIcon());
             }
+
+            extensions.clear();
+            final var xmppConnectionService = activity.xmppConnectionService;
+            final var dir = new File(xmppConnectionService.getExternalFilesDir(null), "extensions");
+            for (File file : Files.fileTraverser().breadthFirst(dir)) {
+                if (file.isFile() && file.canRead()) {
+                    final var dummy = new Message(conversation, null, conversation.getNextEncryption());
+                    dummy.setStatus(Message.STATUS_DUMMY);
+                    dummy.setThread(conversation.getThread());
+                    dummy.setUuid(file.getName());
+                    final var xdc = new WebxdcPage(activity, file, dummy);
+                    extensions.add(xdc);
+                    final var item = menu.add(0x1, extensions.size() - 1, 0, xdc.getName());
+                    item.setIcon(xdc.getIcon(24));
+                }
+            }
             ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, TextUtils.isEmpty(binding.textinput.getText()));
             return;
         }
@@ -2445,6 +2463,10 @@ public class ConversationFragment extends XmppFragment
             return false;
         } else if (conversation == null) {
             return super.onOptionsItemSelected(item);
+        }
+        if (item.getGroupId() == 0x1) {
+            conversation.startWebxdc(extensions.get(item.getItemId()));
+            return true;
         }
         switch (item.getItemId()) {
             case R.id.encryption_choice_axolotl:
@@ -4075,7 +4097,7 @@ public class ConversationFragment extends XmppFragment
             if (message == null) return;
 
             Cid webxdcCid = message.getFileParams().getCids().get(0);
-            WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message, activity.xmppConnectionService);
+            WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message);
             Conversation conversation = (Conversation) message.getConversation();
             if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
                 conversation.startWebxdc(webxdc);

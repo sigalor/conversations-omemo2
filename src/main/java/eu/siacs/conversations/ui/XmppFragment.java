@@ -45,7 +45,7 @@ public abstract class XmppFragment extends Fragment implements OnBackendConnecte
 
 	protected LifecycleRegistry lifecycle = new LifecycleRegistry(this);
 
-	abstract void refresh();
+	abstract protected void refresh();
 	public void refreshForNewCaps(final Set<Jid> newCapsJids) { }
 
 	protected void runOnUiThread(Runnable runnable) {

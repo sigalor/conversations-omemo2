@@ -38,6 +38,13 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
             connection.setSummary(R.string.pref_connection_summary);
         }
         up.setVisible(!Strings.isNullOrEmpty(getString(R.string.default_push_server)));
+        findPreference("extensions").setOnPreferenceClickListener((p) -> {
+            getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new com.cheogram.android.ExtensionSettingsFragment())
+                .addToBackStack(null)
+                .commit();
+            return true;
+        });
     }
 
     @Override

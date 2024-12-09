@@ -855,7 +855,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private void displayWebxdcMessage(BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         Cid webxdcCid = message.getFileParams().getCids().get(0);
-        WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message, activity.xmppConnectionService);
+        WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message);
         displayTextMessage(viewHolder, message, bubbleColor, type);
         viewHolder.image().setVisibility(View.GONE);
         viewHolder.audioPlayer().setVisibility(View.GONE);

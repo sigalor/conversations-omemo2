@@ -84,14 +84,14 @@ public class WebxdcPage implements ConversationPage {
 	protected Message source;
 	protected WebxdcUpdate lastUpdate = null;
 	protected WeakReference<XmppActivity> activity;
+	protected WeakReference<Consumer<ConversationPage>> remover;
 
-	public WebxdcPage(final XmppActivity activity, Cid cid, Message source, XmppConnectionService xmppConnectionService) {
-		this.xmppConnectionService = xmppConnectionService;
+	public WebxdcPage(final XmppActivity activity, File f, Message source) {
+		this.xmppConnectionService = activity.xmppConnectionService;
 		this.source = source;
 		this.activity = new WeakReference(activity);
-		File f = xmppConnectionService.getFileForCid(cid);
 		try {
-			if (f != null) zip = new ZipFile(xmppConnectionService.getFileForCid(cid));
+			if (f != null) zip = new ZipFile(f);
 			final ZipEntry manifestEntry = zip == null ? null : zip.getEntry("manifest.toml");
 			if (manifestEntry != null) {
 				manifest = Toml.parse(zip.getInputStream(manifestEntry));
@@ -107,7 +107,15 @@ public class WebxdcPage implements ConversationPage {
 		baseUrl = "https://" + source.getUuid() + ".localhost";
 	}
 
+	public WebxdcPage(final XmppActivity activity, Cid cid, Message source) {
+		this(activity, activity.xmppConnectionService.getFileForCid(cid), source);
+	}
+
 	public Drawable getIcon() {
+		return getIcon(288);
+	}
+
+	public Drawable getIcon(int dp) {
 		if (android.os.Build.VERSION.SDK_INT < 28) return null;
 		if (zip == null) return null;
 		ZipEntry entry = zip.getEntry("icon.webp");
@@ -121,7 +129,7 @@ public class WebxdcPage implements ConversationPage {
 			return ImageDecoder.decodeDrawable(source, (decoder, info, src) -> {
 				int w = info.getSize().getWidth();
 				int h = info.getSize().getHeight();
-				Rect r = FileBackend.rectForSize(w, h, (int)(metrics.density * 288));
+				Rect r = FileBackend.rectForSize(w, h, (int)(metrics.density * dp));
 				decoder.setTargetSize(r.width(), r.height());
 			});
 		} catch (final IOException e) {
@@ -213,6 +221,7 @@ public class WebxdcPage implements ConversationPage {
 	}
 
 	public View inflateUi(Context context, Consumer<ConversationPage> remover) {
+		this.remover = new WeakReference<>(remover);
 		if (binding != null) {
 			binding.webview.loadUrl("javascript:__webxdcUpdate();");
 			return getView();
@@ -309,7 +318,14 @@ public class WebxdcPage implements ConversationPage {
 
 		binding.webview.loadUrl(baseUrl + "/index.html");
 
-		binding.actions.setAdapter(new ArrayAdapter<String>(context, R.layout.simple_list_item, new String[]{activity.get().getString(R.string.add_to_home_screen), activity.get().getString(R.string.action_close)}) {
+		final var actions =
+			source.getStatus() == Message.STATUS_DUMMY ?
+			new String[]{activity.get().getString(R.string.action_close)} :
+			new String[]{activity.get().getString(R.string.add_to_home_screen), activity.get().getString(R.string.action_close)};
+
+		if (source.getStatus() == Message.STATUS_DUMMY) binding.actions.setNumColumns(1);
+
+		binding.actions.setAdapter(new ArrayAdapter<String>(context, R.layout.simple_list_item, actions) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View v = super.getView(position, convertView, parent);
@@ -321,7 +337,7 @@ public class WebxdcPage implements ConversationPage {
 			}
 		});
 		binding.actions.setOnItemClickListener((parent, v, pos, id) -> {
-			if (pos == 0) {
+			if (pos == 0 && actions.length > 1) {
 				Intent intent = new Intent(xmppConnectionService, ConversationsActivity.class);
 				intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
 				intent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, ((Conversation) source.getConversation()).getUuid());
@@ -352,6 +368,7 @@ public class WebxdcPage implements ConversationPage {
 	}
 
 	public void refresh() {
+		if (source.getStatus() == Message.STATUS_DUMMY) return;
 		if (binding == null) return;
 		if (activity != null) {
 			activity.get().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -360,6 +377,7 @@ public class WebxdcPage implements ConversationPage {
 	}
 
 	public void realtimeData(String base64) {
+		if (source.getStatus() == Message.STATUS_DUMMY) return;
 		if (binding == null) return;
 
 		binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcRealtimeData('" + base64.replace("'", "").replace("\\", "").replace("+", "%2B") + "');"));
@@ -398,6 +416,8 @@ public class WebxdcPage implements ConversationPage {
 
 		@JavascriptInterface
 		public boolean sendStatusUpdate(String paramS, String descr) {
+			if (source.getStatus() == Message.STATUS_DUMMY) return false;
+
 			JSONObject params = new JSONObject();
 			try {
 				params = new JSONObject(paramS);
@@ -449,6 +469,8 @@ public class WebxdcPage implements ConversationPage {
 
 		@JavascriptInterface
 		public String getStatusUpdates(long lastKnownSerial) {
+			if (source.getStatus() == Message.STATUS_DUMMY) return "[]";
+
 			StringBuilder builder = new StringBuilder("[");
 			String sep = "";
 			for (WebxdcUpdate update : xmppConnectionService.findWebxdcUpdates(source, lastKnownSerial)) {
@@ -488,7 +510,14 @@ public class WebxdcPage implements ConversationPage {
 					if (mimeType == null) mimeType = "application/octet-stream";
 					intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("data:" + mimeType + ";base64," + data));
 				}
-				activity.get().startActivity(intent);
+				activity.get().runOnUiThread(() -> {
+					if (source.getStatus() == Message.STATUS_DUMMY) {
+						binding.webview.loadUrl("about:blank");
+						final var remover = WebxdcPage.this.remover.get();
+						if (remover != null) remover.accept(WebxdcPage.this);
+					}
+					activity.get().startActivity(intent);
+				});
 				return null;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -498,6 +527,8 @@ public class WebxdcPage implements ConversationPage {
 
 		@JavascriptInterface
 		public void sendRealtime(byte[] data) {
+			if (source.getStatus() == Message.STATUS_DUMMY) return;
+
 			Message message = new Message(source.getConversation(), null, Message.ENCRYPTION_NONE);
 			message.addPayload(new Element("no-store", "urn:xmpp:hints"));
 			Element webxdc = new Element("x", "urn:xmpp:webxdc:0");
