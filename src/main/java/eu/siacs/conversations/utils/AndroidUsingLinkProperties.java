@@ -53,7 +53,8 @@ public class AndroidUsingLinkProperties extends AbstractDnsServerLookupMechanism
             final boolean isVpn = networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_VPN;
             final List<String> servers = getIPv4First(linkProperties.getDnsServers());
             if (hasDefaultRoute(linkProperties) || isActiveNetwork || activeNetwork == null || isVpn) {
-                if (isActiveNetwork || isVpn) networkServers.addAll(servers);
+                if (isActiveNetwork) networkServers.addAll(0, servers);
+                if (isVpn) networkServers.addAll(servers);
                 otherServers.addAll(servers);
             }
         }
