@@ -41,8 +41,8 @@ public class AndroidUsingLinkProperties extends AbstractDnsServerLookupMechanism
             return new ArrayList<>();
         }
         final Network activeNetwork = getActiveNetwork(connectivityManager);
-        final List<String> servers = new ArrayList<>();
-        int offset = 0;
+        final List<String> networkServers = new ArrayList<>();
+        final List<String> otherServers = new ArrayList<>();
         for(Network network : networks) {
             LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
             if (linkProperties == null) {
@@ -51,15 +51,13 @@ public class AndroidUsingLinkProperties extends AbstractDnsServerLookupMechanism
             final NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
             final boolean isActiveNetwork = network.equals(activeNetwork);
             final boolean isVpn = networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_VPN;
-            if (isActiveNetwork) {
-                final List<String> tmp = getIPv4First(linkProperties.getDnsServers());
-                servers.addAll(0, tmp);
-                offset += tmp.size();
-            } else if (hasDefaultRoute(linkProperties) || isActiveNetwork || activeNetwork == null || isVpn) {
-				servers.addAll(offset, getIPv4First(linkProperties.getDnsServers()));
+            final List<String> servers = getIPv4First(linkProperties.getDnsServers());
+            if (hasDefaultRoute(linkProperties) || isActiveNetwork || activeNetwork == null || isVpn) {
+                if (isActiveNetwork || isVpn) networkServers.addAll(servers);
+                otherServers.addAll(servers);
             }
         }
-        return servers.stream().distinct().collect(Collectors.toList());
+        return (networkServers.isEmpty() ? otherServers : networkServers).stream().distinct().collect(Collectors.toList());
     }
 
     @TargetApi(23)
