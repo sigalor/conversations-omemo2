@@ -100,7 +100,7 @@ public class ShortcutService {
                         .setIntent(getShortcutIntent(contact))
                         .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(contact)))
                         .setIsConversation()
-                        .setCategories(Set.of("com.cheogram.android.SHARE_TARGET"))
+                        .setCategories(Set.of("de.monocles.chat.SHARE_TARGET"))
                         .build();
     }
 
@@ -110,7 +110,7 @@ public class ShortcutService {
                         .setIntent(getShortcutIntent(mucOptions))
                         .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(mucOptions)))
                         .setIsConversation()
-                        .setCategories(Set.of("com.cheogram.android.SHARE_TARGET"))
+                        .setCategories(Set.of("de.monocles.chat.SHARE_TARGET"))
                         .build();
     }
 
