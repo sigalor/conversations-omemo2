@@ -1987,7 +1987,14 @@ public class XmppConnectionService extends Service {
                                 try {
                                     HttpUrl url = HttpUrl.parse(link.toString());
                                     OkHttpClient http = getHttpConnectionManager().buildHttpClient(url, account, 5, false);
-                                    okhttp3.Response response = http.newCall(new okhttp3.Request.Builder().url(url).head().build()).execute();
+                                    final var request = new okhttp3.Request.Builder().url(url).head().build();
+                                    okhttp3.Response response = null;
+                                    if ("www.amazon.com".equals(link.getHost()) || "www.amazon.ca".equals(link.getHost())) {
+                                        // Amazon blocks HEAD
+                                        response = new okhttp3.Response.Builder().request(request).protocol(okhttp3.Protocol.HTTP_1_1).code(200).message("OK").addHeader("Content-Type", "text/html").build();
+                                    } else {
+                                        response = http.newCall(request).execute();
+                                    }
                                     final String mimeType = response.header("Content-Type") == null ? "" : response.header("Content-Type");
                                     final boolean image = mimeType.startsWith("image/");
                                     final boolean audio = mimeType.startsWith("audio/");
