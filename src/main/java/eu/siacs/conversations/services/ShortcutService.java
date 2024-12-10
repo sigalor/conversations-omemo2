@@ -18,6 +18,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
@@ -99,6 +100,7 @@ public class ShortcutService {
                         .setIntent(getShortcutIntent(contact))
                         .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(contact)))
                         .setIsConversation()
+                        .setCategories(Set.of("com.cheogram.android.SHARE_TARGET"))
                         .build();
     }
 
@@ -108,6 +110,7 @@ public class ShortcutService {
                         .setIntent(getShortcutIntent(mucOptions))
                         .setIcon(IconCompat.createWithBitmap(xmppConnectionService.getAvatarService().getRoundedShortcut(mucOptions)))
                         .setIsConversation()
+                        .setCategories(Set.of("com.cheogram.android.SHARE_TARGET"))
                         .build();
     }
 

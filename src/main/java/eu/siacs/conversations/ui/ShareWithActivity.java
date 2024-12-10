@@ -178,6 +178,14 @@ public class ShareWithActivity extends XmppActivity
             final ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             this.share.uris = uris == null ? new ArrayList<>() : uris;
         }
+        final var shortcutId = intent.getStringExtra(Intent.EXTRA_SHORTCUT_ID);
+        if (shortcutId != null) {
+            final var index = shortcutId.indexOf('#');
+            if (index >= 0) {
+                this.share.account = shortcutId.substring(0, index);
+                this.share.contact = shortcutId.substring(index+1);
+            }
+        }
         if (xmppConnectionServiceBound) {
             xmppConnectionService.populateWithOrderedConversations(
                     mConversations, this.share.uris.isEmpty(), false);
