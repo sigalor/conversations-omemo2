@@ -1413,16 +1413,39 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             return true; // true is closing popup, false is requesting a new selection
         });
 
-        viewHolder.messageBox().setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
-                    popup.setFocusable(false);
-                    popup.onTouch(v, event);
-                }
-            }
-            return true;
-        });
 
+        final boolean showError =
+                message.getStatus() == Message.STATUS_SEND_FAILED
+                        && message.getErrorMessage() != null
+                        && !Message.ERROR_MESSAGE_CANCELLED.equals(message.getErrorMessage());
+        final Conversational conversational = message.getConversation();
+        if (conversational instanceof Conversation c) {
+            if (!showError
+                    && !message.isDeleted()
+                    && (c.getMode() == Conversational.MODE_SINGLE
+                    || (c.getMucOptions().occupantId()
+                    && c.getMucOptions().participating()))) {
+                viewHolder.messageBox().setOnTouchListener((v, event) -> {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                            popup.setFocusable(false);
+                            popup.onTouch(v, event);
+                        }
+                    }
+                    return false;
+                });
+
+                viewHolder.messageBody().setOnTouchListener((v, event) -> {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
+                            popup.setFocusable(false);
+                            popup.onTouch(v, event);
+                        }
+                    }
+                    return false;
+                });
+            }
+        }
 
         viewHolder.messageBody().setOnClickListener(v -> {
             if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
