@@ -4551,23 +4551,16 @@ public class ConversationFragment extends XmppFragment
         }
         if (activity == null) return;
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
-        ViewGroup.LayoutParams params = binding.threadIdenticonLayout.getLayoutParams();
-        if (identiconWidth < 0) identiconWidth = params.width;
-        if (hasAttachments || !binding.textinput.getText().toString().replaceFirst("^(\\w|[, ])+:\\s*", "").isEmpty()) {
-            binding.conversationViewPager.setCurrentItem(0);
-            params.width = conversation.getThread() == null ? 0 : identiconWidth;
-        } else if (pref != null && pref.getBoolean("show_thread_feature", getResources().getBoolean(R.bool.show_thread_feature))) {
-            params.width = identiconWidth;
+        if (canWrite() && pref != null && pref.getBoolean("show_thread_feature", getResources().getBoolean(R.bool.show_thread_feature))) {
+            binding.threadIdenticonLayout.setVisibility(VISIBLE);
         } else {
-            params.width = 0;
+            binding.threadIdenticonLayout.setVisibility(GONE);
         }
         if (!binding.textinput.getText().toString().isEmpty()) {
             binding.quickButtons.setVisibility(GONE);
         } else {
             binding.quickButtons.setVisibility(VISIBLE);
         }
-        if (!canWrite()) params.width = 0;
-        binding.threadIdenticonLayout.setLayoutParams(params);
     }
 
     protected void updateStatusMessages() {

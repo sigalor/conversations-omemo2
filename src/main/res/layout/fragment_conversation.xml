@@ -356,7 +356,7 @@
                                 android:layout_alignParentStart="true"
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
-                                android:layout_marginEnd="8dp"
+                                android:layout_marginEnd="6dp"
                                 android:background="@drawable/thread_hint">
 
                                 <com.lelloman.identicon.view.GithubIdenticonView
