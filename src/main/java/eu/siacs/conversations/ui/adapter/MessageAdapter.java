@@ -1255,7 +1255,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (showAvatar) {
             final var requiresAvatar = type == SENT ? !mergeIntoBottom : !mergeIntoTop;
             setRequiresAvatar(viewHolder, requiresAvatar);
-            AvatarWorkerTask.loadAvatar(message, viewHolder.contactPicture(), R.dimen.avatar);
+            AvatarWorkerTask.loadAvatar(message, viewHolder.contactPicture(), R.dimen.avatar_on_conversation_overview);
         } else {
             viewHolder.contactPicture().setVisibility(View.GONE);
         }
