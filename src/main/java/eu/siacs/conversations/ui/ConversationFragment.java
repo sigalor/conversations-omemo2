@@ -1430,7 +1430,7 @@ public class ConversationFragment extends XmppFragment
                 break;
             case ATTACHMENT_CHOICE_CHOOSE_IMAGE: {
                 final Uri takePhotoUri = pendingTakePhotoUri.pop();
-                if (takePhotoUri != null && data.getData() == null && data.getClipData() == null) {
+                if (takePhotoUri != null && (data == null || (data.getData() == null && data.getClipData() == null))) {
                     mediaPreviewAdapter.addMediaPreviews(
                             Attachment.of(getActivity(), takePhotoUri, Attachment.Type.IMAGE));
                 }
