@@ -36,8 +36,8 @@
             android:defaultValue="@bool/default_nomedia"
             android:icon="@drawable/browse_24dp"
             android:key="nomedia"
-            android:title="Hide media in gallery"
-            android:summary="Hide received and sent media from system gallery views" />
+            android:title="@string/pref_hide_media_title"
+            android:summary="@string/pref_hide_media_summary" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_advanced_options">
         <SwitchPreferenceCompat
