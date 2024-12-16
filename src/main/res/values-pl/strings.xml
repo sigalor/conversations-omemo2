@@ -1238,4 +1238,22 @@
     <string name="get_jabber_id">Uzyskaj ID XMPP</string>
     <string name="create_new_account">Chcę się zapisać</string>
     <string name="i_am_snikket_user">Jestem użytkownikiem Snikket</string>
+    <string name="pref_show_mappreview_inside">Pokaż podgląd mapy</string>
+    <string name="pref_show_mappreview_inside_summary">Załaduj podgląd map aby pokazywać swoją lokalizację na czacie</string>
+    <string name="pref_show_own_accounts">Pokaż własną nazwę konta</string>
+    <string name="add_subject">Dodaj temat</string>
+    <string name="pref_show_own_accounts_summary">Pokaż użyte konto w przeglądzie i szczegółach wiadomości</string>
+    <string name="pref_accept_invites_from_strangers">Akceptuj zaproszenia od obcych</string>
+    <string name="pref_accept_invites_from_strangers_summary">Podsumowanie akceptacji zaproszeń od obcych</string>
+    <string name="retract_message">Wycofaj wiadomość</string>
+    <string name="pref_theme_obsidian">Obsidian</string>
+    <string name="this_account_is_connecting">To konto się łączy…</string>
+    <string name="this_account_is_offline">To konto nie jest połączone, wiadomości zostaną wysłane po ponownym połączeniu</string>
+    <string name="pref_jump_to_commands_tab">Skocz do komend</string>
+    <string name="pref_jump_to_commands_tab_summary">Automatycznie skocz do strony komend kiedy jest dostępna</string>
+    <string name="pref_set_text_collapsable_summary">Zwiaj tekst jeśli ma więcej niż 230 znaków</string>
+    <string name="pref_set_text_collapsable">Zawijaj długi tekst</string>
+    <string name="show_less">... pokaż mniej</string>
+    <string name="show_more">... pokaż więcej</string>
+    <string name="choose_widget">Wybierz widżet</string>
 </resources>

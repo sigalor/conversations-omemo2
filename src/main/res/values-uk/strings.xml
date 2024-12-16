@@ -1449,4 +1449,13 @@
     <string name="not_dnssec_verified">Не перевірено DNSSEC</string>
     <string name="all_accounts">Усі облікові записи</string>
     <string name="is_requesting_to_speak">запитує дозвіл на розмову</string>
+    <string name="pref_call_integration">Інтеграція викликів</string>
+    <string name="add_extension">Додати розширення</string>
+    <string name="show_media_title">Показувати медіа в галереї?</string>
+    <string name="reaction_to">на</string>
+    <string name="show_media_summary">Бажаєте, щоб отримані та надіслані файли відображалися в системній галереї?</string>
+    <string name="open">Відкрити</string>
+    <string name="pref_extensions_title">Розширення</string>
+    <string name="pref_extensions_summary">Додавання, видалення та налаштування розширень</string>
+    <string name="pref_call_integration_summary">Виклики з цього застосунку взаємодіють зі звичайними телефонними дзвінками — наприклад, завершення одного дзвінка, коли починається інший.</string>
 </resources>

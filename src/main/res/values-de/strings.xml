@@ -1403,4 +1403,13 @@
     <string name="block_media_question">Wollen Sie dieses Medium wirklich in allen Nachrichten blockieren?</string>
     <string name="is_requesting_to_speak">bitte um Schreibrechte</string>
     <string name="all_accounts">Alle Konten</string>
+    <string name="open">Öffnen</string>
+    <string name="pref_call_integration">Telefon Integration</string>
+    <string name="pref_extensions_summary">Hinzufügen, Entfernen und Konfigurieren von Erweiterungen</string>
+    <string name="pref_extensions_title">Erweiterungen</string>
+    <string name="add_extension">Erweiterung hinzufügen</string>
+    <string name="show_media_title">Medien in der Galerie anzeigen?</string>
+    <string name="show_media_summary">Möchten Sie empfangene und gesendete Medien in Ihrer Systemgalerie anzeigen?</string>
+    <string name="reaction_to">zu</string>
+    <string name="pref_call_integration_summary">Anrufe von dieser App interagieren mit normalen Telefonanrufen, z. B. wird ein Anruf beendet, wenn ein anderer beginnt.</string>
 </resources>

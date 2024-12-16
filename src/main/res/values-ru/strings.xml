@@ -1430,4 +1430,13 @@
     <string name="account_color">Цвет аккаунта</string>
     <string name="is_requesting_to_speak">просит говорить</string>
     <string name="all_accounts">Все аккаунты</string>
+    <string name="open">Открыть</string>
+    <string name="pref_call_integration">Интеграция звонков</string>
+    <string name="pref_extensions_summary">Добавляйте, удаляйте и настраивайте расширения</string>
+    <string name="pref_extensions_title">Расширения</string>
+    <string name="add_extension">Добавить расширение</string>
+    <string name="show_media_title">Показать медиа в галерее?</string>
+    <string name="reaction_to">к</string>
+    <string name="pref_call_integration_summary">Вызовы из этого приложения взаимодействуют с обычными телефонными звонками, например, завершают один звонок при начале другого.</string>
+    <string name="show_media_summary">Хотели бы вы отображать полученные и отправленные медиафайлы в галерее вашей системы?</string>
 </resources>

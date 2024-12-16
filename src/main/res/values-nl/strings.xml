@@ -905,7 +905,7 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
         <item quantity="one">%1$d gemiste oproepen van %2$s</item>
         <item quantity="other"/>
     </plurals>
-    <string name="call_integration_not_available">Belintegratie niet beschikbaar!</string>
+    <string name="call_integration_not_available">Telefoonintegratie niet beschikbaar!</string>
     <string name="smp_requested">Contact vraagt SMP-bevestiging</string>
     <string name="server_info_login_mechanism">Inlogmechanisme</string>
     <string name="server_info_sasl2">XEP-0388: Extensible SASL Profile</string>
@@ -1391,4 +1391,13 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="disable_all_accounts_question">Wil je je accounts uitschakelen voordat je een back-up maakt (aanbevolen)?</string>
     <string name="is_requesting_to_speak">vraagt het woord</string>
     <string name="all_accounts">Alle accounts</string>
+    <string name="pref_call_integration">Telefoonintegratie</string>
+    <string name="pref_extensions_summary">Extensies toevoegen, verwijderen en configureren</string>
+    <string name="pref_extensions_title">Extensies</string>
+    <string name="add_extension">Extensie toevoegen</string>
+    <string name="show_media_title">In galerij tonen?</string>
+    <string name="show_media_summary">Wil je ontvangen en verzonden media weergeven in de galerij van het besturingssysteem?</string>
+    <string name="reaction_to">op</string>
+    <string name="open">Openen</string>
+    <string name="pref_call_integration_summary">Oproepen vanuit deze app reageren op gewone telefoongesprekken, bijvoorbeeld d.mv. het beëindigen van een gesprek wanneer een ander gesprek begint.</string>
 </resources>
