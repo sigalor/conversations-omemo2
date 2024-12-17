@@ -696,22 +696,26 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void refreshCapsFor(Contact contact) {
-        for (final var k : new HashSet<>(gateways.keySet())) {
-            gateways.remove(k, contact);
-        }
-        for (final var p : contact.getPresences().getPresences()) {
-            final var disco = p.getServiceDiscoveryResult();
-            if (disco == null) continue;
-            for (final var identity : disco.getIdentities()) {
-                if ("gateway".equals(identity.getCategory())) {
-                    gateways.put(identity.getType(), contact);
+        synchronized (gateways) {
+            for (final var k : new HashSet<>(gateways.keySet())) {
+                gateways.remove(k, contact);
+            }
+            for (final var p : contact.getPresences().getPresences()) {
+                final var disco = p.getServiceDiscoveryResult();
+                if (disco == null) continue;
+                for (final var identity : disco.getIdentities()) {
+                    if ("gateway".equals(identity.getCategory())) {
+                        gateways.put(identity.getType(), contact);
+                    }
                 }
             }
         }
     }
 
-    public Set<Contact> getGateways(final String type) {
-        return gateways.get(type);
+    public Collection<Contact> getGateways(final String type) {
+        synchronized (gateways) {
+            return ImmutableList.copyOf(gateways.get(type));
+        }
     }
 
     public Collection<Bookmark> getBookmarks() {
