@@ -682,10 +682,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
-            if (el.getName() != null && el.getNamespace() != null) {
-                if (el.getName().equals("thread") && el.getNamespace().equals("jabber:client")) {
-                    return el;
-                }
+            if ("thread".equals(el.getName()) && "jabber:client".equals(el.getNamespace())) {
+                return el;
             }
         }
 
