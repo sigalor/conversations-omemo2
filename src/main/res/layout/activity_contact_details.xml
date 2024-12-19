@@ -30,33 +30,25 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin">
-
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/card_padding_regular">
 
-                        <eu.siacs.conversations.ui.widget.AvatarView
-                            android:id="@+id/details_contact_badge"
-                            android:layout_width="@dimen/avatar_on_details_screen_size"
-                            android:layout_height="@dimen/avatar_on_details_screen_size"
-                            android:layout_alignParentTop="true"
-                            android:scaleType="centerCrop" />
-
                         <LinearLayout
                             android:id="@+id/details_jidbox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="16dp"
-                            android:layout_toRightOf="@+id/details_contact_badge"
                             android:orientation="vertical">
+
+
+                            <eu.siacs.conversations.ui.widget.AvatarView
+                                android:id="@+id/details_contact_badge"
+                                android:layout_width="@dimen/avatar_on_details_screen_size"
+                                android:layout_height="@dimen/avatar_on_details_screen_size"
+                                android:scaleType="centerCrop"
+                                android:layout_marginBottom="24dp"
+                                android:layout_gravity="center" />
 
                             <TextView
                                 android:id="@+id/details_contactjid"
@@ -64,12 +56,14 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/account_settings_example_jabber_id"
                                 android:textIsSelectable="true"
+                                android:layout_gravity="center"
                                 android:textAppearance="?textAppearanceTitleMedium" />
 
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:id="@+id/tags"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center"
                                 android:layout_marginTop="8sp">
 
                                 <androidx.constraintlayout.helper.widget.Flow
@@ -109,8 +103,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
+                                android:layout_marginBottom="8dp"
                                 android:textAppearance="?textAppearanceBodyMedium"
-                                tools:text="Hey there! I’m using Conversations" />
+                                tools:text="Hey there! I’m using monocles chat" />
 
                             <Button
                                 android:id="@+id/add_contact_button"
@@ -144,16 +139,19 @@
                             android:text="@string/using_account"
                             android:textAppearance="?textAppearanceLabelMedium" />
                     </RelativeLayout>
-                </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:id="@+id/profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin">
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.05dp"
+                        android:background="?android:attr/textColorPrimary" />
 
                     <ListView
                         android:id="@+id/profile_items"
@@ -162,16 +160,20 @@
                         android:divider="@android:color/transparent"
                         android:dividerHeight="0dp"></ListView>
 
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:id="@+id/recent_threads_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin">
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.05dp"
+                        android:background="?android:attr/textColorPrimary" />
 
                     <ListView
                         android:id="@+id/recent_threads"
@@ -180,16 +182,20 @@
                         android:divider="@android:color/transparent"
                         android:dividerHeight="0dp"></ListView>
 
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:id="@+id/media_wrapper"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin">
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.05dp"
+                        android:background="?android:attr/textColorPrimary" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -242,16 +248,20 @@
                                 android:text="@string/view_media" />
                         </LinearLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:id="@+id/keys_wrapper"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin">
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="0.05dp"
+                        android:background="?android:attr/textColorPrimary" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -303,7 +313,7 @@
                                 android:text="@string/show_inactive_devices" />
                         </LinearLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
