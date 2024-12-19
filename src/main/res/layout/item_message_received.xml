@@ -46,6 +46,7 @@
             android:longClickable="true"
             android:layout_marginStart="@dimen/bubble_avatar_distance"
             android:minHeight="@dimen/bubble_avatar_size"
+            android:paddingStart="@dimen/bubble_horizontal_padding"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

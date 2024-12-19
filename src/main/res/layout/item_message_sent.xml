@@ -51,6 +51,7 @@
             android:longClickable="true"
             android:minHeight="@dimen/bubble_avatar_size"
             android:layout_marginEnd="@dimen/bubble_avatar_distance"
+            android:paddingEnd="@dimen/bubble_horizontal_padding"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toStartOf="@id/message_photo_box"
             app:layout_constraintHorizontal_bias="1.0"
