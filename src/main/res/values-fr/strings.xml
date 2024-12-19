@@ -1157,4 +1157,25 @@
     <string name="this_account_is_offline">Ce compte n\'est pas connecté, les messages seront envoyés dès qu\'il sera reconnecté</string>
     <string name="monocles_chat_intro_description">monocles chat est une application qui vous connecte à un réseau mondial appelé XMPP. Ce réseau comprend des services, appelés passerelles, pour chatter avec d\'autres réseaux tels que SMS, IRC, Matrix, et plus encore.</string>
     <string name="pref_category_settings">Paramètres</string>
+    <string name="show_more">... afficher plus</string>
+    <string name="pref_set_text_collapsable">Réduire le texte long</string>
+    <string name="call_is_using_wired_headset">Appel effectué avec un casque filaire</string>
+    <string name="call_is_using_speaker_tap_to_switch_to_earpiece">Appel utilisant le haut-parleur. Appuyer pour passer aux écouteurs.</string>
+    <string name="copy_otr_clipboard_description">Copier l\'empreinte OTR dans le presse-papier</string>
+    <string name="otr_session_not_started">Envoyer un message pour commencer une discussion chiffrée</string>
+    <string name="pref_enable_otr_summary">Activer le chiffrement OTR pour chiffrer les messages. OTR est encore très instable, veuillez ne l\'utiliser que si vous savez ce que vous faites.</string>
+    <string name="verified">Vérifié !</string>
+    <string name="verify_otr">Vérifier OTR</string>
+    <string name="are_you_sure_verify_fingerprint">Êtes-vous sûr de vouloir vérifier l\'empreinte OTR de vos contacts ?</string>
+    <string name="unknown_otr_fingerprint">Empreinte OTR inconnue</string>
+    <string name="otr_fingerprint">Empreinte OTR</string>
+    <string name="otr_fingerprint_selected_message">Empreinte OTR du message</string>
+    <string name="send_otr_message">Écrire un message…</string>
+    <string name="no_otr_session_found">Aucune session OTR valide n\'a été trouvée !</string>
+    <string name="otr_warning">La prise en charge du chiffrement OTR est en version BETA. Cliquez sur lire plus pour obtenir plus d\'informations. Un lien s\'ouvrira dans un navigateur.</string>
+    <string name="toast_message_otr_fingerprint">Empreinte OTR copiée dans le presse-papier !</string>
+    <string name="pref_enable_otr">Activer le chiffrement OTR (BETA)</string>
+    <string name="note_to_self">Note pour soi-même</string>
+    <string name="show_less">... afficher moins</string>
+    <string name="internal_meda_viewer_summary">Utiliser la visionneuse interne pour voir des images ou vidéos à l\'intérieur de monocles chat</string>
 </resources>

@@ -1396,8 +1396,10 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="pref_extensions_title">Extensies</string>
     <string name="add_extension">Extensie toevoegen</string>
     <string name="show_media_title">In galerij tonen?</string>
-    <string name="show_media_summary">Wil je ontvangen en verzonden media weergeven in de galerij van het besturingssysteem?</string>
+    <string name="show_media_summary">Wil je ontvangen en verzonden media toegankelijk maken via je galerij-app?</string>
     <string name="reaction_to">op</string>
     <string name="open">Openen</string>
     <string name="pref_call_integration_summary">Oproepen vanuit deze app reageren op gewone telefoongesprekken, bijvoorbeeld d.mv. het beëindigen van een gesprek wanneer een ander gesprek begint.</string>
+    <string name="pref_hide_media_summary">Verberg ontvangen en verzonden media voor je galerij-app(s)</string>
+    <string name="pref_hide_media_title">Verbergen voor galerij</string>
 </resources>

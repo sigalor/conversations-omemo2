@@ -1439,4 +1439,6 @@
     <string name="reaction_to">к</string>
     <string name="pref_call_integration_summary">Вызовы из этого приложения взаимодействуют с обычными телефонными звонками, например, завершают один звонок при начале другого.</string>
     <string name="show_media_summary">Хотели бы вы отображать полученные и отправленные медиафайлы в галерее вашей системы?</string>
+    <string name="pref_hide_media_title">Скрыть медиа в галерее</string>
+    <string name="pref_hide_media_summary">Скрыть полученные и отправленные медиа файлы в системной галерее</string>
 </resources>

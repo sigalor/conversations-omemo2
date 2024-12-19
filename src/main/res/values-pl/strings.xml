@@ -1256,4 +1256,5 @@
     <string name="show_less">... pokaż mniej</string>
     <string name="show_more">... pokaż więcej</string>
     <string name="choose_widget">Wybierz widżet</string>
+    <string name="pref_enable_otr">Włącz szyfrowanie OTR (BETA)</string>
 </resources>

@@ -1410,4 +1410,6 @@
     <string name="reaction_to">至</string>
     <string name="pref_call_integration_summary">此应用的通话与常规通话交互，例如另一个通话开始时结束一个通话。</string>
     <string name="show_media_summary">是否在系统图库中显示接收和发送的媒体？</string>
+    <string name="pref_hide_media_title">在图库中隐藏媒体</string>
+    <string name="pref_hide_media_summary">在系统图库视图中隐藏接收和发送的媒体</string>
 </resources>

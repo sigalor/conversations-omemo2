@@ -1458,4 +1458,6 @@
     <string name="pref_extensions_title">Розширення</string>
     <string name="pref_extensions_summary">Додавання, видалення та налаштування розширень</string>
     <string name="pref_call_integration_summary">Виклики з цього застосунку взаємодіють зі звичайними телефонними дзвінками — наприклад, завершення одного дзвінка, коли починається інший.</string>
+    <string name="pref_hide_media_summary">Приховати отримані та надіслані файли в перегляді системної галереї</string>
+    <string name="pref_hide_media_title">Приховати медіа в галереї</string>
 </resources>

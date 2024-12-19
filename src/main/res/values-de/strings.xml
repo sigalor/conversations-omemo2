@@ -1412,4 +1412,6 @@
     <string name="show_media_summary">Möchten Sie empfangene und gesendete Medien in Ihrer Systemgalerie anzeigen?</string>
     <string name="reaction_to">zu</string>
     <string name="pref_call_integration_summary">Anrufe von dieser App interagieren mit normalen Telefonanrufen, z. B. wird ein Anruf beendet, wenn ein anderer beginnt.</string>
+    <string name="pref_hide_media_title">Verstecke Medien vor der Galerie</string>
+    <string name="pref_hide_media_summary">Empfangene und gesendete Medien aus der Galerieansicht des Systems ausblenden</string>
 </resources>
