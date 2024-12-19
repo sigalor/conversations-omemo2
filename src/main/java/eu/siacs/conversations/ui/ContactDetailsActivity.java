@@ -459,7 +459,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         if (binding.editTags.getVisibility() != View.GONE) return;
         invalidateOptionsMenu();
-        setTitle(contact.getDisplayName());
+        setTitle(R.string.action_contact_details);
         if (contact.showInRoster()) {
             binding.detailsSendPresence.setVisibility(View.VISIBLE);
             binding.detailsReceivePresence.setVisibility(View.VISIBLE);
@@ -468,7 +468,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.detailsReceivePresence.setOnCheckedChangeListener(null);
 
             List<String> statusMessages = contact.getPresences().getStatusMessages();
-            if (statusMessages.size() == 0) {
+            if (statusMessages.isEmpty()) {
                 binding.statusMessage.setVisibility(View.GONE);
             } else if (statusMessages.size() == 1) {
                 final String message = statusMessages.get(0);
@@ -537,7 +537,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.detailsLastseen.setVisibility(View.GONE);
             }
         }
-
+        binding.detailsContactName.setText(contact.getDisplayName());
         binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
         final String account = contact.getAccount().getJid().asBareJid().toEscapedString();
         binding.detailsAccount.setText(getString(R.string.using_account, account));

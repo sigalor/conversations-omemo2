@@ -41,7 +41,6 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
-
                             <eu.siacs.conversations.ui.widget.AvatarView
                                 android:id="@+id/details_contact_badge"
                                 android:layout_width="@dimen/avatar_on_details_screen_size"
@@ -49,6 +48,19 @@
                                 android:scaleType="centerCrop"
                                 android:layout_marginBottom="24dp"
                                 android:layout_gravity="center" />
+
+                            <TextView
+                                android:id="@+id/details_contact_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:clickable="true"
+                                android:ellipsize="end"
+                                android:gravity="center_horizontal"
+                                android:onClick="onClick"
+                                android:paddingTop="1dp"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:textAppearance="?textAppearanceTitleLarge" />
 
                             <TextView
                                 android:id="@+id/details_contactjid"
