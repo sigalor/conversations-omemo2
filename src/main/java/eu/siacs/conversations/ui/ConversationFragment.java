@@ -5310,7 +5310,8 @@ public class ConversationFragment extends XmppFragment
                     .add("Pixel 4a")        // Pixel 4a https://github.com/iNPUTmice/Conversations/issues/4223
                     .add("WP12 Pro")        // Oukitel WP 12 Pro https://github.com/iNPUTmice/Conversations/issues/4223
                     .add("Volla Phone X")   // Volla Phone X https://github.com/iNPUTmice/Conversations/issues/4223
-                    .add("Redmi Note 12S")  // Xiaomi Redmi Note 12S
+                    .add("Redmi Note 12S")  // Xiaomi Redmi Note 12S Model name
+                    .add("23030RAC7Y")      // Xiaomi Redmi Note 12S Code
                     .build();
 
     private boolean startRecording() {
