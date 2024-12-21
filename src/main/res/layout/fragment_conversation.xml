@@ -43,14 +43,13 @@
                     android:paddingBottom="8dp"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:background="?attr/colorOnTertiary">
+                    android:background="?attr/colorSurface" >
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/outline_push_pin_24"
-                        android:layout_marginEnd="8dp"
-                        />
+                        android:layout_marginEnd="8dp" />
 
                     <TextView
                         android:id="@+id/muc_subject_text"
@@ -68,8 +67,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/rounded_close_24"
-                        android:layout_marginStart="8dp"
-                        />
+                        android:layout_marginStart="8dp" />
 
                 </LinearLayout>
 
