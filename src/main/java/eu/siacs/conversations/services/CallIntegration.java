@@ -62,8 +62,7 @@ public class CallIntegration extends Connection {
     private static final List<String> BROKEN_MANUFACTURES_UP_TO_11 =
             Arrays.asList("realme", "oppo", "oneplus");
 
-    public static final int DEFAULT_TONE_VOLUME = 60;
-    private static final int DEFAULT_MEDIA_PLAYER_VOLUME = 90;
+    public static final int DEFAULT_TONE_VOLUME = 20;
 
     private final Context context;
 
@@ -382,30 +381,12 @@ public class CallIntegration extends Connection {
                 requireAppRtcAudioManager().stopRingBack();
             }
         }
-        if (state == STATE_ACTIVE) {
-            playConnectedSound();
-        } else if (state == STATE_DISCONNECTED) {
+        if (state == STATE_DISCONNECTED) {
             final var audioManager = this.appRTCAudioManager;
             if (audioManager != null) {
                 audioManager.executeOnMain(audioManager::stop);
             }
         }
-    }
-
-    private void playConnectedSound() {
-        final var audioAttributes =
-                new AudioAttributes.Builder()
-                        .setLegacyStreamType(AudioManager.STREAM_VOICE_CALL)
-                        .build();
-        final var mediaPlayer =
-                MediaPlayer.create(
-                        context,
-                        R.raw.connected,
-                        audioAttributes,
-                        AudioManager.AUDIO_SESSION_ID_GENERATE);
-        mediaPlayer.setVolume(
-                DEFAULT_MEDIA_PLAYER_VOLUME / 100f, DEFAULT_MEDIA_PLAYER_VOLUME / 100f);
-        mediaPlayer.start();
     }
 
     public void success() {
