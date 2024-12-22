@@ -92,7 +92,12 @@
                         android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentBottom="true"
-                        android:background="@drawable/textsend"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:background="@drawable/background_message_bubble"
                         android:alpha="0.88"
                         android:orientation="vertical"
                         android:animateLayoutChanges="true" >
@@ -248,8 +253,7 @@
                             android:layout_centerVertical="true"
                             android:layout_toStartOf="@+id/textSendButton"
                             android:layout_toEndOf="@+id/thread_identicon_layout"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp"
+                            android:paddingVertical="6dp"
                             android:animateLayoutChanges="true" >
 
                             <androidx.recyclerview.widget.RecyclerView

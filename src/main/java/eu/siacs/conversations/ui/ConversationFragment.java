@@ -2069,7 +2069,7 @@ public class ConversationFragment extends XmppFragment
         conversation.setReplyTo(message);
         if (message == null) {
             binding.contextPreview.setVisibility(View.GONE);
-            binding.textsend.setBackgroundResource(R.drawable.textsend);
+            //binding.textsend.setBackgroundResource(R.drawable.textsend);
             return;
         }
 
@@ -3794,7 +3794,7 @@ public class ConversationFragment extends XmppFragment
             final var colors = MaterialColors.getColorRoles(activity, accountColor);
             final var accent = activity.isDark() ? ColorUtils.blendARGB(colors.getAccentContainer(), bg, 1.0f - Math.max(0.25f, Color.alpha(accountColor) / 255.0f)) : colors.getAccentContainer();
             cursord.setTintList(ColorStateList.valueOf(colors.getOnAccentContainer()));
-            binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
+            //binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
 
             binding.textinputSubject.setTextColor(colors.getOnAccentContainer());
             binding.textinput.setTextColor(colors.getOnAccentContainer());
@@ -3803,7 +3803,7 @@ public class ConversationFragment extends XmppFragment
             binding.textInputHint.setTextColor(colors.getOnAccentContainer());
         } else {
             cursord.setTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer)));
-            binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
+            //binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
 
             binding.textinputSubject.setTextColor(MaterialColors.getColor(binding.textinputSubject, com.google.android.material.R.attr.colorOnTertiaryContainer));
             binding.textinput.setTextColor(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer));
