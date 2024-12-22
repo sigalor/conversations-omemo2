@@ -206,10 +206,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/subject"
-                            android:textColor="?colorOnTertiaryContainer"
-                            android:textColorHint="@color/hint_on_tertiary_container"
-                            android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
-                            android:layout_above="@+id/textsend"
+                            android:textColor="?colorControlNormal"
+                            android:textColorHint="?colorControlNormal"
                             android:maxLines="1"
                             android:textSize="16sp"
                             android:padding="8dp"
@@ -227,7 +225,7 @@
                             android:layout_marginHorizontal="60dp"
                             android:textSize="14sp"
                             android:textStyle="bold|italic"
-                            android:textColor="?colorOnTertiaryContainer"
+                            android:textColor="?colorControlNormal"
                             android:visibility="visible"
                             tools:text="@string/private_message_to" />
 
@@ -308,9 +306,8 @@
                                 android:maxLines="8"
                                 android:minHeight="32dp"
                                 android:textSize="16sp"
-                                android:textColor="?colorOnTertiaryContainer"
-                                android:textColorHint="@color/hint_on_tertiary_container"
-                                android:textCursorDrawable="@drawable/cursor_on_tertiary_container"
+                                android:textColor="?colorControlNormal"
+                                android:textColorHint="?colorControlNormal"
                                 android:minLines="1">
 
                                 <requestFocus />

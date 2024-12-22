@@ -3787,14 +3787,15 @@ public class ConversationFragment extends XmppFragment
         if (activity != null) {
             activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
-        final var cursord = activity.getDrawable(R.drawable.cursor_on_tertiary_container);
+        //final var cursord = activity.getDrawable(R.drawable.cursor_on_tertiary_container);
+        /*
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
             final var bg = MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorSurface);
             final var accountColor = conversation.getAccount().getColor(activity.isDark());
             final var colors = MaterialColors.getColorRoles(activity, accountColor);
             final var accent = activity.isDark() ? ColorUtils.blendARGB(colors.getAccentContainer(), bg, 1.0f - Math.max(0.25f, Color.alpha(accountColor) / 255.0f)) : colors.getAccentContainer();
             cursord.setTintList(ColorStateList.valueOf(colors.getOnAccentContainer()));
-            //binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
+            binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
 
             binding.textinputSubject.setTextColor(colors.getOnAccentContainer());
             binding.textinput.setTextColor(colors.getOnAccentContainer());
@@ -3803,7 +3804,7 @@ public class ConversationFragment extends XmppFragment
             binding.textInputHint.setTextColor(colors.getOnAccentContainer());
         } else {
             cursord.setTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer)));
-            //binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
+            binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
 
             binding.textinputSubject.setTextColor(MaterialColors.getColor(binding.textinputSubject, com.google.android.material.R.attr.colorOnTertiaryContainer));
             binding.textinput.setTextColor(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer));
@@ -3811,10 +3812,12 @@ public class ConversationFragment extends XmppFragment
             binding.textinput.setHintTextColor(R.color.hint_on_tertiary_container);
             binding.textInputHint.setTextColor(MaterialColors.getColor(binding.textInputHint, com.google.android.material.R.attr.colorOnTertiaryContainer));
         }
+
         if (Build.VERSION.SDK_INT >= 29) {
             binding.textinputSubject.setTextCursorDrawable(cursord);
             binding.textinput.setTextCursorDrawable(cursord);
         }
+        */
 
         setThread(conversation.getThread());
         setupReply(conversation.getReplyTo());
