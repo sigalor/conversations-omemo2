@@ -1424,7 +1424,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         if (actionBar == null) {
             return;
         }
-        actionBar.setHomeAsUpIndicator(0);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_24dp);
         final FragmentManager fragmentManager = getFragmentManager();
         final Fragment mainFragment = fragmentManager.findFragmentById(R.id.main_fragment);
         if (mainFragment instanceof ConversationFragment conversationFragment) {
