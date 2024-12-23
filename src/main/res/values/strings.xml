@@ -1408,4 +1408,6 @@
     <string name="pref_prefer_ipv6">Prefer IPv6</string>
     <string name="pref_use_colored_muc_names">Use colored user names</string>
     <string name="pref_use_colored_muc_names_summary">Use colored user names in group chats</string>
+    <string name="delete_avatar_message">Would you like to delete your avatar? Some clients might continue to display a cached copy of your avatar.</string>
+    <string name="show_to_contacts_only">Show to contacts only</string>
 </resources>
