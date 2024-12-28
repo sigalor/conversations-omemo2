@@ -73,7 +73,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 requireService().updateMemorizingTrustManager();
                 reconnectAccounts();
             }
-            case AppSettings.DANE_ENFORCED, AppSettings.REQUIRE_CHANNEL_BINDING -> {
+            case AppSettings.DANE_ENFORCED, AppSettings.REQUIRE_CHANNEL_BINDING, AppSettings.SECURE_TLS -> {
                 reconnectAccounts();
             }
             case AppSettings.AUTOMATIC_MESSAGE_DELETION -> {

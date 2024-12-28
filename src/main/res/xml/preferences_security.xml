@@ -32,6 +32,12 @@
             android:summary="@string/pref_enforce_dane_summary"
             android:title="@string/pref_enforce_dane" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/secure_tls"
+            android:icon="@drawable/ic_private_connectivity_24dp"
+            android:key="secure_tls"
+            android:summary="@string/pref_secure_tls_summary"
+            android:title="@string/pref_secure_tls" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/trust_system_ca_store"
             android:icon="@drawable/ic_assured_workload_24dp"
             android:key="trust_system_ca_store"

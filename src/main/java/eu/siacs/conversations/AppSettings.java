@@ -49,9 +49,9 @@ public class AppSettings {
     public static final String SHOW_LINK_PREVIEWS = "show_link_previews";
     public static final String SHOW_AVATARS = "show_avatars";
     public static final String CALL_INTEGRATION = "call_integration";
-
     private static final String ACCEPT_INVITES_FROM_STRANGERS = "accept_invites_from_strangers";
     private static final String INSTALLATION_ID = "im.conversations.android.install_id";
+    public static final String SECURE_TLS = "secure_tls";
 
     private final Context context;
 
@@ -122,6 +122,10 @@ public class AppSettings {
 
     public boolean isShowAvatars() {
         return getBooleanPreference(SHOW_AVATARS, R.bool.show_avatars);
+    }
+
+    public boolean isSecureTLS() {
+        return getBooleanPreference(SECURE_TLS, R.bool.secure_tls);
     }
 
     public boolean isCallIntegration() {

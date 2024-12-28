@@ -31,12 +31,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import eu.siacs.conversations.AppSettings;
+import eu.siacs.conversations.Conversations;
 import io.ipfs.cid.Cid;
 import io.ipfs.multihash.Multihash;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.xmpp.Jid;
 
@@ -50,6 +53,7 @@ public final class CryptoHelper {
     private static final char[] CONSONANTS = "bcfghjklmnpqrstvwxyz".toCharArray();
     public static final String FILETRANSFER = "?FILETRANSFERv1:";
     private final static char[] hexArray = "0123456789abcdef".toCharArray();
+
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -155,13 +159,24 @@ public final class CryptoHelper {
     }
 
     public static String[] getOrderedCipherSuites(final String[] platformSupportedCipherSuites) {
-        final Collection<String> cipherSuites = new LinkedHashSet<>(Arrays.asList(Config.ENABLED_CIPHERS));
-        final List<String> platformCiphers = Arrays.asList(platformSupportedCipherSuites);
-        cipherSuites.retainAll(platformCiphers);
-        cipherSuites.addAll(platformCiphers);
-        filterWeakCipherSuites(cipherSuites);
-        cipherSuites.remove("TLS_FALLBACK_SCSV");
-        return cipherSuites.toArray(new String[cipherSuites.size()]);
+        final var appSettings = new AppSettings(Conversations.getContext());
+        if (appSettings.isSecureTLS()) {
+            final Collection<String> secureCipherSuites = new LinkedHashSet<>(Arrays.asList(Config.SECURE_CIPHERS));
+            final List<String> platformCiphers = Arrays.asList(platformSupportedCipherSuites);
+            secureCipherSuites.retainAll(platformCiphers);
+            secureCipherSuites.addAll(platformCiphers);
+            filterWeakCipherSuites(secureCipherSuites);
+            secureCipherSuites.remove("TLS_FALLBACK_SCSV");
+            return secureCipherSuites.toArray(new String[secureCipherSuites.size()]);
+        } else {
+            final Collection<String> cipherSuites = new LinkedHashSet<>(Arrays.asList(Config.ENABLED_CIPHERS));
+            final List<String> platformCiphers = Arrays.asList(platformSupportedCipherSuites);
+            cipherSuites.retainAll(platformCiphers);
+            cipherSuites.addAll(platformCiphers);
+            filterWeakCipherSuites(cipherSuites);
+            cipherSuites.remove("TLS_FALLBACK_SCSV");
+            return cipherSuites.toArray(new String[cipherSuites.size()]);
+        }
     }
 
     private static void filterWeakCipherSuites(final Collection<String> cipherSuites) {
