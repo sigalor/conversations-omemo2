@@ -82,11 +82,11 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     private void reloadAvatar() {
         if (xmppConnectionService == null) return; // We will get called again in onBackendConnected
         final int size = (int) getResources().getDimension(R.dimen.publish_avatar_size);
-        Drawable bitmap;
+        final Drawable bitmap;
         if (uri == null) {
             bitmap = xmppConnectionService.getAvatarService().get(conversation, size);
         } else {
-            Log.d(Config.LOGTAG, "loading " + uri.toString() + " into preview");
+            Log.d(Config.LOGTAG, "loading " + uri + " into preview");
             bitmap = xmppConnectionService.getFileBackend().cropCenterSquareDrawable(uri, size);
         }
         this.binding.accountImage.setImageDrawable(bitmap);
@@ -97,17 +97,18 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_publish_profile_picture);
+        this.binding.contactOnly.setVisibility(View.GONE);
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         setSupportActionBar(this.binding.toolbar);
         configureActionBar(getSupportActionBar());
         this.binding.cancelButton.setOnClickListener((v) -> this.finish());
         this.binding.secondaryHint.setVisibility(View.GONE);
         this.binding.accountImage.setOnClickListener((v) -> PublishProfilePictureActivity.chooseAvatar(this));
-        Intent intent = getIntent();
-        String uuid = intent == null ? null : intent.getStringExtra("uuid");
+        final var  intent = getIntent();
+        final var  uuid = intent == null ? null : intent.getStringExtra("uuid");
         if (uuid != null) {
             pendingConversationUuid.push(uuid);
         }
@@ -116,24 +117,24 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     }
 
 
-    private void publish(View view) {
+    private void publish(final View view) {
         binding.publishButton.setText(R.string.publishing);
         binding.publishButton.setEnabled(false);
         xmppConnectionService.publishMucAvatar(conversation, uri, this);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             final CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                this.uri = result.getUri();
+                this.uri = result == null ? null : result.getUri();
                 if (xmppConnectionServiceBound) {
                     reloadAvatar();
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
+                final var error = result == null ? null : result.getError();
                 if (error != null) {
                     Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
