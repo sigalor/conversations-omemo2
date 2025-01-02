@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.xmpp.Jid;
@@ -38,6 +39,7 @@ import org.minidns.record.SRV;
 
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -86,11 +88,21 @@ public class Resolver {
                         if (left.ip == null && right.ip == null) {
                             return 0;
                         } else if (left.ip != null && right.ip != null) {
-                            if (left.ip instanceof Inet4Address
-                                    && right.ip instanceof Inet4Address) {
-                                return 0;
+                            final var appSettings = new AppSettings(Conversations.getContext());
+                            if (appSettings.preferIPv6()) {
+                                if (left.ip instanceof Inet6Address
+                                        && right.ip instanceof Inet6Address) {
+                                    return 0;
+                                } else {
+                                    return left.ip instanceof Inet6Address ? -1 : 1;
+                                }
                             } else {
-                                return left.ip instanceof Inet4Address ? -1 : 1;
+                                if (left.ip instanceof Inet4Address
+                                        && right.ip instanceof Inet4Address) {
+                                    return 0;
+                                } else {
+                                    return left.ip instanceof Inet4Address ? -1 : 1;
+                                }
                             }
                         } else {
                             return left.ip != null ? -1 : 1;

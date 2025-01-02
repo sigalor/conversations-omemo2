@@ -12,4 +12,5 @@
     <bool name="showtextformatting">false</bool>
     <bool name="app_lock_enabled">false</bool>
     <bool name="secure_tls">false</bool>
+    <bool name="prefer_ipv6">false</bool>
 </resources>

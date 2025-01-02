@@ -88,7 +88,7 @@ public class ConnectionSettingsFragment extends XmppPreferenceFragment {
                 reconnectAccounts();
                 requireService().reinitializeMuclumbusService();
             }
-            case AppSettings.SHOW_CONNECTION_OPTIONS -> {
+            case AppSettings.SHOW_CONNECTION_OPTIONS, AppSettings.PREFER_IPV6 -> {
                 reconnectAccounts();
             }
         }

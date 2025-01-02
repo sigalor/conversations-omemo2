@@ -52,6 +52,7 @@ public class AppSettings {
     private static final String ACCEPT_INVITES_FROM_STRANGERS = "accept_invites_from_strangers";
     private static final String INSTALLATION_ID = "im.conversations.android.install_id";
     public static final String SECURE_TLS = "secure_tls";
+    public static final String PREFER_IPV6 = "prefer_ipv6";
 
     private final Context context;
 
@@ -126,6 +127,10 @@ public class AppSettings {
 
     public boolean isSecureTLS() {
         return getBooleanPreference(SECURE_TLS, R.bool.secure_tls);
+    }
+
+    public boolean preferIPv6() {
+        return getBooleanPreference(PREFER_IPV6, R.bool.prefer_ipv6);
     }
 
     public boolean isCallIntegration() {
