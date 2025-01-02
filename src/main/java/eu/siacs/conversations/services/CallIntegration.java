@@ -59,7 +59,7 @@ public class CallIntegration extends Connection {
     private static final List<String> BROKEN_MANUFACTURES_UP_TO_11 =
             Arrays.asList("realme", "oppo", "oneplus");
 
-    public static final int DEFAULT_TONE_VOLUME = 20;
+    public static final int DEFAULT_TONE_VOLUME = 60;
 
     private final Context context;
 
@@ -124,11 +124,6 @@ public class CallIntegration extends Connection {
     public void onReject(final String replyMessage) {
         Log.d(Config.LOGTAG, "onReject(" + replyMessage + ")");
         this.callback.onCallIntegrationReject();
-    }
-
-    @Override
-    public void onPlayDtmfTone(char c) {
-        this.callback.applyDtmfTone("" + c);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -378,7 +373,9 @@ public class CallIntegration extends Connection {
                 requireAppRtcAudioManager().stopRingBack();
             }
         }
-        if (state == STATE_DISCONNECTED) {
+        if (state == STATE_ACTIVE) {
+            startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_ANSWER, 100 );
+        } else if (state == STATE_DISCONNECTED) {
             final var audioManager = this.appRTCAudioManager;
             if (audioManager != null) {
                 audioManager.executeOnMain(audioManager::stop);
@@ -388,8 +385,8 @@ public class CallIntegration extends Connection {
 
     public void success() {
         Log.d(Config.LOGTAG, "CallIntegration.success()");
-        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
-        this.destroyWithDelay(new DisconnectCause(DisconnectCause.LOCAL, null), 375);
+        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CONFIRM, 600);
+        this.destroyWithDelay(new DisconnectCause(DisconnectCause.LOCAL, null), 600);
     }
 
     public void accepted() {
@@ -403,8 +400,8 @@ public class CallIntegration extends Connection {
 
     public void error() {
         Log.d(Config.LOGTAG, "CallIntegration.error()");
-        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CALLDROP_LITE, 375);
-        this.destroyWithDelay(new DisconnectCause(DisconnectCause.ERROR, null), 375);
+        startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_CONFIRM, 600);
+        this.destroyWithDelay(new DisconnectCause(DisconnectCause.ERROR, null), 600);
     }
 
     public void retracted() {
@@ -621,7 +618,5 @@ public class CallIntegration extends Connection {
         void onCallIntegrationSilence();
 
         void onCallIntegrationMicrophoneEnabled(boolean enabled);
-
-        boolean applyDtmfTone(final String dtmf);
     }
 }
