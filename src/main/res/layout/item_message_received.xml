@@ -168,6 +168,7 @@
             android:layout_marginStart="7dp"
             android:orientation="horizontal"
             android:visibility="visible"
+            android:layout_marginTop="3dp"
             app:chipSpacingHorizontal="2dp"
             app:chipSpacingVertical="4dp"
             app:layout_constrainedWidth="true"
