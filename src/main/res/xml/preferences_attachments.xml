@@ -57,7 +57,7 @@
             android:key="clear_blocked_media" />
         <ListPreference
             android:title="@string/voice_message_codec"
-            android:defaultValue="mpeg4"
+            android:defaultValue="opus"
             android:entries="@array/voice_codec_entries"
             android:entryValues="@array/voice_codec_values"
             android:key="voice_message_codec"

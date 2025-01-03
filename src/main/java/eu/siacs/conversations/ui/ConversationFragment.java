@@ -5328,10 +5328,11 @@ public class ConversationFragment extends XmppFragment
         }
         final int outputFormat;
         if (("opus".equals(userChosenCodec) || ("".equals(userChosenCodec) && Config.USE_OPUS_VOICE_MESSAGES)) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            outputFormat = MediaRecorder.OutputFormat.OGG;
+            outputFormat = MediaRecorder.OutputFormat.WEBM;
             mRecorder.setOutputFormat(outputFormat);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
-            mRecorder.setAudioEncodingBitRate(32000);
+            mRecorder.setAudioEncodingBitRate(64000);
+            mRecorder.setAudioSamplingRate(48000);
         } else if ("mpeg4".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
             outputFormat = MediaRecorder.OutputFormat.MPEG_4;
             mRecorder.setOutputFormat(outputFormat);
@@ -5514,8 +5515,8 @@ public class ConversationFragment extends XmppFragment
         final String extension;
         if (outputFormat == MediaRecorder.OutputFormat.MPEG_4) {
             extension = "m4a";
-        } else if (outputFormat == MediaRecorder.OutputFormat.OGG) {
-            extension = "oga";
+        } else if (outputFormat == MediaRecorder.OutputFormat.WEBM) {
+            extension = "opus";
         } else if (outputFormat == MediaRecorder.OutputFormat.THREE_GPP) {
             extension = "awb";
         } else {
