@@ -45,7 +45,11 @@ public class TagEditorView extends TokenCompleteTextView<ListItem.Tag> {
 
 	@Override
 	protected ListItem.Tag defaultObject(String completionText) {
-		return new ListItem.Tag(completionText);
+		return defaultObject(completionText, false);
+	}
+
+	protected ListItem.Tag defaultObject(String completionText, boolean isActive) {
+		return new ListItem.Tag(completionText, isActive);
 	}
 
 	@Override

@@ -20,11 +20,16 @@ public interface ListItem extends Comparable<ListItem>, AvatarService.Avatarable
 
 	List<Tag> getTags(Context context);
 
+	boolean getActive();
+
 	final class Tag implements Serializable, Comparable {
 		private final String name;
+		private final boolean active;
 
-		public Tag(final String name) {
+
+		public Tag(final String name, final boolean active) {
 			this.name = name;
+			this.active = active;
 		}
 
 		public String getName() {

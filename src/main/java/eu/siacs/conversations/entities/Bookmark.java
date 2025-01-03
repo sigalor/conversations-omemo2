@@ -221,7 +221,7 @@ public class Bookmark extends Element implements ListItem {
 		for (Element element : getChildren()) {
 			if (element.getName().equals("group") && element.getContent() != null) {
 				String group = element.getContent();
-				tags.add(new Tag(group));
+				tags.add(new Tag(group, false));
 			}
 		}
 
@@ -231,9 +231,14 @@ public class Bookmark extends Element implements ListItem {
 	@Override
 	public List<Tag> getTags(Context context) {
 		ArrayList<Tag> tags = new ArrayList<>();
-		tags.add(new Tag("Channel"));
+		tags.add(new Tag("Channel", false));
 		tags.addAll(getGroupTags());
 		return tags;
+	}
+
+	@Override
+	public boolean getActive() {
+		return false;
 	}
 
 	public String getNick() {

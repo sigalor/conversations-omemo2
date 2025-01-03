@@ -153,6 +153,11 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		}
 		viewHolder.name.setText(item.getDisplayName());
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
+		if (item.getActive()) {
+			viewHolder.userActiveIndicator.setVisibility(View.VISIBLE);
+		} else {
+			viewHolder.userActiveIndicator.setVisibility(View.GONE);
+		}
 		return view;
 	}
 
@@ -173,6 +178,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		private View inner;
 		private ConstraintLayout tags;
 		private Flow flowWidget;
+		private ImageView userActiveIndicator;
 
 		private ViewHolder() {
 
@@ -187,6 +193,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			viewHolder.tags = binding.tags;
 			viewHolder.inner = binding.inner;
 			viewHolder.flowWidget = binding.flowWidget;
+			viewHolder.userActiveIndicator = binding.userActiveIndicator;
 			binding.getRoot().setTag(viewHolder);
 			return viewHolder;
 		}

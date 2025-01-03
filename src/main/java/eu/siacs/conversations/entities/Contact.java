@@ -206,7 +206,7 @@ public class Contact implements ListItem, Blockable {
     public List<Tag> getGroupTags() {
         final ArrayList<Tag> tags = new ArrayList<>();
         for (final String group : getGroups(true)) {
-            tags.add(new Tag(group));
+            tags.add(new Tag(group, false));
         }
         return tags;
     }
@@ -216,13 +216,18 @@ public class Contact implements ListItem, Blockable {
         final HashSet<Tag> tags = new HashSet<>();
         tags.addAll(getGroupTags());
         for (final String tag : getSystemTags(true)) {
-            tags.add(new Tag(tag));
+            tags.add(new Tag(tag, isActive()));
         }
         Presence.Status status = getShownStatus();
         if (!showInRoster() && getSystemAccount() != null) {
-            tags.add(new Tag("Android"));
+            tags.add(new Tag("Android", isActive()));
         }
         return new ArrayList<>(tags);
+    }
+
+    @Override
+    public boolean getActive() {
+        return isActive();
     }
 
     public boolean match(Context context, String needle) {
