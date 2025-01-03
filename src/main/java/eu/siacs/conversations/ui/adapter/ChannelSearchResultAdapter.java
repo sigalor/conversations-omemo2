@@ -20,6 +20,7 @@ import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.xmpp.Jid;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 
 public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchResultAdapter.ViewHolder> implements View.OnCreateContextMenuListener {
@@ -51,7 +52,8 @@ public class ChannelSearchResultAdapter extends ListAdapter<Room, ChannelSearchR
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         final Room searchResult = getItem(position);
-        viewHolder.binding.name.setText(searchResult.getName());
+        final String user = '[' + String.valueOf(searchResult.nusers) + ']';
+        viewHolder.binding.name.setText(MessageFormat.format("{0} {1}", searchResult.getName(), user));
         final String description = searchResult.getDescription();
         final String language = searchResult.getLanguage();
         if (TextUtils.isEmpty(description)) {
