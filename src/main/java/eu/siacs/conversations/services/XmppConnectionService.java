@@ -3142,6 +3142,12 @@ public class XmppConnectionService extends Service {
             CallIntegrationConnectionService.togglePhoneAccountAsync(this, account);
         }
         this.accounts.add(account);
+        // Activate show own account name when there is more than one account
+        if (accounts.size() > 1) {
+            final var editor = getPreferences().edit();
+            editor.putBoolean("show_own_accounts", true).apply();
+            editor.apply();
+        }
         this.reconnectAccountInBackground(account);
         updateAccountUi();
         syncEnabledAccountSetting();
