@@ -196,9 +196,12 @@ public class ConversationAdapter
             if (status == Message.STATUS_RECEIVED) {
                 if (conversation.getMode() == Conversation.MODE_MULTI) {
                     viewHolder.binding.senderName.setVisibility(View.VISIBLE);
+                    /*
                     final String dname = UIHelper.getMessageDisplayName(message);
                     final String[] words = dname.split("\\s+");
                     viewHolder.binding.senderName.setText((words.length > 0 ? words[0] : dname) + ':');
+                     */
+                    viewHolder.binding.senderName.setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message) + ":");
                 } else {
                     viewHolder.binding.senderName.setVisibility(View.GONE);
                 }

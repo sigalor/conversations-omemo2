@@ -104,6 +104,12 @@
             android:summary="@string/pref_show_own_accounts_summary"
             android:title="@string/pref_show_own_accounts" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/use_colored_muc_names"
+            android:icon="@drawable/rounded_format_color_text_24"
+            android:key="colored_muc_names"
+            android:summary="@string/pref_use_colored_muc_names_summary"
+            android:title="@string/pref_use_colored_muc_names" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/show_nav_bar"
             android:key="show_nav_bar"
             android:icon="@drawable/rounded_bottom_navigation_24"

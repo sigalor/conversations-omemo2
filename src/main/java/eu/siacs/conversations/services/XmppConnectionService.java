@@ -6301,4 +6301,8 @@ public class XmppConnectionService extends Service {
         PUSH,
         PRESENCE
     }
+
+    public boolean colored_muc_names() {
+        return getBooleanPreference("colored_muc_names", R.bool.use_colored_muc_names);
+    }
 }

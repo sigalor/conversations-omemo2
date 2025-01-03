@@ -1406,4 +1406,6 @@
     <string name="pref_secure_tls">Use secure TLS Ciphers only</string>
     <string name="pref_prefer_ipv6_summary">Prefers IPv6 when connecting</string>
     <string name="pref_prefer_ipv6">Prefer IPv6</string>
+    <string name="pref_use_colored_muc_names">Use colored user names</string>
+    <string name="pref_use_colored_muc_names_summary">Use colored user names in group chats</string>
 </resources>

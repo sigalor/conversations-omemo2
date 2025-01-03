@@ -375,7 +375,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (displayName != null) {
                     timeInfoBuilder.add("");
                     viewHolder.username().setVisibility(View.VISIBLE);
-                    viewHolder.username().setText(displayName);
+                    viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
                 }
             } else {
                 viewHolder.username().setText(null);
@@ -613,7 +613,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (message.getBody() != null && !message.getBody().equals("")) {
             viewHolder.messageBody().setTextIsSelectable(true);
             viewHolder.messageBody().setVisibility(View.VISIBLE);
-            final String nick = UIHelper.getMessageDisplayName(message);
+            final SpannableString nick = UIHelper.getColoredUsername(activity.xmppConnectionService, message);
             SpannableStringBuilder body = getSpannableBody(message);
             final var processMarkup = body.getSpans(0, body.length(), Message.PlainTextSpan.class).length > 0;
             if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {

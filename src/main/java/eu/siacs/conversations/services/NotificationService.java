@@ -1736,7 +1736,7 @@ public class NotificationService {
                 builder.setUri(uri.toString());
             }
         } else {
-            builder.setName(UIHelper.getMessageDisplayName(message));
+            builder.setName(UIHelper.getColoredUsername(mXmppConnectionService, message));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             final Jid jid = contact == null ? message.getCounterpart() : contact.getJid();
@@ -1849,7 +1849,7 @@ public class NotificationService {
                 final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
                 SpannableString styledString;
                 for (Message message : messages) {
-                    final String name = UIHelper.getMessageDisplayName(message);
+                    final SpannableString name = UIHelper.getColoredUsername(mXmppConnectionService, message);
                     styledString = new SpannableString(name + ": " + message.getBody());
                     styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
                     style.addLine(styledString);
@@ -1857,7 +1857,7 @@ public class NotificationService {
                 builder.setStyle(style);
                 int count = messages.size();
                 if (count == 1) {
-                    final String name = UIHelper.getMessageDisplayName(messages.get(0));
+                    final SpannableString name = UIHelper.getColoredUsername(mXmppConnectionService, messages.get(0));
                     styledString = new SpannableString(name + ": " + messages.get(0).getBody());
                     styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
                     builder.setContentText(styledString);

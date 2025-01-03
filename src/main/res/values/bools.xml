@@ -13,4 +13,5 @@
     <bool name="app_lock_enabled">false</bool>
     <bool name="secure_tls">false</bool>
     <bool name="prefer_ipv6">false</bool>
+    <bool name="use_colored_muc_names">false</bool>
 </resources>
