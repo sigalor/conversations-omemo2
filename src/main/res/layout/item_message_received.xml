@@ -62,8 +62,7 @@
 
                 <include
                     android:id="@+id/message_content"
-                    layout="@layout/item_message_content"
-                    android:animateLayoutChanges="true" />
+                    layout="@layout/item_message_content" />
 
                 <com.wefika.flowlayout.FlowLayout
                     android:id="@+id/status_line"
@@ -160,8 +159,7 @@
             android:layout_height="0dp"
             android:layout_marginBottom="12dp"
             app:layout_constraintBottom_toBottomOf="@+id/message_box"
-            app:layout_constraintStart_toStartOf="@+id/message_box"
-            android:animateLayoutChanges="true" />
+            app:layout_constraintStart_toStartOf="@+id/message_box" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/reactions"
@@ -177,8 +175,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/message_box"
-            app:layout_constraintTop_toBottomOf="@+id/reactions_anchor"
-            android:animateLayoutChanges="true" />
+            app:layout_constraintTop_toBottomOf="@+id/reactions_anchor" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.daimajia.swipe.SwipeLayout>
 </layout>
