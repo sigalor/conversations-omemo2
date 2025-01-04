@@ -56,18 +56,19 @@
             app:layout_constraintEnd_toStartOf="@id/message_photo_box"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" >
 
             <LinearLayout
                 android:id="@+id/message_box_inner"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:gravity="center_vertical"
-                android:orientation="vertical">
+                android:orientation="vertical" >
 
                 <include
                     android:id="@+id/message_content"
-                    layout="@layout/item_message_content" />
+                    layout="@layout/item_message_content"
+                    android:animateLayoutChanges="true" />
 
                 <com.wefika.flowlayout.FlowLayout
                     android:id="@+id/status_line"
@@ -155,7 +156,8 @@
             android:layout_height="0dp"
             android:layout_marginBottom="12dp"
             app:layout_constraintBottom_toBottomOf="@+id/message_box"
-            app:layout_constraintEnd_toEndOf="@+id/message_box" />
+            app:layout_constraintEnd_toEndOf="@+id/message_box"
+            android:animateLayoutChanges="true" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/reactions"
@@ -171,7 +173,8 @@
             app:layout_constraintEnd_toEndOf="@+id/message_box"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/reactions_anchor" />
+            app:layout_constraintTop_toBottomOf="@+id/reactions_anchor"
+            android:animateLayoutChanges="true" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.daimajia.swipe.SwipeLayout>
 </layout>

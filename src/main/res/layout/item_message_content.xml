@@ -64,23 +64,22 @@
             android:layout_marginHorizontal="10dp"
             android:paddingTop="4dp"
             android:autoLink="web"
+            android:maxLines="6"
             android:longClickable="false"
             android:textAppearance="?textAppearanceBodyMedium"
             android:visibility="gone" />
 
-        <de.monocles.chat.ReadMoreTextView
-            app:trimExpandedText="@string/show_less"
-            app:trimCollapsedText="@string/show_more"
-            app:trimMode="trimModeLength"
-            app:colorClickableText="?colorPrimary"
-            android:id="@+id/message_body_collapsable"
+        <TextView
+            android:id="@+id/show_more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/message_body"
             android:layout_marginHorizontal="10dp"
-            android:paddingTop="4dp"
-            android:autoLink="web"
-            android:longClickable="false"
-            android:textAppearance="?textAppearanceBodyMedium"
+            android:text="... more / less"
+            android:textColor="?colorPrimary"
+            android:textStyle="bold"
+            android:textAppearance="?textAppearanceBodyLarge"
+            android:padding="2dp"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton

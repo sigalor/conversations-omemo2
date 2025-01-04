@@ -129,14 +129,6 @@
             android:entryValues="@array/avatars_shape_values"
             android:summary="@string/pref_avatar_shape_summary"
             android:title="@string/pref_avatars_shape" />
-        <!--        TODO: Add expandable text later
-        <SwitchPreferenceCompat
-            android:defaultValue="@bool/set_text_collapsable"
-            android:icon="@drawable/ic_keyboard_double_arrow_down_24dp"
-            android:key="set_text_collapsable"
-            android:summary="@string/pref_set_text_collapsable_summary"
-            android:title="@string/pref_set_text_collapsable" />
-            -->
         <Preference
             android:icon="@drawable/ic_forum_24dp"
             app:fragment="eu.siacs.conversations.ui.fragment.settings.InterfaceBubblesSettingsFragment"
@@ -154,6 +146,12 @@
             android:key="show_link_previews"
             android:summary="@string/show_link_previews_summary"
             android:title="@string/show_link_previews" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/set_text_collapsable"
+            android:icon="@drawable/ic_keyboard_double_arrow_down_24dp"
+            android:key="set_text_collapsable"
+            android:summary="@string/pref_set_text_collapsable_summary"
+            android:title="@string/pref_set_text_collapsable" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_operating_system">
         <SwitchPreferenceCompat

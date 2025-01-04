@@ -751,6 +751,37 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
             viewHolder.messageBody().setAutoLinkMask(0);
             viewHolder.messageBody().setText(body);
+
+            // Experimental expandable text
+            if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
+                viewHolder.messageBody().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        int lineCount = viewHolder.messageBody().getLineCount();
+                        if (lineCount > 6) {
+                            viewHolder.showMore().setVisibility(View.VISIBLE);
+                        } else {
+                            viewHolder.showMore().setVisibility(View.GONE);
+                        }
+                    }
+                });
+                final boolean[] isTextViewClicked = {false};
+                viewHolder.showMore().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (isTextViewClicked[0]) {
+                            //This will shrink textview to 6 lines if it is expanded.
+                            viewHolder.messageBody().setMaxLines(6);
+                            isTextViewClicked[0] = false;
+                        } else {
+                            //This will expand the textview if it is of 6 lines
+                            viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+                            isTextViewClicked[0] = true;
+                        }
+                    }
+                });
+            } else viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+
             if (body.length() <= 0) viewHolder.messageBody().setVisibility(View.GONE);
             BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
                 @Override
@@ -2198,6 +2229,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         protected abstract TextView messageBody();
 
+        protected abstract TextView showMore();
+
         protected abstract ImageView contactPicture();
 
         protected abstract ChipGroup reactions();
@@ -2305,6 +2338,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         @Override
         protected TextView messageBody() {
             return this.binding.messageContent.messageBody;
+        }
+
+        @Override
+        protected TextView showMore() {
+            return this.binding.messageContent.showMore;
         }
 
         protected TextView encryption() {
@@ -2438,6 +2476,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         @Override
         protected TextView messageBody() {
             return this.binding.messageContent.messageBody;
+        }
+
+        @Override
+        protected TextView showMore() {
+            return this.binding.messageContent.showMore;
         }
 
         @Override
