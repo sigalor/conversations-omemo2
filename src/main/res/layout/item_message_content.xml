@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/message_body"
             android:layout_marginHorizontal="10dp"
-            android:text="... more / less"
+            android:text="@string/show_more"
             android:textColor="?colorPrimary"
             android:textStyle="bold"
             android:textAppearance="?textAppearanceBodyLarge"

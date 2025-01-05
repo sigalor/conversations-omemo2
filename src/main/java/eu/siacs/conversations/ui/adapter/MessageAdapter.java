@@ -771,10 +771,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     public void onClick(View v) {
                         if (isTextViewClicked[0]) {
                             //This will shrink textview to 6 lines if it is expanded.
+                            viewHolder.showMore().setText(R.string.show_more);
                             viewHolder.messageBody().setMaxLines(6);
                             isTextViewClicked[0] = false;
                         } else {
                             //This will expand the textview if it is of 6 lines
+                            viewHolder.showMore().setText(R.string.show_less);
                             viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
                             isTextViewClicked[0] = true;
                         }
