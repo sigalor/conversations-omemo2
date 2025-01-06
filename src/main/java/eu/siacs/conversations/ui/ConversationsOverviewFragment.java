@@ -542,7 +542,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		}
 		setupSwipe();
 
-		binding.overviewSnackbar.setVisibility(View.GONE);
+		if (binding.overviewSnackbar != null) binding.overviewSnackbar.setVisibility(View.GONE);
 		if (activity.xmppConnectionService == null) return;
 		for (final var account : activity.xmppConnectionService.getAccounts()) {
 			if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
