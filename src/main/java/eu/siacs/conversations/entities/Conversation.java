@@ -1561,7 +1561,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         final var script = locale.getScript();
         for (final var m : messages) {
             if (getMode() != MODE_MULTI) {
-                final var resource = m.getCounterpart().getResource();
+                final var resource = m.getCounterpart() == null ? null : m.getCounterpart().getResource();
                 if (resource != null && resource.length() < 10) {
                     anyMatchSpam = true;
                     return;
