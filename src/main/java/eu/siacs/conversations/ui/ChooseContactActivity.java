@@ -56,6 +56,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     private final ArrayList<String> mActivatedAccounts = new ArrayList<>();
     private final Set<String> selected = new HashSet<>();
     private Set<String> filterContacts;
+    private Set<ListItem> extraContacts = new HashSet<>();
 
     private boolean showEnterJid = false;
     private boolean startSearching = false;
@@ -292,6 +293,12 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         for (final var account : xmppConnectionService.getAccounts()) {
             if (mActivatedAccounts.contains(account.getJid().asBareJid().toEscapedString())) accounts.add(account);
         }
+        for (final var contact : extraContacts) {
+            if (!filterContacts.contains(contact.getJid().asBareJid().toString())
+                    && contact.match(this, needle)) {
+                getListItems().add(contact);
+            }
+        }
         for (final Account account : accounts) {
             for (final Contact contact : account.getRoster().getContacts()) {
                 if (contact.showInContactList() &&
@@ -353,14 +360,26 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         );
 
         dialog.setOnEnterJidDialogPositiveListener((accountJid, contactJid, x, y) -> {
-            final Intent request = getIntent();
-            final Intent data = new Intent();
-            data.putExtra("contact", contactJid.toString());
-            data.putExtra(EXTRA_ACCOUNT, accountJid.toEscapedString());
-            data.putExtra(EXTRA_SELECT_MULTIPLE, false);
-            copy(request, data);
-            setResult(RESULT_OK, data);
-            finish();
+            for (final Account account : xmppConnectionService.getAccounts()) {
+                if (account.getJid().asBareJid().equals(accountJid)) {
+                    final var contact = account.getRoster().getContact(contactJid);
+                    if (multiple) {
+                        extraContacts.add(contact);
+                        selected.add(contactJid.toString());
+                        if (mMenuSearchView != null) {
+                            binding.fab.postDelayed(() -> {
+                                mMenuSearchView.expandActionView();
+                                mSearchEditText.setText("");
+                                mSearchEditText.append(contactJid.toString());
+                            }, 200L);
+                            filterContacts(contactJid.toString());
+                            binding.fab.setImageResource(R.drawable.ic_navigate_next_24dp);
+                        }
+                    } else {
+                        onListItemClicked(contact);
+                    }
+                }
+            }
 
             return true;
         });

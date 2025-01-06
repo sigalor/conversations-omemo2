@@ -1557,7 +1557,7 @@ public class StartConversationActivity extends XmppActivity
             return;
         }
         Intent intent = new Intent(getApplicationContext(), ChooseContactActivity.class);
-        intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, false);
+        intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, true);
         intent.putExtra(ChooseContactActivity.EXTRA_SELECT_MULTIPLE, true);
         intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, name.trim());
         intent.putExtra(
