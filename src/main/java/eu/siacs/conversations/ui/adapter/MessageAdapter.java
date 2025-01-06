@@ -1468,8 +1468,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     || (c.getMucOptions().occupantId()
                     && c.getMucOptions().participating()))) {
                 viewHolder.messageBox().setOnTouchListener((v, event) -> {
-                    boolean isLink = LinkClickDetector.isLinkClicked(viewHolder.messageBody(), event);
-                    if (event.getAction() == MotionEvent.ACTION_UP && !isLink ) {
+                    if (event.getAction() == MotionEvent.ACTION_UP ) {
                         if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                             popup.setFocusable(false);
                             popup.onTouch(v, event);
