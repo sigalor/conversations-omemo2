@@ -1574,7 +1574,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     return;
                 }
             } catch (final java.util.regex.PatternSyntaxException ignored) {  } // Not supported on old android
-            if (body.length() > 320 || !m.getLinks().isEmpty() || body.matches(".*(?:\\n.*\\n.*\\n|[Aa]\\s*d\\s*v\\s*v\\s*e\\s*r\\s*t|[Pp]romotion|[Dd][Dd][Oo][Ss]|[Ee]scrow|payout|seller|\\?OTR|write me when will be|v seti|[Pp]rii?vee?t|there\\?|online\\?|exploit).*")) {
+            if (body.length() > 500 || !m.getLinks().isEmpty() || body.matches(".*(?:\\n.*\\n.*\\n|[Aa]\\s*d\\s*v\\s*v\\s*e\\s*r\\s*t|[Pp]romotion|[Dd][Dd][Oo][Ss]|[Ee]scrow|payout|seller|\\?OTR|write me when will be|v seti|[Pp]rii?vee?t|there\\?|online\\?|exploit).*")) {
                 anyMatchSpam = true;
                 return;
             }
