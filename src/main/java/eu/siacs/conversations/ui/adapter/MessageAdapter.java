@@ -25,6 +25,7 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.util.LruCache;
 import android.view.accessibility.AccessibilityEvent;
@@ -61,6 +62,8 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
 import de.monocles.chat.BobTransfer;
+import de.monocles.chat.InlineImageSpan;
+import de.monocles.chat.LinkClickDetector;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcUpdate;
@@ -324,7 +327,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         setTextColor(viewHolder.subject(), bubbleColor);
         if (message.getEncryption() == Message.ENCRYPTION_NONE) {
-            viewHolder.indicator().setVisibility(View.GONE);
+            viewHolder.indicator().setVisibility(GONE);
         } else {
             boolean verified = false;
             if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
@@ -358,7 +361,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 setImageTint(viewHolder.editIndicator(), bubbleColor);
             }
         } else {
-            viewHolder.editIndicator().setVisibility(View.GONE);
+            viewHolder.editIndicator().setVisibility(GONE);
         }
 
         final String formattedTime =
@@ -379,7 +382,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
             } else {
                 viewHolder.username().setText(null);
-                viewHolder.username().setVisibility(View.GONE);
+                viewHolder.username().setVisibility(GONE);
             }
             if (bodyLanguage != null) {
                 timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
@@ -450,9 +453,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private void displayInfoMessage(
             BubbleMessageItemViewHolder viewHolder, CharSequence text, final BubbleColor bubbleColor) {
-        viewHolder.downloadButton().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
-        viewHolder.image().setVisibility(View.GONE);
+        viewHolder.downloadButton().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
+        viewHolder.image().setVisibility(GONE);
         viewHolder.messageBody().setVisibility(View.VISIBLE);
         viewHolder.messageBody().setText(text);
         viewHolder.messageBody().setTextColor(
@@ -463,9 +466,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void displayEmojiMessage(
             final BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.downloadButton().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
-        viewHolder.image().setVisibility(View.GONE);
+        viewHolder.downloadButton().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
+        viewHolder.image().setVisibility(GONE);
         viewHolder.messageBody().setVisibility(View.VISIBLE);
         setTextColor(viewHolder.messageBody(), bubbleColor);
         final var body = getSpannableBody(message);
@@ -592,10 +595,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private void displayTextMessage(
             final BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
-        viewHolder.inReplyToQuote().setVisibility(View.GONE);
-        viewHolder.downloadButton().setVisibility(View.GONE);
-        viewHolder.image().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.inReplyToQuote().setVisibility(GONE);
+        viewHolder.downloadButton().setVisibility(GONE);
+        viewHolder.image().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.messageBody().setVisibility(View.VISIBLE);
         setTextColor(viewHolder.messageBody(), bubbleColor);
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
@@ -737,7 +740,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             // Make custom emoji bigger too, to match emoji
-            for (final var span : body.getSpans(0, body.length(), de.monocles.chat.InlineImageSpan.class)) {
+            for (final var span : body.getSpans(0, body.length(), InlineImageSpan.class)) {
                 body.setSpan(
                         new RelativeSizeSpan(2.0f),
                         body.getSpanStart(span),
@@ -761,7 +764,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         if (lineCount > 6) {
                             viewHolder.showMore().setVisibility(View.VISIBLE);
                         } else {
-                            viewHolder.showMore().setVisibility(View.GONE);
+                            viewHolder.showMore().setVisibility(GONE);
                         }
                     }
                 });
@@ -784,33 +787,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 });
             } else viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
 
-            if (body.length() <= 0) viewHolder.messageBody().setVisibility(View.GONE);
-            BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
-                @Override
-                protected void dispatchUrlLongClick(TextView tv, ClickableSpan span) {
-                    if (span instanceof URLSpan || mOnInlineImageLongClickedListener == null) {
-                        tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
-                        super.dispatchUrlLongClick(tv, span);
-                        return;
-                    }
-
-                    Spannable body = (Spannable) tv.getText();
-                    ImageSpan[] imageSpans = body.getSpans(body.getSpanStart(span), body.getSpanEnd(span), ImageSpan.class);
-                    if (imageSpans.length > 0) {
-                        Uri uri = Uri.parse(imageSpans[0].getSource());
-                        Cid cid = BobTransfer.cid(uri);
-                        if (cid == null) return;
-                        if (mOnInlineImageLongClickedListener.onInlineImageLongClicked(cid)) {
-                            tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
-                        }
-                    }
-                }
-            };
-            method.setOnLinkLongClickListener((tv, url) -> {
-                tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
-                ShareUtil.copyLinkToClipboard(activity, url);
-                return true;
-            });
+            if (body.length() <= 0) viewHolder.messageBody().setVisibility(GONE);
+            BetterLinkMovementMethod method = getBetterLinkMovementMethod();
             viewHolder.messageBody().setMovementMethod(method);
         } else {
             viewHolder.messageBody().setText("");
@@ -819,13 +797,44 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
     }
 
+    @NonNull
+    private BetterLinkMovementMethod getBetterLinkMovementMethod() {
+        BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
+            @Override
+            protected void dispatchUrlLongClick(TextView tv, ClickableSpan span) {
+                if (span instanceof URLSpan || mOnInlineImageLongClickedListener == null) {
+                    tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
+                    super.dispatchUrlLongClick(tv, span);
+                    return;
+                }
+
+                Spannable body = (Spannable) tv.getText();
+                ImageSpan[] imageSpans = body.getSpans(body.getSpanStart(span), body.getSpanEnd(span), ImageSpan.class);
+                if (imageSpans.length > 0) {
+                    Uri uri = Uri.parse(imageSpans[0].getSource());
+                    Cid cid = BobTransfer.cid(uri);
+                    if (cid == null) return;
+                    if (mOnInlineImageLongClickedListener.onInlineImageLongClicked(cid)) {
+                        tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
+                    }
+                }
+            }
+        };
+        method.setOnLinkLongClickListener((tv, url) -> {
+            tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
+            ShareUtil.copyLinkToClipboard(activity, url);
+            return true;
+        });
+        return method;
+    }
+
     private void displayDownloadableMessage(
             final BubbleMessageItemViewHolder viewHolder,
             final Message message,
             final String text,
             final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.image().setVisibility(View.GONE);
+        viewHolder.image().setVisibility(GONE);
         List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
         if (thumbs != null && !thumbs.isEmpty()) {
             for (Element thumb : thumbs) {
@@ -871,7 +880,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 break;
             }
         }
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setText(text);
         final var attachment = Attachment.of(message);
@@ -885,8 +894,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         Cid webxdcCid = message.getFileParams().getCids().get(0);
         WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message);
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.image().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.image().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setIconResource(0);
         viewHolder.downloadButton().setText(activity.getString(R.string.open) + " " + webxdc.getName());
@@ -947,8 +956,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void displayOpenableMessage(
             final BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.image().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.image().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setText(
                 activity.getString(
@@ -963,9 +972,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void displayURIMessage(
             final BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.messageBody().setVisibility(View.GONE);
-        viewHolder.image().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.messageBody().setVisibility(GONE);
+        viewHolder.image().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         final var uri = message.wholeIsKnownURI();
         if ("bitcoin".equals(uri.getScheme())) {
@@ -1001,7 +1010,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
         final String url = GeoHelper.MapPreviewUri(message, activity);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
             Glide.with(activity)
                     .load(Uri.parse(url))
@@ -1013,7 +1022,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.image().setOnClickListener(v -> showLocation(message));
             viewHolder.downloadButton().setVisibility(GONE);
         } else {
-            viewHolder.image().setVisibility(View.GONE);
+            viewHolder.image().setVisibility(GONE);
             viewHolder.downloadButton().setVisibility(View.VISIBLE);
             viewHolder.downloadButton().setText(R.string.show_location);
             final var attachment = Attachment.of(message);
@@ -1026,8 +1035,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void displayAudioMessage(
             BubbleMessageItemViewHolder viewHolder, Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.image().setVisibility(View.GONE);
-        viewHolder.downloadButton().setVisibility(View.GONE);
+        viewHolder.image().setVisibility(GONE);
+        viewHolder.downloadButton().setVisibility(GONE);
         final RelativeLayout audioPlayer = viewHolder.audioPlayer();
         audioPlayer.setVisibility(View.VISIBLE);
         AudioPlayer.ViewHolder.get(audioPlayer).setBubbleColor(bubbleColor);
@@ -1037,11 +1046,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private void displayMediaPreviewMessage(
             BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor, final int type) {
         displayTextMessage(viewHolder, message, bubbleColor, type);
-        viewHolder.downloadButton().setVisibility(View.GONE);
-        viewHolder.audioPlayer().setVisibility(View.GONE);
+        viewHolder.downloadButton().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.image().setVisibility(View.VISIBLE);
         final FileParams params = message.getFileParams();
-        imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != View.GONE, type, viewHolder);
+        imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != GONE, type, viewHolder);
         activity.loadBitmap(message, viewHolder.image());
         viewHolder.image().setOnClickListener(v -> openDownloadable(message));
     }
@@ -1128,7 +1137,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.messageBody().setText(body);
             viewHolder.messageBody().setVisibility(View.VISIBLE);
         } else {
-            viewHolder.messageBody().setVisibility(View.GONE);
+            viewHolder.messageBody().setVisibility(GONE);
         }
     }
 
@@ -1263,7 +1272,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         if (viewHolder.threadIdenticon() != null) {
-            viewHolder.threadIdenticon().setVisibility(View.GONE);
+            viewHolder.threadIdenticon().setVisibility(GONE);
             final Element thread = message.getThread();
             if (thread != null) {
                 final String threadId = thread.getContent();
@@ -1290,7 +1299,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             setRequiresAvatar(viewHolder, requiresAvatar);
             AvatarWorkerTask.loadAvatar(message, viewHolder.contactPicture(), R.dimen.avatar_on_conversation_overview);
         } else {
-            viewHolder.contactPicture().setVisibility(View.GONE);
+            viewHolder.contactPicture().setVisibility(GONE);
         }
         setAvatarDistance(viewHolder.messageBox(), type, showAvatar);
         viewHolder.messageBox().setClipToOutline(true);
@@ -1446,7 +1455,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             return true; // true is closing popup, false is requesting a new selection
         });
 
-
+        LinkClickDetector.setupLinkClickDetector(viewHolder.messageBody());
         final boolean showError =
                 message.getStatus() == Message.STATUS_SEND_FAILED
                         && message.getErrorMessage() != null
@@ -1459,7 +1468,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     || (c.getMucOptions().occupantId()
                     && c.getMucOptions().participating()))) {
                 viewHolder.messageBox().setOnTouchListener((v, event) -> {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                    boolean isLink = LinkClickDetector.isLinkClicked(viewHolder.messageBody(), event);
+                    if (event.getAction() == MotionEvent.ACTION_UP && !isLink ) {
                         if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                             popup.setFocusable(false);
                             popup.onTouch(v, event);
@@ -1469,7 +1479,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 });
 
                 viewHolder.messageBody().setOnTouchListener((v, event) -> {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                    boolean isLink = LinkClickDetector.isLinkClicked(viewHolder.messageBody(), event);
+                    if (event.getAction() == MotionEvent.ACTION_UP && !isLink) {
                         if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                             popup.setFocusable(false);
                             popup.onTouch(v, event);
@@ -1630,14 +1641,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (adapter instanceof ArrayAdapter) {
                     ((ArrayAdapter<?>) adapter).clear();
                 }
-                viewHolder.commandsList().setVisibility(View.GONE);
+                viewHolder.commandsList().setVisibility(GONE);
                 viewHolder.commandsList().setOnItemClickListener(null);
             }
 
             setTextColor(startViewHolder.encryption(), bubbleColor);
 
             if (isInValidSession) {
-                startViewHolder.encryption().setVisibility(View.GONE);
+                startViewHolder.encryption().setVisibility(GONE);
             } else {
                 startViewHolder.encryption().setVisibility(View.VISIBLE);
                 if (omemoEncryption && !message.isTrusted()) {
@@ -1675,14 +1686,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 if (thread != null) subject = thread.getSubject();
             }
             if (muted || subject == null) {
-                viewHolder.subject().setVisibility(View.GONE);
+                viewHolder.subject().setVisibility(GONE);
             } else {
                 viewHolder.subject().setVisibility(View.VISIBLE);
                 viewHolder.subject().setText(subject);
             }
 
             if (message.getInReplyTo() == null) {
-                viewHolder.inReplyToBox().setVisibility(View.GONE);
+                viewHolder.inReplyToBox().setVisibility(GONE);
             } else {
                 viewHolder.inReplyToBox().setVisibility(View.VISIBLE);
                 viewHolder.inReplyTo().setText(UIHelper.getMessageDisplayName(message.getInReplyTo()));
@@ -1811,14 +1822,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private View render(final Message message, final StatusMessageItemViewHolder viewHolder) {
         final var conversation = message.getConversation();
         if ("LOAD_MORE".equals(message.getBody())) {
-            viewHolder.binding.statusMessage.setVisibility(View.GONE);
-            viewHolder.binding.messagePhoto.setVisibility(View.GONE);
+            viewHolder.binding.statusMessage.setVisibility(GONE);
+            viewHolder.binding.messagePhoto.setVisibility(GONE);
             viewHolder.binding.loadMoreMessages.setVisibility(View.VISIBLE);
             viewHolder.binding.loadMoreMessages.setOnClickListener(
                     v -> loadMoreMessages((Conversation) message.getConversation()));
         } else {
             viewHolder.binding.statusMessage.setVisibility(View.VISIBLE);
-            viewHolder.binding.loadMoreMessages.setVisibility(View.GONE);
+            viewHolder.binding.loadMoreMessages.setVisibility(GONE);
             viewHolder.binding.statusMessage.setText(message.getBody());
             boolean showAvatar;
             if (conversation.getMode() == Conversation.MODE_SINGLE) {
@@ -1839,7 +1850,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.binding.messagePhoto.setAlpha(0.5f);
                 viewHolder.binding.messagePhoto.setVisibility(View.VISIBLE);
             } else {
-                viewHolder.binding.messagePhoto.setVisibility(View.GONE);
+                viewHolder.binding.messagePhoto.setVisibility(GONE);
             }
         }
         return viewHolder.binding.getRoot();
@@ -2113,7 +2124,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (largeFont) {
             textView.setTextAppearance(
                     com.google.android.material.R.style.TextAppearance_Material3_BodyLarge);
-            textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         } else {
             textView.setTextAppearance(
                     com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
