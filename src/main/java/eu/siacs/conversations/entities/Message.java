@@ -443,7 +443,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return m;
     }
 
-    public void clearReplyReact() {
+    public synchronized void clearReplyReact() {
         mInReplyTo = null;
         this.payloads.remove(getReactionsEl());
         this.payloads.remove(getReply());
@@ -491,7 +491,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         addPayload(reactions);
     }
 
-    public Element getReply() {
+    public synchronized Element getReply() {
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
@@ -503,7 +503,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return null;
     }
 
-    public boolean isAttention() {
+    public synchronized boolean isAttention() {
         if (this.payloads == null) return false;
 
         for (Element el : this.payloads) {
@@ -1323,21 +1323,21 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         }
     }
 
-    public void clearPayloads() {
+    public synchronized void clearPayloads() {
         this.payloads.clear();
     }
 
-    public void addPayload(Element el) {
+    public synchronized void addPayload(Element el) {
         if (el == null) return;
 
         this.payloads.add(el);
     }
 
-    public List<Element> getPayloads() {
+    public synchronized List<Element> getPayloads() {
        return new ArrayList<>(this.payloads);
     }
 
-    public List<Element> getFallbacks(String... includeFor) {
+    public synchronized List<Element> getFallbacks(String... includeFor) {
         List<Element> fallbacks = new ArrayList<>();
 
         if (this.payloads == null) return fallbacks;
@@ -1362,7 +1362,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return getHtml(false);
     }
 
-    public Element getHtml(boolean root) {
+    public synchronized Element getHtml(boolean root) {
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
@@ -1374,7 +1374,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return null;
    }
 
-    public List<Element> getCommands() {
+    public synchronized List<Element> getCommands() {
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
@@ -1386,7 +1386,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return null;
     }
 
-    public List<Element> getLinkDescriptions() {
+    public synchronized List<Element> getLinkDescriptions() {
         final ArrayList<Element> result = new ArrayList<>();
         if (this.payloads == null) return result;
 
