@@ -97,7 +97,7 @@
         android:id="@+id/action_muc_participants"
         android:icon="@drawable/ic_group_24dp"
         android:orderInCategory="40"
-        android:title="@string/action_muc_details"
+        android:title="@string/group_chat_members"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_contact_details"
