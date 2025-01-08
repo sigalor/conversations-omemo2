@@ -183,7 +183,7 @@ public class DownloadDefaultStickers extends Service {
 			uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
 			return new File(FileUtils.getPath(getBaseContext(), uri));
 		} else {
-			return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir);
+			return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + dir);
 		}
 	}
 

@@ -321,16 +321,15 @@ public class ConversationFragment extends XmppFragment
     private Toast messageLoaderToast;
     private ConversationsActivity activity;
     private boolean reInitRequiredOnStart = true;
-    private int identiconWidth = -1;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
     private EmojiSearchOld emojiSearchOld = null;
-    File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Stickers");
+    File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + File.separator + "Stickers");
     //Gifspaths
     private File[] files;
     private String[] filesPaths;
     private String[] filesNames;
-    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Stickers" + File.separator + "Animoji");
+    File dirGifs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + File.separator + "Stickers" + File.separator + "Animoji");
 
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
     private KeyboardHeightProvider keyboardHeightProvider = null;
@@ -3417,7 +3416,7 @@ public class ConversationFragment extends XmppFragment
         if (dir.startsWith("content://")) {
             intent.putExtra("android.provider.extra.INITIAL_URI", Uri.parse(dir));
         } else {
-            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + dir + "/User Pack").mkdirs();
+            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + dir + "/User Pack").mkdirs();
             Uri uri;
             if (Build.VERSION.SDK_INT >= 29) {
                 Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
@@ -5530,10 +5529,10 @@ public class ConversationFragment extends XmppFragment
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 parentDirectory =
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RECORDINGS);
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");
             } else {
                 parentDirectory =
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");
             }
         }
         final File conversationsDirectory = new File(parentDirectory, getString(R.string.app_name));

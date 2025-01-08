@@ -48,7 +48,7 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
         final var p = PreferenceManager.getDefaultSharedPreferences(requireActivity());
         final var stickerDir = findPreference("sticker_directory");
         if (Build.VERSION.SDK_INT >= 29) {
-            stickerDir.setSummary(p.getString("sticker_directory", "Pictures/Stickers"));
+            stickerDir.setSummary(p.getString("sticker_directory", "Documents/monocles chat/Stickers"));
             stickerDir.setOnPreferenceClickListener((pref) -> {
                 final var intent = ((StorageManager) requireActivity().getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
                 startActivityForResult(Intent.createChooser(intent, "Choose sticker location"), 0);

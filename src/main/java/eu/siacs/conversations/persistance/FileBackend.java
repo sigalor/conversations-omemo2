@@ -193,7 +193,7 @@ public class FileBackend {
         final File conversationsDownloadDirectory =
                 new File(
                         Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_DOWNLOADS),
+                                Environment.DIRECTORY_DOCUMENTS),
                         context.getString(R.string.app_name));
         return new File(conversationsDownloadDirectory, "Backup");
     }
@@ -1124,23 +1124,18 @@ public class FileBackend {
     public File getStorageLocation(final Message message, final String filename, final String mime) {
         final File parentDirectory;
         if (Strings.isNullOrEmpty(mime)) {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat");
         } else if (mime.startsWith("image/")) {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/pictures");
         } else if (mime.startsWith("video/")) {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+            parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/videos");
         } else if (MediaAdapter.DOCUMENT_MIMES.contains(mime)) {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/documents");
         } else {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat");
         }
         final File appDirectory =
-                new File(parentDirectory, mXmppConnectionService.getString(R.string.app_name));
+                new File(String.valueOf(parentDirectory));
         if (message == null || message.getStatus() == Message.STATUS_DUMMY || (message.getConversation() instanceof Conversation && ((Conversation) message.getConversation()).storeInCache())) {
             final var mediaCache = new File(mXmppConnectionService.getCacheDir(), "/media");
             return new File(mediaCache, filename);
@@ -1150,11 +1145,10 @@ public class FileBackend {
     }
 
     public void setupNomedia(final boolean nomedia) {
-        final var pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        final var app = mXmppConnectionService.getString(R.string.app_name);
-        final var picturesNomedia = new File(new File(pictures, app), ".nomedia");
-        final var movies = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        final var moviesNomedia = new File(new File(movies, app), ".nomedia");
+        final var pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/pictures");
+        final var picturesNomedia = new File(new File(String.valueOf(pictures)), ".nomedia");
+        final var movies = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/videos");
+        final var moviesNomedia = new File(new File(String.valueOf(movies)), ".nomedia");
         var rescan = false;
         if (nomedia) {
             rescan = rescan || picturesNomedia.mkdir();
@@ -1164,8 +1158,8 @@ public class FileBackend {
             rescan = rescan || moviesNomedia.delete();
         }
         if (rescan) {
-            updateMediaScanner(new File(pictures, app));
-            updateMediaScanner(new File(movies, app));
+            updateMediaScanner(new File(String.valueOf(pictures)));
+            updateMediaScanner(new File(String.valueOf(movies)));
         }
     }
 
