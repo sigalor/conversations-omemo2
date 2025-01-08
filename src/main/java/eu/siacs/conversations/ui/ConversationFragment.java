@@ -3370,7 +3370,10 @@ public class ConversationFragment extends XmppFragment
         } else {
             final DownloadableFile file =
                     activity.xmppConnectionService.getFileBackend().getFile(message);
-            ViewUtil.view(activity, file);
+            final var fp = message.getFileParams();
+            final var name = fp == null ? null : fp.getName();
+            final var displayName = name == null ? file.getName() : name;
+            ViewUtil.view(activity, file, displayName);
         }
     }
 
@@ -3428,7 +3431,7 @@ public class ConversationFragment extends XmppFragment
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file)));
+        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, activity.xmppConnectionService.getFileBackend().getUriForFile(activity, file, file.getName())));
         intent.putExtra(Intent.EXTRA_TITLE, name);
 
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);

@@ -24,12 +24,13 @@ import me.drakeet.support.toast.ToastCompat;
 public class ViewUtil {
 
     public static void view(Context context, Attachment attachment) {
+        // TODO: accept displayName
         File file = new File(attachment.getUri().getPath());
         final String mime = attachment.getMime() == null ? "*/*" : attachment.getMime();
-        view(context, file, mime);
+        view(context, file, mime, file.getName());
     }
 
-    public static void view (Context context, DownloadableFile file) {
+    public static void view (Context context, DownloadableFile file, final String displayName) {
         if (!file.exists()) {
             Toast.makeText(context, R.string.file_deleted, Toast.LENGTH_SHORT).show();
             return;
@@ -38,14 +39,14 @@ public class ViewUtil {
         if (mime == null) {
             mime = "*/*";
         }
-        view(context, file, mime);
+        view(context, file, mime, displayName);
     }
 
-    public static void view(Context context, File file, String mime) {
-        Log.d(Config.LOGTAG, "viewing " + file.getAbsolutePath() + " " + mime);
+    public static void view(Context context, File file, String mime, final String displayName) {
+        Log.d(Config.LOGTAG,"viewing "+file.getAbsolutePath()+" "+mime);
         final Uri uri;
         try {
-            uri = FileBackend.getUriForFile(context, file);
+            uri = FileBackend.getUriForFile(context, file, displayName);
         } catch (SecurityException e) {
             Log.d(Config.LOGTAG, "No permission to access " + file.getAbsolutePath(), e);
             ToastCompat.makeText(context, context.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), ToastCompat.LENGTH_SHORT).show();

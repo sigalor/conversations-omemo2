@@ -65,8 +65,11 @@ public class ShareUtil {
 			shareIntent.putExtra(ConversationsActivity.EXTRA_AS_QUOTE, message.getStatus() == Message.STATUS_RECEIVED);
 		} else {
 			final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
+			final var fp = message.getFileParams();
+			final var name = fp == null ? null : fp.getName();
+			final var displayName = name == null ? file.getName() : name;
 			try {
-				shareIntent.putExtra(Intent.EXTRA_STREAM, FileBackend.getUriForFile(activity, file));
+				shareIntent.putExtra(Intent.EXTRA_STREAM, FileBackend.getUriForFile(activity, file, displayName));
 			} catch (SecurityException e) {
 				Toast.makeText(activity, activity.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
 				return;

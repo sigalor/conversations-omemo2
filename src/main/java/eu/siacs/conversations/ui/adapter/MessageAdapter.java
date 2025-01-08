@@ -2039,7 +2039,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         final DownloadableFile file =
                 activity.xmppConnectionService.getFileBackend().getFile(message);
-        ViewUtil.view(activity, file);
+        final var fp = message.getFileParams();
+        final var name = fp == null ? null : fp.getName();
+        final var displayName = name == null ? file.getName() : name;
+        ViewUtil.view(activity, file, displayName);
     }
 
     private void showLocation(Message message) {

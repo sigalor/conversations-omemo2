@@ -235,16 +235,17 @@ public class FileBackend {
 
     public static Uri getUriForUri(Context context, Uri uri) {
         if ("file".equals(uri.getScheme())) {
-            return getUriForFile(context, new File(uri.getPath()));
+            final var file = new File(uri.getPath());
+            return getUriForFile(context, file, file.getName());
         } else {
             return uri;
         }
     }
 
-    public static Uri getUriForFile(Context context, File file) {
+    public static Uri getUriForFile(Context context, File file, final String displayName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Config.ONLY_INTERNAL_STORAGE || file.toString().startsWith(context.getCacheDir().toString())) {
             try {
-                return FileProvider.getUriForFile(context, getAuthority(context), file);
+                return FileProvider.getUriForFile(context, getAuthority(context), file, displayName);
             } catch (IllegalArgumentException e) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     throw new SecurityException(e);
@@ -1647,7 +1648,7 @@ public class FileBackend {
         }
         final File file = new File(directory, filename);
         file.getParentFile().mkdirs();
-        return getUriForFile(mXmppConnectionService, file);
+        return getUriForFile(mXmppConnectionService, file, filename);
     }
 
     public Avatar getPepAvatar(Uri image, int size, Bitmap.CompressFormat format) {

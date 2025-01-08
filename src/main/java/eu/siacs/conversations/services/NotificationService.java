@@ -1203,7 +1203,8 @@ public class NotificationService {
 
     private Uri fixRingtoneUri(Uri uri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && "file".equals(uri.getScheme())) {
-            return FileBackend.getUriForFile(mXmppConnectionService, new File(uri.getPath()));
+            final var file = new File(uri.getPath());
+            return FileBackend.getUriForFile(mXmppConnectionService, file, file.getName());
         } else {
             return uri;
         }
