@@ -2072,6 +2072,10 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void setupReply(Message message) {
+        if (message != null) {
+            final var correcting = conversation.getCorrectingMessage();
+            if (correcting != null && correcting.getUuid().equals(message.getUuid())) return;
+        }
         conversation.setReplyTo(message);
         if (message == null) {
             binding.contextPreview.setVisibility(View.GONE);
