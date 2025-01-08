@@ -3595,10 +3595,7 @@ public class ConversationFragment extends XmppFragment
             this.binding.textinputSubject.setText(message.getSubject());
             this.binding.textinputSubject.setVisibility(View.VISIBLE);
         }
-        final var replyTo = message.getInReplyTo();
-        if (replyTo != null) {
-            setupReply(replyTo);
-        }
+        setupReply(message.getInReplyTo());
     }
 
     private void highlightInConference(String nick) {
