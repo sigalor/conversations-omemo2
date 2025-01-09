@@ -755,13 +755,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.messageBody().setAutoLinkMask(0);
             viewHolder.messageBody().setText(body);
 
-            // Experimental expandable text
+            // Experimental expandable text, collapse after 8 lines
             if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
                 viewHolder.messageBody().post(new Runnable() {
                     @Override
                     public void run() {
                         int lineCount = viewHolder.messageBody().getLineCount();
-                        if (lineCount > 6) {
+                        if (lineCount > 8) {
                             viewHolder.showMore().setVisibility(View.VISIBLE);
                         } else {
                             viewHolder.showMore().setVisibility(GONE);
@@ -773,12 +773,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     @Override
                     public void onClick(View v) {
                         if (isTextViewClicked[0]) {
-                            //This will shrink textview to 6 lines if it is expanded.
+                            //This will shrink textview to 8 lines if it is expanded.
                             viewHolder.showMore().setText(R.string.show_more);
-                            viewHolder.messageBody().setMaxLines(6);
+                            viewHolder.messageBody().setMaxLines(8);
                             isTextViewClicked[0] = false;
                         } else {
-                            //This will expand the textview if it is of 6 lines
+                            //This will expand the textview if it is of 8 lines
                             viewHolder.showMore().setText(R.string.show_less);
                             viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
                             isTextViewClicked[0] = true;

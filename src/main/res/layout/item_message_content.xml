@@ -64,7 +64,7 @@
             android:layout_marginHorizontal="10dp"
             android:paddingTop="4dp"
             android:autoLink="web"
-            android:maxLines="6"
+            android:maxLines="8"
             android:longClickable="false"
             android:textAppearance="?textAppearanceBodyMedium"
             android:visibility="gone" />
