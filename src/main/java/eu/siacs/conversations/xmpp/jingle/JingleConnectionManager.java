@@ -1283,9 +1283,5 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         @Override
         public void onCallIntegrationMicrophoneEnabled(boolean enabled) {}
 
-        @Override
-        public boolean applyDtmfTone(final String dtmf) {
-            return false;
-        }
     }
 }
