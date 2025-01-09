@@ -239,7 +239,7 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
         boolean success;
         ObjectInputStream input = null;
         try {
-            final File file = new File(FileBackend.getBackupDirectory(requireContext()).getAbsolutePath() + "/settings.dat");
+            final File file = new File(FileBackend.getBackupDirectory(requireContext()).getAbsolutePath(),"settings.dat");
             input = new ObjectInputStream(new FileInputStream(file));
             SharedPreferences.Editor prefEdit = PreferenceManager.getDefaultSharedPreferences(requireSettingsActivity()).edit();
             prefEdit.clear();
@@ -308,6 +308,12 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+        if (success) {
+            new Thread(() -> runOnUiThread(() -> requireActivity().recreate())).start();
+            ToastCompat.makeText(requireActivity(), R.string.success_export_settings, ToastCompat.LENGTH_SHORT).show();
+        } else {
+            ToastCompat.makeText(requireActivity(), R.string.error_export_settings, ToastCompat.LENGTH_SHORT).show();
         }
         return success;
     }
