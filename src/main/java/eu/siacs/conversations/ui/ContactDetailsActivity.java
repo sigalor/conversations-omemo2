@@ -788,10 +788,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.clients.setVisibility(View.GONE);
             } else {
                 binding.clients.setVisibility(View.VISIBLE);
-                for (int i = 0; i < resources.length; i++) {
-                    binding.clients.append(resources[i]);
-                    binding.clients.append("\n");
+                StringBuilder clientsText = new StringBuilder();
+                for(String value: resources) {
+                    clientsText.append(value).append("\n");
                 }
+                binding.clients.setText(clientsText);
             }
 
             populateView();
