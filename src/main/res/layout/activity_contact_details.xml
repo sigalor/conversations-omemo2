@@ -119,6 +119,14 @@
                                 android:textAppearance="?textAppearanceBodyMedium"
                                 tools:text="Hey there! I’m using monocles chat" />
 
+                            <TextView
+                                android:id="@+id/clients"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="4dp"
+                                android:textAppearance="?textAppearanceBodyMedium" />
+
                             <Button
                                 android:id="@+id/add_contact_button"
                                 style="@style/Widget.Material3.Button.ElevatedButton"

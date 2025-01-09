@@ -258,7 +258,6 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             populateView();
         });
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
-
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
@@ -490,7 +489,6 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 }
                 binding.statusMessage.setText(builder);
             }
-
             if (contact.getOption(Contact.Options.FROM)) {
                 binding.detailsSendPresence.setText(R.string.send_presence_updates);
                 binding.detailsSendPresence.setChecked(true);
@@ -782,6 +780,19 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 conversation.setStoreInCache(checked);
                 xmppConnectionService.updateConversation(conversation);
             });
+
+
+            //Show used clients of contact
+            String[] resources = contact.getPresences().toResourceArray();
+            if (resources.length == 0) {
+                binding.clients.setVisibility(View.GONE);
+            } else {
+                binding.clients.setVisibility(View.VISIBLE);
+                for (int i = 0; i < resources.length; i++) {
+                    binding.clients.append(resources[i]);
+                    binding.clients.append("\n");
+                }
+            }
 
             populateView();
         }
