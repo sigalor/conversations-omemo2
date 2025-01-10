@@ -100,7 +100,7 @@
                         android:background="@drawable/background_message_bubble"
                         android:alpha="0.88"
                         android:orientation="vertical"
-                        android:animateLayoutChanges="true" >
+                         >
 
 
                         <RelativeLayout
@@ -109,7 +109,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:visibility="gone"
-                            android:animateLayoutChanges="true" >
+                             >
 
                             <ImageView
                                 android:id="@+id/cancel_button"
@@ -235,14 +235,14 @@
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="5dp"
-                            android:animateLayoutChanges="true">
+                            >
 
 
                             <RelativeLayout
                                 android:id="@+id/textinput_layout_new"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:animateLayoutChanges="true" >
+                                 >
 
                         <RelativeLayout
                             android:id="@+id/input_layout"
@@ -252,7 +252,7 @@
                             android:layout_toStartOf="@+id/textSendButton"
                             android:layout_toEndOf="@+id/thread_identicon_layout"
                             android:paddingVertical="6dp"
-                            android:animateLayoutChanges="true" >
+                             >
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/media_preview"
@@ -319,7 +319,7 @@
                                 android:layout_alignParentEnd="true"
                                 android:layout_alignBottom="@+id/textinput"
                                 android:orientation="horizontal"
-                                android:animateLayoutChanges="true" >
+                                 >
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/takePictureButton"
@@ -414,7 +414,7 @@
                             android:paddingLeft="8dp"
                             android:gravity="center"
                             android:orientation="horizontal"
-                            android:animateLayoutChanges="true"
+
                             android:visibility="gone">
 
                             <TextView
@@ -492,7 +492,7 @@
                             android:layout_below="@+id/textformat"
                             android:orientation="vertical"
                             android:visibility="visible"
-                            android:animateLayoutChanges="true" >
+                             >
 
                             <RelativeLayout
                                 android:layout_width="match_parent"
@@ -541,7 +541,7 @@
                                 android:layout_weight="1"
                                 android:gravity="bottom|center_horizontal"
                                 android:orientation="horizontal"
-                                android:animateLayoutChanges="true" >
+                                 >
 
                                 <TextView
                                     android:id="@+id/emojis_button"

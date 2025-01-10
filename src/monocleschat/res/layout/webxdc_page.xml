@@ -31,7 +31,7 @@
             android:layout_height="0dp"
             android:orientation="vertical"
             android:visibility="visible"
-            android:animateLayoutChanges="true" >
+             >
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -80,7 +80,7 @@
                 android:layout_weight="1"
                 android:gravity="bottom|center_horizontal"
                 android:orientation="horizontal"
-                android:animateLayoutChanges="true" >
+                 >
 
                 <TextView
                     android:id="@+id/emojis_button"
