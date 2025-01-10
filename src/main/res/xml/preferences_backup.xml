@@ -27,6 +27,12 @@
         android:key="backup_directory"
         android:summary="@string/pref_create_backup_summary" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="@bool/plain_text_logs"
+        android:key="export_plain_text_logs"
+        android:summary="@string/pref_export_plain_text_logs_summary"
+        android:title="@string/pref_export_plain_text_logs" />
+
     <PreferenceCategory
         android:title="@string/pref_category_settings">
         <Preference

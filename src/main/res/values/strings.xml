@@ -1412,4 +1412,6 @@
     <string name="show_to_contacts_only">Show to contacts only</string>
     <string name="success_export_settings">Settings successfully exported</string>
     <string name="error_export_settings">Error while exporting settings</string>
+    <string name="pref_export_plain_text_logs">Export plain text</string>
+    <string name="pref_export_plain_text_logs_summary">Export messages unencrypted in human readable plain text</string>
 </resources>

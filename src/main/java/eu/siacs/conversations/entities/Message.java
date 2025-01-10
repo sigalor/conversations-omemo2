@@ -132,6 +132,13 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final String OCCUPANT_ID = "occupantId";
     public static final String REACTIONS = "reactions";
     public static final String ME_COMMAND = "/me ";
+    public static final String PAYLOADS = "payloads";
+    public static final String TIME_RECEIVED = "timeReceived";
+    public static final String SUBJECT = "subject";
+    public static final String FILE_PARAMS = "fileParams";
+    public static final String OCCUPANTID = "occupant_id";
+    public static final String NOTIFICATION_DISMISSED = "notificationDismissed";
+
 
     public static final String ERROR_MESSAGE_CANCELLED = "eu.siacs.conversations.cancelled";
 
@@ -288,7 +295,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public static Message fromCursor(Cursor cursor, Conversation conversation) throws IOException {
-        String payloadsStr = cursor.getString(cursor.getColumnIndex("payloads"));
+        String payloadsStr = cursor.getString(cursor.getColumnIndexOrThrow(PAYLOADS));
         List<Element> payloads = new ArrayList<>();
         if (payloadsStr != null) {
             final XmlReader xmlReader = new XmlReader();
@@ -302,40 +309,39 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 Log.e(Config.LOGTAG, "Failed to parse: " + payloadsStr, e);
             }
         }
-
         Message m = new Message(conversation,
-                cursor.getString(cursor.getColumnIndex(UUID)),
-                cursor.getString(cursor.getColumnIndex(CONVERSATION)),
-                fromString(cursor.getString(cursor.getColumnIndex(COUNTERPART))),
-                fromString(cursor.getString(cursor.getColumnIndex(TRUE_COUNTERPART))),
-                cursor.getString(cursor.getColumnIndex(BODY)),
-                cursor.getLong(cursor.getColumnIndex(TIME_SENT)),
-                cursor.getInt(cursor.getColumnIndex(ENCRYPTION)),
-                cursor.getInt(cursor.getColumnIndex(STATUS)),
-                cursor.getInt(cursor.getColumnIndex(TYPE)),
-                cursor.getInt(cursor.getColumnIndex(CARBON)) > 0,
-                cursor.getString(cursor.getColumnIndex(REMOTE_MSG_ID)),
-                cursor.getString(cursor.getColumnIndex(RELATIVE_FILE_PATH)),
-                cursor.getString(cursor.getColumnIndex(SERVER_MSG_ID)),
-                cursor.getString(cursor.getColumnIndex(FINGERPRINT)),
-                cursor.getInt(cursor.getColumnIndex(READ)) > 0,
-                cursor.getString(cursor.getColumnIndex(EDITED)),
-                cursor.getInt(cursor.getColumnIndex(OOB)) > 0,
-                cursor.getString(cursor.getColumnIndex(ERROR_MESSAGE)),
-                ReadByMarker.fromJsonString(cursor.getString(cursor.getColumnIndex(READ_BY_MARKERS))),
-                cursor.getInt(cursor.getColumnIndex(MARKABLE)) > 0,
-                cursor.getInt(cursor.getColumnIndex(DELETED)) > 0,
-                cursor.getString(cursor.getColumnIndex(BODY_LANGUAGE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(UUID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(CONVERSATION)),
+                fromString(cursor.getString(cursor.getColumnIndexOrThrow(COUNTERPART))),
+                fromString(cursor.getString(cursor.getColumnIndexOrThrow(TRUE_COUNTERPART))),
+                cursor.getString(cursor.getColumnIndexOrThrow(BODY)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(TIME_SENT)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(ENCRYPTION)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(STATUS)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(TYPE)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(CARBON)) > 0,
+                cursor.getString(cursor.getColumnIndexOrThrow(REMOTE_MSG_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(RELATIVE_FILE_PATH)),
+                cursor.getString(cursor.getColumnIndexOrThrow(SERVER_MSG_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FINGERPRINT)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(READ)) > 0,
+                cursor.getString(cursor.getColumnIndexOrThrow(EDITED)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(OOB)) > 0,
+                cursor.getString(cursor.getColumnIndexOrThrow(ERROR_MESSAGE)),
+                ReadByMarker.fromJsonString(cursor.getString(cursor.getColumnIndexOrThrow(READ_BY_MARKERS))),
+                cursor.getInt(cursor.getColumnIndexOrThrow(MARKABLE)) > 0,
+                cursor.getInt(cursor.getColumnIndexOrThrow(DELETED)) > 0,
+                cursor.getString(cursor.getColumnIndexOrThrow(BODY_LANGUAGE)),
                 cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANT_ID)),
                 Reaction.fromString(cursor.getString(cursor.getColumnIndexOrThrow(REACTIONS))),
-                cursor.getLong(cursor.getColumnIndex(cursor.isNull(cursor.getColumnIndex("timeReceived")) ? TIME_SENT : "timeReceived")),
-                cursor.getString(cursor.getColumnIndex("subject")),
-                cursor.getString(cursor.getColumnIndex("fileParams")),
+                cursor.getLong(cursor.getColumnIndexOrThrow(cursor.isNull(cursor.getColumnIndexOrThrow(TIME_RECEIVED)) ? TIME_SENT : TIME_RECEIVED)),
+                cursor.getString(cursor.getColumnIndexOrThrow(SUBJECT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FILE_PARAMS)),
                 payloads
         );
-        final var legacyOccupant = cursor.getString(cursor.getColumnIndex("occupant_id"));
+        final var legacyOccupant = cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANTID));
         if (legacyOccupant != null) m.setOccupantId(legacyOccupant);
-        if (cursor.getInt(cursor.getColumnIndex("notificationDismissed")) > 0) m.markNotificationDismissed();
+        if (cursor.getInt(cursor.getColumnIndexOrThrow(NOTIFICATION_DISMISSED)) > 0) m.markNotificationDismissed();
         return m;
     }
 
@@ -365,29 +371,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return message;
     }
 
-    public ContentValues getmonoclesContentValues() {
-        final FileParams fp = fileParams;
-        ContentValues values = new ContentValues();
-        values.put(UUID, uuid);
-        values.put("subject", subject);
-        values.put("fileParams", fp == null ? null : fp.toString());
-        if (fp != null && !fp.isEmpty()) {
-            List<Element> sims = getSims();
-            if (sims.isEmpty()) {
-                addPayload(fp.toSims());
-            } else {
-                sims.get(0).replaceChildren(fp.toSims().getChildren());
-            }
-        }
-        values.put("payloads", payloads.size() < 1 ? null : payloads.stream().map(Object::toString).collect(Collectors.joining()));
-        values.put("occupant_id", occupantId);
-        values.put("timeReceived", timeReceived);
-        values.put("notificationDismissed", notificationDismissed ? 1 : 0);
-        return values;
-    }
-
     @Override
     public ContentValues getContentValues() {
+        final FileParams fp = fileParams;
         final var values = new ContentValues();
         values.put(UUID, uuid);
         values.put(CONVERSATION, conversationUuid);
@@ -425,6 +411,20 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         values.put(BODY_LANGUAGE, bodyLanguage);
         values.put(OCCUPANT_ID, occupantId);
         values.put(REACTIONS, Reaction.toString(this.reactions));
+        values.put(SUBJECT, subject);
+        values.put(FILE_PARAMS, fp == null ? null : fp.toString());
+        if (fp != null && !fp.isEmpty()) {
+            List<Element> sims = getSims();
+            if (sims.isEmpty()) {
+                addPayload(fp.toSims());
+            } else {
+                sims.get(0).replaceChildren(fp.toSims().getChildren());
+            }
+        }
+        values.put(PAYLOADS, payloads.size() < 1 ? null : payloads.stream().map(Object::toString).collect(Collectors.joining()));
+        values.put(OCCUPANTID, occupantId);
+        values.put(TIME_RECEIVED, timeReceived);
+        values.put(NOTIFICATION_DISMISSED, notificationDismissed ? 1 : 0);
         return values;
     }
 

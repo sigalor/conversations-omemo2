@@ -7,10 +7,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -24,6 +26,7 @@ import com.google.common.base.Strings;
 import com.google.gson.stream.JsonWriter;
 
 import eu.siacs.conversations.Config;
+import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.SQLiteAxolotlStore;
 import eu.siacs.conversations.entities.Account;
@@ -33,10 +36,13 @@ import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.utils.BackupFileHeader;
 import eu.siacs.conversations.utils.Compatibility;
+import eu.siacs.conversations.xmpp.Jid;
 
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -74,10 +80,17 @@ public class ExportBackupWorker extends Worker {
 
     public static final String MIME_TYPE = "application/vnd.conversations.backup";
 
+    private static final String MESSAGE_STRING_FORMAT = "(%s) %s: %s\n";
+
     private static final int NOTIFICATION_ID = 19;
     private static final int BACKUP_CREATED_NOTIFICATION_ID = 23;
 
     private final boolean recurringBackup;
+
+    boolean ReadableLogsEnabled = false;
+    private DatabaseBackend mDatabaseBackend;
+    private List<Account> mAccounts;
+
 
     public ExportBackupWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -234,6 +247,25 @@ public class ExportBackupWorker extends Worker {
             Log.d(Config.LOGTAG, "written backup to " + file.getAbsoluteFile());
             count++;
         }
+
+        mDatabaseBackend = DatabaseBackend.getInstance(Conversations.getContext());
+        mAccounts = mDatabaseBackend.getAccounts();
+        final SharedPreferences ReadableLogs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        ReadableLogsEnabled = ReadableLogs.getBoolean("export_plain_text_logs", getApplicationContext().getResources().getBoolean(R.bool.plain_text_logs));
+
+        try {
+            if (ReadableLogsEnabled) {  // todo
+                List<Conversation> conversations = mDatabaseBackend.getConversations(Conversation.STATUS_AVAILABLE);
+                conversations.addAll(mDatabaseBackend.getConversations(Conversation.STATUS_ARCHIVED));
+                for (Conversation conversation : conversations) {
+                    writeToFile(conversation);
+                    Log.d(Config.LOGTAG, "Exporting readable logs for " + conversation.getJid());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return files;
     }
 
@@ -245,7 +277,7 @@ public class ExportBackupWorker extends Worker {
 
     private void messageExportmonocles(final SQLiteDatabase db, final String uuid, final JsonWriter writer, final Progress progress) throws IOException {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
-        Cursor cursor = db.rawQuery("select mmessages.* from messages join monocles.messages mmessages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=?", new String[]{uuid});
+        Cursor cursor = db.rawQuery("select mmessages.* from messages join messages mmessages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=?", new String[]{uuid});
         int size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " monocles messages for account " + uuid);
         int i = 0;
@@ -253,7 +285,7 @@ public class ExportBackupWorker extends Worker {
         while (cursor != null && cursor.moveToNext()) {
             writer.beginObject();
             writer.name("table");
-            writer.value("monocles." + Message.TABLENAME);
+            writer.value("" + Message.TABLENAME);
             writer.name("values");
             writer.beginObject();
             for (int j = 0; j < cursor.getColumnCount(); ++j) {
@@ -275,13 +307,13 @@ public class ExportBackupWorker extends Worker {
             cursor.close();
         }
 
-        cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join monocles.webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
+        cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
         size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " WebXDC updates for account " + uuid);
         while (cursor != null && cursor.moveToNext()) {
             writer.beginObject();
             writer.name("table");
-            writer.value("monocles.webxdc_updates");
+            writer.value("webxdc_updates");
             writer.name("values");
             writer.beginObject();
             for (int j = 0; j < cursor.getColumnCount(); ++j) {
@@ -535,6 +567,72 @@ public class ExportBackupWorker extends Worker {
         private Notification build(int percentage) {
             notification.setProgress(max * 100, count * 100 + percentage, false);
             return notification.build();
+        }
+    }
+
+    private void writeToFile(Conversation conversation) {
+        Jid accountJid = resolveAccountUuid(conversation.getAccountUuid());
+        Jid contactJid = conversation.getJid();
+        final File dir = new File(FileBackend.getBackupDirectory(getApplicationContext()), accountJid.asBareJid().toString());
+        dir.mkdirs();
+
+        BufferedWriter bw = null;
+        try {
+            for (Message message : mDatabaseBackend.getMessagesIterable(conversation)) {
+                if (message == null)
+                    continue;
+                if (message.getType() == Message.TYPE_TEXT || message.hasFileOnRemoteHost()) {
+                    String date = DATE_FORMAT.format(new Date(message.getTimeSent()));
+                    if (bw == null) {
+                        bw = new BufferedWriter(new FileWriter(
+                                new File(dir, contactJid.asBareJid().toString() + ".txt")));
+                    }
+                    String jid = null;
+                    switch (message.getStatus()) {
+                        case Message.STATUS_RECEIVED:
+                            jid = getMessageCounterpart(message);
+                            break;
+                        case Message.STATUS_SEND:
+                        case Message.STATUS_SEND_RECEIVED:
+                        case Message.STATUS_SEND_DISPLAYED:
+                        case Message.STATUS_SEND_FAILED:
+                            jid = accountJid.asBareJid().toString();
+                            break;
+                    }
+                    if (jid != null) {
+                        String body = message.hasFileOnRemoteHost() ? message.getFileParams().url.toString() : message.getBody();
+                        bw.write(String.format(MESSAGE_STRING_FORMAT, date, jid, body.replace("\\\n", "\\ \n").replace("\n", "\\ \n")));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null) {
+                    bw.close();
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    private Jid resolveAccountUuid(String accountUuid) {
+        for (Account account : mAccounts) {
+            if (account.getUuid().equals(accountUuid)) {
+                return account.getJid();
+            }
+        }
+        return null;
+    }
+
+    private String getMessageCounterpart(Message message) {
+        String trueCounterpart = (String) message.getContentValues().get(Message.TRUE_COUNTERPART);
+        if (trueCounterpart != null) {
+            return trueCounterpart;
+        } else {
+            return message.getCounterpart().toString();
         }
     }
 }

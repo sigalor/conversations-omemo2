@@ -41,8 +41,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -76,7 +78,7 @@ import eu.siacs.conversations.xmpp.mam.MamReference;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 60;
+    private static final int DATABASE_VERSION = 61;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -225,164 +227,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return instance;
     }
 
-    protected void monoclesMigrate(SQLiteDatabase db) {
-        db.beginTransaction();
-
-        try {
-            Cursor cursor = db.rawQuery("PRAGMA monocles.user_version", null);
-            cursor.moveToNext();
-            int monoclesVersion = cursor.getInt(0);
-            cursor.close();
-
-            if(monoclesVersion < 1) {
-                // No cross-DB foreign keys unfortunately
-                db.execSQL(
-                        "CREATE TABLE monocles." + Message.TABLENAME + "(" +
-                                Message.UUID + " TEXT PRIMARY KEY, " +
-                                "subject TEXT" +
-                                ")"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 1");
-            }
-
-            if(monoclesVersion < 2) {
-                db.execSQL(
-                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                                "ADD COLUMN oobUri TEXT"
-                );
-                db.execSQL(
-                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                                "ADD COLUMN fileParams TEXT"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 2");
-            }
-
-            if(monoclesVersion < 3) {
-                db.execSQL(
-                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                                "ADD COLUMN payloads TEXT"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 3");
-            }
-
-            if(monoclesVersion < 4) {
-                db.execSQL(
-                        "CREATE TABLE monocles.cids (" +
-                                "cid TEXT NOT NULL PRIMARY KEY," +
-                                "path TEXT NOT NULL" +
-                                ")"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 4");
-            }
-
-            if(monoclesVersion < 5) {
-                db.execSQL(
-                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                                "ADD COLUMN timeReceived NUMBER"
-                );
-                db.execSQL("CREATE INDEX monocles.message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
-                db.execSQL("PRAGMA monocles.user_version = 5");
-            }
-
-            if(monoclesVersion < 6) {
-                db.execSQL(
-                        "CREATE TABLE monocles.blocked_media (" +
-                                "cid TEXT NOT NULL PRIMARY KEY" +
-                                ")"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 6");
-            }
-
-            if(monoclesVersion < 7) {
-                db.execSQL(
-                        "ALTER TABLE monocles.cids " +
-                                "ADD COLUMN url TEXT"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 7");
-            }
-
-            if(monoclesVersion < 8) {
-                db.execSQL(
-                        "CREATE TABLE monocles.webxdc_updates (" +
-                                "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                                Message.CONVERSATION + " TEXT NOT NULL, " +
-                                "sender TEXT NOT NULL, " +
-                                "thread TEXT NOT NULL, " +
-                                "threadParent TEXT, " +
-                                "info TEXT, " +
-                                "document TEXT, " +
-                                "summary TEXT, " +
-                                "payload TEXT" +
-                                ")"
-                );
-                db.execSQL("CREATE INDEX monocles.webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
-                db.execSQL("PRAGMA monocles.user_version = 8");
-            }
-
-            if(monoclesVersion < 9) {
-                db.execSQL(
-                        "ALTER TABLE monocles.webxdc_updates " +
-                                "ADD COLUMN message_id TEXT"
-                );
-                db.execSQL("CREATE UNIQUE INDEX monocles.webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
-                db.execSQL("PRAGMA monocles.user_version = 9");
-            }
-
-            if(monoclesVersion < 10) {
-                db.execSQL(
-                        "CREATE TABLE monocles.muted_participants (" +
-                                "muc_jid TEXT NOT NULL, " +
-                                "occupant_id TEXT NOT NULL, " +
-                                "nick TEXT NOT NULL," +
-                                "PRIMARY KEY (muc_jid, occupant_id)" +
-                                ")"
-                );
-                db.execSQL(
-                        "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                                "ADD COLUMN occupant_id TEXT"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 10");
-            }
-
-            if(monoclesVersion < 11) {
-                if (Build.VERSION.SDK_INT >= 34) {
-                    db.execSQL(
-                            "ALTER TABLE monocles.muted_participants " +
-                                    "DROP COLUMN nick"
-                    );
-                } else {
-                    db.execSQL("DROP TABLE monocles.muted_participants");
-                    db.execSQL(
-                            "CREATE TABLE monocles.muted_participants (" +
-                                    "muc_jid TEXT NOT NULL, " +
-                                    "occupant_id TEXT NOT NULL, " +
-                                    "PRIMARY KEY (muc_jid, occupant_id)" +
-                                    ")"
-                    );
-                }
-                db.execSQL("PRAGMA monocles.user_version = 11");
-            }
-
-            if(monoclesVersion < 12) {
-                db.execSQL(
-                    "ALTER TABLE monocles." + Message.TABLENAME + " " +
-                    "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
-                );
-                db.execSQL("PRAGMA monocles.user_version = 12");
-            }
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
     @Override
     public void onConfigure(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys=ON");
         db.rawQuery("PRAGMA secure_delete=ON", null).close();
-        db.execSQL("ATTACH DATABASE ? AS monocles", new Object[]{context.getDatabasePath("monocles").getPath()});
-        monoclesMigrate(db);
     }
 
     @Override
@@ -777,7 +625,96 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.OCCUPANT_ID + " TEXT");
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.REACTIONS + " TEXT");
         }
-    }
+        if (oldVersion < 61 && newVersion >= 61) {
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " +
+                            Message.SUBJECT + " TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN oobUri TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN fileParams TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN payloads TEXT"
+            );
+            db.execSQL(
+                    "CREATE TABLE cids (" +
+                            "cid TEXT NOT NULL PRIMARY KEY," +
+                            "path TEXT NOT NULL" +
+                            ")"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN timeReceived NUMBER"
+            );
+            db.execSQL("CREATE INDEX message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
+            db.execSQL(
+                    "CREATE TABLE blocked_media (" +
+                            "cid TEXT NOT NULL PRIMARY KEY" +
+                            ")"
+            );
+            db.execSQL(
+                    "ALTER TABLE cids " +
+                            "ADD COLUMN url TEXT"
+            );
+            db.execSQL(
+                    "CREATE TABLE webxdc_updates (" +
+                            "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            Message.CONVERSATION + " TEXT NOT NULL, " +
+                            "sender TEXT NOT NULL, " +
+                            "thread TEXT NOT NULL, " +
+                            "threadParent TEXT, " +
+                            "info TEXT, " +
+                            "document TEXT, " +
+                            "summary TEXT, " +
+                            "payload TEXT" +
+                            ")"
+            );
+            db.execSQL("CREATE INDEX webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
+            db.execSQL(
+                    "ALTER TABLE webxdc_updates " +
+                            "ADD COLUMN message_id TEXT"
+            );
+            db.execSQL("CREATE UNIQUE INDEX webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
+            db.execSQL(
+                    "CREATE TABLE muted_participants (" +
+                            "muc_jid TEXT NOT NULL, " +
+                            "occupant_id TEXT NOT NULL, " +
+                            "nick TEXT NOT NULL," +
+                            "PRIMARY KEY (muc_jid, occupant_id)" +
+                            ")"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN occupant_id TEXT"
+            );
+            if (Build.VERSION.SDK_INT >= 34) {
+                db.execSQL(
+                        "ALTER TABLE muted_participants " +
+                                "DROP COLUMN nick"
+                );
+            } else {
+                db.execSQL("DROP TABLE muted_participants");
+                db.execSQL(
+                        "CREATE TABLE muted_participants (" +
+                                "muc_jid TEXT NOT NULL, " +
+                                "occupant_id TEXT NOT NULL, " +
+                                "PRIMARY KEY (muc_jid, occupant_id)" +
+                                ")"
+                );
+            }
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
+            );
+            requiresMessageIndexRebuild = true;
+        }
+        }
 
     private void canonicalizeJids(SQLiteDatabase db) {
         // migrate db to new, canonicalized JID domainpart representation
@@ -862,7 +799,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (cid == null) return null;
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("monocles.cids", new String[]{"path"}, "cid=?", new String[]{cid.toString()}, null, null, null);
+        Cursor cursor = db.query("cids", new String[]{"path"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         DownloadableFile f = null;
         if (cursor.moveToNext()) {
             f = new DownloadableFile(cursor.getString(0));
@@ -873,7 +810,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public String getUrlForCid(Cid cid) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("monocles.cids", new String[]{"url"}, "cid=?", new String[]{cid.toString()}, null, null, null);
+        Cursor cursor = db.query("cids", new String[]{"url"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         String url = null;
         if (cursor.moveToNext()) {
             url = cursor.getString(0);
@@ -892,8 +829,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         cv.put("cid", cid.toString());
         if (file != null) cv.put("path", file.getAbsolutePath());
         if (url != null) cv.put("url", url);
-        if (db.update("monocles.cids", cv, "cid=?", new String[]{cid.toString()}) < 1) {
-            db.insertWithOnConflict("monocles.cids", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        if (db.update("cids", cv, "cid=?", new String[]{cid.toString()}) < 1) {
+            db.insertWithOnConflict("cids", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         }
     }
 
@@ -901,12 +838,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("cid", cid.toString());
-        db.insertWithOnConflict("monocles.blocked_media", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict("blocked_media", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public boolean isBlockedMedia(Cid cid) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("monocles.blocked_media", new String[]{"count(*)"}, "cid=?", new String[]{cid.toString()}, null, null, null);
+        Cursor cursor = db.query("blocked_media", new String[]{"count(*)"}, "cid=?", new String[]{cid.toString()}, null, null, null);
         boolean is = false;
         if (cursor.moveToNext()) {
             is = cursor.getInt(0) > 0;
@@ -917,13 +854,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public void clearBlockedMedia() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM monocles.blocked_media");
+        db.execSQL("DELETE FROM blocked_media");
     }
 
     public Multimap<String, String> loadMutedMucUsers() {
         Multimap<String, String> result = HashMultimap.create();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query("monocles.muted_participants", new String[]{"muc_jid", "occupant_id"}, null, null, null, null, null);
+        Cursor cursor = db.query("muted_participants", new String[]{"muc_jid", "occupant_id"}, null, null, null, null, null);
         while (cursor.moveToNext()) {
             result.put(cursor.getString(0), cursor.getString(1));
         }
@@ -938,7 +875,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("muc_jid", user.getMuc().toString());
         cv.put("occupant_id", user.getOccupantId());
-        db.insertWithOnConflict("monocles.muted_participants", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict("muted_participants", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
         return true;
     }
@@ -949,14 +886,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String where = "muc_jid=? AND occupant_id=?";
         String[] whereArgs = {user.getMuc().toString(), user.getOccupantId()};
-        db.delete("monocles.muted_participants", where, whereArgs);
+        db.delete("muted_participants", where, whereArgs);
 
         return true;
     }
 
     public void insertWebxdcUpdate(final WebxdcUpdate update) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.insertWithOnConflict("monocles.webxdc_updates", null, update.getContentValues(), SQLiteDatabase.CONFLICT_IGNORE);
+        db.insertWithOnConflict("webxdc_updates", null, update.getContentValues(), SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     public WebxdcUpdate findLastWebxdcUpdate(Message message) {
@@ -967,7 +904,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = {message.getConversation().getUuid(), message.getThread().getContent()};
-        Cursor cursor = db.query("monocles.webxdc_updates", null,
+        Cursor cursor = db.query("webxdc_updates", null,
                 Message.CONVERSATION + "=? AND thread=?",
                 selectionArgs, null, null, "serial ASC");
         WebxdcUpdate update = null;
@@ -981,7 +918,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public List<WebxdcUpdate> findWebxdcUpdates(Message message, long serial) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = {message.getConversation().getUuid(), message.getThread().getContent(), String.valueOf(serial)};
-        Cursor cursor = db.query("monocles.webxdc_updates", null,
+        Cursor cursor = db.query("webxdc_updates", null,
                 Message.CONVERSATION + "=? AND thread=? AND serial>?",
                 selectionArgs, null, null, "serial ASC");
         long maxSerial = 0;
@@ -1007,7 +944,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public void createMessage(Message message) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.insert(Message.TABLENAME, null, message.getContentValues());
-        db.insert("monocles." + Message.TABLENAME, null, message.getmonoclesContentValues());
     }
 
     public void createAccount(Account account) {
@@ -1113,8 +1049,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Cursor cursor;
         cursor = db.rawQuery(
                 "SELECT * FROM " + Message.TABLENAME + " " +
-                        "LEFT JOIN monocles." + Message.TABLENAME +
-                        "  USING (" + Message.UUID + ")" +
                         "WHERE " + Message.UUID + "=?",
                 new String[]{uuid}
         );
@@ -1149,8 +1083,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Cursor cursor;
         cursor = db.rawQuery(
                 "SELECT * FROM " + Message.TABLENAME + " " +
-                        "LEFT JOIN monocles." + Message.TABLENAME +
-                        "  USING (" + Message.UUID + ")" +
                         "WHERE " + Message.UUID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.SERVER_MSG_ID + " IN (" + TextUtils.join(",", template) + ") OR " + Message.REMOTE_MSG_ID + " IN (" + TextUtils.join(",", template) + ")",
                 params.toArray(new String[0])
         );
@@ -1177,9 +1109,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             String[] selectionArgs = {conversation.getUuid()};
             cursor = db.rawQuery(
                     "SELECT * FROM " + Message.TABLENAME + " " +
-                            "LEFT JOIN monocles." + Message.TABLENAME +
-                            "  USING (" + Message.UUID + ")" +
-                            " WHERE " + Message.UUID + " IN (" +
+                            "WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
                             " WHERE " + Message.CONVERSATION + "=? " +
                             "ORDER BY " + Message.TIME_SENT + " DESC " +
@@ -1192,9 +1122,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     Long.toString(timestamp)};
             cursor = db.rawQuery(
                     "SELECT * FROM " + Message.TABLENAME + " " +
-                            "LEFT JOIN monocles." + Message.TABLENAME +
-                            "  USING (" + Message.UUID + ")" +
-                            " WHERE " + Message.UUID + " IN (" +
+                            "WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
                             " WHERE " + Message.CONVERSATION + "=? AND " +
                             Message.TIME_SENT + "<? " +
@@ -1330,7 +1258,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
         final String sql =
-                "select * from messages LEFT JOIN monocles.messages USING (uuid) where conversationUuid=? and serverMsgId=? LIMIT 1";
+                "select * from messages LEFT JOIN messages USING (uuid) where conversationUuid=? and serverMsgId=? LIMIT 1";
         final String[] args = {conversation.getUuid(), messageId};
         final Cursor cursor = db.rawQuery(sql, args);
         if (cursor == null) {
@@ -1350,7 +1278,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
         final String sql =
-                "select * from messages LEFT JOIN monocles.messages USING (uuid) where conversationUuid=? and (uuid=? OR remoteMsgId=?) LIMIT 1";
+                "select * from messages LEFT JOIN messages USING (uuid) where conversationUuid=? and (uuid=? OR remoteMsgId=?) LIMIT 1";
         final String[] args = {conversation.getUuid(), messageId, messageId};
         final Cursor cursor = db.rawQuery(sql, args);
         if (cursor == null) {
@@ -1473,15 +1401,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (!includeBody) {
             contentValues.remove(Message.BODY);
         }
-        return db.update(Message.TABLENAME, contentValues, Message.UUID + "=?", args) == 1 &&
-                db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
+        return db.update(Message.TABLENAME, contentValues, Message.UUID + "=?", args) == 1;
     }
 
     public boolean updateMessage(Message message, String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
-        return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1 &&
-                db.update("monocles." + Message.TABLENAME, message.getmonoclesContentValues(), Message.UUID + "=?", args) == 1;
+        return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1;
     }
 
 
@@ -1489,7 +1415,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
         return db.delete(Message.TABLENAME, Message.UUID + "=?", args) == 1 &&
-                db.delete("monocles." + Message.TABLENAME, Message.UUID + "=?", args) == 1;
+                db.delete("" + Message.TABLENAME, Message.UUID + "=?", args) == 1;
     }
 
     public void readRoster(Roster roster) {
@@ -1531,7 +1457,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.beginTransaction();
         final String[] args = {conversation.getUuid()};
         int num = db.delete(Message.TABLENAME, Message.CONVERSATION + "=?", args);
-        db.delete("monocles.webxdc_updates", Message.CONVERSATION + "=?", args);
+        db.delete("webxdc_updates", Message.CONVERSATION + "=?", args);
         db.setTransactionSuccessful();
         db.endTransaction();
         Log.d(Config.LOGTAG, "deleted " + num + " messages for " + conversation.getJid().asBareJid() + " in " + (SystemClock.elapsedRealtime() - start) + "ms");
@@ -1542,7 +1468,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         db.beginTransaction();
         db.delete(Message.TABLENAME, "timeSent<?", args);
-        db.delete("monocles.messages", "timeReceived<?", args);
+        db.delete("messages", "timeReceived<?", args);
         db.setTransactionSuccessful();
         db.endTransaction();
     }
@@ -2141,5 +2067,60 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
         cursor.close();
         return contacts;
+    }
+
+    public Iterable<Message> getMessagesIterable(final Conversation conversation) {
+        return () -> new Iterator<Message>() {
+            @Override
+            public boolean hasNext() {
+                if (messageCursor == null) return false;
+                return !messageCursor.isAfterLast();
+            }
+
+            final SQLiteDatabase database = getReadableDatabase();
+            final String[] queryArgs = {conversation.getUuid(), "1"};
+            Cursor messageCursor = null;
+
+            {
+                messageCursor = database.query(Message.TABLENAME, null, Message.CONVERSATION
+                        + "=? and " + Message.DELETED + "<?", queryArgs, null, null, Message.TIME_SENT
+                        + " ASC", null);
+                if (messageCursor != null) {
+                    messageCursor.moveToFirst();
+                }
+            }
+
+            @Override
+            public Message next() {
+                if (messageCursor == null || messageCursor.isAfterLast()) {
+                    throw new NoSuchElementException();
+                }
+                Message message = null;
+                try {
+                    message = Message.fromCursor(messageCursor, conversation);
+                } catch (IOException e) {
+                    messageCursor.close();
+                    throw new RuntimeException(e);
+                }
+                messageCursor.moveToNext();
+                return message;
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            protected void finalize() throws Throwable {
+                if (messageCursor != null) {
+                    messageCursor.close();
+                }
+                if (database != null) {
+                    database.close();
+                }
+                super.finalize();
+            }
+        };
     }
 }
