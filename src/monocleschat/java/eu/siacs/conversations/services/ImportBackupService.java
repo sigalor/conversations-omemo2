@@ -95,7 +95,6 @@ public class ImportBackupService extends Service {
                     Account.TABLENAME,
                     Conversation.TABLENAME,
                     Message.TABLENAME,
-                    Message.TABLENAME,
                     "webxdc_updates",
                     "muted_participants",
                     SQLiteAxolotlStore.PREKEY_TABLENAME,
