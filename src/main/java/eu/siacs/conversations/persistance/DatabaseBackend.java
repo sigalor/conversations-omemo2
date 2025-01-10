@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.os.Build;
@@ -303,6 +304,136 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_INSERT_TRIGGER);
         db.execSQL(CREATE_MESSAGE_UPDATE_TRIGGER);
         db.execSQL(CREATE_MESSAGE_DELETE_TRIGGER);
+        monoclesDatabase(db);
+    }
+
+    private void monoclesDatabase(SQLiteDatabase db) {
+        try {
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " +
+                            Message.SUBJECT + " TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        try {
+            db.execSQL(
+                "ALTER TABLE " + Message.TABLENAME + " " +
+                        "ADD COLUMN oobUri TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        try {
+            db.execSQL(
+                "ALTER TABLE " + Message.TABLENAME + " " +
+                        "ADD COLUMN fileParams TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        try {
+            db.execSQL(
+                "ALTER TABLE " + Message.TABLENAME + " " +
+                        "ADD COLUMN payloads TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        db.execSQL(
+                "CREATE TABLE IF NOT EXISTS cids (" +
+                        "cid TEXT NOT NULL PRIMARY KEY," +
+                        "path TEXT NOT NULL" +
+                        ")"
+        );
+        try {
+            db.execSQL(
+                "ALTER TABLE " + Message.TABLENAME + " " +
+                        "ADD COLUMN timeReceived NUMBER"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        db.execSQL("CREATE INDEX IF NOT EXISTS message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
+        db.execSQL(
+                "CREATE TABLE IF NOT EXISTS blocked_media (" +
+                        "cid TEXT NOT NULL PRIMARY KEY" +
+                        ")"
+        );
+        try {
+            db.execSQL(
+                "ALTER TABLE cids " +
+                        "ADD COLUMN url TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        db.execSQL(
+                "CREATE TABLE IF NOT EXISTS webxdc_updates (" +
+                        "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        Message.CONVERSATION + " TEXT NOT NULL, " +
+                        "sender TEXT NOT NULL, " +
+                        "thread TEXT NOT NULL, " +
+                        "threadParent TEXT, " +
+                        "info TEXT, " +
+                        "document TEXT, " +
+                        "summary TEXT, " +
+                        "payload TEXT" +
+                        ")"
+        );
+        db.execSQL("CREATE INDEX IF NOT EXISTS webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
+        try {
+            db.execSQL(
+                "ALTER TABLE webxdc_updates " +
+                        "ADD COLUMN message_id TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
+        db.execSQL(
+                "CREATE TABLE IF NOT EXISTS muted_participants (" +
+                        "muc_jid TEXT NOT NULL, " +
+                        "occupant_id TEXT NOT NULL, " +
+                        "nick TEXT NOT NULL," +
+                        "PRIMARY KEY (muc_jid, occupant_id)" +
+                        ")"
+        );
+        try {
+            db.execSQL(
+                "ALTER TABLE " + Message.TABLENAME + " " +
+                        "ADD COLUMN occupant_id TEXT"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        if (Build.VERSION.SDK_INT >= 34) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE muted_participants " +
+                            "DROP COLUMN nick"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
+        } else {
+            db.execSQL("DROP TABLE IF EXISTS muted_participants");
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS muted_participants (" +
+                            "muc_jid TEXT NOT NULL, " +
+                            "occupant_id TEXT NOT NULL, " +
+                            "PRIMARY KEY (muc_jid, occupant_id)" +
+                            ")"
+            );
+        }
+        try {
+            db.execSQL(
+                "ALTER TABLE " + Message.TABLENAME + " " +
+                        "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
+            );
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
     }
 
     @Override
@@ -626,95 +757,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.REACTIONS + " TEXT");
         }
         if (oldVersion < 61 && newVersion >= 61) {
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " +
-                            Message.SUBJECT + " TEXT"
-            );
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " " +
-                            "ADD COLUMN oobUri TEXT"
-            );
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " " +
-                            "ADD COLUMN fileParams TEXT"
-            );
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " " +
-                            "ADD COLUMN payloads TEXT"
-            );
-            db.execSQL(
-                    "CREATE TABLE cids (" +
-                            "cid TEXT NOT NULL PRIMARY KEY," +
-                            "path TEXT NOT NULL" +
-                            ")"
-            );
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " " +
-                            "ADD COLUMN timeReceived NUMBER"
-            );
-            db.execSQL("CREATE INDEX message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
-            db.execSQL(
-                    "CREATE TABLE blocked_media (" +
-                            "cid TEXT NOT NULL PRIMARY KEY" +
-                            ")"
-            );
-            db.execSQL(
-                    "ALTER TABLE cids " +
-                            "ADD COLUMN url TEXT"
-            );
-            db.execSQL(
-                    "CREATE TABLE webxdc_updates (" +
-                            "serial INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            Message.CONVERSATION + " TEXT NOT NULL, " +
-                            "sender TEXT NOT NULL, " +
-                            "thread TEXT NOT NULL, " +
-                            "threadParent TEXT, " +
-                            "info TEXT, " +
-                            "document TEXT, " +
-                            "summary TEXT, " +
-                            "payload TEXT" +
-                            ")"
-            );
-            db.execSQL("CREATE INDEX webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
-            db.execSQL(
-                    "ALTER TABLE webxdc_updates " +
-                            "ADD COLUMN message_id TEXT"
-            );
-            db.execSQL("CREATE UNIQUE INDEX webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
-            db.execSQL(
-                    "CREATE TABLE muted_participants (" +
-                            "muc_jid TEXT NOT NULL, " +
-                            "occupant_id TEXT NOT NULL, " +
-                            "nick TEXT NOT NULL," +
-                            "PRIMARY KEY (muc_jid, occupant_id)" +
-                            ")"
-            );
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " " +
-                            "ADD COLUMN occupant_id TEXT"
-            );
-            if (Build.VERSION.SDK_INT >= 34) {
-                db.execSQL(
-                        "ALTER TABLE muted_participants " +
-                                "DROP COLUMN nick"
-                );
-            } else {
-                db.execSQL("DROP TABLE muted_participants");
-                db.execSQL(
-                        "CREATE TABLE muted_participants (" +
-                                "muc_jid TEXT NOT NULL, " +
-                                "occupant_id TEXT NOT NULL, " +
-                                "PRIMARY KEY (muc_jid, occupant_id)" +
-                                ")"
-                );
-            }
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " " +
-                            "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
-            );
-            requiresMessageIndexRebuild = true;
+            monoclesDatabase(db);
         }
-        }
+    }
 
     private void canonicalizeJids(SQLiteDatabase db) {
         // migrate db to new, canonicalized JID domainpart representation
@@ -1258,7 +1303,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
         final String sql =
-                "select * from messages LEFT JOIN messages USING (uuid) where conversationUuid=? and serverMsgId=? LIMIT 1";
+                "select * from messages where conversationUuid=? and serverMsgId=? LIMIT 1";
         final String[] args = {conversation.getUuid(), messageId};
         final Cursor cursor = db.rawQuery(sql, args);
         if (cursor == null) {
@@ -1278,7 +1323,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
         final String sql =
-                "select * from messages LEFT JOIN messages USING (uuid) where conversationUuid=? and (uuid=? OR remoteMsgId=?) LIMIT 1";
+                "select * from messages where conversationUuid=? and (uuid=? OR remoteMsgId=?) LIMIT 1";
         final String[] args = {conversation.getUuid(), messageId, messageId};
         final Cursor cursor = db.rawQuery(sql, args);
         if (cursor == null) {
