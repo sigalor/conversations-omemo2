@@ -1,11 +1,15 @@
 package eu.siacs.conversations.ui.fragment.settings;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -35,7 +40,6 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
-import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import eu.siacs.conversations.worker.ExportBackupWorker;
 import me.drakeet.support.toast.ToastCompat;
 
@@ -46,11 +50,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class BackupSettingsFragment extends XmppPreferenceFragment {
 
+    private static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.US);
     public static final String CREATE_ONE_OFF_BACKUP = "create_one_off_backup";
     private static final String RECURRING_BACKUP = "recurring_backup";
     public static final int REQUEST_EXPORT_SETTINGS = 0xbf8701;
@@ -99,7 +109,7 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
         if (importSettingsPreference != null) {
             importSettingsPreference.setOnPreferenceClickListener(preference -> {
                 if (requireSettingsActivity().hasStoragePermission(REQUEST_IMPORT_SETTINGS)) {
-                    importSettings();
+                    openSettingsPicker();
                 }
                 return true;
             });
@@ -114,6 +124,14 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
                 return true;
             });
         }
+    }
+
+    public void openSettingsPicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_settings_dat)), REQUEST_IMPORT_SETTINGS);
+
     }
 
     @Override
@@ -168,6 +186,16 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMPORT_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                importSettings(uri, requireSettingsActivity());
+            }
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0) {
@@ -176,7 +204,8 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
                     exportSettings();
                 }
                 if (requestCode == REQUEST_IMPORT_SETTINGS) {
-                    importSettings();
+                    ToastCompat.makeText(requireActivity(), "permissions for open setting spicker granted", ToastCompat.LENGTH_SHORT).show();
+                    openSettingsPicker();
                 }
             } else {
                 ToastCompat.makeText(
@@ -234,65 +263,58 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
         builder.create().show();
     }
 
-    @SuppressWarnings({ "unchecked" })
-    private boolean importSettings() {
-        boolean success;
-        ObjectInputStream input = null;
+    private void importSettings(Uri uri, SettingsActivity settingsActivity) {
+        boolean success = false;
         try {
-            final File file = new File(FileBackend.getBackupDirectory(requireContext()).getAbsolutePath(),"settings.dat");
-            input = new ObjectInputStream(new FileInputStream(file));
-            SharedPreferences.Editor prefEdit = PreferenceManager.getDefaultSharedPreferences(requireSettingsActivity()).edit();
-            prefEdit.clear();
-            Map<String, ?> entries = (Map<String, ?>) input.readObject();
-            for (Map.Entry<String, ?> entry : entries.entrySet()) {
-                Object value = entry.getValue();
-                String key = entry.getKey();
-
-                if (value instanceof Boolean)
-                    prefEdit.putBoolean(key, ((Boolean) value).booleanValue());
-                else if (value instanceof Float)
-                    prefEdit.putFloat(key, ((Float) value).floatValue());
-                else if (value instanceof Integer)
-                    prefEdit.putInt(key, ((Integer) value).intValue());
-                else if (value instanceof Long)
-                    prefEdit.putLong(key, ((Long) value).longValue());
-                else if (value instanceof String)
-                    prefEdit.putString(key, ((String) value));
+            String path = uri.getPath();
+            if (path == null) {
+                success = false;
+                throw new IllegalArgumentException("Uri path cannot be null.");
             }
-            prefEdit.commit();
-            success = true;
+            File file = new File(path);
+            try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(file))) {
+                SharedPreferences.Editor prefEdit = PreferenceManager.getDefaultSharedPreferences(settingsActivity).edit();
+                prefEdit.clear();
+                Map<String, ?> entries = (Map<String, ?>) input.readObject();
+                for (Map.Entry<String, ?> entry : entries.entrySet()) {
+                    Object value = entry.getValue();
+                    String key = entry.getKey();
+
+                    if (value instanceof Boolean) {
+                        prefEdit.putBoolean(key, (Boolean) value);
+                    } else if (value instanceof Float) {
+                        prefEdit.putFloat(key, (Float) value);
+                    } else if (value instanceof Integer) {
+                        prefEdit.putInt(key, (Integer) value);
+                    } else if (value instanceof Long) {
+                        prefEdit.putLong(key, (Long) value);
+                    } else if (value instanceof String) {
+                        prefEdit.putString(key, (String) value);
+                    }
+                }
+                prefEdit.commit();
+                success = true;
+            }
         } catch (Exception e) {
             success = false;
-            e.printStackTrace();
-        } finally {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            Log.e("SettingsImport", "Error importing settings", e);
         }
-        if (success) {
-            new Thread(() -> runOnUiThread(() -> requireActivity().recreate())).start();
-            ToastCompat.makeText(requireActivity(), R.string.success_import_settings, ToastCompat.LENGTH_SHORT).show();
-        } else {
-            ToastCompat.makeText(requireActivity(), R.string.error_import_settings, ToastCompat.LENGTH_SHORT).show();
-        }
-        return success;
+
+        int messageResId = success ? R.string.success_import_settings : R.string.error_import_settings;
+        ToastCompat.makeText(settingsActivity, messageResId, ToastCompat.LENGTH_SHORT).show();
     }
 
-    private boolean exportSettings() {
+    private void exportSettings() {
         boolean success = false;
         ObjectOutputStream output = null;
         try {
-            final File file = new File(FileBackend.getBackupDirectory(requireContext()).getAbsolutePath(), "settings.dat");
+            final File file = new File(FileBackend.getBackupDirectory(requireContext()).getAbsolutePath(), DATE_FORMAT.format(new Date()) + "_settings.dat");
             final File directory = file.getParentFile();
             if (directory != null && directory.mkdirs()) {
                 Log.d(Config.LOGTAG, "created backup directory " + directory.getAbsolutePath());
             }
             output = new ObjectOutputStream(new FileOutputStream(file));
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(requireSettingsActivity());
+            SharedPreferences pref = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireSettingsActivity());
             output.writeObject(pref.getAll());
             success = true;
         } catch (FileNotFoundException e) {
@@ -315,7 +337,6 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
         } else {
             ToastCompat.makeText(requireActivity(), R.string.error_export_settings, ToastCompat.LENGTH_SHORT).show();
         }
-        return success;
     }
 
     public SettingsActivity requireSettingsActivity() {
