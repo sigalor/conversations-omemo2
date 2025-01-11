@@ -1150,7 +1150,7 @@
     <string name="shared_secret_secret">Gemeinsames Geheimnis</string>
     <string name="pref_show_less_avatars_summary">Zeige nur die erforderlichen Profilbilder in den Chats</string>
     <string name="pref_show_thread_feature">Thread Icon</string>
-    <string name="pref_set_text_collapsable">Langen Text einklappen</string>
+    <string name="pref_set_text_collapsable">Beta: Langen Text einklappen</string>
     <string name="pref_show_less_avatars">Zeige weniger Profilbilder</string>
     <string name="pref_send_link_previews">Vorschau für Links senden</string>
     <string name="pref_send_link_previews_summary">Füge bei Nachrichten mit Links Metadaten hinzu, die Informationen zum Link enthalten</string>
@@ -1180,7 +1180,7 @@
 \nDu gibst einen Hinweis oder stellt deinem Kontakt eine Frage und dieser beantwortet diese (Groß- und Kleinschreibung werden unterschieden).</string>
     <string name="manual_verification_explanation">Vergleiche den Fingerabdruck unten sorgfältig mit dem Fingerabdruck deines Kontakts.
 \nDu kannst eine andere vertrauenswürdige Kommunikationsmöglichkeit (zum Beispiel verschlüsselte Mails oder einen Telefonanruf) verwenden, um diesen auszutauschen.</string>
-    <string name="pref_set_text_collapsable_summary">Text mit mehr als 230 Zeichen einklappen</string>
+    <string name="pref_set_text_collapsable_summary">Text mit mehr als 8 Zeilen einklappen</string>
     <string name="internal_meda_viewer_title">Interner Medienbetrachter</string>
     <string name="internal_meda_viewer_summary">Verwende den internen Medienbetrachter, um Bilder oder Videos in monocles chat zu öffnen</string>
     <string name="emojis">Emojis</string>
@@ -1414,4 +1414,17 @@
     <string name="pref_call_integration_summary">Anrufe von dieser App interagieren mit normalen Telefonanrufen, z. B. wird ein Anruf beendet, wenn ein anderer beginnt.</string>
     <string name="pref_hide_media_title">Verstecke Medien vor der Galerie</string>
     <string name="pref_hide_media_summary">Empfangene und gesendete Medien aus der Galerieansicht des Systems ausblenden</string>
+    <string name="pref_prefer_ipv6_summary">Bevorzugt IPv6 bei der Verbindung</string>
+    <string name="pref_prefer_ipv6">IPv6 bevorzugen</string>
+    <string name="pref_use_colored_muc_names">Farbige Benutzernamen anzeigen</string>
+    <string name="show_to_contacts_only">Nur für Kontakte anzeigen</string>
+    <string name="success_export_settings">Einstellungen erfolgreich exportiert</string>
+    <string name="error_export_settings">Fehler beim Exportieren von Einstellungen</string>
+    <string name="pref_export_plain_text_logs">Klartext exportieren</string>
+    <string name="pref_export_plain_text_logs_summary">Nachrichten unverschlüsselt in für Menschen lesbarem Klartext exportieren</string>
+    <string name="select_settings_dat">Wählen Sie eine settings.dat</string>
+    <string name="pref_use_colored_muc_names_summary">Farbige Benutzernamen in Gruppenchats anzeigen</string>
+    <string name="delete_avatar_message">Möchten Sie Ihren Avatar löschen? Einige Clients zeigen möglicherweise weiterhin eine zwischengespeicherte Kopie Ihres Avatars an.</string>
+    <string name="pref_secure_tls_summary">Verwenden Sie nur die sichersten TLS-Chiffren, einschließlich Post-Quantum-Schlüsselvereinbarung, falls auf dem Server verfügbar</string>
+    <string name="pref_secure_tls">Nur sichere TLS-Verschlüsselungen verwenden</string>
 </resources>

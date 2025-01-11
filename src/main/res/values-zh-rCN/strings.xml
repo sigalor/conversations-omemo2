@@ -1139,7 +1139,7 @@
     <string name="show_link_previews_summary">在发送者包含链接描述时显示链接描述</string>
     <string name="are_you_sure_verify_fingerprint">是否确定要验证您的联系人的 OTR 指纹？</string>
     <string name="pref_enable_otr_summary">启用 OTR 加密来加密消息。OTR 仍很不稳定，请在了解自己的操作后再使用。</string>
-    <string name="pref_enable_otr">启用 OTR 加密（测试）</string>
+    <string name="pref_enable_otr">OTR 加密（测试）</string>
     <string name="otr_warning">OTR 加密的支持正处于测试模式。点击阅读更多以获取更多信息。将在浏览器中打开链接。</string>
     <string name="verified">已验证！</string>
     <string name="smp_requested">联系人请求了 SMP 验证</string>
@@ -1177,8 +1177,8 @@
     <string name="show_keyboard">显示键盘</string>
     <string name="gifs">GIF</string>
     <string name="pref_show_less_avatars">显示较少的头像</string>
-    <string name="pref_set_text_collapsable_summary">折叠超过 230 个字符的文本</string>
-    <string name="pref_set_text_collapsable">折叠长文本</string>
+    <string name="pref_set_text_collapsable_summary">折叠超过 8 行的文本</string>
+    <string name="pref_set_text_collapsable">测试：折叠长文本</string>
     <string name="server_info_bind2">XEP-0386：绑定 2</string>
     <string name="pref_jump_to_commands_tab">跳转到命令</string>
     <string name="pref_jump_to_commands_tab_summary">可用时自动跳转到命令页面</string>
@@ -1414,4 +1414,15 @@
     <string name="pref_hide_media_summary">在系统图库视图中隐藏接收和发送的媒体</string>
     <string name="pref_secure_tls_summary">如果服务器上可用，仅使用最安全的 TLS 密码，包括后量子密钥协议</string>
     <string name="pref_secure_tls">仅安全 TLS 密码</string>
+    <string name="pref_export_plain_text_logs_summary">以人类可读的纯文本导出未加密消息</string>
+    <string name="delete_avatar_message">是否删除头像？某些客户端可能会继续显示您头像的缓存副本。</string>
+    <string name="pref_prefer_ipv6">首选 IPv6</string>
+    <string name="pref_use_colored_muc_names_summary">在群聊中显示多彩昵称</string>
+    <string name="pref_use_colored_muc_names">多彩昵称</string>
+    <string name="success_export_settings">已成功导出设置</string>
+    <string name="error_export_settings">导出设置时出错</string>
+    <string name="select_settings_dat">选择 settings.dat</string>
+    <string name="show_to_contacts_only">仅显示给联系人</string>
+    <string name="pref_prefer_ipv6_summary">连接时首选 IPv6</string>
+    <string name="pref_export_plain_text_logs">导出纯文本</string>
 </resources>

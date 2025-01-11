@@ -1137,7 +1137,7 @@
     <string name="show_less">... показать меньше</string>
     <string name="show_more">... показать больше</string>
     <string name="show_keyboard">Показать клавиатуру</string>
-    <string name="pref_set_text_collapsable_summary">Сворачивает текст, содержащий более 230 знаков</string>
+    <string name="pref_set_text_collapsable_summary">Сворачивает текст длиной более 8 строк</string>
     <string name="remote_fingerprint">Удаленный отпечаток</string>
     <string name="shared_secret_hint">Подсказка или вопрос</string>
     <string name="verified">Проверено!</string>
@@ -1207,7 +1207,7 @@
 \nВы можете использовать любую доверенную форму связи, например зашифрованную электронную почту или телефонный звонок, чтобы обменяться ими.</string>
     <string name="failed">Не успешный</string>
     <string name="pref_show_less_avatars_summary">Не показывать в чатах свои аватар</string>
-    <string name="pref_set_text_collapsable">Свернуть длинный текст</string>
+    <string name="pref_set_text_collapsable">Бета-версия: свернуть длинный текст</string>
     <string name="pref_jump_to_commands_tab">Перейти к командам</string>
     <string name="pref_jump_to_commands_tab_summary">Автоматически переходить на страницу команд, если она доступна</string>
     <string name="stickers">Стикеры</string>
@@ -1443,4 +1443,15 @@
     <string name="pref_hide_media_summary">Скрыть полученные и отправленные медиа файлы в системной галерее</string>
     <string name="pref_secure_tls">Используйте только безопасные шифры TLS</string>
     <string name="pref_secure_tls_summary">Используйте только самые надежные шифры TLS, включая соглашение о постквантовом ключе, если оно доступно на сервере</string>
+    <string name="pref_prefer_ipv6">Предпочитаю IPv6</string>
+    <string name="pref_use_colored_muc_names_summary">Используйте цветные имена пользователей в групповых чатах</string>
+    <string name="show_to_contacts_only">Показать только контактам</string>
+    <string name="success_export_settings">Настройки успешно экспортированы</string>
+    <string name="pref_export_plain_text_logs">Экспортировать простой текст</string>
+    <string name="select_settings_dat">Выберите файл settings.dat</string>
+    <string name="pref_prefer_ipv6_summary">Предпочитает IPv6 при подключении</string>
+    <string name="pref_use_colored_muc_names">Используйте цветные имена пользователей</string>
+    <string name="delete_avatar_message">Хотите удалить свой аватар? Некоторые клиенты могут продолжать отображать кэшированную копию вашего аватара.</string>
+    <string name="error_export_settings">Ошибка при экспорте настроек</string>
+    <string name="pref_export_plain_text_logs_summary">Экспортируйте сообщения в незашифрованном виде в виде обычного текста, читаемого человеком</string>
 </resources>

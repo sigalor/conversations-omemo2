@@ -1130,8 +1130,8 @@
     <string name="pref_show_mappreview_inside_summary">Ngarkoni një paraparje hartash, për ndarje të një vendndodhje me të tjerë brenda fjalosjesh</string>
     <string name="pref_show_own_accounts">Shfaq emrin e llogarisë tuaj</string>
     <string name="pref_show_own_accounts_summary">Shfaq llogarinë e përdorur, te përmbledhja dhe hollësitë e mesazheve</string>
-    <string name="pref_set_text_collapsable_summary">Tkurr tekst me më tepër se 230 shenja</string>
-    <string name="pref_set_text_collapsable">Tkurr tekst të gjatë</string>
+    <string name="pref_set_text_collapsable_summary">Bën tkurrje teksti më të gjatë se 8 rreshta</string>
+    <string name="pref_set_text_collapsable">Beta: Tkurr tekst të gjatë</string>
     <string name="show_less">… shfaq më pak</string>
     <string name="show_more">… shfaq më tepër</string>
     <string name="pref_show_show_nav_drawer_summary">Aktivizoni një panel lëvizjesh, për të renditur më mirë fjalosjet</string>
@@ -1412,5 +1412,17 @@
     <string name="download_stickers_text">Do të donit të shkarkohen disa paketa parazgjedhje ngjitësish?</string>
     <string name="block_avatar_question">Doni vërtet të bllokohet ky avatar?</string>
     <string name="spam">Të padëshiruar</string>
-    <string name="pref_secure_tls">Përdor vetëm Shifra TLS të siguruara</string>
+    <string name="pref_secure_tls">Përdor vetëm shifra TLS të siguruara</string>
+    <string name="pref_prefer_ipv6_summary">Parapëlqen IPv6, kur bëhet lidhje</string>
+    <string name="pref_prefer_ipv6">Parapëlqe IPv6</string>
+    <string name="pref_use_colored_muc_names_summary">Përdor emra të ngjyrosur përdoruesish në fjalosje grupi</string>
+    <string name="show_to_contacts_only">Shfaqjua vetëm kontakteve</string>
+    <string name="success_export_settings">Rregullimet u eksportuan me sukses</string>
+    <string name="error_export_settings">Gabim teksa eksportoheshin rregullimet</string>
+    <string name="pref_export_plain_text_logs_summary">Mesazhet e pafshehtëzuar eksportoji si tekst të thjeshtë të lexueshëm nga syri njerëzor</string>
+    <string name="select_settings_dat">Përzgjidhni një settings.dat</string>
+    <string name="pref_use_colored_muc_names">Përdor emra të ngjyrosur përdoruesish</string>
+    <string name="delete_avatar_message">Doni të fshihet avatari juaj? Disa klientë mund të vazhdojnë të shfaqin një kopje të avatarit tuaj prej fshetinës.</string>
+    <string name="pref_export_plain_text_logs">Eksportoje si tekst të thjeshtë</string>
+    <string name="mtm_hostname_mismatch">Shërbyesi s’bëri dot mirëfilltësimin si “%s”. Dëshmia është e vlefshme vetëm për:</string>
 </resources>
