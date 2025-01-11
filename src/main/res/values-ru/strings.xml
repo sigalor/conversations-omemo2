@@ -1081,7 +1081,7 @@
     <string name="pref_large_font">Крупный шрифт</string>
     <string name="pref_large_font_summary">Увеличить размер шрифта сообещний</string>
     <string name="pref_summary_security">Сквозное шифрование, слепое доверие до подтверждения, обнаружение атаки посредника</string>
-    <string name="send_encrypted_message">Зшифрованное сообщение</string>
+    <string name="send_encrypted_message">Зашифрованное сообщение</string>
     <string name="corresponding_chats_closed">Соответствующие беседы архивированы.</string>
     <string name="pref_title_trust_system_ca_store_summary">Доверять сертификатам системных УЦ</string>
     <string name="pref_connection_summary_w_cd">Имя хоста и порт, Тор, обзор каналов</string>
@@ -1314,7 +1314,7 @@
     <string name="custom">Стандарт</string>
     <string name="image_editing_failed">Не удалось отредактировать изображение</string>
     <string name="magic_create_text_on_x">Вас пригласили в% 1$s. Мы проведем вас через процесс создания учетной записи.При выборе %1$s в качестве провайдера вы сможете общаться с пользователями других провайдеров, предоставляя им свой полный идентификатор XMPP.</string>
-    <string name="free_aspect_ratio">Бесплатно</string>
+    <string name="free_aspect_ratio">Свободно</string>
     <string name="server_select_text">XMPP — это независимая от поставщика сеть обмена мгновенными сообщениями, работающая на протоколе XMPP. Вы можете использовать этот клиент с любым выбранным вами сервисом XMPP.</string>
     <string name="pref_message_autocomplete">Автозаполнение при написании сообщений</string>
     <string name="add_bookmark">Добавить чат</string>
@@ -1441,4 +1441,6 @@
     <string name="show_media_summary">Хотели бы вы отображать полученные и отправленные медиафайлы в галерее вашей системы?</string>
     <string name="pref_hide_media_title">Скрыть медиа в галерее</string>
     <string name="pref_hide_media_summary">Скрыть полученные и отправленные медиа файлы в системной галерее</string>
+    <string name="pref_secure_tls">Используйте только безопасные шифры TLS</string>
+    <string name="pref_secure_tls_summary">Используйте только самые надежные шифры TLS, включая соглашение о постквантовом ключе, если оно доступно на сервере</string>
 </resources>

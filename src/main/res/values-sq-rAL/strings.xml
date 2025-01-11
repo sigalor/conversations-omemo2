@@ -930,7 +930,6 @@
     <string name="pref_notifications_from_strangers_summary">Njofto për mesazhe dhe thirrje të mara prej të huajish.</string>
     <string name="pref_validate_hostname_summary">Dëshmi shërbyesi që përmbajnë strehëemrin e vlerësuar, konsiderohen të verifikuara</string>
     <string name="certificate_does_not_contain_jid">Dëshmia s’përmban adresë XMPP</string>
-    <string name="mtm_hostname_mismatch">Shërbyesi s’bëri dot mirëfilltësimin si “%s”. Dëshmia është e vlefshme vetëm për:</string>
     <string name="pref_scroll_to_bottom_summary">Pas dërgimit të një mesazhi, rrëshqit poshtë</string>
     <string name="error_trustkey_general">%1$s s’është në gjendje të fshehtëzojë mesazhe te %2$s. Kjo mund të vijë për shkak se kontakti juaj përdor një shërbyes, ose klient të vjetruar, që s’mund të përdorë OMEMO.</string>
     <string name="error_trustkey_hint_mutual">Ndihmëz: Në disa raste, kjo mund të ndreqet duke shtuar listat e kontakteve të njëri-tjetrit.</string>
@@ -1413,4 +1412,5 @@
     <string name="download_stickers_text">Do të donit të shkarkohen disa paketa parazgjedhje ngjitësish?</string>
     <string name="block_avatar_question">Doni vërtet të bllokohet ky avatar?</string>
     <string name="spam">Të padëshiruar</string>
+    <string name="pref_secure_tls">Përdor vetëm Shifra TLS të siguruara</string>
 </resources>

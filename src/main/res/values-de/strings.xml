@@ -1401,7 +1401,7 @@
     <string name="account_color">Kontofarbe</string>
     <string name="block_avatar_question">Wollen Sie diesen Avatar wirklich blockieren?</string>
     <string name="block_media_question">Wollen Sie dieses Medium wirklich in allen Nachrichten blockieren?</string>
-    <string name="is_requesting_to_speak">bitte um Schreibrechte</string>
+    <string name="is_requesting_to_speak">bittet um Schreibrechte</string>
     <string name="all_accounts">Alle Konten</string>
     <string name="open">Öffnen</string>
     <string name="pref_call_integration">Telefon Integration</string>

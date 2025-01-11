@@ -672,7 +672,7 @@
     <string name="mtm_accept_cert">Прийняти незнайомий сертифікат?</string>
     <string name="mtm_trust_anchor">Сертифікат сервера не підписано відомим центром сертифікації.</string>
     <string name="mtm_accept_servername">Прийняти сервер з невідповідним ім\'ям?</string>
-    <string name="mtm_hostname_mismatch">Серверу не вдалося авторизуватися як «%s». Сертифікат чинний лише для:</string>
+    <string name="mtm_hostname_mismatch">Серверу не вдалося авторизуватися як %s. Сертифікат чинний лише для:</string>
     <string name="mtm_connect_anyway">Усе одно бажаєте підключитися?</string>
     <string name="mtm_cert_details">Деталі сертифіката:</string>
     <string name="once">Один раз</string>
@@ -1460,4 +1460,6 @@
     <string name="pref_call_integration_summary">Виклики з цього застосунку взаємодіють зі звичайними телефонними дзвінками — наприклад, завершення одного дзвінка, коли починається інший.</string>
     <string name="pref_hide_media_summary">Приховати отримані та надіслані файли в перегляді системної галереї</string>
     <string name="pref_hide_media_title">Приховати медіа в галереї</string>
+    <string name="pref_secure_tls">Тільки безпечні TLS-шифри</string>
+    <string name="pref_secure_tls_summary">Використовувати тільки безпечні TLS-шифри, включаючи постквантове узгодження ключів, якщо доступно на сервері</string>
 </resources>
