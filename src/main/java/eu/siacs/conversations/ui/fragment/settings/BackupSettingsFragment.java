@@ -40,6 +40,7 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
+import eu.siacs.conversations.utils.FileUtils;
 import eu.siacs.conversations.worker.ExportBackupWorker;
 import me.drakeet.support.toast.ToastCompat;
 
@@ -54,7 +55,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class BackupSettingsFragment extends XmppPreferenceFragment {
@@ -266,12 +266,7 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
     private void importSettings(Uri uri, SettingsActivity settingsActivity) {
         boolean success = false;
         try {
-            String path = uri.getPath();
-            if (path == null) {
-                success = false;
-                throw new IllegalArgumentException("Uri path cannot be null.");
-            }
-            File file = new File(path);
+            File file = new File(FileUtils.getPath(requireSettingsActivity(), uri));
             try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(file))) {
                 SharedPreferences.Editor prefEdit = PreferenceManager.getDefaultSharedPreferences(settingsActivity).edit();
                 prefEdit.clear();
