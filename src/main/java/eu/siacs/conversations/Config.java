@@ -163,11 +163,6 @@ public final class Config {
 
     //only allow secure tls chipers now
     public static final String[] ENABLED_CIPHERS = {
-            //post quantum key agreement with traditional encryption
-            "TLS_ECDHE_KYBER_WITH_CHACHA20_POLY1305_SHA256",
-            //pre shared key for resource constrained devices (e.g. Alexa, IoT)
-            // with post quantum encryption
-            "TLS_PSK_WITH_AES_128_GCM_SHA256",
             //TLS 1.3
 			"TLS_AES_256_GCM_SHA384",
 			"TLS_CHACHA20_POLY1305_SHA256",
@@ -182,11 +177,6 @@ public final class Config {
     };
 
     public static final String[] SECURE_CIPHERS = {
-            //post quantum key agreement with traditional encryption
-            "TLS_ECDHE_KYBER_WITH_CHACHA20_POLY1305_SHA256",
-            //pre shared key for resource constrained devices (e.g. Alexa, IoT)
-            // with post quantum encryption
-            "TLS_PSK_WITH_AES_128_GCM_SHA256",
             //TLS 1.3
 			"TLS_AES_256_GCM_SHA384",
 			"TLS_CHACHA20_POLY1305_SHA256",
