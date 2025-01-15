@@ -54,6 +54,7 @@ import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -134,6 +135,7 @@ import net.java.otr4j.session.SessionStatus;
 
 import org.jetbrains.annotations.NotNull;
 
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
@@ -1734,7 +1736,12 @@ public class ConversationFragment extends XmppFragment
         DisplayMetrics displayMetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         if (displayMetrics.heightPixels > 0) binding.textinput.setMaxHeight(displayMetrics.heightPixels / 4);
-
+        final var appSettings = new AppSettings(activity);
+        if (appSettings.isLargeFont()) {
+            binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        } else {
+            binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        }
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
         binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
         binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
@@ -2082,6 +2089,15 @@ public class ConversationFragment extends XmppFragment
         }
         messageListAdapter.handleTextQuotes(binding.contextPreviewText, body);
         binding.contextPreviewText.setText(body);
+        final var appSettings = new AppSettings(activity);
+        if (appSettings.isLargeFont()) {
+            binding.contextPreviewText.setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyLarge);
+            binding.contextPreviewText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        } else {
+            binding.contextPreviewText.setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+        }
         binding.contextPreview.setVisibility(View.VISIBLE);
     }
 

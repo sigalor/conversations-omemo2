@@ -13,6 +13,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 
+import eu.siacs.conversations.AppSettings;
+import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Reaction;
@@ -25,7 +27,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class BindingAdapters {
-
     public static void setReactionsOnReceived(
             final ChipGroup chipGroup,
             final Conversation conversation,
@@ -58,6 +59,7 @@ public class BindingAdapters {
         final var corner = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, context.getResources().getDisplayMetrics());
         final var layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, size);
         final List<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>> reactions = aggregated.reactions;
+        final AppSettings appSettings = new AppSettings(context);
         if (reactions == null || reactions.isEmpty()) {
             chipGroup.setVisibility(View.GONE);
         } else {
@@ -68,7 +70,15 @@ public class BindingAdapters {
                 final var count = reaction.getValue().size();
                 final Chip chip = new Chip(chipGroup.getContext());
                 //chip.setEnsureMinTouchTargetSize(false);
-                chip.setChipMinHeight(size-32.0f);
+                if (appSettings.isLargeFont()) {
+                    chip.setTextAppearance(
+                            com.google.android.material.R.style.TextAppearance_Material3_BodyLarge);
+                    chip.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                } else {
+                    chip.setTextAppearance(
+                            com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+                }
+                chip.setChipMinHeight(size-22.0f);
                 chip.ensureAccessibleTouchTarget(size);
                 chip.setLayoutParams(layoutParams);
                 chip.setChipCornerRadius(corner);
@@ -125,7 +135,15 @@ public class BindingAdapters {
             }
             if (addReaction != null) {
                 final Chip chip = new Chip(chipGroup.getContext());
-                chip.setChipMinHeight(size-32.0f);
+                if (appSettings.isLargeFont()) {
+                    chip.setTextAppearance(
+                            com.google.android.material.R.style.TextAppearance_Material3_BodyLarge);
+                    chip.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                } else {
+                    chip.setTextAppearance(
+                            com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+                }
+                chip.setChipMinHeight(size-22.0f);
                 chip.ensureAccessibleTouchTarget(size);
                 chip.setLayoutParams(layoutParams);
                 chip.setChipCornerRadius(corner);

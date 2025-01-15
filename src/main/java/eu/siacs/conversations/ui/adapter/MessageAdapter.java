@@ -606,7 +606,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody().getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
         viewHolder.messageBody().setLayoutParams(layoutParams);
-
+        if (appSettings.isLargeFont()) {
+            viewHolder.inReplyToQuote().setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyLarge);
+            viewHolder.inReplyToQuote().setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        } else {
+            viewHolder.inReplyToQuote().setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+        }
         final ViewGroup.LayoutParams qlayoutParams = viewHolder.inReplyToQuote().getLayoutParams();
         qlayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
         viewHolder.messageBody().setLayoutParams(qlayoutParams);
