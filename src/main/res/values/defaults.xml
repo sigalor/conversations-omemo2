@@ -57,7 +57,7 @@
     <bool name="compose_rich_text">true</bool>
     <bool name="auto_accept_unmetered">true</bool>
     <string name="avatar_shape">oval</string>
-    <bool name="show_nav_bar">false</bool>
+    <bool name="show_nav_bar">true</bool>
     <bool name="enforce_dane">false</bool>
     <string name="default_chat_requests">spam</string>
     <string name="default_dns_server_ipv4">194.242.2.2</string>
