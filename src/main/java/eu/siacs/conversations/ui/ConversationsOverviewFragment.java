@@ -512,7 +512,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 	@Override
 	protected void refresh() {
-		if (this.binding == null || this.activity == null) {
+		if (binding == null || this.activity == null) {
 			Log.d(Config.LOGTAG,"ConversationsOverviewFragment.refresh() skipped updated because view binding or activity was null");
 			return;
 		}
@@ -554,8 +554,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		}
 		setupSwipe();
 
-		if (binding.overviewSnackbar != null) binding.overviewSnackbar.setVisibility(View.GONE);
-		if (activity.xmppConnectionService == null) return;
+		if (activity.xmppConnectionService == null || binding == null || binding.overviewSnackbar == null) return;
+		binding.overviewSnackbar.setVisibility(View.GONE);
 		for (final var account : activity.xmppConnectionService.getAccounts()) {
 			if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
 			if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
