@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.security.KeyChain;
@@ -139,6 +140,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
 
             switch (item.getItemId()) {
