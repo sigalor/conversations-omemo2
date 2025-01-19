@@ -44,7 +44,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -1071,7 +1070,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
         }
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
 
             switch (item.getItemId()) {
@@ -1082,7 +1080,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                     Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
-
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
