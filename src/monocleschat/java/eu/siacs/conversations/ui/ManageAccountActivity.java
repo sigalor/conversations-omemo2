@@ -179,7 +179,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
             bottomNavigationView.setVisibility(VISIBLE);
             accountListView.setClipToPadding(false);
-            accountListView.setPadding(0,0,0,(int) dpToPx(72, this));
+            accountListView.setPadding(0,0,0,(int) dpToPx(66, this));
         } else {
             bottomNavigationView.setVisibility(View.GONE);
             accountListView.setClipToPadding(true);

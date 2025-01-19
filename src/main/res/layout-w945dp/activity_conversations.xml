@@ -91,12 +91,13 @@
             android:layout_alignParentBottom="true"
             android:background="@drawable/background_nav_bar"
             android:alpha="0.96"
-            app:labelVisibilityMode="labeled"
+            app:labelVisibilityMode="selected"
             app:menu="@menu/bottom_navigation_menu_chat"
             app:itemPaddingBottom="0dp"
             app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
             android:state_checked="true"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:animateLayoutChanges="true" />
 
 </RelativeLayout>
 
