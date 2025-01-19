@@ -672,7 +672,7 @@
     <string name="mtm_accept_cert">Прийняти незнайомий сертифікат?</string>
     <string name="mtm_trust_anchor">Сертифікат сервера не підписано відомим центром сертифікації.</string>
     <string name="mtm_accept_servername">Прийняти сервер з невідповідним ім\'ям?</string>
-    <string name="mtm_hostname_mismatch">Серверу не вдалося авторизуватися як %s. Сертифікат чинний лише для:</string>
+    <string name="mtm_hostname_mismatch">Серверу не вдалося авторизуватися як «%s». Сертифікат чинний лише для:</string>
     <string name="mtm_connect_anyway">Усе одно бажаєте підключитися?</string>
     <string name="mtm_cert_details">Деталі сертифіката:</string>
     <string name="once">Один раз</string>
@@ -1109,7 +1109,7 @@
     <string name="pref_privacy_summary">Сповіщення про набір, остання активність, доступність</string>
     <string name="send_encrypted_message">Зашифроване повідомлення</string>
     <string name="pref_large_font">Великий шрифт</string>
-    <string name="pref_large_font_summary">Збільшити розмір шрифту повідомлень</string>
+    <string name="pref_large_font_summary">Збільшити розмір шрифту в повідомленнях, реакціях і полі введення</string>
     <string name="pref_fullscreen_notification">Повноекранні сповіщення</string>
     <string name="pref_backup_recurring">Регулярне резервне копіювання</string>
     <string name="unsupported_operation">Операція не підтримується</string>
@@ -1200,7 +1200,7 @@
     <string name="manage_permission_with_nick">Керувати правами для %s</string>
     <string name="server_info_bind2">XEP-0386: Bind 2</string>
     <string name="server_info_login_mechanism">Механізм авторизації</string>
-    <string name="pref_set_text_collapsable_summary">Згортати дописи обсягом понад 230 знаків</string>
+    <string name="pref_set_text_collapsable_summary">Згортати текст довший за 8 рядків</string>
     <string name="pref_send_link_previews_summary">Додавати метадані про посилання під час надсилання повідомлення</string>
     <string name="schedule_message">Надіслати пізніше</string>
     <string name="pref_show_thread_feature">Значок тем</string>
@@ -1221,7 +1221,7 @@
     <string name="flip_camera">Розвернути камеру</string>
     <string name="video_is_disabled_tap_to_enable">Відео вимкнено. Торкніться, щоб увімкнути.</string>
     <string name="do_you_really_want_to_retract_this_message">Ви справді хочете відкликати це повідомлення?</string>
-    <string name="pref_set_text_collapsable">Згортати довгий текст</string>
+    <string name="pref_set_text_collapsable">Бета: Згортати довгий текст</string>
     <string name="pref_show_show_nav_drawer_summary">Увімкнути навігаційну панель для кращого сортування розмов</string>
     <string name="pref_show_show_nav_drawer">Навігаційна панель</string>
     <string name="show_link_previews">Попередній перегляд посилань</string>
@@ -1346,7 +1346,7 @@
     <string name="compose_using_rich_text_summary">Редактор повідомлень показуватиме форматування під час введення тексту</string>
     <string name="example_jid">username@monocles.eu</string>
     <string name="stay_true_to_my_color_inputs">Дотримуватися вказаних кольорів</string>
-    <string name="xmpp_network_description">Мережа XMPP працює на основі протоколу під назвою XMPP. Це децентралізована мережа, що означає, що нею ніхто не володіє і не контролює її. Це федеративна мережа, тобто будь-хто може запустити службу XMPP. Повідомлення іншим користувачам XMPP за замовчуванням наскрізь зашифровані за допомогою OMEMO.\\n\\nАдреси XMPP схожі на адреси електронної пошти:</string>
+    <string name="xmpp_network_description">Мережа XMPP працює на основі протоколу під назвою XMPP. Це децентралізована мережа, що означає, що нею ніхто не володіє і не контролює її. Це федеративна мережа, тобто будь-хто може запустити службу XMPP. Повідомлення іншим користувачам XMPP за замовчуванням наскрізь зашифровані за допомогою OMEMO. Адреси XMPP схожі на адреси електронної пошти:</string>
     <string name="request_to_speak">Запит на розмову</string>
     <string name="invite_to_start_chat">Запросити почати розмову</string>
     <string name="saving">збереження</string>
@@ -1461,5 +1461,16 @@
     <string name="pref_hide_media_summary">Приховати отримані та надіслані файли в перегляді системної галереї</string>
     <string name="pref_hide_media_title">Приховати медіа в галереї</string>
     <string name="pref_secure_tls">Тільки безпечні TLS-шифри</string>
-    <string name="pref_secure_tls_summary">Використовувати тільки безпечні TLS-шифри, включаючи постквантове узгодження ключів, якщо доступно на сервері</string>
+    <string name="pref_secure_tls_summary">Використовувати тільки безпечні TLS-шифри, якщо доступно на сервері</string>
+    <string name="pref_prefer_ipv6_summary">Віддавати перевагу IPv6 під час з\'єднання</string>
+    <string name="pref_use_colored_muc_names_summary">Використовувати кольорові імена користувачів у групових чатах</string>
+    <string name="error_export_settings">Помилка під час експорту налаштувань</string>
+    <string name="pref_export_plain_text_logs">Експорт звичайного тексту</string>
+    <string name="pref_prefer_ipv6">Віддавати перевагу IPv6</string>
+    <string name="show_to_contacts_only">Показувати лише контактам</string>
+    <string name="pref_export_plain_text_logs_summary">Експорт повідомлень у незашифрованому вигляді звичайним текстом, придатним для читання людиною</string>
+    <string name="select_settings_dat">Виберіть файл settings.dat</string>
+    <string name="pref_use_colored_muc_names">Кольорові імена користувачів</string>
+    <string name="delete_avatar_message">Бажаєте видалити свій аватар? Деякі клієнти можуть продовжувати відображати копію Вашого аватара з кешу.</string>
+    <string name="success_export_settings">Налаштування успішно експортовано</string>
 </resources>

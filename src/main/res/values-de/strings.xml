@@ -1060,7 +1060,7 @@
     <string name="pref_category_interaction">Interaktion</string>
     <string name="pref_up_long_summary">Beim Einsatz als UnifiedPush-Verteiler wird die dauerhafte, zuverlässige und akkuschonende XMPP-Verbindung genutzt, um andere UnifiedPush-kompatible Apps wie Tusky, Ltt.rs, FluffyChat und andere aufzuwecken.</string>
     <string name="send_encrypted_message">Verschlüsselt schreiben…</string>
-    <string name="pref_large_font_summary">Schriftgröße der Nachrichten erhöhen</string>
+    <string name="pref_large_font_summary">Schriftgröße der Nachrichten, Reactions und des Eingabefelds erhöhen</string>
     <string name="pref_large_font">Große Schrift</string>
     <string name="pref_accept_invites_from_strangers">Einladungen von Unbekannten</string>
     <string name="pref_accept_invites_from_strangers_summary">Einladungen zu Gruppenchats von Unbekannten annehmen</string>
@@ -1425,6 +1425,6 @@
     <string name="select_settings_dat">Wählen Sie eine settings.dat</string>
     <string name="pref_use_colored_muc_names_summary">Farbige Benutzernamen in Gruppenchats anzeigen</string>
     <string name="delete_avatar_message">Möchten Sie Ihren Avatar löschen? Einige Clients zeigen möglicherweise weiterhin eine zwischengespeicherte Kopie Ihres Avatars an.</string>
-    <string name="pref_secure_tls_summary">Verwenden Sie nur die sichersten TLS-Chiffren, einschließlich Post-Quantum-Schlüsselvereinbarung, falls auf dem Server verfügbar</string>
+    <string name="pref_secure_tls_summary">Verwenden Sie nur die sichersten TLS-Chiffren, falls auf dem Server verfügbar</string>
     <string name="pref_secure_tls">Nur sichere TLS-Verschlüsselungen verwenden</string>
 </resources>

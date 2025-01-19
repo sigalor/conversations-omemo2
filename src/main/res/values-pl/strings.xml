@@ -1092,7 +1092,7 @@
     <string name="pref_category_application">Aplikacja</string>
     <string name="pref_category_interaction">Interakcja</string>
     <string name="pref_category_on_this_device">Na urządzeniu</string>
-    <string name="pref_large_font_summary">Zwiększ rozmiar czcionki w dymkach wiadomości</string>
+    <string name="pref_large_font_summary">Zwiększ rozmiar czcionki w dymkach wiadomości</string>
     <string name="pref_use_colorful_bubbles_summary">Różne kolory tła dla wysłanych i odebranych wiadomości</string>
     <string name="send_encrypted_message">Wyślij zaszyfrowaną wiadomość</string>
     <string name="welcome_header">Dołącz do rozmowy</string>

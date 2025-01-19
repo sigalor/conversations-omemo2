@@ -1079,7 +1079,7 @@
     <string name="pref_category_interaction">Взаимодействие</string>
     <string name="pref_category_on_this_device">На устройстве</string>
     <string name="pref_large_font">Крупный шрифт</string>
-    <string name="pref_large_font_summary">Увеличить размер шрифта сообещний</string>
+    <string name="pref_large_font_summary">Увеличьте размер шрифта в сообщениях, реакциях и поле ввода</string>
     <string name="pref_summary_security">Сквозное шифрование, слепое доверие до подтверждения, обнаружение атаки посредника</string>
     <string name="send_encrypted_message">Зашифрованное сообщение</string>
     <string name="corresponding_chats_closed">Соответствующие беседы архивированы.</string>
@@ -1442,7 +1442,7 @@
     <string name="pref_hide_media_title">Скрыть медиа в галерее</string>
     <string name="pref_hide_media_summary">Скрыть полученные и отправленные медиа файлы в системной галерее</string>
     <string name="pref_secure_tls">Используйте только безопасные шифры TLS</string>
-    <string name="pref_secure_tls_summary">Используйте только самые надежные шифры TLS, включая соглашение о постквантовом ключе, если оно доступно на сервере</string>
+    <string name="pref_secure_tls_summary">Используйте только самые надежные шифры TLS, если они доступны на сервере</string>
     <string name="pref_prefer_ipv6">Предпочитаю IPv6</string>
     <string name="pref_use_colored_muc_names_summary">Используйте цветные имена пользователей в групповых чатах</string>
     <string name="show_to_contacts_only">Показать только контактам</string>

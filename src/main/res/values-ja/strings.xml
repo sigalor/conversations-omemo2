@@ -9,7 +9,7 @@
     <string name="action_add_account">アカウントを追加</string>
     <string name="action_edit_contact">名前を編集</string>
     <string name="action_add_phone_book">アドレス帳に追加</string>
-    <string name="action_delete_contact">名簿から削除</string>
+    <string name="action_delete_contact">連絡先から削除</string>
     <string name="action_block_contact">連絡先をブロック</string>
     <string name="action_unblock_contact">連絡先のブロックを解除</string>
     <string name="action_block_domain">ドメインをブロック</string>
@@ -1052,8 +1052,8 @@
     <string name="pref_dialler_integration_incoming_summary">電話番号からの着信通話は、このアプリの通知設定の代わりに、システムのダイヤラーで鳴るかもしれません</string>
     <string name="delete_background_success">背景画像が削除されました</string>
     <string name="pref_show_mappreview_inside">地図のプレビューを表示</string>
-    <string name="pref_set_text_collapsable">長文を折りたたむ</string>
-    <string name="pref_set_text_collapsable_summary">230字以上で折りたたむ</string>
+    <string name="pref_set_text_collapsable">ベータ: 長文を折りたたむ</string>
+    <string name="pref_set_text_collapsable_summary">8行以上で折りたたむ</string>
     <string name="update_default_stickers">規定のステッカーを更新</string>
     <string name="pref_jump_to_commands_tab_summary">利用可能なとき、コマンドページに自動的に飛ぶ</string>
     <string name="block_avatar">アバターをブロック</string>
@@ -1189,4 +1189,7 @@
     <string name="failed">失敗</string>
     <string name="encrypted_with_otr">OTR で暗号化済</string>
     <string name="gifs">GIF</string>
+    <string name="action_dialpad">ダイヤルパッド</string>
+    <string name="pref_accept_invites_from_strangers">見知らぬ人からの招待を受諾</string>
+    <string name="pref_accept_invites_from_strangers_summary">諸MUCへの見知らぬ人からの招待を受諾</string>
 </resources>

@@ -929,8 +929,8 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="unverified_devices">Je gebruikt apparaten die nog niet geverifieerd zijn. Scan de QR-code op je andere apparaten en voltooi de verificatie om man-in-the-middle-aanvallen te voorkomen.</string>
     <string name="pref_show_less_avatars_summary">Herhaal de avatar van een gebruiker zo min mogelijk</string>
     <string name="pref_show_thread_feature_summary">Activeer de threadmarkering in het invoerveld en sta het maken en volgen van threads toe</string>
-    <string name="pref_set_text_collapsable_summary">Teksten van meer dan 230 tekens worden samengevouwen</string>
-    <string name="pref_set_text_collapsable">Langere tekstblokken samenvouwen</string>
+    <string name="pref_set_text_collapsable_summary">Berichten van meer dan 8 regels worden samengevouwen</string>
+    <string name="pref_set_text_collapsable">Beta: Lange berichten samenvouwen</string>
     <string name="rtp_state_contact_offline">Contact is offline</string>
     <string name="allow_private_messages">Privéberichten toestaan</string>
     <string name="pref_jump_to_commands_tab">Naar tab Opdrachten springen</string>
@@ -1165,7 +1165,7 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="pref_title_trust_system_ca_store">Certificaatautoriteiten</string>
     <string name="pref_title_trust_system_ca_store_summary">Vertrouw de CA-certificaten van het systeem</string>
     <string name="detect_mim">Kanaalbinding vereisen</string>
-    <string name="pref_large_font_summary">Vergoot het lettergrootte in berichtenbubbels</string>
+    <string name="pref_large_font_summary">Vergoot de letters in berichtenbubbels, reacties en invoervelden</string>
     <string name="pref_backup_summary">Eenmalig maken, terugkerend plannen</string>
     <string name="pref_create_backup_one_off_summary">Eenmalige back-up maken</string>
     <string name="pref_backup_recurring">Periodieke back-up</string>
@@ -1405,4 +1405,15 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="pref_secure_tls">Alleen veilige TLS-methodes gebruiken</string>
     <string name="pref_secure_tls_summary">Gebruik alleen de veiligste TLS-ciphers met een post-quantum protocol voor sleuteluitwisseling indien beschikbaar op de server.</string>
     <string name="simple_commons">Simple commons</string>
+    <string name="pref_prefer_ipv6">IPv6 prefereren</string>
+    <string name="pref_use_colored_muc_names">Gekleurde gebruikersnamen</string>
+    <string name="delete_avatar_message">Wil je deze avatar verwijderen? Sommige clients zullen toch nog een kopie van de avatar blijven weergeven.</string>
+    <string name="show_to_contacts_only">Alleen aan contacten tonen</string>
+    <string name="error_export_settings">Fout bij het exporteren van de instellingen</string>
+    <string name="pref_export_plain_text_logs">Als platte tekst exporteren</string>
+    <string name="pref_export_plain_text_logs_summary">Exporteer de gesprekken onversleuteld in platte tekst</string>
+    <string name="pref_prefer_ipv6_summary">Geef de voorkeur aan IPv6-verbindingen</string>
+    <string name="select_settings_dat">Kies het bestand settings.dat</string>
+    <string name="pref_use_colored_muc_names_summary">Gebruik gekleurde gebruikersnamen in groepsgesprekken</string>
+    <string name="success_export_settings">De instellingen zijn geëxporteerd</string>
 </resources>
