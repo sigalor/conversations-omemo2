@@ -57,7 +57,7 @@
 
 
     <dimen name="avatar_corners_radius">8dp</dimen>
-    <dimen name="nav_bar_height">62dp</dimen>
+    <dimen name="nav_bar_height">82dp</dimen>
     <dimen name="muc_avatar_actionbar">24dp</dimen>
     <dimen name="avatar_big">640dp</dimen>
 

@@ -302,7 +302,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		this.binding.list.setAdapter(this.conversationsAdapter);
 		if (activity.getPreferences().getBoolean("show_nav_bar", true)) {
 			binding.list.setClipToPadding(false);
-			binding.list.setPadding(0,0,0,(int) dpToPx(66, activity));
+			binding.list.setPadding(0,0,0,(int) dpToPx(82, activity));
 		} else {
 			binding.list.setClipToPadding(true);
 			binding.list.setPadding(0,0,0,0);
