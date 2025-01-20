@@ -123,7 +123,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     private void share() {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType(getMimeType(mFile.toString()));
-        share.putExtra(Intent.EXTRA_STREAM, FileBackend.getUriForFile(this, mFile));
+        share.putExtra(Intent.EXTRA_STREAM, FileBackend.getUriForFile(this, mFile, mFile.getName()));
         try {
             startActivity(Intent.createChooser(share, getText(R.string.share_with)));
         } catch (ActivityNotFoundException e) {
@@ -148,7 +148,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     private void open() {
         Uri uri;
         try {
-            uri = FileBackend.getUriForFile(this, mFile);
+            uri = FileBackend.getUriForFile(this, mFile, mFile.getName());
         } catch (SecurityException e) {
             Log.d(Config.LOGTAG, "No permission to access " + mFile.getAbsolutePath(), e);
             ToastCompat.makeText(this, this.getString(R.string.no_permission_to_access_x, mFile.getAbsolutePath()), ToastCompat.LENGTH_SHORT).show();

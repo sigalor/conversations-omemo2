@@ -422,7 +422,7 @@ public class ExportBackupService extends Worker {
         final Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         final ArrayList<Uri> uris = new ArrayList<>();
         for (final File file : files) {
-            uris.add(FileBackend.getUriForFile(context, file));
+            uris.add(FileBackend.getUriForFile(context, file, file.getName()));
         }
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
