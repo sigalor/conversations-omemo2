@@ -1460,7 +1460,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                             message.getRemoteMsgId());
                             message.setReactions(combinedReactions);
                             mXmppConnectionService.updateMessage(message, false);
-                            if (status < Message.STATUS_SEND) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
+                            if (isReceived) mXmppConnectionService.getNotificationService().push(message, counterpart, occupantId, newReactions);
                         } else {
                             Log.d(Config.LOGTAG, "message with id " + reactingTo + " not found");
                         }
