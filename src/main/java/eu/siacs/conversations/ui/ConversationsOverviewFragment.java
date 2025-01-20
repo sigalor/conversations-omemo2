@@ -199,6 +199,11 @@ public class ConversationsOverviewFragment extends XmppFragment {
 					activity.xmppConnectionService.archiveConversation(c);
 				}
 			});
+			if (activity.getPreferences().getBoolean("show_nav_bar", true)) {
+				snackbar.getView().setPadding(0, 0, 0, (int) dpToPx(82, activity));
+			} else {
+				snackbar.getView().setPadding(0, 0, 0, 0);
+			}
 			snackbar.show();
 		}
 	};
