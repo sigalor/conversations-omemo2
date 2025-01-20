@@ -1415,4 +1415,6 @@
     <string name="pref_export_plain_text_logs">Export plain text</string>
     <string name="pref_export_plain_text_logs_summary">Export messages unencrypted in human readable plain text</string>
     <string name="select_settings_dat">Select a settings.dat</string>
+    <string name="pref_allow_unencrypted_reactions">Reactions in E2EE chats</string>
+    <string name="pref_allow_unencrypted_reactions_summary">Allow using unencrypted reactions in end-to-end encrypted chats</string>
 </resources>

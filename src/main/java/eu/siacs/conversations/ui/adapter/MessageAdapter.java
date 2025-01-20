@@ -1471,7 +1471,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (conversational instanceof Conversation c) {
             if (!showError
                     && !message.isPrivateMessage()
-                    && message.getEncryption() == Message.ENCRYPTION_NONE
+                    && (message.getEncryption() == Message.ENCRYPTION_NONE
+                    || activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions))
                     && !message.isDeleted()
                     && (c.getMode() == Conversational.MODE_SINGLE
                     || (c.getMucOptions().occupantId()
