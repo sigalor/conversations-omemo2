@@ -32,7 +32,6 @@ package eu.siacs.conversations.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -300,23 +299,12 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			}
 		});
 		this.binding.list.setAdapter(this.conversationsAdapter);
-		if (activity.getPreferences().getBoolean("show_nav_bar", true)) {
-			binding.list.setClipToPadding(false);
-			binding.list.setPadding(0,0,0,(int) dpToPx(72, activity));
-		} else {
-			binding.list.setClipToPadding(true);
-			binding.list.setPadding(0,0,0,0);
-		}
 		this.binding.list.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
 		registerForContextMenu(this.binding.list);
 		this.binding.list.addOnScrollListener(ExtendedFabSizeChanger.of(binding.fab));
 		this.touchHelper = new ItemTouchHelper(this.callback);
 		this.touchHelper.attachToRecyclerView(this.binding.list);
 		return binding.getRoot();
-	}
-
-	public static float dpToPx(int dp, Context context) {
-		return dp * context.getResources().getDisplayMetrics().density;
 	}
 
 	@Override

@@ -442,13 +442,12 @@ public class StartConversationActivity extends XmppActivity
                 });
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
 
             switch (item.getItemId()) {
                 case R.id.chats -> {
-                    Intent i = new Intent(getApplicationContext(), ConversationsActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
+                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
@@ -498,19 +497,8 @@ public class StartConversationActivity extends XmppActivity
         });
     }
 
-    public static float dpToPx(int dp, Context context) {
-        return dp * context.getResources().getDisplayMetrics().density;
-    }
-
     private void inflateFab(final SpeedDialView speedDialView, final @MenuRes int menuRes) {
         speedDialView.clearActionItems();
-        if (getPreferences().getBoolean("show_nav_bar", true)) {
-            speedDialView.setClipToPadding(false);
-            speedDialView.setPadding(0, 0, 0, (int) dpToPx(72, this));
-        } else {
-            speedDialView.setClipToPadding(true);
-            speedDialView.setPadding(0, 0, 0, 0);
-        }
         final PopupMenu popupMenu = new PopupMenu(this, new View(this));
         popupMenu.inflate(menuRes);
         final Menu menu = popupMenu.getMenu();
@@ -1710,17 +1698,6 @@ public class StartConversationActivity extends XmppActivity
             getListView().setFastScrollEnabled(true);
             getListView().setDivider(null);
             getListView().setDividerHeight(0);
-            final StartConversationActivity activity = (StartConversationActivity) getActivity();
-            if (activity == null) {
-                return;
-            }
-            if (activity.getPreferences().getBoolean("show_nav_bar", true)) {
-                getListView().setClipToPadding(false);
-                getListView().setPadding(0, 0, 0, (int) dpToPx(72, activity));
-            } else {
-                getListView().setClipToPadding(true);
-                getListView().setPadding(0, 0, 0, 0);
-            }
         }
 
         @Override

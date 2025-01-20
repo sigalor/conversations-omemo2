@@ -28,7 +28,4 @@
         <item name="android:alpha">0.8</item>
     </style>
 
-	<style name="monocles.Active.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-		<item name="android:height">24dp</item>
-	</style>
 </resources>
