@@ -429,7 +429,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public String replyId() {
-        if (conversation.getMode() == Conversation.MODE_MULTI) return getServerMsgId();
+        if (conversation.getMode() == Conversation.MODE_MULTI && !isPrivateMessage()) return getServerMsgId();
         final String remote = getRemoteMsgId();
         if (remote == null && getStatus() > STATUS_RECEIVED) return getUuid();
         return remote;

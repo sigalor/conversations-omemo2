@@ -5541,6 +5541,7 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean sendReactions(final Message message, final Collection<String> reactions) {
+        if (message.isPrivateMessage()) throw new IllegalArgumentException("Reactions to PM not implemented");
         if (message.getConversation() instanceof Conversation conversation) {
             final String reactToId;
             final Collection<Reaction> combinedReactions;

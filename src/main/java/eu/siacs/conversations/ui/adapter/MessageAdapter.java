@@ -1470,6 +1470,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final Conversational conversational = message.getConversation();
         if (conversational instanceof Conversation c) {
             if (!showError
+                    && !message.isPrivateMessage()
+                    && message.getEncryption() == Message.ENCRYPTION_NONE
                     && !message.isDeleted()
                     && (c.getMode() == Conversational.MODE_SINGLE
                     || (c.getMucOptions().occupantId()
@@ -1963,7 +1965,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void sendReactions(final Message message, final Collection<String> reactions) {
-        if (activity.xmppConnectionService.sendReactions(message, reactions)) {
+        if (!message.isPrivateMessage() && activity.xmppConnectionService.sendReactions(message, reactions)) {
             return;
         }
         Toast.makeText(activity, R.string.could_not_add_reaction, Toast.LENGTH_LONG).show();

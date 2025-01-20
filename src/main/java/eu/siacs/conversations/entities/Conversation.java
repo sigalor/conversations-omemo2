@@ -812,7 +812,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
     public Reaction.Aggregated aggregatedReactionsFor(Message m, Function<Reaction, GetThumbnailForCid> thumbnailer) {
         Set<Reaction> result = new HashSet<>();
-        if (getMode() == MODE_MULTI) {
+        if (getMode() == MODE_MULTI && !m.isPrivateMessage()) {
             result.addAll(reactions.get(m.getServerMsgId()));
         } else if (m.getStatus() > Message.STATUS_RECEIVED) {
             result.addAll(reactions.get(m.getUuid()));

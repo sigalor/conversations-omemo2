@@ -1220,7 +1220,7 @@ public class ConversationFragment extends XmppFragment
                 while (body.length() > 0 && Character.isWhitespace(body.charAt(0))) body.delete(0, 1);
             }
             if (conversation.getReplyTo() != null) {
-                if (Emoticons.isEmoji(body.toString().replaceAll("\\s", ""))) {
+                if (Emoticons.isEmoji(body.toString().replaceAll("\\s", "")) && conversation.getNextCounterpart() == null && !conversation.getReplyTo().isPrivateMessage()) {
                     final var aggregated = conversation.getReplyTo().getAggregatedReactions();
                     final ImmutableSet.Builder<String> reactionBuilder = new ImmutableSet.Builder<>();
                     reactionBuilder.addAll(aggregated.ourReactions);
