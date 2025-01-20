@@ -96,12 +96,11 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/background_nav_bar"
         android:alpha="0.96"
-        app:labelVisibilityMode="selected"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_menu_accounts"
         app:itemPaddingBottom="0dp"
         app:itemActiveIndicatorStyle="@style/monocles.Active.Indicator"
         android:state_checked="true"
-        android:visibility="gone"
-        android:animateLayoutChanges="true" />
+        android:visibility="gone" />
 </RelativeLayout>
 </layout>

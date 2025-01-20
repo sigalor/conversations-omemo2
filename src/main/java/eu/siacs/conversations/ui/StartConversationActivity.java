@@ -506,7 +506,7 @@ public class StartConversationActivity extends XmppActivity
         speedDialView.clearActionItems();
         if (getPreferences().getBoolean("show_nav_bar", true)) {
             speedDialView.setClipToPadding(false);
-            speedDialView.setPadding(0, 0, 0, (int) dpToPx(66, this));
+            speedDialView.setPadding(0, 0, 0, (int) dpToPx(72, this));
         } else {
             speedDialView.setClipToPadding(true);
             speedDialView.setPadding(0, 0, 0, 0);
@@ -1716,7 +1716,7 @@ public class StartConversationActivity extends XmppActivity
             }
             if (activity.getPreferences().getBoolean("show_nav_bar", true)) {
                 getListView().setClipToPadding(false);
-                getListView().setPadding(0, 0, 0, (int) dpToPx(66, activity));
+                getListView().setPadding(0, 0, 0, (int) dpToPx(72, activity));
             } else {
                 getListView().setClipToPadding(true);
                 getListView().setPadding(0, 0, 0, 0);
