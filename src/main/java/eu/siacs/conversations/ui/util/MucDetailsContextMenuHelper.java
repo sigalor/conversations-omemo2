@@ -113,6 +113,7 @@ public final class MucDetailsContextMenuHelper {
     public static void configureMucDetailsContextMenu(XmppActivity activity, Menu menu, Conversation conversation, User user) {
         final MucOptions mucOptions = conversation.getMucOptions();
         final boolean advancedMode = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("advanced_muc_mode", false);
+        final boolean showMucPm = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("show_muc_pm", false);
         final boolean isGroupChat = mucOptions.isPrivateAndNonAnonymous();
         MenuItem sendPrivateMessage = menu.findItem(R.id.send_private_message);
         MenuItem shareContactDetails = menu.findItem(R.id.share_contact_details);
@@ -175,12 +176,13 @@ public final class MucDetailsContextMenuHelper {
                 }
             }
             managePermissions.setVisible(managePermissionsVisible);
-            sendPrivateMessage.setVisible(user.isOnline() && !isGroupChat && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
+            sendPrivateMessage.setVisible(showMucPm && user.isOnline() && !isGroupChat && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
             shareContactDetails.setVisible(user.isOnline() && !isGroupChat && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
         } else {
-            sendPrivateMessage.setVisible(user != null && user.isOnline());
+            sendPrivateMessage.setVisible(showMucPm && user != null && user.isOnline());
             sendPrivateMessage.setEnabled(user != null && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
-            shareContactDetails.setVisible(user != null && user.isOnline() && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
+            shareContactDetails.setVisible(user != null && user.isOnline());
+            shareContactDetails.setEnabled(user != null && mucOptions.allowPm() && user.getRole().ranks(MucOptions.Role.VISITOR));
         }
     }
 

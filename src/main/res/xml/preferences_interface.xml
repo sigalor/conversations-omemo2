@@ -231,6 +231,12 @@
             android:key="compose_rich_text"
             android:summary="@string/compose_using_rich_text_summary"
             android:title="@string/compose_using_rich_text" />
+        <SwitchPreferenceCompat
+            android:icon="@drawable/ic_announcement_24dp"
+            android:defaultValue="@bool/show_muc_pm"
+            android:key="show_muc_pm"
+            android:summary="Allow starting semi-private chats inside a channel"
+            android:title="Show Channel PM" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_keyboard_options">
         <SwitchPreferenceCompat
