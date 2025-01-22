@@ -170,7 +170,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.05dp"
-                        android:background="?android:attr/textColorPrimary" />
+                        android:background="@drawable/details_line" />
 
                     <ListView
                         android:id="@+id/profile_items"
@@ -192,7 +192,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.05dp"
-                        android:background="?android:attr/textColorPrimary" />
+                        android:background="@drawable/details_line" />
 
                     <ListView
                         android:id="@+id/recent_threads"
@@ -214,7 +214,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.05dp"
-                        android:background="?android:attr/textColorPrimary" />
+                        android:background="@drawable/details_line" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -280,7 +280,7 @@
                     <View
                         android:layout_width="fill_parent"
                         android:layout_height="0.05dp"
-                        android:background="?android:attr/textColorPrimary" />
+                        android:background="@drawable/details_line" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
