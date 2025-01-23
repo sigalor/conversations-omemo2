@@ -1568,6 +1568,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
                 AvatarWorkerTask.loadAvatar(conversation, binding.toolbarAvatar, R.dimen.muc_avatar_actionbar);
                 binding.toolbarAvatar.setVisibility(View.VISIBLE);
                 binding.toolbarTitle.setText(conversation.getName());
+                binding.toolbar.setOnClickListener((v) -> { if(!xmppConnectionService.isOnboarding()) openConversationDetails(conversation); });
+                ToolbarUtils.setActionBarOnClickListener(
+                        binding.toolbar,
+                        (v) -> { if(!xmppConnectionService.isOnboarding()) openConversationDetails(conversation); }
+                );
             } else {
                 binding.toolbarTitle.setText(R.string.app_name);
                 binding.toolbar.setOnClickListener(null);
