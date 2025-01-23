@@ -1433,7 +1433,7 @@
     <string name="pref_show_avatars">Показувати аватари</string>
     <string name="pref_chat_bubbles">Бульбашки повідомлень</string>
     <string name="pref_title_bubbles">Вигляд повідомлень</string>
-    <string name="pref_chat_bubbles_summary">Колір фону, розмір шрифту, аватари</string>
+    <string name="pref_chat_bubbles_summary">Колір фону, аватари</string>
     <string name="archiving_not_enabled_text">має не повністю ввімкнену архівацію. Це може призвести до пропущених повідомлень, якщо Ви користуєтеся кількома пристроями або програмами.</string>
     <string name="block_avatar_question">Ви справді хочете заблокувати цей аватар?</string>
     <string name="block_media_question">Ви справді хочете блокувати це медіа в усіх повідомленнях?</string>
@@ -1473,4 +1473,6 @@
     <string name="pref_use_colored_muc_names">Кольорові імена користувачів</string>
     <string name="delete_avatar_message">Бажаєте видалити свій аватар? Деякі клієнти можуть продовжувати відображати копію Вашого аватара з кешу.</string>
     <string name="success_export_settings">Налаштування успішно експортовано</string>
+    <string name="pref_allow_unencrypted_reactions_summary">Дозволити використання незашифрованих реакцій у чатах із наскрізним шифруванням</string>
+    <string name="pref_allow_unencrypted_reactions">Реакції у зашифрованих чатах</string>
 </resources>

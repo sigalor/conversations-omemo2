@@ -1378,7 +1378,7 @@
     <string name="suspected_spam">疑似垃圾信息</string>
     <string name="chats_from_strangers">陌生人的聊天</string>
     <string name="write">写消息</string>
-    <string name="pref_chat_bubbles_summary">背景颜色、字体大小、头像</string>
+    <string name="pref_chat_bubbles_summary">背景颜色、头像</string>
     <string name="pref_title_bubbles">消息气泡</string>
     <string name="pref_show_avatars">显示头像</string>
     <string name="pref_show_avatars_summary">在群聊和一对一聊天中为您的消息显示头像。</string>
@@ -1422,4 +1422,6 @@
     <string name="show_to_contacts_only">仅显示给联系人</string>
     <string name="pref_prefer_ipv6_summary">连接时首选 IPv6</string>
     <string name="pref_export_plain_text_logs">导出纯文本</string>
+    <string name="pref_allow_unencrypted_reactions_summary">允许在端到端加密聊天中使用未加密的回应</string>
+    <string name="pref_allow_unencrypted_reactions">加密聊天中的回应</string>
 </resources>

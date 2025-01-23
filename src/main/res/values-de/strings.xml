@@ -1384,7 +1384,7 @@
     <string name="suspected_spam">SPAM-Verdacht</string>
     <string name="chats_from_strangers">Chats von Fremden</string>
     <string name="pref_chat_bubbles">Chatblasen</string>
-    <string name="pref_chat_bubbles_summary">Hintergrundfarbe, Schriftgröße, Avatare</string>
+    <string name="pref_chat_bubbles_summary">Hintergrundfarbe und Avatare</string>
     <string name="pref_title_bubbles">Chatblasen</string>
     <string name="pref_show_avatars_summary">Zeigen Sie Avatare für Ihre Nachrichten und in 1:1-Chats an, zusätzlich zu Gruppenchats.</string>
     <string name="pref_show_avatars">Zeige Avatare</string>
@@ -1427,4 +1427,8 @@
     <string name="delete_avatar_message">Möchten Sie Ihren Avatar löschen? Einige Clients zeigen möglicherweise weiterhin eine zwischengespeicherte Kopie Ihres Avatars an.</string>
     <string name="pref_secure_tls_summary">Verwenden Sie nur die sichersten TLS-Chiffren, falls auf dem Server verfügbar</string>
     <string name="pref_secure_tls">Nur sichere TLS-Verschlüsselungen verwenden</string>
+    <string name="pref_allow_unencrypted_reactions_summary">Verwendung unverschlüsselter Reaktionen in Ende-zu-Ende-verschlüsselten Chats zulassen</string>
+    <string name="pref_allow_unencrypted_reactions">Reactions in E2EE Chats</string>
+    <string name="pref_show_muc_pm_title">Private Nachricht im Channel anzeigen</string>
+    <string name="pref_show_muc_pm_summary">Erlaubt das Starten halbprivater Chats innerhalb eines Channels</string>
 </resources>

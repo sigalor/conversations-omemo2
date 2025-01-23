@@ -1387,7 +1387,7 @@
     <string name="suspected_spam">Dyshuar për I PADËSHIRUAR</string>
     <string name="chats_from_strangers">Fjalosje nga të panjohur</string>
     <string name="pref_show_avatars_summary">Shfaq avatarë për mesazhet tuaj dhe në fjalosje 1:1, tej fjalosjeve në grup.</string>
-    <string name="pref_chat_bubbles_summary">Ngjyrë sfondi, Madhësi shkronjash, Avatarë</string>
+    <string name="pref_chat_bubbles_summary">Ngjyrë sfondi, Avatarë</string>
     <string name="pref_title_bubbles">Flluska Fjalosjeje</string>
     <string name="block_media_question">Doni vërtet të bllokohet kjo media në krejt mesazhet?</string>
     <string name="block_user_and_spam_question">Doni vërtet të bllokohen gjithë këta përdorues dhe të raportohen si TË PADËSHIRUAR?</string>
@@ -1425,4 +1425,9 @@
     <string name="delete_avatar_message">Doni të fshihet avatari juaj? Disa klientë mund të vazhdojnë të shfaqin një kopje të avatarit tuaj prej fshetinës.</string>
     <string name="pref_export_plain_text_logs">Eksportoje si tekst të thjeshtë</string>
     <string name="mtm_hostname_mismatch">Shërbyesi s’bëri dot mirëfilltësimin si “%s”. Dëshmia është e vlefshme vetëm për:</string>
+    <string name="pref_allow_unencrypted_reactions">Reagime në fjalosje E2EE</string>
+    <string name="pref_allow_unencrypted_reactions_summary">Lejo përdorim reagimesh të pafshehtëzuara në fjalosje të fshehtëzuara skaj-më-skaj</string>
+    <string name="pref_secure_tls_summary">Përdor vetëm shifrat më të siguruara TLS, në qofshin në shërbyes</string>
+    <string name="pref_show_muc_pm_summary">Lejo fillim fjalosjesh gjysmë private në një kanal</string>
+    <string name="pref_show_muc_pm_title">Shfaq PM kanali</string>
 </resources>
