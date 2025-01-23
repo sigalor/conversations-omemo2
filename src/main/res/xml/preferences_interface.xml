@@ -235,8 +235,8 @@
             android:icon="@drawable/ic_announcement_24dp"
             android:defaultValue="@bool/show_muc_pm"
             android:key="show_muc_pm"
-            android:summary="Allow starting semi-private chats inside a channel"
-            android:title="Show Channel PM" />
+            android:summary="@string/pref_show_muc_pm_summary"
+            android:title="@string/pref_show_muc_pm_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_keyboard_options">
         <SwitchPreferenceCompat
