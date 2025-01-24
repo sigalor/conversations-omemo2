@@ -302,8 +302,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		this.binding.list.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
 		registerForContextMenu(this.binding.list);
 		this.binding.list.addOnScrollListener(ExtendedFabSizeChanger.of(binding.fab));
-		this.touchHelper = new ItemTouchHelper(this.callback);
-		this.touchHelper.attachToRecyclerView(this.binding.list);
+		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) this.touchHelper = new ItemTouchHelper(this.callback);
+		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) this.touchHelper.attachToRecyclerView(this.binding.list);
 		return binding.getRoot();
 	}
 
@@ -540,7 +540,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				}
 			}
 		}
-		setupSwipe();
+		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) setupSwipe();
 
 		if (activity.xmppConnectionService == null || binding == null || binding.overviewSnackbar == null) return;
 		binding.overviewSnackbar.setVisibility(View.GONE);

@@ -172,6 +172,12 @@
             android:key="custom_tab"
             android:summary="@string/pref_custom_tab_summary"
             android:title="@string/pref_custom_tab" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/swipe_to_archive"
+            android:icon="@drawable/ic_archive_24dp"
+            android:key="swipe_to_archive"
+            android:summary="@string/pref_swipe_to_archive_summary"
+            android:title="@string/pref_swipe_to_archive_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_input_options">
         <SwitchPreferenceCompat

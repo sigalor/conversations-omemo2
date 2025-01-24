@@ -16,4 +16,5 @@
     <bool name="use_colored_muc_names">false</bool>
     <bool name="plain_text_logs">false</bool>
     <bool name="allow_unencrypted_reactions">false</bool>
+    <bool name="swipe_to_archive">true</bool>
 </resources>

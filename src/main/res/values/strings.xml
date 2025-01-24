@@ -1419,4 +1419,6 @@
     <string name="pref_allow_unencrypted_reactions_summary">Allow using unencrypted reactions in end-to-end encrypted chats</string>
     <string name="pref_show_muc_pm_summary">Allow starting semi-private chats inside a channel</string>
     <string name="pref_show_muc_pm_title">Show channel PM</string>
+    <string name="pref_swipe_to_archive_title">Swipe to archive</string>
+    <string name="pref_swipe_to_archive_summary">Swipe left or right in the chats overview to archive a chat</string>
 </resources>
