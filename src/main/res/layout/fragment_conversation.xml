@@ -515,7 +515,7 @@
                                     android:layout_marginRight="4dp"
                                     android:layout_marginTop="4dp"
                                     android:divider="@android:color/transparent"
-                                    android:numColumns="6"
+                                    android:numColumns="5"
                                     android:dividerHeight="0dp"
                                     android:visibility="gone" />
 
