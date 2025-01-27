@@ -3,9 +3,11 @@ package eu.siacs.conversations.ui;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.viewpager.widget.PagerAdapter;
@@ -31,6 +34,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityWelcomeBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Compatibility;
@@ -39,12 +43,34 @@ import eu.siacs.conversations.utils.SignupUtils;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 
+import static eu.siacs.conversations.AppSettings.ALLOW_SCREENSHOTS;
+import static eu.siacs.conversations.AppSettings.BROADCAST_LAST_ACTIVITY;
+import static eu.siacs.conversations.AppSettings.CONFIRM_MESSAGES;
+import static eu.siacs.conversations.AppSettings.DANE_ENFORCED;
+import static eu.siacs.conversations.AppSettings.SECURE_TLS;
+import static eu.siacs.conversations.AppSettings.SHOW_LINK_PREVIEWS;
+import static eu.siacs.conversations.AppSettings.SHOW_MAPS_INSIDE;
+import static eu.siacs.conversations.AppSettings.UNENCRYPTED_REACTIONS;
+import static eu.siacs.conversations.AppSettings.USE_CACHE_STORAGE;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
+import static eu.siacs.conversations.xml.Namespace.CHAT_STATES;
 
 public class WelcomeActivity extends XmppActivity implements XmppConnectionService.OnAccountCreated, XmppConnectionService.OnAccountUpdate, KeyChainAliasCallback {
 
     private static final int REQUEST_IMPORT_BACKUP = 0x63fb;
+
+    // Default settings screen
+    static final int ALLOWSCREENSHOTS = 1;
+    static final int SHOWWEBLINKS = 2;
+    static final int SHOWMAPPREVIEW = 3;
+    static final int UNENCRYPTEDREACTIONS = 4;
+    static final int CHATSTATES = 5;
+    static final int CONFIRMMESSAGES = 6;
+    static final int LASTSEEN = 7;
+    static final int INNERSTORAGE = 8;
+    static final int ENFORCEDANE = 9;
+    static final int USESECURETLSCIPHERS = 10;
 
     private XmppUri inviteUri;
     private Account onboardingAccount = null;
@@ -153,8 +179,11 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
             public void onPageSelected(int position) {
-                binding.buttonNext.setVisibility(position > 1 ? View.GONE : View.VISIBLE);
-                binding.buttonPrivacy.setVisibility(position < 2 ? View.GONE : View.VISIBLE);
+                binding.buttonNext.setVisibility(position > 2 ? View.GONE : View.VISIBLE);
+                binding.buttonPrivacy.setVisibility(position < 3 ? View.GONE : View.VISIBLE);
+                if (position > 2) {
+                    setSettings();
+                }
             }
         });
         binding.buttonNext.setOnClickListener((v) ->
@@ -216,6 +245,106 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 startActivity(new Intent(this, ImportBackupActivity.class));
             }
         });
+        getDefaults();
+        createInfoMenu();
+    }
+
+    private void createInfoMenu() {
+        this.binding.actionInfoAllowScreenshots.setOnClickListener(string -> showInfo(ALLOWSCREENSHOTS));
+        this.binding.actionInfoShowWeblinks.setOnClickListener(string -> showInfo(SHOWWEBLINKS));
+        this.binding.actionInfoShowMapPreviews.setOnClickListener(string -> showInfo(SHOWMAPPREVIEW));
+        this.binding.actionInfoAllowUnencryptedReactions.setOnClickListener(string -> showInfo(UNENCRYPTEDREACTIONS));
+        this.binding.actionInfoChatStates.setOnClickListener(string -> showInfo(CHATSTATES));
+        this.binding.actionInfoConfirmMessages.setOnClickListener(string -> showInfo(CONFIRMMESSAGES));
+        this.binding.actionInfoLastSeen.setOnClickListener(string -> showInfo(LASTSEEN));
+        this.binding.actionInfoStoreMediaOnlyInCache.setOnClickListener(string -> showInfo(INNERSTORAGE));
+        this.binding.actionInfoDane.setOnClickListener(string -> showInfo(ENFORCEDANE));
+        this.binding.actionInfoUseSecureTls.setOnClickListener(string -> showInfo(USESECURETLSCIPHERS));
+    }
+
+    private void getDefaults() {
+        this.binding.allowScreenshots.setChecked(getResources().getBoolean(R.bool.allow_screenshots));
+        this.binding.showLinks.setChecked(getResources().getBoolean(R.bool.show_link_previews));
+        this.binding.showMappreview.setChecked(getResources().getBoolean(R.bool.show_maps_inside));
+        this.binding.allowUnencryptedReactions.setChecked(getResources().getBoolean(R.bool.allow_unencrypted_reactions));
+        this.binding.chatStates.setChecked(getResources().getBoolean(R.bool.chat_states));
+        this.binding.confirmMessages.setChecked(getResources().getBoolean(R.bool.confirm_messages));
+        this.binding.lastSeen.setChecked(getResources().getBoolean(R.bool.last_activity));
+        this.binding.storeMediaOnlyInCache.setChecked(getResources().getBoolean(R.bool.default_store_media_in_cache));
+        this.binding.dane.setChecked(getResources().getBoolean(R.bool.enforce_dane));
+        this.binding.useSecureTls.setChecked(getResources().getBoolean(R.bool.secure_tls));
+    }
+
+
+    private void showInfo(int setting) {
+        String title;
+        String message;
+        switch (setting) {
+            case ALLOWSCREENSHOTS:
+                title = getString(R.string.pref_allow_screenshots);
+                message = getString(R.string.pref_allow_screenshots_summary);
+                break;
+            case SHOWWEBLINKS:
+                title = getString(R.string.show_link_previews);
+                message = getString(R.string.show_link_previews_summary);
+                break;
+            case SHOWMAPPREVIEW:
+                title = getString(R.string.pref_show_mappreview_inside);
+                message = getString(R.string.pref_show_mappreview_inside_summary);
+                break;
+            case UNENCRYPTEDREACTIONS:
+                title = getString(R.string.pref_allow_unencrypted_reactions);
+                message = getString(R.string.pref_allow_unencrypted_reactions_summary);
+                break;
+            case CHATSTATES:
+                title = getString(R.string.pref_chat_states);
+                message = getString(R.string.pref_chat_states_summary);
+                break;
+            case CONFIRMMESSAGES:
+                title = getString(R.string.pref_confirm_messages);
+                message = getString(R.string.pref_confirm_messages_summary);
+                break;
+            case LASTSEEN:
+                title = getString(R.string.pref_broadcast_last_activity);
+                message = getString(R.string.pref_broadcast_last_activity_summary);
+                break;
+            case INNERSTORAGE:
+                title = getString(R.string.store_media_only_in_cache);
+                message = getString(R.string.pref_store_media_in_cache);
+                break;
+            case ENFORCEDANE:
+                title = getString(R.string.pref_enforce_dane);
+                message = getString(R.string.pref_enforce_dane_summary);
+                break;
+            case USESECURETLSCIPHERS:
+                title = getString(R.string.pref_secure_tls);
+                message = getString(R.string.pref_secure_tls_summary);
+                break;
+            default:
+                title = getString(R.string.error);
+                message = getString(R.string.error);
+        }
+        Log.d(Config.LOGTAG, "STRING value " + title);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setNeutralButton(getString(R.string.ok), null);
+        builder.create().show();
+    }
+
+
+    private void setSettings() {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences.edit().putBoolean(ALLOW_SCREENSHOTS, this.binding.allowScreenshots.isChecked()).apply();
+        preferences.edit().putBoolean(SHOW_LINK_PREVIEWS, this.binding.showLinks.isChecked()).apply();
+        preferences.edit().putBoolean(SHOW_MAPS_INSIDE, this.binding.showMappreview.isChecked()).apply();
+        preferences.edit().putBoolean(UNENCRYPTED_REACTIONS, this.binding.allowUnencryptedReactions.isChecked()).apply();
+        preferences.edit().putBoolean(CHAT_STATES, this.binding.chatStates.isChecked()).apply();
+        preferences.edit().putBoolean(CONFIRM_MESSAGES, this.binding.confirmMessages.isChecked()).apply();
+        preferences.edit().putBoolean(BROADCAST_LAST_ACTIVITY, this.binding.lastSeen.isChecked()).apply();
+        preferences.edit().putBoolean(USE_CACHE_STORAGE, this.binding.storeMediaOnlyInCache.isChecked()).apply();
+        preferences.edit().putBoolean(DANE_ENFORCED, this.binding.dane.isChecked()).apply();
+        preferences.edit().putBoolean(SECURE_TLS, this.binding.useSecureTls.isChecked()).apply();
     }
 
     @Override
@@ -318,7 +447,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
         public WelcomePagerAdapter(ViewPager p) {
             super();
-            pages = new View[]{ p.getChildAt(0), p.getChildAt(1), p.getChildAt(2) };
+            pages = new View[]{ p.getChildAt(0), p.getChildAt(1), p.getChildAt(2), p.getChildAt(3) };
             for (View v : pages) {
                 p.removeView(v);
             }
@@ -326,7 +455,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
 
         @NonNull
