@@ -1423,5 +1423,5 @@
     <string name="pref_swipe_to_archive_summary">Swipe left or right in the chats overview to archive a chat</string>
     <string name="set_preferences_title">Set preferences</string>
     <string name="set_preferences_summary">Here you can change the default settings for some of the most important preferences before you login to enhance your privacy or security. You can change them all again after you logged in.</string>
-    <string name="pref_store_media_in_cache">Default systemwide to store media in cache only. This doesn\'t change the single per chat setting inside the chat details.</string>
+    <string name="pref_store_media_in_cache">Default system wide to store media in cache only.</string>
 </resources>

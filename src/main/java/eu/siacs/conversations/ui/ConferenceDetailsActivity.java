@@ -536,7 +536,11 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                     this.binding.showMedia.setOnClickListener((v) -> MediaBrowserActivity.launch(this, mConversation));
                 }
 
-                binding.storeInCache.setChecked(mConversation.storeInCache());
+                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
+                    binding.storeInCache.setChecked(true);
+                } else {
+                    binding.storeInCache.setChecked(mConversation.storeInCache());
+                }
                 binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
                     mConversation.setStoreInCache(checked);
                     xmppConnectionService.updateConversation(mConversation);
