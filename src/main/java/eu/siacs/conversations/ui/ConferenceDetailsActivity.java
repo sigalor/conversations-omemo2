@@ -538,7 +538,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 
                 if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
                     binding.storeInCache.setChecked(true);
+                    binding.storeInCache.setEnabled(false);
                 } else {
+                    binding.storeInCache.setEnabled(true);
                     binding.storeInCache.setChecked(mConversation.storeInCache());
                 }
                 binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
