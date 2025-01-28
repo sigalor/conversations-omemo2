@@ -63,7 +63,7 @@
     <string name="default_dns_server_ipv4">194.242.2.2</string>
     <string name="default_dns_server_ipv6">[2a07:e340::2]</string>
     <bool name="default_custom_tab">true</bool>
-    <integer name="automatic_backup">86400</integer>
+    <integer name="automatic_backup">0</integer>
     <bool name="call_integration">true</bool>
     <bool name="default_nomedia">true</bool>
     <bool name="show_muc_pm">false</bool>
