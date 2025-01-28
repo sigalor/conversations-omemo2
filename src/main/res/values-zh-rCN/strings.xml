@@ -414,7 +414,7 @@
     <string name="reply">回复</string>
     <string name="mark_as_read">标记为已读</string>
     <string name="pref_input_options">输入</string>
-    <string name="pref_enter_is_send">Enter 即发送</string>
+    <string name="pref_enter_is_send">Enter 键发送</string>
     <string name="pref_enter_is_send_summary">使用 Enter 键发送消息。即使禁用此选项，始终可以使用 Ctrl+Enter 发送消息。</string>
     <string name="pref_display_enter_key">显示 Enter 键</string>
     <string name="pref_display_enter_key_summary">将表情符号键替换为 Enter 键</string>
@@ -617,9 +617,9 @@
     <string name="pref_clean_cache">清理缓存</string>
     <string name="pref_clean_private_storage">清理私人存储空间</string>
     <string name="pref_clean_private_storage_summary">清理保存文件的私人存储（可从服务器重新下载）</string>
-    <string name="i_followed_this_link_from_a_trusted_source">我从可信来源收到此链接</string>
-    <string name="verifying_omemo_keys_trusted_source">点击链接后，您将验证 %1$s 的 OMEMO 密钥。只有从可信来源（只有 %2$s 可以发布此链接）收到此链接才是安全的。</string>
-    <string name="verifying_omemo_keys_trusted_source_account">您将验证自己账号的 OMEMO 密钥。只有从可信来源（只有您可以发布此链接）收到此链接才是安全的。</string>
+    <string name="i_followed_this_link_from_a_trusted_source">我从可信来源获得此链接</string>
+    <string name="verifying_omemo_keys_trusted_source">点击链接后，您将验证 %1$s 的 OMEMO 密钥。只有从可信来源（只有 %2$s 可以发布此链接）获得此链接才是安全的。</string>
+    <string name="verifying_omemo_keys_trusted_source_account">您将验证自己账号的 OMEMO 密钥。只有从可信来源（只有您可以发布此链接）获得此链接才是安全的。</string>
     <string name="continue_btn">继续</string>
     <string name="verify_omemo_keys">验证 OMEMO 密钥</string>
     <string name="show_inactive_devices">显示非活动设备</string>
@@ -781,13 +781,13 @@
     <string name="verify_x">验证 %s</string>
     <string name="we_have_sent_you_an_sms_to_x"><![CDATA[我们已向您发送短信至 <b>%s</b>。]]></string>
     <string name="we_have_sent_you_another_sms">我们已向您发送了另一条带有六位数验证码的短信。</string>
-    <string name="please_enter_pin_below">请在下方输入 6 位 PIN 码。</string>
+    <string name="please_enter_pin_below">请在下方输入六位数的 PIN 码。</string>
     <string name="resend_sms">重新发送短信</string>
     <string name="resend_sms_in">重新发送短信 (%s)</string>
     <string name="wait_x">请稍候 (%s)</string>
     <string name="back">返回</string>
     <string name="possible_pin">已自动从剪贴板粘贴可能的 PIN 码。</string>
-    <string name="please_enter_pin">请输入您的 6 位 PIN 码。</string>
+    <string name="please_enter_pin">请输入六位数的 PIN 码。</string>
     <string name="abort_registration_procedure">是否确定要中止注册过程？</string>
     <string name="yes">是</string>
     <string name="no">否</string>
@@ -1086,8 +1086,8 @@
     <string name="finish">完成</string>
     <string name="action_add">新对话</string>
     <string name="could_not_verify_fingerprint">无法验证指纹</string>
-    <string name="pref_show_thread_feature_summary">显示线程图标并使用线程</string>
-    <string name="pref_show_thread_feature">线程图标</string>
+    <string name="pref_show_thread_feature_summary">显示消息串图标并使用消息串功能</string>
+    <string name="pref_show_thread_feature">消息串</string>
     <string name="copy_GIFs_to_GIFs_folder">将 GIF 复制到 GIF 文件夹</string>
     <string name="show_less">…显示更少</string>
     <string name="show_more">…显示更多</string>
@@ -1130,7 +1130,7 @@
     <string name="cant_open_file">无法打开文件</string>
     <string name="encryption">加密</string>
     <string name="choose_widget">选择微件</string>
-    <string name="pref_show_show_nav_drawer_summary">激活抽屉式导航栏以更好地排序聊天</string>
+    <string name="pref_show_show_nav_drawer_summary">启用抽屉式导航栏以更好地整理聊天</string>
     <string name="pref_show_show_nav_drawer">抽屉式导航栏</string>
     <string name="show_link_previews">显示链接预览</string>
     <string name="show_link_previews_summary">在发送者包含链接描述时显示链接描述</string>
@@ -1192,8 +1192,8 @@
     <string name="pref_show_navigation_bar_summary">通过屏幕底部的导航栏使用替代导航方式</string>
     <string name="keep_aspect_ratio">保持宽高比</string>
     <string name="flip_horizontally">水平翻转</string>
-    <string name="pref_follow_thread_in_channel">在频道中自动跟踪线程</string>
-    <string name="pref_follow_thread_in_channel_summary">设置线程标记以匹配当前正在查看的消息</string>
+    <string name="pref_follow_thread_in_channel">在频道中自动跟踪消息串</string>
+    <string name="pref_follow_thread_in_channel_summary">设置消息串标记以匹配当前正在查看的消息</string>
     <string name="pref_message_autocomplete">编写消息时自动补全</string>
     <string name="pref_message_autocomplete_summary">例如，补全以英文冒号 : 开头的表情符号</string>
     <string name="notify_only_when_highlighted_or_replied">通知提及和回复</string>
@@ -1232,7 +1232,7 @@
     <string name="action_execute">执行</string>
     <string name="pref_theme_oledblack">OLED 黑色</string>
     <string name="pref_theme_custom">自定义</string>
-    <string name="only_this_thread">只显示此线程</string>
+    <string name="only_this_thread">只显示此消息串</string>
     <string name="pref_dialler_integration_incoming">使用电话账号接听来电</string>
     <string name="save_as_sticker">保存为贴纸</string>
     <string name="sticker_name">贴纸名称</string>
@@ -1275,7 +1275,7 @@
     <string name="delete_background_failed">无法移除背景图片</string>
     <string name="delete_background_success">背景图片已移除</string>
     <string name="no_background_set">未设置自定义背景</string>
-    <string name="pref_show_navigation_bar">显示导航栏</string>
+    <string name="pref_show_navigation_bar">底部导航栏</string>
     <string name="chats">聊天</string>
     <string name="accounts">账号</string>
     <string name="pref_enforce_dane_summary">只有在成功验证 DANE 后才连接账号</string>
@@ -1303,7 +1303,7 @@
     <string name="view_privacy_policy">查看隐私政策</string>
     <string name="pref_theme_title">主题</string>
     <string name="follow_system_dark_mode">跟随系统深色模式</string>
-    <string name="xmpp_network_description">XMPP 网络由名为 XMPP 的协议提供支持。它是去中心化的网络，这意味着没有人拥有或控制整个网络。它是联合网络，这意味着任何人都可以运行 XMPP 服务。发送给其他 XMPP 用户的消息默认使用 OMEMO 进行端到端加密。XMPP 地址也称为 XMPP ID，和电子邮件地址类似：</string>
+    <string name="xmpp_network_description">XMPP 网络由称为 XMPP 的协议提供支持。它是去中心化网络，这意味着没有人拥有或控制整个网络。它是联邦网络，这意味着任何人都可以运行 XMPP 服务。发送给其他 XMPP 用户的消息默认使用 OMEMO 进行端到端加密。\n\nXMPP 地址看起来和电子邮件地址类似：</string>
     <string name="custom_theme_is_dark">自定义主题为深色</string>
     <string name="color_match">颜色搭配</string>
     <string name="stay_true_to_my_color_inputs">按照指定的颜色输入</string>
@@ -1381,7 +1381,7 @@
     <string name="pref_chat_bubbles_summary">背景颜色、头像</string>
     <string name="pref_title_bubbles">消息气泡</string>
     <string name="pref_show_avatars">显示头像</string>
-    <string name="pref_show_avatars_summary">在群聊和一对一聊天中为您的消息显示头像。</string>
+    <string name="pref_show_avatars_summary">在群聊和一对一聊天中为消息显示头像。</string>
     <string name="download_stickers_text">是否下载一些默认的贴纸包？</string>
     <string name="archiving_not_enabled_text">未完全启用归档功能。如果您使用多个设备或应用可能会导致错过消息。</string>
     <string name="block_avatar_question">是否确定要屏蔽此头像？</string>
@@ -1393,7 +1393,7 @@
     <string name="dnssec_dane_verified">DNSSEC 和 DANE 已验证</string>
     <string name="dnssec_verified">DNSSEC 已验证</string>
     <string name="not_dnssec_verified">DNSSEC 未验证</string>
-    <string name="account_color_used_on">用于对话、联系人列表和通知</string>
+    <string name="account_color_used_on">用于聊天、联系人列表和通知</string>
     <string name="block_user_and_spam_question">是否确定要屏蔽所有这些用户并将其举报为垃圾信息？</string>
     <string name="spam">垃圾信息</string>
     <string name="all_accounts">所有账号</string>
@@ -1414,8 +1414,8 @@
     <string name="pref_export_plain_text_logs_summary">以人类可读的纯文本导出未加密消息</string>
     <string name="delete_avatar_message">是否删除头像？某些客户端可能会继续显示您头像的缓存副本。</string>
     <string name="pref_prefer_ipv6">首选 IPv6</string>
-    <string name="pref_use_colored_muc_names_summary">在群聊中显示多彩昵称</string>
-    <string name="pref_use_colored_muc_names">多彩昵称</string>
+    <string name="pref_use_colored_muc_names_summary">在群聊中显示彩色昵称</string>
+    <string name="pref_use_colored_muc_names">彩色昵称</string>
     <string name="success_export_settings">已成功导出设置</string>
     <string name="error_export_settings">导出设置时出错</string>
     <string name="select_settings_dat">选择 settings.dat</string>
@@ -1424,4 +1424,16 @@
     <string name="pref_export_plain_text_logs">导出纯文本</string>
     <string name="pref_allow_unencrypted_reactions_summary">允许在端到端加密聊天中使用未加密的回应</string>
     <string name="pref_allow_unencrypted_reactions">加密聊天中的回应</string>
+    <string name="pref_show_muc_pm_title">显示频道私信</string>
+    <string name="pref_show_muc_pm_summary">允许在频道内开始半私人聊天</string>
+    <string name="pref_swipe_to_archive_summary">在聊天概览中左右滑动即可归档聊天</string>
+    <string name="pref_swipe_to_archive_title">滑动归档</string>
+    <string name="set_preferences_title">设置首选项</string>
+    <string name="pref_store_media_in_cache">默认仅将媒体存储在缓存中。</string>
+    <string name="set_preferences_summary">您可以在此处更改登录前一些最重要的首选项的默认设置，以增强您的隐私或安全。登录后，您可以再次更改所有设置。</string>
+    <string name="create_monocles_account">注册</string>
+    <string name="use_monocles">我更喜欢 monocles</string>
+    <string name="monocles_account_introduction">立即注册，<b>获取安全的 monocles 账号，由再生能源提供动力</b>，直接开始聊天。</string>
+    <string name="monocles_account_details">这包括：\n● 一个月临时聊天存储\n● 2 GB 存储空间的电子邮件\n\n 可选：\n● 5 GB 云存储（Nextcloud）\n● 日历和联系人同步\n● 安全会议工具 \n 更多详情请访问 <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="or_use_another">… 或在下方选择其他</string>
 </resources>

@@ -1302,7 +1302,7 @@
     <string name="pref_theme_title">Thema</string>
     <string name="mute_locally">Stummschalten (lokal)</string>
     <string name="unmute_locally">Stummschaltung aufheben (lokal)</string>
-    <string name="xmpp_network_description">Das XMPP Netzwerk ist ein dezentrales Netzwerk, welches auf dem Protokoll XMPP basiert. Das bedeutet: Keine einzelne Organisation oder Person bestimmt darüber. Es ist ein föderiertes Netzwerk. Jede Person kann einen eigenen XMPP Dienst betreiben. Nachrichten an andere Menschen, sind bei monocles chat in den Grundeinstellungen Ende-zu-Ende verschlüsselt.\\n\\nZur Identifikation werden XMPP Adressen verwendet. Dieses sehen genauso aus wie E-Mail Adressen:</string>
+    <string name="xmpp_network_description">Das XMPP Netzwerk ist ein dezentrales Netzwerk, welches auf dem Protokoll XMPP basiert. Das bedeutet: Keine einzelne Organisation oder Person bestimmt darüber. Es ist ein föderiertes Netzwerk. Jede Person kann einen eigenen XMPP Dienst betreiben. Nachrichten an andere Menschen, sind bei monocles chat in den Grundeinstellungen Ende-zu-Ende verschlüsselt.\n\nZur Identifikation werden XMPP Adressen verwendet. Dieses sehen genauso aus wie E-Mail Adressen:</string>
     <string name="invite_to_start_chat">Einladen, um zu Chatten</string>
     <string name="compose_using_rich_text">Beim Verfassen Rich Text anwenden</string>
     <string name="compose_using_rich_text_summary">Die Formatierung wird beim Tippen angezeigt</string>
@@ -1431,4 +1431,14 @@
     <string name="pref_allow_unencrypted_reactions">Reactions in E2EE Chats</string>
     <string name="pref_show_muc_pm_title">Private Nachricht im Channel anzeigen</string>
     <string name="pref_show_muc_pm_summary">Erlaubt das Starten halbprivater Chats innerhalb eines Channels</string>
+    <string name="pref_swipe_to_archive_title">Wischen zum archivieren</string>
+    <string name="set_preferences_title">Einstellungen festlegen</string>
+    <string name="set_preferences_summary">Hier können Sie die wichtigsten Einstellungen ändern, bevor Sie sich anmelden, um Ihre Privatsphäre oder Sicherheit zu verbessern. Nach der Anmeldung können Sie alle Einstellungen erneut ändern.</string>
+    <string name="pref_store_media_in_cache">Standardmäßig werden alle Medien nur im Cache gespeichert.</string>
+    <string name="monocles_account_introduction">Melde dich jetzt an und <b>erhalte einen sicheres monocles-Konto, versorgt mit regenerativen Energien</b>, um direkt mit dem Chatten zu beginnen.</string>
+    <string name="create_monocles_account">Jetzt registrieren</string>
+    <string name="or_use_another">... oder wählen Sie eine andere Option</string>
+    <string name="use_monocles">Ich bevorzuge monocles</string>
+    <string name="pref_swipe_to_archive_summary">Wische in der Chat-Übersicht nach links oder rechts, um einen Chat zu archivieren</string>
+    <string name="monocles_account_details">Dies beinhaltet:\n● einen Monat temporärer Chatspeicher\n● E-Mail mit 2 GB Speicher\n\n optional: \n● 5 GB Cloud-Speicher (nextcloud)\n● Kalender- und Kontaktsynchronisation\n● ein sicheres Konferenztool \n und mehr auf <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
 </resources>

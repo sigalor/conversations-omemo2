@@ -1405,7 +1405,7 @@
     <string name="pref_app_lock_enable_summary">Aktivizoni kyçje aplikacioni. Mbani mend se s’mund ta hapni më aplikacionin, po harruat PIN-in.</string>
     <string name="app_lock_forgot_password">Riinstalo aplikacionin dhe ngarko kopjeruajtje fjalosjeje</string>
     <string name="do_you_have_an_account">Keni tashmë një ID XMPP? Mund të jetë kështu, nëse përdorni një tjetër klient XMPP, ose keni përdorur më parë fjalosjen Monocles, Conversations, apo Snikket. Nëse jo, mund të krijoni një ID të re XMPP mu tani.</string>
-    <string name="xmpp_network_description">Rrjeti XMPP bazohet në një protokoll të quajtur XMPP. Është një rrjet i decentalizuar, që do të thotë se s’është pronë e askujt dhe askush s’kontrollon krejt gjënë. Është një rrjet i federuar, që do të thotë se cilido mund të xhirojë një shërbim XMPP. Mesazhet për përdorues të tjerë XMPP, si parazgjedhje, janë të fshehtëzuar me OMEMO.\\n\\nAdresast quhen ID XMPP dhe duken të ngjashme me adresat email:</string>
+    <string name="xmpp_network_description">Rrjeti XMPP bazohet në një protokoll të quajtur XMPP. Është një rrjet i decentalizuar, që do të thotë se s’është pronë e askujt dhe askush s’kontrollon krejt gjënë. Është një rrjet i federuar, që do të thotë se cilido mund të xhirojë një shërbim XMPP. Mesazhet për përdorues të tjerë XMPP, si parazgjedhje, janë të fshehtëzuar me OMEMO.\n\nAdresast quhen ID XMPP dhe duken të ngjashme me adresat email:</string>
     <string name="example_jid">emërpërdoruesi@monocles.eu</string>
     <string name="call">Thirre</string>
     <string name="download_stickers_title">Të shkarkohen ngjitës?</string>
@@ -1430,4 +1430,13 @@
     <string name="pref_secure_tls_summary">Përdor vetëm shifrat më të siguruara TLS, në qofshin në shërbyes</string>
     <string name="pref_show_muc_pm_summary">Lejo fillim fjalosjesh gjysmë private në një kanal</string>
     <string name="pref_show_muc_pm_title">Shfaq PM kanali</string>
+    <string name="pref_swipe_to_archive_summary">Që të arkivoni një fjalosje, fërkojeni për majtas, ose për djathtas, te përmbledhja e fjalosjeve</string>
+    <string name="pref_swipe_to_archive_title">Që të arkivohet, fërkojeni</string>
+    <string name="set_preferences_title">Caktoni parapëlqime</string>
+    <string name="set_preferences_summary">Këtu mund të ndryshoni rregullimet parazgjedhje për disa nga parapëlqimet më të rëndësishme, para se të bëni hyrjen, për të thelluar privatësinë apo sigurinë tuaj. Mund t’i ndryshoni prapë të tëra, pasi të keni bërë hyrjen.</string>
+    <string name="create_monocles_account">Regjistrohuni</string>
+    <string name="monocles_account_introduction">Regjistrohuni tani dhe <b>merrni një llogari të siguruar monocles, që funksionon me energji rigjeneruese</b> që të filloni e të bisedoni menjëherë.</string>
+    <string name="monocles_account_details">Kjo përfshin:\n● depozitim të përkohshëm një muaj të fjalosjeve\n● e-mail me depozitë 2 GB\n\n opsionale: \n● 5 GB depozitë në re (nextcloud)\n● njëkohësim kalendari dhe kontaktesh\n● një mjet të siguruar konferencash \n dhe më tepër, te <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="or_use_another">…ose zgjidhni një tjetër më poshtë</string>
+    <string name="use_monocles">Parapëlqej monocles</string>
 </resources>
