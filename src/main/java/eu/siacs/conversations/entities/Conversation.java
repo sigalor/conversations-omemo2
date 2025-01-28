@@ -1437,11 +1437,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         if ("cache".equals(getAttribute("storeMedia"))) return true;
         if ("shared".equals(getAttribute("storeMedia"))) return false;
         if (mode == Conversation.MODE_MULTI && !mucOptions.isPrivateAndNonAnonymous()) return true;
-        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 
     public boolean setAttribute(String key, boolean value) {

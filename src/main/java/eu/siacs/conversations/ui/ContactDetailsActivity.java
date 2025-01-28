@@ -778,14 +778,17 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
                 binding.storeInCache.setChecked(true);
                 binding.storeInCache.setEnabled(false);
+                conversation.setStoreInCache(true);
+                xmppConnectionService.updateConversation(conversation);
             } else {
                 binding.storeInCache.setEnabled(true);
                 binding.storeInCache.setChecked(conversation.storeInCache());
+                binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
+                    conversation.setStoreInCache(checked);
+                    xmppConnectionService.updateConversation(conversation);
+                });
             }
-            binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
-                conversation.setStoreInCache(checked);
-                xmppConnectionService.updateConversation(conversation);
-            });
+
 
 
             //Show used clients of contact

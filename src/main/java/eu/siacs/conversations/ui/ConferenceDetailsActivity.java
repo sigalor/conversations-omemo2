@@ -539,14 +539,16 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
                     binding.storeInCache.setChecked(true);
                     binding.storeInCache.setEnabled(false);
+                    mConversation.setStoreInCache(true);
+                    xmppConnectionService.updateConversation(mConversation);
                 } else {
                     binding.storeInCache.setEnabled(true);
                     binding.storeInCache.setChecked(mConversation.storeInCache());
+                    binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
+                        mConversation.setStoreInCache(checked);
+                        xmppConnectionService.updateConversation(mConversation);
+                    });
                 }
-                binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
-                    mConversation.setStoreInCache(checked);
-                    xmppConnectionService.updateConversation(mConversation);
-                });
 
                 updateView();
             }
