@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
 
 import java.security.SecureRandom;
 
+import de.monocles.chat.SignUpPage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMagicCreateBinding;
@@ -109,6 +111,13 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher {
             }
         });
         binding.username.addTextChangedListener(this);
+
+        Button SignUpButton = findViewById(R.id.activity_main_link);
+        SignUpButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, SignUpPage.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+        });
     }
 
     @Override

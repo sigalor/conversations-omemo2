@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
 
+import de.monocles.chat.RegisterMonoclesActivity;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityWelcomeBinding;
@@ -191,7 +192,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         );
         configureActionBar(getSupportActionBar(), false);
         binding.registerNewAccount.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, MagicCreateActivity.class);
+            final Intent intent = new Intent(this, RegisterMonoclesActivity.class);
             addInviteUri(intent);
             startActivity(intent);
             /* // TODO: Better Onboarding later
