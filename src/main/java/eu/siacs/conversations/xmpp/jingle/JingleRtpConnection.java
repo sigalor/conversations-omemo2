@@ -249,20 +249,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             }
             receiveTransportInfo(jinglePacket, contentMap);
         } else {
-            if (isTerminated()) {
-                respondOk(jinglePacket);
-                Log.d(
-                        Config.LOGTAG,
-                        id.account.getJid().asBareJid()
-                                + ": ignoring out-of-order transport info; we where already terminated");
-            } else {
-                Log.d(
-                        Config.LOGTAG,
-                        id.account.getJid().asBareJid()
-                                + ": received transport info while in state="
-                                + this.state);
-                terminateWithOutOfOrder(jinglePacket);
-            }
+            receiveOutOfOrderAction(jinglePacket, Jingle.Action.TRANSPORT_INFO);
         }
     }
 
@@ -350,7 +337,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                     },
                     MoreExecutors.directExecutor());
         } else {
-            terminateWithOutOfOrder(iq);
+            receiveOutOfOrderAction(iq, Jingle.Action.CONTENT_ADD);
         }
     }
 
@@ -426,7 +413,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final RtpContentMap outgoingContentAdd = this.outgoingContentAdd;
         if (outgoingContentAdd == null) {
             Log.d(Config.LOGTAG, "received content-accept when we had no outgoing content add");
-            terminateWithOutOfOrder(jinglePacket);
+            receiveOutOfOrderAction(jinglePacket, Jingle.Action.CONTENT_ACCEPT);
             return;
         }
         final Set<ContentAddition.Summary> ourSummary = ContentAddition.summary(outgoingContentAdd);
@@ -456,7 +443,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                     MoreExecutors.directExecutor());
         } else {
             Log.d(Config.LOGTAG, "received content-accept did not match our outgoing content-add");
-            terminateWithOutOfOrder(jinglePacket);
+            receiveOutOfOrderAction(jinglePacket, Jingle.Action.CONTENT_ACCEPT);
         }
     }
 
@@ -497,7 +484,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     private void receiveContentModify(final Iq jinglePacket, final Jingle jingle) {
         if (this.state != State.SESSION_ACCEPTED) {
-            terminateWithOutOfOrder(jinglePacket);
+            receiveOutOfOrderAction(jinglePacket, Jingle.Action.CONTENT_MODIFY);
             return;
         }
         final Map<String, Content.Senders> modification =
@@ -623,7 +610,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final RtpContentMap outgoingContentAdd = this.outgoingContentAdd;
         if (outgoingContentAdd == null) {
             Log.d(Config.LOGTAG, "received content-reject when we had no outgoing content add");
-            terminateWithOutOfOrder(jinglePacket);
+            receiveOutOfOrderAction(jinglePacket, Jingle.Action.CONTENT_REJECT);
             return;
         }
         final Set<ContentAddition.Summary> ourSummary = ContentAddition.summary(outgoingContentAdd);
@@ -634,7 +621,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             receiveContentReject(ourSummary);
         } else {
             Log.d(Config.LOGTAG, "received content-reject did not match our outgoing content-add");
-            terminateWithOutOfOrder(jinglePacket);
+            receiveOutOfOrderAction(jinglePacket, Jingle.Action.CONTENT_REJECT);
         }
     }
 
@@ -1678,8 +1665,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             // in environments where we always use discovery timeouts we always want to respond with
             // 'ringing'
             if (Config.JINGLE_MESSAGE_INIT_STRICT_DEVICE_TIMEOUT
-                    || (xmppConnectionService.confirmMessages()
-                            && id.getContact().showInContactList())) {
+                    || id.getContact().showInContactList()) {
                 sendJingleMessage("ringing");
             }
         } else {

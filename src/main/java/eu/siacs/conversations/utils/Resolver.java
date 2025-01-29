@@ -3,13 +3,12 @@ package eu.siacs.conversations.utils;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -54,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import eu.siacs.conversations.Config;
+import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xmpp.Jid;
@@ -64,6 +64,7 @@ import org.minidns.DnsClient;
 import org.minidns.cache.LruCache;
 import org.minidns.dnsmessage.Question;
 import org.minidns.dnsname.DnsName;
+import org.minidns.dnsname.InvalidDnsNameException;
 import org.minidns.dnssec.DnssecResultNotAuthenticException;
 import org.minidns.dnssec.DnssecValidationFailedException;
 import org.minidns.dnsserverlookup.AndroidUsingExec;
@@ -108,7 +109,7 @@ public class Resolver {
                             return left.ip != null ? -1 : 1;
                         }
                     } else {
-                        return left.directTls ? -1 : 1;
+                        return left.directTls ? 1 : -1;
                     }
                 } else {
                     return left.priority - right.priority;
@@ -117,7 +118,8 @@ public class Resolver {
 
     private static final ExecutorService DNS_QUERY_EXECUTOR = Executors.newFixedThreadPool(12);
 
-    public static final int DEFAULT_PORT_XMPP = 5222;
+    public static final int XMPP_PORT_STARTTLS = 5222;
+    private static final int XMPP_PORT_DIRECT_TLS = 5223;
 
     private static final String DIRECT_TLS_SERVICE = "_xmpps-client";
     private static final String STARTTLS_SERVICE = "_xmpp-client";
@@ -295,7 +297,7 @@ public class Resolver {
     }
 
     public static boolean useDirectTls(final int port) {
-        return port == 443 || port == 5223;
+        return port == 443 || port == XMPP_PORT_DIRECT_TLS;
     }
 
     public static List<Result> resolve(final String domain) {
@@ -342,14 +344,11 @@ public class Resolver {
         if (IP.matches(domain)) {
             final InetAddress inetAddress;
             try {
-                inetAddress = InetAddress.getByName(domain);
-            } catch (final UnknownHostException e) {
+                inetAddress = InetAddresses.forString(domain);
+            } catch (final IllegalArgumentException e) {
                 return Collections.emptyList();
             }
-            final Result result = new Result();
-            result.ip = inetAddress;
-            result.port = DEFAULT_PORT_XMPP;
-            return Collections.singletonList(result);
+            return Result.createWithDefaultPorts(null, inetAddress);
         } else {
             return Collections.emptyList();
         }
@@ -488,7 +487,7 @@ public class Resolver {
                 noSrvFallbacks,
                 results -> {
                     if (results.isEmpty()) {
-                        return Collections.singletonList(Result.createDefault(dnsName));
+                        return Result.createDefaults(dnsName);
                     } else {
                         return results;
                     }
@@ -535,7 +534,7 @@ public class Resolver {
         public static final String AUTHENTICATED = "authenticated";
         private InetAddress ip;
         private DnsName hostname;
-        private int port = DEFAULT_PORT_XMPP;
+        private int port = XMPP_PORT_STARTTLS;
         private boolean directTls = false;
         private boolean authenticated = false;
         private int priority;
@@ -549,17 +548,40 @@ public class Resolver {
             return result;
         }
 
-        static Result createDefault(final DnsName hostname, final InetAddress ip, final boolean authenticated) {
+        static List<Result> createWithDefaultPorts(final DnsName hostname, final InetAddress ip) {
+            return Lists.transform(
+                    Arrays.asList(XMPP_PORT_STARTTLS),
+                    p -> createDefault(hostname, ip, p, false));
+        }
+
+        static Result createDefault(final DnsName hostname, final InetAddress ip, final int port, final boolean authenticated) {
             Result result = new Result();
-            result.port = DEFAULT_PORT_XMPP;
+            result.port = port;
             result.hostname = hostname;
             result.ip = ip;
             result.authenticated = authenticated;
             return result;
         }
 
+        static Result createDefault(final DnsName hostname, final InetAddress ip, final boolean authenticated) {
+            return createDefault(hostname, ip, XMPP_PORT_STARTTLS, authenticated);
+        }
+
         static Result createDefault(final DnsName hostname) {
-            return createDefault(hostname, null, false);
+            return createDefault(hostname, null, XMPP_PORT_STARTTLS, false);
+        }
+
+        static List<Result> createDefaults(
+                final DnsName hostname, final Collection<InetAddress> inetAddresses) {
+            final ImmutableList.Builder<Result> builder = new ImmutableList.Builder<>();
+            for (final InetAddress inetAddress : inetAddresses) {
+                builder.addAll(createWithDefaultPorts(hostname, inetAddress));
+            }
+            return builder.build();
+        }
+
+        static List<Result> createDefaults(final DnsName hostname) {
+            return createWithDefaultPorts(hostname, null);
         }
 
         public static Result fromCursor(final Cursor cursor) {
@@ -628,6 +650,10 @@ public class Resolver {
                     .add("authenticated", authenticated)
                     .add("priority", priority)
                     .toString();
+        }
+
+        public String asDestination() {
+            return ip != null ? InetAddresses.toAddrString(ip) : hostname.toString();
         }
 
         public ContentValues toContentValues() {

@@ -197,9 +197,15 @@ public class ConversationAdapter
                 if (conversation.getMode() == Conversation.MODE_MULTI) {
                     viewHolder.binding.senderName.setVisibility(View.VISIBLE);
                     /*
-                    final String dname = UIHelper.getMessageDisplayName(message);
-                    final String[] words = dname.split("\\s+");
-                    viewHolder.binding.senderName.setText((words.length > 0 ? words[0] : dname) + ':');
+                    final var displayName = UIHelper.getMessageDisplayName(message);
+                    final var displayNameParts = displayName.split("\\s+");
+                    // Skip when nickname only consists of blank chars
+                    if (displayNameParts.length == 0) {
+                        viewHolder.binding.senderName.setText(String.format("%s:", displayName));
+                    } else {
+                        viewHolder.binding.senderName.setText(
+                                String.format("%s:", displayNameParts[0]));
+                    }
                      */
                     viewHolder.binding.senderName.setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message) + ":");
                 } else {
@@ -207,7 +213,8 @@ public class ConversationAdapter
                 }
             } else if (message.getType() != Message.TYPE_STATUS) {
                 viewHolder.binding.senderName.setVisibility(View.VISIBLE);
-                viewHolder.binding.senderName.setText(activity.getString(R.string.me) + ':');
+                viewHolder.binding.senderName.setText(
+                        String.format("%s:", activity.getString(R.string.me)));
             } else {
                 viewHolder.binding.senderName.setVisibility(View.GONE);
             }

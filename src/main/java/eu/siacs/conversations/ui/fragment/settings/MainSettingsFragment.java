@@ -45,6 +45,8 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
                 .commit();
             return true;
         });
+
+        up.setVisible(!Strings.isNullOrEmpty(getString(R.string.default_push_server)));
     }
 
     @Override

@@ -2,7 +2,6 @@ package eu.siacs.conversations.services;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.net.Uri;
@@ -20,7 +19,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
 import eu.siacs.conversations.ui.util.MainThreadExecutor;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.jingle.JingleConnectionManager;
@@ -539,6 +537,10 @@ public class CallIntegration extends Connection {
         // routed properly) However with those devices being extremely rare it's impossible to gauge
         // how many might be effected and no Naomi Wu around to clarify with the company directly
         if ("umidigi".equals(manufacturer) && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) {
+            return false;
+        }
+        // SailfishOS's AppSupport do not support Call Integration
+        if (Build.MODEL.endsWith("(AppSupport)")) {
             return false;
         }
         // SailfishOS's AppSupport do not support Call Integration

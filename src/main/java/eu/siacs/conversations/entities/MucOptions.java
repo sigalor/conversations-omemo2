@@ -7,17 +7,11 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.common.base.Strings;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
-
 import io.ipfs.cid.Cid;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -35,6 +29,7 @@ import eu.siacs.conversations.xml.Element;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -66,7 +61,7 @@ public class MucOptions {
     public MucOptions(final Conversation conversation) {
         this.account = conversation.getAccount();
         this.conversation = conversation;
-        final String nick = getProposedNickPure(conversation.getAttribute("mucNick"));
+        final String nick = getProposedNick(conversation.getAttribute("mucNick"));
         this.self = new User(this, createJoinJid(nick), null, nick, new HashSet<>());
         this.self.affiliation = Affiliation.of(conversation.getAttribute("affiliation"));
         this.self.role = Role.of(conversation.getAttribute("role"));
@@ -105,8 +100,12 @@ public class MucOptions {
         return mAutoPushConfiguration;
     }
 
-    public boolean isSelf(Jid counterpart) {
+    public boolean isSelf(final Jid counterpart) {
         return counterpart.equals(self.getFullJid());
+    }
+
+    public boolean isSelf(final String occupantId) {
+        return occupantId.equals(self.getOccupantId());
     }
 
     public void resetChatState() {
@@ -350,29 +349,24 @@ public class MucOptions {
         return null;
     }
 
-    public User findUserByOccupantId(final String id, final Jid counterpart) {
-        if (id == null) {
-            return null;
+    public User findUserByOccupantId(final String occupantId, final Jid counterpart) {
+        synchronized (this.users) {
+            final var found = Strings.isNullOrEmpty(occupantId) ? null : Iterables.find(this.users, u -> occupantId.equals(u.occupantId),null);
+            if (Strings.isNullOrEmpty(occupantId) || found != null) return found;
+            final var user = new User(this, counterpart, occupantId, null, new HashSet<>());
+            user.setOnline(false);
+            return user;
         }
-        synchronized (users) {
-            for (User user : users) {
-                if (id.equals(user.getOccupantId())) {
-                    return user;
-                }
-            }
-        }
-        final var user = new User(this, counterpart, id, null, new HashSet<>());
-        user.setOnline(false);
-        return user;
     }
 
     public User findOrCreateUserByRealJid(Jid jid, Jid fullJid, final String occupantId) {
-        User user = findUserByRealJid(jid);
-        if (user == null) {
-            user = new User(this, fullJid, occupantId, null, new HashSet<>());
-            user.setRealJid(jid);
-            user.setOnline(false);
+        final User existing = findUserByRealJid(jid);
+        if (existing != null) {
+            return existing;
         }
+        final var user = new User(this, fullJid, occupantId, null, new HashSet<>());
+        user.setRealJid(jid);
+        user.setOnline(false);
         return user;
     }
 
@@ -384,6 +378,31 @@ public class MucOptions {
         } else {
             return null;
         }
+    }
+
+    private User findUser(final Reaction reaction) {
+        if (reaction.trueJid != null) {
+            return findOrCreateUserByRealJid(reaction.trueJid.asBareJid(), reaction.from, reaction.occupantId);
+        }
+        final var existing = findUserByOccupantId(reaction.occupantId, reaction.from);
+        if (existing != null) {
+            return existing;
+        } else if (reaction.from != null) {
+            return new User(this,reaction.from,reaction.occupantId,null,new HashSet<>());
+        } else {
+            return null;
+        }
+    }
+
+    public List<User> findUsers(final Collection<Reaction> reactions) {
+        final ImmutableList.Builder<User> builder = new ImmutableList.Builder<>();
+        for(final Reaction reaction : reactions) {
+            final var user = findUser(reaction);
+            if (user != null) {
+                builder.add(user);
+            }
+        }
+        return builder.build();
     }
 
     public boolean isContactInRoom(Contact contact) {
@@ -490,13 +509,19 @@ public class MucOptions {
     }
 
     private String getProposedNick() {
+        return getProposedNick(null);
+    }
+
+    private String getProposedNick(final String mucNick) {
         final Bookmark bookmark = this.conversation.getBookmark();
         if (bookmark != null) {
             // if we already have a bookmark we consider this the source of truth
             return getProposedNickPure();
         }
         final var storedJid = conversation.getJid();
-        if (storedJid.isBareJid()) {
+        if (mucNick != null) {
+            return mucNick;
+        } else if (storedJid.isBareJid()) {
             return defaultNick(account);
         } else {
             return storedJid.getResource();
@@ -504,16 +529,10 @@ public class MucOptions {
     }
 
     public String getProposedNickPure() {
-        return getProposedNickPure(null);
-    }
-
-    public String getProposedNickPure(final String mucNick) {
         final Bookmark bookmark = this.conversation.getBookmark();
         final String bookmarkedNick = normalize(account.getJid(), bookmark == null ? null : bookmark.getNick());
         if (bookmarkedNick != null) {
             return bookmarkedNick;
-        } else if (mucNick != null) {
-            return mucNick;
         } else {
             return defaultNick(account);
         }
@@ -536,7 +555,7 @@ public class MucOptions {
         try {
             return account.withResource(nick).getResource();
         } catch (final IllegalArgumentException e) {
-            return nick;
+            return null;
         }
     }
 
@@ -586,9 +605,6 @@ public class MucOptions {
     }
 
     public boolean setSubject(String subject) {
-        if (!Objects.equals(getSubject(), subject)) {
-            this.conversation.setAttribute("subjectTs", String.valueOf(System.currentTimeMillis()));
-        }
         return this.conversation.setAttribute("subject", subject);
     }
 
@@ -912,7 +928,7 @@ public class MucOptions {
         private final MucOptions options;
         private ChatState chatState = Config.DEFAULT_CHAT_STATE;
         protected Set<Hat> hats;
-        private String occupantId;
+        protected String occupantId;
         protected boolean online = true;
 
         public User(MucOptions options, Jid fullJid, final String occupantId, final String nick, final Set<Hat> hats) {
@@ -949,7 +965,7 @@ public class MucOptions {
         }
 
         public String getOccupantId() {
-            return this.occupantId;
+            return occupantId;
         }
 
         public String getNick() {

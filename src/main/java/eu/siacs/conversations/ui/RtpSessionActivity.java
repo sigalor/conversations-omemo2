@@ -583,15 +583,17 @@ public class RtpSessionActivity extends XmppActivity
             final String extraLastState = intent.getStringExtra(EXTRA_LAST_REPORTED_STATE);
             final RtpEndUserState state =
                     extraLastState == null ? null : RtpEndUserState.valueOf(extraLastState);
+            final var contact = account.getRoster().getContact(with);
             if (state != null) {
                 Log.d(Config.LOGTAG, "restored last state from intent extra");
                 updateButtonConfiguration(state);
                 updateVerifiedShield(false);
                 updateStateDisplay(state);
                 updateIncomingCallScreen(state);
+                updateSupportWarning(state, contact);
                 invalidateOptionsMenu();
             }
-            setWith(account.getRoster().getContact(with), state);
+            setWith(state, contact);
             if (xmppConnectionService
                     .getJingleConnectionManager()
                     .fireJingleRtpConnectionStateUpdates()) {
@@ -614,10 +616,10 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void setWith(final RtpEndUserState state) {
-        setWith(getWith(), state);
+        setWith(state, getWith());
     }
 
-    private void setWith(final Contact contact, final RtpEndUserState state) {
+    private void setWith(final RtpEndUserState state, final Contact contact) {
         binding.with.setText(contact.getDisplayName());
         if (Arrays.asList(RtpEndUserState.INCOMING_CALL, RtpEndUserState.ACCEPTING_CALL)
                 .contains(state)) {
@@ -873,7 +875,9 @@ public class RtpSessionActivity extends XmppActivity
         updateCallDuration();
         updateVerifiedShield(false);
         invalidateOptionsMenu();
-        setWith(account.getRoster().getContact(with), state);
+        final var contact = account.getRoster().getContact(with);
+        setWith(state, contact);
+        updateSupportWarning(state, contact);
     }
 
     private void reInitializeActivityWithRunningRtpSession(
@@ -963,7 +967,7 @@ public class RtpSessionActivity extends XmppActivity
 
     private void updateIncomingCallScreen(final RtpEndUserState state, final Contact contact) {
         if (state == RtpEndUserState.INCOMING_CALL || state == RtpEndUserState.ACCEPTING_CALL) {
-            final boolean show = getResources().getBoolean(R.bool.show_avatar_incoming_call);
+            final boolean show = getResources().getBoolean(R.bool.is_portrait_mode);
             if (show) {
                 binding.contactPhoto.setVisibility(View.VISIBLE);
                 if (contact == null) {
@@ -985,6 +989,18 @@ public class RtpSessionActivity extends XmppActivity
         } else {
             binding.usingAccount.setVisibility(View.GONE);
             binding.contactPhoto.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateSupportWarning(final RtpEndUserState state, final Contact contact) {
+        if (state == RtpEndUserState.CONNECTIVITY_ERROR
+                && getResources().getBoolean(R.bool.is_portrait_mode)) {
+            binding.supportWarning.setVisibility(
+                    RtpCapability.check(contact) == RtpCapability.Capability.NONE
+                            ? View.VISIBLE
+                            : View.GONE);
+        } else {
+            binding.supportWarning.setVisibility(View.GONE);
         }
     }
 
@@ -1581,6 +1597,7 @@ public class RtpSessionActivity extends XmppActivity
                         updateButtonConfiguration(state, media, contentAddition);
                         updateVideoViews(state);
                         updateIncomingCallScreen(state, contact);
+                        updateSupportWarning(state, contact);
                         invalidateOptionsMenu();
                     });
             if (END_CARD.contains(state)) {
@@ -1658,6 +1675,7 @@ public class RtpSessionActivity extends XmppActivity
                         updateStateDisplay(state);
                         updateButtonConfiguration(state, media, null);
                         updateIncomingCallScreen(state);
+                        updateSupportWarning(state, account.getRoster().getContact(with));
                         invalidateOptionsMenu();
                     });
             resetIntent(account, with, state, media);

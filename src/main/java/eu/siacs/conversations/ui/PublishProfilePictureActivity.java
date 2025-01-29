@@ -180,7 +180,6 @@ public class PublishProfilePictureActivity extends XmppActivity
         super.onSaveInstanceState(outState);
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -199,7 +198,7 @@ public class PublishProfilePictureActivity extends XmppActivity
             }
         } else if (requestCode == REQUEST_CHOOSE_PICTURE) {
             if (resultCode == RESULT_OK) {
-                cropUri(data.getData());
+                cropUri(this, data.getData());
             }
         }
     }
@@ -254,7 +253,7 @@ public class PublishProfilePictureActivity extends XmppActivity
         final Uri uri = intent != null ? intent.getData() : null;
 
         if (uri != null && handledExternalUri.compareAndSet(false, true)) {
-            cropUri(uri);
+            cropUri(this, uri);
             return;
         }
 
@@ -265,16 +264,17 @@ public class PublishProfilePictureActivity extends XmppActivity
                 getSupportActionBar(), !this.mInitialAccountSetup && !handledExternalUri.get());
     }
 
-    public void cropUri(final Uri uri) {
+    public void cropUri(final Activity activity, final Uri uri) {
         if (Build.VERSION.SDK_INT >= 28) {
             loadImageIntoPreview(uri);
-            if (this.binding.accountImage.getDrawable() instanceof AnimatedImageDrawable || this.binding.accountImage.getDrawable() instanceof FileBackend.SVGDrawable) {
+            if (binding.accountImage.getDrawable() instanceof AnimatedImageDrawable || binding.accountImage.getDrawable() instanceof FileBackend.SVGDrawable) {
                 this.avatarUri = uri;
                 return;
             }
         }
 
-        CropImage.activity(uri).setOutputCompressFormat(Bitmap.CompressFormat.PNG)
+        CropImage.activity(uri)
+                .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                 .setAspectRatio(1, 1)
                 .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
                 .start(this);
@@ -284,10 +284,21 @@ public class PublishProfilePictureActivity extends XmppActivity
 
         Drawable bm = null;
         if (uri == null) {
-            bm = avatarService().get(account, (int) getResources().getDimension(R.dimen.publish_avatar_size));
+            bm =
+                    avatarService()
+                            .get(
+                                    account,
+                                    (int) getResources().getDimension(R.dimen.publish_avatar_size));
         } else {
             try {
-                bm = xmppConnectionService.getFileBackend().cropCenterSquareDrawable(uri, (int) getResources().getDimension(R.dimen.publish_avatar_size));
+                bm =
+                        xmppConnectionService
+                                .getFileBackend()
+                                .cropCenterSquareDrawable(
+                                        uri,
+                                        (int)
+                                                getResources()
+                                                        .getDimension(R.dimen.publish_avatar_size));
             } catch (final Exception e) {
                 Log.d(Config.LOGTAG, "unable to load bitmap into image view", e);
             }
@@ -340,5 +351,4 @@ public class PublishProfilePictureActivity extends XmppActivity
     public void onAccountUpdate() {
         refreshUi();
     }
-
 }

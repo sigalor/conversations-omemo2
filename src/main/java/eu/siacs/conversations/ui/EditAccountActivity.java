@@ -765,7 +765,7 @@ public class EditAccountActivity extends OmemoActivity
         this.binding.hostname.addTextChangedListener(mTextWatcher);
         this.binding.hostname.setOnFocusChangeListener(mEditTextFocusListener);
         this.binding.clearDevices.setOnClickListener(v -> showWipePepDialog());
-        this.binding.port.setText(String.valueOf(Resolver.DEFAULT_PORT_XMPP));
+        this.binding.port.setText(String.valueOf(Resolver.XMPP_PORT_STARTTLS));
         this.binding.port.addTextChangedListener(mTextWatcher);
         this.binding.saveButton.setOnClickListener(this.mSaveButtonClickListener);
         this.binding.cancelButton.setOnClickListener(this.mCancelButtonClickListener);
@@ -1111,11 +1111,7 @@ public class EditAccountActivity extends OmemoActivity
     }
 
     private void deleteAccount() {
-        this.deleteAccount(
-                mAccount,
-                () -> {
-                    finish();
-                });
+        this.deleteAccount(mAccount, () -> finish());
     }
 
     private boolean inNeedOfSaslAccept() {
@@ -1524,7 +1520,7 @@ public class EditAccountActivity extends OmemoActivity
             if (hasKeys
                     && Config.supportOmemo()) { // TODO: either the button should be visible if we
                 // print an active device or the device list should
-                // be fed with reactived devices
+                // be fed with reactivated devices
                 this.binding.otherDeviceKeysCard.setVisibility(View.VISIBLE);
                 Set<Integer> otherDevices = mAccount.getAxolotlService().getOwnDeviceIds();
                 if (otherDevices == null || otherDevices.isEmpty()) {
@@ -1553,12 +1549,17 @@ public class EditAccountActivity extends OmemoActivity
             }
         } else {
             final TextInputLayout errorLayout;
-            if (this.mAccount.errorStatus()) {
-                if (this.mAccount.getStatus() == Account.State.UNAUTHORIZED
-                        || this.mAccount.getStatus() == Account.State.DOWNGRADE_ATTACK) {
+            final var status = this.mAccount.getStatus();
+            if (status.isError()
+                    || Arrays.asList(
+                                    Account.State.NO_INTERNET,
+                                    Account.State.MISSING_INTERNET_PERMISSION)
+                            .contains(status)) {
+                if (status == Account.State.UNAUTHORIZED
+                        || status == Account.State.DOWNGRADE_ATTACK) {
                     errorLayout = this.binding.accountPasswordLayout;
                 } else if (mShowOptions
-                        && this.mAccount.getStatus() == Account.State.SERVER_NOT_FOUND
+                        && status == Account.State.SERVER_NOT_FOUND
                         && this.binding.hostname.getText().length() > 0) {
                     errorLayout = this.binding.hostnameLayout;
                 } else {

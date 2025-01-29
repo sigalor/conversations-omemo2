@@ -83,7 +83,7 @@
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
                     android:layout_below="@+id/muc_subject"
-                    tools:listitem="@layout/item_message_sent" />
+                    tools:listitem="@layout/item_message_end" />
 
                     <LinearLayout
                         android:id="@+id/input_area"

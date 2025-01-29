@@ -66,5 +66,6 @@
     <integer name="automatic_backup">0</integer>
     <bool name="call_integration">true</bool>
     <bool name="default_nomedia">true</bool>
-    <bool name="show_muc_pm">false</bool>
+    <bool name="show_muc_pm">true</bool>
+    <bool name="align_start">false</bool>
 </resources>

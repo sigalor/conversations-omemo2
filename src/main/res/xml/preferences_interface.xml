@@ -79,7 +79,7 @@
             android:title="@string/custom_background_color"
             android:defaultValue="@color/md_theme_dark_surface"
             app:colorpicker_showAlpha="false" />
-    </PreferenceCategory>>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/appearance">
         <Preference
             android:key="import_background"

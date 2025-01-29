@@ -90,16 +90,14 @@
     <dimen name="colorpicker_hue_width">30dp</dimen>
 
     <!--Lockscreen-->
-
     <dimen name="forgot_password_margin_bottom">13.6dp</dimen>
     <dimen name="number_pad_margin_top">7.3dp</dimen>
     <dimen name="number_pad_parent_margin">14.5dp</dimen>
 
     <!-- bubble avatar -->
-
     <dimen name="bubble_horizontal_padding">8dp</dimen>
     <dimen name="bubble_vertical_padding">4dp</dimen>
-    <dimen name="bubble_vertical_padding_minimum">0dp</dimen>
+    <dimen name="bubble_vertical_padding_minimum">1dp</dimen>
     <dimen name="bubble_avatar_size">48dp</dimen>
-    <dimen name="bubble_avatar_distance">2dp</dimen>
+    <dimen name="bubble_avatar_distance">6dp</dimen>
 </resources>

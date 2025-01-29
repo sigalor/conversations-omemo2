@@ -99,6 +99,7 @@ public class NotificationsSettingsFragment extends XmppPreferenceFragment {
         if (!sharedPreferences.getBoolean("notifications_from_strangers", true) && sharedPreferences.getString("chat_requests", null) == null) {
             chatRequests.setValue("strangers");
         }
+
         callIntegration.setVisible(CallIntegration.selfManagedAvailable(requireContext()));
     }
 

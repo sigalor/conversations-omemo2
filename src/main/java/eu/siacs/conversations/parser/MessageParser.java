@@ -9,6 +9,7 @@ import android.util.Pair;
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.WebxdcUpdate;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 
 import net.java.otr4j.session.Session;
@@ -76,6 +77,7 @@ import eu.siacs.conversations.xmpp.pep.Avatar;
 import im.conversations.android.xmpp.model.Extension;
 import im.conversations.android.xmpp.model.carbons.Received;
 import im.conversations.android.xmpp.model.carbons.Sent;
+import im.conversations.android.xmpp.model.correction.Replace;
 import im.conversations.android.xmpp.model.forward.Forwarded;
 import im.conversations.android.xmpp.model.occupant.OccupantId;
 import im.conversations.android.xmpp.model.reactions.Reactions;
@@ -579,7 +581,9 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             timestamp = AbstractParser.parseTimestamp(original, AbstractParser.parseTimestamp(packet));
         }
         final Element mucUserElement = packet.findChild("x", Namespace.MUC_USER);
+        final boolean isTypeGroupChat = packet.getType() == im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT;
         final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
+
         Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
         Set<Message.FileParams> attachments = new LinkedHashSet<>();
         for (Element child : packet.getChildren()) {
@@ -614,6 +618,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
         LocalizedContent body = packet.getBody();
 
         final var reactions = packet.getExtension(Reactions.class);
+
         final Element axolotlEncrypted = packet.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
         int status;
         final Jid counterpart;
@@ -637,11 +642,35 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             Log.e(Config.LOGTAG, "encountered invalid message from='" + from + "' to='" + to + "'");
             return;
         }
-
-        boolean isTypeGroupChat = packet.getType() == im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT;
         if (query != null && !query.muc() && isTypeGroupChat) {
             Log.e(Config.LOGTAG, account.getJid().asBareJid() + ": received groupchat (" + from + ") message on regular MAM request. skipping");
             return;
+        }
+        final Jid mucTrueCounterPart;
+        final OccupantId occupant;
+        if (isTypeGroupChat) {
+            final Conversation conversation =
+                    mXmppConnectionService.find(account, from.asBareJid());
+            final Jid mucTrueCounterPartByPresence;
+            if (conversation != null) {
+                final var mucOptions = conversation.getMucOptions();
+                occupant = mucOptions.occupantId() ? packet.getExtension(OccupantId.class) : null;
+                final var user =
+                        occupant == null ? null : mucOptions.findUserByOccupantId(occupant.getId(), from);
+                mucTrueCounterPartByPresence = user == null ? null : user.getRealJid();
+            } else {
+                occupant = null;
+                mucTrueCounterPartByPresence = null;
+            }
+            mucTrueCounterPart =
+                    getTrueCounterpart(
+                            (query != null && query.safeToExtractTrueCounterpart())
+                                    ? mucUserElement
+                                    : null,
+                            mucTrueCounterPartByPresence);
+        } else {
+            mucTrueCounterPart = null;
+            occupant = null;
         }
         boolean isProperlyAddressed = (to != null) && (!to.isBareJid() || account.countPresences() == 0);
         boolean isMucStatusMessage = InvalidJid.hasValidFrom(packet) && from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
@@ -732,7 +761,14 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
 
 
             if (selfAddressed) {
-                if (mXmppConnectionService.markMessage(conversation, remoteMsgId, Message.STATUS_SEND_RECEIVED, serverMsgId)) {
+                // don’t store serverMsgId on reflections for edits
+                final var reflectedServerMsgId =
+                        Strings.isNullOrEmpty(replacementId) ? serverMsgId : null;
+                if (mXmppConnectionService.markMessage(
+                        conversation,
+                        remoteMsgId,
+                        Message.STATUS_SEND_RECEIVED,
+                        reflectedServerMsgId)) {
                     return;
                 }
                 status = Message.STATUS_RECEIVED;
@@ -745,7 +781,10 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                 if (conversation.getMucOptions().isSelf(counterpart)) {
                     status = Message.STATUS_SEND_RECEIVED;
                     isCarbon = true; //not really carbon but received from another resource
-                    if (mXmppConnectionService.markMessage(conversation, remoteMsgId, status, serverMsgId, body, html, packet.findChildContent("subject"), packet.findChild("thread"), attachments)) {
+                    // don’t store serverMsgId on reflections for edits
+                    final var reflectedServerMsgId =
+                            Strings.isNullOrEmpty(replacementId) ? serverMsgId : null;
+                    if (mXmppConnectionService.markMessage(conversation, remoteMsgId, status, reflectedServerMsgId, body, html, packet.findChildContent("subject"), packet.findChild("thread"), attachments)) {
                         return;
                     } else if (remoteMsgId == null || Config.IGNORE_ID_REWRITE_IN_MUC) {
                         if (body != null) {
@@ -897,10 +936,8 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             }
             if (conversationMultiMode) {
                 final var mucOptions = conversation.getMucOptions();
-                final var occupantId =
-                        mucOptions.occupantId() ? packet.getExtension(OccupantId.class) : null;
-                if (occupantId != null) {
-                    message.setOccupantId(occupantId.getId());
+                if (occupant != null) {
+                    message.setOccupantId(occupant.getId());
                 }
                 message.setMucUser(mucOptions.findUserByFullJid(counterpart));
                 final Jid fallback = mucOptions.getTrueCounterpart(counterpart);
@@ -931,6 +968,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
 
             if (replacementId != null && mXmppConnectionService.allowMessageCorrection()) {
                 final Message replacedMessage = conversation.findMessageWithRemoteIdAndCounterpart(replacementId, counterpart);
+Log.d("WUT", "" + replacementId + "  " + replacedMessage);
                 if (replacedMessage != null) {
                     final boolean fingerprintsMatch = replacedMessage.getFingerprint() == null
                             || replacedMessage.getFingerprint().equals(message.getFingerprint());
@@ -981,14 +1019,27 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                 }
                             }
                             replacedMessage.setInReplyTo(message.getInReplyTo());
-                            if (replacedMessage.getServerMsgId() == null || message.getServerMsgId() != null) {
-                                replacedMessage.setServerMsgId(message.getServerMsgId());
-                            }
+
+                            // we store the IDs of the replacing message. This is essentially unused
+                            // today (only the fact that there are _some_ edits causes the edit icon
+                            // to appear)
+                            replacedMessage.putEdited(
+                                    message.getRemoteMsgId(), message.getServerMsgId());
+
+                            // we used to call
+                            // `replacedMessage.setServerMsgId(message.getServerMsgId());` so during
+                            // catchup we could start from the edit; not the original message
+                            // however this caused problems for things like reactions that refer to
+                            // the serverMsgId
+
                             replacedMessage.setEncryption(message.getEncryption());
                             if (replacedMessage.getStatus() == Message.STATUS_RECEIVED) {
                                 replacedMessage.markUnread();
                             }
-                            extractChatState(mXmppConnectionService.find(account, counterpart.asBareJid()), isTypeGroupChat, packet);
+                            extractChatState(
+                                    mXmppConnectionService.find(account, counterpart.asBareJid()),
+                                    isTypeGroupChat,
+                                    packet);
                             mXmppConnectionService.updateMessage(replacedMessage, uuid);
                             if (mXmppConnectionService.confirmMessages()
                                     && replacedMessage.getStatus() == Message.STATUS_RECEIVED
@@ -1235,8 +1286,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                             // the 'ringing' response. Responding with delivery receipts predates
                             // the 'ringing' spec'd
                             final boolean sendReceipts =
-                                    (mXmppConnectionService.confirmMessages()
-                                                    && contact.showInContactList())
+                                    contact.showInContactList()
                                             || Config.JINGLE_MESSAGE_INIT_STRICT_OFFLINE_CHECK;
                             if (remoteMsgId != null && !contact.isSelf() && sendReceipts) {
                                 processMessageReceipts(account, packet, remoteMsgId, null);
@@ -1430,12 +1480,9 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
             if (conversation != null && reactingTo != null) {
                 if (isTypeGroupChat && conversation.getMode() == Conversational.MODE_MULTI) {
                     final var mucOptions = conversation.getMucOptions();
-                    final var occupant =
-                            mucOptions.occupantId() ? packet.getExtension(OccupantId.class) : null;
                     final var occupantId = occupant == null ? null : occupant.getId();
                     if (occupantId != null) {
-                        // TODO use occupant id for isSelf assessment
-                        final boolean isReceived = !mucOptions.isSelf(counterpart);
+                        final boolean isReceived = !mucOptions.isSelf(occupantId);
                         final Message message;
                         final var inMemoryMessage =
                                 conversation.findMessageWithServerMsgId(reactingTo);

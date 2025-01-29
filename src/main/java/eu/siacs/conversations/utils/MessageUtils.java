@@ -30,16 +30,14 @@
 package eu.siacs.conversations.utils;
 
 import com.google.common.base.Strings;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.regex.Pattern;
-
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.AesGcmURL;
 import eu.siacs.conversations.http.URL;
 import eu.siacs.conversations.ui.util.QuoteHelper;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Pattern;
 
 public class MessageUtils {
 
@@ -47,7 +45,7 @@ public class MessageUtils {
 
     public static final String EMPTY_STRING = "";
 
-    public static String prepareQuote(Message message) {
+    public static String prepareQuote(final Message message) {
         final StringBuilder builder = new StringBuilder();
         final String body;
         if (message.hasMeCommand()) {
@@ -102,8 +100,12 @@ public class MessageUtils {
         final String protocol = uri.getScheme();
         final boolean encrypted = ref != null && AesGcmURL.IV_KEY.matcher(ref).matches();
         final boolean followedByDataUri = lines.length == 2 && lines[1].startsWith("data:");
-        final boolean validAesGcm = AesGcmURL.PROTOCOL_NAME.equalsIgnoreCase(protocol) && encrypted && (lines.length == 1 || followedByDataUri);
-        final boolean validProtocol = "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
+        final boolean validAesGcm =
+                AesGcmURL.PROTOCOL_NAME.equalsIgnoreCase(protocol)
+                        && encrypted
+                        && (lines.length == 1 || followedByDataUri);
+        final boolean validProtocol =
+                "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
         final boolean validOob = validProtocol && (oob || encrypted || (legacyEncryption && uri.getPath() != null && (uri.getPath().endsWith(".xdc") || uri.getPath().endsWith(".webp") || uri.getPath().endsWith(".gif") || uri.getPath().endsWith(".png")))) && lines.length == 1;
         return validAesGcm || validOob;
     }
@@ -140,7 +142,10 @@ public class MessageUtils {
     }
 
     public static boolean unInitiatedButKnownSize(Message message) {
-        return message.getType() == Message.TYPE_TEXT && message.getTransferable() == null && message.isOOb() && message.getFileParams().url != null &&
-               (message.getFileParams().size != null || (message.getOob() != null && message.getOob().getScheme() != null && message.getOob().getScheme().equalsIgnoreCase("cid")));
+        return message.getType() == Message.TYPE_TEXT
+                && message.getTransferable() == null
+                && message.isOOb()
+                && (message.getFileParams().size != null || (message.getOob() != null && message.getOob().getScheme() != null && message.getOob().getScheme().equalsIgnoreCase("cid")))
+                && message.getFileParams().url != null;
     }
 }

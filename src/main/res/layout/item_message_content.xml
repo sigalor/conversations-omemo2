@@ -66,6 +66,7 @@
             android:autoLink="web"
             android:maxLines="8"
             android:longClickable="false"
+            android:breakStrategy="simple"
             android:textAppearance="?textAppearanceBodyMedium"
             android:visibility="gone" />
 

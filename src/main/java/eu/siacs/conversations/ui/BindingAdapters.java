@@ -9,14 +9,12 @@ import de.monocles.chat.EmojiSearch;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Reaction;
 import eu.siacs.conversations.utils.UIHelper;
 
@@ -25,32 +23,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public class BindingAdapters {
     public static void setReactionsOnReceived(
             final ChipGroup chipGroup,
-            final Conversation conversation,
             final Reaction.Aggregated reactions,
             final Consumer<Collection<String>> onModifiedReactions,
+            final Function<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>, Boolean> onDetailsClicked,
             final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
             final Consumer<Reaction> onCustomReactionRemove,
             final Runnable addReaction) {
-        setReactions(chipGroup, conversation, reactions, true, onModifiedReactions, onCustomReaction, onCustomReactionRemove, addReaction);
+        setReactions(chipGroup, reactions, true, onModifiedReactions, onDetailsClicked, onCustomReaction, onCustomReactionRemove, addReaction);
     }
 
     public static void setReactionsOnSent(
             final ChipGroup chipGroup,
             final Reaction.Aggregated reactions,
-            final Consumer<Collection<String>> onModifiedReactions) {
-        setReactions(chipGroup, null, reactions, false, onModifiedReactions, null, null, null);
+            final Consumer<Collection<String>> onModifiedReactions,
+            final Function<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>, Boolean> onDetailsClicked) {
+        setReactions(chipGroup, reactions, false, onModifiedReactions, onDetailsClicked, null, null, null);
     }
 
     private static void setReactions(
             final ChipGroup chipGroup,
-            final Conversation conversation,
             final Reaction.Aggregated aggregated,
             final boolean onReceived,
             final Consumer<Collection<String>> onModifiedReactions,
+            final Function<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>, Boolean> onDetailsClicked,
             final Consumer<EmojiSearch.CustomEmoji> onCustomReaction,
             final Consumer<Reaction> onCustomReactionRemove,
             final Runnable addReaction) {
@@ -123,14 +123,7 @@ public class BindingAdapters {
                                 }
                             }
                         });
-                chip.setOnLongClickListener(v -> {
-                    final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-                    builder.setTitle(emoji.toString());
-                    builder.setMessage(reaction.getValue().stream().map(r -> UIHelper.getDisplayName(conversation, r)).collect(Collectors.joining("\n")));
-                    builder.setPositiveButton(context.getResources().getString(R.string.ok), null);
-                    builder.create().show();
-                    return true;
-                });
+                chip.setOnLongClickListener(v -> onDetailsClicked.apply(reaction));
                 chipGroup.addView(chip);
             }
             if (addReaction != null) {
