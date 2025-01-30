@@ -205,7 +205,10 @@ public final class Config {
                 "cheogram.com",
                 "aria-net.org",
                 "matrix.org",
-                "*.covid.monal.im"
+                "*.covid.monal.im",
+                "telegram.monocles.eu",
+                "whatsapp.monocles.eu",
+                "signal.monocles.eu"
         );
 
         public static boolean matchesContactDomain(final String domain) {
