@@ -376,30 +376,39 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 UIHelper.readableTimeDifferenceFull(getContext(), message.getTimeSent());
         final String bodyLanguage = message.getBodyLanguage();
         final ImmutableList.Builder<String> timeInfoBuilder = new ImmutableList.Builder<>();
-
-        if (mForceNames || multiReceived || showUserNickname || (message.getTrueCounterpart() != null && message.getContact() != null)) {
-            final String displayName = UIHelper.getMessageDisplayName(message);
-            if (displayName != null && viewHolder.username() != null) {
-                timeInfoBuilder.add("");
-                viewHolder.username().setVisibility(View.VISIBLE);
-                viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
-            }
-        } else if (viewHolder.username() != null) {
-            viewHolder.username().setText(null);
-            viewHolder.username().setVisibility(GONE);
-        }
-        if (fileSize != null) {
-            timeInfoBuilder.add(fileSize);
-        }
-        if (bodyLanguage != null) {
-            timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
-        }
-        // for space reasons we display only 'additional status info' (send progress or concrete
-        // failure reason) or the time
-        if (additionalStatusInfo != null) {
-            timeInfoBuilder.add(additionalStatusInfo);
-        } else {
+        if (message.getStatus() <= Message.STATUS_RECEIVED) {
             timeInfoBuilder.add(formattedTime);
+            if (fileSize != null) {
+                timeInfoBuilder.add(fileSize);
+            }
+            if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
+                final String displayName = UIHelper.getMessageDisplayName(message);
+                if (displayName != null) {
+                    timeInfoBuilder.add("");
+                    viewHolder.username().setVisibility(View.VISIBLE);
+                    viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
+                }
+            } else {
+                viewHolder.username().setText(null);
+                viewHolder.username().setVisibility(GONE);
+            }
+            if (bodyLanguage != null) {
+                timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
+            }
+        } else {
+            if (bodyLanguage != null) {
+                timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
+            }
+            if (fileSize != null) {
+                timeInfoBuilder.add(fileSize);
+            }
+            // for space reasons we display only 'additional status info' (send progress or concrete
+            // failure reason) or the time
+            if (additionalStatusInfo != null) {
+                timeInfoBuilder.add(additionalStatusInfo);
+            } else {
+                timeInfoBuilder.add(formattedTime);
+            }
         }
         final var timeInfo = timeInfoBuilder.build();
         viewHolder.time().setText(Joiner.on(" · ").join(timeInfo));
