@@ -1681,12 +1681,12 @@ public class ConversationFragment extends XmppFragment
                     menuCall.setVisible(false);
                 } else {
                     menuOngoingCall.setVisible(false);
-                    // use RtpCapability.check(conversation.getContact()); to check if contact
-                    // actually has support
+                    final RtpCapability.Capability rtpCapability =
+                            RtpCapability.check(conversation.getContact());
                     final boolean cameraAvailable =
                             activity != null && activity.isCameraFeatureAvailable();
                     menuCall.setVisible(true);
-                    menuVideoCall.setVisible(cameraAvailable);
+                    menuVideoCall.setVisible(rtpCapability != RtpCapability.Capability.AUDIO && cameraAvailable);
                 }
                 menuContactDetails.setVisible(!this.conversation.withSelf());
                 menuMucDetails.setVisible(false);
