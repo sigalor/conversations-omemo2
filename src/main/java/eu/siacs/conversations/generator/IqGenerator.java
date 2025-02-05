@@ -7,6 +7,7 @@ import android.util.Log;
 
 import de.monocles.chat.BobTransfer;
 
+import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
 import org.whispersystems.libsignal.IdentityKey;
@@ -282,10 +283,10 @@ public class IqGenerator extends AbstractGenerator {
         final String password = bookmark.getPassword();
         final boolean autojoin = bookmark.autojoin();
         final Element conference = new Element("conference", Namespace.BOOKMARKS2);
-        if (name != null) {
+        if (!Strings.isNullOrEmpty(name)) {
             conference.setAttribute("name", name);
         }
-        if (nick != null) {
+        if (!Strings.isNullOrEmpty(nick)) {
             conference.addChild("nick").setContent(nick);
         }
         if (password != null) {
