@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -968,7 +969,6 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
 
             if (replacementId != null && mXmppConnectionService.allowMessageCorrection()) {
                 final Message replacedMessage = conversation.findMessageWithRemoteIdAndCounterpart(replacementId, counterpart);
-Log.d("WUT", "" + replacementId + "  " + replacedMessage);
                 if (replacedMessage != null) {
                     final boolean fingerprintsMatch = replacedMessage.getFingerprint() == null
                             || replacedMessage.getFingerprint().equals(message.getFingerprint());
@@ -1313,7 +1313,10 @@ Log.d("WUT", "" + replacementId + "  " + replacedMessage);
                                     message.setServerMsgId(serverMsgId);
                                     message.setTime(timestamp);
                                     message.setBody(new RtpSessionStatus(false, 0).toString());
+                                    message.markUnread();
                                     c.add(message);
+                                    mXmppConnectionService.getNotificationService().possiblyMissedCall(c.getUuid() + sessionId, message);
+                                    query.incrementActualMessageCount();
                                     mXmppConnectionService.databaseBackend.createMessage(message);
                                 }
                             } else if ("proceed".equals(action)) {
@@ -1332,6 +1335,9 @@ Log.d("WUT", "" + replacementId + "  " + replacedMessage);
                                         message.setServerMsgId(serverMsgId);
                                     }
                                     message.setTime(timestamp);
+                                    message.markRead();
+                                    mXmppConnectionService.getNotificationService().possiblyMissedCall(c.getUuid() + sessionId, message);
+                                    query.incrementActualMessageCount();
                                     mXmppConnectionService.updateMessage(message, true);
                                 } else {
                                     Log.d(
