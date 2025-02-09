@@ -470,7 +470,7 @@
     <string name="download_failed_invalid_file">下载失败：文件无效</string>
     <string name="account_status_tor_unavailable">无法连接到 Tor 网络</string>
     <string name="account_status_bind_failure">绑定失败</string>
-    <string name="account_status_host_unknown">服务器不能为此域名做出响应</string>
+    <string name="account_status_host_unknown">域名未响应</string>
     <string name="server_info_broken">损坏</string>
     <string name="pref_presence_settings">在线状态</string>
     <string name="pref_away_when_screen_off">设备锁定时离开</string>
@@ -1008,7 +1008,7 @@
     <string name="remove_bookmark_and_close">是否移除 %s 的书签并归档聊天？</string>
     <string name="remove_bookmark">是否移除 %s 的书签？</string>
     <string name="delete_and_close">删除并归档聊天</string>
-    <string name="channel_discover_opt_in_message">频道发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。请参阅其 &lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt; 以获取更多信息。</string>
+    <string name="channel_discover_opt_in_message">频道发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。如需更多信息，请参阅其&lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt;。</string>
     <string name="start_chat">开始聊天</string>
     <string name="title_activity_share_with">分享至…</string>
     <string name="pref_use_colorful_bubbles_summary">为发送和接收的消息使用不同的背景颜色</string>
@@ -1123,7 +1123,7 @@
     <string name="copy_otr_clipboard_description">复制 OTR 指纹到剪贴板</string>
     <string name="otr_session_not_started">发送消息以开始加密聊天</string>
     <string name="welcome_to_monocles_chat">欢迎使用 monocles chat</string>
-    <string name="monocles_chat_intro_description">monocles chat 将您连接到名为 XMPP 的全球网络。此网络包括称为网关的服务，用于与短信、IRC、Matrix 等其他网络聊天。</string>
+    <string name="monocles_chat_intro_description">monocles chat 将您连接到称为 XMPP 的全球网络。此网络包括称为网关的服务，用于与短信、IRC、Matrix 等其他网络聊天。</string>
     <string name="how_the_xmpp_network_works">XMPP 网络的运作方式</string>
     <string name="do_you_really_want_to_retract_this_message">是否确定要撤回此消息？</string>
     <string name="store_media_only_in_cache">仅将媒体存储在缓存中</string>
@@ -1436,4 +1436,10 @@
     <string name="monocles_account_introduction">立即注册，<b>获取安全的 monocles 账号，由再生能源提供动力</b>，直接开始聊天。</string>
     <string name="monocles_account_details">这包括：\n● 一个月临时聊天存储\n● 2 GB 存储空间的电子邮件\n\n 可选：\n● 5 GB 云存储（Nextcloud）\n● 日历和联系人同步\n● 安全会议工具 \n 更多详情请访问 <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="or_use_another">… 或在下方选择其他</string>
+    <string name="pref_align_start">左对齐消息</string>
+    <string name="custom_notifications">自定义通知</string>
+    <string name="custom_notifications_enable">是否为此聊天启用自定义通知（重要程度、声音、振动）设置？</string>
+    <string name="pref_align_start_summary">在左侧显示所有消息，包括发送的消息，以实现统一的聊天布局。</string>
+    <string name="clients_may_not_support_av">您的联系人的 XMPP 客户端可能不支持音频/视频通话。</string>
+    <string name="account_status_connection_timeout">连接超时</string>
 </resources>

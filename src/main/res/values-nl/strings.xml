@@ -881,7 +881,7 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="preparing_file">Bestand gereedmaken voor verzending</string>
     <string name="conference_creation_failed">Aanmaken van groepsgesprek mislukt!</string>
     <string name="user_has_left_conference">%1$s heeft het groepsgesprek verlaten</string>
-    <string name="account_status_host_unknown">Server niet verantwoordelijk voor dit domein</string>
+    <string name="account_status_host_unknown">Niet verantwoordelijk voor dit domein</string>
     <string name="pref_away_when_screen_off">Afwezig wanneer apparaat vergrendeld wordt</string>
     <string name="pref_away_when_screen_off_summary">Zet status op \"Afwezig\" wanneer het apparaat wordt vergrendeld</string>
     <string name="pref_dnd_on_silent_mode">\"Niet storen\" in stille modus</string>
@@ -1425,4 +1425,15 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="set_preferences_title">Instellingen</string>
     <string name="set_preferences_summary">Hier kun je de belangrijkste instellingen wijzigen voordat je inlogt om je privacy of veiligheid te verbeteren. De instellingen zijn ook te wijzigen nadat je bent ingelogd.</string>
     <string name="pref_store_media_in_cache">Media standaard alleen in cache opslaan</string>
+    <string name="monocles_account_introduction">Meld je nu aan voor <b>een veilige monocles account, aangedreven door duurzame energie</b>.</string>
+    <string name="create_monocles_account">Aanmelden</string>
+    <string name="or_use_another">… of kies een andere server</string>
+    <string name="use_monocles">Ik ga voor monocles</string>
+    <string name="monocles_account_details">Inclusief:\n● opslag van gesprekken voor 1 maand\n● 2GB e-mailopslag\n\nOptioneel:\n● 5GB cloudopslag (Nextcloud)\n● Synchronisatie voor agenda\'s en contacten\n● Een veilige tool voor online vergaderingen \nen meer via <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="clients_may_not_support_av">De XMPP-client van je contact ondersteunt mogelijk geen audio/video-gesprekken.</string>
+    <string name="pref_align_start">Berichten links uitlijnen</string>
+    <string name="pref_align_start_summary">Toon ook verzonden berichten aan de linkerkant voor een uniforme opmaak.</string>
+    <string name="custom_notifications">Meldingen aanpassen</string>
+    <string name="custom_notifications_enable">Aangepaste meldingsinstellingen (belang, geluid, trillen) inschakelen voor dit gesprek?</string>
+    <string name="account_status_connection_timeout">Time-out bij verbinden</string>
 </resources>

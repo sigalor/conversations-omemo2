@@ -455,7 +455,7 @@
     <string name="download_failed_could_not_write_file">Загрузка не удалась: ошибка записи файла</string>
     <string name="account_status_tor_unavailable">Сеть Tor недоступна</string>
     <string name="account_status_bind_failure">Ошибка связывания</string>
-    <string name="account_status_host_unknown">Сервер не ответственен за этот домен</string>
+    <string name="account_status_host_unknown">Не несет ответственности за домен</string>
     <string name="server_info_broken">Повреждено</string>
     <string name="pref_presence_settings">Доступность</string>
     <string name="pref_away_when_screen_off">\"Отошёл\" когда экран заблокирован</string>
@@ -1468,4 +1468,10 @@
     <string name="create_monocles_account">Зарегистрироваться</string>
     <string name="or_use_another">… или выберите еще один ниже</string>
     <string name="use_monocles">Я предпочитаю монокли</string>
+    <string name="account_status_connection_timeout">Тайм-аут подключения</string>
+    <string name="pref_align_start">Слева от сообщения</string>
+    <string name="custom_notifications">Пользовательские уведомления</string>
+    <string name="custom_notifications_enable">Включить настройки уведомлений (важность, звук, вибрация) для этого разговора?</string>
+    <string name="clients_may_not_support_av">Клиент XMPP вашего контакта может не поддерживать аудио/видео звонки.</string>
+    <string name="pref_align_start_summary">Отображайте все сообщения, в том числе отправленные, с левой стороны для единого макета чата.</string>
 </resources>

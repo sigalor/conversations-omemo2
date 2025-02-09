@@ -455,7 +455,7 @@
     <string name="download_failed_could_not_write_file">Завантаження не вдалося: неможливо записати файл</string>
     <string name="account_status_tor_unavailable">Мережа Tor недоступна</string>
     <string name="account_status_bind_failure">Прив\'язка не спрацювала</string>
-    <string name="account_status_host_unknown">Сервер не відповідає за цей домен</string>
+    <string name="account_status_host_unknown">Не несе відповідальності за домен</string>
     <string name="server_info_broken">Поламано</string>
     <string name="pref_presence_settings">Доступність</string>
     <string name="pref_treat_vibrate_as_silent">Вважати вібро за безшумний режим</string>
@@ -1482,4 +1482,15 @@
     <string name="set_preferences_title">Налаштуйте параметри</string>
     <string name="pref_store_media_in_cache">За замовчуванням для всієї системи зберігати медіа тільки в кеші.</string>
     <string name="set_preferences_summary">Перед тим, як увійти, ви можете змінити налаштування за замовчуванням для деяких найважливіших параметрів, щоб покращити вашу конфіденційність або безпеку. Ви зможете знову змінити всі ці налаштування після входу в систему.</string>
+    <string name="monocles_account_introduction">Зареєструйтеся зараз і <b>отримайте захищений обліковий запис monocles, що живиться відновлюваною енергією</b>, щоб безпосередньо почати спілкуватися.</string>
+    <string name="create_monocles_account">Зареєструватися</string>
+    <string name="use_monocles">Я віддаю перевагу monocles</string>
+    <string name="or_use_another">… або вибрати інший нижче</string>
+    <string name="monocles_account_details">Сюди входить:\n● один місяць тимчасового сховища чатів\n● електронна пошта з 2 ГБ пам\'яті\n\nза бажанням:\n● 5 ГБ хмарного сховища (Nextcloud)\n● синхронізація календаря і контактів\n● безпечний інструмент для конференцій\nта багато іншого на <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
+    <string name="account_status_connection_timeout">Час очікування з\'єднання вичерпано</string>
+    <string name="clients_may_not_support_av">Можливо, клієнт XMPP Вашого контакту не підтримує аудіо- та відеовиклики.</string>
+    <string name="pref_align_start_summary">Вирівнювати всі повідомлення, включно з надісланими, по лівому краю для одноманітного вигляду розмов.</string>
+    <string name="pref_align_start">Вирівнювання повідомлень ліворуч</string>
+    <string name="custom_notifications">Індивідуальні сповіщення</string>
+    <string name="custom_notifications_enable">Увімкнути індивідуальні налаштування сповіщень (важливість, звук, вібрація) для цієї розмови?</string>
 </resources>

@@ -368,7 +368,7 @@
     <string name="download_failed_invalid_file">Shkarkimi dështoi: Kartelë e pavlefshme</string>
     <string name="account_status_tor_unavailable">Rrjet Tor jo në punë</string>
     <string name="account_status_bind_failure">Dështim lidhjeje</string>
-    <string name="account_status_host_unknown">Shërbyesi s’është përgjegjës për këtë përkatësi</string>
+    <string name="account_status_host_unknown">Jo përgjegjës për përkatësinë</string>
     <string name="server_info_broken">I dëmtuar</string>
     <string name="pref_away_when_screen_off">“I larguar”, kur pajisja është e kyçur</string>
     <string name="pref_away_when_screen_off_summary">Shfaqmë si “I lraguar”, kur pajisja është e kyçur</string>
@@ -1439,4 +1439,10 @@
     <string name="monocles_account_details">Kjo përfshin:\n● depozitim të përkohshëm një muaj të fjalosjeve\n● e-mail me depozitë 2 GB\n\n opsionale: \n● 5 GB depozitë në re (nextcloud)\n● njëkohësim kalendari dhe kontaktesh\n● një mjet të siguruar konferencash \n dhe më tepër, te <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="or_use_another">…ose zgjidhni një tjetër më poshtë</string>
     <string name="use_monocles">Parapëlqej monocles</string>
+    <string name="account_status_connection_timeout">Mbarim kohe për lidhjen</string>
+    <string name="clients_may_not_support_av">Klienti XMPP i kontaktit tuaj mund të mos mbulojë thirrje audio/video.</string>
+    <string name="pref_align_start">Mesazhe të drejtuar majtas</string>
+    <string name="pref_align_start_summary">Shfaqi krejt mesazhet, përfshi ata të dërguar, në anën e majtë, për një skemë të njëtrajtshme fjalosjeje.</string>
+    <string name="custom_notifications">Njoftime të përshtatur</string>
+    <string name="custom_notifications_enable">Të aktivizohen rregullime njoftimesh të përshtatura (rëndësi, tingull, dridhje) për këtë bisedë?</string>
 </resources>
