@@ -473,8 +473,8 @@ public class ContactDetailsActivity extends OmemoActivity
         AccountUtils.showHideMenuItems(menu);
         final MenuItem block = menu.findItem(R.id.action_block);
         final MenuItem unblock = menu.findItem(R.id.action_unblock);
-        final MenuItem edit = menu.findItem(R.id.action_edit_contact);
-        final MenuItem save = menu.findItem(R.id.action_save);
+        edit = menu.findItem(R.id.action_edit_contact);
+        save = menu.findItem(R.id.action_save);
         final MenuItem delete = menu.findItem(R.id.action_delete_contact);
         final MenuItem customNotifications = menu.findItem(R.id.action_custom_notifications);
         customNotifications.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
