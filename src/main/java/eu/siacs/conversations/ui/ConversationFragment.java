@@ -2211,6 +2211,7 @@ public class ConversationFragment extends XmppFragment
             MenuItem blockMedia = menu.findItem(R.id.block_media);
             MenuItem deleteFile = menu.findItem(R.id.delete_file);
             MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
+            final MenuItem retryAsP2P = menu.findItem(R.id.send_again_as_p2p);
             onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
             final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError =
@@ -2275,6 +2276,12 @@ public class ConversationFragment extends XmppFragment
             }
             if (m.getStatus() == Message.STATUS_SEND_FAILED) {
                 sendAgain.setVisible(true);
+                final var fileNotUploaded = m.isFileOrImage() && !m.hasFileOnRemoteHost();
+                final var isPeerOnline =
+                        conversational.getMode() == Conversation.MODE_SINGLE
+                                && (conversational instanceof Conversation c)
+                                && !c.getContact().getPresences().isEmpty();
+                retryAsP2P.setVisible(fileNotUploaded && isPeerOnline);
             }
             if (m.hasFileOnRemoteHost()
                     || m.isGeoUri()
@@ -2392,7 +2399,10 @@ public class ConversationFragment extends XmppFragment
                 quoteMessage(selectedMessage);
                 return true;
             case R.id.send_again:
-                resendMessage(selectedMessage);
+                resendMessage(selectedMessage, false);
+                return true;
+            case R.id.send_again_as_p2p:
+                resendMessage(selectedMessage, true);
                 return true;
             case R.id.copy_url:
                 ShareUtil.copyUrlToClipboard(activity, selectedMessage);
@@ -3518,12 +3528,11 @@ public class ConversationFragment extends XmppFragment
         });
     }
 
-    private void resendMessage(final Message message) {
+    private void resendMessage(final Message message, final boolean forceP2P) {
         if (message.isFileOrImage()) {
-            if (!(message.getConversation() instanceof Conversation)) {
+            if (!(message.getConversation() instanceof Conversation conversation)) {
                 return;
             }
-            final Conversation conversation = (Conversation) message.getConversation();
             final DownloadableFile file =
                     activity.xmppConnectionService.getFileBackend().getFile(message);
             if ((file.exists() && file.canRead()) || message.hasFileOnRemoteHost()) {
@@ -3531,14 +3540,16 @@ public class ConversationFragment extends XmppFragment
                 if (!message.hasFileOnRemoteHost()
                         && xmppConnection != null
                         && conversation.getMode() == Conversational.MODE_SINGLE
-                        && !xmppConnection
+                        && (!xmppConnection
                         .getFeatures()
-                        .httpUpload(message.getFileParams().getSize())) {
+                        .httpUpload(message.getFileParams().getSize())
+                        || forceP2P)) {
                     activity.selectPresence(
                             conversation,
                             () -> {
                                 message.setCounterpart(conversation.getNextCounterpart());
-                                activity.xmppConnectionService.resendFailedMessages(message);
+                                activity.xmppConnectionService.resendFailedMessages(
+                                        message, forceP2P);
                                 new Handler()
                                         .post(
                                                 () -> {
@@ -3561,7 +3572,7 @@ public class ConversationFragment extends XmppFragment
                 return;
             }
         }
-        activity.xmppConnectionService.resendFailedMessages(message);
+        activity.xmppConnectionService.resendFailedMessages(message, false);
         new Handler()
                 .post(
                         () -> {

@@ -859,7 +859,7 @@ public class XmppConnectionService extends Service {
                     callback.error(R.string.unable_to_connect_to_keychain, null);
                 }
             } else {
-                sendMessage(message, false, false, false, () -> callback.success(message));
+                sendMessage(message, false, false, false, () -> callback.success(message), false);
             }
         });
     }
@@ -2176,11 +2176,14 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    private void sendFileMessage(final Message message, final boolean delay, final Runnable cb) {
-        Log.d(Config.LOGTAG, "send file message");
-        final Account account = message.getConversation().getAccount();
-        if (account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
-                || message.getConversation().getMode() == Conversation.MODE_MULTI) {
+    private void sendFileMessage(final Message message, final boolean delay, final Runnable cb, final boolean forceP2P) {
+        final var account = message.getConversation().getAccount();
+        Log.d(
+                Config.LOGTAG,
+                account.getJid().asBareJid() + ": send file message. forceP2P=" + forceP2P);
+        if ((account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
+                || message.getConversation().getMode() == Conversation.MODE_MULTI)
+                && !forceP2P) {
             mHttpConnectionManager.createNewUploadConnection(message, delay, cb);
         } else {
             mJingleConnectionManager.startJingleFileTransfer(message);
@@ -2189,14 +2192,20 @@ public class XmppConnectionService extends Service {
     }
 
     public void sendMessage(final Message message) {
-        sendMessage(message, false, false, false, null);
+        sendMessage(message, false, false, false, null, false);
     }
 
     public void sendMessage(final Message message, final Runnable cb) {
-        sendMessage(message, false, false, false, cb);
+        sendMessage(message, false, false, false, cb, false);
     }
 
-    private void sendMessage(final Message message, final boolean resend, final boolean previewedLinks, final boolean delay, final Runnable cb) {
+    private void sendMessage(
+            final Message message,
+            final boolean resend,
+            final boolean previewedLinks,
+            final boolean delay,
+            final Runnable cb,
+            final boolean forceP2P) {
         final Account account = message.getConversation().getAccount();
         if (account.setShowErrorNotification(true)) {
             databaseBackend.updateAccount(account);
@@ -2298,7 +2307,7 @@ public class XmppConnectionService extends Service {
                                         getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
                                             message.setEncryption(encryption);
                                             synchronized (message.getConversation()) {
-                                                if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false, cb);
+                                                if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false, cb, false);
                                             }
                                         });
                                         return;
@@ -2352,7 +2361,7 @@ public class XmppConnectionService extends Service {
                             }
                         }
                         synchronized (message.getConversation()) {
-                            if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false, cb);
+                            if (message.getStatus() == Message.STATUS_WAITING) sendMessage(message, true, true, false, cb, false);
                         }
                     });
                 }
@@ -2368,7 +2377,7 @@ public class XmppConnectionService extends Service {
                                 fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
-                            this.sendFileMessage(message, delay, cb);
+                            this.sendFileMessage(message, delay, cb, forceP2P);
                             passedCbOn = true;
                         } else {
                             break;
@@ -2384,7 +2393,7 @@ public class XmppConnectionService extends Service {
                                 fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
-                            this.sendFileMessage(message, delay, cb);
+                            this.sendFileMessage(message, delay, cb, forceP2P);
                             passedCbOn = true;
                         } else {
                             break;
@@ -2424,7 +2433,7 @@ public class XmppConnectionService extends Service {
                                 fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
-                            this.sendFileMessage(message, delay, cb);
+                            this.sendFileMessage(message, delay, cb, forceP2P);
                             passedCbOn = true;
                         } else {
                             break;
@@ -2569,15 +2578,15 @@ public class XmppConnectionService extends Service {
     }
 
     public void resendMessage(final Message message, final boolean delay) {
-        sendMessage(message, true, false, delay, null);
+        sendMessage(message, true, false, delay, null, false);
     }
 
     public void resendMessage(final Message message, final boolean delay, final Runnable cb) {
-        sendMessage(message, true, false, delay, cb);
+        sendMessage(message, true, false, delay, cb, false);
     }
 
     public void resendMessage(final Message message, final boolean delay, final boolean previewedLinks) {
-        sendMessage(message, true, previewedLinks, delay, null);
+        sendMessage(message, true, previewedLinks, delay, null, false);
     }
 
     public Pair<Account,Account> onboardingIncomplete() {
@@ -6941,10 +6950,10 @@ public class XmppConnectionService extends Service {
         return this.mHttpConnectionManager;
     }
 
-    public void resendFailedMessages(final Message message) {
+    public void resendFailedMessages(final Message message, final boolean forceP2P) {
         message.setTime(System.currentTimeMillis());
         markMessage(message, Message.STATUS_WAITING);
-        this.resendMessage(message, false);
+        sendMessage(message, true, false, false, null, forceP2P);
         if (message.getConversation() instanceof Conversation c) {
             c.sort();
         }
