@@ -2070,6 +2070,12 @@ public class ConversationFragment extends XmppFragment
 
     public void setupReply(Message message) {
         if (message != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputMethodManager != null) {
+                binding.textinput.requestFocus();
+                inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
+            }
+
             final var correcting = conversation.getCorrectingMessage();
             if (correcting != null && correcting.getUuid().equals(message.getUuid())) return;
         }
