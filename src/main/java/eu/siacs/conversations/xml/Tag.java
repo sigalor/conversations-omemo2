@@ -80,9 +80,7 @@ public class Tag {
         return (this.type == NO);
     }
 
-    @NonNull
-    public String toString() {
-        final StringBuilder tagOutput = new StringBuilder();
+    public void appendToBuilder(final StringBuilder tagOutput) {
         tagOutput.append('<');
         if (type == END) {
             tagOutput.append('/');
@@ -94,7 +92,7 @@ public class Tag {
                 tagOutput.append(' ');
                 tagOutput.append(entry.getKey());
                 tagOutput.append("=\"");
-                tagOutput.append(XmlHelper.encodeEntities(entry.getValue()));
+                XmlHelper.appendEncodedEntities(entry.getValue(), tagOutput);
                 tagOutput.append('"');
             }
         }
@@ -102,6 +100,12 @@ public class Tag {
             tagOutput.append('/');
         }
         tagOutput.append('>');
+    }
+
+    @NonNull
+    public String toString() {
+        final StringBuilder tagOutput = new StringBuilder();
+        appendToBuilder(tagOutput);
         return tagOutput.toString();
     }
 

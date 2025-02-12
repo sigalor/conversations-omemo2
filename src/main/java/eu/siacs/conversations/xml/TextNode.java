@@ -1,5 +1,6 @@
 package eu.siacs.conversations.xml;
 
+import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 import eu.siacs.conversations.utils.XmlHelper;
@@ -14,6 +15,10 @@ public class TextNode implements Node {
 
 	public String getContent() {
 		return content;
+	}
+
+	public void appendToBuilder(final Map<String, String> parentNS, final StringBuilder elementOutput, final int skipEnd) {
+		XmlHelper.appendEncodedEntities(content, elementOutput);
 	}
 
 	public String toString() {

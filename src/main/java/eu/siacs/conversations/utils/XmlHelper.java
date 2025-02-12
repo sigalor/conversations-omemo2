@@ -21,6 +21,33 @@ public class XmlHelper {
         return content;
     }
 
+    public static void appendEncodedEntities(final String content, final StringBuilder sb) {
+        final var length = content.length();
+        var needsEscape = false;
+        for (int i = 0; i < length; i++) {
+            final var c = content.charAt(i);
+            if (c == '<' || c == '&' || c == '"') {
+                needsEscape = true;
+                break;
+            }
+        }
+        if (needsEscape) {
+            for (int i = 0; i < length; i++) {
+                final var c = content.charAt(i);
+                switch (c) {
+                case '&': sb.append("&amp;"); break;
+                case '<': sb.append("&lt;"); break;
+                case '>': sb.append("&gt;"); break;
+                case '"': sb.append("&quot;"); break;
+                case '\'': sb.append("&apos;"); break;
+                default: sb.append(c);
+                }
+            }
+        } else {
+            sb.append(content);
+        }
+    }
+
     public static String printElementNames(final Element element) {
         final List<String> features =
                 element == null
