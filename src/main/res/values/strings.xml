@@ -1435,4 +1435,6 @@
     <string name="pref_align_start_summary">Display all messages, including sent ones, on the left side for a uniform chat layout.</string>
     <string name="custom_notifications">Custom notifications</string>
     <string name="custom_notifications_enable">Enable customized notification settings (importance, sound, vibration) settings for this conversation?</string>
+    <string name="pref_disable_reactions_fallback_summary">Disables the fallback of reactions for clients that don\'t support reactions yet</string>
+    <string name="pref_disable_reactions_fallback_title">Disable reactions fallback</string>
 </resources>

@@ -49,6 +49,12 @@
             android:summary="@string/pref_allow_unencrypted_reactions_summary"
             android:title="@string/pref_allow_unencrypted_reactions" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/disable_reactions_fallback"
+            android:icon="@drawable/ic_add_reaction_24dp"
+            android:key="disable_reactions_fallback"
+            android:summary="@string/pref_disable_reactions_fallback_summary"
+            android:title="@string/pref_disable_reactions_fallback_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_presence_settings">
         <SwitchPreferenceCompat

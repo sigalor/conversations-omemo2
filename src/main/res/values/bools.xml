@@ -19,4 +19,5 @@
     <bool name="swipe_to_archive">true</bool>
     <bool name="default_store_media_in_cache">false</bool>
     <bool name="is_portrait_mode">true</bool>
+    <bool name="disable_reactions_fallback">false</bool>
 </resources>

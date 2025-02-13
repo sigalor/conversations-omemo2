@@ -119,6 +119,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.xmpp.jid.OtrJidHelper;
 import io.ipfs.cid.Cid;
 
@@ -6524,109 +6525,179 @@ public class XmppConnectionService extends Service {
     public boolean sendReactions(final Message message, final Collection<String> reactions) {
         if (message.isPrivateMessage()) throw new IllegalArgumentException("Reactions to PM not implemented");
         if (message.getConversation() instanceof Conversation conversation) {
-            final var isPrivateMessage = message.isPrivateMessage();
-            final Jid reactTo;
-            final boolean typeGroupChat;
-            final String reactToId;
-            final Collection<Reaction> combinedReactions;
-            final var newReactions = new HashSet<>(reactions);
-            newReactions.removeAll(message.getAggregatedReactions().ourReactions);
-            if (conversation.getMode() == Conversational.MODE_MULTI && !isPrivateMessage) {
-                final var mucOptions = conversation.getMucOptions();
-                if (!mucOptions.participating()) {
-                    Log.d(Config.LOGTAG,"not participating in MUC");
-                    return false;
-                }
-                final var self = mucOptions.getSelf();
-                final String occupantId = self.getOccupantId();
-                if (Strings.isNullOrEmpty(occupantId)) {
-                    Log.d(Config.LOGTAG, "occupant id not found for reaction in MUC");
-                    return false;
-                }
-                final var existingRaw =
-                        ImmutableSet.copyOf(
-                                Collections2.transform(message.getReactions(), r -> r.reaction));
-                final var reactionsAsExistingVariants =
-                        ImmutableSet.copyOf(
-                                Collections2.transform(
-                                        reactions, r -> Emoticons.existingVariant(r, existingRaw)));
-                if (!reactions.equals(reactionsAsExistingVariants)) {
-                    Log.d(Config.LOGTAG, "modified reactions to existing variants");
-                }
-                reactToId = message.getServerMsgId();
-                reactTo = conversation.getJid().asBareJid();
-                typeGroupChat = true;
-                combinedReactions =
-                        Reaction.withMine(
-                                message.getReactions(),
-                                reactionsAsExistingVariants,
-                                false,
-                                self.getFullJid(),
-                                conversation.getAccount().getJid(),
-                                occupantId,
-                                null);
-            } else {
-                if (message.isCarbon() || message.getStatus() == Message.STATUS_RECEIVED) {
-                    reactToId = message.getRemoteMsgId();
-                } else {
-                    reactToId = message.getUuid();
-                }
-                typeGroupChat = false;
-                if (isPrivateMessage) {
-                    reactTo = message.getCounterpart();
-                } else {
+            if (getBooleanPreference("disable_reactions_fallback", R.bool.disable_reactions_fallback)) {
+                final var isPrivateMessage = message.isPrivateMessage();
+                final Jid reactTo;
+                final boolean typeGroupChat;
+                final String reactToId;
+                final Collection<Reaction> combinedReactions;
+                if (conversation.getMode() == Conversational.MODE_MULTI && !isPrivateMessage) {
+                    final var mucOptions = conversation.getMucOptions();
+                    if (!mucOptions.participating()) {
+                        Log.d(Config.LOGTAG, "not participating in MUC");
+                        return false;
+                    }
+                    final var self = mucOptions.getSelf();
+                    final String occupantId = self.getOccupantId();
+                    if (Strings.isNullOrEmpty(occupantId)) {
+                        Log.d(Config.LOGTAG, "occupant id not found for reaction in MUC");
+                        return false;
+                    }
+                    final var existingRaw =
+                            ImmutableSet.copyOf(
+                                    Collections2.transform(message.getReactions(), r -> r.reaction));
+                    final var reactionsAsExistingVariants =
+                            ImmutableSet.copyOf(
+                                    Collections2.transform(
+                                            reactions, r -> Emoticons.existingVariant(r, existingRaw)));
+                    if (!reactions.equals(reactionsAsExistingVariants)) {
+                        Log.d(Config.LOGTAG, "modified reactions to existing variants");
+                    }
+                    reactToId = message.getServerMsgId();
                     reactTo = conversation.getJid().asBareJid();
+                    typeGroupChat = true;
+                    combinedReactions =
+                            Reaction.withMine(
+                                    message.getReactions(),
+                                    reactionsAsExistingVariants,
+                                    false,
+                                    self.getFullJid(),
+                                    conversation.getAccount().getJid(),
+                                    occupantId,
+                                    null);
+                } else {
+                    if (message.isCarbon() || message.getStatus() == Message.STATUS_RECEIVED) {
+                        reactToId = message.getRemoteMsgId();
+                    } else {
+                        reactToId = message.getUuid();
+                    }
+                    typeGroupChat = false;
+                    if (isPrivateMessage) {
+                        reactTo = message.getCounterpart();
+                    } else {
+                        reactTo = conversation.getJid().asBareJid();
+                    }
+                    combinedReactions =
+                            Reaction.withFrom(
+                                    message.getReactions(),
+                                    reactions,
+                                    false,
+                                    conversation.getAccount().getJid(),
+                                    null);
                 }
-                combinedReactions =
-                        Reaction.withFrom(
-                                message.getReactions(),
-                                reactions,
-                                false,
-                                conversation.getAccount().getJid(),
-                                null);
-            }
-            if (reactTo == null || Strings.isNullOrEmpty(reactToId)) {
-                return false;
-            }
+                if (reactTo == null || Strings.isNullOrEmpty(reactToId)) {
+                    return false;
+                }
+                final var reactionMessage =
+                        mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
+                sendMessagePacket(conversation.getAccount(), reactionMessage);
+                message.setReactions(combinedReactions);
+                updateMessage(message, false);
+                return true;
+            } else {
 
-            final var packet =
-                    mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
+                final var isPrivateMessage = message.isPrivateMessage();
+                final Jid reactTo;
+                final boolean typeGroupChat;
+                final String reactToId;
+                final Collection<Reaction> combinedReactions;
+                final var newReactions = new HashSet<>(reactions);
+                newReactions.removeAll(message.getAggregatedReactions().ourReactions);
+                if (conversation.getMode() == Conversational.MODE_MULTI && !isPrivateMessage) {
+                    final var mucOptions = conversation.getMucOptions();
+                    if (!mucOptions.participating()) {
+                        Log.d(Config.LOGTAG, "not participating in MUC");
+                        return false;
+                    }
+                    final var self = mucOptions.getSelf();
+                    final String occupantId = self.getOccupantId();
+                    if (Strings.isNullOrEmpty(occupantId)) {
+                        Log.d(Config.LOGTAG, "occupant id not found for reaction in MUC");
+                        return false;
+                    }
+                    final var existingRaw =
+                            ImmutableSet.copyOf(
+                                    Collections2.transform(message.getReactions(), r -> r.reaction));
+                    final var reactionsAsExistingVariants =
+                            ImmutableSet.copyOf(
+                                    Collections2.transform(
+                                            reactions, r -> Emoticons.existingVariant(r, existingRaw)));
+                    if (!reactions.equals(reactionsAsExistingVariants)) {
+                        Log.d(Config.LOGTAG, "modified reactions to existing variants");
+                    }
+                    reactToId = message.getServerMsgId();
+                    reactTo = conversation.getJid().asBareJid();
+                    typeGroupChat = true;
+                    combinedReactions =
+                            Reaction.withMine(
+                                    message.getReactions(),
+                                    reactionsAsExistingVariants,
+                                    false,
+                                    self.getFullJid(),
+                                    conversation.getAccount().getJid(),
+                                    occupantId,
+                                    null);
+                } else {
+                    if (message.isCarbon() || message.getStatus() == Message.STATUS_RECEIVED) {
+                        reactToId = message.getRemoteMsgId();
+                    } else {
+                        reactToId = message.getUuid();
+                    }
+                    typeGroupChat = false;
+                    if (isPrivateMessage) {
+                        reactTo = message.getCounterpart();
+                    } else {
+                        reactTo = conversation.getJid().asBareJid();
+                    }
+                    combinedReactions =
+                            Reaction.withFrom(
+                                    message.getReactions(),
+                                    reactions,
+                                    false,
+                                    conversation.getAccount().getJid(),
+                                    null);
+                }
+                if (reactTo == null || Strings.isNullOrEmpty(reactToId)) {
+                    return false;
+                }
 
-            final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message)) + "\n";
-            final var body  = quote + String.join(" ", newReactions);
-            if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
-                FILE_ATTACHMENT_EXECUTOR.execute(() -> {
-                    XmppAxolotlMessage axolotlMessage = conversation.getAccount().getAxolotlService().encrypt(body, conversation);
-                    packet.setAxolotlMessage(axolotlMessage.toElement());
-                    packet.addChild("encryption", "urn:xmpp:eme:0")
-                        .setAttribute("name", "OMEMO")
-                        .setAttribute("namespace", AxolotlService.PEP_PREFIX);
+                final var packet =
+                        mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
+
+                final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message)) + "\n";
+                final var body = quote + String.join(" ", newReactions);
+                if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
+                    FILE_ATTACHMENT_EXECUTOR.execute(() -> {
+                        XmppAxolotlMessage axolotlMessage = conversation.getAccount().getAxolotlService().encrypt(body, conversation);
+                        packet.setAxolotlMessage(axolotlMessage.toElement());
+                        packet.addChild("encryption", "urn:xmpp:eme:0")
+                                .setAttribute("name", "OMEMO")
+                                .setAttribute("namespace", AxolotlService.PEP_PREFIX);
+                        sendMessagePacket(conversation.getAccount(), packet);
+                        message.setReactions(combinedReactions);
+                        updateMessage(message, false);
+                    });
+                } else if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE || newReactions.size() < 1) {
+                    if (newReactions.size() > 0) {
+                        packet.setBody(body);
+                        packet.addChild("reply", "urn:xmpp:reply:0")
+                                .setAttribute("to", message.getCounterpart())
+                                .setAttribute("id", reactToId);
+                        final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
+                        replyFallback.addChild("body", "urn:xmpp:fallback:0")
+                                .setAttribute("start", "0")
+                                .setAttribute("end", "" + quote.codePointCount(0, quote.length()));
+                        final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
+                        fallback.addChild("body", "urn:xmpp:fallback:0");
+                    }
+
                     sendMessagePacket(conversation.getAccount(), packet);
                     message.setReactions(combinedReactions);
                     updateMessage(message, false);
-                });
-            } else if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE || newReactions.size() < 1) {
-                if (newReactions.size() > 0) {
-                    packet.setBody(body);
-
-                    packet.addChild("reply", "urn:xmpp:reply:0")
-                        .setAttribute("to", message.getCounterpart())
-                        .setAttribute("id", reactToId);
-                    final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
-                    replyFallback.addChild("body", "urn:xmpp:fallback:0")
-                        .setAttribute("start", "0")
-                        .setAttribute("end", "" + quote.codePointCount(0, quote.length()));
-
-                    final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
-                    fallback.addChild("body", "urn:xmpp:fallback:0");
                 }
 
-                sendMessagePacket(conversation.getAccount(), packet);
-                message.setReactions(combinedReactions);
-                updateMessage(message, false);
+                return true;
             }
-
-            return true;
         } else {
             return false;
         }
