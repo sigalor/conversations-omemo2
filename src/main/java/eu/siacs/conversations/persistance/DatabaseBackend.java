@@ -92,6 +92,8 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyException;
@@ -103,7 +105,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 61;
+    private static final int DATABASE_VERSION = 62;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -1234,6 +1236,37 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (oldVersion < 61 && newVersion >= 61) {
             monoclesDatabase(db);
         }
+        if (oldVersion < 62 && newVersion >= 62) {
+            try (final Cursor cursor =
+                         db.query(
+                                 Account.TABLENAME,
+                                 new String[] {Account.UUID, Account.USERNAME},
+                                 null,
+                                 null,
+                                 null,
+                                 null,
+                                 null)) {
+                while (cursor != null && cursor.moveToNext()) {
+                    final var uuid = cursor.getString(0);
+                    final var username = cursor.getString(1);
+                    final Localpart localpart;
+                    try {
+                        localpart = Localpart.fromUnescaped(username);
+                    } catch (final XmppStringprepException e) {
+                        Log.d(Config.LOGTAG, "unable to parse jid");
+                        continue;
+                    }
+                    final var contentValues = new ContentValues();
+                    contentValues.putNull(Account.ROSTERVERSION);
+                    contentValues.put(Account.USERNAME, localpart.toString());
+                    db.update(
+                            Account.TABLENAME,
+                            contentValues,
+                            Account.UUID + "=?",
+                            new String[] {uuid});
+                }
+            }
+        }
     }
 
     private void canonicalizeJids(SQLiteDatabase db) {
@@ -1245,21 +1278,24 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             String newJid;
             try {
                 newJid =
-                        Jid.of(cursor.getString(cursor.getColumnIndex(Conversation.CONTACTJID)))
+                        Jid.of(
+                                        cursor.getString(
+                                                cursor.getColumnIndexOrThrow(
+                                                        Conversation.CONTACTJID)))
                                 .toString();
-            } catch (IllegalArgumentException ignored) {
+            } catch (final IllegalArgumentException e) {
                 Log.e(
                         Config.LOGTAG,
                         "Failed to migrate Conversation CONTACTJID "
-                                + cursor.getString(cursor.getColumnIndex(Conversation.CONTACTJID))
-                                + ": "
-                                + ignored
-                                + ". Skipping...");
+                                + cursor.getString(
+                                        cursor.getColumnIndexOrThrow(Conversation.CONTACTJID))
+                                + ". Skipping...",
+                        e);
                 continue;
             }
 
             final String[] updateArgs = {
-                newJid, cursor.getString(cursor.getColumnIndex(Conversation.UUID)),
+                newJid, cursor.getString(cursor.getColumnIndexOrThrow(Conversation.UUID)),
             };
             db.execSQL(
                     "update "
@@ -1279,12 +1315,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             String newJid;
             try {
-                newJid = Jid.of(cursor.getString(cursor.getColumnIndex(Contact.JID))).toString();
+                newJid =
+                        Jid.of(cursor.getString(cursor.getColumnIndexOrThrow(Contact.JID)))
+                                .toString();
             } catch (final IllegalArgumentException e) {
                 Log.e(
                         Config.LOGTAG,
                         "Failed to migrate Contact JID "
-                                + cursor.getString(cursor.getColumnIndex(Contact.JID))
+                                + cursor.getString(cursor.getColumnIndexOrThrow(Contact.JID))
                                 + ":  Skipping...",
                         e);
                 continue;
@@ -1292,8 +1330,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
             final String[] updateArgs = {
                 newJid,
-                cursor.getString(cursor.getColumnIndex(Contact.ACCOUNT)),
-                cursor.getString(cursor.getColumnIndex(Contact.JID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(Contact.ACCOUNT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(Contact.JID)),
             };
             db.execSQL(
                     "update "
@@ -1318,24 +1356,25 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             try {
                 newServer =
                         Jid.of(
-                                        cursor.getString(cursor.getColumnIndex(Account.USERNAME)),
-                                        cursor.getString(cursor.getColumnIndex(Account.SERVER)),
+                                        cursor.getString(
+                                                cursor.getColumnIndexOrThrow(Account.USERNAME)),
+                                        cursor.getString(
+                                                cursor.getColumnIndexOrThrow(Account.SERVER)),
                                         null)
                                 .getDomain()
                                 .toString();
-            } catch (IllegalArgumentException ignored) {
+            } catch (final IllegalArgumentException e) {
                 Log.e(
                         Config.LOGTAG,
                         "Failed to migrate Account SERVER "
-                                + cursor.getString(cursor.getColumnIndex(Account.SERVER))
-                                + ": "
-                                + ignored
-                                + ". Skipping...");
+                                + cursor.getString(cursor.getColumnIndexOrThrow(Account.SERVER))
+                                + ". Skipping...",
+                        e);
                 continue;
             }
 
             String[] updateArgs = {
-                newServer, cursor.getString(cursor.getColumnIndex(Account.UUID)),
+                newServer, cursor.getString(cursor.getColumnIndexOrThrow(Account.UUID)),
             };
             db.execSQL(
                     "update "
