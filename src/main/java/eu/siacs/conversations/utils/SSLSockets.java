@@ -34,6 +34,8 @@ public class SSLSockets {
         final Collection<String> supportedProtocols =
                 new LinkedList<>(Arrays.asList(sslSocket.getSupportedProtocols()));
         supportedProtocols.remove("SSLv3");
+        supportedProtocols.remove("TLSv1");
+        supportedProtocols.remove("TLSv1.1");
         supportProtocols = supportedProtocols.toArray(new String[0]);
 
         sslSocket.setEnabledProtocols(supportProtocols);
