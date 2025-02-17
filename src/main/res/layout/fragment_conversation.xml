@@ -48,7 +48,7 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/outline_push_pin_24"
+                        android:src="@drawable/subject"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
@@ -64,8 +64,50 @@
 
                     <ImageView
                         android:id="@+id/muc_subject_hide"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/rounded_close_24"
+                        android:layout_marginStart="8dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/pinned_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_below="@+id/muc_subject"
+                    android:elevation="4dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:background="?attr/colorSurface"
+                    android:animateLayoutChanges="true"
+                    android:visibility="gone">
+
+                    <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:src="@drawable/outline_push_pin_24"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/pinned_message_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:maxLines="4"
+                        android:ellipsize="end"
+                        android:autoLink="web"
+                        android:freezesText="true"
+                        android:textAppearance="?textAppearanceCaption" />
+
+                    <ImageView
+                        android:id="@+id/pinned_message_hide"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:src="@drawable/rounded_close_24"
                         android:layout_marginStart="8dp" />
 
@@ -82,7 +124,7 @@
                     android:listSelector="@android:color/transparent"
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
-                    android:layout_below="@+id/muc_subject"
+                    android:layout_below="@+id/pinned_message"
                     tools:listitem="@layout/item_message_end" />
 
                     <LinearLayout

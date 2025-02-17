@@ -236,6 +236,7 @@ public class Conversation extends AbstractEntity
     protected boolean lockThread = false;
     protected boolean userSelectedThread = false;
     protected Message replyTo = null;
+    protected Message pinnedMessage;
     protected HashMap<String, Thread> threads = new HashMap<>();
     protected Multimap<String, Reaction> reactions = HashMultimap.create();
     private String displayState = null;
@@ -1031,6 +1032,15 @@ public class Conversation extends AbstractEntity
 
     public Message getReplyTo() {
         return this.replyTo;
+    }
+
+    public void setPinnedMessage(Message m) {
+        this.pinnedMessage = m;
+
+    }
+
+    public Message getPinnedMessage() {
+        return this.pinnedMessage;
     }
 
     public boolean isRead(XmppConnectionService xmppConnectionService) {

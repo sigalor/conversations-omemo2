@@ -1437,4 +1437,5 @@
     <string name="custom_notifications_enable">Enable customized notification settings (importance, sound, vibration) settings for this conversation?</string>
     <string name="pref_disable_reactions_fallback_summary">Disables the fallback of reactions for clients that don\'t support reactions yet</string>
     <string name="pref_disable_reactions_fallback_title">Disable reactions fallback</string>
+    <string name="pin_to_top">Pin to top</string>
 </resources>

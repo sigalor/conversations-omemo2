@@ -1728,6 +1728,15 @@ public class ConversationFragment extends XmppFragment
         LoadStickers();
         LoadGifs();
 
+        // Load pinned message if available
+        if (conversation.getPinnedMessage() != null) {
+            this.binding.pinnedMessageText.setText(conversation.getPinnedMessage().getBody());
+            this.binding.pinnedMessage.setVisibility(View.VISIBLE);
+        } else {
+            this.binding.pinnedMessageText.setText("");
+            this.binding.pinnedMessage.setVisibility(GONE);
+        }
+
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -2202,6 +2211,7 @@ public class ConversationFragment extends XmppFragment
             final MenuItem reportAndBlock = menu.findItem(R.id.action_report_and_block);
             final MenuItem addReaction = menu.findItem(R.id.action_add_reaction);
             final MenuItem openWith = menu.findItem(R.id.open_with);
+            final MenuItem copyToTop = menu.findItem(R.id.pin_message_to_top);
             final MenuItem copyMessage = menu.findItem(R.id.copy_message);
             final MenuItem quoteMessage = menu.findItem(R.id.quote_message);
             final MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
@@ -2245,6 +2255,8 @@ public class ConversationFragment extends XmppFragment
                     && !unInitiatedButKnownSize
                     && t == null) {
                 copyMessage.setVisible(true);
+                // Copy text message to top
+                copyToTop.setVisible(true);
                 quoteMessage.setVisible(!showError && !MessageUtils.prepareQuote(m).isEmpty());
                 final String scheme =
                         ShareUtil.getLinkScheme(new SpannableStringBuilder(m.getBody()));
@@ -2390,6 +2402,12 @@ public class ConversationFragment extends XmppFragment
                     activity.xmppConnectionService.moderateMessage(conversation.getAccount(), selectedMessage, reason);
                     return null;
                 }, R.string.moderate_reason, false, false, true, true);
+                return true;
+            case R.id.pin_message_to_top:
+                this.binding.pinnedMessageText.setText(selectedMessage.getBody());
+                // store for each conversation
+                conversation.setPinnedMessage(selectedMessage);
+                this.binding.pinnedMessage.setVisibility(View.VISIBLE);
                 return true;
             case R.id.copy_message:
                 ShareUtil.copyToClipboard(activity, selectedMessage);
@@ -4477,6 +4495,16 @@ public class ConversationFragment extends XmppFragment
                 } else {
                     binding.mucSubject.setVisibility(View.GONE);
                 }
+                // Jump to Pinned message
+                binding.pinnedMessage.setOnClickListener(v -> {
+                    Message thisPinnedMessage = conversation.getPinnedMessage();
+                    jumpTo(thisPinnedMessage);
+                });
+                // empty Pinned message when click on Pinned message hide
+                binding.pinnedMessageHide.setOnClickListener(v -> {
+                    conversation.setPinnedMessage(null);
+                    binding.pinnedMessage.setVisibility(View.GONE);
+                });
             }
         }
     }

@@ -22,6 +22,11 @@
         android:visible="false" />
 
     <item
+        android:id="@+id/pin_message_to_top"
+        android:title="@string/pin_to_top"
+        android:visible="false" />
+
+    <item
         android:id="@+id/copy_message"
         android:title="@string/copy_to_clipboard"
         android:visible="false" />
