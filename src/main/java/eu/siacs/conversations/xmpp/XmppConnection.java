@@ -326,9 +326,10 @@ public class XmppConnection implements Runnable {
             Socket localSocket;
             shouldAuthenticate = !account.isOptionSet(Account.OPTION_REGISTER);
             this.changeStatus(Account.State.CONNECTING);
-            final boolean useTor = mXmppConnectionService.useTorToConnect() || account.isOnion();
-            final boolean useI2P = mXmppConnectionService.useI2PToConnect() || account.isI2P();
+            final boolean useTorSetting = mXmppConnectionService.useTorToConnect();
             final boolean extended = mXmppConnectionService.showExtendedConnectionOptions();
+            final boolean useTor = useTorSetting || account.isOnion();
+            final boolean useI2P = mXmppConnectionService.useI2PToConnect() || account.isI2P();
             // TODO collapse Tor usage into normal connection code path
             if (useTor && !useI2P) {
                 final var seeOtherHost = this.seeOtherHostResolverResult;
@@ -346,7 +347,15 @@ public class XmppConnection implements Runnable {
                                     Resolver.fromHardCoded(
                                             account.getServer(), Resolver.XMPP_PORT_STARTTLS));
                 } else {
-                    viaTor = Iterables.getOnlyElement(Resolver.fromHardCoded(hostname, port));
+                    if (useTorSetting || extended) {
+                        // if the hostname configuration is showing we can take it
+                        viaTor = Iterables.getOnlyElement(Resolver.fromHardCoded(hostname, port));
+                    } else {
+                        viaTor =
+                                Iterables.getOnlyElement(
+                                        Resolver.fromHardCoded(
+                                                account.getServer(), Resolver.XMPP_PORT_STARTTLS));
+                    }
                     this.verifiedHostname = hostname;
                 }
 
@@ -1659,7 +1668,9 @@ public class XmppConnection implements Runnable {
     }
 
     private boolean isSecure() {
-        return features.encryptionEnabled || Config.ALLOW_NON_TLS_CONNECTIONS || account.isOnion() || account.isI2P();
+        return (features.encryptionEnabled && this.socket instanceof SSLSocket)
+                || Config.ALLOW_NON_TLS_CONNECTIONS
+                || account.isDirectToOnion();
     }
 
     private void authenticate(final SaslMechanism.Version version) throws IOException {

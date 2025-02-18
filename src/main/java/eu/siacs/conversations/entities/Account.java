@@ -369,6 +369,11 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         return server != null && server.endsWith(".i2p");
     }
 
+    public boolean isDirectToOnion() {
+        final var hostname = Strings.nullToEmpty(this.hostname).trim();
+        return isOnion() && (hostname.isEmpty() || hostname.endsWith(".onion"));
+    }
+
     public int getPort() {
         return this.port;
     }
