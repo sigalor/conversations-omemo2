@@ -1511,6 +1511,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             return true; // true is closing popup, false is requesting a new selection
         });
 
+        // Single click to show reaction. Don't show reactions popup When it is a link
         LinkClickDetector.setupLinkClickDetector(viewHolder.messageBody());
         final boolean showError =
                 message.getStatus() == Message.STATUS_SEND_FAILED
