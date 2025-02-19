@@ -237,7 +237,7 @@ public class Conversation extends AbstractEntity
     protected boolean userSelectedThread = false;
     protected Message replyTo = null;
     protected Message caption = null;
-    protected Message pinnedMessage;
+    protected Message pinnedMessage = null;
     protected HashMap<String, Thread> threads = new HashMap<>();
     protected Multimap<String, Reaction> reactions = HashMultimap.create();
     private String displayState = null;
