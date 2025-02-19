@@ -100,7 +100,6 @@
                         android:layout_weight="1"
                         android:maxLines="4"
                         android:ellipsize="end"
-                        android:autoLink="web"
                         android:freezesText="true"
                         android:textAppearance="?textAppearanceCaption" />
 
