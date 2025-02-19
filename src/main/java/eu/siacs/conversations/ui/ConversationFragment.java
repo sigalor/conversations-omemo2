@@ -2195,7 +2195,9 @@ public class ConversationFragment extends XmppFragment
         synchronized (this.messageList) {
             super.onCreateContextMenu(menu, v, menuInfo);
             AdapterView.AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) menuInfo;
-            this.selectedMessage = this.messageList.get(acmi.position);
+            if (acmi != null && acmi.position >= 0 && acmi.position < this.messageList.size()) {
+                this.selectedMessage = this.messageList.get(acmi.position);
+            }
             populateContextMenu(menu);
         }
     }
@@ -4517,6 +4519,11 @@ public class ConversationFragment extends XmppFragment
                 binding.pinnedMessage.setOnClickListener(v -> {
                     Message thisPinnedMessage = conversation.getPinnedMessage();
                     jumpTo(thisPinnedMessage);
+                });
+                binding.pinnedMessage.setOnLongClickListener(view -> {
+                    registerForContextMenu(binding.pinnedMessage);
+                    activity.openContextMenu(binding.pinnedMessage);
+                    return true;
                 });
                 // empty Pinned message when click on Pinned message hide
                 binding.pinnedMessageHide.setOnClickListener(v -> {
