@@ -271,6 +271,19 @@
                             android:visibility="visible"
                             tools:text="@string/private_message_to" />
 
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/media_preview"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginEnd="64dp"
+                            android:requiresFadingEdge="horizontal"
+                            android:visibility="gone"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            tools:listitem="@layout/item_media_preview">
+
+                        </androidx.recyclerview.widget.RecyclerView>
+
                         <RelativeLayout
                             android:id="@+id/textsend"
                             android:layout_width="match_parent"
@@ -278,7 +291,6 @@
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="5dp"
                             >
-
 
                             <RelativeLayout
                                 android:id="@+id/textinput_layout_new"
@@ -295,21 +307,6 @@
                             android:layout_toEndOf="@+id/thread_identicon_layout"
                             android:paddingVertical="6dp"
                              >
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/media_preview"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:layout_toEndOf="@id/emojiButton"
-                                android:layout_marginEnd="64dp"
-                                android:requiresFadingEdge="horizontal"
-                                android:visibility="gone"
-                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                tools:listitem="@layout/item_media_preview">
-
-                            </androidx.recyclerview.widget.RecyclerView>
-
 
                             <ImageButton
                                 android:id="@+id/keyboardButton"

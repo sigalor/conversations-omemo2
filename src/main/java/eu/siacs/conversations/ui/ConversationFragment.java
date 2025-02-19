@@ -1186,11 +1186,11 @@ public class ConversationFragment extends XmppFragment
 
     private void sendMessage(Long sendAt) {
         if (sendAt != null && sendAt < System.currentTimeMillis()) sendAt = null; // No sending in past plz
-        if (mediaPreviewAdapter.hasAttachments()) {
+        Editable body = this.binding.textinput.getText();
+        if (mediaPreviewAdapter.getItemCount() > 1 || body == null) {
             commitAttachments();
             return;
         }
-        Editable body = this.binding.textinput.getText();
         if (body == null) body = new SpannableStringBuilder("");
         if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
             Toast.makeText(activity, "Message is too long", Toast.LENGTH_SHORT).show();
@@ -1233,6 +1233,12 @@ public class ConversationFragment extends XmppFragment
                 message.setEncryption(conversation.getNextEncryption());
             } else {
                 message = new Message(conversation, body.toString(), conversation.getNextEncryption());
+                // Set caption when only one attachment
+                if (mediaPreviewAdapter.getItemCount() == 1) {
+                    conversation.setCaption(message);
+                    commitAttachments();
+                    return;
+                }
                 message.setBody(hasSubject && body.length() == 0 ? null : body);
                 if (message.bodyIsOnlyEmojis()) {
                     SpannableStringBuilder spannable = message.getSpannableBody(null, null);
@@ -1258,6 +1264,11 @@ public class ConversationFragment extends XmppFragment
                             } catch (final Exception e) { }
                         }
                     }
+                }
+                // Set caption when only one attachment
+                if (mediaPreviewAdapter.getItemCount() == 1) {
+                    conversation.setCaption(message);
+                    commitAttachments();
                 }
             }
             if (hasSubject) message.setSubject(binding.textinputSubject.getText().toString());
@@ -1574,9 +1585,16 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void toggleInputMethod() {
-        boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
-        binding.textinput.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
-        binding.mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
+        // Maybe add
+        // if(conversation.getNextEncryption() == Message.ENCRYPTION_NONE && mediaPreviewAdapter.getItemCount() == 1) {
+        if (mediaPreviewAdapter.getItemCount() == 1) {
+            binding.textinput.setVisibility(VISIBLE);
+            binding.mediaPreview.setVisibility(View.VISIBLE);
+        } else {
+            final boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
+            binding.textinput.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
+            binding.mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
+        }
         updateSendButton();
     }
 
@@ -4593,8 +4611,8 @@ public class ConversationFragment extends XmppFragment
         final SendButtonAction action;
         if (hasAttachments) {
             action = SendButtonAction.TEXT;
-            binding.emojiButton.setVisibility(GONE);
-            binding.keyboardButton.setVisibility(GONE);
+            //binding.emojiButton.setVisibility(GONE);
+            //binding.keyboardButton.setVisibility(GONE);
         } else {
             action = SendButtonTool.getAction(getActivity(), c, text, binding.textinputSubject.getText().toString());
         }
