@@ -1747,7 +1747,7 @@ public class ConversationFragment extends XmppFragment
         LoadGifs();
 
         // Load pinned message if available
-        if (conversation.getPinnedMessage() != null) {
+        if (conversation != null && conversation.getPinnedMessage() != null) {
             this.binding.pinnedMessageText.setText(conversation.getPinnedMessage().getBody());
             this.binding.pinnedMessage.setVisibility(View.VISIBLE);
         } else {
