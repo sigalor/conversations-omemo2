@@ -7132,7 +7132,7 @@ public class XmppConnectionService extends Service {
                     Config.LOGTAG,
                     account.getJid().asBareJid()
                             + ": making disco request for "
-                            + key.second
+                            + (key == null ? null : key.second)
                             + " to "
                             + jid);
             sendIqPacket(
