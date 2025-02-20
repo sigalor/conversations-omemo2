@@ -2571,9 +2571,10 @@ public class Conversation extends AbstractEntity
                     binding.list.setOnItemClickListener((parent, view, position, id) -> {
                         Set<String> values = new HashSet<>();
                         if (multi) {
+                            final var optionValues = options.stream().map(o -> o.getValue()).collect(Collectors.toSet());
                             values.addAll(field.getValues());
                             for (final String value : field.getValues()) {
-                                if (filteredValues.contains(value)) {
+                                if (filteredValues.contains(value) || (!open && !optionValues.contains(value))) {
                                     values.remove(value);
                                 }
                             }
