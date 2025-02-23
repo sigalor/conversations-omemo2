@@ -326,8 +326,8 @@ public class XmppConnection implements Runnable {
             Socket localSocket;
             shouldAuthenticate = !account.isOptionSet(Account.OPTION_REGISTER);
             this.changeStatus(Account.State.CONNECTING);
-            final boolean useTorSetting = mXmppConnectionService.useTorToConnect();
-            final boolean extended = mXmppConnectionService.showExtendedConnectionOptions();
+            final boolean useTorSetting = appSettings.isUseTor();
+            final boolean extended = appSettings.isExtendedConnectionOptions();
             final boolean useTor = useTorSetting || account.isOnion();
             final boolean useI2P = mXmppConnectionService.useI2PToConnect() || account.isI2P();
             // TODO collapse Tor usage into normal connection code path
@@ -1977,10 +1977,8 @@ public class XmppConnection implements Runnable {
                                 is = null;
                             }
                         } else {
-                            final boolean useTor =
-                                    mXmppConnectionService.useTorToConnect() || account.isOnion();
-                            final boolean useI2P =
-                                    mXmppConnectionService.useI2PToConnect() || account.isI2P();
+                            final boolean useTor = this.appSettings.isUseTor() || account.isOnion();
+                            final boolean useI2P = mXmppConnectionService.useI2PToConnect() || account.isI2P();
 
                             try {
                                 final String url = data.getValue("url");

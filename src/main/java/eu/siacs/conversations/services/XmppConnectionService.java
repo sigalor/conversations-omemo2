@@ -6242,10 +6242,6 @@ public class XmppConnectionService extends Service {
         return getBooleanPreference("use_i2p", R.bool.use_i2p);
     }
 
-    public boolean showExtendedConnectionOptions() {
-        return getBooleanPreference(AppSettings.SHOW_CONNECTION_OPTIONS, R.bool.show_connection_options);
-    }
-
     public boolean broadcastLastActivity() {
         return getBooleanPreference(AppSettings.BROADCAST_LAST_ACTIVITY, R.bool.last_activity);
     }

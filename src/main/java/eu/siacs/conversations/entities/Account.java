@@ -45,6 +45,7 @@ import eu.siacs.conversations.crypto.sasl.HashedTokenSha512;
 import eu.siacs.conversations.crypto.sasl.SaslMechanism;
 import eu.siacs.conversations.services.AvatarService;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.utils.Resolver;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
@@ -138,7 +139,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                 null,
                 null,
                 null,
-                5222,
+                Resolver.XMPP_PORT_STARTTLS,
                 Presence.Status.ONLINE,
                 null,
                 null,
