@@ -2231,7 +2231,7 @@ public class ConversationFragment extends XmppFragment
             final MenuItem reportAndBlock = menu.findItem(R.id.action_report_and_block);
             final MenuItem addReaction = menu.findItem(R.id.action_add_reaction);
             final MenuItem openWith = menu.findItem(R.id.open_with);
-            final MenuItem copyToTop = menu.findItem(R.id.pin_message_to_top);
+            final MenuItem pinToTop = menu.findItem(R.id.pin_message_to_top);
             final MenuItem copyMessage = menu.findItem(R.id.copy_message);
             final MenuItem quoteMessage = menu.findItem(R.id.quote_message);
             final MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
@@ -2276,7 +2276,7 @@ public class ConversationFragment extends XmppFragment
                     && t == null) {
                 copyMessage.setVisible(true);
                 // Copy text message to top
-                copyToTop.setVisible(true);
+                pinToTop.setVisible(true);
                 quoteMessage.setVisible(!showError && !MessageUtils.prepareQuote(m).isEmpty());
                 final String scheme =
                         ShareUtil.getLinkScheme(new SpannableStringBuilder(m.getBody()));
@@ -3402,7 +3402,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void jumpTo(final Message message) {
-        if (message.getUuid() == null) return;
+        if (message == null || message.getUuid() == null) return;
         for (int i = 0; i < messageList.size(); i++) {
             final var m = messageList.get(i);
             if (m == null) continue;
@@ -4517,12 +4517,37 @@ public class ConversationFragment extends XmppFragment
                 }
                 // Jump to Pinned message
                 binding.pinnedMessage.setOnClickListener(v -> {
-                    Message thisPinnedMessage = conversation.getPinnedMessage();
-                    jumpTo(thisPinnedMessage);
+                    if (selectedMessage != null) jumpTo(selectedMessage);
                 });
                 binding.pinnedMessage.setOnLongClickListener(view -> {
-                    registerForContextMenu(binding.pinnedMessage);
-                    activity.openContextMenu(binding.pinnedMessage);
+                    // Initializing the popup menu and giving the reference as current context
+                    PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
+
+                    // Inflating popup menu from popup_menu.xml file
+                    popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
+
+                    //Get text from pinned message TextView
+                    Message pinnedMessageText = new Message(conversation, binding.pinnedMessageText.getText().toString(), conversation.getNextEncryption());
+
+                    // Handling menu item click events
+                    popupMenu.setOnMenuItemClickListener(menuItem -> {
+                        switch (menuItem.getItemId()) {
+                            case R.id.share_with:
+                                ShareUtil.share(activity, pinnedMessageText);
+                                break;
+                            case R.id.copy_message:
+                                ShareUtil.copyToClipboard(activity, pinnedMessageText);
+                                break;
+                            case R.id.quote_message:
+                                quoteMessage(pinnedMessageText);
+                                break;
+                        };
+                        return true;
+                    });
+
+                    // Showing the popup menu
+                    popupMenu.show();
+
                     return true;
                 });
                 // empty Pinned message when click on Pinned message hide
