@@ -1187,7 +1187,7 @@ public class ConversationFragment extends XmppFragment
     private void sendMessage(Long sendAt) {
         if (sendAt != null && sendAt < System.currentTimeMillis()) sendAt = null; // No sending in past plz
         Editable body = this.binding.textinput.getText();
-        if (mediaPreviewAdapter.getItemCount() > 1 || body == null) {
+        if (mediaPreviewAdapter.getItemCount() > 1 || (mediaPreviewAdapter.getItemCount() == 1 && body == null)) {
             commitAttachments();
             return;
         }
@@ -1198,7 +1198,7 @@ public class ConversationFragment extends XmppFragment
         }
         final Conversation conversation = this.conversation;
         final boolean hasSubject = binding.textinputSubject.getText().length() > 0;
-        if (conversation == null || (body.length() == 0 && (conversation.getThread() == null || !hasSubject))) {
+        if (conversation == null || (body.length() == 0 && mediaPreviewAdapter.getItemCount() == 0 && (conversation.getThread() == null || !hasSubject))) {
             if (Build.VERSION.SDK_INT >= 24) {
                 binding.textSendButton.showContextMenu(0, 0);
             } else {
@@ -1233,12 +1233,6 @@ public class ConversationFragment extends XmppFragment
                 message.setEncryption(conversation.getNextEncryption());
             } else {
                 message = new Message(conversation, body.toString(), conversation.getNextEncryption());
-                // Set caption when only one attachment
-                if (mediaPreviewAdapter.getItemCount() == 1) {
-                    conversation.setCaption(message);
-                    commitAttachments();
-                    return;
-                }
                 message.setBody(hasSubject && body.length() == 0 ? null : body);
                 if (message.bodyIsOnlyEmojis()) {
                     SpannableStringBuilder spannable = message.getSpannableBody(null, null);
@@ -1269,6 +1263,7 @@ public class ConversationFragment extends XmppFragment
                 if (mediaPreviewAdapter.getItemCount() == 1) {
                     conversation.setCaption(message);
                     commitAttachments();
+                    return;
                 }
             }
             if (hasSubject) message.setSubject(binding.textinputSubject.getText().toString());
@@ -1585,13 +1580,12 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void toggleInputMethod() {
-        // Maybe add
-        // if(conversation.getNextEncryption() == Message.ENCRYPTION_NONE && mediaPreviewAdapter.getItemCount() == 1) {
-        if (mediaPreviewAdapter.getItemCount() == 1) {
+        //Currently no caption possible when E2EE enabled
+        if(conversation.getNextEncryption() == Message.ENCRYPTION_NONE && mediaPreviewAdapter.getItemCount() == 1) {
             binding.textinput.setVisibility(VISIBLE);
             binding.mediaPreview.setVisibility(View.VISIBLE);
         } else {
-            final boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
+            boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
             binding.textinput.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
             binding.mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
         }
