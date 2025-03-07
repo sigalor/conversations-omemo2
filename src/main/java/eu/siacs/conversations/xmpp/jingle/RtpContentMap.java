@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import eu.siacs.conversations.xmpp.jingle.stanzas.Content;
 import eu.siacs.conversations.xmpp.jingle.stanzas.GenericDescription;
 import eu.siacs.conversations.xmpp.jingle.stanzas.GenericTransportInfo;
@@ -21,14 +20,12 @@ import eu.siacs.conversations.xmpp.jingle.stanzas.IceUdpTransportInfo;
 import eu.siacs.conversations.xmpp.jingle.stanzas.OmemoVerifiedIceUdpTransportInfo;
 import eu.siacs.conversations.xmpp.jingle.stanzas.RtpDescription;
 import im.conversations.android.xmpp.model.jingle.Jingle;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.Nonnull;
 
 public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTransportInfo> {
@@ -100,7 +97,7 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
     }
 
     void requireDTLSFingerprint(final boolean requireActPass) {
-        if (this.contents.size() == 0) {
+        if (this.contents.isEmpty()) {
             throw new IllegalStateException("No contents available");
         }
         for (Map.Entry<String, DescriptionTransport<RtpDescription, IceUdpTransportInfo>> entry :
@@ -119,7 +116,8 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
             if (setup == null) {
                 throw new SecurityException(
                         String.format(
-                                "Use of DTLS-SRTP (XEP-0320) is required for content %s but missing setup attribute",
+                                "Use of DTLS-SRTP (XEP-0320) is required for content %s but missing"
+                                        + " setup attribute",
                                 entry.getKey()));
             }
             if (requireActPass && setup != IceUdpTransportInfo.Setup.ACTPASS) {
@@ -128,6 +126,7 @@ public class RtpContentMap extends AbstractContentMap<RtpDescription, IceUdpTran
             }
         }
     }
+
     RtpContentMap transportInfo(
             final String contentName, final IceUdpTransportInfo.Candidate candidate) {
         final DescriptionTransport<RtpDescription, IceUdpTransportInfo> descriptionTransport =

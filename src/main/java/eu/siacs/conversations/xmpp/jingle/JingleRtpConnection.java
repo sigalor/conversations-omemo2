@@ -1356,7 +1356,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private synchronized void sendSessionAccept(
             final Set<Media> media,
             final SessionDescription offer,
-            final List<PeerConnection.IceServer> iceServers) {
+            final Set<PeerConnection.IceServer> iceServers) {
         if (isTerminated()) {
             Log.w(
                     Config.LOGTAG,
@@ -1840,7 +1840,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private synchronized void sendSessionInitiate(
             final Set<Media> media,
             final State targetState,
-            final List<PeerConnection.IceServer> iceServers) {
+            final Set<PeerConnection.IceServer> iceServers) {
         if (isTerminated()) {
             Log.w(
                     Config.LOGTAG,
@@ -2337,7 +2337,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     private void setupWebRTC(
             final Set<Media> media,
-            final List<PeerConnection.IceServer> iceServers,
+            final Set<PeerConnection.IceServer> iceServers,
             final boolean trickle)
             throws WebRTCWrapper.InitializationException {
         this.jingleConnectionManager.ensureConnectionIsRegistered(this);
@@ -2860,7 +2860,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             Log.w(
                     Config.LOGTAG,
                     id.account.getJid().asBareJid() + ": has no external service discovery");
-            onIceServersDiscovered.onIceServersDiscovered(Collections.emptyList());
+            onIceServersDiscovered.onIceServersDiscovered(Collections.emptySet());
         }
     }
 
@@ -2978,6 +2978,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     private interface OnIceServersDiscovered {
-        void onIceServersDiscovered(List<PeerConnection.IceServer> iceServers);
+        void onIceServersDiscovered(Set<PeerConnection.IceServer> iceServers);
     }
 }
