@@ -2928,6 +2928,7 @@ public class ConversationFragment extends XmppFragment
             activity.xmppConnectionService.updateConversation(conversation);
         }
         updateChatMsgHint();
+        toggleInputMethod();
         getActivity().invalidateOptionsMenu();
         activity.refreshUi();
     }
