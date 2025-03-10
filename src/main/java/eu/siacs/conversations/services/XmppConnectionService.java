@@ -6603,6 +6603,7 @@ public class XmppConnectionService extends Service {
                                     null);
                 }
                 if (reactTo == null || Strings.isNullOrEmpty(reactToId)) {
+                    Log.e(Config.LOGTAG, "could not find id to react to");
                     return false;
                 }
                 final var reactionMessage =
@@ -6675,6 +6676,7 @@ public class XmppConnectionService extends Service {
                                     null);
                 }
                 if (reactTo == null || Strings.isNullOrEmpty(reactToId)) {
+                    Log.e(Config.LOGTAG, "could not find id to react to");
                     return false;
                 }
 
