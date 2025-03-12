@@ -4293,7 +4293,7 @@ public class XmppConnectionService extends Service {
     }
 
     private void joinMuc(
-            Conversation conversation,
+            final Conversation conversation,
             final OnConferenceJoined onConferenceJoined,
             final boolean followedInvite) {
         final Account account = conversation.getAccount();
@@ -5043,6 +5043,7 @@ public class XmppConnectionService extends Service {
                                         bookmark == null ? null : bookmark.getBookmarkName(),
                                         mucOptions.getName());
 
+                        final var hadOccupantId = mucOptions.occupantId();
                         if (mucOptions.updateConfiguration(new ServiceDiscoveryResult(response))) {
                             Log.d(
                                     Config.LOGTAG,
@@ -5050,6 +5051,25 @@ public class XmppConnectionService extends Service {
                                             + ": muc configuration changed for "
                                             + conversation.getJid().asBareJid());
                             updateConversation(conversation);
+                        }
+
+                        final var hasOccupantId = mucOptions.occupantId();
+
+                        if (!hadOccupantId && hasOccupantId && mucOptions.online()) {
+                            final var me = mucOptions.getSelf().getFullJid();
+                            Log.d(
+                                    Config.LOGTAG,
+                                    account.getJid().asBareJid()
+                                            + ": gained support for occupant-id in "
+                                            + me
+                                            + ". resending presence");
+                            final var packet =
+                                    mPresenceGenerator.selfPresence(
+                                            account,
+                                            Presence.Status.ONLINE,
+                                            mucOptions.nonanonymous());
+                            packet.setTo(me);
+                            sendPresencePacket(account, packet);
                         }
 
                         if (bookmark != null

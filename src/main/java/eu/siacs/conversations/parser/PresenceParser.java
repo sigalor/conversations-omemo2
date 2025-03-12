@@ -98,9 +98,16 @@ public class PresenceParser extends AbstractParser
                         user.setOccupantId(occupantId);
                         if (codes.contains(MucOptions.STATUS_CODE_SELF_PRESENCE)
                                 || (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED)
-                                && jid.equals(
-                                Jid.Invalid.getNullForInvalid(
-                                        item.getAttributeAsJid("jid"))))) {
+                                        && jid.equals(
+                                                Jid.Invalid.getNullForInvalid(
+                                                        item.getAttributeAsJid("jid"))))) {
+                            Log.d(
+                                    Config.LOGTAG,
+                                    account.getJid().asBareJid()
+                                            + ": got self-presence from "
+                                            + user.getFullJid()
+                                            + ". occupant-id="
+                                            + occupantId);
                             if (mucOptions.setOnline()) {
                                 mXmppConnectionService.getAvatarService().clear(mucOptions);
                             }
