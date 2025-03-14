@@ -9,7 +9,7 @@
     <string name="action_add_account">Lisää tili</string>
     <string name="action_edit_contact">Muokkaa nimeä</string>
     <string name="action_add_phone_book">Lisää yhteystietoihin</string>
-    <string name="action_delete_contact">Poista yhteystietolistasta</string>
+    <string name="action_delete_contact">Poista yhteystieto</string>
     <string name="action_block_contact">Estä yhteystieto</string>
     <string name="action_unblock_contact">Peru yhteystiedon esto</string>
     <string name="action_block_domain">Estä verkkotunnus</string>
@@ -931,4 +931,19 @@
     <string name="audiobook">Äänikirja</string>
     <string name="silent_messages_channel_name">Hiljaiset viestit</string>
     <string name="rtp_state_content_add_video">Vaihdetaanko videopuheluun\?</string>
+    <string name="remove_bookmark_and_close">Haluatko poistaa kohteesta %s kirjanmerkin ja arkistoida pikakeskustelun?</string>
+    <string name="remove_bookmark">Haluatko poistaa kirjanmerkin kohteesta %s?</string>
+    <string name="share_with">Jaa kanssa…</string>
+    <string name="account_status_policy_violation">Käytännön rikkomus</string>
+    <string name="account_status_incompatible_client">Yhteensopimaton asiakas</string>
+    <string name="action_add">Uusi keskustelu</string>
+    <string name="action_archive_chat">Arkistoi pikakeskustelu</string>
+    <string name="title_activity_share_with">Jaa kanssa…</string>
+    <string name="title_activity_new_chat">Uusi pikakeskustelu</string>
+    <string name="otr_message">OTR-viesti</string>
+    <string name="account_status_connection_timeout">Yhteyden aikakatkaisu</string>
+    <string name="account_status_stream_error">Virtavirhe</string>
+    <string name="archive_this_chat">Poista pikakeskustelu jälkeenpäin</string>
+    <string name="send_encrypted_message">Lähetä salattu viesti</string>
+    <string name="pref_send_crash_reports">Lähetä kaatumisraportit</string>
 </resources>

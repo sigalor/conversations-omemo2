@@ -1436,4 +1436,7 @@ OpenKeychain is beschikbaar onder de GPLv3-licentie en beschikbaar op F-Droid en
     <string name="custom_notifications">Meldingen aanpassen</string>
     <string name="custom_notifications_enable">Aangepaste meldingsinstellingen (belang, geluid, trillen) inschakelen voor dit gesprek?</string>
     <string name="account_status_connection_timeout">Time-out bij verbinden</string>
+    <string name="pin_to_top">Bovenaan vastzetten</string>
+    <string name="pref_disable_reactions_fallback_summary">Schakelt de fallback van reacties uit voor clients die nog geen reacties ondersteunen</string>
+    <string name="pref_disable_reactions_fallback_title">Fallback voor reacties uitschakelen</string>
 </resources>

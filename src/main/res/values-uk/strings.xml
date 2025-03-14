@@ -1424,7 +1424,7 @@
     <string name="write">Написати</string>
     <string name="download_stickers_text">Бажаєте завантажити набори наклейок за замовчуванням?</string>
     <string name="chats_from_strangers">Чати від незнайомців</string>
-    <string name="action_fix">Закріпити</string>
+    <string name="action_fix">Виправити</string>
     <string name="download_stickers_title">Завантажити наклейки?</string>
     <string name="dialler_integration_title">Інтеграція із застосунком «Телефон»</string>
     <string name="save_as_contact_bookmark">Зберегти як контакт/закладку</string>
@@ -1493,4 +1493,7 @@
     <string name="pref_align_start">Вирівнювання повідомлень ліворуч</string>
     <string name="custom_notifications">Індивідуальні сповіщення</string>
     <string name="custom_notifications_enable">Увімкнути індивідуальні налаштування сповіщень (важливість, звук, вібрація) для цієї розмови?</string>
+    <string name="pin_to_top">Закріпити</string>
+    <string name="pref_disable_reactions_fallback_summary">Вимикає резервні реакції для клієнтів, які ще не підтримують реакції</string>
+    <string name="pref_disable_reactions_fallback_title">Вимкнути резервні реакції</string>
 </resources>

@@ -1474,4 +1474,7 @@
     <string name="custom_notifications_enable">Включить настройки уведомлений (важность, звук, вибрация) для этого разговора?</string>
     <string name="clients_may_not_support_av">Клиент XMPP вашего контакта может не поддерживать аудио/видео звонки.</string>
     <string name="pref_align_start_summary">Отображайте все сообщения, в том числе отправленные, с левой стороны для единого макета чата.</string>
+    <string name="pref_disable_reactions_fallback_summary">Отключает отзыв реакций для клиентов, которые еще не поддерживают реакцию</string>
+    <string name="pref_disable_reactions_fallback_title">Отключить реакции</string>
+    <string name="pin_to_top">Закрепить вверху</string>
 </resources>

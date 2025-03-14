@@ -455,7 +455,7 @@
     <string name="pref_quick_action_summary">以快捷操作替代“发送”按钮</string>
     <string name="pref_quick_action">快捷操作</string>
     <string name="none">无</string>
-    <string name="recently_used">最近使用</string>
+    <string name="recently_used">最近用过</string>
     <string name="choose_quick_action">选择快捷操作</string>
     <string name="search_contacts">搜索联系人</string>
     <string name="send_private_message">发送私信</string>
@@ -1442,4 +1442,7 @@
     <string name="pref_align_start_summary">在左侧显示所有消息，包括发送的消息，以实现统一的聊天布局。</string>
     <string name="clients_may_not_support_av">您的联系人的 XMPP 客户端可能不支持音频/视频通话。</string>
     <string name="account_status_connection_timeout">连接超时</string>
+    <string name="pin_to_top">置顶</string>
+    <string name="pref_disable_reactions_fallback_title">禁用回应后备</string>
+    <string name="pref_disable_reactions_fallback_summary">为尚未支持回应的客户端禁用回应后备</string>
 </resources>
