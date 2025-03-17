@@ -305,6 +305,7 @@ public class ConversationFragment extends XmppFragment
     public static final String STATE_MEDIA_PREVIEWS =
             ConversationFragment.class.getName() + ".take_photo_uri";
     private static final String STATE_LAST_MESSAGE_UUID = "state_last_message_uuid";
+    private static final String STATE_PINNED_MESSAGE = "state_pinned_message";
 
     private final List<Message> messageList = new ArrayList<>();
     private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
@@ -1744,9 +1745,9 @@ public class ConversationFragment extends XmppFragment
         if (conversation != null && conversation.getPinnedMessage() != null) {
             this.binding.pinnedMessageText.setText(conversation.getPinnedMessage().getBody());
             this.binding.pinnedMessage.setVisibility(View.VISIBLE);
-        } else {
-            this.binding.pinnedMessageText.setText("");
-            this.binding.pinnedMessage.setVisibility(GONE);
+        } else if (savedInstanceState != null && savedInstanceState.getString(STATE_PINNED_MESSAGE) != null) {
+            this.binding.pinnedMessageText.setText(savedInstanceState.getString(STATE_PINNED_MESSAGE));
+            this.binding.pinnedMessage.setVisibility(View.VISIBLE);
         }
 
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
@@ -3703,6 +3704,7 @@ public class ConversationFragment extends XmppFragment
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (conversation != null) {
+            outState.putString(STATE_PINNED_MESSAGE, conversation.getPinnedMessage().getBody());
             outState.putString(STATE_CONVERSATION_UUID, conversation.getUuid());
             outState.putString(STATE_LAST_MESSAGE_UUID, lastMessageUuid);
             final Uri uri = pendingTakePhotoUri.peek();
