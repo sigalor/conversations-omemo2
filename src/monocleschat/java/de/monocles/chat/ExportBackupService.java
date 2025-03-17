@@ -29,6 +29,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
@@ -148,8 +149,12 @@ public class ExportBackupService extends Worker {
     }
 
     private void messageExport(SQLiteDatabase db, Account account, PrintWriter writer, Progress progress) {
+        final ImmutableMap<String,String> emptyMap = ImmutableMap.of();
+        final var mDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+        mDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        final var accountJid = account.getJid().toString();
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
-        Cursor cursor = db.rawQuery("select conversations.*, messages.* from messages left join messages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=? order by timeSent", new String[]{account.getUuid()});
+        Cursor cursor = db.rawQuery("select conversations.mode, messages.type, messages.status, messages.serverMsgId, messages.timeSent, messages.counterpart, messages.trueCounterpart, messages.body, messages.subject, messages.payloads, messages.reactions, messages.occupant_id, messages.occupantId, messages.uuid, messages.remoteMsgId from messages left join messages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=? order by timeSent", new String[]{account.getUuid()});
         int size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " messages for account " + account.getUuid());
         int i = 0;
@@ -157,58 +162,73 @@ public class ExportBackupService extends Worker {
         writer.write(archive.startTag().toString());
         while (cursor != null && cursor.moveToNext()) {
             try {
-                final Conversation conversation = Conversation.fromCursor(cursor);
-                Message m = Message.fromCursor(cursor, conversation);
-                Element result = new Element("result", "urn:xmpp:mam:2");
-                if (m.getServerMsgId() != null) result.setAttribute("id", m.getServerMsgId());
-                Element forwarded = new Element("forwarded", "urn:xmpp:forward:0");
-                final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                mDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Element delay = forwarded.addChild("delay", "urn:xmpp:delay");
-                Date date = new Date(m.getTimeSent());
+                final var conversationMode = cursor.getInt(cursor.getColumnIndexOrThrow(Conversation.MODE));
+                final var mType = cursor.getInt(cursor.getColumnIndex(Message.TYPE));
+                final var mStatus = cursor.getInt(cursor.getColumnIndex(Message.STATUS));
+                final var serverMsgId = cursor.getString(cursor.getColumnIndex(Message.SERVER_MSG_ID));
+                final var timeSent = cursor.getLong(cursor.getColumnIndex(Message.TIME_SENT));
+                final var counterpart = cursor.getString(cursor.getColumnIndex(Message.COUNTERPART));
+                final var rawBody = cursor.getString(cursor.getColumnIndex(Message.BODY));
+                final var subject = cursor.getString(cursor.getColumnIndex("subject"));
+                final var payloads = cursor.getString(cursor.getColumnIndex("payloads"));
+
+                var result = new Element("result", "urn:xmpp:mam:2");
+                if (serverMsgId != null) result.setAttribute("id", serverMsgId);
+                var forwarded = new Element("forwarded", "urn:xmpp:forward:0");
+                final var delay = forwarded.addChild("delay", "urn:xmpp:delay");
+                final var date = new Date(timeSent);
                 delay.setAttribute("stamp", mDateFormat.format(date));
                 // TODO: time received?
 
-                Element message = new Element("message", "jabber:client").setAttribute("type", conversation.getMode() == Conversation.MODE_MULTI && m.getType() != Message.TYPE_PRIVATE && m.getType() != Message.TYPE_PRIVATE_FILE ? "groupchat" : "chat");
+                var message = new Element("message", "jabber:client").setAttribute("type", conversationMode == Conversation.MODE_MULTI && mType != Message.TYPE_PRIVATE && mType != Message.TYPE_PRIVATE_FILE ? "groupchat" : "chat");
                 String outerId = null;
-                if (m.getStatus() <= Message.STATUS_RECEIVED) {
-                    message.setAttribute("to", account.getJid()).setAttribute("from", m.getCounterpart());
-                    if (m.getRemoteMsgId() != null) outerId = m.getRemoteMsgId();
+                if (mStatus <= Message.STATUS_RECEIVED) {
+                    message.setAttribute("to", accountJid).setAttribute("from", counterpart);
+                    final var remoteMsgId = cursor.getString(cursor.getColumnIndex(Message.REMOTE_MSG_ID));
+                    if (remoteMsgId != null) outerId = remoteMsgId;
                 } else {
-                    message.setAttribute("from", account.getJid()).setAttribute("to", m.getCounterpart());
-                    outerId = m.getUuid();
+                    message.setAttribute("from", accountJid).setAttribute("to", counterpart);
+                    outerId = cursor.getString(cursor.getColumnIndex(Message.UUID));
                 }
                 if (outerId != null) message.setAttribute("id", outerId);
-                if (m.getRawBody() != null) message.addChild(new Element("body").setContent(m.getRawBody()));
-                if (m.getSubject() != null) message.addChild(new Element("subject").setContent(m.getSubject()));
-                if (conversation.getMode() == Conversation.MODE_MULTI) {
+                if (rawBody != null) message.addChild(new Element("body").setContent(rawBody));
+                if (subject != null) message.addChild(new Element("subject").setContent(subject));
+                if (conversationMode == Conversation.MODE_MULTI) {
+                    final var trueCounterpart = cursor.getString(cursor.getColumnIndex(Message.TRUE_COUNTERPART));
+                    var occupantId = cursor.getString(cursor.getColumnIndexOrThrow(Message.OCCUPANT_ID));
+                    final String legacyOccupant = cursor.getString(cursor.getColumnIndex("occupant_id"));
+                    if (legacyOccupant != null) occupantId = legacyOccupant;
                     final var x = new Element("x", "http://jabber.org/protocol/muc#user");
-                    if (m.getTrueCounterpart() != null) x.addChild("item", "http://jabber.org/protocol/muc#user").setAttribute("jid", m.getTrueCounterpart());
+                    if (trueCounterpart != null) x.addChild("item", "http://jabber.org/protocol/muc#user").setAttribute("jid", trueCounterpart);
                     message.addChild(x);
-                    if (m.getOccupantId() != null) message.addChild("occupant-id", "urn:xmpp:occupant-id:0").setAttribute("id", m.getOccupantId());
+                    if (occupantId != null) message.addChild("occupant-id", "urn:xmpp:occupant-id:0").setAttribute("id", occupantId);
                 }
-                message.addChildren(m.getPayloads());
                 forwarded.addChild(message);
                 result.addChild(forwarded);
-                writer.write(result.toString());
+                final StringBuilder elementOutput = new StringBuilder();
+                result.appendToBuilder(emptyMap, elementOutput, 3);
+                writer.write(elementOutput.toString());
+                if (payloads != null) writer.write(payloads);
+                writer.write("</message></forwarded></result>\n");
                 final HashMultimap<String, Reaction> aggregatedReactions = HashMultimap.create();
-                for (final var reaction : m.getReactions()) {
+                final var reactions = Reaction.fromString(cursor.getString(cursor.getColumnIndexOrThrow(Message.REACTIONS)));
+                for (final var reaction : reactions) {
                     aggregatedReactions.put(reaction.occupantId == null ? (reaction.trueJid == null ? reaction.from.toString() : reaction.trueJid.toString()) : reaction.occupantId, reaction);
                 }
                 for (final var reactionSet : aggregatedReactions.asMap().values()) {
                     final var reaction = reactionSet.iterator().next();
                     result = new Element("result", "urn:xmpp:mam:2");
                     forwarded = new Element("forwarded", "urn:xmpp:forward:0");
-                    message = new Element("message", "jabber:client").setAttribute("type", conversation.getMode() == Conversation.MODE_MULTI && m.getType() != Message.TYPE_PRIVATE && m.getType() != Message.TYPE_PRIVATE_FILE ? "groupchat" : "chat");
-                    message.setAttribute("from", reaction.from).setAttribute("to", reaction.received && conversation.getMode() != Conversation.MODE_MULTI ? account.getJid() : m.getCounterpart());
+                    message = new Element("message", "jabber:client").setAttribute("type", conversationMode == Conversation.MODE_MULTI && mType != Message.TYPE_PRIVATE && mType != Message.TYPE_PRIVATE_FILE ? "groupchat" : "chat");
+                    message.setAttribute("from", reaction.from).setAttribute("to", reaction.received && conversationMode != Conversation.MODE_MULTI ? accountJid : counterpart);
                     if (reaction.envelopeId != null) message.setAttribute("id", reaction.envelopeId);
                     final var reactionsEl = new Element("reactions", "urn:xmpp:reactions:0");
-                    reactionsEl.setAttribute("id", "groupchat".equals(message.getAttribute("type")) ? m.getServerMsgId() : outerId);
+                    reactionsEl.setAttribute("id", "groupchat".equals(message.getAttribute("type")) ? serverMsgId : outerId);
                     for (final var r : reactionSet) {
                         reactionsEl.addChild("reaction", "urn:xmpp:reactions:0").setContent(r.reaction);
                     }
                     message.addChild(reactionsEl);
-                    if (conversation.getMode() == Conversation.MODE_MULTI) {
+                    if (conversationMode == Conversation.MODE_MULTI) {
                         final var x = new Element("x", "http://jabber.org/protocol/muc#user");
                         if (reaction.trueJid != null) x.addChild("item", "http://jabber.org/protocol/muc#user").setAttribute("jid", reaction.trueJid);
                         message.addChild(x);
@@ -331,6 +351,7 @@ public class ExportBackupService extends Worker {
             writer.write(serverData.startTag().toString());
             writer.write(host.startTag().toString());
             writer.write(user.startTag().toString());
+            writer.write("\n");
 
             Element roster = new Element("query", "jabber:iq:roster");
             if (!"".equals(account.getRosterVersion())) roster.setAttribute("ver", account.getRosterVersion());
@@ -380,8 +401,8 @@ public class ExportBackupService extends Worker {
             SQLiteDatabase db = database.getReadableDatabase();
             final String uuid = account.getUuid();
             messageExport(db, account, writer, progress);
-            messageExportmonocles(db, account, writer, progress);
 
+            writer.write("\n");
             writer.write(user.endTag().toString());
             writer.write(host.endTag().toString());
             writer.write(serverData.endTag().toString());
