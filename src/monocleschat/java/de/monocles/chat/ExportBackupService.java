@@ -149,11 +149,10 @@ public class ExportBackupService extends Worker {
 
     private void messageExport(SQLiteDatabase db, Account account, PrintWriter writer, Progress progress) {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
-        Cursor cursor = db.rawQuery("select conversations.*, messages.* from messages left join monocles.messages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=? order by timeSent", new String[]{account.getUuid()});
+        Cursor cursor = db.rawQuery("select conversations.*, messages.* from messages left join messages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=? order by timeSent", new String[]{account.getUuid()});
         int size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " messages for account " + account.getUuid());
         int i = 0;
-        int p = 0;
         Element archive = new Element("archive", "urn:xmpp:pie:0#mam");
         writer.write(archive.startTag().toString());
         while (cursor != null && cursor.moveToNext()) {
@@ -222,28 +221,21 @@ public class ExportBackupService extends Worker {
             } catch (final Exception e) {
                 Log.e(Config.LOGTAG, "message export error: " + e);
             }
-            if (i + PAGE_SIZE > size) {
-                i = size;
-            } else {
-                i += PAGE_SIZE;
-            }
-            final int percentage = i * 100 / size;
-            if (p < percentage) {
-                p = percentage;
-                notificationManager.notify(NOTIFICATION_ID, progress.build(p));
-            }
+            i++;
+            final int p = i * 100 / size;
+            notificationManager.notify(NOTIFICATION_ID, progress.build(p));
         }
         if (cursor != null) {
             cursor.close();
         }
+        messageExportmonocles(db, account, writer, progress);
         writer.write(archive.endTag().toString());
     }
 
     private void messageExportmonocles(SQLiteDatabase db, Account account, PrintWriter writer, Progress progress) {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
         int i = 0;
-        int p = 0;
-        Cursor cursor = db.rawQuery("select conversations.*,webxdc_updates.* from " + Conversation.TABLENAME + " join monocles.webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{account.getUuid()});
+        Cursor cursor = db.rawQuery("select conversations.*,webxdc_updates.* from " + Conversation.TABLENAME + " join webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{account.getUuid()});
         int size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " WebXDC updates for account " + account.getUuid());
         while (cursor != null && cursor.moveToNext()) {
@@ -271,20 +263,14 @@ public class ExportBackupService extends Worker {
             if (summary != null) x.addChild("document", "urn:xmpp:webxdc:0").setContent(summary);
             final var payload = cursor.getString(cursor.getColumnIndex("payload"));
             if (payload != null) x.addChild("json", "urn:xmpp:json:0").setContent(payload);
+            message.addChild(x);
             forwarded.addChild(message);
             result.addChild(forwarded);
             writer.write(result.toString());
 
-            if (i + PAGE_SIZE > size) {
-                i = size;
-            } else {
-                i += PAGE_SIZE;
-            }
-            final int percentage = i * 100 / size;
-            if (p < percentage) {
-                p = percentage;
-                notificationManager.notify(NOTIFICATION_ID, progress.build(p));
-            }
+            i++;
+            final int p = i * 100 / size;
+            notificationManager.notify(NOTIFICATION_ID, progress.build(p));
         }
         if (cursor != null) {
             cursor.close();
@@ -308,7 +294,7 @@ public class ExportBackupService extends Worker {
             }
             Log.d(Config.LOGTAG, String.format("exporting data for account %s (%s)", account.getJid().asBareJid(), account.getUuid()));
             final Progress progress = new Progress(notification, max, count);
-            final File file = new File(FileBackend.getBackupDirectory(context), account.getJid().asBareJid().toEscapedString() + ".xml.pgp");
+            final File file = new File(FileBackend.getBackupDirectory(context), account.getJid().asBareJid().toString() + ".xml.pgp");
             files.add(file);
             final File directory = file.getParentFile();
             if (directory != null && directory.mkdirs()) {
@@ -333,7 +319,7 @@ public class ExportBackupService extends Worker {
                             new byte[4096]
                     ),
                     PGPLiteralDataGenerator.UTF8,
-                    account.getJid().asBareJid().toEscapedString() + ".xml",
+                    account.getJid().asBareJid().toString() + ".xml",
                     PGPLiteralDataGenerator.NOW,
                     new byte[4096]
             ));
