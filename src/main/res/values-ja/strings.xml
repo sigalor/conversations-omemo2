@@ -1320,4 +1320,8 @@
     <string name="not_dnssec_verified">DNSSEC で検証済みでない</string>
     <string name="account_color">アカウント色</string>
     <string name="account_color_used_on">会話、連絡先一覧、通知で使用されます</string>
+    <string name="pin_to_top">最上に留める</string>
+    <string name="clients_may_not_support_av">連絡先の XMPP クライアントは、音声またはビデオでの通話に対応していない可能性があります。</string>
+    <string name="pref_align_start">左揃えのメッセージ</string>
+    <string name="pref_align_start_summary">自分が送信したメッセージを含めた全メッセージをチャットの左側に統一して配置し、表示します。</string>
 </resources>

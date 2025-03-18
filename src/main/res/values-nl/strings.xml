@@ -189,7 +189,7 @@
     <string name="openpgp_messages_found">OpenPGP-versleutelde berichten gevonden</string>
     <string name="openpgp_key_id">OpenPGP-sleutel-ID</string>
     <string name="omemo_fingerprint">OMEMO-vingerafdruk -</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-vingerafdruk -</string>
+    <string name="omemo_fingerprint_x509">v\\OMEMO-vingerafdruk</string>
     <string name="omemo_fingerprint_selected_message">OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
     <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
     <string name="other_devices">Andere apparaten</string>
