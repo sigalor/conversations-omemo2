@@ -1826,7 +1826,7 @@ public class ConversationFragment extends XmppFragment
             } else {
                 newThread();
                 conversation.setUserSelectedThread(true);
-                newThreadTutorialToast("Switched to new thread");
+                newThreadTutorialToast(activity.getString(R.string.switch_to_new_thread));
             }
         });
 
@@ -1837,7 +1837,7 @@ public class ConversationFragment extends XmppFragment
             setThread(null);
             conversation.setUserSelectedThread(true);
             if (wasLocked) refresh();
-            newThreadTutorialToast("Cleared thread");
+            newThreadTutorialToast(activity.getString(R.string.cleared_thread));
             return true;
         });
         if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete)) {
