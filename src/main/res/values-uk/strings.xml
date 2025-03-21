@@ -1186,7 +1186,7 @@
     <string name="edit_nick">Змінити прізвисько</string>
     <string name="delete_pgp_key">Видалити ключ OpenPGP</string>
     <string name="options">Параметри</string>
-    <string name="pref_show_mappreview_inside_summary">Завантажувати попередній перегляд мапи для спільного місця розташування у вікні чату</string>
+    <string name="pref_show_mappreview_inside_summary">Показувати попередній перегляд мапи у вікні чату (Буде встановлено з\'єднання із сервером monocles).</string>
     <string name="encryption">Шифрування</string>
     <string name="choose_widget">Вибрати віджет</string>
     <string name="store_media_only_in_cache">Зберігати медіа лише в кеші</string>

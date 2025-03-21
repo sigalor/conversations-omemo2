@@ -1162,7 +1162,7 @@
     <string name="encryption">Шифрование</string>
     <string name="choose_widget">Выбрать виджет</string>
     <string name="pref_show_mappreview_inside">Показать предварительный просмотр карт</string>
-    <string name="pref_show_mappreview_inside_summary">Загрузить предварительный просмотр карт для общего местоположения в чате</string>
+    <string name="pref_show_mappreview_inside_summary">Показывать предварительный просмотр карты непосредственно в окне чата, будет установлено соединение с сервером monocles.</string>
     <string name="pref_show_own_accounts_summary">Показывает используемый аккаунт в обзоре сообщений и подробностях</string>
     <string name="pref_show_show_nav_drawer">Навигационный ящик</string>
     <string name="show_link_previews">Показать предварительные просмотры ссылок</string>
@@ -1477,4 +1477,6 @@
     <string name="pref_disable_reactions_fallback_summary">Отключает отзыв реакций для клиентов, которые еще не поддерживают реакцию</string>
     <string name="pref_disable_reactions_fallback_title">Отключить реакции</string>
     <string name="pin_to_top">Закрепить вверху</string>
+    <string name="switch_to_new_thread">Переключение на новую ветку</string>
+    <string name="cleared_thread">Очищенная тема</string>
 </resources>
