@@ -51,6 +51,7 @@ import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -6145,6 +6146,8 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        this.binding.pinnedMessageText.setMovementMethod(new ScrollingMovementMethod());
+        this.binding.pinnedMessageText.setTextIsSelectable(true);
         if (conversation != null) {
             String conversationJid = conversation.getJid().asBareJid().toString();
             // Load pinned message from savedInstanceState or SharedPreferences
