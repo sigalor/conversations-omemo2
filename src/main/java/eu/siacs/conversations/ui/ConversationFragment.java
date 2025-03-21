@@ -3713,9 +3713,7 @@ public class ConversationFragment extends XmppFragment
         // Store the pinned message in the bundle for configuration changes
         if (binding.pinnedMessage.getVisibility() == View.VISIBLE && conversation != null) {
             outState.putString(getPinnedMessageKey(conversation.getJid().asBareJid().toString()), binding.pinnedMessageText.getText().toString());
-        }
-        if (conversation != null && conversation.getPinnedMessage() != null) {
-            outState.putString(STATE_PINNED_MESSAGE, conversation.getPinnedMessage().getBody());
+            outState.putString(STATE_PINNED_MESSAGE, binding.pinnedMessageText.getText().toString());
         }
         if (conversation != null) {
             outState.putString(STATE_CONVERSATION_UUID, conversation.getUuid());
