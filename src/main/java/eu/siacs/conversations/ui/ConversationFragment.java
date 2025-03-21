@@ -3714,8 +3714,10 @@ public class ConversationFragment extends XmppFragment
         if (binding.pinnedMessage.getVisibility() == View.VISIBLE && conversation != null) {
             outState.putString(getPinnedMessageKey(conversation.getJid().asBareJid().toString()), binding.pinnedMessageText.getText().toString());
         }
-        if (conversation != null) {
+        if (conversation != null && conversation.getPinnedMessage() != null) {
             outState.putString(STATE_PINNED_MESSAGE, conversation.getPinnedMessage().getBody());
+        }
+        if (conversation != null) {
             outState.putString(STATE_CONVERSATION_UUID, conversation.getUuid());
             outState.putString(STATE_LAST_MESSAGE_UUID, lastMessageUuid);
             final Uri uri = pendingTakePhotoUri.peek();
