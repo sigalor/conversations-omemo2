@@ -339,6 +339,7 @@ public class ConversationFragment extends XmppFragment
 
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
     private KeyboardHeightProvider keyboardHeightProvider = null;
+    private static final String PINNED_MESSAGE_KEY_PREFIX = "pinned_message_";
 
     protected OnClickListener clickToVerify = new OnClickListener() {
         @Override
@@ -2042,6 +2043,10 @@ public class ConversationFragment extends XmppFragment
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
+        // Store the pinned message in SharedPreferences when the view is destroyed
+        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && conversation != null) {
+            savePinnedMessageToPreferences(conversation.getJid().asBareJid().toString(), binding.pinnedMessageText.getText().toString());
+        }
         messageListAdapter.setOnContactPictureClicked(null);
         messageListAdapter.setOnContactPictureLongClicked(null);
         messageListAdapter.setOnInlineImageLongClicked(null);
@@ -2419,10 +2424,12 @@ public class ConversationFragment extends XmppFragment
                 }, R.string.moderate_reason, false, false, true, true);
                 return true;
             case R.id.pin_message_to_top:
+                // set pinned message once
                 this.binding.pinnedMessageText.setText(selectedMessage.getBody());
-                // store for each conversation
                 conversation.setPinnedMessage(selectedMessage);
                 this.binding.pinnedMessage.setVisibility(View.VISIBLE);
+                // store for each conversation
+                setNewPinnedMessage(selectedMessage.getBody());
                 return true;
             case R.id.copy_message:
                 ShareUtil.copyToClipboard(activity, selectedMessage);
@@ -3703,6 +3710,10 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        // Store the pinned message in the bundle for configuration changes
+        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && conversation != null) {
+            outState.putString(getPinnedMessageKey(conversation.getJid().asBareJid().toString()), binding.pinnedMessageText.getText().toString());
+        }
         if (conversation != null) {
             outState.putString(STATE_PINNED_MESSAGE, conversation.getPinnedMessage().getBody());
             outState.putString(STATE_CONVERSATION_UUID, conversation.getUuid());
@@ -4550,7 +4561,7 @@ public class ConversationFragment extends XmppFragment
                 // empty Pinned message when click on Pinned message hide
                 binding.pinnedMessageHide.setOnClickListener(v -> {
                     conversation.setPinnedMessage(null);
-                    binding.pinnedMessage.setVisibility(View.GONE);
+                    removePinnedMessage(conversation.getJid().asBareJid().toString());
                 });
             }
         }
@@ -6125,5 +6136,66 @@ public class ConversationFragment extends XmppFragment
 
     private void hideTextFormat() {
         this.binding.textformat.setVisibility(View.GONE);
+    }
+
+    private String getPinnedMessageKey(String conversationJid) {
+        return PINNED_MESSAGE_KEY_PREFIX + conversationJid;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (conversation != null) {
+            String conversationJid = conversation.getJid().asBareJid().toString();
+            // Load pinned message from savedInstanceState or SharedPreferences
+            String savedMessage = savedInstanceState != null ? savedInstanceState.getString(getPinnedMessageKey(conversationJid)) : loadPinnedMessageFromPreferences(conversationJid);
+            if (savedMessage != null && !savedMessage.isEmpty()) {
+                binding.pinnedMessageText.setText(savedMessage);
+                binding.pinnedMessage.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private void savePinnedMessageToPreferences(String conversationJid, String message) {
+        if (activity != null) {
+            SharedPreferences sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(getPinnedMessageKey(conversationJid), message);
+            editor.apply();
+        }
+    }
+
+    private String loadPinnedMessageFromPreferences(String conversationJid) {
+        if (activity != null) {
+            SharedPreferences sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
+            return sharedPreferences.getString(getPinnedMessageKey(conversationJid), null);
+        }
+        return null;
+    }
+
+    // Call this method when you want to remove the pinned message:
+    private void removePinnedMessage(String conversationJid) {
+        binding.pinnedMessageText.setText("");
+        binding.pinnedMessage.setVisibility(View.GONE);
+        // Remove the message from SharedPreferences
+        if (activity != null) {
+            SharedPreferences sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove(getPinnedMessageKey(conversationJid));
+            editor.apply();
+        }
+    }
+
+    // Set a new pinned message:
+    public void setNewPinnedMessage(String message) {
+        if (conversation != null) {
+            binding.pinnedMessageText.setText(message);
+            binding.pinnedMessage.setVisibility(View.VISIBLE);
+            savePinnedMessageToPreferences(conversation.getJid().asBareJid().toString(), message);
+        }
+    }
+
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
     }
 }
