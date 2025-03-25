@@ -343,9 +343,7 @@ public class UriHandlerActivity extends BaseActivity {
     }
 
     private boolean allowProvisioning() {
-        final Intent launchIntent = getIntent();
-        return launchIntent != null
-                && launchIntent.getBooleanExtra(EXTRA_ALLOW_PROVISIONING, false);
+        return true;
     }
 
     @Override
