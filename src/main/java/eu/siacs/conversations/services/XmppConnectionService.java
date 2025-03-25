@@ -2541,7 +2541,7 @@ public class XmppConnectionService extends Service {
                 if (message.getConversation() instanceof Conversation) presenceToMuc((Conversation) message.getConversation());
             }
         }
-        if (!waitForPreview && !passedCbOn && cb != null) { Log.d("WUT cb", message.getRawBody()); cb.run(); }
+        if (!waitForPreview && !passedCbOn && cb != null) cb.run();
     }
 
     private boolean isJoinInProgress(final Conversation conversation) {
