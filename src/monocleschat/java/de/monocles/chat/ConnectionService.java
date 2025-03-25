@@ -220,6 +220,7 @@ public class ConnectionService extends android.telecom.ConnectionService {
 		protected Icon gatewayIcon;
 		protected CallAudioState pendingState = null;
 		protected WeakReference<JingleRtpConnection> rtpConnection = null;
+		protected long lastAudioChange = 0;
 
 		CheogramConnection(Account account, Jid with, String postDialString) {
 			super();
@@ -302,6 +303,12 @@ public class ConnectionService extends android.telecom.ConnectionService {
 				return;
 			}
 
+			// Prevent feedback loop on some devices
+			if (System.currentTimeMillis() - lastAudioChange < 5000) {
+				return;
+			}
+
+			lastAudioChange = System.currentTimeMillis();
 			Log.d("de.monocles.chat.CheogramConnection", "onAudioDeviceChanged: " + selectedAudioDevice);
 
 			switch(selectedAudioDevice) {
@@ -331,6 +338,7 @@ public class ConnectionService extends android.telecom.ConnectionService {
 			}
 
 			Log.d("de.monocles.chat.CheogramConnection", "onCallAudioStateChanged: " + state);
+			lastAudioChange = System.currentTimeMillis();
 			rtpConnection.get().callIntegration.onCallAudioStateChanged(state);
 
 			try {
