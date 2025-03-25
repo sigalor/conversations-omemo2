@@ -457,34 +457,36 @@ public class ConversationsActivity extends XmppActivity
             return;
         }
         xmppConnectionService.getNotificationService().setIsInForeground(true);
-        final Intent intent = pendingViewIntent.pop();
+        var intent = pendingViewIntent.pop();
         if (intent != null) {
             if (processViewIntent(intent)) {
                 if (binding.secondaryFragment != null) {
                     notifyFragmentOfBackendConnected(R.id.main_fragment);
                 }
-                invalidateActionBarTitle();
-                return;
+            } else {
+                intent = null;
             }
         }
-        for (@IdRes int id : FRAGMENT_ID_NOTIFICATION_ORDER) {
-            notifyFragmentOfBackendConnected(id);
-        }
 
-        final ActivityResult activityResult = postponedActivityResult.pop();
-        if (activityResult != null) {
-            handleActivityResult(activityResult);
-        }
+        if (intent == null) {
+            for (@IdRes int id : FRAGMENT_ID_NOTIFICATION_ORDER) {
+                notifyFragmentOfBackendConnected(id);
+            }
 
+            final ActivityResult activityResult = postponedActivityResult.pop();
+            if (activityResult != null) {
+                handleActivityResult(activityResult);
+            }
+            if (binding.secondaryFragment != null
+                    && ConversationFragment.getConversation(this) == null) {
+                Conversation conversation = ConversationsOverviewFragment.getSuggestion(this);
+                if (conversation != null) {
+                    openConversation(conversation, null);
+                }
+            }
+            showDialogsIfMainIsOverview();
+        }
         invalidateActionBarTitle();
-        if (binding.secondaryFragment != null
-                && ConversationFragment.getConversation(this) == null) {
-            Conversation conversation = ConversationsOverviewFragment.getSuggestion(this);
-            if (conversation != null) {
-                openConversation(conversation, null);
-            }
-        }
-        showDialogsIfMainIsOverview();
 
         if (accountHeader != null || binding == null || binding.drawer == null) {
             refreshUiReal();
