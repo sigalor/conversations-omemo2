@@ -1534,6 +1534,7 @@ public class ConversationFragment extends XmppFragment
                         @Override
                         public void run() {
                             try {
+                                if (!i.hasNext()) return;
                                 final Attachment attachment = i.next();
                                 if (attachment.getType() == Attachment.Type.LOCATION) {
                                         attachLocationToConversation(conversation, attachment.getUri());
@@ -1542,14 +1543,15 @@ public class ConversationFragment extends XmppFragment
                                     Log.d(
                                           Config.LOGTAG,
                                           "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
-                                    attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), i.hasNext() ? this : null);
+                                    attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), this);
                                 } else {
                                     Log.d(
                                           Config.LOGTAG,
                                           "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
-                                    attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), i.hasNext() ? this : null);
+                                    attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), this);
                                 }
                                 i.remove();
+                                if (!i.hasNext()) messageSent();
                             } catch (final java.util.ConcurrentModificationException e) {
                                 // Abort, leave any unsent attachments alone for the user to try again
                                 Toast.makeText(activity, "Sometimes went wrong with some attachments. Try again?", Toast.LENGTH_SHORT).show();
