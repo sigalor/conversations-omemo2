@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -264,8 +265,9 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
 
                 if (!issuedWarning && sanityCheckJid != SanityCheck.NO) {
                     if (contactJid.isDomainJid()) {
-                        binding.jidLayout.setError(getActivity().getString(R.string.this_looks_like_a_domain));
+                        binding.jidLayout.setHelperText(getActivity().getString(R.string.this_looks_like_a_domain));
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.add_anway);
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setText("Browse");
                         issuedWarning = true;
                         return;
                     }
@@ -275,6 +277,12 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                         issuedWarning = true;
                         return;
                     }
+                } else if (secondary) {
+                    final var intent = new Intent(getActivity(), ChannelDiscoveryActivity.class);
+                    intent.putExtra("services", new String[]{ jidString, accountJid.toString() });
+                    dialog.dismiss();
+                    getActivity().startActivity(intent);
+                    return;
                 }
 
                 if (mListener != null) {

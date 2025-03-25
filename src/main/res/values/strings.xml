@@ -890,8 +890,8 @@
     <string name="channel_discover_opt_in_message">Channel discovery uses a third party service called &lt;a href="https://search.jabber.network"&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Using this feature will transmit your IP address and search terms to that service. See their &lt;a href="https://search.jabber.network/privacy"&gt;Privacy Policy&lt;/a&gt; for more information.</string>
     <string name="add_existing_account">Add existing account</string>
     <string name="register_new_account">Register new account</string>
-    <string name="this_looks_like_a_domain">This looks like a domain address</string>
-    <string name="add_anway">Add anyway</string>
+    <string name="this_looks_like_a_domain">This looks like a Space</string>
+    <string name="add_anway">Continue</string>
     <string name="this_looks_like_channel">This looks like a channel address</string>
     <string name="share_backup_files">Share backup files</string>
     <string name="conversations_backup">Conversations backup</string>
@@ -1462,4 +1462,5 @@
     <string name="pref_use_i2p">Connect via I2P</string>
     <string name="pref_use_i2p_summary">Tunnel all connections through the I2P network. Requires I2P client</string>
     <string name="account_status_i2p_unavailable">I2P network unavailable</string>
+    <string name="browse_space">Browse space</string>
 </resources>
