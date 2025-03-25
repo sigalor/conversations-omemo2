@@ -184,6 +184,15 @@ public class MyLinkify {
                     );
                 } catch (final IllegalArgumentException | IndexOutOfBoundsException e) { /* bad JID or span gone */ }
             }
+            if ("http".equals(uri.getScheme())) {
+                final var txt = body.subSequence(body.getSpanStart(urlspan), body.getSpanEnd(urlspan)).toString();
+                if (txt.startsWith("http")) continue;
+                body.replace(
+                    body.getSpanStart(urlspan),
+                    body.getSpanEnd(urlspan),
+                    "http://" + txt
+                );
+            }
         }
     }
 
