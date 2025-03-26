@@ -88,7 +88,7 @@ Si nous ne pouvons pas résoudre votre problème, vous pouvez ouvrir une questio
 
 4. Commencez à sortir votre journal dans un fichier sur votre ordinateur. Nous allons utiliser `logcat.txt`. Entrez :
     ```
-    $ adb -d logcat -v time | grep -i monocles_chat > logcat.txt
+    $ adb -d logcat -v time | grep -i "monocles chat" > logcat.txt
     ```
 
 5. Suivez les autres étapes [12] et [13] des instructions Windows.

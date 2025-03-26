@@ -58,7 +58,7 @@ Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/
 3. Folge den Schritten [6] bis [10] unter [Windows]. s.u.
 4. Nun kannst du mit der Ausgabe der Debug-Logs beginnen. Nenne die Log-Datei bspw `logcat.txt`:
    ```
-   $ adb -d logcat -v time | grep -i monocles_chat > logcat.txt
+   $ adb -d logcat -v time | grep -i "monocles chat" > logcat.txt
    ```
 5. Fahre nun mit den verbliebenen Schritten unter [Windows] ab Schritt [12] fort.
 
