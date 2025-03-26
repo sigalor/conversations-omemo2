@@ -1192,6 +1192,14 @@ public class StartConversationActivity extends XmppActivity
         boolean showNavBar = binding.bottomNavigation.getVisibility() == VISIBLE;
         actionBar.setDisplayHomeAsUpEnabled(openConversations && !showNavBar);
         actionBar.setDisplayHomeAsUpEnabled(openConversations && !showNavBar);
+
+        // Show badge for unread message in bottom nav
+        int unreadCount = xmppConnectionService.unreadCount();
+        BottomNavigationView bottomnav = findViewById(R.id.bottom_navigation);
+        var bottomBadge = bottomnav.getOrCreateBadge(R.id.chats);
+        bottomBadge.setNumber(unreadCount);
+        bottomBadge.setVisible(unreadCount > 0);
+        bottomBadge.setHorizontalOffset(20);
     }
 
     @Override

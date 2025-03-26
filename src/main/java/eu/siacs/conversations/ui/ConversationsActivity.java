@@ -243,6 +243,14 @@ public class ConversationsActivity extends XmppActivity
         }
         if (accountHeader == null) return;
 
+        // Show badge for unread message in bottom nav
+        int unreadCount = xmppConnectionService.unreadCount();
+        BottomNavigationView bottomnav = findViewById(R.id.bottom_navigation);
+        var bottomBadge = bottomnav.getOrCreateBadge(R.id.chats);
+        bottomBadge.setNumber(unreadCount);
+        bottomBadge.setVisible(unreadCount > 0);
+        bottomBadge.setHorizontalOffset(20);
+
         final var chatRequestsPref = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
         final var accountUnreads = new HashMap<Account, Integer>();
         binding.drawer.apply(dr -> {
