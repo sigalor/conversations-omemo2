@@ -150,6 +150,7 @@ public class MyLinkify {
         urlspan:
         for (final URLSpan urlspan : body.getSpans(0, body.length() - 1, URLSpan.class)) {
             final var start = body.getSpanStart(urlspan);
+            if (start < 0) continue;
             for (final var span : body.getSpans(start, start, Object.class))  {
                 // instanceof TypefaceSpan is to block in XHTML code blocks. Probably a bit heavy-handed but works for now
                 if ((body.getSpanFlags(span) & Spanned.SPAN_USER) >> Spanned.SPAN_USER_SHIFT == StylingHelper.NOLINKIFY || span instanceof TypefaceSpan) {
