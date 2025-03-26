@@ -102,7 +102,7 @@ If we can't fix your problem there, you can open an issue [here](https://codeber
 
 4. Start outputting your log to a file on your computer. We will be using `logcat.txt`. Enter:
     ```
-    $ adb -d logcat -v time | grep -i monocles_chat > logcat.txt
+    $ adb -d logcat -v time | grep -i "monocles chat" > logcat.txt
     ```
 
 5. Follow the remaining steps [12] and [13] of the Windows instructions.
