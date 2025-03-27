@@ -6,13 +6,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -30,11 +30,10 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Strings;
 import com.google.common.primitives.Longs;
-
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
@@ -83,21 +82,34 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
                         }
                     });
 
+    private final ActivityResultLauncher<Uri> pickBackupLocationLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.OpenDocumentTree(),
+                    uri -> {
+                        if (uri == null) {
+                            Log.d(Config.LOGTAG, "no backup location selected");
+                            return;
+                        }
+                        submitBackupLocationPreference(uri);
+                    });
+
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences_backup, rootKey);
         final var createOneOffBackup = findPreference(CREATE_ONE_OFF_BACKUP);
         final var export = findPreference("export");
         final ListPreference recurringBackup = findPreference(RECURRING_BACKUP);
-        final var backupDirectory = findPreference("backup_directory");
-        if (createOneOffBackup == null || recurringBackup == null || backupDirectory == null) {
+        final var backupLocation = findPreference(AppSettings.BACKUP_LOCATION);
+        if (createOneOffBackup == null || recurringBackup == null || backupLocation == null) {
             throw new IllegalStateException(
                     "The preference resource file is missing some preferences");
         }
-        backupDirectory.setSummary(
+        final var appSettings = new AppSettings(requireContext());
+        backupLocation.setSummary(
                 getString(
                         R.string.pref_create_backup_summary,
-                        FileBackend.getBackupDirectory(requireContext()).getAbsolutePath()));
+                        appSettings.getBackupLocationAsPath()));
+        backupLocation.setOnPreferenceClickListener(this::onBackupLocationPreferenceClicked);
         createOneOffBackup.setOnPreferenceClickListener(this::onBackupPreferenceClicked);
         export.setOnPreferenceClickListener(this::onExportClicked);
         setValues(
@@ -132,6 +144,26 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         startActivityForResult(Intent.createChooser(intent, getString(R.string.select_settings_dat)), REQUEST_IMPORT_SETTINGS);
 
+    }
+
+    private boolean onBackupLocationPreferenceClicked(final Preference preference) {
+        this.pickBackupLocationLauncher.launch(null);
+        return false;
+    }
+
+    private void submitBackupLocationPreference(final Uri uri) {
+        final var contentResolver = requireContext().getContentResolver();
+        contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        final var appSettings = new AppSettings(requireContext());
+        appSettings.setBackupLocation(uri);
+        final var preference = findPreference(AppSettings.BACKUP_LOCATION);
+        if (preference == null) {
+            return;
+        }
+        preference.setSummary(
+                getString(R.string.pref_create_backup_summary, AppSettings.asPath(uri)));
     }
 
     @Override
