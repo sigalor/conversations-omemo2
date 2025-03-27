@@ -100,6 +100,7 @@
                         android:layout_weight="1"
                         android:maxLines="6"
                         android:freezesText="true"
+                        android:autoLink="web"
                         android:scrollbars="vertical"
                         android:textAppearance="?textAppearanceCaption" />
 
