@@ -7,8 +7,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.color.MaterialColors;
@@ -205,9 +204,12 @@ public abstract class OmemoActivity extends XmppActivity {
 		builder.create().show();
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
-	}
+    @Override
+    public void onRequestPermissionsResult(
+            final int requestCode,
+            @NonNull final String[] permissions,
+            @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
+    }
 }

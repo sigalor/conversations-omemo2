@@ -348,8 +348,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     .time()
                     .setTextColor(
                             MaterialColors.getColor(
-                                    viewHolder.time(),
-                                    com.google.android.material.R.attr.colorError));
+                                    viewHolder.time(), androidx.appcompat.R.attr.colorError));
         } else {
             setTextColor(viewHolder.time(), bubbleColor);
         }
@@ -2277,8 +2276,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         ImageViewCompat.setImageTintList(
                 imageView,
                 ColorStateList.valueOf(
-                        MaterialColors.getColor(
-                                imageView, com.google.android.material.R.attr.colorError)));
+                        MaterialColors.getColor(imageView, androidx.appcompat.R.attr.colorError)));
     }
 
     public static void setTextColor(final TextView textView, final BubbleColor bubbleColor) {
@@ -2286,8 +2284,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         textView.setTextColor(color);
         if (BubbleColor.SURFACES.contains(bubbleColor)) {
             textView.setLinkTextColor(
-                    MaterialColors.getColor(
-                            textView, com.google.android.material.R.attr.colorPrimary));
+                    MaterialColors.getColor(textView, androidx.appcompat.R.attr.colorPrimary));
         } else {
             textView.setLinkTextColor(color);
         }
