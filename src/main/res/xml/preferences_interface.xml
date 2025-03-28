@@ -153,6 +153,12 @@
             android:summary="@string/show_link_previews_summary"
             android:title="@string/show_link_previews" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/plain_text_links"
+            android:icon="@drawable/rounded_link_24"
+            android:key="plain_text_links"
+            android:summary="@string/pref_plain_text_links_summary"
+            android:title="@string/pref_plain_text_links_title" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/set_text_collapsable"
             android:icon="@drawable/ic_keyboard_double_arrow_down_24dp"
             android:key="set_text_collapsable"

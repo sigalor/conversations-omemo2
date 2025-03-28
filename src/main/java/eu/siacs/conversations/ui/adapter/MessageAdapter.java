@@ -653,7 +653,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         if (processMarkup)
             StylingHelper.format(body, viewHolder.messageBody().getCurrentTextColor());
-        MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid());
+        MyLinkify.addLinks(body, message.getConversation().getAccount(), message.getConversation().getJid(), activity.xmppConnectionService);
         boolean startsWithQuote = processMarkup ? handleTextQuotes(viewHolder.messageBody(), body, bubbleColor, true) : false;
         for (final android.text.style.QuoteSpan quote : body.getSpans(0, body.length(), android.text.style.QuoteSpan.class)) {
             int start = body.getSpanStart(quote);

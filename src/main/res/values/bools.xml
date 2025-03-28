@@ -20,4 +20,5 @@
     <bool name="default_store_media_in_cache">false</bool>
     <bool name="is_portrait_mode">true</bool>
     <bool name="disable_reactions_fallback">false</bool>
+    <bool name="plain_text_links">false</bool>
 </resources>

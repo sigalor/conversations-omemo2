@@ -48,9 +48,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.ListItem;
 import eu.siacs.conversations.entities.Roster;
+import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.text.FixedURLSpan;
 import eu.siacs.conversations.utils.GeoHelper;
 import eu.siacs.conversations.utils.Patterns;
@@ -144,7 +147,7 @@ public class MyLinkify {
         FixedURLSpan.fix(body);
     }
 
-    public static void addLinks(Editable body, Account account, Jid context) {
+    public static void addLinks(Editable body, Account account, Jid context, final XmppConnectionService service) {
         addLinks(body, true);
         Roster roster = account.getRoster();
         urlspan:
@@ -169,7 +172,10 @@ public class MyLinkify {
                     XmppUri xmppUri = new XmppUri(uri);
                     Jid jid = xmppUri.getJid();
                     String display = xmppUri.toString();
-                    if (jid.asBareJid().equals(context) && xmppUri.isAction("message") && xmppUri.getBody() != null) {
+
+                    if (service.getBooleanPreference("plain_text_links", R.bool.plain_text_links)) {
+                        display = xmppUri.toString();
+                    } else if (jid.asBareJid().equals(context) && xmppUri.isAction("message") && xmppUri.getBody() != null) {
                         display = xmppUri.getBody();
                     } else if (jid.asBareJid().equals(context) && xmppUri.parameterString().length() > 0) {
                         display = xmppUri.parameterString();
@@ -179,9 +185,9 @@ public class MyLinkify {
                         display = item.getDisplayName() + xmppUri.displayParameterString();
                     }
                     body.replace(
-                        body.getSpanStart(urlspan),
-                        body.getSpanEnd(urlspan),
-                        display
+                            body.getSpanStart(urlspan),
+                            body.getSpanEnd(urlspan),
+                            display
                     );
                 } catch (final IllegalArgumentException | IndexOutOfBoundsException e) { /* bad JID or span gone */ }
             }
