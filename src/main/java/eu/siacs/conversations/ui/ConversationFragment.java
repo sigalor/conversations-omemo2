@@ -5667,16 +5667,10 @@ public class ConversationFragment extends XmppFragment
         if (conversation.storeInCache()) {
             parentDirectory = new File(activity.xmppConnectionService.getCacheDir(), "/media");
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                parentDirectory =
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");
-            } else {
-                parentDirectory =
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");
-            }
+            parentDirectory =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");
         }
-        final File conversationsDirectory = new File(parentDirectory, getString(R.string.app_name));
-        return new File(conversationsDirectory, filename);
+        return new File(parentDirectory, filename);
     }
 
     private void setupOutputFile(final int outputFormat) {

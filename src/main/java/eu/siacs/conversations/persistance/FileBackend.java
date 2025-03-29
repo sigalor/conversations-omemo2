@@ -578,6 +578,8 @@ public class FileBackend {
             return new DownloadableFile(getLegacyStorageLocation("Images"), filename);
         } else if (mime.startsWith("video/")) {
             return new DownloadableFile(getLegacyStorageLocation("Videos"), filename);
+        } else if (mime.startsWith("audio/")) {
+            return new DownloadableFile(getLegacyStorageLocation("Audios"), filename);
         } else {
             return new DownloadableFile(getLegacyStorageLocation("Files"), filename);
         }
@@ -1132,6 +1134,8 @@ public class FileBackend {
             parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/pictures");
         } else if (mime.startsWith("video/")) {
             parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/videos");
+        } else if (mime.startsWith("audio/")) {
+            parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/audios");
         } else if (MediaAdapter.DOCUMENT_MIMES.contains(mime)) {
             parentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/documents");
         } else {
@@ -1152,17 +1156,23 @@ public class FileBackend {
         final var picturesNomedia = new File(new File(String.valueOf(pictures)), ".nomedia");
         final var movies = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/videos");
         final var moviesNomedia = new File(new File(String.valueOf(movies)), ".nomedia");
+        final var audios = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/audios");
+        final var audiosNomedia = new File(new File(String.valueOf(audios)), ".nomedia");
+
         var rescan = false;
         if (nomedia) {
             rescan = rescan || picturesNomedia.mkdir();
             rescan = rescan || moviesNomedia.mkdir();
+            rescan = rescan || audiosNomedia.mkdir();
         } else {
             rescan = rescan || picturesNomedia.delete();
             rescan = rescan || moviesNomedia.delete();
+            rescan = rescan || audiosNomedia.delete();
         }
         if (rescan) {
             updateMediaScanner(new File(String.valueOf(pictures)));
             updateMediaScanner(new File(String.valueOf(movies)));
+            updateMediaScanner(new File(String.valueOf(audios)));
         }
     }
 
