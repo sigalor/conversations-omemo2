@@ -1528,7 +1528,7 @@ public class Conversation extends AbstractEntity
         if ("cache".equals(getAttribute("storeMedia"))) return true;
         if ("shared".equals(getAttribute("storeMedia"))) return false;
         if (mode == Conversation.MODE_MULTI && !mucOptions.isPrivateAndNonAnonymous()) return true;
-        return false;
+        return xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache);
     }
 
     public boolean setAttribute(String key, boolean value) {
