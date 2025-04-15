@@ -1316,7 +1316,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                     message.markUnread();
                                     c.add(message);
                                     mXmppConnectionService.getNotificationService().possiblyMissedCall(c.getUuid() + sessionId, message);
-                                    query.incrementActualMessageCount();
+                                    if (query != null) query.incrementActualMessageCount();
                                     mXmppConnectionService.databaseBackend.createMessage(message);
                                 }
                             } else if ("proceed".equals(action)) {
@@ -1337,7 +1337,7 @@ public class MessageParser extends AbstractParser implements Consumer<im.convers
                                     message.setTime(timestamp);
                                     message.markRead();
                                     mXmppConnectionService.getNotificationService().possiblyMissedCall(c.getUuid() + sessionId, message);
-                                    query.incrementActualMessageCount();
+                                    if (query != null) query.incrementActualMessageCount();
                                     mXmppConnectionService.updateMessage(message, true);
                                 } else {
                                     Log.d(
