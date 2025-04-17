@@ -68,7 +68,7 @@ dependencies {
     implementation "androidx.preference:preference:1.2.1"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.google.android.material:material:1.13.0-alpha12'
-    implementation 'androidx.work:work-runtime:2.9.1'
+    implementation 'androidx.work:work-runtime:2.10.0'
 
     implementation "androidx.emoji2:emoji2:1.5.0"
     freeImplementation "androidx.emoji2:emoji2-bundled:1.5.0"
@@ -95,7 +95,7 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:2.11.0"
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
-    implementation 'com.google.guava:guava:33.4.0-android'
+    implementation 'com.google.guava:guava:33.4.6-android'
     implementation 'io.michaelrocks:libphonenumber-android:8.13.52'
     implementation 'im.conversations.webrtc:webrtc-android:129.0.0'
     implementation 'io.github.nishkarsh:android-permissions:2.1.6'
@@ -138,11 +138,11 @@ ext {
 
 android {
     namespace 'eu.siacs.conversations'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 190
         versionName "2.0.13"
         applicationId "de.monocles.chat"

@@ -5,7 +5,7 @@ import android.net.ConnectivityManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
-
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.Nullable;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
