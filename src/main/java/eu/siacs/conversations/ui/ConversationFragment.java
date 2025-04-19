@@ -1745,11 +1745,8 @@ public class ConversationFragment extends XmppFragment
         LoadStickers();
         LoadGifs();
 
-        // Load pinned message if available
-        if (conversation != null && conversation.getPinnedMessage() != null) {
-            this.binding.pinnedMessageText.setText(conversation.getPinnedMessage().getBody());
-            this.binding.pinnedMessage.setVisibility(View.VISIBLE);
-        } else if (savedInstanceState != null && savedInstanceState.getString(STATE_PINNED_MESSAGE) != null) {
+        // Load pinned message when screen rotated
+        if (savedInstanceState != null && savedInstanceState.getString(STATE_PINNED_MESSAGE) != null) {
             this.binding.pinnedMessageText.setText(savedInstanceState.getString(STATE_PINNED_MESSAGE));
             this.binding.pinnedMessage.setVisibility(View.VISIBLE);
         }
@@ -2047,8 +2044,8 @@ public class ConversationFragment extends XmppFragment
         super.onDestroyView();
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
         // Store the pinned message in SharedPreferences when the view is destroyed
-        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && conversation != null) {
-            savePinnedMessageToPreferences(conversation.getJid().asBareJid().toString(), binding.pinnedMessageText.getText().toString());
+        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && getConversationReliable(activity) != null) {
+            savePinnedMessageToPreferences(getConversationReliable(activity).getJid().asBareJid().toString(), binding.pinnedMessageText.getText().toString());
         }
         messageListAdapter.setOnContactPictureClicked(null);
         messageListAdapter.setOnContactPictureLongClicked(null);
@@ -2427,10 +2424,6 @@ public class ConversationFragment extends XmppFragment
                 }, R.string.moderate_reason, false, false, true, true);
                 return true;
             case R.id.pin_message_to_top:
-                // set pinned message once
-                this.binding.pinnedMessageText.setText(selectedMessage.getBody());
-                conversation.setPinnedMessage(selectedMessage);
-                this.binding.pinnedMessage.setVisibility(View.VISIBLE);
                 // store for each conversation
                 setNewPinnedMessage(selectedMessage.getBody());
                 return true;
@@ -3714,8 +3707,8 @@ public class ConversationFragment extends XmppFragment
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         // Store the pinned message in the bundle for configuration changes
-        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && conversation != null) {
-            outState.putString(getPinnedMessageKey(conversation.getJid().asBareJid().toString()), binding.pinnedMessageText.getText().toString());
+        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && getConversationReliable(activity) != null) {
+            outState.putString(getPinnedMessageKey(getConversationReliable(activity).getJid().asBareJid().toString()), binding.pinnedMessageText.getText().toString());
             outState.putString(STATE_PINNED_MESSAGE, binding.pinnedMessageText.getText().toString());
         }
         if (conversation != null) {
@@ -4564,7 +4557,7 @@ public class ConversationFragment extends XmppFragment
                 // empty Pinned message when click on Pinned message hide
                 binding.pinnedMessageHide.setOnClickListener(v -> {
                     conversation.setPinnedMessage(null);
-                    removePinnedMessage(conversation.getJid().asBareJid().toString());
+                    removePinnedMessage(getConversationReliable(activity).getJid().asBareJid().toString());
                 });
             }
         }
@@ -6144,8 +6137,8 @@ public class ConversationFragment extends XmppFragment
         super.onViewCreated(view, savedInstanceState);
         this.binding.pinnedMessageText.setMovementMethod(new ScrollingMovementMethod());
         this.binding.pinnedMessageText.setTextIsSelectable(true);
-        if (conversation != null) {
-            String conversationJid = conversation.getJid().asBareJid().toString();
+        if (getConversationReliable(activity) != null) {
+            String conversationJid = getConversationReliable(activity).getJid().asBareJid().toString();
             // Load pinned message from savedInstanceState or SharedPreferences
             String savedMessage = savedInstanceState != null ? savedInstanceState.getString(getPinnedMessageKey(conversationJid)) : loadPinnedMessageFromPreferences(conversationJid);
             if (savedMessage != null && !savedMessage.isEmpty()) {
@@ -6186,15 +6179,11 @@ public class ConversationFragment extends XmppFragment
     }
 
     // Set a new pinned message:
-    public void setNewPinnedMessage(String message) {
-        if (conversation != null) {
+    private void setNewPinnedMessage(String message) {
+        if (getConversationReliable(activity) != null) {
             binding.pinnedMessageText.setText(message);
             binding.pinnedMessage.setVisibility(View.VISIBLE);
-            savePinnedMessageToPreferences(conversation.getJid().asBareJid().toString(), message);
+            savePinnedMessageToPreferences(getConversationReliable(activity).getJid().asBareJid().toString(), message);
         }
-    }
-
-    public void setConversation(Conversation conversation) {
-        this.conversation = conversation;
     }
 }
