@@ -2276,7 +2276,7 @@ public class ConversationFragment extends XmppFragment
                     && t == null) {
                 copyMessage.setVisible(true);
                 // Copy text message to top
-                pinToTop.setVisible(true);
+                if (m.getEncryption() == Message.ENCRYPTION_NONE) pinToTop.setVisible(true);
                 quoteMessage.setVisible(!showError && !MessageUtils.prepareQuote(m).isEmpty());
                 final String scheme =
                         ShareUtil.getLinkScheme(new SpannableStringBuilder(m.getBody()));
