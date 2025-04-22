@@ -25,6 +25,7 @@
             android:minHeight="?android:attr/listPreferredItemHeightSmall"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
+            android:textIsSelectable="true"
             android:textAppearance="?textAppearanceBodyMedium" />
 
     </LinearLayout>
