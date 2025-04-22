@@ -1302,14 +1302,14 @@ public class XmppConnectionService extends Service {
                         lowTimeout ? Config.LOW_PING_TIMEOUT : Config.PING_TIMEOUT,
                         account.getUuid().hashCode());
             }
-            long msToMucPing = (mLastMucPing + (Config.PING_MAX_INTERVAL * 2000L)) - SystemClock.elapsedRealtime();
-            if (msToMucPing <= 0) {
-                Log.d(Config.LOGTAG, "ping MUCs");
-                mLastMucPing = SystemClock.elapsedRealtime();
-                for (Conversation c : getConversations()) {
-                    if (c.getMode() == Conversation.MODE_MULTI && (c.getMucOptions().online() || c.getMucOptions().getError() == MucOptions.Error.SHUTDOWN)) {
-                        mucSelfPingAndRejoin(c);
-                    }
+        }
+        long msToMucPing = (mLastMucPing + (Config.PING_MAX_INTERVAL * 2000L)) - SystemClock.elapsedRealtime();
+        if (pingNow || ("ui".equals(action) && msToMucPing <= 0) || msToMucPing < -300000) {
+            Log.d(Config.LOGTAG, "ping MUCs");
+            mLastMucPing = SystemClock.elapsedRealtime();
+            for (Conversation c : getConversations()) {
+                if (c.getMode() == Conversation.MODE_MULTI && (c.getMucOptions().online() || c.getMucOptions().getError() == MucOptions.Error.SHUTDOWN)) {
+                    mucSelfPingAndRejoin(c);
                 }
             }
         }
