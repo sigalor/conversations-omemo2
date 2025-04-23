@@ -19,7 +19,6 @@ import android.provider.ContactsContract.Intents;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
-import android.util.TypedValue;
 import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -99,10 +98,6 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import org.openintents.openpgp.util.OpenPgpUtils;
 
 public class ContactDetailsActivity extends OmemoActivity
         implements OnAccountUpdate,
@@ -522,7 +517,16 @@ public class ContactDetailsActivity extends OmemoActivity
         if (contact.showInRoster()) {
             binding.detailsSendPresence.setVisibility(View.VISIBLE);
             binding.detailsReceivePresence.setVisibility(View.VISIBLE);
-            binding.addContactButton.setVisibility(View.GONE);
+            binding.addContactButton.setVisibility(View.VISIBLE);
+            binding.addContactButton.setText(getString(R.string.action_delete_contact));
+            binding.addContactButton.getBackground().setTint(getResources().getColor(R.color.md_theme_dark_error));
+            binding.addContactButton.setOnClickListener(view -> {
+                final MaterialAlertDialogBuilder deleteFromRosterDialog = new MaterialAlertDialogBuilder(ContactDetailsActivity.this);
+                deleteFromRosterDialog.setNegativeButton(getString(R.string.cancel), null)
+                        .setTitle(getString(R.string.action_delete_contact))
+                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().toEscapedString()))
+                        .setPositiveButton(getString(R.string.delete), removeFromRoster).create().show();
+            });
             binding.detailsSendPresence.setOnCheckedChangeListener(null);
             binding.detailsReceivePresence.setOnCheckedChangeListener(null);
 
@@ -583,6 +587,9 @@ public class ContactDetailsActivity extends OmemoActivity
             binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
         } else {
             binding.addContactButton.setVisibility(View.VISIBLE);
+            binding.addContactButton.setText(getString(R.string.add_contact));
+            binding.addContactButton.getBackground().setTint(getResources().getColor(R.color.md_theme_light_surface));
+            binding.addContactButton.setOnClickListener(view -> showAddToRosterDialog(contact));
             binding.detailsSendPresence.setVisibility(View.GONE);
             binding.detailsReceivePresence.setVisibility(View.GONE);
             binding.statusMessage.setVisibility(View.GONE);

@@ -1447,5 +1447,10 @@
     <string name="choose_your_server">Choose your XMPP provider</string>
     <string name="server_hint">Choose provider</string>
     <string name="enter_domain">Enter domain</string>
+    <string name="add_to_contact_list">Add to contact list</string>
+    <string name="action_end_conversation_muc">Leave room</string>
+    <string name="action_end_conversation_channel">Leave channel</string>
+    <string name="leave_conference_warning">Do you really want to leave this room? You will no longer be notified of new messages until joining the room again.</string>
+    <string name="remove_bookmark_text">Would you like to remove %s as a bookmark? The conversation associated with this bookmark will not be removed.</string>
 
 </resources>

@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -103,6 +104,37 @@ public class ConferenceDetailsActivity extends XmppActivity
 
     private boolean mAdvancedMode = false;
     private boolean showDynamicTags = true;
+
+    private OnClickListener destroyListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final MaterialAlertDialogBuilder DestroyMucDialog = new MaterialAlertDialogBuilder(ConferenceDetailsActivity.this);
+            DestroyMucDialog.setNegativeButton(getString(R.string.cancel), null);
+            final boolean groupChat = mConversation != null && mConversation.isPrivateAndNonAnonymous();
+            DestroyMucDialog.setTitle(groupChat ? R.string.destroy_room : R.string.destroy_channel);
+            DestroyMucDialog.setMessage(getString(groupChat ? R.string.destroy_room_dialog : R.string.destroy_channel_dialog, mConversation.getName()));
+            DestroyMucDialog.setPositiveButton(getString(R.string.delete), (dialogInterface, i) -> {
+                destroyRoom();
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                deleteBookmark();
+                finish();
+            });
+            DestroyMucDialog.create().show();
+        }
+    };
+
+    protected void deleteBookmark() {
+        try {
+            Bookmark bookmark = mConversation.getBookmark();
+            Account account = bookmark.getAccount();
+            bookmark.setConversation(null);
+            xmppConnectionService.deleteBookmark(account, bookmark);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            updateView();
+        }
+    }
 
     private final UiCallback<Conversation> renameCallback =
             new UiCallback<Conversation>() {
@@ -232,6 +264,10 @@ public class ConferenceDetailsActivity extends XmppActivity
         showDynamicTags = preferences.getBoolean("show_dynamic_tags", getResources().getBoolean(R.bool.show_dynamic_tags));
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         this.binding.changeConferenceButton.setOnClickListener(this.mChangeConferenceSettings);
+        this.binding.destroy.setVisibility(View.GONE);
+        this.binding.destroy.setOnClickListener(destroyListener);
+        this.binding.leaveMuc.setVisibility(View.GONE);
+        this.binding.addMucButton.setVisibility(View.GONE);
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
         this.binding.editNickButton.setOnClickListener(
@@ -286,7 +322,7 @@ public class ConferenceDetailsActivity extends XmppActivity
                         ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
                         return true;
                     case R.id.action_block_avatar:
-                        new AlertDialog.Builder(this)
+                        new MaterialAlertDialogBuilder(this)
                                 .setTitle(R.string.block_media)
                                 .setMessage(R.string.block_avatar_question)
                                 .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
@@ -357,12 +393,6 @@ public class ConferenceDetailsActivity extends XmppActivity
                 break;
             case R.id.action_share_uri:
                 shareLink(false);
-                break;
-            case R.id.action_save_as_bookmark:
-                saveAsBookmark();
-                break;
-            case R.id.action_destroy_room:
-                destroyRoom();
                 break;
             case R.id.action_advanced_mode:
                 this.mAdvancedMode = !menuItem.isChecked();
@@ -533,20 +563,11 @@ public class ConferenceDetailsActivity extends XmppActivity
 
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
-        final MenuItem menuItemSaveBookmark = menu.findItem(R.id.action_save_as_bookmark);
         final MenuItem menuItemAdvancedMode = menu.findItem(R.id.action_advanced_mode);
-        final MenuItem menuItemDestroyRoom = menu.findItem(R.id.action_destroy_room);
         menuItemAdvancedMode.setChecked(mAdvancedMode);
         if (mConversation == null) {
             return true;
         }
-        menuItemSaveBookmark.setVisible(mConversation.getBookmark() == null);
-        menuItemDestroyRoom.setVisible(
-                mConversation
-                        .getMucOptions()
-                        .getSelf()
-                        .getAffiliation()
-                        .ranks(MucOptions.Affiliation.OWNER));
         return true;
     }
 
@@ -556,8 +577,6 @@ public class ConferenceDetailsActivity extends XmppActivity
         getMenuInflater().inflate(R.menu.muc_details, menu);
         final MenuItem share = menu.findItem(R.id.action_share);
         share.setVisible(!groupChat);
-        final MenuItem destroy = menu.findItem(R.id.action_destroy_room);
-        destroy.setTitle(groupChat ? R.string.destroy_room : R.string.destroy_channel);
         AccountUtils.showHideMenuItems(menu);
         final MenuItem customNotifications = menu.findItem(R.id.action_custom_notifications);
         if (customNotifications != null) customNotifications.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
@@ -617,6 +636,10 @@ public class ConferenceDetailsActivity extends XmppActivity
                     this.binding.showMedia.setOnClickListener(
                             (v) -> MediaBrowserActivity.launch(this, mConversation));
                 }
+
+                final boolean groupChat = mConversation != null && mConversation.isPrivateAndNonAnonymous();
+                this.binding.destroy.setText(groupChat ? R.string.destroy_room : R.string.destroy_channel);
+                this.binding.leaveMuc.setText(groupChat ? R.string.action_end_conversation_muc : R.string.action_end_conversation_channel);
 
                 if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
                     binding.storeInCache.setChecked(true);
@@ -727,9 +750,56 @@ public class ConferenceDetailsActivity extends XmppActivity
                 this.binding.mucInfoMam.setText(R.string.server_info_unavailable);
             }
             if (self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
+                if (mAdvancedMode) {
+                    this.binding.destroy.getBackground().setTint(getResources().getColor(R.color.md_theme_dark_error));
+                    this.binding.destroy.setVisibility(View.VISIBLE);
+                } else {
+                    this.binding.destroy.setVisibility(View.GONE);
+                }
                 this.binding.changeConferenceButton.setVisibility(View.VISIBLE);
             } else {
+                this.binding.destroy.setVisibility(View.GONE);
                 this.binding.changeConferenceButton.setVisibility(View.INVISIBLE);
+            }
+            this.binding.leaveMuc.setVisibility(View.VISIBLE);
+            this.binding.leaveMuc.setOnClickListener(v1 -> {
+                final MaterialAlertDialogBuilder LeaveMucDialog = new MaterialAlertDialogBuilder(ConferenceDetailsActivity.this);
+                LeaveMucDialog.setTitle(getString(R.string.action_end_conversation_muc));
+                LeaveMucDialog.setMessage(getString(R.string.leave_conference_warning));
+                LeaveMucDialog.setNegativeButton(getString(R.string.cancel), null);
+                LeaveMucDialog.setPositiveButton(getString(R.string.action_end_conversation_muc),
+                        (dialog, which) -> {
+                            startActivity(new Intent(xmppConnectionService, ConversationsActivity.class));
+                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                            this.xmppConnectionService.archiveConversation(mConversation);
+                            finish();
+                        });
+                LeaveMucDialog.create().show();
+            });
+            this.binding.leaveMuc.getBackground().setTint(getResources().getColor(R.color.md_theme_dark_error));
+            this.binding.addMucButton.setVisibility(View.VISIBLE);
+            if (mConversation.getBookmark() != null) {
+                this.binding.addMucButton.setText(R.string.delete_bookmark);
+                this.binding.addMucButton.getBackground().setTint(getResources().getColor(R.color.md_theme_dark_error));
+                this.binding.addMucButton.setOnClickListener(v2 -> {
+                    final MaterialAlertDialogBuilder deleteFromRosterDialog = new MaterialAlertDialogBuilder(ConferenceDetailsActivity.this);
+                    deleteFromRosterDialog.setNegativeButton(getString(R.string.cancel), null);
+                    deleteFromRosterDialog.setTitle(getString(R.string.action_delete_contact));
+                    deleteFromRosterDialog.setMessage(getString(R.string.remove_bookmark_text, mConversation.getBookmark().getBookmarkName().toString()));
+                    deleteFromRosterDialog.setPositiveButton(getString(R.string.delete),
+                            (dialog, which) -> {
+                                deleteBookmark();
+                                recreate();
+                            });
+                    deleteFromRosterDialog.create().show();
+                });
+            } else {
+                this.binding.addMucButton.setText(R.string.save_as_bookmark);
+                binding.addMucButton.getBackground().setTint(getResources().getColor(R.color.md_theme_light_surface));
+                this.binding.addMucButton.setOnClickListener(v2 -> {
+                    saveAsBookmark();
+                    recreate();
+                });
             }
         } else {
             this.binding.usersWrapper.setVisibility(View.GONE);

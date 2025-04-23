@@ -2793,13 +2793,10 @@ public class XmppConnectionService extends Service {
 
     public void processDeletedBookmark(final Account account, final Jid jid) {
         final Conversation conversation = find(account, jid);
-        if (conversation == null) {
-            return;
+        if (conversation != null && conversation.getMucOptions().getError() == MucOptions.Error.DESTROYED) {
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": archiving destroyed conference (" + conversation.getJid() + ") after receiving pep");
+            archiveConversation(conversation, false);
         }
-        Log.d(
-                Config.LOGTAG,
-                account.getJid().asBareJid() + ": archiving MUC " + jid + " after PEP update");
-        archiveConversation(conversation, false);
     }
 
     private void processModifiedBookmark(final Bookmark bookmark, final boolean pep) {
