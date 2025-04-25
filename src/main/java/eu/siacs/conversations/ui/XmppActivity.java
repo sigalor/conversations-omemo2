@@ -132,7 +132,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected static final int REQUEST_CHOOSE_PGP_ID = 0x0103;
     protected static final int REQUEST_BATTERY_OP = 0x49ff;
     protected static final int REQUEST_POST_NOTIFICATION = 0x50ff;
-    public XmppConnectionService xmppConnectionService;
+    public static XmppConnectionService xmppConnectionService;
     public boolean xmppConnectionServiceBound = false;
 
     protected static final String FRAGMENT_TAG_DIALOG = "dialog";

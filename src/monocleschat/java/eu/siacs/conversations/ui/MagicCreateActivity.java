@@ -1,9 +1,13 @@
 package eu.siacs.conversations.ui;
 
+import static eu.siacs.conversations.AppSettings.LOAD_PROVIDERS_EXTERNAL;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
@@ -18,6 +22,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
+
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -36,7 +42,7 @@ import eu.siacs.conversations.utils.InstallReferrerUtils;
 import eu.siacs.conversations.xmpp.Jid;
 import me.drakeet.support.toast.ToastCompat;
 
-public class MagicCreateActivity extends XmppActivity implements TextWatcher, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
+public class MagicCreateActivity extends XmppActivity implements TextWatcher, AdapterView.OnItemSelectedListener, MaterialSwitch.OnCheckedChangeListener {
 
 
     private boolean useOwnProvider = false;
@@ -74,6 +80,9 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_magic_create);
         setSupportActionBar(this.binding.toolbar);
+        boolean loadExternalList = getBooleanPreference(LOAD_PROVIDERS_EXTERNAL, R.bool.load_providers_list_external);
+        if (!loadExternalList) binding.loadProvidersListExternalText.setText(R.string.local_providers_list);
+
         // Try fetching current providers list
         final List<String> domains = ProviderService.getProviders();
         Collections.sort(domains, String::compareToIgnoreCase);
@@ -81,8 +90,9 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         try {
             if (new ProviderService().execute().get()) {
                 adapter.notifyDataSetChanged();
+                if (loadExternalList && xmppConnectionService.hasInternetConnection()) binding.loadProvidersListExternalText.setText(R.string.external_providers_list);
             }
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
         int defaultServer = adapter.getPosition(de.monocles.chat.Config.DOMAIN.getRandomServer());
@@ -267,11 +277,11 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             binding.fullJid.setVisibility(View.GONE);
             useOwnProvider = true;
             binding.ownServerLayout.setVisibility(View.VISIBLE);
-
         } else {
             binding.server.setEnabled(true);
             binding.fullJid.setVisibility(View.VISIBLE);
             useOwnProvider = false;
+            binding.ownServerLayout.setVisibility(View.GONE);
         }
         registerFromUri = false;
         updateFullJidInformation(binding.username.getText().toString());

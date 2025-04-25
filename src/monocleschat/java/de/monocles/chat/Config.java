@@ -10,6 +10,7 @@ import de.monocles.chat.ProviderService;
 import eu.siacs.conversations.BuildConfig;
 
 public class Config {
+
     public static final String LOGTAG = BuildConfig.APP_NAME;
 
     public static final String PROVIDER_URL = "https://data.xmpp.net/providers/v2/providers-A.json";
@@ -19,7 +20,7 @@ public class Config {
         // use this fallback server if provider list can't be updated automatically
         public static final List<String> DOMAINS = Arrays.asList(
                 "monocles.eu",
-                "monocles.de"
+                "conversations.im"
         );
 
         // don't use these servers in provider list

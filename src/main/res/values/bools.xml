@@ -21,4 +21,5 @@
     <bool name="is_portrait_mode">true</bool>
     <bool name="disable_reactions_fallback">false</bool>
     <bool name="plain_text_links">false</bool>
+    <bool name="load_providers_list_external">false</bool>
 </resources>

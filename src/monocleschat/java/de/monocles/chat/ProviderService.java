@@ -13,12 +13,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.XmppActivity;
 
-public class ProviderService extends AsyncTask<String, Object, Boolean> {
+public class ProviderService extends AsyncTask<XmppActivity, Object, Boolean> {
     public static List<String> providers = new ArrayList<>();
-
     XmppConnectionService xmppConnectionService;
     private boolean mUseTor;
     private boolean mUseI2P;
@@ -35,7 +36,7 @@ public class ProviderService extends AsyncTask<String, Object, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(String... params) {
+    protected Boolean doInBackground(XmppActivity... activity) {
         StringBuilder jsonString = new StringBuilder();
         boolean isError = false;
         mUseTor = xmppConnectionService != null && xmppConnectionService.useTorToConnect();
@@ -48,15 +49,27 @@ public class ProviderService extends AsyncTask<String, Object, Boolean> {
         */
 
         try {
-            Log.d(Config.LOGTAG, "ProviderService: Updating provider list from " + Config.PROVIDER_URL);
-            final InputStream is = HttpConnectionManager.open(Config.PROVIDER_URL, mUseTor);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonString.append(line);
+            if (XmppActivity.xmppConnectionService != null && XmppActivity.xmppConnectionService.getBooleanPreference("load_providers_list_external", R.bool.load_providers_list_external) && XmppActivity.xmppConnectionService.hasInternetConnection()) {
+                Log.d(Config.LOGTAG, "ProviderService: Updating provider list from " + Config.PROVIDER_URL);
+                final InputStream is = HttpConnectionManager.open(Config.PROVIDER_URL, mUseTor);
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonString.append(line);
+                }
+                is.close();
+                reader.close();
+            } else {
+                Log.d(Config.LOGTAG, "ProviderService: Updating provider list from " + "local");
+                final InputStream is = XmppActivity.xmppConnectionService.getResources().openRawResource(R.raw.providers_a);
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonString.append(line);
+                }
+                is.close();
+                reader.close();
             }
-            is.close();
-            reader.close();
         } catch (Exception e) {
             e.printStackTrace();
             isError = true;

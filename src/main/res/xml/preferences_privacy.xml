@@ -93,6 +93,12 @@
             android:key="send_crash_reports"
             android:summary="@string/pref_never_send_crash_summary"
             android:title="@string/pref_send_crash_reports" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/load_providers_list_external"
+            android:icon="@drawable/xmpp_providers"
+            android:key="load_providers_list_external"
+            android:summary="@string/pref_load_providers_list_external_summary"
+            android:title="@string/pref_load_providers_list_external" />
 
     </PreferenceCategory>
 

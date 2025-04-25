@@ -95,6 +95,13 @@
                         android:prompt="@string/server_hint"
                         android:spinnerMode="dialog" />
 
+                    <TextView
+                        android:id="@+id/load_providers_list_external_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textAppearance="?textAppearanceBodySmall"
+                        android:text="@string/account_status_no_internet"/>
+
                     <eu.siacs.conversations.ui.widget.TextInputEditText
                         android:id="@+id/yourserver"
                         android:layout_width="match_parent"
@@ -105,7 +112,7 @@
                         android:enabled="false"
                         android:visibility="gone"/>
 
-                    <CheckBox
+                    <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/use_own"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

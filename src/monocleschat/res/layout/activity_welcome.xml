@@ -222,6 +222,35 @@
                             android:layout_height="match_parent"
                             android:ellipsize="end"
                             android:gravity="center_vertical"
+                            android:text="@string/pref_load_providers_list_external"
+                            android:textAppearance="?textAppearanceBody1" />
+
+                        <ImageButton
+                            android:id="@+id/action_info_load_providers_list_external"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/image_button_padding"
+                            android:src="@drawable/ic_help_24dp" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_load_providers_list_external"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/card_padding_regular">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
                             android:text="@string/pref_allow_screenshots"
                             android:textAppearance="?textAppearanceBody1" />
 
