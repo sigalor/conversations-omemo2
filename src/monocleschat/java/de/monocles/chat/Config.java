@@ -19,13 +19,11 @@ public class Config {
         // use this fallback server if provider list can't be updated automatically
         public static final List<String> DOMAINS = Arrays.asList(
                 "monocles.eu",
-                "monocles.de",
-                "conversations.im"
+                "monocles.de"
         );
 
         // don't use these servers in provider list
         public static final List<String> BLACKLISTED_DOMAINS = Arrays.asList(
-                "blabber.im"
         );
 
         // choose a random server for registration
