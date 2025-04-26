@@ -100,7 +100,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:textAppearance="?textAppearanceBodySmall"
-                        android:text="@string/account_status_no_internet"/>
+                        android:text="@string/error_loading_chat_providers"/>
 
                     <eu.siacs.conversations.ui.widget.TextInputEditText
                         android:id="@+id/yourserver"
