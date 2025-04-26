@@ -49,7 +49,7 @@ public class ProviderService extends AsyncTask<XmppActivity, Object, Boolean> {
         */
 
         try {
-            if (XmppActivity.xmppConnectionService != null && XmppActivity.xmppConnectionService.getBooleanPreference("load_providers_list_external", R.bool.load_providers_list_external) && XmppActivity.xmppConnectionService.hasInternetConnection()) {
+            if (XmppActivity.staticXmppConnectionService != null && XmppActivity.staticXmppConnectionService.getBooleanPreference("load_providers_list_external", R.bool.load_providers_list_external) && XmppActivity.staticXmppConnectionService.hasInternetConnection()) {
                 Log.d(Config.LOGTAG, "ProviderService: Updating provider list from " + Config.PROVIDER_URL);
                 final InputStream is = HttpConnectionManager.open(Config.PROVIDER_URL, mUseTor);
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -61,7 +61,7 @@ public class ProviderService extends AsyncTask<XmppActivity, Object, Boolean> {
                 reader.close();
             } else {
                 Log.d(Config.LOGTAG, "ProviderService: Updating provider list from " + "local");
-                final InputStream is = XmppActivity.xmppConnectionService.getResources().openRawResource(R.raw.providers_a);
+                final InputStream is = XmppActivity.staticXmppConnectionService.getResources().openRawResource(R.raw.providers_a);
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                 String line;
                 while ((line = reader.readLine()) != null) {

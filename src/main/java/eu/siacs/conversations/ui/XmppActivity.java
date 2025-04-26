@@ -132,7 +132,8 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected static final int REQUEST_CHOOSE_PGP_ID = 0x0103;
     protected static final int REQUEST_BATTERY_OP = 0x49ff;
     protected static final int REQUEST_POST_NOTIFICATION = 0x50ff;
-    public static XmppConnectionService xmppConnectionService;
+    public XmppConnectionService xmppConnectionService;
+    public static XmppConnectionService staticXmppConnectionService;
     public boolean xmppConnectionServiceBound = false;
 
     protected static final String FRAGMENT_TAG_DIALOG = "dialog";
@@ -162,6 +163,7 @@ public abstract class XmppActivity extends ActionBarActivity {
                 public void onServiceConnected(ComponentName className, IBinder service) {
                     XmppConnectionBinder binder = (XmppConnectionBinder) service;
                     xmppConnectionService = binder.getService();
+                    staticXmppConnectionService = binder.getService();
                     xmppConnectionServiceBound = true;
                     registerListeners();
                     onBackendConnected();

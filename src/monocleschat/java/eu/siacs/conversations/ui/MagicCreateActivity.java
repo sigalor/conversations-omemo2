@@ -90,7 +90,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         try {
             if (new ProviderService().execute().get()) {
                 adapter.notifyDataSetChanged();
-                if (loadExternalList && xmppConnectionService.hasInternetConnection()) binding.loadProvidersListExternalText.setText(R.string.external_providers_list);
+                if (loadExternalList && staticXmppConnectionService.hasInternetConnection()) binding.loadProvidersListExternalText.setText(R.string.external_providers_list);
             }
         } catch (Throwable e) {
             e.printStackTrace();
