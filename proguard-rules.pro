@@ -2,6 +2,7 @@
 
 -keep class eu.siacs.conversations.**
 -keep class im.conversations.**
+-keep class de.monocles.chat.**
 
 -keep class org.whispersystems.**
 
