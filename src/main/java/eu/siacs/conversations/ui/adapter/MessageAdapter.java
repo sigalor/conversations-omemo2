@@ -1438,13 +1438,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         ReactionPopup popup = new ReactionPopup(activity, config, (positionPopup) -> {
             if (positionPopup.equals(0)) {
                 final var aggregated = message.getAggregatedReactions();
-                if (aggregated.ourReactions.contains("❤\uFE0F")) {
+                if (aggregated.ourReactions.contains("\u2764\uFE0F")) {
                     callback.accept(aggregated.ourReactions);
                 } else {
                     final ImmutableSet.Builder<String> reactionBuilder =
                             new ImmutableSet.Builder<>();
                     reactionBuilder.addAll(aggregated.ourReactions);
-                    reactionBuilder.add("❤\uFE0F");
+                    reactionBuilder.add("\u2764\uFE0F");
                     callback.accept(reactionBuilder.build());
                 }
             } else if (positionPopup.equals(1)) {
