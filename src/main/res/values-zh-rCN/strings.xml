@@ -93,7 +93,7 @@
     <string name="send_unencrypted">发送未加密</string>
     <string name="decryption_failed">解密失败。也许您没有合适的私钥。</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long"><![CDATA[%1$s 使用 <b>OpenKeychain</b> 来加密和解密消息并管理公钥。<br><br>它在 GPLv3+ 许可证下授权并可在 F-Droid 和 Google Play 上获取。<br><br><small>（请之后重启 %1$s。）</small>]]></string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s 使用 <b>OpenKeychain</b> 来加密和解密消息并管理公钥。<br><br>它采用 GPLv3+ 许可，可在 F-Droid 和 Google Play 上获取。<br><br><small>（之后请重启 %1$s。）</small>]]></string>
     <string name="restart">重启</string>
     <string name="install">安装</string>
     <string name="openkeychain_not_installed">请安装 OpenKeychain</string>
@@ -182,7 +182,7 @@
 \n您的联系人将无法再向您发送 OpenPGP 加密消息。</string>
     <string name="openpgp_has_been_published">OpenPGP 公钥已发布。</string>
     <string name="mgmt_account_enable">启用账号</string>
-    <string name="mgmt_account_delete_confirm_text">是否确定要删除账号？删除账号会清除全部聊天记录</string>
+    <string name="mgmt_account_delete_confirm_text">是否确定要删除账号？删除账号会清空全部聊天记录</string>
     <string name="attach_record_voice">录制语音</string>
     <string name="account_settings_jabber_id">XMPP 地址</string>
     <string name="block_jabber_id">屏蔽 XMPP 地址</string>
@@ -196,7 +196,7 @@
     <string name="server_info_carbon_messages">XEP-0280：消息抄送</string>
     <string name="server_info_csi">XEP-0352：客户端状态指示</string>
     <string name="server_info_blocking">XEP-0191：屏蔽命令</string>
-    <string name="server_info_roster_version">XEP-0237：花名册版本控制</string>
+    <string name="server_info_roster_version">XEP-0237：名册版本控制</string>
     <string name="server_info_stream_management">XEP-0198：流管理</string>
     <string name="server_info_external_service_discovery">XEP-0215：外部服务发现</string>
     <string name="server_info_pep">XEP-0163：个人事件协议（头像/OMEMO）</string>
@@ -248,8 +248,8 @@
 \n<b>警告：</b>将在服务器上完全移除频道。</string>
     <string name="could_not_destroy_room">无法解散群聊</string>
     <string name="could_not_destroy_channel">无法解散频道</string>
-    <string name="action_edit_subject">编辑群聊话题</string>
-    <string name="topic">话题</string>
+    <string name="action_edit_subject">编辑群聊主题</string>
+    <string name="topic">主题</string>
     <string name="joining_conference">正在加入群聊…</string>
     <string name="leave">离开</string>
     <string name="contact_added_you">对方已将您添加到联系人列表</string>
@@ -288,7 +288,7 @@
 \n<small>请前往“联系人详情”以验证在线状态订阅。</small></string>
     <string name="pref_security_settings">安全</string>
     <string name="pref_allow_message_correction">消息更正</string>
-    <string name="pref_allow_message_correction_summary">允许您的联系人发送后编辑其消息</string>
+    <string name="pref_allow_message_correction_summary">允许您的联系人重新编辑已发送的消息</string>
     <string name="pref_expert_options">专家设置</string>
     <string name="pref_expert_options_summary">请谨慎设置</string>
     <string name="title_activity_about_x">关于 %s</string>
@@ -381,7 +381,7 @@
     <string name="enable_all_accounts">启用所有账号</string>
     <string name="disable_all_accounts">禁用所有账号</string>
     <string name="perform_action_with">执行操作</string>
-    <string name="no_affiliation">无</string>
+    <string name="no_affiliation">访客</string>
     <string name="no_role">离线</string>
     <string name="outcast">被驱逐者</string>
     <string name="member">成员</string>
@@ -404,7 +404,7 @@
     <string name="channel_options">公开频道配置</string>
     <string name="members_only">私人，仅成员</string>
     <string name="non_anonymous">对任何参与者显示用户 XMPP 地址</string>
-    <string name="moderated">开启频道发言审核</string>
+    <string name="moderated">启用频道发言审核</string>
     <string name="you_are_not_participating">您没有发言权</string>
     <string name="modified_conference_options">群聊配置修改成功！</string>
     <string name="could_not_modify_conference_options">无法修改群聊配置</string>
@@ -482,7 +482,7 @@
     <string name="pref_show_connection_options">主机名和端口</string>
     <string name="pref_show_connection_options_summary">设置账号时显示扩展连接设置</string>
     <string name="hostname_example">xmpp.example.com</string>
-    <string name="action_add_account_with_certificate">用证书登录</string>
+    <string name="action_add_account_with_certificate">使用证书登录</string>
     <string name="unable_to_parse_certificate">无法解析证书</string>
     <string name="mam_prefs">归档首选项</string>
     <string name="server_side_mam_prefs">服务器端归档首选项</string>
@@ -540,7 +540,7 @@
     <string name="no_application_to_share_uri">未找到可以分享 URI 的应用</string>
     <string name="share_uri_with">分享 URI…</string>
     <string name="agree_and_continue">同意并继续</string>
-    <string name="magic_create_text">您只需向其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方交流。</string>
+    <string name="magic_create_text">我们将引导您完成创建账号的流程，将会为您生成随机密码。您可以在下一页使用该密码或将其更改为您自己的密码。\\n之后，您只需向本服务提供者和其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方互通消息。</string>
     <string name="your_full_jid_will_be">您的完整 XMPP 地址将是：%s</string>
     <string name="create_account">创建账号</string>
     <string name="use_own_provider">使用我自己的提供者</string>
@@ -599,10 +599,10 @@
     <string name="data_saver_enabled_explained">您的操作系统正在限制 %1$s 在后台时访问互联网。要接收新消息通知，应当在“流量节省程序”开启时允许 %1$s 无限制访问。\n%1$s 仍会在可能的情况下尽可能节省数据。</string>
     <string name="device_does_not_support_data_saver">设备不支持为 %1$s 禁用流量节省程序。</string>
     <string name="error_unable_to_create_temporary_file">无法创建临时文件</string>
-    <string name="this_device_has_been_verified">此设备已经过验证</string>
+    <string name="this_device_has_been_verified">此设备已通过验证</string>
     <string name="copy_fingerprint">复制指纹</string>
     <string name="all_omemo_keys_have_been_verified">您已验证您拥有的所有 OMEMO 密钥</string>
-    <string name="verified_fingerprints">已验证的指纹</string>
+    <string name="verified_fingerprints">已验证指纹</string>
     <string name="use_camera_icon_to_scan_barcode">使用相机扫描对方二维码</string>
     <string name="please_wait_for_keys_to_be_fetched">正在获取密钥，请稍候</string>
     <string name="share_as_barcode">以二维码形式分享</string>
@@ -667,7 +667,7 @@
     <string name="today">今天</string>
     <string name="yesterday">昨天</string>
     <string name="pref_validate_hostname">用 DNSSEC 验证主机名</string>
-    <string name="pref_validate_hostname_summary">将包含已验证主机名的服务器证书视为已验证</string>
+    <string name="pref_validate_hostname_summary">包含已验证主机名的服务器证书视为已通过验证</string>
     <string name="certificate_does_not_contain_jid">证书不包含 XMPP 地址</string>
     <string name="server_info_partial">部分</string>
     <string name="attach_record_video">录制视频</string>
@@ -680,7 +680,7 @@
     <string name="mtm_accept_cert">接受未知证书？</string>
     <string name="mtm_trust_anchor">此服务器证书不是由已知的证书颁发机构签发的。</string>
     <string name="mtm_accept_servername">接受不匹配的服务器名称？</string>
-    <string name="mtm_hostname_mismatch">由于“%s”，服务器无法验证。证书仅对此有效：</string>
+    <string name="mtm_hostname_mismatch">服务器无法以“%s”进行身份验证。证书仅对此有效：</string>
     <string name="mtm_connect_anyway">是否仍要连接？</string>
     <string name="mtm_cert_details">证书详情：</string>
     <string name="once">仅一次</string>
@@ -690,7 +690,7 @@
     <string name="edit_status_message_title">编辑状态消息</string>
     <string name="edit_status_message">编辑状态消息</string>
     <string name="disable_encryption">禁用加密</string>
-    <string name="error_trustkey_general">%1$s 无法向 %2$s 发送加密消息，可能是由于对方使用了无法处理 OMEMO 的过时服务器或客户端。</string>
+    <string name="error_trustkey_general">%1$s 无法向 %2$s 发送加密消息。可能是由于对方使用了无法处理 OMEMO 的过时服务器或客户端。</string>
     <string name="error_trustkey_device_list">无法获取设备列表</string>
     <string name="error_trustkey_bundle">无法获取密钥</string>
     <string name="error_trustkey_hint_mutual">提示：某些情况下，双方可以添加到联系人列表解决此问题。</string>
@@ -737,7 +737,7 @@
     <string name="group_chat_name">名称</string>
     <string name="providing_a_name_is_optional">提供名称是可选的</string>
     <string name="create_dialog_group_chat_name">群聊名</string>
-    <string name="conference_destroyed">此群聊已经解散了</string>
+    <string name="conference_destroyed">此群聊已解散</string>
     <string name="unable_to_save_recording">无法保存录制</string>
     <string name="foreground_service_channel_name">前台服务</string>
     <string name="foreground_service_channel_description">此通知类别用于显示永久通知，表明 %1$s 正在运行。</string>
@@ -766,7 +766,7 @@
     <string name="video_360p">360p（中）</string>
     <string name="video_720p">720p（高）</string>
     <string name="cancelled">已取消</string>
-    <string name="already_drafting_message">您已经在起草一条消息了。</string>
+    <string name="already_drafting_message">您已经在起草消息了。</string>
     <string name="feature_not_implemented">功能未实现</string>
     <string name="invalid_country_code">无效的国家/地区代码</string>
     <string name="choose_a_country">选择国家/地区</string>
@@ -844,11 +844,11 @@
     <string name="channel_already_exists">此频道已存在</string>
     <string name="joined_an_existing_channel">您已加入现有的频道</string>
     <string name="unable_to_set_channel_configuration">无法保存频道配置</string>
-    <string name="allow_participants_to_edit_subject">允许参与者编辑话题</string>
+    <string name="allow_participants_to_edit_subject">允许参与者编辑主题</string>
     <string name="allow_participants_to_invite_others">允许参与者邀请他人</string>
-    <string name="anyone_can_edit_subject">参与者可以编辑话题。</string>
-    <string name="owners_can_edit_subject">所有者可以编辑话题。</string>
-    <string name="admins_can_edit_subject">管理员可以编辑话题。</string>
+    <string name="anyone_can_edit_subject">参与者可以编辑主题。</string>
+    <string name="owners_can_edit_subject">所有者可以编辑主题。</string>
+    <string name="admins_can_edit_subject">管理员可以编辑主题。</string>
     <string name="owners_can_invite_others">所有者可以邀请他人。</string>
     <string name="anyone_can_invite_others">参与者可以邀请他人。</string>
     <string name="jabber_ids_are_visible_to_admins">管理员可以查看用户 XMPP 地址。</string>
@@ -991,7 +991,7 @@
     <string name="this_account_is_logged_out">您登出了此账号</string>
     <string name="log_in">登录</string>
     <string name="hide_notification">隐藏通知</string>
-    <string name="contact_uses_unverified_keys">对方使用未经验证的设备，扫描其二维码进行验证并阻止主动式中间人攻击。</string>
+    <string name="contact_uses_unverified_keys">对方使用未经验证的设备。扫描其二维码进行验证并阻止主动式中间人攻击。</string>
     <string name="log_out">退出</string>
     <string name="account_state_logged_out">已登出</string>
     <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证并阻止主动式中间人攻击。</string>
@@ -1101,7 +1101,7 @@
     <string name="your_avatar_tap_to_select_new_avatar">您的头像。点按即可从图库选择新头像。</string>
     <string name="could_not_disable_video">无法禁用视频。</string>
     <string name="edit_nick">编辑昵称</string>
-    <string name="edit_name_and_topic">编辑名称和话题</string>
+    <string name="edit_name_and_topic">编辑名称和主题</string>
     <string name="edit_configuration">更改配置</string>
     <string name="change_notification_settings">更改通知设置</string>
     <string name="call_is_using_earpiece">正在使用听筒进行通话。</string>
@@ -1213,7 +1213,7 @@
     <string name="get_jabber_id">获取 XMPP 地址</string>
     <string name="i_am_snikket_user">我是 Snikket 用户</string>
     <string name="server_select_text">XMPP 是独立于提供者的即时通讯网络，由 XMPP 协议提供支持。您选择的任何 XMPP 服务器都可以使用此客户端。</string>
-    <string name="magic_create_text_fixed">您已受邀加入 %1$s。已经为您选择了用户名。我们将引导您完成创建账号的流程。\n您只需向其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方交流。</string>
+    <string name="magic_create_text_fixed">您已受邀加入 %1$s。已为您选择了用户名。我们将引导您完成创建账号的流程。\n您只需向其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方互通消息。</string>
     <string name="your_server_invitation">您的服务器邀请</string>
     <string name="improperly_formatted_provisioning">配置代码格式不正确</string>
     <string name="tap_share_button_send_invite">点按分享按钮，向您的联系人发送 %1$s 的邀请。</string>
@@ -1279,8 +1279,8 @@
     <string name="dane_failed">DANE 失败</string>
     <string name="request_to_speak">请求发言权</string>
     <string name="subject">主题</string>
-    <string name="magic_create_text_on_x">您已受邀加入 %1$s。我们将引导您完成创建账号的流程。\n当选择 %1$s 作为服务提供者时，您只需向其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方交流。</string>
-    <string name="do_you_have_an_account">您已经有 XMPP 账号了吗？如果您已经在使用不同的 XMPP 客户端或之前使用过 monocles chat、Conversations 或 Snikket 等客户端，可能已经拥有 XMPP 账号了。如果没有，现在即可创建新的 XMPP 账号。</string>
+    <string name="magic_create_text_on_x">您已受邀加入 %1$s。我们将引导您完成创建账号的流程。\n当选择 %1$s 作为服务提供者时，您只需向其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方互通消息。</string>
+    <string name="do_you_have_an_account">您是否已有 XMPP 账号？如果您已经在使用其他 XMPP 客户端或之前使用过 monocles chat、Conversations 或 Snikket 等客户端，可能已经有账号了。如果没有，您现在就可以创建新账号。</string>
     <string name="pref_dialler_integration_incoming_summary">来自电话号码的来电可能会用您的系统拨号器而不是此应用的通知设置响铃</string>
     <string name="moderate_reason">审核撤回原因</string>
     <string name="out_of_memory_error">内存不足错误</string>
@@ -1377,7 +1377,7 @@
     <string name="pref_chat_bubbles_summary">背景颜色、头像</string>
     <string name="pref_title_bubbles">消息气泡</string>
     <string name="pref_show_avatars">显示头像</string>
-    <string name="pref_show_avatars_summary">在群聊和一对一聊天中为消息显示头像。</string>
+    <string name="pref_show_avatars_summary">在群聊和一对一聊天中，在消息旁显示头像。</string>
     <string name="download_stickers_text">是否下载一些默认的贴纸包？</string>
     <string name="archiving_not_enabled_text">未完全启用归档功能。如果您使用多个设备或应用可能会导致错过消息。</string>
     <string name="block_avatar_question">是否确定要屏蔽此头像？</string>
@@ -1408,14 +1408,14 @@
     <string name="pref_secure_tls_summary">如果服务器上支持，仅使用最安全的 TLS 密码</string>
     <string name="pref_secure_tls">仅安全 TLS 密码</string>
     <string name="pref_export_plain_text_logs_summary">以人类可读的纯文本导出未加密消息</string>
-    <string name="delete_avatar_message">是否删除头像？某些客户端可能会继续显示您头像的缓存副本。</string>
+    <string name="delete_avatar_message">是否删除头像？部分客户端可能会继续显示已缓存的头像副本。</string>
     <string name="pref_prefer_ipv6">首选 IPv6</string>
     <string name="pref_use_colored_muc_names_summary">在群聊中显示彩色昵称</string>
     <string name="pref_use_colored_muc_names">彩色昵称</string>
     <string name="success_export_settings">已成功导出设置</string>
     <string name="error_export_settings">导出设置时出错</string>
     <string name="select_settings_dat">选择 settings.dat</string>
-    <string name="show_to_contacts_only">仅显示给联系人</string>
+    <string name="show_to_contacts_only">仅对联系人显示</string>
     <string name="pref_prefer_ipv6_summary">连接时首选 IPv6</string>
     <string name="pref_export_plain_text_logs">导出纯文本</string>
     <string name="pref_allow_unencrypted_reactions_summary">允许在端到端加密聊天中使用未加密的回应</string>
@@ -1431,7 +1431,7 @@
     <string name="use_monocles">我更喜欢 monocles</string>
     <string name="monocles_account_introduction">立即注册，<b>获取安全的 monocles 账号，由再生能源提供动力</b>，直接开始聊天。</string>
     <string name="monocles_account_details">这包括：\n● 一个月临时聊天存储\n● 2 GB 存储空间的电子邮件\n\n 可选：\n● 5 GB 云存储（Nextcloud）\n● 日历和联系人同步\n● 安全会议工具 \n 更多详情请访问 <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
-    <string name="or_use_another">… 或在下方选择其他</string>
+    <string name="or_use_another">… 或选择其他提供者</string>
     <string name="pref_align_start">左对齐消息</string>
     <string name="custom_notifications">自定义通知</string>
     <string name="custom_notifications_enable">是否为此聊天启用自定义通知（重要程度、声音、振动）设置？</string>
@@ -1443,4 +1443,20 @@
     <string name="pref_disable_reactions_fallback_summary">为尚未支持回应的客户端禁用回应后备</string>
     <string name="cleared_thread">已清除消息串</string>
     <string name="switch_to_new_thread">已切换到新消息串</string>
+    <string name="pref_plain_text_links_summary">显示聊天地址的完整链接</string>
+    <string name="pref_plain_text_links_title">普通聊天地址链接</string>
+    <string name="your_server">您的提供者</string>
+    <string name="choose_your_server">选择您的 XMPP 提供者</string>
+    <string name="server_hint">选择提供者</string>
+    <string name="enter_domain">输入域名</string>
+    <string name="add_to_contact_list">添加到联系人列表</string>
+    <string name="action_end_conversation_muc">离开群聊</string>
+    <string name="action_end_conversation_channel">离开频道</string>
+    <string name="leave_conference_warning">是否确定要离开此群聊？在您再次加入群聊之前，您将不会再收到新消息通知。</string>
+    <string name="remove_bookmark_text">是否要将 %s 作为书签移除？将不会移除与此书签关联的对话。</string>
+    <string name="change_password_in_next_step">您可以在下一步中根据需要更改生成的密码。</string>
+    <string name="local_providers_list">使用本地提供者列表</string>
+    <string name="pref_load_providers_list_external">加载外部提供者列表</string>
+    <string name="external_providers_list">从服务器加载的提供者列表</string>
+    <string name="pref_load_providers_list_external_summary">从 xmpp.net 服务器加载外部提供者列表，以进行替代的应用内注册</string>
 </resources>

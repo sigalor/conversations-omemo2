@@ -543,8 +543,7 @@
     <string name="no_application_to_share_uri">Nie odnaleziono aplikacji do udostępnienia URI</string>
     <string name="share_uri_with">Udostępnij URI za pomocą…</string>
     <string name="agree_and_continue">Zgoda i kontynuuj</string>
-    <string name="magic_create_text">Poprowadzimy cię przez proces tworzenia konta na monocles.eu.
-\nKiedy wybierzesz monocles.eu jako dostawcę będziesz mógł komunikować się z innymi osobami jeśli podasz im swój pełen adres XMPP.</string>
+    <string name="magic_create_text">Poprowadzimy cię przez proces tworzenia konta na monocles.eu. \nKiedy wybierzesz monocles.eu jako dostawcę będziesz mógł komunikować się z innymi osobami jeśli podasz im swój pełen adres XMPP.</string>
     <string name="your_full_jid_will_be">Twój pełen adres XMPP to: %s</string>
     <string name="create_account">Utwórz konto</string>
     <string name="use_own_provider">Użyj innego serwera</string>

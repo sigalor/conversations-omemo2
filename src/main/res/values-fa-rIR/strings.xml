@@ -721,8 +721,7 @@
     <string name="discover_channels">یافتن کانال‌ها</string>
     <string name="type_console">کنسول</string>
     <string name="once">یک بار</string>
-    <string name="magic_create_text">یک راهنما برای ساخت حساب در monocles.eu فراهم است.
-\nاگر monocles.eu را به عنوان سرویس‌دهنده برگزینید خواهید توانست با کاربران بقیهٔ سرویس‌دهنده‌ها ارتباط داشته باشید اگر نشانی XMPP کامل خود را به آن‌ها بدهید.</string>
+    <string name="magic_create_text">یک راهنما برای ساخت حساب در monocles.eu فراهم است. \nاگر monocles.eu را به عنوان سرویس‌دهنده برگزینید خواهید توانست با کاربران بقیهٔ سرویس‌دهنده‌ها ارتباط داشته باشید اگر نشانی XMPP کامل خود را به آن‌ها بدهید.</string>
     <string name="video_compression_channel_name">فشرده‌سازی ویدیو</string>
     <string name="foreground_service_channel_name">سرویس پیش‌زمینه</string>
     <string name="anyone_can_edit_subject">همه می‌توانند موضوع را ویرایش کنند.</string>

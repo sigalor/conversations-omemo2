@@ -221,7 +221,7 @@
     <string name="topic">Onderwerp</string>
     <string name="joining_conference">Deelnemen aan groepsgesprek…</string>
     <string name="leave">Verlaten</string>
-    <string name="contact_added_you">Contact heeft je toegevoegd aan zijn/haar contacten</string>
+    <string name="contact_added_you">Contact heeft je toegevoegd aan contactlijst</string>
     <string name="add_back">Ook toevoegen</string>
     <string name="contact_has_read_up_to_this_point">%s heeft tot hier gelezen</string>
     <string name="contacts_have_read_up_to_this_point">%s hebben tot hier gelezen</string>
@@ -592,7 +592,7 @@
     <string name="edit_status_message_title">Statusbericht wijzigen</string>
     <string name="edit_status_message">Statusbericht bewerken</string>
     <string name="disable_encryption">Versleuteling uitschakelen</string>
-    <string name="error_trustkey_hint_mutual">Tip: In sommige gevallen kan dit worden verholpen door elkaar aan de contactlijsten toe te voegen.</string>
+    <string name="error_trustkey_hint_mutual">Tip: In sommige gevallen kan dit worden verholpen door elkaar aan de contactlijst toe te voegen.</string>
     <string name="disable_encryption_message">Weet je zeker dat je de OMEMO-versleuteling voor dit gesprek wilt uitschakelen? \nDe beheerder van je server kan de berichten dan lezen.</string>
     <string name="disable_now">Nu uitschakelen</string>
     <string name="draft">Concept:</string>
@@ -849,7 +849,7 @@
     <string name="file_deleted">Het bestand is verwijderd</string>
     <string name="pref_show_own_accounts">Eigen accounts tonen</string>
     <string name="pref_show_own_accounts_summary">Toon het gebruikte account onder gesprekken en contacten</string>
-    <string name="welcome_header">Welkom bij\nmonocles chat</string>
+    <string name="welcome_header">Welkom bij monocles chat</string>
     <string name="unable_to_perform_this_action">Kan de gevraagde actie niet uitvoeren</string>
     <string name="gpx_track">GPX-spoor</string>
     <string name="missed_call">Gemiste oproep</string>
@@ -1019,7 +1019,7 @@
     <string name="report_spam">Spam rapporteren</string>
     <string name="report_spam_and_block">Spam rapporteren en afzender blokkeren</string>
     <string name="add_subject">Onderwerp toevoegen</string>
-    <string name="magic_create_text">We leiden je door het proces van het aanmaken van een account met een willekeurig wachtwoord (dat je kunt blijven gebruiken of op de volgende pagina kunt wijzigen).\n\nVervolgens kunnen gebruikers van deze én andere providers met jou communiceren via dit XMPP-adres.</string>
+    <string name="magic_create_text">We leiden je door het proces van het aanmaken van een account met een willekeurig wachtwoord (dat je kunt blijven gebruiken of op de volgende pagina kunt wijzigen).\\nVervolgens kunnen gebruikers van deze én andere providers met jou communiceren via dit XMPP-adres.</string>
     <string name="battery_optimizations_enabled_explained">Dit apparaat voert sterke batterijoptimalisaties uit op %1$s die kunnen leiden tot vertraagde meldingen of zelfs verlies van berichten.\nHet is aanbevolen om deze optimalisaties uit te schakelen.</string>
     <string name="pref_broadcast_last_activity">Laatste gebruikersinteractie uitzenden</string>
     <string name="delivery_failed_channel_name">Mislukte leveringen</string>
@@ -1060,7 +1060,7 @@
     <string name="smp_explain_question">Als jij en je contact een gemeenschappelijk geheim hebben dat niemand anders weet (zoals een privé-grap of gewoonweg wat jullie gegeten hebben de laatste keer dat jullie elkaar zagen) kunnen jullie dat geheim gebruiken om elkaars vingerafdrukken te verifiëren. \n \nJe geeft een hint of een vraag voor je contact, en hij/zij moet hier een hoofdlettergevoelig antwoord op geven.</string>
     <string name="shared_secret_secret">Gedeeld geheim</string>
     <string name="magic_create_text_on_x">Je bent uitgenodigd voor %1$s. Wij zullen je begeleiden bij het aanmaken van een account.\nAls je %1$s als provider kiest, kun je communiceren met gebruikers van andere providers door hen je volledige XMPP-adres te geven.</string>
-    <string name="magic_create_text_fixed">Je bent uitgenodigd voor %1$s. Er is al een gebruikersnaam voor je gekozen. We zullen je begeleiden bij het aanmaken van een account. \nJe kunt met gebruikers van andere providers communiceren door hen je volledige XMPP-adres te geven.</string>
+    <string name="magic_create_text_fixed">Je bent uitgenodigd voor %1$s. Er is al een gebruikersnaam voor je gekozen. We zullen je begeleiden bij het aanmaken van een account.\nJe kunt met gebruikers van andere providers communiceren door hen je volledige XMPP-adres te geven.</string>
     <string name="your_server_invitation">Je serveruitnodiging</string>
     <string name="improperly_formatted_provisioning">Onjuist geformatteerde provisioningcode</string>
     <string name="tap_share_button_send_invite">Tik op de deelknop om je contactpersoon een uitnodiging te sturen voor %1$s.</string>
@@ -1437,4 +1437,20 @@
     <string name="pref_disable_reactions_fallback_title">Fallback voor reacties uitschakelen</string>
     <string name="cleared_thread">Thread gewist</string>
     <string name="switch_to_new_thread">Overgeschakeld naar nieuwe thread</string>
+    <string name="pref_plain_text_links_summary">Toon volledige links van chatadressen</string>
+    <string name="pref_plain_text_links_title">Volledige chatadressen</string>
+    <string name="leave_conference_warning">Wil je deze groep verlaten? Je wordt niet langer op de hoogte gehouden van nieuwe berichten totdat je weer lid wordt van het groepsgesprek.</string>
+    <string name="change_password_in_next_step">Je kunt het automatisch gegenereerde wachtwoord veranderen in de volgende stap.</string>
+    <string name="choose_your_server">Kies je XMPP-provider</string>
+    <string name="server_hint">Provider kiezen</string>
+    <string name="enter_domain">Domeinnaam</string>
+    <string name="add_to_contact_list">Toevoegen aan contactlijst</string>
+    <string name="your_server">Je provider</string>
+    <string name="action_end_conversation_muc">Groepsgesprek verlaten</string>
+    <string name="action_end_conversation_channel">Kanaal verlaten</string>
+    <string name="remove_bookmark_text">De bladwijzer voor %s verwijderen? Het gesprek dat bij deze bladwijzer hoort zal niet worden verwijderd.</string>
+    <string name="pref_load_providers_list_external">Externe lijst met providers laden</string>
+    <string name="external_providers_list">Externe lijst met providers geladen</string>
+    <string name="local_providers_list">Lokale lijst met providers</string>
+    <string name="pref_load_providers_list_external_summary">Laad via xmpp.net een lijst met providers waarbij je je kunt registreren</string>
 </resources>

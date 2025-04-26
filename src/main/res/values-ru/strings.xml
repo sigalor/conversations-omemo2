@@ -532,7 +532,7 @@
     <string name="no_application_to_share_uri">Не найдено приложения для передачи URI</string>
     <string name="share_uri_with">Отправить URI…</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
-    <string name="magic_create_text">Вы сможете общаться с пользователями других провайдеров, предоставив им свой полный идентификатор XMPP.</string>
+    <string name="magic_create_text">Мы проведем вас через процесс создания учетной записи со случайным паролем, который вы можете использовать или изменить свой собственный пароль на следующей странице. \\ Nthen вы сможете общаться с пользователями этого и других поставщиков, предоставив им свой полный XMPP-Address.</string>
     <string name="your_full_jid_will_be">Ваш полный XMPP-адрес будет: %s</string>
     <string name="create_account">Создать аккаунт</string>
     <string name="use_own_provider">Использовать свой провайдер</string>
@@ -1456,8 +1456,8 @@
     <string name="pref_export_plain_text_logs_summary">Экспортируйте сообщения в незашифрованном виде в виде обычного текста, читаемого человеком</string>
     <string name="pref_allow_unencrypted_reactions">Реакции в чатах E2EE</string>
     <string name="pref_allow_unencrypted_reactions_summary">Разрешить использование незашифрованных реакций в чатах со сквозным шифрованием</string>
-    <string name="pref_show_muc_pm_summary">Разрешить запуск полуприватных чатов внутри канала</string>
-    <string name="pref_show_muc_pm_title">Показать канал в личке</string>
+    <string name="pref_show_muc_pm_summary">Разрешить личные сообщения в конференции</string>
+    <string name="pref_show_muc_pm_title">Приватные сообщения в конференции</string>
     <string name="pref_swipe_to_archive_title">Свайп в архив</string>
     <string name="pref_swipe_to_archive_summary">Свайп влево или вправо в обзоре чатов, чтобы архивировать чат</string>
     <string name="set_preferences_title">Установить настройки</string>
@@ -1479,4 +1479,16 @@
     <string name="pin_to_top">Закрепить вверху</string>
     <string name="switch_to_new_thread">Переключение на новую ветку</string>
     <string name="cleared_thread">Очищенная тема</string>
+    <string name="pref_plain_text_links_title">Ссылки на простые адреса чата</string>
+    <string name="pref_plain_text_links_summary">Показать полные ссылки на адреса чатов</string>
+    <string name="remove_bookmark_text">Хотите удалить %s из закладок? Разговор, связанный с этой закладкой, не будет удален.</string>
+    <string name="your_server">Ваш провайдер</string>
+    <string name="change_password_in_next_step">Вы можете изменить сгенерированный пароль на следующем шаге по своему усмотрению.</string>
+    <string name="choose_your_server">Выберите своего провайдера XMPP</string>
+    <string name="server_hint">Выбрать провайдера</string>
+    <string name="enter_domain">Введите домен</string>
+    <string name="add_to_contact_list">Добавить в список контактов</string>
+    <string name="action_end_conversation_muc">Покинуть комнату</string>
+    <string name="action_end_conversation_channel">Покинуть канал</string>
+    <string name="leave_conference_warning">Вы действительно хотите покинуть эту комнату? Вы больше не будете получать уведомления о новых сообщениях, пока не присоединитесь к комнате снова.</string>
 </resources>

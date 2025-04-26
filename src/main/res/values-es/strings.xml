@@ -1402,4 +1402,22 @@
     <string name="block_user_and_spam_question">¿Realmente quieres bloquear a todos estos usuarios y reportarlos como SPAM?</string>
     <string name="block_avatar_question">¿Realmente quieres bloquear este avatar?</string>
     <string name="disable_all_accounts_question">¿Quieres deshabilitar tus cuentas antes de hacer una copia de seguridad (recomendado)?</string>
+    <string name="action_fix">Arreglar</string>
+    <string name="pref_chat_bubbles">Burbujas de chat</string>
+    <string name="clear_txt">Borrar</string>
+    <string name="use_monocles">Prefiero monocles</string>
+    <string name="server_hint">Elige proveedor</string>
+    <string name="action_end_conversation_muc">Abandonar sala</string>
+    <string name="action_end_conversation_channel">Abandonar canal</string>
+    <string name="pref_app_lock_enable_summary">Habilitar bloqueo de aplicación. Advierte que si olvidas el PIN no podrás volver a abrirla.</string>
+    <string name="pref_title_bubbles">Burbujas de chat</string>
+    <string name="your_server">Tu proveedor</string>
+    <string name="choose_your_server">Elige tu proveedor de XMPP</string>
+    <string name="add_to_contact_list">Añadir a la lista de contactos</string>
+    <string name="pref_allow_unencrypted_reactions_summary">Permitir reacciones no cifradas en chats cifrados extremo a extremo</string>
+    <string name="moderate_recent_question">¿Quieres moderar todos los mensajes recientes de este usuario?</string>
+    <string name="chat_requests">Peticiones de chat</string>
+    <string name="dnssec_dane_verified">DNSSEC + DANE verificado</string>
+    <string name="dnssec_verified">DNSSEC verificado</string>
+    <string name="account_color_used_on">Usado en conversaciones, listas de contactos y notificaciones</string>
 </resources>

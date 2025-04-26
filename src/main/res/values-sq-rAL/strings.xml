@@ -963,7 +963,7 @@
     <string name="audio_video_disabled_tor">Thirrjet janë të çaktivizuara, kur përdoret Tor-i</string>
     <string name="pref_up_push_account_summary">Llogaria përmes së cilës do të merren mesazhet push.</string>
     <string name="pref_up_push_server_title">Shërbyes Push</string>
-    <string name="magic_create_text">Do të jeni në gjendje të komunikoni me përdorues prej shërbimesh të tjera duke u dhënë atyre ID-në tuaj të plotë XMPP.</string>
+    <string name="magic_create_text">Do t’ju udhëheqim nëpër procesin e krijimit të një llogarie me një fjalëkalim kuturu, të cilin mund ta përdorni, ose ndryshoni me fjalëkalimin tuaj në faqen pasuese. \\nMandej do të jeni në gjendje të komunikoni me përdorues prej këtij dhe të tjerë shërbimesh duke u dhënë atyre adresën tuaj të plotë XMPP.</string>
     <plurals name="n_missed_calls_from_m_contacts">
         <item quantity="one">%1$d thirrje të humbur prej %2$d kontakti</item>
         <item quantity="other">%1$d thirrje të humbur prej %2$d kontaktesh</item>
@@ -1437,7 +1437,7 @@
     <string name="create_monocles_account">Regjistrohuni</string>
     <string name="monocles_account_introduction">Regjistrohuni tani dhe <b>merrni një llogari të siguruar monocles, që funksionon me energji rigjeneruese</b> që të filloni e të bisedoni menjëherë.</string>
     <string name="monocles_account_details">Kjo përfshin:\n● depozitim të përkohshëm një muaj të fjalosjeve\n● e-mail me depozitë 2 GB\n\n opsionale: \n● 5 GB depozitë në re (nextcloud)\n● njëkohësim kalendari dhe kontaktesh\n● një mjet të siguruar konferencash \n dhe më tepër, te <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
-    <string name="or_use_another">…ose zgjidhni një tjetër më poshtë</string>
+    <string name="or_use_another">…ose zgjidhni një tjetër</string>
     <string name="use_monocles">Parapëlqej monocles</string>
     <string name="account_status_connection_timeout">Mbarim kohe për lidhjen</string>
     <string name="clients_may_not_support_av">Klienti XMPP i kontaktit tuaj mund të mos mbulojë thirrje audio/video.</string>
@@ -1447,4 +1447,22 @@
     <string name="custom_notifications_enable">Të aktivizohen rregullime njoftimesh të përshtatura (rëndësi, tingull, dridhje) për këtë bisedë?</string>
     <string name="cleared_thread">Spastroi rrjedhën</string>
     <string name="switch_to_new_thread">U kalua në rrjedhë të re</string>
+    <string name="pref_disable_reactions_fallback_title">Çaktivizo rrugëdalje reagimesh</string>
+    <string name="pin_to_top">Fiksoje në krye</string>
+    <string name="pref_plain_text_links_title">Lidhje të thjeshta adresash fjalosjesh</string>
+    <string name="pref_disable_reactions_fallback_summary">Çaktivizo rrugëdalje reagimesh për klientë që s’mbulojnë ende reagimet</string>
+    <string name="pref_plain_text_links_summary">Shfaq lidhje të plota adresash fjalosjesh</string>
+    <string name="pref_follow_thread_in_channel_summary">Vëre piketën e rrjedhës të përkojë me mesazhin që po shihet aktualisht</string>
+    <string name="your_server">Shërbimi juaj</string>
+    <string name="change_password_in_next_step">Në hapat pasues mund të ndryshoni sipas nevojave tuaja fjalëkalimin e prodhuar.</string>
+    <string name="choose_your_server">Zgjidhni shërbimin tuaj XMPP</string>
+    <string name="server_hint">Zgjidhni shërbim</string>
+    <string name="enter_domain">Jepni përkatësi</string>
+    <string name="add_to_contact_list">Shtojeni te listë kontaktesh</string>
+    <string name="action_end_conversation_muc">Braktiseni dhomën</string>
+    <string name="action_end_conversation_channel">Braktiseni kanalin</string>
+    <string name="leave_conference_warning">Doni vërtet të braktiset kjo dhomë? S’do të njoftoheni më për mesazhe të rinj, deri sa të ribëheni pjesë e dhomës.</string>
+    <string name="remove_bookmark_text">Doni të hiqet %s si faqerojtës? Biseda e përshoqëruar me këtë faqerojtës s’do të hiqet.</string>
+    <string name="local_providers_list">Përdor listë vendore shërbimesh</string>
+    <string name="external_providers_list">U ngarkua listë shërbimesh nga shërbyesi</string>
 </resources>

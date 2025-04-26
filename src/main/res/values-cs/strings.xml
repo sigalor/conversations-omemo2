@@ -529,8 +529,7 @@
     <string name="no_application_to_share_uri">Nebyla nalezena aplikace umožňující sdílení URI</string>
     <string name="share_uri_with">Sdílet URI s…</string>
     <string name="agree_and_continue">Souhlasit a pokračovat</string>
-    <string name="magic_create_text">Průvodce je nastaven, aby vytvořil účet na serveru monocles.eu.
-\nPokud si vyberete monocles.eu jako svého poskytovatele, budete moci komunikovat s uživateli u ostatních poskytovatelů, budou-li mít vaši celou XMPP adresu.</string>
+    <string name="magic_create_text">Průvodce je nastaven, aby vytvořil účet na serveru monocles.eu. \nPokud si vyberete monocles.eu jako svého poskytovatele, budete moci komunikovat s uživateli u ostatních poskytovatelů, budou-li mít vaši celou XMPP adresu.</string>
     <string name="your_full_jid_will_be">Vaše celá XMPP adresa: %s</string>
     <string name="create_account">Vytvořit účet</string>
     <string name="use_own_provider">Použít vlastního provozovatele</string>

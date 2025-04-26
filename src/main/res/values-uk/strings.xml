@@ -518,7 +518,7 @@
     <string name="no_application_to_share_uri">Не знайдено застосунку, щоб поділитися URI</string>
     <string name="share_uri_with">Поділитися URI…</string>
     <string name="agree_and_continue">Погодитися та продовжити</string>
-    <string name="magic_create_text">Ви зможете спілкуватися з користувачами інших постачальників, для цього повідомте їм свою повну адресу XMPP.</string>
+    <string name="magic_create_text">Ми проведемо Вас крок за кроком, щоб створити обліковий запис із випадковим паролем; можете використовувати цей пароль і надалі або змінити його на наступній сторінці. \\nВи зможете спілкуватися з користувачами цього та інших постачальників — просто повідомте їм свою повну адресу XMPP.</string>
     <string name="your_full_jid_will_be">Ваша повна адреса XMPP: %s</string>
     <string name="create_account">Створити обліковий запис</string>
     <string name="use_own_provider">Застосувати дані мого постачальника</string>
@@ -1485,7 +1485,7 @@
     <string name="monocles_account_introduction">Зареєструйтеся зараз і <b>отримайте захищений обліковий запис monocles, що живиться відновлюваною енергією</b>, щоб безпосередньо почати спілкуватися.</string>
     <string name="create_monocles_account">Зареєструватися</string>
     <string name="use_monocles">Я віддаю перевагу monocles</string>
-    <string name="or_use_another">… або вибрати інший нижче</string>
+    <string name="or_use_another">… або вибрати інший</string>
     <string name="monocles_account_details">Сюди входить:\n● один місяць тимчасового сховища чатів\n● електронна пошта з 2 ГБ пам\'яті\n\nза бажанням:\n● 5 ГБ хмарного сховища (Nextcloud)\n● синхронізація календаря і контактів\n● безпечний інструмент для конференцій\nта багато іншого на <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="account_status_connection_timeout">Час очікування з\'єднання вичерпано</string>
     <string name="clients_may_not_support_av">Можливо, клієнт XMPP Вашого контакту не підтримує аудіо- та відеовиклики.</string>
@@ -1496,4 +1496,18 @@
     <string name="pin_to_top">Закріпити</string>
     <string name="pref_disable_reactions_fallback_summary">Вимикає резервні реакції для клієнтів, які ще не підтримують реакції</string>
     <string name="pref_disable_reactions_fallback_title">Вимкнути резервні реакції</string>
+    <string name="switch_to_new_thread">Перемкнуто на нову тему</string>
+    <string name="cleared_thread">Тему очищено</string>
+    <string name="pref_plain_text_links_title">Звичайні посилання на чати</string>
+    <string name="pref_plain_text_links_summary">Показувати повні посилання на адреси чатів</string>
+    <string name="your_server">Ваш постачальник</string>
+    <string name="choose_your_server">Виберіть постачальника послуг обміну повідомленнями XMPP</string>
+    <string name="server_hint">Виберіть постачальника</string>
+    <string name="enter_domain">Вкажіть домен</string>
+    <string name="add_to_contact_list">Додати до списку контактів</string>
+    <string name="change_password_in_next_step">На наступному кроці Ви можете змінити згенерований пароль відповідно до своїх потреб.</string>
+    <string name="action_end_conversation_muc">Покинути груповий чат</string>
+    <string name="action_end_conversation_channel">Покинути канал</string>
+    <string name="leave_conference_warning">Ви справді хочете покинути цей груповий чат? Ви не отримуватимете сповіщення про нові повідомлення, доки не приєднаєтеся до групи знову.</string>
+    <string name="remove_bookmark_text">Бажаєте вилучити закладку %s? Розмову, пов\'язану з цією закладкою, не буде вилучено.</string>
 </resources>

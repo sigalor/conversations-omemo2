@@ -511,8 +511,7 @@
     <string name="no_application_to_share_uri">No s\'ha trobat cap aplicació per a compartir URI</string>
     <string name="share_uri_with">Comparteix l\'URI amb…</string>
     <string name="agree_and_continue">Acceptar i continuar</string>
-    <string name="magic_create_text">S\'ha establert una guia per a la creació de comptes en monocles.eu.¹
-\nEn triar monocles.eu com a proveïdor podràs comunicar-te amb usuaris d\'altres proveïdors donant-los la teva adreça XMPP completa.</string>
+    <string name="magic_create_text">S\'ha establert una guia per a la creació de comptes en monocles.eu.¹ \nEn triar monocles.eu com a proveïdor podràs comunicar-te amb usuaris d\'altres proveïdors donant-los la teva adreça XMPP completa.</string>
     <string name="your_full_jid_will_be">La seva adreça XMPP completa serà: %s</string>
     <string name="create_account">Crear compte</string>
     <string name="use_own_provider">Utilitza el meu propi proveïdor</string>

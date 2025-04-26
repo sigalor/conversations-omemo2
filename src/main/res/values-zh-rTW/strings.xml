@@ -497,8 +497,7 @@
     <string name="no_application_to_share_uri">找不到可以分享 URI 的應用程式</string>
     <string name="share_uri_with">分享 URI 至…</string>
     <string name="agree_and_continue">同意並繼續</string>
-    <string name="magic_create_text">此指引將為您在 monocles.eu 中建立一個帳戶。
-\n使用 monocles.eu 作為您的提供者，再將您完整的 XMPP 位址交給使用其他提供者的使用者後，您便能與他們進行交流。</string>
+    <string name="magic_create_text">此指引將為您在 monocles.eu 中建立一個帳戶。 \n使用 monocles.eu 作為您的提供者，再將您完整的 XMPP 位址交給使用其他提供者的使用者後，您便能與他們進行交流。</string>
     <string name="your_full_jid_will_be">您的完整 XMPP 位址將會是：%s</string>
     <string name="create_account">建立帳戶</string>
     <string name="use_own_provider">使用我自己的提供者</string>
