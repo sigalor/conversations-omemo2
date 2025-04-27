@@ -1466,7 +1466,7 @@
     <string name="monocles_account_introduction">Зарегистрируйтесь сейчас, и <b> Получите безопасную учетную запись Monocles, оснащенную регенеративными энергиями </b>, чтобы напрямую начать чат.</string>
     <string name="monocles_account_details">Это включает в себя:\n● Один месяц временного хранения чата\n● Электронная почта с хранением 2 ГБ\n\n необязательно: \n● 5 ГБ облачного хранилища (NextCloud)\n● Календарь и контакт синхронизации\n● Безопасный инструмент конференции \n и подробнее о <a href="https://monocles.eu/more/"> https://monocles.eu/more/ </a></string>
     <string name="create_monocles_account">Зарегистрироваться</string>
-    <string name="or_use_another">… или выберите еще один ниже</string>
+    <string name="or_use_another">… или выберите еще один</string>
     <string name="use_monocles">Я предпочитаю монокли</string>
     <string name="account_status_connection_timeout">Тайм-аут подключения</string>
     <string name="pref_align_start">Слева от сообщения</string>
@@ -1491,4 +1491,9 @@
     <string name="action_end_conversation_muc">Покинуть комнату</string>
     <string name="action_end_conversation_channel">Покинуть канал</string>
     <string name="leave_conference_warning">Вы действительно хотите покинуть эту комнату? Вы больше не будете получать уведомления о новых сообщениях, пока не присоединитесь к комнате снова.</string>
+    <string name="pref_load_providers_list_external">Загрузить поставщиков внешнего чата</string>
+    <string name="pref_load_providers_list_external_summary">Загрузите список поставщиков чата с сервера XMPP.net для альтернативной регистрации в приложении</string>
+    <string name="external_providers_list">Список загруженных поставщиков чата с сервера</string>
+    <string name="local_providers_list">Использует список местных поставщиков чата</string>
+    <string name="error_loading_chat_providers">Ошибка загрузки провайдеров чата</string>
 </resources>

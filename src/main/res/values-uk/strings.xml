@@ -1510,4 +1510,9 @@
     <string name="action_end_conversation_channel">Покинути канал</string>
     <string name="leave_conference_warning">Ви справді хочете покинути цей груповий чат? Ви не отримуватимете сповіщення про нові повідомлення, доки не приєднаєтеся до групи знову.</string>
     <string name="remove_bookmark_text">Бажаєте вилучити закладку %s? Розмову, пов\'язану з цією закладкою, не буде вилучено.</string>
+    <string name="pref_load_providers_list_external_summary">Завантажити список постачальників із сервера xmpp.net для альтернативної реєстрації в застосунку</string>
+    <string name="external_providers_list">Завантажено список постачальників чату з сервера</string>
+    <string name="error_loading_chat_providers">Помилка завантаження списку постачальників</string>
+    <string name="pref_load_providers_list_external">Завантажити список постачальників</string>
+    <string name="local_providers_list">Використовує список локальних постачальників чату</string>
 </resources>

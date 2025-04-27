@@ -1455,8 +1455,9 @@
     <string name="leave_conference_warning">是否确定要离开此群聊？在您再次加入群聊之前，您将不会再收到新消息通知。</string>
     <string name="remove_bookmark_text">是否要将 %s 作为书签移除？将不会移除与此书签关联的对话。</string>
     <string name="change_password_in_next_step">您可以在下一步中根据需要更改生成的密码。</string>
-    <string name="local_providers_list">使用本地提供者列表</string>
-    <string name="pref_load_providers_list_external">加载外部提供者列表</string>
-    <string name="external_providers_list">从服务器加载的提供者列表</string>
-    <string name="pref_load_providers_list_external_summary">从 xmpp.net 服务器加载外部提供者列表，以进行替代的应用内注册</string>
+    <string name="local_providers_list">使用本地聊天提供者列表</string>
+    <string name="pref_load_providers_list_external">加载外部聊天提供者</string>
+    <string name="external_providers_list">从服务器加载的聊天提供者列表</string>
+    <string name="pref_load_providers_list_external_summary">从 xmpp.net 服务器加载聊天提供者列表，以进行替代的应用内注册</string>
+    <string name="error_loading_chat_providers">加载聊天提供者时出错</string>
 </resources>

@@ -1463,6 +1463,7 @@
     <string name="action_end_conversation_channel">Braktiseni kanalin</string>
     <string name="leave_conference_warning">Doni vërtet të braktiset kjo dhomë? S’do të njoftoheni më për mesazhe të rinj, deri sa të ribëheni pjesë e dhomës.</string>
     <string name="remove_bookmark_text">Doni të hiqet %s si faqerojtës? Biseda e përshoqëruar me këtë faqerojtës s’do të hiqet.</string>
-    <string name="local_providers_list">Përdor listë vendore shërbimesh</string>
-    <string name="external_providers_list">U ngarkua listë shërbimesh nga shërbyesi</string>
+    <string name="local_providers_list">Përdor listë vendore shërbimesh fjalosjesh</string>
+    <string name="external_providers_list">U ngarkua listë shërbimesh fjalosjesh nga shërbyesi</string>
+    <string name="error_loading_chat_providers">Gabim në ngarkim shërbimesh fjalosjesh</string>
 </resources>

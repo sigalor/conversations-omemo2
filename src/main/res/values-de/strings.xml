@@ -39,7 +39,7 @@
     <string name="moderator">Moderator</string>
     <string name="participant">Teilnehmer</string>
     <string name="visitor">Stummgeschaltet</string>
-    <string name="remove_contact_text">Möchtest du %s von deiner Kontaktliste entfernen? Der Chat mit diesem Kontakt werden dabei nicht entfernt.</string>
+    <string name="remove_contact_text">Möchtest du %s von deiner Kontaktliste entfernen? Der Chat mit diesem Kontakt wird dabei nicht entfernt.</string>
     <string name="block_contact_text">Möchtest du %s sperren und keine Nachrichten mehr erhalten?</string>
     <string name="unblock_contact_text">Möchtest du %s entsperren und wieder Nachrichten empfangen?</string>
     <string name="block_domain_text">Alle Kontakte von %s sperren?</string>
@@ -880,7 +880,7 @@
     <string name="group_chats_and_channels"><![CDATA[Gruppenchats & Channels]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Lokaler Server</string>
-    <string name="pref_channel_discovery_summary">Die meisten Benutzer sollten hier ‘jabber.network’ auswählen, um bessere Vorschläge aus dem gesamten, öffentlichen XMPP-Ökosystem zu bekommen.</string>
+    <string name="pref_channel_discovery_summary">Die meisten Benutzer sollten hier ‘jabber.network’ auswählen, um Vorschläge aus dem gesamten, öffentlichen XMPP-Ökosystem zu bekommen.</string>
     <string name="pref_channel_discovery">Channelsuchmethode</string>
     <string name="backup">Sicherung</string>
     <string name="category_about">Über</string>
@@ -1332,7 +1332,7 @@
     <string name="channels">Gruppen</string>
     <string name="manage_account">Verwalte Konto</string>
     <string name="pref_import_settings_summary">Importiere die settings.dat aus dem Backup Ordner</string>
-    <string name="pref_reset_dns_server_summary">Setzen Sie die Standard-DNS-Server auf den datenschutzfreundlichen DNS-Anbieter Mullvad zurück</string>
+    <string name="pref_reset_dns_server_summary">Setzen Sie die Standard DNS-Server auf den datenschutzfreundlichen DNS-Anbieter Mullvad zurück</string>
     <string name="pref_reset_dns_server_title">DNS Server zurücksetzen</string>
     <string name="dns_server_reset">DNS server zurückgesetzt</string>
     <string name="pref_category_settings">Einstellungen</string>
@@ -1463,7 +1463,7 @@
     <string name="server_hint">Anbieter auswählen</string>
     <string name="enter_domain">Domain eingeben</string>
     <string name="action_end_conversation_channel">Raum verlassen</string>
-    <string name="leave_conference_warning">Diesen Raum wirklich verlassen? Neue Nachrichten erscheinen erst wieder nachdem der Raum wieder betreten wurde.</string>
+    <string name="leave_conference_warning">Diesen Raum wirklich verlassen? Neue Nachrichten erscheinen erst wieder nachdem der Raum neu betreten wurde.</string>
     <string name="external_providers_list">Liste der Chatanbieter vom Server geladen</string>
     <string name="local_providers_list">Verwendet die lokale Chat-Anbieterliste</string>
     <string name="error_loading_chat_providers">Fehler beim Laden von Chat-Anbietern</string>

@@ -1449,8 +1449,9 @@
     <string name="action_end_conversation_muc">Groepsgesprek verlaten</string>
     <string name="action_end_conversation_channel">Kanaal verlaten</string>
     <string name="remove_bookmark_text">De bladwijzer voor %s verwijderen? Het gesprek dat bij deze bladwijzer hoort zal niet worden verwijderd.</string>
-    <string name="pref_load_providers_list_external">Externe lijst met providers laden</string>
-    <string name="external_providers_list">Externe lijst met providers geladen</string>
-    <string name="local_providers_list">Lokale lijst met providers</string>
-    <string name="pref_load_providers_list_external_summary">Laad via xmpp.net een lijst met providers waarbij je je kunt registreren</string>
+    <string name="pref_load_providers_list_external">Externe providers ophalen</string>
+    <string name="external_providers_list">Externe providers opgehaald</string>
+    <string name="local_providers_list">Gebruik lokale lijst van providers</string>
+    <string name="pref_load_providers_list_external_summary">Laad via xmpp.net een lijst met alternatieve providers waarbij je je kunt registreren</string>
+    <string name="error_loading_chat_providers">Fout bij het laden van externe providers</string>
 </resources>
