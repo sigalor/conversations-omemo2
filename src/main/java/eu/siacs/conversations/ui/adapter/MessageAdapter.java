@@ -1402,7 +1402,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             public void onOpen(SwipeLayout layout) {
                 swipeLayout.refreshDrawableState();
                 //when the BottomView totally show.
-                mConversationFragment.setupReply(message);
+                if (mConversationFragment != null) {
+                    mConversationFragment.setupReply(message);
+                } else {
+                    activity.switchToConversationAndQuote(wrap(message.getConversation()), MessageUtils.prepareQuote(message));
+                }
                 swipeLayout.close(true);
                 swipeLayout.setClickToClose(true);
             }
@@ -2725,6 +2729,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected void onPostExecute(final Drawable[] d) {
             if (isCancelled()) return;
             activity.xmppConnectionService.updateConversationUi();
+        }
+    }
+
+    private Conversation wrap(Conversational conversational) {
+        if (conversational instanceof Conversation) {
+            return (Conversation) conversational;
+        } else {
+            return activity.xmppConnectionService.findOrCreateConversation(conversational.getAccount(),
+                    conversational.getJid(),
+                    conversational.getMode() == Conversational.MODE_MULTI,
+                    true,
+                    true);
         }
     }
 }
