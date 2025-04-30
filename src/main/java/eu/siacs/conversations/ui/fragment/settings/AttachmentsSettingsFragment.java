@@ -98,6 +98,7 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
     protected void downloadStickers() {
         final var intent = new Intent(requireActivity(), DownloadDefaultStickers.class);
         intent.putExtra("tor", requireService().useTorToConnect());
+        intent.putExtra("i2p", requireService().useI2PToConnect());
         ContextCompat.startForegroundService(requireActivity(), intent);
         runOnUiThread(() -> Toast.makeText(requireActivity(), "Sticker download started", Toast.LENGTH_LONG).show());
     }

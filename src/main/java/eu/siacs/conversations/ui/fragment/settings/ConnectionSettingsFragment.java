@@ -88,6 +88,20 @@ public class ConnectionSettingsFragment extends XmppPreferenceFragment {
                 reconnectAccounts();
                 requireService().reinitializeMuclumbusService();
             }
+            case AppSettings.USE_I2P -> {
+                final var appSettings = new AppSettings(requireContext());
+                if (appSettings.isUseI2P()) {
+                    runOnUiThread(
+                            () ->
+                                    Toast.makeText(
+                                                    requireActivity(),
+                                                    R.string.audio_video_disabled_i2p,
+                                                    Toast.LENGTH_LONG)
+                                            .show());
+                }
+                reconnectAccounts();
+                requireService().reinitializeMuclumbusService();
+            }
             case AppSettings.SHOW_CONNECTION_OPTIONS, AppSettings.PREFER_IPV6 -> {
                 reconnectAccounts();
             }

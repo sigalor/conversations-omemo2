@@ -58,8 +58,8 @@ public class ChannelDiscoveryService {
             return;
         }
         final OkHttpClient.Builder builder = HttpConnectionManager.okHttpClient(service).newBuilder();
-        if (service.useTorToConnect()) {
-            builder.proxy(HttpConnectionManager.getProxy());
+        if (service.useTorToConnect() || service.useI2PToConnect()) {
+            builder.proxy(HttpConnectionManager.getProxy(service.useI2PToConnect()));
         }
         final Retrofit retrofit =
                 new Retrofit.Builder()

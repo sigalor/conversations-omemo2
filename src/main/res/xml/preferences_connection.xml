@@ -15,6 +15,11 @@
             android:summary="@string/pref_use_tor_summary"
             android:title="@string/pref_use_tor" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/use_i2p"
+            android:key="use_i2p"
+            android:summary="@string/pref_use_i2p_summary"
+            android:title="@string/pref_use_i2p" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/prefer_ipv6"
             android:icon="@drawable/rounded_commit_24"
             android:key="prefer_ipv6"

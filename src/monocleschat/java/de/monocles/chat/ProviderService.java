@@ -40,18 +40,16 @@ public class ProviderService extends AsyncTask<XmppActivity, Object, Boolean> {
         StringBuilder jsonString = new StringBuilder();
         boolean isError = false;
         mUseTor = xmppConnectionService != null && xmppConnectionService.useTorToConnect();
-        /*
         mUseI2P = xmppConnectionService != null && xmppConnectionService.useI2PToConnect();
         if (!mUseTor && mUseI2P) {
             // Do not update providers if all connections tunneled to I2P (via settings checkbox) without Tor
             return true;
         }
-        */
 
         try {
             if (XmppActivity.staticXmppConnectionService != null && XmppActivity.staticXmppConnectionService.getBooleanPreference("load_providers_list_external", R.bool.load_providers_list_external) && XmppActivity.staticXmppConnectionService.hasInternetConnection()) {
                 Log.d(Config.LOGTAG, "ProviderService: Updating provider list from " + Config.PROVIDER_URL);
-                final InputStream is = HttpConnectionManager.open(Config.PROVIDER_URL, mUseTor);
+                final InputStream is = HttpConnectionManager.open(Config.PROVIDER_URL, mUseTor, mUseI2P);
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                 String line;
                 while ((line = reader.readLine()) != null) {

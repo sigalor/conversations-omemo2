@@ -473,6 +473,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     private Transport setupTransport(final GenericTransportInfo transportInfo) {
         final XmppConnection xmppConnection = id.account.getXmppConnection();
         final boolean useTor = id.account.isOnion() || xmppConnectionService.useTorToConnect();
+        final boolean useI2P = id.account.isI2P() || xmppConnectionService.useI2PToConnect();
         if (transportInfo instanceof IbbTransportInfo ibbTransportInfo) {
             final String streamId = ibbTransportInfo.getTransportId();
             final Long blockSize = ibbTransportInfo.getBlockSize();
@@ -493,8 +494,8 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     socksBytestreamsTransportInfo.getCandidates();
             Log.d(Config.LOGTAG, "received socks candidates " + candidates);
             return new SocksByteStreamsTransport(
-                    xmppConnection, id, isInitiator(), useTor, streamId, candidates);
-        } else if (!useTor && transportInfo instanceof WebRTCDataChannelTransportInfo) {
+                    xmppConnection, id, isInitiator(), useTor, useI2P, streamId, candidates);
+        } else if (!useTor && !useI2P && transportInfo instanceof WebRTCDataChannelTransportInfo) {
             return new WebRTCDataChannelTransport(
                     xmppConnectionService.getApplicationContext(),
                     xmppConnection,
@@ -508,6 +509,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     private Transport setupTransport() {
         final XmppConnection xmppConnection = id.account.getXmppConnection();
         final boolean useTor = id.account.isOnion() || xmppConnectionService.useTorToConnect();
+        final boolean useI2P = id.account.isI2P() || xmppConnectionService.useI2PToConnect();
         if (!useTor && remoteHasFeature(Namespace.JINGLE_TRANSPORT_WEBRTC_DATA_CHANNEL)) {
             return new WebRTCDataChannelTransport(
                     xmppConnectionService.getApplicationContext(),
@@ -516,7 +518,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                     isInitiator());
         }
         if (remoteHasFeature(Namespace.JINGLE_TRANSPORTS_S5B)) {
-            return new SocksByteStreamsTransport(xmppConnection, id, isInitiator(), useTor);
+            return new SocksByteStreamsTransport(xmppConnection, id, isInitiator(), useTor, useI2P);
         }
         return setupLastResortTransport();
     }

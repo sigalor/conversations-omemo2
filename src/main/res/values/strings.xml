@@ -1457,5 +1457,9 @@
     <string name="external_providers_list">Loaded chat providers list from server</string>
     <string name="local_providers_list">Uses local chat providers list</string>
     <string name="error_loading_chat_providers">Error loading chat providers</string>
-
+    <string name="audio_video_disabled_i2p">Calls are disabled when using I2P</string>
+    <string name="no_i2p_calls">Calls can’t be done via I2P</string>
+    <string name="pref_use_i2p">Connect via I2P</string>
+    <string name="pref_use_i2p_summary">Tunnel all connections through the I2P network. Requires I2P client</string>
+    <string name="account_status_i2p_unavailable">I2P network unavailable</string>
 </resources>

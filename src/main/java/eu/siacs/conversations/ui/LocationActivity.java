@@ -95,8 +95,10 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 		final IConfigurationProvider config = Configuration.getInstance();
 		config.load(ctx, getPreferences());
 		config.setUserAgentValue(BuildConfig.APPLICATION_ID + "/" + BuildConfig.VERSION_CODE);
-		if (getBooleanPreference("use_tor", R.bool.use_tor)) {
-			config.setHttpProxy(HttpConnectionManager.getProxy());
+		final boolean useTor = getBooleanPreference("use_tor", R.bool.use_tor);
+		final boolean useI2P = getBooleanPreference("use_i2p", R.bool.use_i2p);
+		if (useTor || useI2P) {
+			config.setHttpProxy(HttpConnectionManager.getProxy(useI2P));
 		}
 	}
 

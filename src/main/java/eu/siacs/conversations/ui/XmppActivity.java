@@ -145,6 +145,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected HashMap<Integer,Integer> mCustomColors;
     protected boolean mUsingEnterKey = false;
     protected boolean mUseTor = false;
+    protected boolean mUseI2P = false;
     protected Toast mToast;
     public Runnable onOpenPGPKeyPublished =
             () ->
@@ -273,6 +274,7 @@ public abstract class XmppActivity extends ActionBarActivity {
         }
         this.mUsingEnterKey = usingEnterKey();
         this.mUseTor = useTor();
+        this.mUseI2P = useI2P();
     }
 
     public void connectToBackend() {
@@ -709,6 +711,10 @@ public abstract class XmppActivity extends ActionBarActivity {
 
     private boolean useTor() {
         return getBooleanPreference("use_tor", R.bool.use_tor);
+    }
+
+    private boolean useI2P() {
+        return getBooleanPreference("use_i2p", R.bool.use_i2p);
     }
 
     protected SharedPreferences getPreferences() {

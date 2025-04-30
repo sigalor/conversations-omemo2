@@ -444,7 +444,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
             mXmppConnectionService.sendIqPacket(account, response, null);
         } else if (packet.hasChild("time", "urn:xmpp:time") && isGet) {
             final Iq response;
-            if (mXmppConnectionService.useTorToConnect() || account.isOnion()) {
+            if (mXmppConnectionService.useTorToConnect() || account.isOnion() || mXmppConnectionService.useI2PToConnect() || account.isI2P()) {
                 response = packet.generateResponse(Iq.Type.ERROR);
                 final Element error = response.addChild("error");
                 error.setAttribute("type", "cancel");

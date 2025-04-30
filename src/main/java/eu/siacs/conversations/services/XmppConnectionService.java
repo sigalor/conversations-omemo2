@@ -6226,6 +6226,10 @@ public class XmppConnectionService extends Service {
         return getBooleanPreference("use_tor", R.bool.use_tor);
     }
 
+    public boolean useI2PToConnect() {
+        return getBooleanPreference("use_i2p", R.bool.use_i2p);
+    }
+
     public boolean showExtendedConnectionOptions() {
         return getBooleanPreference(AppSettings.SHOW_CONNECTION_OPTIONS, R.bool.show_connection_options);
     }

@@ -68,6 +68,7 @@ public class SocksByteStreamsTransport implements Transport {
 
     private final boolean initiator;
     private final boolean useTor;
+    private final boolean useI2P;
 
     private final String streamId;
 
@@ -90,12 +91,14 @@ public class SocksByteStreamsTransport implements Transport {
             final AbstractJingleConnection.Id id,
             final boolean initiator,
             final boolean useTor,
+            final boolean useI2P,
             final String streamId,
             final Collection<Candidate> theirCandidates) {
         this.xmppConnection = xmppConnection;
         this.id = id;
         this.initiator = initiator;
         this.useTor = useTor;
+        this.useI2P = useI2P;
         this.streamId = streamId;
         this.theirDestination =
                 Hashing.sha1()
@@ -121,7 +124,7 @@ public class SocksByteStreamsTransport implements Transport {
                         .toString();
 
         this.connectionProvider =
-                new ConnectionProvider(id.account.getJid(), ourDestination, useTor);
+                new ConnectionProvider(id.account.getJid(), ourDestination, useTor, useI2P);
         new Thread(connectionProvider).start();
         this.ourProxyConnection = getOurProxyConnection(ourDestination);
         setTheirCandidates(theirCandidates);
@@ -131,12 +134,14 @@ public class SocksByteStreamsTransport implements Transport {
             final XmppConnection xmppConnection,
             final AbstractJingleConnection.Id id,
             final boolean initiator,
-            final boolean useTor) {
+            final boolean useTor,
+            final boolean useI2P) {
         this(
                 xmppConnection,
                 id,
                 initiator,
                 useTor,
+                useI2P,
                 UUID.randomUUID().toString(),
                 Collections.emptyList());
     }
@@ -147,7 +152,7 @@ public class SocksByteStreamsTransport implements Transport {
         // TODO this needs to go into a variable so we can cancel it
         final var connectionFinder =
                 new ConnectionFinder(
-                        theirCandidates, theirDestination, selectedByThemCandidate, useTor);
+                        theirCandidates, theirDestination, selectedByThemCandidate, useTor, useI2P);
         new Thread(connectionFinder).start();
         Futures.addCallback(
                 connectionFinder.connectionFuture,
@@ -285,7 +290,7 @@ public class SocksByteStreamsTransport implements Transport {
                 proxy -> {
                     final var connectionFinder =
                             new ConnectionFinder(
-                                    ImmutableList.of(proxy), ourDestination, null, useTor);
+                                    ImmutableList.of(proxy), ourDestination, null, useTor, useI2P);
                     new Thread(connectionFinder).start();
                     return Futures.transform(
                             connectionFinder.connectionFuture,
@@ -530,12 +535,12 @@ public class SocksByteStreamsTransport implements Transport {
         private final ArrayList<Connection> peerConnections = new ArrayList<>();
 
         private ConnectionProvider(
-                final Jid account, final String destination, final boolean useTor) {
+                final Jid account, final String destination, final boolean useTor, final boolean useI2P) {
             final SecureRandom secureRandom = new SecureRandom();
             this.port = secureRandom.nextInt(60_000) + 1024;
             this.destination = destination;
             final InetAddress[] localAddresses;
-            if (Config.USE_DIRECT_JINGLE_CANDIDATES && !useTor) {
+            if (Config.USE_DIRECT_JINGLE_CANDIDATES && !useTor && !useI2P) {
                 localAddresses =
                         DirectConnectionUtils.getLocalAddresses().toArray(new InetAddress[0]);
             } else {
@@ -710,16 +715,20 @@ public class SocksByteStreamsTransport implements Transport {
 
         private final ListenableFuture<Connection> selectedByThemCandidate;
         private final boolean useTor;
+        private final boolean useI2P;
 
         private ConnectionFinder(
                 final ImmutableList<Candidate> candidates,
                 final String destination,
                 final ListenableFuture<Connection> selectedByThemCandidate,
-                final boolean useTor) {
+                final boolean useTor,
+                final boolean useI2P
+        ) {
             this.candidates = candidates;
             this.destination = destination;
             this.selectedByThemCandidate = selectedByThemCandidate;
             this.useTor = useTor;
+            this.useI2P = useI2P;
         }
 
         @Override
@@ -756,9 +765,11 @@ public class SocksByteStreamsTransport implements Transport {
         private Connection connect(final Candidate candidate) throws IOException {
             final var timeout = 3000;
             final Socket socket;
-            if (useTor) {
+            if (useTor && !useI2P) {
                 Log.d(Config.LOGTAG, "using Tor to connect to candidate " + candidate.host);
                 socket = SocksSocketFactory.createSocketOverTor(candidate.host, candidate.port);
+            } else if (useI2P) {
+                socket = SocksSocketFactory.createSocketOverI2P(candidate.host, candidate.port);
             } else {
                 socket = new Socket();
                 final SocketAddress address = new InetSocketAddress(candidate.host, candidate.port);

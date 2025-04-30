@@ -143,6 +143,7 @@ public class UriHandlerActivity extends BaseActivity {
         Intent intent = new Intent(this, DownloadDefaultStickers.class);
         intent.setData(stickers);
         intent.putExtra("tor", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor)));
+        intent.putExtra("i2p", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("use_i2p", getResources().getBoolean(R.bool.use_i2p)));
         ContextCompat.startForegroundService(this, intent);
         Toast.makeText(this, "Sticker download started", Toast.LENGTH_SHORT).show();
         finish();

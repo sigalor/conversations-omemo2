@@ -40,6 +40,7 @@ public class AppSettings {
     public static final String NOTIFICATION_LED = "led";
     public static final String SHOW_CONNECTION_OPTIONS = "show_connection_options";
     public static final String USE_TOR = "use_tor";
+    public static final String USE_I2P = "use_i2p";
     public static final String CHANNEL_DISCOVERY_METHOD = "channel_discovery_method";
     public static final String SEND_CRASH_REPORTS = "send_crash_reports";
     public static final String COLORFUL_CHAT_BUBBLES = "use_green_background";
@@ -146,6 +147,10 @@ public class AppSettings {
 
     public boolean isUseTor() {
         return getBooleanPreference(USE_TOR, R.bool.use_tor);
+    }
+
+    public boolean isUseI2P() {
+        return getBooleanPreference(USE_I2P, R.bool.use_i2p);
     }
 
     private boolean getBooleanPreference(@NonNull final String name, @BoolRes int res) {
