@@ -562,7 +562,11 @@ public class XmppConnection implements Runnable {
                        | SocksSocketFactory.HostNotFoundException e) {
             this.changeStatus(Account.State.SERVER_NOT_FOUND);
         } catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
-            this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
+            if (account.isI2P() || mXmppConnectionService.getBooleanPreference("use_i2p", R.bool.use_i2p)) {
+                this.changeStatus(Account.State.I2P_NOT_AVAILABLE);
+            } else {
+                this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
+            }
         } catch (final IOException | XmlPullParserException e) {
             Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": " + e.getMessage());
             this.changeStatus(Account.State.OFFLINE);
@@ -1631,7 +1635,7 @@ public class XmppConnection implements Runnable {
     }
 
     private boolean isSecure() {
-        return features.encryptionEnabled || Config.ALLOW_NON_TLS_CONNECTIONS || account.isOnion();
+        return features.encryptionEnabled || Config.ALLOW_NON_TLS_CONNECTIONS || account.isOnion() || account.isI2P();
     }
 
     private void authenticate(final SaslMechanism.Version version) throws IOException {
