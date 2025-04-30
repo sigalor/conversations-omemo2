@@ -4633,6 +4633,8 @@ public class ConversationFragment extends XmppFragment
         this.binding.textSendButton.setEnabled(canWrite);
         this.binding.textSendButton.setVisibility(canWrite ? View.VISIBLE : View.GONE);
         this.binding.requestVoice.setVisibility(canWrite ? View.GONE : View.VISIBLE);
+        this.binding.recordVoiceButton.setVisibility(canWrite ? View.VISIBLE : View.GONE);
+        this.binding.takePictureButton.setVisibility(canWrite ? View.VISIBLE : View.GONE);
         this.binding.textinput.setCursorVisible(canWrite);
         this.binding.textinput.setEnabled(canWrite);
     }
