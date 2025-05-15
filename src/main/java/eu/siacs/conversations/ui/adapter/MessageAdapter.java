@@ -805,11 +805,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         if (body.length() <= 0) viewHolder.messageBody().setVisibility(GONE);
         BetterLinkMovementMethod method = getBetterLinkMovementMethod();
-        method.setOnLinkLongClickListener((tv, url) -> {
-            tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
-            ShareUtil.copyLinkToClipboard(activity, url);
-            return true;
-        });
         viewHolder.messageBody().setMovementMethod(method);
     }
 
