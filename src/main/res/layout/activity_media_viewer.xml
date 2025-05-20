@@ -15,13 +15,14 @@
             android:adjustViewBounds="true"
             android:visibility="gone" />
 
-        <com.google.android.exoplayer2.ui.StyledPlayerView
+        <androidx.media3.ui.PlayerView
             android:id="@+id/messageVideoView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:visibility="gone"
+            app:use_controller="true"
             app:animation_enabled="true"
             app:auto_show="false"
             app:buffered_color="@color/gray_700"

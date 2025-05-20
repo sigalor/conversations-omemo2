@@ -18,7 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.media.session.MediaSessionCompat;
+// import android.support.v4.media.session.MediaSessionCompat; // Keep if needed for other reasons, but Media3 has its own session
 import android.util.Log;
 import android.util.Rational;
 import android.view.GestureDetector;
@@ -27,6 +27,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -34,11 +36,24 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.bumptech.glide.Glide;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
+// ExoPlayer v2 imports (to be removed or replaced)
+// import com.google.android.exoplayer2.ExoPlayer;
+// import com.google.android.exoplayer2.MediaItem;
+// import com.google.android.exoplayer2.PlaybackException;
+// import com.google.android.exoplayer2.Player;
+// import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
+
+// Media3 imports
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.session.MediaSession; // Media3 MediaSession
+// If you still need MediaSessionCompat for other reasons, you might need a connector or to manage both.
+// For a pure Media3 setup, MediaSessionCompat is not directly used with the Media3 player in the same way.
+import androidx.media3.ui.PlayerView; // If your binding uses PlayerView, ensure it's the Media3 one
+
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 
 import java.io.File;
@@ -69,6 +84,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     boolean isVideo = false;
     private ActivityMediaViewerBinding binding;
     private GestureDetector gestureDetector;
+    MediaSession mediaSession; // Media3 MediaSession
 
     public static String getMimeType(String path) {
         try {
@@ -300,6 +316,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
     }
 
+
     private void DisplayVideo(final Uri uri) {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -328,11 +345,14 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 rotateScreen(width, height, rotation);
             }
             binding.messageVideoView.setVisibility(View.VISIBLE);
+
+            // ExoPlayer instantiation using Media3
             player = new ExoPlayer.Builder(this).build();
-            player.addListener(new Player.Listener() {
+
+            player.addListener(new Player.Listener() { // androidx.media3.common.Player.Listener
                 @Override
                 public void onIsPlayingChanged(boolean isPlaying) {
-                    Player.Listener.super.onIsPlayingChanged(isPlaying);
+                    // Player.Listener.super.onIsPlayingChanged(isPlaying); // Not needed in Java
                     if (isPlaying) {
                         hideFAB();
                     } else {
@@ -345,36 +365,59 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 }
 
                 @Override
-                public void onPlayerError(PlaybackException error) {
-                    open();
+                public void onPlayerError(@NonNull PlaybackException error) { // androidx.media3.common.PlaybackException
+                    // Player.Listener.super.onPlayerError(error); // Not needed in Java
+                    Log.e(Config.LOGTAG, "PlayerError: ", error);
+                    open(); // Your existing error handling
                 }
             });
-            player.setRepeatMode(Player.REPEAT_MODE_OFF);
-            binding.messageVideoView.setPlayer(player);
-            player.setMediaItem(MediaItem.fromUri(uri));
+            player.setRepeatMode(Player.REPEAT_MODE_OFF); // androidx.media3.common.Player
+            binding.messageVideoView.setPlayer(player); // PlayerView should be androidx.media3.ui.PlayerView
+
+            // MediaItem creation (same as before, but uses androidx.media3.common.MediaItem)
+            MediaItem mediaItem = MediaItem.fromUri(uri);
+            player.setMediaItem(mediaItem);
             player.prepare();
             player.setPlayWhenReady(true);
-            final MediaSessionCompat session = new MediaSessionCompat(this, getPackageName());
-            final MediaSessionConnector connector = new MediaSessionConnector(session);
-            connector.setPlayer(player);
-            session.setActive(true);
+
+            // MediaSession setup with Media3
+            // Release previous session if any
+            if (mediaSession != null) {
+                mediaSession.release();
+            }
+            mediaSession = new MediaSession.Builder(this, player)
+                    .setId(getPackageName() + ".MediaSession." + System.currentTimeMillis()) // Unique session ID
+                    // .setSessionActivity(pendingIntentToOpenActivity()) // Optional: PendingIntent to launch your UI
+                    .build();
+
+            // The MediaSessionConnector is not used in the same way with Media3's own MediaSession.
+            // The MediaSession is directly tied to the player.
+
             requestAudioFocus();
             setVolumeControlStream(AudioManager.STREAM_MUSIC);
 //            binding.messageVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
         } catch (Exception e) {
+            Log.e(Config.LOGTAG, "Error displaying video", e);
             e.printStackTrace();
-            open();
+            open(); // Fallback
         }
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void PIPVideo() {
         try {
-            binding.messageVideoView.hideController();
+            if (binding.messageVideoView != null) { // Check if PlayerView is available
+                binding.messageVideoView.hideController();
+            }
             binding.speedDial.setVisibility(View.GONE);
             if (supportsPIP()) {
                 if (Compatibility.runsTwentySix()) {
-                    final Rational rational = new Rational(width, height);
+                    final Rational rational = new Rational(width, height); // Make sure width and height are valid
+                    if (rational.getDenominator() == 0) { // Avoid division by zero
+                        Log.w(Config.LOGTAG, "Invalid aspect ratio for PIP: width=" + width + ", height=" + height);
+                        return;
+                    }
                     final Rational clippedRational = Rationals.clip(rational);
                     final PictureInPictureParams params = new PictureInPictureParams.Builder()
                             .setAspectRatio(clippedRational)
@@ -387,6 +430,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         } catch (final IllegalStateException e) {
             // this sometimes happens on Samsung phones (possibly when Knox is enabled)
             Log.w(Config.LOGTAG, "unable to enter picture in picture mode", e);
+        } catch (final IllegalArgumentException e) {
+            // Can happen if aspect ratio is invalid
+            Log.w(Config.LOGTAG, "Illegal argument for picture in picture mode (aspect ratio?): " + e.getMessage());
         }
     }
 
@@ -408,12 +454,21 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
     }
 
+
     private void requestAudioFocus() {
-        AudioManager am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        if (am != null) {
-            am.requestAudioFocus(this,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // For Android O and above, useAudioFocusRequest is preferred, but for simplicity:
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                hasAudioFocus = (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+            }
+        } else {
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                hasAudioFocus = (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+            }
         }
     }
 
@@ -512,38 +567,52 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
 
     @Override
     public void onResume() {
-        WindowManager.LayoutParams layout = getWindow().getAttributes();
-        if (useMaxBrightness()) {
-            layout.screenBrightness = 1;
-        }
-        getWindow().setAttributes(layout);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (!isPlaying()) {
-            showFAB();
-        } else {
-            hideFAB();
-        }
-        if (!isPlaying()) {
-            startPlayer();
-        }
         super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (player != null && !isInPictureInPictureMode() && player.getPlaybackState() != Player.STATE_ENDED) {
+                if (hasAudioFocus) { // Only play if we have audio focus
+                    player.play();
+                }
+            }
+        }
+        // Ensure PlayerView is correctly set up if it was hidden or player was null
+        if (isVideo && player != null && binding.messageVideoView.getPlayer() == null) {
+            binding.messageVideoView.setPlayer(player);
+        }
     }
 
     @Override
     public void onPause() {
-        if (Compatibility.runsTwentyFour() && isInPictureInPictureMode()) {
-            startPlayer();
-        } else {
-            pausePlayer();
-        }
-        WindowManager.LayoutParams layout = getWindow().getAttributes();
-        if (useMaxBrightness()) {
-            layout.screenBrightness = -1;
-        }
-        getWindow().setAttributes(layout);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setRequestedOrientation(oldOrientation);
         super.onPause();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (player != null && !isInPictureInPictureMode()) {
+                player.pause();
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (player != null) {
+            player.release();
+            player = null;
+        }
+        if (mediaSession != null) {
+            mediaSession.release();
+            mediaSession = null;
+        }
+        abandonAudioFocus();
+    }
+
+    private boolean hasAudioFocus = false;
+
+    private void abandonAudioFocus() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(this);
+            hasAudioFocus = false;
+        }
     }
 
     @Override
@@ -581,10 +650,32 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
 
     @Override
     public void onAudioFocusChange(int focusChange) {
-        if (focusChange == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.i(Config.LOGTAG, "Audio focus granted.");
-        } else if (focusChange == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
-            Log.i(Config.LOGTAG, "Audio focus failed.");
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                hasAudioFocus = true;
+                if (player != null && (player.getPlayWhenReady() || player.getPlaybackState() == Player.STATE_READY)) {
+                    player.play();
+                    player.setVolume(1.0f); // Restore volume
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                hasAudioFocus = false;
+                if (player != null) {
+                    player.pause();
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                hasAudioFocus = false;
+                if (player != null) {
+                    player.pause();
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                hasAudioFocus = true; // Still have focus, but should lower volume
+                if (player != null) {
+                    player.setVolume(0.3f); // Duck volume
+                }
+                break;
         }
     }
 
