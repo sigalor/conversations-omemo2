@@ -1,14 +1,12 @@
 package eu.siacs.conversations.utils;
 
 import android.net.Uri;
-
 import androidx.annotation.NonNull;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
+import eu.siacs.conversations.xmpp.Jid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -17,8 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import eu.siacs.conversations.xmpp.Jid;
 
 public class XmppUri {
 
@@ -44,7 +40,7 @@ public class XmppUri {
         } catch (IllegalArgumentException e) {
             try {
                 jid = Jid.of(uri).asBareJid().toString();
-            } catch (IllegalArgumentException e2) {
+            } catch (final IllegalArgumentException e2) {
                 jid = null;
             }
         }
@@ -61,7 +57,8 @@ public class XmppUri {
 
     private static Map<String, String> parseParameters(final String query, final char seperator) {
         final ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
-        final String[] pairs = query == null ? new String[0] : query.split(String.valueOf(seperator));
+        final String[] pairs =
+                query == null ? new String[0] : query.split(String.valueOf(seperator));
         for (String pair : pairs) {
             final String[] parts = pair.split("=", 2);
             if (parts.length == 0) {
@@ -95,7 +92,7 @@ public class XmppUri {
                     final int id = Integer.parseInt(key.substring(OMEMO_URI_PARAM.length()));
                     builder.add(new Fingerprint(FingerprintType.OMEMO, value, id));
                 } catch (Exception e) {
-                    //ignoring invalid device id
+                    // ignoring invalid device id
                 }
             } else if ("omemo".equals(key)) {
                 builder.add(new Fingerprint(FingerprintType.OMEMO, value, 0));
@@ -104,7 +101,8 @@ public class XmppUri {
         return builder.build();
     }
 
-    public static String getFingerprintUri(final String base, final List<XmppUri.Fingerprint> fingerprints, char separator) {
+    public static String getFingerprintUri(
+            final String base, final List<XmppUri.Fingerprint> fingerprints, char separator) {
         final StringBuilder builder = new StringBuilder(base);
         builder.append('?');
         for (int i = 0; i < fingerprints.size(); ++i) {
@@ -149,7 +147,7 @@ public class XmppUri {
                 // sample : https://conversations.im/i/foo@bar.com
                 try {
                     jid = Jid.of(lameUrlDecode(segments.get(1))).toString();
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     jid = null;
                 }
             } else if (segments.size() >= 3) {
@@ -175,7 +173,8 @@ public class XmppUri {
                 }
             }
             this.fingerprints = parseFingerprints(parameters);
-        } else if ("imto".equalsIgnoreCase(scheme) && Arrays.asList("xmpp", "jabber").contains(uri.getHost())) {
+        } else if ("imto".equalsIgnoreCase(scheme)
+                && Arrays.asList("xmpp", "jabber").contains(uri.getHost())) {
             // sample: imto://xmpp/foo@bar.com
             try {
                 jid = URLDecoder.decode(uri.getEncodedPath(), "UTF-8").split("/")[1].trim();
@@ -198,15 +197,18 @@ public class XmppUri {
 
     public boolean isAction(final String action) {
         return Collections2.transform(
-                parameters.keySet(),
-                s -> CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z')).retainFrom(s)
-        ).contains(action);
+                        parameters.keySet(),
+                        s ->
+                                CharMatcher.inRange('a', 'z')
+                                        .or(CharMatcher.inRange('A', 'Z'))
+                                        .retainFrom(s))
+                .contains(action);
     }
 
     public Jid getJid() {
         try {
-            return this.jid == null ? null : Jid.of(this.jid);
-        } catch (IllegalArgumentException e) {
+            return this.jid == null ? null : Jid.ofUserInput(this.jid);
+        } catch (final IllegalArgumentException e) {
             return null;
         }
     }
@@ -216,9 +218,9 @@ public class XmppUri {
             return false;
         }
         try {
-            Jid.of(jid);
+            Jid.ofUserInput(jid);
             return true;
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             return false;
         }
     }
@@ -267,7 +269,7 @@ public class XmppUri {
     }
 
     public boolean hasFingerprints() {
-        return fingerprints.size() > 0;
+        return !fingerprints.isEmpty();
     }
 
     public enum FingerprintType {

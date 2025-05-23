@@ -11,12 +11,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-
 import com.google.common.base.Strings;
 
 import de.monocles.chat.DownloadDefaultStickers;
@@ -38,17 +36,11 @@ import eu.siacs.conversations.utils.ProvisioningUtils;
 import eu.siacs.conversations.utils.SignupUtils;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UriHandlerActivity extends BaseActivity {
 
@@ -68,7 +60,8 @@ public class UriHandlerActivity extends BaseActivity {
     }
 
     public static void scan(final Activity activity, final boolean provisioning) {
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
             final Intent intent = new Intent(activity, UriHandlerActivity.class);
             intent.setAction(UriHandlerActivity.ACTION_SCAN_QR_CODE);
             if (provisioning) {
@@ -143,7 +136,6 @@ public class UriHandlerActivity extends BaseActivity {
         Intent intent = new Intent(this, DownloadDefaultStickers.class);
         intent.setData(stickers);
         intent.putExtra("tor", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor)));
-        intent.putExtra("i2p", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("use_i2p", getResources().getBoolean(R.bool.use_i2p)));
         ContextCompat.startForegroundService(this, intent);
         Toast.makeText(this, "Sticker download started", Toast.LENGTH_SHORT).show();
         finish();
@@ -190,9 +182,9 @@ public class UriHandlerActivity extends BaseActivity {
             if (accounts.isEmpty()
                     && xmppUri.isAction(XmppUri.ACTION_ROSTER)
                     && "y"
-                            .equalsIgnoreCase(
-                                    Strings.nullToEmpty(xmppUri.getParameter(XmppUri.PARAMETER_IBR))
-                                            .trim())) {
+                    .equalsIgnoreCase(
+                            Strings.nullToEmpty(xmppUri.getParameter(XmppUri.PARAMETER_IBR))
+                                    .trim())) {
                 intent = SignupUtils.getTokenRegistrationIntent(this, jid.getDomain(), preAuth);
                 intent.putExtra(StartConversationActivity.EXTRA_INVITE_URI, xmppUri.toString());
                 startActivity(intent);
@@ -259,8 +251,8 @@ public class UriHandlerActivity extends BaseActivity {
     private void checkForLinkHeader(final HttpUrl url) {
         Log.d(Config.LOGTAG, "checking for link header on " + url);
         this.call =
-                HttpConnectionManager.okHttpClient(this).newCall(
-                        new Request.Builder().url(url).head().build());
+                HttpConnectionManager.okHttpClient(this)
+                        .newCall(new Request.Builder().url(url).head().build());
         this.call.enqueue(
                 new Callback() {
                     @Override
@@ -302,7 +294,7 @@ public class UriHandlerActivity extends BaseActivity {
     }
 
     private void showErrorOnUiThread(@StringRes int error) {
-        runOnUiThread(()-> showError(error));
+        runOnUiThread(() -> showError(error));
     }
 
     private static Class<?> findShareViaAccountClass() {

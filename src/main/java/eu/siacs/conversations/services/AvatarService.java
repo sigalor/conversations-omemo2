@@ -18,19 +18,10 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
-
 import com.google.common.base.Strings;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
@@ -48,6 +39,11 @@ import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnAdvancedStreamFeaturesLoaded;
 import eu.siacs.conversations.xmpp.XmppConnection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 
@@ -238,27 +234,22 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		return avatar;
 	}
 
-	public void clear(final Contact contact) {
+	public void clear(Contact contact) {
 		synchronized (this.sizes) {
 			for (final Integer size : sizes) {
 				this.mXmppConnectionService.getDrawableCache().remove(key(contact, size));
 			}
 		}
-		for (final Conversation conversation :
-				mXmppConnectionService.findAllConferencesWith(contact)) {
-			final var mucOptions = conversation.getMucOptions();
-			final var user = mucOptions.findUserByRealJid(contact.getJid().asBareJid());
+		for (Conversation conversation : mXmppConnectionService.findAllConferencesWith(contact)) {
+			MucOptions.User user = conversation.getMucOptions().findUserByRealJid(contact.getJid().asBareJid());
 			if (user != null) {
 				clear(user);
 			}
-			if (Strings.isNullOrEmpty(mucOptions.getAvatar())
-					&& mucOptions.isPrivateAndNonAnonymous()) {
-				clear(mucOptions);
-			}
+			clear(conversation);
 		}
 	}
 
-	private String key(final Contact contact, final int size) {
+	private String key(Contact contact, int size) {
 		synchronized (this.sizes) {
 			this.sizes.add(size);
 		}
@@ -321,7 +312,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		return get(conversation, size, false);
 	}
 
-	public Drawable get(final Conversation conversation, final int size, final boolean cachedOnly) {
+	public Drawable get(Conversation conversation, int size, boolean cachedOnly) {
 		if (conversation.getMode() == Conversation.MODE_SINGLE) {
 			return get(conversation.getContact(), size, cachedOnly);
 		} else {
@@ -348,7 +339,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		}
 	}
 
-	private Drawable get(final MucOptions mucOptions, final int size, final boolean cachedOnly) {
+	private Drawable get(MucOptions mucOptions, int size, boolean cachedOnly) {
 		final String KEY = key(mucOptions, size);
 		Drawable bitmap = this.mXmppConnectionService.getDrawableCache().get(KEY);
 		if (bitmap != null || cachedOnly) {
@@ -361,7 +352,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 			Conversation c = mucOptions.getConversation();
 			if (mucOptions.isPrivateAndNonAnonymous()) {
 				final List<MucOptions.User> users = mucOptions.getUsersRelevantForNameAndAvatar();
-				if (users.isEmpty()) {
+				if (users.size() == 0) {
 					bitmap = getImpl(c.getName().toString(), c.getJid().asBareJid().toString(), size);
 				} else {
 					bitmap = getImpl(users, size);
@@ -439,12 +430,12 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		return PREFIX_CONVERSATION + "_" + options.getConversation().getUuid() + "_" + size;
 	}
 
-	private String key(final List<MucOptions.User> users, final int size) {
+	private String key(List<MucOptions.User> users, int size) {
 		final Conversation conversation = users.get(0).getConversation();
 		StringBuilder builder = new StringBuilder("TILE_");
 		builder.append(conversation.getUuid());
 
-		for (final MucOptions.User user : users) {
+		for (MucOptions.User user : users) {
 			builder.append("\0");
 			builder.append(emptyOnNull(user.getRealJid()));
 			builder.append("\0");
@@ -533,23 +524,11 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		}
 	}
 
-	public void clear(final MucOptions.User user) {
+	public void clear(MucOptions.User user) {
 		synchronized (this.sizes) {
 			for (Integer size : sizes) {
 				this.mXmppConnectionService.getDrawableCache().remove(key(user, size));
 			}
-		}
-		synchronized (this.conversationDependentKeys) {
-			final Set<String> keys =
-					this.conversationDependentKeys.get(user.getConversation().getUuid());
-			if (keys == null) {
-				return;
-			}
-			final var cache = this.mXmppConnectionService.getDrawableCache();
-			for (final String key : keys) {
-				cache.remove(key);
-			}
-			keys.clear();
 		}
 	}
 

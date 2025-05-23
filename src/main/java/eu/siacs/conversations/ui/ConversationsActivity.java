@@ -143,15 +143,15 @@ import org.openintents.openpgp.util.OpenPgpApi;
 
 public class ConversationsActivity extends XmppActivity
         implements OnConversationSelected,
-                OnConversationArchived,
-                OnConversationsListItemUpdated,
-                OnConversationRead,
-                XmppConnectionService.OnAccountUpdate,
-                XmppConnectionService.OnConversationUpdate,
-                XmppConnectionService.OnRosterUpdate,
-                OnUpdateBlocklist,
-                XmppConnectionService.OnShowErrorToast,
-                XmppConnectionService.OnAffiliationChanged {
+        OnConversationArchived,
+        OnConversationsListItemUpdated,
+        OnConversationRead,
+        XmppConnectionService.OnAccountUpdate,
+        XmppConnectionService.OnConversationUpdate,
+        XmppConnectionService.OnRosterUpdate,
+        OnUpdateBlocklist,
+        XmppConnectionService.OnShowErrorToast,
+        XmppConnectionService.OnAffiliationChanged {
 
     public static final String ACTION_VIEW_CONVERSATION = "eu.siacs.conversations.action.VIEW";
     public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -196,7 +196,7 @@ public class ConversationsActivity extends XmppActivity
     // secondary fragment (when holding the conversation, must be initialized before refreshing the
     // overview fragment
     private static final @IdRes int[] FRAGMENT_ID_NOTIFICATION_ORDER = {
-        R.id.secondary_fragment, R.id.main_fragment
+            R.id.secondary_fragment, R.id.main_fragment
     };
     private final PendingItem<Intent> pendingViewIntent = new PendingItem<>();
     private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
@@ -295,21 +295,21 @@ public class ConversationsActivity extends XmppActivity
             }
 
             com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
-                binding.drawer,
-                DRAWER_UNREAD_CHATS,
-                new com.mikepenz.materialdrawer.holder.StringHolder(totalUnread > 0 ? new Integer(totalUnread).toString() : null)
+                    binding.drawer,
+                    DRAWER_UNREAD_CHATS,
+                    new com.mikepenz.materialdrawer.holder.StringHolder(totalUnread > 0 ? new Integer(totalUnread).toString() : null)
             );
 
             com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
-                binding.drawer,
-                DRAWER_DIRECT_MESSAGES,
-                new com.mikepenz.materialdrawer.holder.StringHolder(dmUnread > 0 ? new Integer(dmUnread).toString() : null)
+                    binding.drawer,
+                    DRAWER_DIRECT_MESSAGES,
+                    new com.mikepenz.materialdrawer.holder.StringHolder(dmUnread > 0 ? new Integer(dmUnread).toString() : null)
             );
 
             com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
-                binding.drawer,
-                DRAWER_CHANNELS,
-                new com.mikepenz.materialdrawer.holder.StringHolder(channelUnread > 0 ? new Integer(channelUnread).toString() : null)
+                    binding.drawer,
+                    DRAWER_CHANNELS,
+                    new com.mikepenz.materialdrawer.holder.StringHolder(channelUnread > 0 ? new Integer(channelUnread).toString() : null)
             );
 
             if (chatRequests > 0) {
@@ -324,9 +324,9 @@ public class ConversationsActivity extends XmppActivity
                     binding.drawer.getItemAdapter().add(binding.drawer.getItemAdapter().getGlobalPosition(binding.drawer.getItemAdapter().getAdapterPosition(DRAWER_CHANNELS) + 1), requests);
                 }
                 com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
-                    binding.drawer,
-                    DRAWER_CHAT_REQUESTS,
-                    new com.mikepenz.materialdrawer.holder.StringHolder(chatRequests > 0 ? new Integer(chatRequests).toString() : null)
+                        binding.drawer,
+                        DRAWER_CHAT_REQUESTS,
+                        new com.mikepenz.materialdrawer.holder.StringHolder(chatRequests > 0 ? new Integer(chatRequests).toString() : null)
                 );
             } else {
                 binding.drawer.getItemAdapter().removeByIdentifier(DRAWER_CHAT_REQUESTS);
@@ -348,9 +348,9 @@ public class ConversationsActivity extends XmppActivity
                 final var badge = entry.getValue() > 0 ? entry.getValue().toString() : null;
                 if (inDrawer.containsKey(entry.getKey())) {
                     com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.updateBadge(
-                        binding.drawer,
-                        inDrawer.get(entry.getKey()),
-                        new com.mikepenz.materialdrawer.holder.StringHolder(badge)
+                            binding.drawer,
+                            inDrawer.get(entry.getKey()),
+                            new com.mikepenz.materialdrawer.holder.StringHolder(badge)
                     );
                 } else {
                     final var item = new com.mikepenz.materialdrawer.model.SecondaryDrawerItem();
@@ -533,17 +533,17 @@ public class ConversationsActivity extends XmppActivity
         channels.setBadgeStyle(new com.mikepenz.materialdrawer.holder.BadgeStyle(com.mikepenz.materialdrawer.R.drawable.material_drawer_badge, color, color, textColor));
 
         binding.drawer.getItemAdapter().add(
-            allChats,
-            unreadChats,
-            directMessages,
-            channels,
-            new com.mikepenz.materialdrawer.model.DividerDrawerItem()
+                allChats,
+                unreadChats,
+                directMessages,
+                channels,
+                new com.mikepenz.materialdrawer.model.DividerDrawerItem()
         );
 
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         settings.setIdentifier(DRAWER_SETTINGS);
         settings.setSelectable(false);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, getString(R.string.action_settings));
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, "Settings");
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(settings, R.drawable.ic_settings_24dp);
         com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, settings);
 
@@ -662,7 +662,7 @@ public class ConversationsActivity extends XmppActivity
             return false;
         });
 
-         accountHeader.setOnAccountHeaderProfileImageListener((v, profile, isCurrent) -> {
+        accountHeader.setOnAccountHeaderProfileImageListener((v, profile, isCurrent) -> {
             if (isCurrent) {
                 final Account account = (Account) accountHeader.getActiveProfile().getTag();
                 if (account == null) {
@@ -672,7 +672,7 @@ public class ConversationsActivity extends XmppActivity
                 }
             }
             return false;
-         });
+        });
     }
 
     @Override
@@ -718,8 +718,8 @@ public class ConversationsActivity extends XmppActivity
     }
 
     protected void filterByMainFilter(List<Conversation> list) {
-         final var chatRequests = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
-         for (final var c : ImmutableList.copyOf(list)) {
+        final var chatRequests = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
+        for (final var c : ImmutableList.copyOf(list)) {
             if (mainFilter == DRAWER_CHANNELS && c.getMode() != Conversation.MODE_MULTI) {
                 list.remove(c);
             } else if (mainFilter == DRAWER_DIRECT_MESSAGES && c.getMode() == Conversation.MODE_MULTI) {
@@ -839,7 +839,7 @@ public class ConversationsActivity extends XmppActivity
     private boolean requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                        != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(
                     new String[] {Manifest.permission.POST_NOTIFICATIONS},
                     REQUEST_POST_NOTIFICATION);
@@ -901,8 +901,8 @@ public class ConversationsActivity extends XmppActivity
         }
 
         Set<String> pstnGateways = xmppConnectionService.getAccounts().stream()
-            .flatMap(a -> a.getGateways("pstn").stream())
-            .map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
+                .flatMap(a -> a.getGateways("pstn").stream())
+                .map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
 
         if (pstnGateways.size() < 1) return false;
         Set<String> fromPrefs = getPreferences().getStringSet("pstn_gateways", Set.of("UPGRADE"));
@@ -978,7 +978,7 @@ public class ConversationsActivity extends XmppActivity
                     case REQUEST_MICROPHONE:
                         Intent intent = new Intent();
                         intent.setComponent(new ComponentName("com.android.server.telecom",
-                            "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
+                                "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
                         try {
                             startActivityForResult(intent, DIALLER_INTEGRATION);
                         } catch (ActivityNotFoundException e) {
@@ -1291,10 +1291,10 @@ public class ConversationsActivity extends XmppActivity
         }
 
         Set<String> gateways = (acct == null ? xmppConnectionService.getAccounts().stream() : List.of(acct).stream()).flatMap(account ->
-            Stream.concat(
-                account.getGateways("pstn").stream(),
-                account.getGateways("sms").stream()
-            )
+                Stream.concat(
+                        account.getGateways("pstn").stream(),
+                        account.getGateways("sms").stream()
+                )
         ).map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
 
         for (String gateway : gateways) {

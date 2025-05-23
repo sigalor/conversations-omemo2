@@ -1425,68 +1425,59 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
 
         // monocles swipe feature
-        if (viewHolder.layoutSwipe() != null) { // Check if the layout has a swipe layout
-            final SwipeLayout.SwipeListener existingListener = (SwipeLayout.SwipeListener) viewHolder.layoutSwipe().getTag(R.id.swipe_listener_tag); // Use a custom tag ID
-            if (existingListener == null) {
+        SwipeLayout swipeLayout = viewHolder.layoutSwipe();
 
-                //set show mode.
-                viewHolder.layoutSwipe().setShowMode(SwipeLayout.ShowMode.PullOut);
+        //set show mode.
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
 
-                //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
-                viewHolder.layoutSwipe().addDrag(SwipeLayout.DragEdge.Left, viewHolder.bottomWrapper());
+        //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
+        swipeLayout.addDrag(SwipeLayout.DragEdge.Left, viewHolder.bottomWrapper());
 
-                SwipeLayout.SwipeListener newListener = new SwipeLayout.SwipeListener() {
-
-                    @Override
-                    public void onClose(SwipeLayout layout) {
-                        layout.refreshDrawableState();
-                        layout.clearAnimation();
-                        //when the SurfaceView totally cover the BottomView.
-                    }
-
-                    @Override
-                    public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
-                        layout.setClickToClose(true);
-                        //you are swiping.
-                    }
-
-                    @Override
-                    public void onStartOpen(SwipeLayout layout) {
-                        layout.setClickToClose(true);
-
-                    }
-
-                    @Override
-                    public void onOpen(SwipeLayout layout) {
-                        layout.refreshDrawableState();
-                        //when the BottomView totally show.
-                        if (mConversationFragment != null) {
-                            mConversationFragment.setupReply(message);
-                        } else {
-                            activity.switchToConversationAndQuote(wrap(message.getConversation()), MessageUtils.prepareQuote(message));
-                        }
-                        layout.close(true);
-                        layout.setClickToClose(true);
-                    }
-
-                    @Override
-                    public void onStartClose(SwipeLayout layout) {
-                        layout.close(true);
-                        layout.setClickToClose(true);
-                    }
-
-                    @Override
-                    public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
-                        layout.refreshDrawableState();
-                        layout.close(true);
-                    }
-                };
-                viewHolder.layoutSwipe().addSwipeListener(newListener);
-                viewHolder.layoutSwipe().setTag(R.id.swipe_listener_tag, newListener);
+        swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
+            @Override
+            public void onClose(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
+                swipeLayout.clearAnimation();
+                //when the SurfaceView totally cover the BottomView.
             }
-            // If you need to update something in the listener based on the current message:
-            // ((MyCustomSwipeListener) viewHolder.layoutSwipe().getTag(R.id.swipe_listener_tag)).updateMessage(message);
-        }
+
+            @Override
+            public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                swipeLayout.setClickToClose(true);
+                //you are swiping.
+            }
+
+            @Override
+            public void onStartOpen(SwipeLayout layout) {
+                swipeLayout.setClickToClose(true);
+
+            }
+
+            @Override
+            public void onOpen(SwipeLayout layout) {
+                swipeLayout.refreshDrawableState();
+                //when the BottomView totally show.
+                if (mConversationFragment != null) {
+                    mConversationFragment.setupReply(message);
+                } else {
+                    activity.switchToConversationAndQuote(wrap(message.getConversation()), MessageUtils.prepareQuote(message));
+                }
+                swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
+            }
+
+            @Override
+            public void onStartClose(SwipeLayout layout) {
+                swipeLayout.close(true);
+                swipeLayout.setClickToClose(true);
+            }
+
+            @Override
+            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                swipeLayout.refreshDrawableState();
+                swipeLayout.close(true);
+            }
+        });
 
         reactionsPopup(message, viewHolder);
 
@@ -2228,7 +2219,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public void updatePreferences() {
-        final AppSettings appSettings = new AppSettings(activity);
         this.bubbleDesign =
                 new BubbleDesign(
                         appSettings.isColorfulChatBubbles(),

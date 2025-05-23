@@ -206,13 +206,13 @@ public class WebxdcPage implements ConversationPage {
 			Map<String, String> headers = new HashMap<>();
 			headers.put("Content-Security-Policy",
 					"default-src 'self'; "
-				+ "style-src 'self' 'unsafe-inline' blob: ; "
-				+ "font-src 'self' data: blob: ; "
-				+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: ; "
-				+ "connect-src 'self' data: blob: ; "
-				+ "img-src 'self' data: blob: ; "
-				+ "media-src 'self' data: blob: ; "
-				+ "webrtc 'block' ; "
+							+ "style-src 'self' 'unsafe-inline' blob: ; "
+							+ "font-src 'self' data: blob: ; "
+							+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: ; "
+							+ "connect-src 'self' data: blob: ; "
+							+ "img-src 'self' data: blob: ; "
+							+ "media-src 'self' data: blob: ; "
+							+ "webrtc 'block' ; "
 			);
 			headers.put("X-DNS-Prefetch-Control", "off");
 			res.setResponseHeaders(headers);
@@ -332,7 +332,7 @@ public class WebxdcPage implements ConversationPage {
 				TextView tv = (TextView) v.findViewById(android.R.id.text1);
 				tv.setGravity(Gravity.CENTER);
 				tv.setTextColor(ContextCompat.getColor(context, R.color.white));
-            	tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(activity.get(),UIHelper.getColorForName(getItem(position))));
+				tv.setBackgroundColor(MaterialColors.harmonizeWithPrimary(activity.get(),UIHelper.getColorForName(getItem(position))));
 				return v;
 			}
 		});
@@ -346,8 +346,8 @@ public class WebxdcPage implements ConversationPage {
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 				ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(xmppConnectionService, "webxdc:" + source.getUuid())
-					.setShortLabel(getTitle())
-					.setIntent(intent);
+						.setShortLabel(getTitle())
+						.setIntent(intent);
 				Drawable icon = getIcon();
 				if (icon != null && icon instanceof BitmapDrawable) {
 					builder = builder.setIcon(IconCompat.createFromIcon(Icon.createWithBitmap(((BitmapDrawable) icon).getBitmap())));
@@ -454,14 +454,14 @@ public class WebxdcPage implements ConversationPage {
 			}
 			xmppConnectionService.sendMessage(message);
 			xmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
-				(Conversation) message.getConversation(),
-				message.getUuid(),
-				selfJid(),
-				message.getThread(),
-				params.optString("info", null),
-				params.optString("document", null),
-				params.optString("summary", null),
-				payload
+					(Conversation) message.getConversation(),
+					message.getUuid(),
+					selfJid(),
+					message.getThread(),
+					params.optString("info", null),
+					params.optString("document", null),
+					params.optString("summary", null),
+					payload
 			));
 			binding.webview.post(() -> binding.webview.loadUrl("javascript:__webxdcUpdate();"));
 			return true;
@@ -492,13 +492,13 @@ public class WebxdcPage implements ConversationPage {
 				String data = null;
 				String name = null;
 				if (jsonObject.has("base64")) {
-						data = jsonObject.getString("base64");
+					data = jsonObject.getString("base64");
 				}
 				if (jsonObject.has("name")) {
-						name = jsonObject.getString("name");
+					name = jsonObject.getString("name");
 				}
 				if (jsonObject.has("text")) {
-						text = jsonObject.getString("text");
+					text = jsonObject.getString("text");
 				}
 
 				Intent intent = new Intent(xmppConnectionService, ConversationsActivity.class);

@@ -23,6 +23,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -36,12 +37,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
+import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -67,6 +71,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Strings;
@@ -156,7 +161,7 @@ public abstract class XmppActivity extends ActionBarActivity {
                             .show();
     protected ConferenceInvite mPendingConferenceInvite = null;
     protected PriorityQueue<Pair<Integer, ValueCallback<Uri[]>>> activityCallbacks =
-        Build.VERSION.SDK_INT >= 24 ? new PriorityQueue<>((x, y) -> y.first.compareTo(x.first)) : new PriorityQueue<>();
+            Build.VERSION.SDK_INT >= 24 ? new PriorityQueue<>((x, y) -> y.first.compareTo(x.first)) : new PriorityQueue<>();
     protected ServiceConnection mConnection =
             new ServiceConnection() {
 
@@ -455,21 +460,21 @@ public abstract class XmppActivity extends ActionBarActivity {
                                                                         postDelete.run();
                                                                     }
                                                                     if (xmppConnectionService
-                                                                                            .getAccounts()
-                                                                                            .size()
-                                                                                    == 0
+                                                                            .getAccounts()
+                                                                            .size()
+                                                                            == 0
                                                                             && Config
-                                                                                            .MAGIC_CREATE_DOMAIN
-                                                                                    != null) {
+                                                                            .MAGIC_CREATE_DOMAIN
+                                                                            != null) {
                                                                         final Intent intent =
                                                                                 SignupUtils
                                                                                         .getSignUpIntent(
                                                                                                 this);
                                                                         intent.setFlags(
                                                                                 Intent
-                                                                                                .FLAG_ACTIVITY_NEW_TASK
+                                                                                        .FLAG_ACTIVITY_NEW_TASK
                                                                                         | Intent
-                                                                                                .FLAG_ACTIVITY_CLEAR_TASK);
+                                                                                        .FLAG_ACTIVITY_CLEAR_TASK);
                                                                         startActivity(intent);
                                                                     }
                                                                 } else {
@@ -699,7 +704,7 @@ public abstract class XmppActivity extends ActionBarActivity {
             return cm != null
                     && cm.isActiveNetworkMetered()
                     && Compatibility.getRestrictBackgroundStatus(cm)
-                            == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED;
+                    == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED;
         } else {
             return false;
         }
@@ -1032,12 +1037,12 @@ public abstract class XmppActivity extends ActionBarActivity {
 
     @SuppressLint("InflateParams")
     protected void quickEdit(final String previousValue,
-                           final OnValueEdited callback,
-                           final @StringRes int hint,
-                           boolean password,
-                           boolean permitEmpty,
-                           boolean alwaysCallback,
-                           boolean startSelected) {
+                             final OnValueEdited callback,
+                             final @StringRes int hint,
+                             boolean password,
+                             boolean permitEmpty,
+                             boolean alwaysCallback,
+                             boolean startSelected) {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final DialogQuickeditBinding binding =
                 DataBindingUtil.inflate(

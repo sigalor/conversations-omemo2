@@ -3,11 +3,8 @@ package im.conversations.android.xmpp.model;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-
 import eu.siacs.conversations.xml.Element;
-
 import im.conversations.android.xmpp.ExtensionFactory;
-
 import java.util.Collection;
 
 public class Extension extends Element {

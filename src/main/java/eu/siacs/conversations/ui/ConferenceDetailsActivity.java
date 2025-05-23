@@ -17,7 +17,6 @@ import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,12 +87,12 @@ import me.drakeet.support.toast.ToastCompat;
 
 public class ConferenceDetailsActivity extends XmppActivity
         implements OnConversationUpdate,
-                OnMucRosterUpdate,
-                XmppConnectionService.OnAffiliationChanged,
-                XmppConnectionService.OnConfigurationPushed,
-                XmppConnectionService.OnRoomDestroy,
-                TextWatcher,
-                OnMediaLoaded {
+        OnMucRosterUpdate,
+        XmppConnectionService.OnAffiliationChanged,
+        XmppConnectionService.OnConfigurationPushed,
+        XmppConnectionService.OnRoomDestroy,
+        TextWatcher,
+        OnMediaLoaded {
     public static final String ACTION_VIEW_MUC = "view_muc";
 
     private Conversation mConversation;
@@ -171,10 +170,10 @@ public class ConferenceDetailsActivity extends XmppActivity
                             new MaterialAlertDialogBuilder(ConferenceDetailsActivity.this);
                     builder.setTitle(R.string.pref_notification_settings);
                     String[] choices = {
-                        getString(R.string.notify_on_all_messages),
-                        getString(R.string.notify_only_when_highlighted),
-                    getString(R.string.notify_only_when_highlighted_or_replied),
-                        getString(R.string.notify_never)
+                            getString(R.string.notify_on_all_messages),
+                            getString(R.string.notify_only_when_highlighted),
+                            getString(R.string.notify_only_when_highlighted_or_replied),
+                            getString(R.string.notify_never)
                     };
                     final AtomicInteger choice;
                     if (mConversation.getLongAttribute(Conversation.ATTRIBUTE_MUTED_TILL, 0)
@@ -551,8 +550,7 @@ public class ConferenceDetailsActivity extends XmppActivity
         if (mConversation != null) {
             if (http) {
                 return "https://conversations.im/j/"
-                        + XmppUri.lameUrlEncode(
-                                mConversation.getJid().asBareJid().toString());
+                        + XmppUri.lameUrlEncode(mConversation.getJid().asBareJid().toString());
             } else {
                 return "xmpp:" + Uri.encode(mConversation.getJid().asBareJid().toString(), "@/+") + "?join";
             }
@@ -719,9 +717,9 @@ public class ConferenceDetailsActivity extends XmppActivity
             this.binding.mucSubject.setTextAppearance(
                     subject.length() > (hasTitle ? 128 : 196)
                             ? com.google.android.material.R.style
-                                    .TextAppearance_Material3_BodyMedium
+                            .TextAppearance_Material3_BodyMedium
                             : com.google.android.material.R.style
-                                    .TextAppearance_Material3_BodyLarge);
+                            .TextAppearance_Material3_BodyLarge);
             this.binding.mucSubject.setAutoLinkMask(0);
             this.binding.mucSubject.setVisibility(View.VISIBLE);
             this.binding.mucSubject.setMovementMethod(LinkMovementMethod.getInstance());
@@ -890,7 +888,7 @@ public class ConferenceDetailsActivity extends XmppActivity
             final ImmutableList.Builder<Integer> viewIdBuilder = new ImmutableList.Builder<>();
             for (final ListItem.Tag tag : tagList) {
                 final String name = tag.getName();
-                final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
+                final TextView tv = (TextView) inflater.inflate(R.layout.item_tag, binding.tags, false);
                 tv.setText(name);
                 tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(this,XEP0392Helper.rgbFromNick(name))));
                 final int id = ViewCompat.generateViewId();

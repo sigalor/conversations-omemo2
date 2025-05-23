@@ -1,11 +1,11 @@
 package eu.siacs.conversations.ui;
+import android.content.Intent;
 import android.util.Log;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -130,10 +130,15 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         final var arguments = getArguments();
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
+        final MaterialAlertDialogBuilder builder =
+                new MaterialAlertDialogBuilder(requireActivity());
         builder.setTitle(arguments.getString(TITLE_KEY));
         binding =
-                DataBindingUtil.inflate(requireActivity().getLayoutInflater(), R.layout.dialog_enter_jid, null, false);
+                DataBindingUtil.inflate(
+                        requireActivity().getLayoutInflater(),
+                        R.layout.dialog_enter_jid,
+                        null,
+                        false);
         this.knownHostsAdapter = new KnownHostsAdapter(getActivity(), R.layout.item_autocomplete);
         binding.jid.setAdapter(this.knownHostsAdapter);
         binding.jid.addTextChangedListener(this);
@@ -163,7 +168,8 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                     binding.account);
         } else {
             final ArrayAdapter<String> adapter =
-                    new ArrayAdapter<>(requireActivity(), R.layout.item_autocomplete, new String[] {account});
+                    new ArrayAdapter<>(
+                            requireActivity(), R.layout.item_autocomplete, new String[] {account});
             binding.account.setText(account);
             binding.account.setEnabled(false);
             adapter.setDropDownViewResource(R.layout.item_autocomplete);
@@ -221,7 +227,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                     if (prompt == null && !contact.getPresences().anyIdentity("gateway", null)) return;
 
                     context.runOnUiThread(() -> {
-                            gatewayListAdapter.add(contact, prompt);
+                        gatewayListAdapter.add(contact, prompt);
                     });
                 });
             }

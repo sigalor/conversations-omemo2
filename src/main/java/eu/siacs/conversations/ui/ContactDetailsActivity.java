@@ -98,13 +98,17 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import org.openintents.openpgp.util.OpenPgpUtils;
 
 public class ContactDetailsActivity extends OmemoActivity
         implements OnAccountUpdate,
-                OnRosterUpdate,
-                OnUpdateBlocklist,
-                OnKeyStatusUpdated,
-                OnMediaLoaded {
+        OnRosterUpdate,
+        OnUpdateBlocklist,
+        OnKeyStatusUpdated,
+        OnMediaLoaded {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
     private final int REQUEST_SYNC_CONTACTS = 0x28cf;
     ActivityContactDetailsBinding binding;
@@ -293,6 +297,7 @@ public class ContactDetailsActivity extends OmemoActivity
                     populateView();
                 });
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
+
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
@@ -557,6 +562,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 }
                 binding.statusMessage.setText(builder);
             }
+
             if (contact.getOption(Contact.Options.FROM)) {
                 binding.detailsSendPresence.setText(R.string.send_presence_updates);
                 binding.detailsSendPresence.setChecked(true);
@@ -711,7 +717,7 @@ public class ContactDetailsActivity extends OmemoActivity
             for (final ListItem.Tag tag : tagList) {
                 final String name = tag.getName();
                 final TextView tv =
-                        (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
+                        (TextView) inflater.inflate(R.layout.item_tag, binding.tags, false);
                 tv.setText(name);
                 tv.setBackgroundTintList(
                         ColorStateList.valueOf(
@@ -724,7 +730,7 @@ public class ContactDetailsActivity extends OmemoActivity
             }
             if (contact.isBlocked()) {
                 final TextView tv =
-                        (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
+                        (TextView) inflater.inflate(R.layout.item_tag, binding.tags, false);
                 tv.setText(R.string.blocked);
                 tv.setBackgroundTintList(
                         ColorStateList.valueOf(
@@ -740,7 +746,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 final Presence.Status status = contact.getShownStatus();
                 if (status != Presence.Status.OFFLINE) {
                     final TextView tv =
-                            (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
+                            (TextView) inflater.inflate(R.layout.item_tag, binding.tags, false);
                     UIHelper.setStatus(tv, status);
                     final int id = ViewCompat.generateViewId();
                     tv.setId(id);
@@ -755,9 +761,9 @@ public class ContactDetailsActivity extends OmemoActivity
                     for (final var identity : disco.getIdentities()) {
                         final var txt = identity.getCategory() + "/" + identity.getType();
                         final TextView tv =
-                            (TextView)
-                                    inflater.inflate(
-                                            R.layout.list_item_tag, binding.tags, false);
+                                (TextView)
+                                        inflater.inflate(
+                                                R.layout.item_tag, binding.tags, false);
                         tv.setText(txt);
                         tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(this,XEP0392Helper.rgbFromNick(txt))));
                         final int id = ViewCompat.generateViewId();
@@ -999,7 +1005,7 @@ public class ContactDetailsActivity extends OmemoActivity
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                     binding.command.setText(uri.toString());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.outline_circle_24), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_link_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else {
                     binding.command.setText(uri.toString());

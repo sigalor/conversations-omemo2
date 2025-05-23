@@ -269,8 +269,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         if (color != null) return color.intValue();
 
         return ColorUtils.setAlphaComponent(
-            getAvatarBackgroundColor(),
-            dark ? 25 : 20
+                getAvatarBackgroundColor(),
+                dark ? 25 : 20
         );
     }
 
@@ -807,23 +807,23 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     public String getShareableUri() {
         List<XmppUri.Fingerprint> fingerprints = this.getFingerprints();
-        String uri = "xmpp:" + Uri.encode(getJid().asBareJid().toString(), "@/+");
-        if (fingerprints.size() > 0) {
-            return XmppUri.getFingerprintUri(uri, fingerprints, ';');
-        } else {
+        final String uri = "xmpp:" + Uri.encode(this.getJid().asBareJid().toString(), "@/+");
+        if (fingerprints.isEmpty()) {
             return uri;
+        } else {
+            return XmppUri.getFingerprintUri(uri, fingerprints, ';');
         }
     }
 
     public String getShareableLink() {
         List<XmppUri.Fingerprint> fingerprints = this.getFingerprints();
         String uri =
-                "https://monocles.chat/"
+                "https://conversations.im/i/"
                         + XmppUri.lameUrlEncode(this.getJid().asBareJid().toString());
-        if (fingerprints.size() > 0) {
-            return XmppUri.getFingerprintUri(uri, fingerprints, '&');
-        } else {
+        if (fingerprints.isEmpty()) {
             return uri;
+        } else {
+            return XmppUri.getFingerprintUri(uri, fingerprints, '&');
         }
     }
 

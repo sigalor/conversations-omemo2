@@ -12,7 +12,6 @@ import io.ipfs.cid.Cid;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.services.AvatarService;
@@ -74,7 +73,8 @@ public class MucOptions {
     public boolean setSelf(final User user) {
         this.self = user;
         final boolean roleChanged = this.conversation.setAttribute("role", user.role.toString());
-        final boolean affiliationChanged = this.conversation.setAttribute("affiliation", user.affiliation.toString());
+        final boolean affiliationChanged =
+                this.conversation.setAttribute("affiliation", user.affiliation.toString());
         this.conversation.setAttribute("mucNick", user.getNick());
         return roleChanged || affiliationChanged;
     }
@@ -137,14 +137,23 @@ public class MucOptions {
             }
         }
         boolean changed = conversation.setAttribute("muc_name", name);
-        changed |= conversation.setAttribute(Conversation.ATTRIBUTE_MEMBERS_ONLY, this.hasFeature("muc_membersonly"));
-        changed |= conversation.setAttribute(Conversation.ATTRIBUTE_MODERATED, this.hasFeature("muc_moderated"));
-        changed |= conversation.setAttribute(Conversation.ATTRIBUTE_NON_ANONYMOUS, this.hasFeature("muc_nonanonymous"));
+        changed |=
+                conversation.setAttribute(
+                        Conversation.ATTRIBUTE_MEMBERS_ONLY, this.hasFeature("muc_membersonly"));
+        changed |=
+                conversation.setAttribute(
+                        Conversation.ATTRIBUTE_MODERATED, this.hasFeature("muc_moderated"));
+        changed |=
+                conversation.setAttribute(
+                        Conversation.ATTRIBUTE_NON_ANONYMOUS, this.hasFeature("muc_nonanonymous"));
         return changed;
     }
 
     private Data getRoomInfoForm() {
-        final List<Data> forms = serviceDiscoveryResult == null ? Collections.emptyList() : serviceDiscoveryResult.forms;
+        final List<Data> forms =
+                serviceDiscoveryResult == null
+                        ? Collections.emptyList()
+                        : serviceDiscoveryResult.forms;
         return forms.isEmpty() ? new Data() : forms.get(0);
     }
 
@@ -153,7 +162,8 @@ public class MucOptions {
     }
 
     public boolean hasFeature(String feature) {
-        return this.serviceDiscoveryResult != null && this.serviceDiscoveryResult.features.contains(feature);
+        return this.serviceDiscoveryResult != null
+                && this.serviceDiscoveryResult.features.contains(feature);
     }
 
     public boolean hasVCards() {
@@ -161,7 +171,8 @@ public class MucOptions {
     }
 
     public boolean canInvite() {
-        final boolean hasPermission = !membersOnly() || self.getRole().ranks(Role.MODERATOR) || allowInvites();
+        final boolean hasPermission =
+                !membersOnly() || self.getRole().ranks(Role.MODERATOR) || allowInvites();
         return hasPermission && online();
     }
 
@@ -184,7 +195,7 @@ public class MucOptions {
     public boolean allowPm() {
         final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowpm");
         if (field == null) {
-            return true; //fall back if field does not exists
+            return true; // fall back if field does not exists
         }
         if ("anyone".equals(field.getValue())) {
             return true;
@@ -199,7 +210,7 @@ public class MucOptions {
 
     public boolean allowPmRaw() {
         final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowpm");
-        return  field == null || Arrays.asList("anyone","participants").contains(field.getValue());
+        return field == null || Arrays.asList("anyone", "participants").contains(field.getValue());
     }
 
     public boolean participating() {
@@ -211,7 +222,9 @@ public class MucOptions {
     }
 
     public List<String> getFeatures() {
-        return this.serviceDiscoveryResult != null ? this.serviceDiscoveryResult.features : Collections.emptyList();
+        return this.serviceDiscoveryResult != null
+                ? this.serviceDiscoveryResult.features
+                : Collections.emptyList();
     }
 
     public boolean nonanonymous() {
@@ -247,7 +260,8 @@ public class MucOptions {
                         break;
                     }
                 }
-                boolean self = user.realJid != null && user.realJid.equals(account.getJid().asBareJid());
+                boolean self =
+                        user.realJid != null && user.realJid.equals(account.getJid().asBareJid());
                 if (membersOnly()
                         && nonanonymous()
                         && user.affiliation.ranks(Affiliation.MEMBER)
@@ -264,7 +278,7 @@ public class MucOptions {
         return user;
     }
 
-    //returns true if real jid was new;
+    // returns true if real jid was new;
     public boolean updateUser(User user) {
         User old;
         boolean realJidFound = false;
@@ -273,7 +287,7 @@ public class MucOptions {
             realJidFound = old != null;
             if (old != null) {
                 if (old.fullJid != null) {
-                    return false; //don't add. user already exists
+                    return false; // don't add. user already exists
                 } else {
                     synchronized (users) {
                         users.remove(old);
@@ -298,7 +312,10 @@ public class MucOptions {
                 if (old.hats != null && user.hats == null) user.hats = old.hats;
                 if (old.avatar != null && user.avatar == null) user.avatar = old.avatar;
             }
-            boolean fullJidIsSelf = isOnline && user.getFullJid() != null && user.getFullJid().equals(self.getFullJid());
+            boolean fullJidIsSelf =
+                    isOnline
+                            && user.getFullJid() != null
+                            && user.getFullJid().equals(self.getFullJid());
             if (!fullJidIsSelf) {
                 this.users.add(user);
                 return !realJidFound && user.realJid != null;
@@ -351,7 +368,9 @@ public class MucOptions {
 
     public User findUserByOccupantId(final String occupantId, final Jid counterpart) {
         synchronized (this.users) {
-            final var found = Strings.isNullOrEmpty(occupantId) ? null : Iterables.find(this.users, u -> occupantId.equals(u.occupantId),null);
+            final var found = Strings.isNullOrEmpty(occupantId)
+                    ? null
+                    : Iterables.find(this.users, u -> occupantId.equals(u.occupantId), null);
             if (Strings.isNullOrEmpty(occupantId) || found != null) return found;
             final var user = new User(this, counterpart, occupantId, null, new HashSet<>());
             user.setOnline(false);
@@ -372,7 +391,8 @@ public class MucOptions {
 
     public User findUser(ReadByMarker readByMarker) {
         if (readByMarker.getRealJid() != null) {
-            return findOrCreateUserByRealJid(readByMarker.getRealJid().asBareJid(), readByMarker.getFullJid(), null);
+            return findOrCreateUserByRealJid(
+                    readByMarker.getRealJid().asBareJid(), readByMarker.getFullJid(), null);
         } else if (readByMarker.getFullJid() != null) {
             return findUserByFullJid(readByMarker.getFullJid());
         } else {
@@ -396,7 +416,7 @@ public class MucOptions {
 
     public List<User> findUsers(final Collection<Reaction> reactions) {
         final ImmutableList.Builder<User> builder = new ImmutableList.Builder<>();
-        for(final Reaction reaction : reactions) {
+        for (final Reaction reaction : reactions) {
             final var user = findUser(reaction);
             if (user != null) {
                 builder.add(user);
@@ -471,12 +491,14 @@ public class MucOptions {
     }
 
     public List<User> getUsers(final int max) {
-        ArrayList<User> subset = new ArrayList<>();
-        HashSet<Jid> addresses = new HashSet<>();
+        final ArrayList<User> subset = new ArrayList<>();
+        final HashSet<Jid> addresses = new HashSet<>();
         addresses.add(account.getJid().asBareJid());
         synchronized (users) {
             for (User user : users) {
-                if (user.getRealJid() == null || (user.getRealJid().getLocal() != null && addresses.add(user.getRealJid()))) {
+                if (user.getRealJid() == null
+                        || (user.getRealJid().getLocal() != null
+                        && addresses.add(user.getRealJid()))) {
                     subset.add(user);
                 }
                 if (subset.size() >= max) {
@@ -492,7 +514,8 @@ public class MucOptions {
         HashSet<Jid> jids = new HashSet<>();
         for (User user : users) {
             jids.add(user.getAccount().getJid().asBareJid());
-            if (user.getRealJid() == null || (user.getRealJid().getLocal() != null && jids.add(user.getRealJid()))) {
+            if (user.getRealJid() == null
+                    || (user.getRealJid().getLocal() != null && jids.add(user.getRealJid()))) {
                 subset.add(user);
             }
             if (subset.size() >= max) {
@@ -530,7 +553,8 @@ public class MucOptions {
 
     public String getProposedNickPure() {
         final Bookmark bookmark = this.conversation.getBookmark();
-        final String bookmarkedNick = normalize(account.getJid(), bookmark == null ? null : bookmark.getNick());
+        final String bookmarkedNick =
+                normalize(account.getJid(), bookmark == null ? null : bookmark.getNick());
         if (bookmarkedNick != null) {
             return bookmarkedNick;
         } else {
@@ -739,7 +763,8 @@ public class MucOptions {
 
     public String getPassword() {
         this.password = conversation.getAttribute(Conversation.ATTRIBUTE_MUC_PASSWORD);
-        if (this.password == null && conversation.getBookmark() != null
+        if (this.password == null
+                && conversation.getBookmark() != null
                 && conversation.getBookmark().getPassword() != null) {
             return conversation.getBookmark().getPassword();
         } else {
@@ -764,7 +789,12 @@ public class MucOptions {
         ArrayList<Jid> members = new ArrayList<>();
         synchronized (users) {
             for (User user : users) {
-                if (user.affiliation.ranks(Affiliation.MEMBER) && user.realJid != null && !user.realJid.asBareJid().equals(conversation.account.getJid().asBareJid()) && (!user.isDomain() || includeDomains)) {
+                if (user.affiliation.ranks(Affiliation.MEMBER)
+                        && user.realJid != null
+                        && !user.realJid
+                        .asBareJid()
+                        .equals(conversation.account.getJid().asBareJid())
+                        && (!user.isDomain() || includeDomains)) {
                     members.add(user.realJid);
                 }
             }
@@ -880,9 +910,7 @@ public class MucOptions {
         void onFailure();
     }
 
-    public interface OnRenameListener extends OnEventListener {
-
-    }
+    public interface OnRenameListener extends OnEventListener {}
 
     public static class Hat implements Comparable<Hat> {
         private final Uri uri;
@@ -1051,7 +1079,10 @@ public class MucOptions {
             if (avatar != null) {
                 return avatar.getFilename();
             }
-            Avatar avatar = realJid != null ? getAccount().getRoster().getContact(realJid).getAvatar() : null;
+            Avatar avatar =
+                    realJid != null
+                            ? getAccount().getRoster().getContact(realJid).getAvatar()
+                            : null;
             return avatar == null ? null : avatar.getFilename();
         }
 
@@ -1087,7 +1118,6 @@ public class MucOptions {
             if (realJid != null ? !realJid.equals(user.realJid) : user.realJid != null)
                 return false;
             return fullJid != null ? fullJid.equals(user.fullJid) : user.fullJid == null;
-
         }
 
         public boolean isDomain() {
@@ -1105,7 +1135,13 @@ public class MucOptions {
 
         @Override
         public String toString() {
-            return "[fulljid:" + fullJid + ",realjid:" + realJid + ",nick:" + nick + ",affiliation" + affiliation.toString() + "]";
+            return "[fulljid:"
+                    + fullJid
+                    + ",realjid:"
+                    + realJid
+                    + ",affiliation"
+                    + affiliation.toString()
+                    + "]";
         }
 
         public boolean realJidMatchesAccount() {

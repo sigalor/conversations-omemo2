@@ -29,12 +29,13 @@
 
 package eu.siacs.conversations.ui;
 
+import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -47,23 +48,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.PopupMenu;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
 import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -88,9 +81,14 @@ import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class ConversationsOverviewFragment extends XmppFragment {
 
-	private static final String STATE_SCROLL_POSITION = ConversationsOverviewFragment.class.getName()+".scroll_state";
+	private static final String STATE_SCROLL_POSITION =
+			ConversationsOverviewFragment.class.getName() + ".scroll_state";
 
 	private final List<Conversation> conversations = new ArrayList<>();
 	private final PendingItem<Conversation> swipedConversation = new PendingItem<>();
@@ -100,109 +98,151 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	private XmppActivity activity;
 	private final PendingActionHelper pendingActionHelper = new PendingActionHelper();
 
-	private final ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0,LEFT|RIGHT) {
-		@Override
-		public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-			return false;
-		}
-
-		@Override
-		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
-								float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if (viewHolder instanceof ConversationAdapter.ConversationViewHolder conversationViewHolder) {
-				getDefaultUIUtil().onDraw(c,recyclerView,conversationViewHolder.binding.frame,dX,dY,actionState,isCurrentlyActive);
-			}
-		}
-
-		@Override
-		public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-			if (viewHolder instanceof ConversationAdapter.ConversationViewHolder conversationViewHolder) {
-				getDefaultUIUtil().clearView(conversationViewHolder.binding.frame);
-			}
-		}
-
-		@Override
-		public float getSwipeEscapeVelocity(final float defaultEscapeVelocity) {
-			return 32 * defaultEscapeVelocity;
-		}
-
-		@Override
-		public void onSwiped(final RecyclerView.ViewHolder viewHolder, final int direction) {
-			pendingActionHelper.execute();
-			int position = viewHolder.getLayoutPosition();
-			try {
-				swipedConversation.push(conversations.get(position));
-			} catch (IndexOutOfBoundsException e) {
-				return;
-			}
-			conversationsAdapter.remove(swipedConversation.peek(), position);
-			activity.xmppConnectionService.markRead(swipedConversation.peek());
-
-			if (position == 0 && conversationsAdapter.getItemCount() == 0) {
-				final Conversation c = swipedConversation.pop();
-				activity.xmppConnectionService.archiveConversation(c);
-				return;
-			}
-			final boolean formerlySelected = ConversationFragment.getConversation(getActivity()) == swipedConversation.peek();
-			if (activity instanceof OnConversationArchived) {
-				((OnConversationArchived) activity).onConversationArchived(swipedConversation.peek());
-			}
-			final Conversation c = swipedConversation.peek();
-			final int title;
-			if (c.getMode() == Conversational.MODE_MULTI) {
-				if (c.getMucOptions().isPrivateAndNonAnonymous()) {
-					title = R.string.title_undo_swipe_out_group_chat;
-				} else {
-					title = R.string.title_undo_swipe_out_channel;
+	private final ItemTouchHelper.SimpleCallback callback =
+			new ItemTouchHelper.SimpleCallback(0, LEFT | RIGHT) {
+				@Override
+				public boolean onMove(
+						@NonNull RecyclerView recyclerView,
+						@NonNull RecyclerView.ViewHolder viewHolder,
+						@NonNull RecyclerView.ViewHolder target) {
+					return false;
 				}
-			} else {
-				title = R.string.title_undo_swipe_out_chat;
-			}
 
-			final Snackbar snackbar = Snackbar.make(binding.list, title, 5000)
-					.setAction(R.string.undo, v -> {
-						pendingActionHelper.undo();
-						Conversation conversation = swipedConversation.pop();
-						conversationsAdapter.insert(conversation, position);
-						if (formerlySelected) {
-							if (activity instanceof OnConversationSelected) {
-								((OnConversationSelected) activity).onConversationSelected(c);
-							}
-						}
-						LinearLayoutManager layoutManager = (LinearLayoutManager) binding.list.getLayoutManager();
-						if (position > layoutManager.findLastVisibleItemPosition()) {
-							binding.list.smoothScrollToPosition(position);
-						}
-					})
-					.addCallback(new Snackbar.Callback() {
-						@Override
-						public void onDismissed(Snackbar transientBottomBar, int event) {
-							switch (event) {
-								case DISMISS_EVENT_SWIPE:
-								case DISMISS_EVENT_TIMEOUT:
-									pendingActionHelper.execute();
-									break;
-							}
-						}
-					});
-
-			pendingActionHelper.push(() -> {
-				if (snackbar.isShownOrQueued()) {
-					snackbar.dismiss();
+				@Override
+				public void onChildDraw(
+						@NonNull Canvas c,
+						@NonNull RecyclerView recyclerView,
+						@NonNull RecyclerView.ViewHolder viewHolder,
+						float dX,
+						float dY,
+						int actionState,
+						boolean isCurrentlyActive) {
+					if (viewHolder
+							instanceof
+							ConversationAdapter.ConversationViewHolder conversationViewHolder) {
+						getDefaultUIUtil()
+								.onDraw(
+										c,
+										recyclerView,
+										conversationViewHolder.binding.frame,
+										dX,
+										dY,
+										actionState,
+										isCurrentlyActive);
+					}
 				}
-				final Conversation conversation = swipedConversation.pop();
-				if(conversation != null){
-					if (!conversation.isRead(activity.xmppConnectionService) && conversation.getMode() == Conversation.MODE_SINGLE) {
+
+				@Override
+				public void clearView(
+						@NonNull RecyclerView recyclerView,
+						@NonNull RecyclerView.ViewHolder viewHolder) {
+					if (viewHolder
+							instanceof
+							ConversationAdapter.ConversationViewHolder conversationViewHolder) {
+						getDefaultUIUtil().clearView(conversationViewHolder.binding.frame);
+					}
+				}
+
+				@Override
+				public float getSwipeEscapeVelocity(final float defaultEscapeVelocity) {
+					return 32 * defaultEscapeVelocity;
+				}
+
+				@Override
+				public void onSwiped(
+						final RecyclerView.ViewHolder viewHolder, final int direction) {
+					pendingActionHelper.execute();
+					int position = viewHolder.getLayoutPosition();
+					try {
+						swipedConversation.push(conversations.get(position));
+					} catch (IndexOutOfBoundsException e) {
 						return;
 					}
-					activity.xmppConnectionService.archiveConversation(c);
-				}
-			});
-			snackbar.show();
-		}
-	};
+					conversationsAdapter.remove(swipedConversation.peek(), position);
+					activity.xmppConnectionService.markRead(swipedConversation.peek());
 
-	private ItemTouchHelper touchHelper = null;
+					if (position == 0 && conversationsAdapter.getItemCount() == 0) {
+						final Conversation c = swipedConversation.pop();
+						activity.xmppConnectionService.archiveConversation(c);
+						return;
+					}
+					final boolean formerlySelected =
+							ConversationFragment.getConversation(getActivity())
+									== swipedConversation.peek();
+					if (activity instanceof OnConversationArchived) {
+						((OnConversationArchived) activity)
+								.onConversationArchived(swipedConversation.peek());
+					}
+					final Conversation c = swipedConversation.peek();
+					final int title;
+					if (c.getMode() == Conversational.MODE_MULTI) {
+						if (c.getMucOptions().isPrivateAndNonAnonymous()) {
+							title = R.string.title_undo_swipe_out_group_chat;
+						} else {
+							title = R.string.title_undo_swipe_out_channel;
+						}
+					} else {
+						title = R.string.title_undo_swipe_out_chat;
+					}
+
+					final Snackbar snackbar =
+							Snackbar.make(binding.list, title, 5000)
+									.setAction(
+											R.string.undo,
+											v -> {
+												pendingActionHelper.undo();
+												Conversation conversation =
+														swipedConversation.pop();
+												conversationsAdapter.insert(conversation, position);
+												if (formerlySelected) {
+													if (activity
+															instanceof OnConversationSelected) {
+														((OnConversationSelected) activity)
+																.onConversationSelected(c);
+													}
+												}
+												LinearLayoutManager layoutManager =
+														(LinearLayoutManager)
+																binding.list.getLayoutManager();
+												if (position
+														> layoutManager
+														.findLastVisibleItemPosition()) {
+													binding.list.smoothScrollToPosition(position);
+												}
+											})
+									.addCallback(
+											new Snackbar.Callback() {
+												@Override
+												public void onDismissed(
+														Snackbar transientBottomBar, int event) {
+													switch (event) {
+														case DISMISS_EVENT_SWIPE:
+														case DISMISS_EVENT_TIMEOUT:
+															pendingActionHelper.execute();
+															break;
+													}
+												}
+											});
+
+					pendingActionHelper.push(
+							() -> {
+								if (snackbar.isShownOrQueued()) {
+									snackbar.dismiss();
+								}
+								final Conversation conversation = swipedConversation.pop();
+								if (conversation != null) {
+									if (!conversation.isRead(activity.xmppConnectionService)
+											&& conversation.getMode() == Conversation.MODE_SINGLE) {
+										return;
+									}
+									activity.xmppConnectionService.archiveConversation(c);
+								}
+							});
+					snackbar.show();
+				}
+			};
+
+	private ItemTouchHelper touchHelper;
 
 	public static Conversation getSuggestion(Activity activity) {
 		final Conversation exception;
@@ -218,7 +258,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	public static Conversation getSuggestion(Activity activity, Conversation exception) {
 		Fragment fragment = activity.getFragmentManager().findFragmentById(R.id.main_fragment);
 		if (fragment instanceof ConversationsOverviewFragment) {
-			List<Conversation> conversations = ((ConversationsOverviewFragment) fragment).conversations;
+			List<Conversation> conversations =
+					((ConversationsOverviewFragment) fragment).conversations;
 			if (conversations.size() > 0) {
 				Conversation suggestion = conversations.get(0);
 				if (suggestion == exception) {
@@ -231,7 +272,6 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			}
 		}
 		return null;
-
 	}
 
 	@Override
@@ -249,26 +289,29 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		if (activity instanceof XmppActivity) {
 			this.activity = (XmppActivity) activity;
 		} else {
-			throw new IllegalStateException("Trying to attach fragment to activity that is not an XmppActivity");
+			throw new IllegalStateException(
+					"Trying to attach fragment to activity that is not an XmppActivity");
 		}
 	}
+
 	@Override
 	public void onDestroyView() {
-		Log.d(Config.LOGTAG,"ConversationsOverviewFragment.onDestroyView()");
+		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onDestroyView()");
 		super.onDestroyView();
 		this.binding = null;
 		this.conversationsAdapter = null;
 		this.touchHelper = null;
 	}
+
 	@Override
 	public void onDestroy() {
-		Log.d(Config.LOGTAG,"ConversationsOverviewFragment.onDestroy()");
+		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onDestroy()");
 		super.onDestroy();
-
 	}
+
 	@Override
 	public void onPause() {
-		Log.d(Config.LOGTAG,"ConversationsOverviewFragment.onPause()");
+		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onPause()");
 		pendingActionHelper.execute();
 		super.onPause();
 	}
@@ -286,20 +329,28 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	}
 
 	@Override
-	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversations_overview, container, false);
-		this.binding.fab.setOnClickListener((view) -> activity.launchStartConversation());
+	public View onCreateView(
+			final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		this.binding =
+				DataBindingUtil.inflate(
+						inflater, R.layout.fragment_conversations_overview, container, false);
+		this.binding.fab.setOnClickListener(
+				(view) -> StartConversationActivity.launch(getActivity()));
 
 		this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
-		this.conversationsAdapter.setConversationClickListener((view, conversation) -> {
-			if (activity instanceof OnConversationSelected) {
-				((OnConversationSelected) activity).onConversationSelected(conversation);
-			} else {
-				Log.w(ConversationsOverviewFragment.class.getCanonicalName(), "Activity does not implement OnConversationSelected");
-			}
-		});
+		this.conversationsAdapter.setConversationClickListener(
+				(view, conversation) -> {
+					if (activity instanceof OnConversationSelected) {
+						((OnConversationSelected) activity).onConversationSelected(conversation);
+					} else {
+						Log.w(
+								ConversationsOverviewFragment.class.getCanonicalName(),
+								"Activity does not implement OnConversationSelected");
+					}
+				});
 		this.binding.list.setAdapter(this.conversationsAdapter);
-		this.binding.list.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+		this.binding.list.setLayoutManager(
+				new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 		registerForContextMenu(this.binding.list);
 		this.binding.list.addOnScrollListener(ExtendedFabSizeChanger.of(binding.fab));
 		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) this.touchHelper = new ItemTouchHelper(this.callback);
@@ -332,6 +383,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
 		final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
 		final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
+		final MenuItem menuArchiveChat = menu.findItem(R.id.action_archive);
 
 		if (menuInfo == null) return;
 		int pos = ((AdapterContextMenuInfo) menuInfo).position;
@@ -342,6 +394,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				menuContactDetails.setVisible(false);
 				menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 				menuOngoingCall.setVisible(false);
+				menuArchiveChat.setTitle("Leave " + (conversation.getMucOptions().isPrivateAndNonAnonymous() ? "group chat" : "Channel"));
 			} else {
 				final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
 				final Optional<OngoingRtpSession> ongoingRtpSession = service == null ? Optional.absent() : service.getJingleConnectionManager().getOngoingRtpConnection(conversation.getContact());
@@ -352,6 +405,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				}
 				menuContactDetails.setVisible(!conversation.withSelf());
 				menuMucDetails.setVisible(false);
+				menuArchiveChat.setTitle(R.string.action_archive_chat);
 			}
 			if (conversation.isMuted()) {
 				menuMute.setVisible(false);
@@ -410,11 +464,12 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		if (this.binding == null) {
 			return null;
 		}
-		LinearLayoutManager layoutManager = (LinearLayoutManager) this.binding.list.getLayoutManager();
+		LinearLayoutManager layoutManager =
+				(LinearLayoutManager) this.binding.list.getLayoutManager();
 		int position = layoutManager.findFirstVisibleItemPosition();
 		final View view = this.binding.list.getChildAt(0);
 		if (view != null) {
-			return new ScrollState(position,view.getTop());
+			return new ScrollState(position, view.getTop());
 		} else {
 			return new ScrollState(position, 0);
 		}
@@ -476,20 +531,31 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	}
 
 	private void selectAccountToStartEasyInvite() {
-		final List<Account> accounts = EasyOnboardingInvite.getSupportingAccounts(activity.xmppConnectionService);
+		final List<Account> accounts =
+				EasyOnboardingInvite.getSupportingAccounts(activity.xmppConnectionService);
 		if (accounts.isEmpty()) {
-			//This can technically happen if opening the menu item races with accounts reconnecting or something
-			Toast.makeText(getActivity(),R.string.no_active_accounts_support_this, Toast.LENGTH_LONG).show();
+			// This can technically happen if opening the menu item races with accounts reconnecting
+			// or something
+			Toast.makeText(
+							getActivity(),
+							R.string.no_active_accounts_support_this,
+							Toast.LENGTH_LONG)
+					.show();
 		} else if (accounts.size() == 1) {
 			openEasyInviteScreen(accounts.get(0));
 		} else {
 			final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
-			final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
+			final MaterialAlertDialogBuilder alertDialogBuilder =
+					new MaterialAlertDialogBuilder(activity);
 			alertDialogBuilder.setTitle(R.string.choose_account);
-			final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toString()).toArray(new String[0]);
-			alertDialogBuilder.setSingleChoiceItems(asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
+			final String[] asStrings =
+					Collections2.transform(accounts, a -> a.getJid().asBareJid().toString())
+							.toArray(new String[0]);
+			alertDialogBuilder.setSingleChoiceItems(
+					asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
 			alertDialogBuilder.setNegativeButton(R.string.cancel, null);
-			alertDialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> openEasyInviteScreen(selectedAccount.get()));
+			alertDialogBuilder.setPositiveButton(
+					R.string.ok, (dialog, which) -> openEasyInviteScreen(selectedAccount.get()));
 			alertDialogBuilder.create().show();
 		}
 	}
@@ -560,15 +626,15 @@ public class ConversationsOverviewFragment extends XmppFragment {
 					PopupMenu popupMenu = new PopupMenu(getActivity(), v);
 					popupMenu.inflate(R.menu.mam_pref_fix);
 					popupMenu.setOnMenuItemClickListener(menuItem -> {
-							switch (menuItem.getItemId()) {
+						switch (menuItem.getItemId()) {
 							case R.id.ignore:
 								final var editor = activity.getPreferences().edit();
 								editor.putBoolean("no_mam_pref_warn:" + account.getUuid(), true).apply();
 								editor.apply();
 								refresh();
 								return true;
-							}
-							return true;
+						}
+						return true;
 					});
 					popupMenu.show();
 					return true;
@@ -580,8 +646,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 	private void setScrollPosition(ScrollState scrollPosition) {
 		if (scrollPosition != null) {
-			LinearLayoutManager layoutManager = (LinearLayoutManager) binding.list.getLayoutManager();
-			layoutManager.scrollToPositionWithOffset(scrollPosition.position, scrollPosition.offset);
+			LinearLayoutManager layoutManager =
+					(LinearLayoutManager) binding.list.getLayoutManager();
+			layoutManager.scrollToPositionWithOffset(
+					scrollPosition.position, scrollPosition.offset);
 		}
 	}
 }

@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PublishProfilePictureActivity extends XmppActivity
         implements XmppConnectionService.OnAccountUpdate, OnAvatarPublication {
+
     public static final int REQUEST_CHOOSE_PICTURE = 0x1337;
 
     private ActivityPublishProfilePictureBinding binding;
@@ -63,8 +64,7 @@ public class PublishProfilePictureActivity extends XmppActivity
                                         getApplicationContext(), StartConversationActivity.class);
                         StartConversationActivity.addInviteUri(intent, getIntent());
                         intent.putExtra("init", true);
-                        intent.putExtra(
-                                EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
+                        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
                         startActivity(intent);
                     }
                     Toast.makeText(
@@ -115,14 +115,10 @@ public class PublishProfilePictureActivity extends XmppActivity
                         final Intent intent =
                                 new Intent(
                                         getApplicationContext(), StartConversationActivity.class);
-                        if (xmppConnectionService != null
-                                && xmppConnectionService.getAccounts().size() == 1) {
-                            intent.putExtra("init", true);
-                        }
+                        intent.putExtra("init", true);
                         StartConversationActivity.addInviteUri(intent, getIntent());
                         if (account != null) {
-                            intent.putExtra(
-                                    EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
+                            intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
                         }
                         startActivity(intent);
                     }

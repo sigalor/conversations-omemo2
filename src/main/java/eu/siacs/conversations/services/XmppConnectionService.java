@@ -192,7 +192,6 @@ import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.LocalizedContent;
 import eu.siacs.conversations.xml.Namespace;
-
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnBindListener;
 import eu.siacs.conversations.xmpp.OnContactStatusChanged;
@@ -922,7 +921,7 @@ public class XmppConnectionService extends Service {
                 for (File file : Files.fileTraverser().breadthFirst(getCacheDir())) {
                     if (file.isFile() && file.canRead() && file.canWrite()) {
                         final var attrs = java.nio.file.Files.readAttributes(file.toPath(), java.nio.file.attribute.BasicFileAttributes.class);
-                        if ((now - attrs.lastAccessTime().toMillis()) > 1000L * 60 * 60 * 24 * 30) {
+                        if ((now - attrs.lastAccessTime().toMillis()) > 1000L * 60 * 60 * 24 * 10) {
                             Log.d(Config.LOGTAG, "cleanupCache removing file not used recently: " + file);
                             file.delete();
                         }
@@ -970,7 +969,7 @@ public class XmppConnectionService extends Service {
         final boolean needsForegroundService =
                 intent != null
                         && intent.getBooleanExtra(
-                                SystemEventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
+                        SystemEventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
         if (needsForegroundService) {
             Log.d(
                     Config.LOGTAG,
@@ -1037,18 +1036,18 @@ public class XmppConnectionService extends Service {
                         });
                 break;
             case ACTION_DISMISS_CALL:
-                {
-                    if (intent == null) {
-                        break;
-                    }
-                    final String sessionId =
-                            intent.getStringExtra(RtpSessionActivity.EXTRA_SESSION_ID);
-                    Log.d(
-                            Config.LOGTAG,
-                            "received intent to dismiss call with session id " + sessionId);
-                    mJingleConnectionManager.rejectRtpSession(sessionId);
+            {
+                if (intent == null) {
                     break;
                 }
+                final String sessionId =
+                        intent.getStringExtra(RtpSessionActivity.EXTRA_SESSION_ID);
+                Log.d(
+                        Config.LOGTAG,
+                        "received intent to dismiss call with session id " + sessionId);
+                mJingleConnectionManager.rejectRtpSession(sessionId);
+                break;
+            }
             case TorServiceUtils.ACTION_STATUS:
                 final String status =
                         intent == null ? null : intent.getStringExtra(TorServiceUtils.EXTRA_STATUS);
@@ -1059,33 +1058,33 @@ public class XmppConnectionService extends Service {
                 }
                 break;
             case ACTION_END_CALL:
-                {
-                    if (intent == null) {
-                        break;
-                    }
-                    final String sessionId =
-                            intent.getStringExtra(RtpSessionActivity.EXTRA_SESSION_ID);
-                    Log.d(
-                            Config.LOGTAG,
-                            "received intent to end call with session id " + sessionId);
-                    mJingleConnectionManager.endRtpSession(sessionId);
-                }
-                break;
-            case ACTION_PROVISION_ACCOUNT:
-                {
-                    if (intent == null) {
-                        break;
-                    }
-                    final String address = intent.getStringExtra("address");
-                    final String password = intent.getStringExtra("password");
-                    if (QuickConversationsService.isQuicksy()
-                            || Strings.isNullOrEmpty(address)
-                            || Strings.isNullOrEmpty(password)) {
-                        break;
-                    }
-                    provisionAccount(address, password);
+            {
+                if (intent == null) {
                     break;
                 }
+                final String sessionId =
+                        intent.getStringExtra(RtpSessionActivity.EXTRA_SESSION_ID);
+                Log.d(
+                        Config.LOGTAG,
+                        "received intent to end call with session id " + sessionId);
+                mJingleConnectionManager.endRtpSession(sessionId);
+            }
+            break;
+            case ACTION_PROVISION_ACCOUNT:
+            {
+                if (intent == null) {
+                    break;
+                }
+                final String address = intent.getStringExtra("address");
+                final String password = intent.getStringExtra("password");
+                if (QuickConversationsService.isQuicksy()
+                        || Strings.isNullOrEmpty(address)
+                        || Strings.isNullOrEmpty(password)) {
+                    break;
+                }
+                provisionAccount(address, password);
+                break;
+            }
             case ACTION_DISMISS_ERROR_NOTIFICATIONS:
                 dismissErrorNotifications();
                 break;
@@ -1678,7 +1677,7 @@ public class XmppConnectionService extends Service {
                 final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
                 return networkInfo != null
                         && (networkInfo.isConnected()
-                                || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET);
+                        || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET);
             }
         } catch (final RuntimeException e) {
             Log.d(Config.LOGTAG, "unable to check for internet connection", e);
@@ -2095,7 +2094,7 @@ public class XmppConnectionService extends Service {
                             intent,
                             s()
                                     ? PendingIntent.FLAG_IMMUTABLE
-                                            | PendingIntent.FLAG_UPDATE_CURRENT
+                                    | PendingIntent.FLAG_UPDATE_CURRENT
                                     : PendingIntent.FLAG_UPDATE_CURRENT);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setAndAllowWhileIdle(
@@ -2151,7 +2150,7 @@ public class XmppConnectionService extends Service {
                             intent,
                             s()
                                     ? PendingIntent.FLAG_IMMUTABLE
-                                            | PendingIntent.FLAG_UPDATE_CURRENT
+                                    | PendingIntent.FLAG_UPDATE_CURRENT
                                     : PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.setAndAllowWhileIdle(
                     AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
@@ -2370,7 +2369,7 @@ public class XmppConnectionService extends Service {
                 case Message.ENCRYPTION_NONE:
                     if (message.needsUploading()) {
                         if (account.httpUploadAvailable(
-                                        fileBackend.getFile(message, false).getSize())
+                                fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
                             this.sendFileMessage(message, delay, cb);
@@ -2386,7 +2385,7 @@ public class XmppConnectionService extends Service {
                 case Message.ENCRYPTION_DECRYPTED:
                     if (message.needsUploading()) {
                         if (account.httpUploadAvailable(
-                                        fileBackend.getFile(message, false).getSize())
+                                fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
                             this.sendFileMessage(message, delay, cb);
@@ -2426,7 +2425,7 @@ public class XmppConnectionService extends Service {
                     message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
                     if (message.needsUploading()) {
                         if (account.httpUploadAvailable(
-                                        fileBackend.getFile(message, false).getSize())
+                                fileBackend.getFile(message, false).getSize())
                                 || conversation.getMode() == Conversation.MODE_MULTI
                                 || message.fixCounterpart()) {
                             this.sendFileMessage(message, delay, cb);
@@ -2448,7 +2447,7 @@ public class XmppConnectionService extends Service {
             if (packet != null) {
                 if (account.getXmppConnection().getFeatures().sm()
                         || (conversation.getMode() == Conversation.MODE_MULTI
-                                && message.getCounterpart().isBareJid())) {
+                        && message.getCounterpart().isBareJid())) {
                     message.setStatus(Message.STATUS_UNSEND);
                 } else {
                     message.setStatus(Message.STATUS_SEND);
@@ -3018,7 +3017,7 @@ public class XmppConnectionService extends Service {
             this.conversations.addAll(
                     databaseBackend.getConversations(Conversation.STATUS_AVAILABLE));
             for (Iterator<Conversation> iterator = conversations.listIterator();
-                    iterator.hasNext(); ) {
+                 iterator.hasNext(); ) {
                 Conversation conversation = iterator.next();
                 Account account = accountLookupTable.get(conversation.getAccountUuid());
                 if (account != null) {
@@ -3193,7 +3192,7 @@ public class XmppConnectionService extends Service {
             for (Conversation conversation : getConversations()) {
                 if (conversation.getMode() == Conversation.MODE_SINGLE
                         || (conversation.getAccount().httpUploadAvailable()
-                                && conversation.getMucOptions().participating())) {
+                        && conversation.getMucOptions().participating())) {
                     list.add(conversation);
                 }
             }
@@ -3344,7 +3343,6 @@ public class XmppConnectionService extends Service {
                 }
             }
         }
-
         return null;
     }
 
@@ -3706,46 +3704,46 @@ public class XmppConnectionService extends Service {
 
     public void createAccountFromKey(final String alias, final OnAccountCreated callback) {
         new Thread(
-                        () -> {
-                            try {
-                                final X509Certificate[] chain =
-                                        KeyChain.getCertificateChain(this, alias);
-                                final X509Certificate cert =
-                                        chain != null && chain.length > 0 ? chain[0] : null;
-                                if (cert == null) {
-                                    callback.informUser(R.string.unable_to_parse_certificate);
-                                    return;
+                () -> {
+                    try {
+                        final X509Certificate[] chain =
+                                KeyChain.getCertificateChain(this, alias);
+                        final X509Certificate cert =
+                                chain != null && chain.length > 0 ? chain[0] : null;
+                        if (cert == null) {
+                            callback.informUser(R.string.unable_to_parse_certificate);
+                            return;
+                        }
+                        Pair<Jid, String> info = CryptoHelper.extractJidAndName(cert);
+                        if (info == null) {
+                            callback.informUser(R.string.certificate_does_not_contain_jid);
+                            return;
+                        }
+                        if (findAccountByJid(info.first) == null) {
+                            final Account account = new Account(info.first, "");
+                            account.setPrivateKeyAlias(alias);
+                            account.setOption(Account.OPTION_DISABLED, true);
+                            account.setOption(Account.OPTION_FIXED_USERNAME, true);
+                            account.setDisplayName(info.second);
+                            createAccount(account);
+                            callback.onAccountCreated(account);
+                            if (Config.X509_VERIFICATION) {
+                                try {
+                                    getMemorizingTrustManager()
+                                            .getNonInteractive(account.getServer(), null, 0, null)
+                                            .checkClientTrusted(chain, "RSA");
+                                } catch (CertificateException e) {
+                                    callback.informUser(
+                                            R.string.certificate_chain_is_not_trusted);
                                 }
-                                Pair<Jid, String> info = CryptoHelper.extractJidAndName(cert);
-                                if (info == null) {
-                                    callback.informUser(R.string.certificate_does_not_contain_jid);
-                                    return;
-                                }
-                                if (findAccountByJid(info.first) == null) {
-                                    final Account account = new Account(info.first, "");
-                                    account.setPrivateKeyAlias(alias);
-                                    account.setOption(Account.OPTION_DISABLED, true);
-                                    account.setOption(Account.OPTION_FIXED_USERNAME, true);
-                                    account.setDisplayName(info.second);
-                                    createAccount(account);
-                                    callback.onAccountCreated(account);
-                                    if (Config.X509_VERIFICATION) {
-                                        try {
-                                            getMemorizingTrustManager()
-                                                    .getNonInteractive(account.getServer(), null, 0, null)
-                                                    .checkClientTrusted(chain, "RSA");
-                                        } catch (CertificateException e) {
-                                            callback.informUser(
-                                                    R.string.certificate_chain_is_not_trusted);
-                                        }
-                                    }
-                                } else {
-                                    callback.informUser(R.string.account_already_exists);
-                                }
-                            } catch (Exception e) {
-                                callback.informUser(R.string.unable_to_parse_certificate);
                             }
-                        })
+                        } else {
+                            callback.informUser(R.string.account_already_exists);
+                        }
+                    } catch (Exception e) {
+                        callback.informUser(R.string.unable_to_parse_certificate);
+                    }
+                })
                 .start();
     }
 
@@ -4323,7 +4321,7 @@ public class XmppConnectionService extends Service {
                             if (mucOptions.nonanonymous()
                                     && !mucOptions.membersOnly()
                                     && !conversation.getBooleanAttribute(
-                                            "accept_non_anonymous", false)) {
+                                    "accept_non_anonymous", false)) {
                                 synchronized (account.inProgressConferenceJoins) {
                                     account.inProgressConferenceJoins.remove(conversation);
                                 }
@@ -4483,9 +4481,9 @@ public class XmppConnectionService extends Service {
                                                 && isNew
                                                 && user.getRealJid() != null
                                                 && (contact == null
-                                                        || !contact.mutualPresenceSubscription())
+                                                || !contact.mutualPresenceSubscription())
                                                 && axolotlService.hasEmptyDeviceList(
-                                                        user.getRealJid())) {
+                                                user.getRealJid())) {
                                             axolotlService.fetchDeviceIds(user.getRealJid());
                                         }
                                     }
@@ -4504,12 +4502,12 @@ public class XmppConnectionService extends Service {
                         ++i;
                         if (i >= affiliations.size()) {
                             final var mucOptions = conversation.getMucOptions();
-                            final var members = mucOptions.getMembers(true);
+                            List<Jid> members = mucOptions.getMembers(true);
                             if (success) {
                                 List<Jid> cryptoTargets = conversation.getAcceptedCryptoTargets();
                                 boolean changed = false;
                                 for (ListIterator<Jid> iterator = cryptoTargets.listIterator();
-                                        iterator.hasNext(); ) {
+                                     iterator.hasNext(); ) {
                                     Jid jid = iterator.next();
                                     if (!members.contains(jid)
                                             && !members.contains(jid.getDomain())) {
@@ -4679,11 +4677,11 @@ public class XmppConnectionService extends Service {
             final int limit,
             final OnMediaLoaded onMediaLoaded) {
         new Thread(
-                        () ->
-                                onMediaLoaded.onMediaLoaded(
-                                        fileBackend.convertToAttachments(
-                                                databaseBackend.getRelativeFilePaths(
-                                                        account, jid, limit))))
+                () ->
+                        onMediaLoaded.onMediaLoaded(
+                                fileBackend.convertToAttachments(
+                                        databaseBackend.getRelativeFilePaths(
+                                                account, jid, limit))))
                 .start();
     }
 
@@ -4696,6 +4694,7 @@ public class XmppConnectionService extends Service {
             conversation.setContactJid(full);
             databaseBackend.updateConversation(conversation);
         }
+
         final String nick = self.getNick();
         final Bookmark bookmark = conversation.getBookmark();
         if (bookmark == null || !modified) {
@@ -4740,8 +4739,8 @@ public class XmppConnectionService extends Service {
         }
         if (options.online()) {
             maybeRegisterWithMuc(conversation, nick);
-
-            options.setOnRenameListener(new OnRenameListener() {
+            options.setOnRenameListener(
+                    new OnRenameListener() {
 
                         @Override
                         public void onSuccess() {
@@ -5425,24 +5424,24 @@ public class XmppConnectionService extends Service {
     public void publishMucAvatar(
             final Conversation conversation, final Uri image, final OnAvatarPublication callback) {
         new Thread(
-                        () -> {
-                            final Bitmap.CompressFormat format = Config.AVATAR_FORMAT;
-                            final int size = Config.AVATAR_SIZE;
-                            final Avatar avatar =
-                                    getFileBackend().getPepAvatar(image, size, format);
-                            if (avatar != null) {
-                                if (!getFileBackend().save(avatar)) {
-                                    callback.onAvatarPublicationFailed(
-                                            R.string.error_saving_avatar);
-                                    return;
-                                }
-                                avatar.owner = conversation.getJid().asBareJid();
-                                publishMucAvatar(conversation, avatar, callback);
-                            } else {
-                                callback.onAvatarPublicationFailed(
-                                        R.string.error_publish_avatar_converting);
-                            }
-                        })
+                () -> {
+                    final Bitmap.CompressFormat format = Config.AVATAR_FORMAT;
+                    final int size = Config.AVATAR_SIZE;
+                    final Avatar avatar =
+                            getFileBackend().getPepAvatar(image, size, format);
+                    if (avatar != null) {
+                        if (!getFileBackend().save(avatar)) {
+                            callback.onAvatarPublicationFailed(
+                                    R.string.error_saving_avatar);
+                            return;
+                        }
+                        avatar.owner = conversation.getJid().asBareJid();
+                        publishMucAvatar(conversation, avatar, callback);
+                    } else {
+                        callback.onAvatarPublicationFailed(
+                                R.string.error_publish_avatar_converting);
+                    }
+                })
                 .start();
     }
 
@@ -5698,31 +5697,37 @@ public class XmppConnectionService extends Service {
                     public void accept(final Iq packet) {
                         if (packet.getType() == Iq.Type.RESULT || errorIsItemNotFound(packet)) {
                             final Avatar serverAvatar = parseAvatar(packet);
-                    if (serverAvatar == null && account.getAvatar() != null) {
-                        final Avatar avatar =
-                                fileBackend.getStoredPepAvatar(account.getAvatar());
-                        if (avatar != null) {
-                            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": avatar on server was null. republishing");
-                            // publishing as 'open' - old server (that requires
-                            // republication) likely doesn't support access models anyway
-                            publishAvatar(
-                                    account,
-                                    fileBackend.getStoredPepAvatar(account.getAvatar()),
-                                    true,
-                                    null);
-                        } else {
-                            Log.e(Config.LOGTAG, account.getJid().asBareJid() + ": error rereading avatar");
+                            if (serverAvatar == null && account.getAvatar() != null) {
+                                final Avatar avatar =
+                                        fileBackend.getStoredPepAvatar(account.getAvatar());
+                                if (avatar != null) {
+                                    Log.d(
+                                            Config.LOGTAG,
+                                            account.getJid().asBareJid()
+                                                    + ": avatar on server was null. republishing");
+                                    // publishing as 'open' - old server (that requires
+                                    // republication) likely doesn't support access models anyway
+                                    publishAvatar(
+                                            account,
+                                            fileBackend.getStoredPepAvatar(account.getAvatar()),
+                                            true,
+                                            null);
+                                } else {
+                                    Log.e(
+                                            Config.LOGTAG,
+                                            account.getJid().asBareJid()
+                                                    + ": error rereading avatar");
+                                }
+                            }
                         }
                     }
-                }
-            }
-        });
+                });
     }
 
     public void cancelAvatarFetches(final Account account) {
         synchronized (mInProgressAvatarFetches) {
             for (final Iterator<String> iterator = mInProgressAvatarFetches.iterator();
-                    iterator.hasNext(); ) {
+                 iterator.hasNext(); ) {
                 final String KEY = iterator.next();
                 if (KEY.startsWith(account.getJid().asBareJid() + "_")) {
                     iterator.remove();
@@ -6164,7 +6169,7 @@ public class XmppConnectionService extends Service {
         final int oldStatus = message.getStatus();
         if (status == Message.STATUS_SEND_FAILED
                 && (oldStatus == Message.STATUS_SEND_RECEIVED
-                        || oldStatus == Message.STATUS_SEND_DISPLAYED)) {
+                || oldStatus == Message.STATUS_SEND_DISPLAYED)) {
             return;
         }
         if (status == Message.STATUS_SEND_RECEIVED && oldStatus == Message.STATUS_SEND_DISPLAYED) {
@@ -6375,7 +6380,7 @@ public class XmppConnectionService extends Service {
             if (c.getAccount().isEnabled()
                     && c.getJid().asBareJid().equals(xmppUri.getJid().asBareJid())
                     && ((c.getMode() == Conversational.MODE_MULTI)
-                            == xmppUri.isAction(XmppUri.ACTION_JOIN))) {
+                    == xmppUri.isAction(XmppUri.ACTION_JOIN))) {
                 findings.add(c);
             }
         }
@@ -6907,7 +6912,7 @@ public class XmppConnectionService extends Service {
         for (Account account : getAccounts()) {
             if ((account.isEnabled() || accountJid != null)
                     && (accountJid == null
-                            || accountJid.equals(account.getJid().asBareJid().toString()))) {
+                    || accountJid.equals(account.getJid().asBareJid().toString()))) {
                 Contact contact = account.getRoster().getContactFromContactList(jid);
                 if (contact != null) {
                     contacts.add(contact);
@@ -7006,9 +7011,9 @@ public class XmppConnectionService extends Service {
             for (Conversation conversation : this.conversations) {
                 boolean jidMatches =
                         (domainJid
-                                        && blockedJid
-                                                .getDomain()
-                                                .equals(conversation.getJid().getDomain()))
+                                && blockedJid
+                                .getDomain()
+                                .equals(conversation.getJid().getDomain()))
                                 || blockedJid.equals(conversation.getJid().asBareJid());
                 if (conversation.getAccount() == account
                         && conversation.getMode() == Conversation.MODE_SINGLE

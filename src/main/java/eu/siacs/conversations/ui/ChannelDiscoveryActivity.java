@@ -44,9 +44,9 @@ import eu.siacs.conversations.xmpp.Jid;
 
 public class ChannelDiscoveryActivity extends XmppActivity
         implements MenuItem.OnActionExpandListener,
-                TextView.OnEditorActionListener,
-                ChannelDiscoveryService.OnChannelSearchResultsFound,
-                ChannelSearchResultAdapter.OnChannelSearchResultSelected {
+        TextView.OnEditorActionListener,
+        ChannelDiscoveryService.OnChannelSearchResultsFound,
+        ChannelSearchResultAdapter.OnChannelSearchResultSelected {
 
     private static final String CHANNEL_DISCOVERY_OPT_IN = "channel_discovery_opt_in";
 

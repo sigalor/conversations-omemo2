@@ -19,10 +19,10 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.security.SecureRandom;
@@ -165,7 +165,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
                     intent.putExtra("useownprovider", useOwnProvider);
                     intent.putExtra("register", registerFromUri);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
                     builder.setTitle(getString(R.string.create_account));
                     builder.setCancelable(false);
                     StringBuilder messasge = new StringBuilder();

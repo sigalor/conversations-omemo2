@@ -305,8 +305,7 @@ public class Conversation extends AbstractEntity
                 cursor.getString(cursor.getColumnIndexOrThrow(NAME)),
                 cursor.getString(cursor.getColumnIndexOrThrow(CONTACT)),
                 cursor.getString(cursor.getColumnIndexOrThrow(ACCOUNT)),
-                Jid.ofOrInvalid(
-                        cursor.getString(cursor.getColumnIndexOrThrow(CONTACTJID))),
+                Jid.ofOrInvalid(cursor.getString(cursor.getColumnIndexOrThrow(CONTACTJID))),
                 cursor.getLong(cursor.getColumnIndexOrThrow(CREATED)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(STATUS)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(MODE)),
@@ -341,7 +340,7 @@ public class Conversation extends AbstractEntity
         }
         return conversation.isSingleOrPrivateAndNonAnonymous()
                 || conversation.getBooleanAttribute(
-                        ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false);
+                ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false);
     }
 
     public boolean hasMessagesLeftOnServer() {
@@ -468,11 +467,11 @@ public class Conversation extends AbstractEntity
                 if (message.getUuid().equals(uuid)
                         && message.getEncryption() != Message.ENCRYPTION_PGP
                         && (message.isFileOrImage()
-                                || message.treatAsDownloadable()
-                                || unInitiatedButKnownSize
-                                || (transferable != null
-                                        && transferable.getStatus()
-                                                != Transferable.STATUS_UPLOADING))) {
+                        || message.treatAsDownloadable()
+                        || unInitiatedButKnownSize
+                        || (transferable != null
+                        && transferable.getStatus()
+                        != Transferable.STATUS_UPLOADING))) {
                     return message;
                 }
             }
@@ -609,7 +608,7 @@ public class Conversation extends AbstractEntity
             for (Message message : this.messages) {
                 if (id.equals(message.getUuid())
                         || (message.getStatus() >= Message.STATUS_SEND
-                                && id.equals(message.getRemoteMsgId()))) {
+                        && id.equals(message.getRemoteMsgId()))) {
                     return message;
                 }
             }
@@ -1111,7 +1110,7 @@ public class Conversation extends AbstractEntity
                 }
             }
         } else if ((QuickConversationsService.isConversations()
-                        || !Config.QUICKSY_DOMAIN.equals(contactJid.getDomain()))
+                || !Config.QUICKSY_DOMAIN.equals(contactJid.getDomain()))
                 && isWithStranger()) {
             return contactJid;
         } else {
@@ -1512,8 +1511,8 @@ public class Conversation extends AbstractEntity
     public boolean alwaysNotify() {
         return mode == MODE_SINGLE
                 || getBooleanAttribute(
-                        ATTRIBUTE_ALWAYS_NOTIFY,
-                        Config.ALWAYS_NOTIFY_BY_DEFAULT || isPrivateAndNonAnonymous());
+                ATTRIBUTE_ALWAYS_NOTIFY,
+                Config.ALWAYS_NOTIFY_BY_DEFAULT || isPrivateAndNonAnonymous());
     }
 
     public boolean notifyReplies() {
@@ -1664,7 +1663,7 @@ public class Conversation extends AbstractEntity
                     anyMatchSpam = true;
                     return;
                 }
-            } catch (final java.util.regex.PatternSyntaxException ignored) {  } // Not supported on old android
+            } catch (final java.util.regex.PatternSyntaxException e) {  } // Not supported on old android
             if (body.length() > 500 || !m.getLinks().isEmpty() || body.matches(".*(?:\\n.*\\n.*\\n|[Aa]\\s*d\\s*v\\s*v\\s*e\\s*r\\s*t|[Pp]romotion|[Dd][Dd][Oo][Ss]|[Ee]scrow|payout|seller|\\?OTR|write me when will be|v seti|[Pp]rii?vee?t|there\\?|online\\?|exploit).*")) {
                 anyMatchSpam = true;
                 return;
@@ -1697,7 +1696,7 @@ public class Conversation extends AbstractEntity
     public void expireOldMessages(long timestamp) {
         synchronized (this.messages) {
             for (ListIterator<Message> iterator = this.messages.listIterator();
-                    iterator.hasNext(); ) {
+                 iterator.hasNext(); ) {
                 if (iterator.next().getTimeSent() < timestamp) {
                     iterator.remove();
                 }
@@ -2670,7 +2669,7 @@ public class Conversation extends AbstractEntity
                     float screenWidth = binding.getRoot().getContext().getResources().getDisplayMetrics().widthPixels;
                     TextPaint paint = ((TextView) LayoutInflater.from(binding.getRoot().getContext()).inflate(R.layout.radio_grid_item, null)).getPaint();
                     float maxColumnWidth = theOptions.stream().map((x) ->
-                        StaticLayout.getDesiredWidth(x.toString(), paint)
+                            StaticLayout.getDesiredWidth(x.toString(), paint)
                     ).max(Float::compare).orElse(new Float(0.0));
                     if (maxColumnWidth * theOptions.size() < 0.90 * screenWidth) {
                         binding.radios.setNumColumns(theOptions.size());
@@ -2763,22 +2762,22 @@ public class Conversation extends AbstractEntity
 
                             final SVG icon = getItem(position).getIcon();
                             if (icon != null) {
-                                 final Element iconEl = getItem(position).getIconEl();
-                                 if (height < 1) {
-                                     v.measure(0, 0);
-                                     height = v.getMeasuredHeight();
-                                 }
-                                 if (height < 1) return v;
-                                 if (mediaSelector) {
-                                     final Drawable d = getDrawableForSVG(icon, iconEl, height * 4);
-                                     if (d != null) {
-                                         final int boundsHeight = 35 + (int)((height * 4) / xmppConnectionService.getResources().getDisplayMetrics().density);
-                                         d.setBounds(0, 0, d.getIntrinsicWidth(), boundsHeight);
-                                     }
-                                     v.setCompoundDrawables(null, d, null, null);
-                                 } else {
-                                     v.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawableForSVG(icon, iconEl, height), null, null, null);
-                                 }
+                                final Element iconEl = getItem(position).getIconEl();
+                                if (height < 1) {
+                                    v.measure(0, 0);
+                                    height = v.getMeasuredHeight();
+                                }
+                                if (height < 1) return v;
+                                if (mediaSelector) {
+                                    final Drawable d = getDrawableForSVG(icon, iconEl, height * 4);
+                                    if (d != null) {
+                                        final int boundsHeight = 35 + (int)((height * 4) / xmppConnectionService.getResources().getDisplayMetrics().density);
+                                        d.setBounds(0, 0, d.getIntrinsicWidth(), boundsHeight);
+                                    }
+                                    v.setCompoundDrawables(null, d, null, null);
+                                } else {
+                                    v.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawableForSVG(icon, iconEl, height), null, null, null);
+                                }
                             }
 
                             return v;
@@ -2866,9 +2865,9 @@ public class Conversation extends AbstractEntity
 
                         final SVG defaultIcon = defaultOption.getIcon();
                         if (defaultIcon != null) {
-                             DisplayMetrics display = mPager.get().getContext().getResources().getDisplayMetrics();
-                             int height = (int)(display.heightPixels*display.density/4);
-                             binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, getDrawableForSVG(defaultIcon, defaultOption.getIconEl(), height), null, null);
+                            DisplayMetrics display = mPager.get().getContext().getResources().getDisplayMetrics();
+                            int height = (int)(display.heightPixels*display.density/4);
+                            binding.defaultButton.setCompoundDrawablesRelativeWithIntrinsicBounds(null, getDrawableForSVG(defaultIcon, defaultOption.getIconEl(), height), null, null);
                         }
 
                         binding.defaultButton.setText(defaultOption.toString());
@@ -3178,10 +3177,10 @@ public class Conversation extends AbstractEntity
                                 viewType = TYPE_CHECKBOX_FIELD;
                             }
                         } else if (
-                            range != null && range.getAttribute("min") != null && range.getAttribute("max") != null && (
-                                "xs:integer".equals(datatype) || "xs:int".equals(datatype) || "xs:long".equals(datatype) || "xs:short".equals(datatype) || "xs:byte".equals(datatype) ||
-                                "xs:decimal".equals(datatype) || "xs:double".equals(datatype)
-                            )
+                                range != null && range.getAttribute("min") != null && range.getAttribute("max") != null && (
+                                        "xs:integer".equals(datatype) || "xs:int".equals(datatype) || "xs:long".equals(datatype) || "xs:short".equals(datatype) || "xs:byte".equals(datatype) ||
+                                                "xs:decimal".equals(datatype) || "xs:double".equals(datatype)
+                                )
                         ) {
                             // has a range and is numeric, use a slider
                             viewType = TYPE_SLIDER_FIELD;
@@ -3412,8 +3411,8 @@ public class Conversation extends AbstractEntity
                             eu.siacs.conversations.xmpp.forms.Field fillableField = null;
                             for (eu.siacs.conversations.xmpp.forms.Field field : form.getFields()) {
                                 if ((field.getType() == null || (!field.getType().equals("hidden") && !field.getType().equals("fixed"))) && field.getFieldName() != null && !field.getFieldName().equals("http://jabber.org/protocol/commands#actions")) {
-                                   final var validate = field.findChild("validate", "http://jabber.org/protocol/xdata-validate");
-                                   final var range = validate == null ? null : validate.findChild("range", "http://jabber.org/protocol/xdata-validate");
+                                    final var validate = field.findChild("validate", "http://jabber.org/protocol/xdata-validate");
+                                    final var range = validate == null ? null : validate.findChild("range", "http://jabber.org/protocol/xdata-validate");
                                     fillableField = range == null ? field : null;
                                     fillableFieldCount++;
                                 }
@@ -3502,8 +3501,8 @@ public class Conversation extends AbstractEntity
                 Data dataForm = null;
                 if (responseElement != null && responseElement.getName().equals("x") && responseElement.getNamespace().equals("jabber:x:data")) dataForm = Data.parse(responseElement);
                 if (mNode.equals("jabber:iq:register") &&
-                    xmppConnectionService.getPreferences().contains("onboarding_action") &&
-                    dataForm != null && dataForm.getFieldByName("gateway-jid") != null) {
+                        xmppConnectionService.getPreferences().contains("onboarding_action") &&
+                        dataForm != null && dataForm.getFieldByName("gateway-jid") != null) {
 
 
                     dataForm.put("gateway-jid", xmppConnectionService.getPreferences().getString("onboarding_action", ""));
@@ -3592,8 +3591,8 @@ public class Conversation extends AbstractEntity
                                             if (el.getName().equals("item")) {
                                                 for (Element subel : el.getChildren()) {
                                                     if (subel.getAttribute("var").equals(reportedField.getVar())) {
-                                                       itemField = subel;
-                                                       break;
+                                                        itemField = subel;
+                                                        break;
                                                     }
                                                 }
                                             }
@@ -3754,11 +3753,11 @@ public class Conversation extends AbstractEntity
 
                 String formType = responseElement == null ? null : responseElement.getAttribute("type");
                 if (!action.equals("cancel") &&
-                    !action.equals("prev") &&
-                    responseElement != null &&
-                    responseElement.getName().equals("x") &&
-                    responseElement.getNamespace().equals("jabber:x:data") &&
-                    formType != null && formType.equals("form")) {
+                        !action.equals("prev") &&
+                        responseElement != null &&
+                        responseElement.getName().equals("x") &&
+                        responseElement.getNamespace().equals("jabber:x:data") &&
+                        formType != null && formType.equals("form")) {
 
                     Data form = Data.parse(responseElement);
                     eu.siacs.conversations.xmpp.forms.Field actionList = form.getFieldByName("http://jabber.org/protocol/commands#actions");
@@ -3837,9 +3836,9 @@ public class Conversation extends AbstractEntity
                     float screenWidth = ctx.getResources().getDisplayMetrics().widthPixels;
                     TextPaint paint = ((TextView) LayoutInflater.from(mPager.get().getContext()).inflate(R.layout.command_result_cell, null)).getPaint();
                     float tableHeaderWidth = reported.stream().reduce(
-                        0f,
-                        (total, field) -> total + StaticLayout.getDesiredWidth(field.getLabel().or("--------") + "\t", paint),
-                        (a, b) -> a + b
+                            0f,
+                            (total, field) -> total + StaticLayout.getDesiredWidth(field.getLabel().or("--------") + "\t", paint),
+                            (a, b) -> a + b
                     );
 
                     spanCount = tableHeaderWidth > 0.59 * screenWidth ? 1 : this.reported.size();
@@ -3931,11 +3930,11 @@ public class Conversation extends AbstractEntity
             }
 
             private Drawable getDrawableForSVG(SVG svg, Element svgElement, int size) {
-               if (svgElement != null && svgElement.getChildren().size() == 1 && svgElement.getChildren().get(0).getName().equals("image"))  {
-                   return getDrawableForUrl(svgElement.getChildren().get(0).getAttribute("href"));
-               } else {
-                   return xmppConnectionService.getFileBackend().drawSVG(svg, size);
-               }
+                if (svgElement != null && svgElement.getChildren().size() == 1 && svgElement.getChildren().get(0).getName().equals("image"))  {
+                    return getDrawableForUrl(svgElement.getChildren().get(0).getAttribute("href"));
+                } else {
+                    return xmppConnectionService.getFileBackend().drawSVG(svg, size);
+                }
             }
 
             private Drawable getDrawableForUrl(final String url) {
@@ -4051,8 +4050,8 @@ public class Conversation extends AbstractEntity
                     final var packet = new Iq(Iq.Type.SET);
                     packet.setTo(response.getFrom());
                     final Element form = packet
-                        .addChild("query", "http://jabber.org/protocol/muc#owner")
-                        .addChild("x", "jabber:x:data");
+                            .addChild("query", "http://jabber.org/protocol/muc#owner")
+                            .addChild("x", "jabber:x:data");
                     form.setAttribute("type", "cancel");
                     xmppConnectionService.sendIqPacket(getAccount(), packet, null);
                     return true;
@@ -4065,14 +4064,14 @@ public class Conversation extends AbstractEntity
 
                 String formType = responseElement == null ? null : responseElement.getAttribute("type");
                 if (responseElement != null &&
-                    responseElement.getName().equals("x") &&
-                    responseElement.getNamespace().equals("jabber:x:data") &&
-                    formType != null && formType.equals("form")) {
+                        responseElement.getName().equals("x") &&
+                        responseElement.getNamespace().equals("jabber:x:data") &&
+                        formType != null && formType.equals("form")) {
 
                     responseElement.setAttribute("type", "submit");
                     packet
-                        .addChild("query", "http://jabber.org/protocol/muc#owner")
-                        .addChild(responseElement);
+                            .addChild("query", "http://jabber.org/protocol/muc#owner")
+                            .addChild(responseElement);
                 }
 
                 executing = true;

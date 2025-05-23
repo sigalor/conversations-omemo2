@@ -124,6 +124,11 @@ public class CallIntegration extends Connection {
         this.callback.onCallIntegrationReject();
     }
 
+    @Override
+    public void onPlayDtmfTone(char c) {
+        this.callback.applyDtmfTone("" + c);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     public void onAvailableCallEndpointsChanged(@NonNull List<CallEndpoint> availableEndpoints) {
@@ -372,7 +377,7 @@ public class CallIntegration extends Connection {
             }
         }
         if (state == STATE_ACTIVE) {
-            startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_ANSWER, 100 );
+            startTone(DEFAULT_TONE_VOLUME, ToneGenerator.TONE_CDMA_ANSWER, 100);
         } else if (state == STATE_DISCONNECTED) {
             final var audioManager = this.appRTCAudioManager;
             if (audioManager != null) {
@@ -543,10 +548,6 @@ public class CallIntegration extends Connection {
         if (Build.MODEL.endsWith("(AppSupport)")) {
             return false;
         }
-        // SailfishOS's AppSupport do not support Call Integration
-        if (Build.MODEL.endsWith("(AppSupport)")) {
-            return false;
-        }
         return true;
     }
 
@@ -620,5 +621,7 @@ public class CallIntegration extends Connection {
         void onCallIntegrationSilence();
 
         void onCallIntegrationMicrophoneEnabled(boolean enabled);
+
+        boolean applyDtmfTone(final String dtmf);
     }
 }

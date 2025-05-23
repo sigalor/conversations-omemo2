@@ -37,7 +37,7 @@ public class TagEditorView extends TokenCompleteTextView<ListItem.Tag> {
 	@Override
 	protected View getViewForObject(ListItem.Tag tag) {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-		final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, (ViewGroup) getParent(), false);
+		final TextView tv = (TextView) inflater.inflate(R.layout.item_tag, (ViewGroup) getParent(), false);
 		tv.setText(tag.getName());
       tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(getContext(),XEP0392Helper.rgbFromNick(tag.getName()))));
 		return tv;

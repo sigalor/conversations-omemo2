@@ -1,14 +1,15 @@
 package eu.siacs.conversations.xml;
 
 import androidx.annotation.NonNull;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-
+import eu.siacs.conversations.utils.XmlHelper;
+import eu.siacs.conversations.xmpp.Jid;
+import im.conversations.android.xmpp.model.stanza.Message;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -184,12 +185,16 @@ public class Element implements Node {
 		return Optional.fromNullable(Ints.tryParse(value));
 	}
 
-	public Jid getAttributeAsJid(final String name) {
+	public Jid getAttributeAsJid(String name) {
 		final String jid = this.getAttribute(name);
-		if (Strings.isNullOrEmpty(jid)) {
-			return null;
+		if (jid != null && !jid.isEmpty()) {
+			try {
+				return Jid.of(jid);
+			} catch (final IllegalArgumentException e) {
+				return Jid.ofOrInvalid(jid, this instanceof Message);
+			}
 		}
-		return Jid.ofOrInvalid(jid, this instanceof Message);
+		return null;
 	}
 
 	public Element setAttribute(String name, String value) {

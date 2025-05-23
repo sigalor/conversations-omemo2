@@ -21,14 +21,11 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
@@ -41,7 +38,6 @@ import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
 import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
-
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,7 +89,8 @@ public class CallIntegrationConnectionService extends ConnectionService {
         if (service == null) {
             Log.d(
                     Config.LOGTAG,
-                    "CallIntegrationConnection service was unable to bind to XmppConnectionService");
+                    "CallIntegrationConnection service was unable to bind to"
+                            + " XmppConnectionService");
             return Connection.createFailedConnection(
                     new DisconnectCause(DisconnectCause.ERROR, "service connection not found"));
         }
@@ -137,7 +134,8 @@ public class CallIntegrationConnectionService extends ConnectionService {
                     return Connection.createFailedConnection(
                             new DisconnectCause(
                                     DisconnectCause.ERROR,
-                                    "Phone is busy. Probably race condition. Try again in a moment"));
+                                    "Phone is busy. Probably race condition. Try again in a"
+                                            + " moment"));
                 }
                 if (proposal == null) {
                     // TODO instead of just null checking try to get the sessionID

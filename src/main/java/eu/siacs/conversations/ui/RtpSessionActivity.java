@@ -1,7 +1,6 @@
 package eu.siacs.conversations.ui;
 
 import static eu.siacs.conversations.utils.PermissionUtils.getFirstDenied;
-
 import static java.util.Arrays.asList;
 
 import android.Manifest;
@@ -25,13 +24,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.databinding.DataBindingUtil;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -78,19 +75,9 @@ import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import eu.siacs.conversations.xmpp.jingle.RtpEndUserState;
 
-import org.webrtc.RendererCommon;
-import org.webrtc.SurfaceViewRenderer;
-import org.webrtc.VideoTrack;
-
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 public class RtpSessionActivity extends XmppActivity
         implements XmppConnectionService.OnJingleRtpConnectionUpdate,
-                eu.siacs.conversations.ui.widget.SurfaceViewRenderer.OnAspectRatioChanged {
+        eu.siacs.conversations.ui.widget.SurfaceViewRenderer.OnAspectRatioChanged {
 
     public static final String EXTRA_WITH = "with";
     public static final String EXTRA_SESSION_ID = "session_id";
@@ -201,7 +188,7 @@ public class RtpSessionActivity extends XmppActivity
 
         binding.dialpad.setClickConsumer(tag -> {
             final JingleRtpConnection connection =
-                this.rtpConnectionReference != null ? this.rtpConnectionReference.get() : null;
+                    this.rtpConnectionReference != null ? this.rtpConnectionReference.get() : null;
             if (connection != null) connection.applyDtmfTone(tag);
         });
 
@@ -467,7 +454,7 @@ public class RtpSessionActivity extends XmppActivity
                     rtpConnection == null ? null : rtpConnection.getCallIntegration();
             if (callIntegration == null
                     || callIntegration.getSelectedAudioDevice()
-                            == CallIntegration.AudioDevice.EARPIECE) {
+                    == CallIntegration.AudioDevice.EARPIECE) {
                 acquireProximityWakeLock();
             }
         }
@@ -793,10 +780,10 @@ public class RtpSessionActivity extends XmppActivity
             final JingleRtpConnection rtpConnection = requireRtpConnection();
             return rtpConnection.getMedia().contains(Media.VIDEO)
                     && Arrays.asList(
-                                    RtpEndUserState.ACCEPTING_CALL,
-                                    RtpEndUserState.CONNECTING,
-                                    RtpEndUserState.CONNECTED)
-                            .contains(rtpConnection.getEndUserState());
+                            RtpEndUserState.ACCEPTING_CALL,
+                            RtpEndUserState.CONNECTING,
+                            RtpEndUserState.CONNECTED)
+                    .contains(rtpConnection.getEndUserState());
         } catch (final IllegalStateException e) {
             return false;
         }
@@ -825,9 +812,9 @@ public class RtpSessionActivity extends XmppActivity
                             .getJingleConnectionManager()
                             .getTerminalSessionState(with, sessionId);
             if (terminatedRtpSession == null) {
-                Log.e(Config.LOGTAG, "failed to initialize activity with running rtp session. session not found");
-                finish();
-                return true;
+                throw new IllegalStateException(
+                        "failed to initialize activity with running rtp session. session not"
+                                + " found");
             }
             initializeWithTerminatedSessionState(account, with, terminatedRtpSession);
             return true;
@@ -946,10 +933,12 @@ public class RtpSessionActivity extends XmppActivity
             case RETRACTED -> setTitle(R.string.rtp_state_retracted);
             case APPLICATION_ERROR -> setTitle(R.string.rtp_state_application_failure);
             case SECURITY_ERROR -> setTitle(R.string.rtp_state_security_error);
-            case ENDED -> throw new IllegalStateException(
-                    "Activity should have called finishAndReleaseWakeLock();");
-            default -> throw new IllegalStateException(
-                    String.format("State %s has not been handled in UI", state));
+            case ENDED ->
+                    throw new IllegalStateException(
+                            "Activity should have called finishAndReleaseWakeLock();");
+            default ->
+                    throw new IllegalStateException(
+                            String.format("State %s has not been handled in UI", state));
         }
     }
 
@@ -983,9 +972,7 @@ public class RtpSessionActivity extends XmppActivity
             final Account account = contact == null ? getWith().getAccount() : contact.getAccount();
             binding.usingAccount.setVisibility(View.VISIBLE);
             binding.usingAccount.setText(
-                    getString(
-                            R.string.using_account,
-                            account.getJid().asBareJid().toString()));
+                    getString(R.string.using_account, account.getJid().asBareJid().toString()));
         } else {
             binding.usingAccount.setVisibility(View.GONE);
             binding.contactPhoto.setVisibility(View.GONE);
@@ -1060,11 +1047,11 @@ public class RtpSessionActivity extends XmppActivity
             this.binding.acceptCall.setImageResource(R.drawable.ic_voicemail_24dp);
             this.binding.acceptCall.setVisibility(View.VISIBLE);
         } else if (asList(
-                        RtpEndUserState.CONNECTIVITY_ERROR,
-                        RtpEndUserState.CONNECTIVITY_LOST_ERROR,
-                        RtpEndUserState.APPLICATION_ERROR,
-                        RtpEndUserState.RETRACTED,
-                        RtpEndUserState.SECURITY_ERROR)
+                RtpEndUserState.CONNECTIVITY_ERROR,
+                RtpEndUserState.CONNECTIVITY_LOST_ERROR,
+                RtpEndUserState.APPLICATION_ERROR,
+                RtpEndUserState.RETRACTED,
+                RtpEndUserState.SECURITY_ERROR)
                 .contains(state)) {
             this.binding.rejectCall.setContentDescription(getString(R.string.exit));
             this.binding.rejectCall.setOnClickListener(this::exit);

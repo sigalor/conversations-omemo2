@@ -1,7 +1,6 @@
 package eu.siacs.conversations.entities;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import de.monocles.chat.EmojiSearch;
@@ -10,6 +9,7 @@ import de.monocles.chat.GetThumbnailForCid;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
@@ -28,7 +28,6 @@ import io.ipfs.cid.Cid;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.utils.Emoticons;
 import eu.siacs.conversations.xmpp.Jid;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -109,7 +108,7 @@ public class Reaction {
             final Jid trueJid,
             final String occupantId,
             final String envelopeId) {
-         final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
+        final ImmutableSet.Builder<Reaction> builder = new ImmutableSet.Builder<>();
         builder.addAll(Collections2.filter(existing, e -> e.received));
         builder.addAll(
                 Collections2.transform(
@@ -223,7 +222,7 @@ public class Reaction {
 
     public static Aggregated aggregated(final Collection<Reaction> reactions, Function<Reaction, GetThumbnailForCid> thumbnailer) {
         final Map<EmojiSearch.Emoji, Collection<Reaction>> aggregatedReactions =
-                        Multimaps.index(reactions, r -> r.cid == null ? new EmojiSearch.Emoji(r.reaction, 0) : new EmojiSearch.CustomEmoji(r.reaction, r.cid.toString(), thumbnailer.apply(r).getThumbnail(r.cid), null)).asMap();
+                Multimaps.index(reactions, r -> r.cid == null ? new EmojiSearch.Emoji(r.reaction, 0) : new EmojiSearch.CustomEmoji(r.reaction, r.cid.toString(), thumbnailer.apply(r).getThumbnail(r.cid), null)).asMap();
         final List<Map.Entry<EmojiSearch.Emoji, Collection<Reaction>>> sortedList =
                 Ordering.from(
                                 Comparator.comparingInt(

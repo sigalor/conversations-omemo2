@@ -149,7 +149,7 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         final ImmutableList.Builder<Integer> viewIdBuilder = new ImmutableList.Builder<>();
         for (MucOptions.Hat hat : user.getPseudoHats(viewHolder.binding.getRoot().getContext())) {
             final String tag = hat.toString();
-            final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
+            final TextView tv = (TextView) inflater.inflate(R.layout.item_tag, viewHolder.binding.tags, false);
             tv.setText(tag);
             tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(context,hat.getColor())));
             final int id = ViewCompat.generateViewId();
@@ -159,7 +159,7 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         }
         for (MucOptions.Hat hat : user.getHats()) {
             final String tag = hat.toString();
-            final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, viewHolder.binding.tags, false);
+            final TextView tv = (TextView) inflater.inflate(R.layout.item_tag, viewHolder.binding.tags, false);
             tv.setText(tag);
             tv.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.harmonizeWithPrimary(context,hat.getColor())));
             final int id = ViewCompat.generateViewId();

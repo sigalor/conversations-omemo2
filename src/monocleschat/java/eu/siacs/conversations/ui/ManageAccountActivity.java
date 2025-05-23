@@ -105,7 +105,7 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
         findViewById(R.id.phone_accounts).setOnClickListener((View v) -> {
             mMicIntent = new Intent();
             mMicIntent.setComponent(new ComponentName("com.android.server.telecom",
-                "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
+                    "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
             requestMicPermission();
         });
         findViewById(R.id.phone_accounts_settings).setOnClickListener((View v) -> {

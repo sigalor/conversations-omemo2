@@ -3,12 +3,8 @@ package eu.siacs.conversations.ui;
 import android.os.Bundle;
 import android.text.Editable;
 import android.widget.Toast;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
-import java.util.Collections;
-
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Blockable;
@@ -17,20 +13,26 @@ import eu.siacs.conversations.entities.RawBlockable;
 import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
+import java.util.Collections;
 
-public class BlocklistActivity extends AbstractSearchableListItemActivity implements OnUpdateBlocklist {
+public class BlocklistActivity extends AbstractSearchableListItemActivity
+		implements OnUpdateBlocklist {
 
 	private Account account = null;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getListView().setOnItemLongClickListener((parent, view, position, id) -> {
-			BlockContactDialog.show(BlocklistActivity.this, (Blockable) getListItems().get(position));
-			return true;
-		});
+		getListView()
+				.setOnItemLongClickListener(
+						(parent, view, position, id) -> {
+							BlockContactDialog.show(
+									BlocklistActivity.this,
+									(Blockable) getListItems().get(position));
+							return true;
+						});
 		this.binding.fab.show();
-		this.binding.fab.setOnClickListener((v)->showEnterJidDialog());
+		this.binding.fab.setOnClickListener((v) -> showEnterJidDialog());
 	}
 
 	@Override
@@ -75,25 +77,30 @@ public class BlocklistActivity extends AbstractSearchableListItemActivity implem
 			ft.remove(prev);
 		}
 		ft.addToBackStack(null);
-		EnterJidDialog dialog = EnterJidDialog.newInstance(
-				null,
-				getString(R.string.block_jabber_id),
-				getString(R.string.block),
-				null,
-				null,
-				account.getJid().asBareJid().toString(),
-				true,
-				false,
-				EnterJidDialog.SanityCheck.NO
-		);
+		EnterJidDialog dialog =
+				EnterJidDialog.newInstance(
+						null,
+						getString(R.string.block_jabber_id),
+						getString(R.string.block),
+						null,
+						null,
+						account.getJid().asBareJid().toString(),
+						true,
+						false,
+						EnterJidDialog.SanityCheck.NO);
 
-		dialog.setOnEnterJidDialogPositiveListener((accountJid, contactJid, x, y) -> {
-			Blockable blockable = new RawBlockable(account, contactJid);
-			if (xmppConnectionService.sendBlockRequest(blockable, false, null)) {
-				Toast.makeText(BlocklistActivity.this, R.string.corresponding_chats_closed, Toast.LENGTH_SHORT).show();
-			}
-			return true;
-		});
+		dialog.setOnEnterJidDialogPositiveListener(
+				(accountJid, contactJid, x, y) -> {
+					Blockable blockable = new RawBlockable(account, contactJid);
+					if (xmppConnectionService.sendBlockRequest(blockable, false, null)) {
+						Toast.makeText(
+										BlocklistActivity.this,
+										R.string.corresponding_chats_closed,
+										Toast.LENGTH_SHORT)
+								.show();
+					}
+					return true;
+				});
 
 		dialog.show(ft, "dialog");
 	}
@@ -111,5 +118,4 @@ public class BlocklistActivity extends AbstractSearchableListItemActivity implem
 	public void OnUpdateBlocklist(final OnUpdateBlocklist.Status status) {
 		refreshUi();
 	}
-
 }

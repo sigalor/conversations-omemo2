@@ -91,6 +91,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
@@ -115,6 +116,7 @@ import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcStore;
+import de.monocles.chat.EditMessageSelectionActionModeCallback;
 
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -1353,8 +1355,7 @@ public class ConversationFragment extends XmppFragment
             }
             intent.putExtra("contacts", contacts);
             intent.putExtra(
-                    EXTRA_ACCOUNT,
-                    conversation.getAccount().getJid().asBareJid().toString());
+                    EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
             intent.putExtra("conversation", conversation.getUuid());
             startActivityForResult(intent, requestCode);
             return true;
@@ -1537,17 +1538,17 @@ public class ConversationFragment extends XmppFragment
                                 if (!i.hasNext()) return;
                                 final Attachment attachment = i.next();
                                 if (attachment.getType() == Attachment.Type.LOCATION) {
-                                        attachLocationToConversation(conversation, attachment.getUri());
+                                    attachLocationToConversation(conversation, attachment.getUri());
                                     if (i.hasNext()) runOnUiThread(this);
                                 } else if (attachment.getType() == Attachment.Type.IMAGE) {
                                     Log.d(
-                                          Config.LOGTAG,
-                                          "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
+                                            Config.LOGTAG,
+                                            "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
                                     attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), this);
                                 } else {
                                     Log.d(
-                                          Config.LOGTAG,
-                                          "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
+                                            Config.LOGTAG,
+                                            "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
                                     attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), this);
                                 }
                                 i.remove();
@@ -1760,7 +1761,7 @@ public class ConversationFragment extends XmppFragment
         if (appSettings.isLargeFont()) {
             binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         } else {
-            binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         }
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
         binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
@@ -1804,15 +1805,16 @@ public class ConversationFragment extends XmppFragment
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.binding.textinput.setCustomInsertionActionModeCallback(
                     new EditMessageActionModeCallback(this.binding.textinput));
+            this.binding.textinput.setCustomSelectionActionModeCallback(
+                    new EditMessageSelectionActionModeCallback(this.binding.textinput));
         }
+
         messageListAdapter.setOnMessageBoxClicked(message -> {
             if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 if (message.isPrivateMessage()) privateMessageWith(message.getCounterpart());
                 setThread(message.getThread());
                 conversation.setUserSelectedThread(true);
-                conversation.setUserSelectedThread(true);
             }
-           // if (conversation.getMode() == Conversational.MODE_SINGLE || conversation.getMucOptions().participating()) addReaction(message);
         });
 
         binding.threadIdenticonLayout.setOnClickListener(v -> {
@@ -1867,6 +1869,9 @@ public class ConversationFragment extends XmppFragment
 
                         @Override
                         protected void onQuery(@Nullable CharSequence query) {
+                            if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete))
+                                return;
+
                             final var allUsers = conversation.getMucOptions().getUsers();
                             if (!conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).isEmpty()) {
                                 final var u = new MucOptions.User(conversation.getMucOptions(), null, "\0role:moderator", "Notify active moderators", new HashSet<>());
@@ -1905,42 +1910,42 @@ public class ConversationFragment extends XmppFragment
                                             })));
                         }
 
-                @Override
-                protected AutocompletePresenter.PopupDimensions getPopupDimensions() {
-                    final var dim = new AutocompletePresenter.PopupDimensions();
-                    dim.width = displayMetrics.widthPixels * 4/5;
-                    return dim;
-                }
-            })
-            .with(new AutocompleteCallback<MucOptions.User>() {
-                @Override
-                public boolean onPopupItemClicked(Editable editable, MucOptions.User user) {
-                    int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
-                    if (range == null) return false;
-                    range[0] -= 1;
-                    if ("\0attention".equals(user.getOccupantId())) {
-                        editable.delete(Math.max(0, range[0]), Math.min(editable.length(), range[1]));
-                        editable.insert(0, "@here ");
-                        return true;
-                    }
-                    int colon = editable.toString().indexOf(':');
-                    final var beforeColon = range[0] < colon;
-                    String prefix = "";
-                    String suffix = " ";
-                    if (beforeColon) suffix = ", ";
-                    if (colon < 0 && range[0] == 0) suffix = ": ";
-                    if (colon > 0 && colon == range[0] - 2) {
-                        prefix = ", ";
-                        suffix = ": ";
-                        range[0] -= 2;
-                    }
-                    var insert = user.getNick();
-                    if ("\0role:moderator".equals(user.getOccupantId())) {
-                        insert = conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).stream().map(MucOptions.User::getNick).collect(Collectors.joining(", "));
-                    }
-                    editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), prefix + insert + suffix);
-                    return true;
-                }
+                        @Override
+                        protected AutocompletePresenter.PopupDimensions getPopupDimensions() {
+                            final var dim = new AutocompletePresenter.PopupDimensions();
+                            dim.width = displayMetrics.widthPixels * 4 / 5;
+                            return dim;
+                        }
+                    })
+                    .with(new AutocompleteCallback<MucOptions.User>() {
+                        @Override
+                        public boolean onPopupItemClicked(Editable editable, MucOptions.User user) {
+                            int[] range = com.otaliastudios.autocomplete.CharPolicy.getQueryRange(editable);
+                            if (range == null) return false;
+                            range[0] -= 1;
+                            if ("\0attention".equals(user.getOccupantId())) {
+                                editable.delete(Math.max(0, range[0]), Math.min(editable.length(), range[1]));
+                                editable.insert(0, "@here ");
+                                return true;
+                            }
+                            int colon = editable.toString().indexOf(':');
+                            final var beforeColon = range[0] < colon;
+                            String prefix = "";
+                            String suffix = " ";
+                            if (beforeColon) suffix = ", ";
+                            if (colon < 0 && range[0] == 0) suffix = ": ";
+                            if (colon > 0 && colon == range[0] - 2) {
+                                prefix = ", ";
+                                suffix = ": ";
+                                range[0] -= 2;
+                            }
+                            var insert = user.getNick();
+                            if ("\0role:moderator".equals(user.getOccupantId())) {
+                                insert = conversation.getMucOptions().getUsersByRole(MucOptions.Role.MODERATOR).stream().map(MucOptions.User::getNick).collect(Collectors.joining(", "));
+                            }
+                            editable.replace(Math.max(0, range[0]), Math.min(editable.length(), range[1]), prefix + insert + suffix);
+                            return true;
+                        }
 
                         @Override
                         public void onPopupVisibilityChanged(boolean shown) {
@@ -1970,6 +1975,9 @@ public class ConversationFragment extends XmppFragment
 
                         @Override
                         protected void onQuery(@Nullable CharSequence query) {
+                            if (!activity.xmppConnectionService.getBooleanPreference("message_autocomplete", R.bool.message_autocomplete))
+                                return;
+
                             emojiDebounce.removeCallbacksAndMessages(null);
                             emojiDebounce.postDelayed(() -> {
                                 if (getRecyclerView() == null) return;
@@ -2109,7 +2117,6 @@ public class ConversationFragment extends XmppFragment
         conversation.setReplyTo(message);
         if (message == null) {
             binding.contextPreview.setVisibility(View.GONE);
-            //binding.textsend.setBackgroundResource(R.drawable.textsend);
             return;
         }
 
@@ -2229,27 +2236,26 @@ public class ConversationFragment extends XmppFragment
                             || t instanceof HttpDownloadConnection);
             activity.getMenuInflater().inflate(R.menu.message_context, menu);
             final MenuItem reportAndBlock = menu.findItem(R.id.action_report_and_block);
-            final MenuItem addReaction = menu.findItem(R.id.action_add_reaction);
-            final MenuItem openWith = menu.findItem(R.id.open_with);
-            final MenuItem pinToTop = menu.findItem(R.id.pin_message_to_top);
-            final MenuItem copyMessage = menu.findItem(R.id.copy_message);
-            final MenuItem quoteMessage = menu.findItem(R.id.quote_message);
-            final MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
-            final MenuItem correctMessage = menu.findItem(R.id.correct_message);
-            final MenuItem retractMessage = menu.findItem(R.id.retract_message);
-            final MenuItem moderateMessage = menu.findItem(R.id.moderate_message);
-            final MenuItem onlyThisThread = menu.findItem(R.id.only_this_thread);
-            final MenuItem shareWith = menu.findItem(R.id.share_with);
-            final MenuItem sendAgain = menu.findItem(R.id.send_again);
-            final MenuItem copyUrl = menu.findItem(R.id.copy_url);
-            final MenuItem saveToDownloads = menu.findItem(R.id.save_to_downloads);
-            final MenuItem copyLink = menu.findItem(R.id.copy_link);
+            MenuItem openWith = menu.findItem(R.id.open_with);
+            MenuItem pinToTop = menu.findItem(R.id.pin_message_to_top);
+            MenuItem copyMessage = menu.findItem(R.id.copy_message);
+            MenuItem quoteMessage = menu.findItem(R.id.quote_message);
+            MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
+            MenuItem correctMessage = menu.findItem(R.id.correct_message);
+            MenuItem retractMessage = menu.findItem(R.id.retract_message);
+            MenuItem moderateMessage = menu.findItem(R.id.moderate_message);
+            MenuItem onlyThisThread = menu.findItem(R.id.only_this_thread);
+            MenuItem shareWith = menu.findItem(R.id.share_with);
+            MenuItem sendAgain = menu.findItem(R.id.send_again);
+            MenuItem copyUrl = menu.findItem(R.id.copy_url);
+            MenuItem saveToDownloads = menu.findItem(R.id.save_to_downloads);
+            MenuItem copyLink = menu.findItem(R.id.copy_link);
             MenuItem saveAsSticker = menu.findItem(R.id.save_as_sticker);
-            final MenuItem downloadFile = menu.findItem(R.id.download_file);
-            final MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
-            final MenuItem blockMedia = menu.findItem(R.id.block_media);
-            final MenuItem deleteFile = menu.findItem(R.id.delete_file);
-            final MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
+            MenuItem downloadFile = menu.findItem(R.id.download_file);
+            MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
+            MenuItem blockMedia = menu.findItem(R.id.block_media);
+            MenuItem deleteFile = menu.findItem(R.id.delete_file);
+            MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
             onlyThisThread.setVisible(!conversation.getLockThread() && m.getThread() != null);
             final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(m);
             final boolean showError =
@@ -2345,12 +2351,10 @@ public class ConversationFragment extends XmppFragment
                     if (file.canRead()) saveAsSticker.setVisible(true);
                     blockMedia.setVisible(true);
                     if (file.canWrite()) deleteFile.setVisible(true);
-                    String fileDescriptorString = UIHelper.getFileDescriptionString(activity, m);
                     deleteFile.setTitle(
                             activity.getString(
                                     R.string.delete_x_file,
-                                    fileDescriptorString));
-
+                                    UIHelper.getFileDescriptionString(activity, m)));
                     saveToDownloads.setVisible(true);
                 }
             }
@@ -2385,7 +2389,6 @@ public class ConversationFragment extends XmppFragment
                         .setMessage(R.string.do_you_really_want_to_retract_this_message)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             final var message = selectedMessage;
-
                             if (message.getStatus() == Message.STATUS_WAITING || message.getStatus() == Message.STATUS_OFFERED) {
                                 activity.xmppConnectionService.deleteMessage(message);
                                 return;
@@ -2501,9 +2504,6 @@ public class ConversationFragment extends XmppFragment
             case R.id.action_report_and_block:
                 reportMessage(selectedMessage);
                 return true;
-            case R.id.action_add_reaction:
-                addReaction(selectedMessage);
-                return true;
             default:
                 return onOptionsItemSelected(item);
         }
@@ -2536,7 +2536,7 @@ public class ConversationFragment extends XmppFragment
                 handleAttachmentSelection(item);
                 break;
             case R.id.attach_webxdc:
-                final Intent intent = new Intent(activity, WebxdcStore.class);
+                final Intent intent = new Intent(getActivity(), WebxdcStore.class);
                 startActivityForResult(intent, REQUEST_WEBXDC_STORE);
                 break;
             case R.id.attach_subject:
@@ -3240,7 +3240,7 @@ public class ConversationFragment extends XmppFragment
         final List<String> missingPermissions = new ArrayList<>();
         for (String permission : permissions) {
             if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                            || Config.ONLY_INTERNAL_STORAGE)
+                    || Config.ONLY_INTERNAL_STORAGE)
                     && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 continue;
             }
@@ -3270,31 +3270,41 @@ public class ConversationFragment extends XmppFragment
 
     protected void invokeAttachFileIntent(final int attachmentChoice) {
         Intent intent = new Intent();
-        boolean chooser = false;
+
+        final var takePhotoIntent = new Intent();
+        final Uri takePhotoUri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri();
+        pendingTakePhotoUri.push(takePhotoUri);
+        takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, takePhotoUri);
+        takePhotoIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        takePhotoIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        takePhotoIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        final var takeVideoIntent = new Intent();
+        takeVideoIntent.setAction(MediaStore.ACTION_VIDEO_CAPTURE);
+
         switch (attachmentChoice) {
             case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                intent.setType("image/*");
-                chooser = true;
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+                intent = Intent.createChooser(intent, getString(R.string.perform_action_with));
+                if (activity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    intent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { takePhotoIntent, takeVideoIntent });
+                }
                 break;
             case ATTACHMENT_CHOICE_RECORD_VIDEO:
-                intent.setAction(MediaStore.ACTION_VIDEO_CAPTURE);
+                intent = takeVideoIntent;
                 break;
             case ATTACHMENT_CHOICE_TAKE_PHOTO:
-                final Uri uri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri();
-                pendingTakePhotoUri.push(uri);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                intent = takePhotoIntent;
                 break;
             case ATTACHMENT_CHOICE_CHOOSE_FILE:
-                chooser = true;
-                intent.setType("*/*");
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setType("*/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent = Intent.createChooser(intent, getString(R.string.perform_action_with));
                 break;
             case ATTACHMENT_CHOICE_RECORD_VOICE:
                 backPressedLeaveVoiceRecorder.setEnabled(true);
@@ -3308,14 +3318,8 @@ public class ConversationFragment extends XmppFragment
         if (context == null) {
             return;
         }
-        if (attachmentChoice != ATTACHMENT_CHOICE_RECORD_VOICE) try {
-            if (chooser) {
-                startActivityForResult(
-                        Intent.createChooser(intent, getString(R.string.perform_action_with)),
-                        attachmentChoice);
-            } else {
-                startActivityForResult(intent, attachmentChoice);
-            }
+        try {
+            startActivityForResult(intent, attachmentChoice);
         } catch (final ActivityNotFoundException e) {
             Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_LONG).show();
         }
@@ -3431,18 +3435,6 @@ public class ConversationFragment extends XmppFragment
             final var displayName = name == null ? file.getName() : name;
             ViewUtil.view(activity, file, displayName);
         }
-    }
-
-    private void addReaction(final Message message) {
-        activity.addReaction(
-                message,
-                reactions -> {
-                    if (activity.xmppConnectionService.sendReactions(message, reactions)) {
-                        return;
-                    }
-                    Toast.makeText(activity, R.string.could_not_add_reaction, Toast.LENGTH_LONG)
-                            .show();
-                });
     }
 
     private void reportMessage(final Message message) {
@@ -3884,7 +3876,6 @@ public class ConversationFragment extends XmppFragment
             final var accent = activity.isDark() ? ColorUtils.blendARGB(colors.getAccentContainer(), bg, 1.0f - Math.max(0.25f, Color.alpha(accountColor) / 255.0f)) : colors.getAccentContainer();
             cursord.setTintList(ColorStateList.valueOf(colors.getOnAccentContainer()));
             binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
-
             binding.textinputSubject.setTextColor(colors.getOnAccentContainer());
             binding.textinput.setTextColor(colors.getOnAccentContainer());
             binding.textinputSubject.setHintTextColor(ColorStateList.valueOf(colors.getOnAccentContainer()).withAlpha(115));
@@ -3893,14 +3884,12 @@ public class ConversationFragment extends XmppFragment
         } else {
             cursord.setTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer)));
             binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
-
             binding.textinputSubject.setTextColor(MaterialColors.getColor(binding.textinputSubject, com.google.android.material.R.attr.colorOnTertiaryContainer));
             binding.textinput.setTextColor(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer));
             binding.textinputSubject.setHintTextColor(R.color.hint_on_tertiary_container);
             binding.textinput.setHintTextColor(R.color.hint_on_tertiary_container);
             binding.textInputHint.setTextColor(MaterialColors.getColor(binding.textInputHint, com.google.android.material.R.attr.colorOnTertiaryContainer));
         }
-
         if (Build.VERSION.SDK_INT >= 29) {
             binding.textinputSubject.setTextCursorDrawable(cursord);
             binding.textinput.setTextCursorDrawable(cursord);
@@ -4657,8 +4646,6 @@ public class ConversationFragment extends XmppFragment
         final SendButtonAction action;
         if (hasAttachments) {
             action = SendButtonAction.TEXT;
-            //binding.emojiButton.setVisibility(GONE);
-            //binding.keyboardButton.setVisibility(GONE);
         } else {
             action = SendButtonTool.getAction(getActivity(), c, text, binding.textinputSubject.getText().toString());
         }
@@ -4684,7 +4671,7 @@ public class ConversationFragment extends XmppFragment
         final Activity activity = getActivity();
         if (activity != null) {
             this.binding.textSendButton.setIconResource(
-                    SendButtonTool.getSendButtonImageResource(action, !text.isEmpty() || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
+                    SendButtonTool.getSendButtonImageResource(action, text.length() > 0 || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
         }
         if (activity == null) return;
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -5323,14 +5310,9 @@ public class ConversationFragment extends XmppFragment
                                         menuItem, user, activity, fingerprint));
             } else {
                 popupMenu.inflate(R.menu.one_on_one_context);
-                final MenuItem menuShowAvatar = popupMenu.getMenu().findItem(R.id.action_show_avatar);
-                if (contact.getAvatar() != null) menuShowAvatar.setVisible(true);
                 popupMenu.setOnMenuItemClickListener(
                         item -> {
                             switch (item.getItemId()) {
-                                case R.id.action_show_avatar:
-                                    activity.ShowAvatarPopup(activity, contact);
-                                    break;
                                 case R.id.action_contact_details:
                                     activity.switchToContactDetails(
                                             message.getContact(), fingerprint);
