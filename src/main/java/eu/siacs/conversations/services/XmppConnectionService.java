@@ -192,7 +192,7 @@ import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.LocalizedContent;
 import eu.siacs.conversations.xml.Namespace;
-import eu.siacs.conversations.xmpp.InvalidJid;
+
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnBindListener;
 import eu.siacs.conversations.xmpp.OnContactStatusChanged;
@@ -2643,7 +2643,7 @@ public class XmppConnectionService extends Service {
                             if (uri != null) {
                                 final EasyOnboardingInvite invite =
                                         new EasyOnboardingInvite(
-                                                jid.getDomain().toEscapedString(), uri, landingUrl);
+                                                jid.getDomain().toString(), uri, landingUrl);
                                 callback.inviteRequested(invite);
                                 return;
                             }
@@ -2719,7 +2719,7 @@ public class XmppConnectionService extends Service {
 
     public void processMdsItem(final Account account, final Element item) {
         final Jid jid =
-                item == null ? null : InvalidJid.getNullForInvalid(item.getAttributeAsJid("id"));
+                item == null ? null : Jid.Invalid.getNullForInvalid(item.getAttributeAsJid("id"));
         if (jid == null) {
             return;
         }
@@ -2877,7 +2877,7 @@ public class XmppConnectionService extends Service {
                     account,
                     Namespace.BOOKMARKS2,
                     item,
-                    bookmark.getJid().asBareJid().toEscapedString(),
+                    bookmark.getJid().asBareJid().toString(),
                     PublishOptions.persistentWhitelistAccessMaxItems());
         } else if (connection.getFeatures().bookmarksConversion()) {
             pushBookmarksPep(account);
@@ -2897,7 +2897,7 @@ public class XmppConnectionService extends Service {
         if (connection.getFeatures().bookmarks2()) {
             final Iq request =
                     mIqGenerator.deleteItem(
-                            Namespace.BOOKMARKS2, bookmark.getJid().asBareJid().toEscapedString());
+                            Namespace.BOOKMARKS2, bookmark.getJid().asBareJid().toString());
             Log.d(
                     Config.LOGTAG,
                     account.getJid().asBareJid() + ": removing bookmark via Bookmarks 2");
@@ -3697,10 +3697,10 @@ public class XmppConnectionService extends Service {
     }
 
     private void provisionAccount(final String address, final String password) {
-        final Jid jid = Jid.ofEscaped(address);
+        final Jid jid = Jid.of(address);
         final Account account = new Account(jid, password);
         account.setOption(Account.OPTION_DISABLED, true);
-        Log.d(Config.LOGTAG, jid.asBareJid().toEscapedString() + ": provisioning account");
+        Log.d(Config.LOGTAG, jid.asBareJid().toString() + ": provisioning account");
         createAccount(account);
     }
 
@@ -4138,15 +4138,15 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean checkListeners() {
-        return (this.mOnAccountUpdates.size() == 0
-                && this.mOnConversationUpdates.size() == 0
-                && this.mOnRosterUpdates.size() == 0
-                && this.mOnCaptchaRequested.size() == 0
-                && this.mOnMucRosterUpdate.size() == 0
-                && this.mOnUpdateBlocklist.size() == 0
-                && this.mOnShowErrorToasts.size() == 0
-                && this.onJingleRtpConnectionUpdate.size() == 0
-                && this.mOnKeyStatusUpdated.size() == 0);
+        return (this.mOnAccountUpdates.isEmpty()
+                && this.mOnConversationUpdates.isEmpty()
+                && this.mOnRosterUpdates.isEmpty()
+                && this.mOnCaptchaRequested.isEmpty()
+                && this.mOnMucRosterUpdate.isEmpty()
+                && this.mOnUpdateBlocklist.isEmpty()
+                && this.mOnShowErrorToasts.isEmpty()
+                && this.onJingleRtpConnectionUpdate.isEmpty()
+                && this.mOnKeyStatusUpdated.isEmpty());
     }
 
     private void switchToForeground() {
@@ -4503,7 +4503,8 @@ public class XmppConnectionService extends Service {
                         }
                         ++i;
                         if (i >= affiliations.size()) {
-                            List<Jid> members = conversation.getMucOptions().getMembers(true);
+                            final var mucOptions = conversation.getMucOptions();
+                            final var members = mucOptions.getMembers(true);
                             if (success) {
                                 List<Jid> cryptoTargets = conversation.getAcceptedCryptoTargets();
                                 boolean changed = false;
@@ -4528,7 +4529,7 @@ public class XmppConnectionService extends Service {
                                     updateConversation(conversation);
                                 }
                             }
-                            getAvatarService().clear(conversation);
+                            getAvatarService().clear(mucOptions);
                             updateMucRosterUi();
                             updateConversationUi();
                         }
@@ -5212,8 +5213,9 @@ public class XmppConnectionService extends Service {
                 request,
                 (response) -> {
                     if (response.getType() == Iq.Type.RESULT) {
-                        conference.getMucOptions().changeAffiliation(jid, affiliation);
-                        getAvatarService().clear(conference);
+                        final var mucOptions = conference.getMucOptions();
+                        mucOptions.changeAffiliation(jid, affiliation);
+                        getAvatarService().clear(mucOptions);
                         if (callback != null) {
                             callback.onAffiliationChangedSuccessful(jid);
                         } else {
@@ -6527,7 +6529,7 @@ public class XmppConnectionService extends Service {
                 account,
                 Namespace.MDS_DISPLAYED,
                 item,
-                itemId.toEscapedString(),
+                itemId.toString(),
                 PublishOptions.persistentWhitelistAccessMaxItems());
     }
 
@@ -6755,7 +6757,7 @@ public class XmppConnectionService extends Service {
         if (Config.QUICKSY_DOMAIN != null) {
             hosts.remove(
                     Config.QUICKSY_DOMAIN
-                            .toEscapedString()); // we only want to show this when we type a e164
+                            .toString()); // we only want to show this when we type a e164
             // number
         }
         // Not needed currently
@@ -6774,7 +6776,7 @@ public class XmppConnectionService extends Service {
                 mucServers.addAll(account.getXmppConnection().getMucServers());
                 for (final Bookmark bookmark : account.getBookmarks()) {
                     final Jid jid = bookmark.getJid();
-                    final String s = jid == null ? null : jid.getDomain().toEscapedString();
+                    final String s = jid == null ? null : jid.getDomain().toString();
                     if (s != null) {
                         mucServers.add(s);
                     }

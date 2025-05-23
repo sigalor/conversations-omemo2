@@ -156,9 +156,9 @@ public class CreatePublicChannelDialog extends DialogFragment implements OnBacke
             return "";
         } else {
             try {
-                return Jid.of(localpart, domain, null).toEscapedString();
+                return Jid.of(localpart, domain, null).toString();
             } catch (IllegalArgumentException e) {
-                return Jid.of(CryptoHelper.pronounceable(), domain, null).toEscapedString();
+                return Jid.of(CryptoHelper.pronounceable(), domain, null).toString();
             }
         }
     }
@@ -193,7 +193,7 @@ public class CreatePublicChannelDialog extends DialogFragment implements OnBacke
             } else {
                 final Jid jid;
                 try {
-                    jid = Jid.ofEscaped(address);
+                    jid = Jid.of(address);
                 } catch (IllegalArgumentException e) {
                     binding.xmppAddressLayout.setError(context.getText(R.string.invalid_jid));
                     return;

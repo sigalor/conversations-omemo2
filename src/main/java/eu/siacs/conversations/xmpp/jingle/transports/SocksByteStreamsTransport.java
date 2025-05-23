@@ -107,8 +107,8 @@ public class SocksByteStreamsTransport implements Transport {
                                         .join(
                                                 Arrays.asList(
                                                         streamId,
-                                                        id.with.toEscapedString(),
-                                                        id.account.getJid().toEscapedString())),
+                                                        id.with.toString(),
+                                                        id.account.getJid().toString())),
                                 StandardCharsets.UTF_8)
                         .toString();
         final var ourDestination =
@@ -118,8 +118,8 @@ public class SocksByteStreamsTransport implements Transport {
                                         .join(
                                                 Arrays.asList(
                                                         streamId,
-                                                        id.account.getJid().toEscapedString(),
-                                                        id.with.toEscapedString())),
+                                                        id.account.getJid().toString(),
+                                                        id.with.toString())),
                                 StandardCharsets.UTF_8)
                         .toString();
 
@@ -260,7 +260,7 @@ public class SocksByteStreamsTransport implements Transport {
         final Element query = proxyActivation.addChild("query", Namespace.BYTE_STREAMS);
         query.setAttribute("sid", this.streamId);
         final Element activate = query.addChild("activate");
-        activate.setContent(id.with.toEscapedString());
+        activate.setContent(id.with.toString());
         xmppConnection.sendIqPacket(
                 proxyActivation,
                 (response) -> {
@@ -875,7 +875,7 @@ public class SocksByteStreamsTransport implements Transport {
             return new Candidate(
                     cid,
                     host,
-                    Jid.ofEscaped(jid),
+                    Jid.of(jid),
                     Integer.parseInt(port),
                     Integer.parseInt(priority),
                     CandidateType.valueOf(type.toUpperCase(Locale.ROOT)));

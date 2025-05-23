@@ -15,7 +15,7 @@ import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
-import eu.siacs.conversations.xmpp.InvalidJid;
+
 import eu.siacs.conversations.xmpp.Jid;
 import im.conversations.android.xmpp.model.stanza.Stanza;
 
@@ -44,7 +44,7 @@ public abstract class AbstractParser {
 		}
 		for(Element child : element.getChildren()) {
 			if ("delay".equals(child.getName()) && "urn:xmpp:delay".equals(child.getNamespace())) {
-				final Jid f = to == null ? null : InvalidJid.getNullForInvalid(child.getAttributeAsJid("from"));
+				final Jid f = to == null ? null : Jid.Invalid.getNullForInvalid(child.getAttributeAsJid("from"));
 				if (f != null && (to.asBareJid().equals(f) || to.getDomain().equals(f))) {
 					continue;
 				}
@@ -140,7 +140,7 @@ public abstract class AbstractParser {
 
 	public static MucOptions.User parseItem(final Conversation conference, Element item, Jid fullJid, final Element occupantId, final String nicknameIn, final Element hatsEl) {
 		final String local = conference.getJid().getLocal();
-		final String domain = conference.getJid().getDomain().toEscapedString();
+		final String domain = conference.getJid().getDomain().toString();
 		String affiliation = item.getAttribute("affiliation");
 		String role = item.getAttribute("role");
 		String nick = item.getAttribute("nick");
@@ -167,7 +167,7 @@ public abstract class AbstractParser {
 			}
 		}
 		MucOptions.User user = new MucOptions.User(conference.getMucOptions(), fullJid, occupantId == null ? null : occupantId.getAttribute("id"), nickname, hatsEl == null ? null : hats);
-		if (InvalidJid.isValid(realJid)) {
+		if (Jid.Invalid.isValid(realJid)) {
 			user.setRealJid(realJid);
 		}
 		user.setAffiliation(affiliation);

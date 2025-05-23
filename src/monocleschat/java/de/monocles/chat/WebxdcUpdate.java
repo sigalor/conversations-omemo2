@@ -63,7 +63,7 @@ public class WebxdcUpdate {
 		ContentValues cv = new ContentValues();
 		cv.put(Message.CONVERSATION, conversationId);
 		cv.put("message_id", messageId);
-		cv.put("sender", sender.toEscapedString());
+		cv.put("sender", sender.toString());
 		cv.put("thread", thread);
 		cv.put("threadParent", threadParent);
 		if (info != null) cv.put("info", info);
@@ -75,7 +75,7 @@ public class WebxdcUpdate {
 
 	public String toString() {
 		StringBuilder body = new StringBuilder("{\"sender\":");
-		body.append(JSONObject.quote(sender.toEscapedString()));
+		body.append(JSONObject.quote(sender.toString()));
 		if (serial != null) {
 			body.append(",\"serial\":");
 			body.append(serial.toString());

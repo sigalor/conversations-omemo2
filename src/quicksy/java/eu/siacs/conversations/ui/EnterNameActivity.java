@@ -46,18 +46,18 @@ public class EnterNameActivity extends XmppActivity
         if (AbstractQuickConversationsService.isQuicksyPlayStore()) {
             intent = new Intent(getApplicationContext(), StartConversationActivity.class);
             intent.putExtra("init", true);
-            intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
+            intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
         } else {
             intent = new Intent(this, PublishProfilePictureActivity.class);
             intent.putExtra("setup", true);
         }
-        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
+        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
         startActivity(intent);
         finish();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(final Bundle savedInstanceState) {
         savedInstanceState.putBoolean("set_nick", this.setNick.get());
         super.onSaveInstanceState(savedInstanceState);
     }

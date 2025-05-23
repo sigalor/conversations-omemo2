@@ -26,7 +26,7 @@ public class Bind extends Extension {
             return null;
         }
         try {
-            return eu.siacs.conversations.xmpp.Jid.ofEscaped(content);
+            return eu.siacs.conversations.xmpp.Jid.of(content);
         } catch (final IllegalArgumentException e) {
             return null;
         }

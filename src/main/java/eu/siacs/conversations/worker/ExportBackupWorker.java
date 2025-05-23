@@ -197,7 +197,7 @@ public class ExportBackupWorker extends Worker {
             final String filename =
                     String.format(
                             "%s.%s.ceb",
-                            account.getJid().asBareJid().toEscapedString(),
+                            account.getJid().asBareJid().toString(),
                             DATE_FORMAT.format(new Date()));
             final File file = new File(FileBackend.getBackupDirectory(context), filename);
             files.add(file);

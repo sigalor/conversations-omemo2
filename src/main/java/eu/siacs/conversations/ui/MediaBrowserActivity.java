@@ -49,16 +49,16 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
         String account = intent == null ? null : intent.getStringExtra("account");
         String jid = intent == null ? null : intent.getStringExtra("jid");
         if (account != null && jid != null) {
-            xmppConnectionService.getAttachments(account, Jid.ofEscaped(jid), 0, this);
+            xmppConnectionService.getAttachments(account, Jid.of(jid), 0, this);
         }
     }
 
     public static void launch(Context context, Contact contact) {
-        launch(context, contact.getAccount(), contact.getJid().asBareJid().toEscapedString());
+        launch(context, contact.getAccount(), contact.getJid().asBareJid().toString());
     }
 
     public static void launch(Context context, Conversation conversation) {
-        launch(context, conversation.getAccount(), conversation.getJid().asBareJid().toEscapedString());
+        launch(context, conversation.getAccount(), conversation.getJid().asBareJid().toString());
     }
 
     private static void launch(Context context, Account account, String jid) {

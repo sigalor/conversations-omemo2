@@ -486,7 +486,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
 			final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
 			alertDialogBuilder.setTitle(R.string.choose_account);
-			final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toEscapedString()).toArray(new String[0]);
+			final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toString()).toArray(new String[0]);
 			alertDialogBuilder.setSingleChoiceItems(asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
 			alertDialogBuilder.setNegativeButton(R.string.cancel, null);
 			alertDialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> openEasyInviteScreen(selectedAccount.get()));
@@ -548,7 +548,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
 			if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
 				binding.overviewSnackbar.setVisibility(View.VISIBLE);
-				binding.overviewSnackbarMessage.setText(R.string.your_account + " " + account.getJid().asBareJid().toEscapedString() + " " + R.string.archiving_not_enabled_text);
+				binding.overviewSnackbarMessage.setText(R.string.your_account + " " + account.getJid().asBareJid().toString() + " " + R.string.archiving_not_enabled_text);
 				binding.overviewSnackbarAction.setOnClickListener((v) -> {
 					final var prefs = account.mamPrefs();
 					prefs.setAttribute("default", "always");

@@ -133,7 +133,7 @@ public class EasyOnboardingInviteActivity extends XmppActivity implements EasyOn
         }
         final Intent launchIntent = getIntent();
         final String accountExtra = launchIntent.getStringExtra(EXTRA_ACCOUNT);
-        final Jid jid = accountExtra == null ? null : Jid.ofEscaped(accountExtra);
+        final Jid jid = accountExtra == null ? null : Jid.of(accountExtra);
         if (jid == null) {
             return;
         }
@@ -143,7 +143,7 @@ public class EasyOnboardingInviteActivity extends XmppActivity implements EasyOn
 
     public static void launch(final Account account, final Activity context) {
         final Intent intent = new Intent(context, EasyOnboardingInviteActivity.class);
-        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
+        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
         context.startActivity(intent);
     }
 

@@ -230,7 +230,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
 
     protected Jid accountJid() {
         try {
-            return Jid.ofEscaped((String) binding.account.getEditableText().toString());
+            return Jid.of((String) binding.account.getEditableText().toString());
         } catch (final IllegalArgumentException e) {
             return null;
         }
@@ -257,7 +257,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
 
                 Jid contactJid = null;
                 try {
-                    contactJid = Jid.ofEscaped(jidString);
+                    contactJid = Jid.of(jidString);
                 } catch (final IllegalArgumentException e) {
                     binding.jidLayout.setError(getActivity().getString(R.string.invalid_jid));
                     return;
@@ -271,7 +271,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                         issuedWarning = true;
                         return;
                     }
-                    if (sanityCheckJid != SanityCheck.ALLOW_MUC && suspiciousSubDomain(contactJid.getDomain().toEscapedString())) {
+                    if (sanityCheckJid != SanityCheck.ALLOW_MUC && suspiciousSubDomain(contactJid.getDomain().toString())) {
                         binding.jidLayout.setError(getActivity().getString(R.string.this_looks_like_channel));
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.add_anway);
                         issuedWarning = true;

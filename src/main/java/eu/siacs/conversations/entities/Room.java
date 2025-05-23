@@ -52,7 +52,7 @@ public class Room implements AvatarService.Avatarable, Comparable<Room> {
     @Override
     public int getAvatarBackgroundColor() {
         Jid room = getRoom();
-        return UIHelper.getColorForName(room != null ? room.asBareJid().toEscapedString() : name);
+        return UIHelper.getColorForName(room != null ? room.asBareJid().toString() : name);
     }
 
     @Override

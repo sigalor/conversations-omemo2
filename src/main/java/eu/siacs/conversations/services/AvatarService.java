@@ -23,6 +23,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.google.common.base.Strings;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +101,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		if (conversation != null) {
 			return get(conversation,size,cacheOnly);
 		}
-		return get(CHANNEL_SYMBOL, room != null ? room.asBareJid().toEscapedString() : result.getName(), size, cacheOnly);
+		return get(CHANNEL_SYMBOL, room != null ? room.asBareJid().toString() : result.getName(), size, cacheOnly);
 	}
 
 	private Drawable get(final Contact contact, final int size, boolean cachedOnly) {
@@ -236,22 +238,27 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		return avatar;
 	}
 
-	public void clear(Contact contact) {
+	public void clear(final Contact contact) {
 		synchronized (this.sizes) {
 			for (final Integer size : sizes) {
 				this.mXmppConnectionService.getDrawableCache().remove(key(contact, size));
 			}
 		}
-		for (Conversation conversation : mXmppConnectionService.findAllConferencesWith(contact)) {
-			MucOptions.User user = conversation.getMucOptions().findUserByRealJid(contact.getJid().asBareJid());
+		for (final Conversation conversation :
+				mXmppConnectionService.findAllConferencesWith(contact)) {
+			final var mucOptions = conversation.getMucOptions();
+			final var user = mucOptions.findUserByRealJid(contact.getJid().asBareJid());
 			if (user != null) {
 				clear(user);
 			}
-			clear(conversation);
+			if (Strings.isNullOrEmpty(mucOptions.getAvatar())
+					&& mucOptions.isPrivateAndNonAnonymous()) {
+				clear(mucOptions);
+			}
 		}
 	}
 
-	private String key(Contact contact, int size) {
+	private String key(final Contact contact, final int size) {
 		synchronized (this.sizes) {
 			this.sizes.add(size);
 		}
@@ -287,7 +294,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 
 	public Drawable get(ListItem item, int size, boolean cachedOnly) {
 		if (item instanceof RawBlockable) {
-			return get(item.getDisplayName(), item.getJid().toEscapedString(), size, cachedOnly);
+			return get(item.getDisplayName(), item.getJid().toString(), size, cachedOnly);
 		} else if (item instanceof Contact) {
 			return get((Contact) item, size, cachedOnly);
 		} else if (item instanceof Bookmark) {
@@ -314,7 +321,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		return get(conversation, size, false);
 	}
 
-	public Drawable get(Conversation conversation, int size, boolean cachedOnly) {
+	public Drawable get(final Conversation conversation, final int size, final boolean cachedOnly) {
 		if (conversation.getMode() == Conversation.MODE_SINGLE) {
 			return get(conversation.getContact(), size, cachedOnly);
 		} else {
@@ -341,7 +348,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		}
 	}
 
-	private Drawable get(MucOptions mucOptions, int size, boolean cachedOnly) {
+	private Drawable get(final MucOptions mucOptions, final int size, final boolean cachedOnly) {
 		final String KEY = key(mucOptions, size);
 		Drawable bitmap = this.mXmppConnectionService.getDrawableCache().get(KEY);
 		if (bitmap != null || cachedOnly) {
@@ -354,7 +361,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 			Conversation c = mucOptions.getConversation();
 			if (mucOptions.isPrivateAndNonAnonymous()) {
 				final List<MucOptions.User> users = mucOptions.getUsersRelevantForNameAndAvatar();
-				if (users.size() == 0) {
+				if (users.isEmpty()) {
 					bitmap = getImpl(c.getName().toString(), c.getJid().asBareJid().toString(), size);
 				} else {
 					bitmap = getImpl(users, size);
@@ -432,12 +439,12 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		return PREFIX_CONVERSATION + "_" + options.getConversation().getUuid() + "_" + size;
 	}
 
-	private String key(List<MucOptions.User> users, int size) {
+	private String key(final List<MucOptions.User> users, final int size) {
 		final Conversation conversation = users.get(0).getConversation();
 		StringBuilder builder = new StringBuilder("TILE_");
 		builder.append(conversation.getUuid());
 
-		for (MucOptions.User user : users) {
+		for (final MucOptions.User user : users) {
 			builder.append("\0");
 			builder.append(emptyOnNull(user.getRealJid()));
 			builder.append("\0");
@@ -472,7 +479,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		avatar = mXmppConnectionService.getFileBackend().getAvatar(account.getAvatar(), size);
 		if (avatar == null) {
 			final String displayName = account.getDisplayName();
-			final String jid = account.getJid().asBareJid().toEscapedString();
+			final String jid = account.getJid().asBareJid().toString();
 			if (QuickConversationsService.isQuicksy() && !TextUtils.isEmpty(displayName)) {
 				avatar = get(displayName, jid, size, false);
 			} else {
@@ -526,11 +533,23 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		}
 	}
 
-	public void clear(MucOptions.User user) {
+	public void clear(final MucOptions.User user) {
 		synchronized (this.sizes) {
 			for (Integer size : sizes) {
 				this.mXmppConnectionService.getDrawableCache().remove(key(user, size));
 			}
+		}
+		synchronized (this.conversationDependentKeys) {
+			final Set<String> keys =
+					this.conversationDependentKeys.get(user.getConversation().getUuid());
+			if (keys == null) {
+				return;
+			}
+			final var cache = this.mXmppConnectionService.getDrawableCache();
+			for (final String key : keys) {
+				cache.remove(key);
+			}
+			keys.clear();
 		}
 	}
 
@@ -551,7 +570,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 	}
 
 	public static Drawable get(final Jid jid, final int size) {
-		return getImpl(jid.asBareJid().toEscapedString(), null, size);
+		return getImpl(jid.asBareJid().toString(), null, size);
 	}
 
 	private static Drawable getImpl(final String name, final String seed, final int size) {

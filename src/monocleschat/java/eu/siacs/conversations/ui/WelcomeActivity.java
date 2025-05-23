@@ -123,7 +123,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
         Intent intent = new Intent(this, StartConversationActivity.class);
         intent.putExtra("init", true);
-        intent.putExtra(EXTRA_ACCOUNT, onboardingAccount.getJid().asBareJid().toEscapedString());
+        intent.putExtra(EXTRA_ACCOUNT, onboardingAccount.getJid().asBareJid().toString());
         onboardingAccount = null;
         startActivity(intent);
         finish();
@@ -207,7 +207,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             } else {
                 binding.registerNewAccount.setText("Working...");
                 binding.registerNewAccount.setEnabled(false);
-                onboardingAccount = new Account(Jid.ofLocalAndDomain(UUID.randomUUID().toString(), Config.ONBOARDING_DOMAIN.toEscapedString()), CryptoHelper.createPassword(new SecureRandom()));
+                onboardingAccount = new Account(Jid.ofLocalAndDomain(UUID.randomUUID().toString(), Config.ONBOARDING_DOMAIN.toString()), CryptoHelper.createPassword(new SecureRandom()));
                 onboardingAccount.setOption(Account.OPTION_REGISTER, true);
                 onboardingAccount.setOption(Account.OPTION_FIXED_USERNAME, true);
                 xmppConnectionService.createAccount(onboardingAccount);
@@ -402,7 +402,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     @Override
     public void onAccountCreated(final Account account) {
         final Intent intent = new Intent(this, EditAccountActivity.class);
-        intent.putExtra("jid", account.getJid().asBareJid().toEscapedString());
+        intent.putExtra("jid", account.getJid().asBareJid().toString());
         intent.putExtra("init", true);
         addInviteUri(intent);
         startActivity(intent);

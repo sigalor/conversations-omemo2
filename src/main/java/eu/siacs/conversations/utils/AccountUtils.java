@@ -65,7 +65,7 @@ public class AccountUtils {
         final ArrayList<String> accounts = new ArrayList<>();
         for (final Account account : service.getAccounts()) {
             if (account.isEnabled()) {
-                accounts.add(account.getJid().asBareJid().toEscapedString());
+                accounts.add(account.getJid().asBareJid().toString());
             }
         }
         return accounts;

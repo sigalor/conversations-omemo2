@@ -42,7 +42,7 @@ public class BackupFileHeader {
     public void write(DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeInt(VERSION);
         dataOutputStream.writeUTF(app);
-        dataOutputStream.writeUTF(jid.asBareJid().toEscapedString());
+        dataOutputStream.writeUTF(jid.asBareJid().toString());
         dataOutputStream.writeLong(timestamp);
         dataOutputStream.write(iv);
         dataOutputStream.write(salt);

@@ -305,7 +305,7 @@ public class Conversation extends AbstractEntity
                 cursor.getString(cursor.getColumnIndexOrThrow(NAME)),
                 cursor.getString(cursor.getColumnIndexOrThrow(CONTACT)),
                 cursor.getString(cursor.getColumnIndexOrThrow(ACCOUNT)),
-                JidHelper.parseOrFallbackToInvalid(
+                Jid.ofOrInvalid(
                         cursor.getString(cursor.getColumnIndexOrThrow(CONTACTJID))),
                 cursor.getLong(cursor.getColumnIndexOrThrow(CREATED)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(STATUS)),
@@ -333,7 +333,7 @@ public class Conversation extends AbstractEntity
         if (conversation.getContact().isOwnServer()) {
             return false;
         }
-        final String contact = conversation.getJid().getDomain().toEscapedString();
+        final String contact = conversation.getJid().getDomain().toString();
         final String account = conversation.getAccount().getServer();
         if (Config.OMEMO_EXCEPTIONS.matchesContactDomain(contact)
                 || Config.OMEMO_EXCEPTIONS.ACCOUNT_DOMAINS.contains(account)) {
@@ -2394,7 +2394,7 @@ public class Conversation extends AbstractEntity
 
                     if (field.getType().equals(Optional.of("jid-single")) || field.getType().equals(Optional.of("jid-multi"))) {
                         binding.values.setOnItemClickListener((arg0, arg1, pos, id) -> {
-                            new FixedURLSpan("xmpp:" + Uri.encode(Jid.ofEscaped(values.getItem(pos).getValue()).toEscapedString(), "@/+"), account).onClick(binding.values);
+                            new FixedURLSpan("xmpp:" + Uri.encode(Jid.of(values.getItem(pos).getValue()).toString(), "@/+"), account).onClick(binding.values);
                         });
                     } else if ("xs:anyURI".equals(datatype)) {
                         binding.values.setOnItemClickListener((arg0, arg1, pos, id) -> {
@@ -2433,7 +2433,7 @@ public class Conversation extends AbstractEntity
                         String value = formatValue(datatype, cell.el.findChildContent("value", "jabber:x:data"), true);
                         SpannableStringBuilder text = new SpannableStringBuilder(value == null ? "" : value);
                         if (cell.reported.getType().equals(Optional.of("jid-single"))) {
-                            text.setSpan(new FixedURLSpan("xmpp:" + Jid.ofEscaped(text.toString()).toEscapedString(), account), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            text.setSpan(new FixedURLSpan("xmpp:" + Jid.of(text.toString()).toString(), account), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         } else if ("xs:anyURI".equals(datatype)) {
                             text.setSpan(new FixedURLSpan(text.toString(), account), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         } else if ("html:tel".equals(datatype)) {

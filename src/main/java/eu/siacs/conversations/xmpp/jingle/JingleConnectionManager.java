@@ -394,8 +394,8 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                     if (ComparisonChain.start()
                             .compare(ourSessionId, theirSessionId)
                             .compare(
-                                    account.getJid().toEscapedString(),
-                                    id.with.toEscapedString())
+                                    account.getJid().toString(),
+                                    id.with.toString())
                             .result()
                             > 0) {
                         Log.d(

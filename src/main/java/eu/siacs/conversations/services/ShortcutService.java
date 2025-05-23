@@ -14,10 +14,12 @@ import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -32,10 +34,10 @@ import eu.siacs.conversations.ui.StartConversationActivity;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.utils.ReplacingSerialSingleThreadExecutor;
 import eu.siacs.conversations.xmpp.Jid;
-import java.util.Collection;
-import java.util.List;
 
 public class ShortcutService {
+
+    public static final char ID_SEPARATOR = '#';
 
     private final XmppConnectionService xmppConnectionService;
     private final ReplacingSerialSingleThreadExecutor replacingSerialSingleThreadExecutor =
@@ -167,17 +169,17 @@ public class ShortcutService {
     }
 
     private static String getShortcutId(final Contact contact) {
-        return contact.getAccount().getJid().asBareJid().toEscapedString()
-                + "#"
-                + contact.getJid().asBareJid().toEscapedString();
+        return Joiner.on(ID_SEPARATOR)
+                .join(
+                        contact.getAccount().getJid().asBareJid().toString(),
+                        contact.getJid().asBareJid().toString());
     }
 
     private static String getShortcutId(final MucOptions mucOptions) {
         final Account account = mucOptions.getAccount();
         final Jid jid = mucOptions.getConversation().getJid();
-        return account.getJid().asBareJid().toEscapedString()
-                + "#"
-                + jid.asBareJid().toEscapedString();
+        return Joiner.on(ID_SEPARATOR)
+                .join(account.getJid().asBareJid().toString(), jid.asBareJid().toString());
     }
 
     private Intent getShortcutIntent(final MucOptions mucOptions) {
@@ -187,17 +189,12 @@ public class ShortcutService {
                 Uri.parse(
                         String.format(
                                 "xmpp:%s?join",
-                                mucOptions
-                                        .getConversation()
-                                        .getJid()
-                                        .asBareJid()
-                                        .toEscapedString())));
+                                mucOptions.getConversation().getJid().asBareJid().toString())));
     }
 
     private Intent getShortcutIntent(final Contact contact) {
         return getShortcutIntent(
-                contact.getAccount(),
-                Uri.parse("xmpp:" + contact.getJid().asBareJid().toEscapedString()));
+                contact.getAccount(), Uri.parse("xmpp:" + contact.getJid().asBareJid().toString()));
     }
 
     private Intent getShortcutIntent(final Account account, final Uri uri) {

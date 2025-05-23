@@ -27,6 +27,6 @@ public class External extends SaslMechanism {
     @Override
     public String getClientFirstMessage(final SSLSocket sslSocket) {
         return Base64.encodeToString(
-                account.getJid().asBareJid().toEscapedString().getBytes(), Base64.NO_WRAP);
+                account.getJid().asBareJid().toString().getBytes(), Base64.NO_WRAP);
     }
 }

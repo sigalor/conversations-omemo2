@@ -17,7 +17,7 @@ public class AccountConfiguration {
     public String password;
 
     public Jid getJid() {
-        return Jid.ofEscaped(address);
+        return Jid.of(address);
     }
 
     public static AccountConfiguration parse(final String input) {

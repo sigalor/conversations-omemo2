@@ -39,6 +39,14 @@ public class Extension extends Element {
         return clazz.cast(extension);
     }
 
+    public <E extends Extension> E getOnlyExtension(final Class<E> clazz) {
+        final var extensions = getExtensions(clazz);
+        if (extensions.size() == 1) {
+            return Iterables.getOnlyElement(extensions);
+        }
+        return null;
+    }
+
     public <E extends Extension> Collection<E> getExtensions(final Class<E> clazz) {
         return Collections2.transform(
                 Collections2.filter(getChildren(), clazz::isInstance), clazz::cast);

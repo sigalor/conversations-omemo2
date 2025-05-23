@@ -56,7 +56,7 @@ public class FinishOnboarding {
 				return;
 			}
 
-			dataForm.put("new-jid", newAccount.getJid().toEscapedString());
+			dataForm.put("new-jid", newAccount.getJid().toString());
 			dataForm.submit();
 			command.setAttribute("action", "execute");
 			iq.setTo(iq.getFrom());

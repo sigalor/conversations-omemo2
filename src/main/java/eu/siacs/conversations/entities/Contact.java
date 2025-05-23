@@ -180,7 +180,7 @@ public class Contact implements ListItem, Blockable {
         } else if (jid.getLocal() != null) {
             return JidHelper.localPartOrFallback(jid);
         } else {
-            return jid.getDomain().toEscapedString();
+            return jid.getDomain().toString();
         }
     }
 
@@ -190,7 +190,7 @@ public class Contact implements ListItem, Blockable {
         } else if (jid.getLocal() != null) {
             return JidHelper.localPartOrFallback(jid);
         } else {
-            return jid.getDomain().toEscapedString();
+            return jid.getDomain().toString();
         }
     }
 
@@ -577,21 +577,25 @@ public class Contact implements ListItem, Blockable {
     }
 
     public String getServer() {
-        return getJid().getDomain().toEscapedString();
+        return getJid().getDomain().toString();
     }
 
-    public void setAvatar(Avatar avatar) {
-        setAvatar(avatar, false);
+    public boolean setAvatar(final Avatar avatar) {
+        return setAvatar(avatar, false);
     }
 
-    public void setAvatar(Avatar avatar, boolean previouslyOmittedPepFetch) {
+    public boolean setAvatar(final Avatar avatar, final boolean previouslyOmittedPepFetch) {
         if (this.avatar != null && this.avatar.equals(avatar)) {
-            return;
+            return false;
         }
-        if (!previouslyOmittedPepFetch && this.avatar != null && this.avatar.origin == Avatar.Origin.PEP && avatar.origin == Avatar.Origin.VCARD) {
-            return;
+        if (!previouslyOmittedPepFetch
+                && this.avatar != null
+                && this.avatar.origin == Avatar.Origin.PEP
+                && avatar.origin == Avatar.Origin.VCARD) {
+            return false;
         }
         this.avatar = avatar;
+        return true;
     }
 
     public String getAvatarFilename() {

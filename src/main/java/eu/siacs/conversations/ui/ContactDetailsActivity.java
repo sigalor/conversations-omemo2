@@ -199,7 +199,7 @@ public class ContactDetailsActivity extends OmemoActivity
         if (quicksyContact) {
             value = PhoneNumberUtilWrapper.toFormattedPhoneNumber(this, jid);
         } else {
-            value = jid.toEscapedString();
+            value = jid.toString();
         }
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(getString(R.string.action_add_phone_book));
@@ -259,9 +259,9 @@ public class ContactDetailsActivity extends OmemoActivity
     protected String getShareableUri(boolean http) {
         if (http) {
             return "https://conversations.im/i/"
-                    + XmppUri.lameUrlEncode(contact.getJid().asBareJid().toEscapedString());
+                    + XmppUri.lameUrlEncode(contact.getJid().asBareJid().toString());
         } else {
-            return "xmpp:" + Uri.encode(contact.getJid().asBareJid().toEscapedString(), "@/+");
+            return "xmpp:" + Uri.encode(contact.getJid().asBareJid().toString(), "@/+");
         }
     }
 
@@ -273,11 +273,11 @@ public class ContactDetailsActivity extends OmemoActivity
                         && savedInstanceState.getBoolean("show_inactive_omemo", false);
         if (getIntent().getAction().equals(ACTION_VIEW_CONTACT)) {
             try {
-                this.accountJid = Jid.ofEscaped(getIntent().getExtras().getString(EXTRA_ACCOUNT));
+                this.accountJid = Jid.of(getIntent().getExtras().getString(EXTRA_ACCOUNT));
             } catch (final IllegalArgumentException ignored) {
             }
             try {
-                this.contactJid = Jid.ofEscaped(getIntent().getExtras().getString("contact"));
+                this.contactJid = Jid.of(getIntent().getExtras().getString("contact"));
             } catch (final IllegalArgumentException ignored) {
             }
         }
@@ -375,7 +375,7 @@ public class ContactDetailsActivity extends OmemoActivity
                                 JidDialog.style(
                                         this,
                                         R.string.remove_contact_text,
-                                        contact.getJid().toEscapedString()))
+                                        contact.getJid().toString()))
                         .setPositiveButton(getString(R.string.delete), removeFromRoster)
                         .create()
                         .show();
@@ -524,7 +524,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 final MaterialAlertDialogBuilder deleteFromRosterDialog = new MaterialAlertDialogBuilder(ContactDetailsActivity.this);
                 deleteFromRosterDialog.setNegativeButton(getString(R.string.cancel), null)
                         .setTitle(getString(R.string.action_delete_contact))
-                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().toEscapedString()))
+                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().toString()))
                         .setPositiveButton(getString(R.string.delete), removeFromRoster).create().show();
             });
             binding.detailsSendPresence.setOnCheckedChangeListener(null);
@@ -614,7 +614,7 @@ public class ContactDetailsActivity extends OmemoActivity
         }
         binding.detailsContactName.setText(contact.getDisplayName());
         binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
-        final String account = contact.getAccount().getJid().asBareJid().toEscapedString();
+        final String account = contact.getAccount().getJid().asBareJid().toString();
         binding.detailsAccount.setText(getString(R.string.using_account, account));
         AvatarWorkerTask.loadAvatar(
                 contact, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);

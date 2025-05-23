@@ -20,7 +20,7 @@ public class AuthorizationIdentifier extends Extension {
             return null;
         }
         try {
-            return Jid.ofEscaped(content);
+            return Jid.of(content);
         } catch (final IllegalArgumentException e) {
             return null;
         }

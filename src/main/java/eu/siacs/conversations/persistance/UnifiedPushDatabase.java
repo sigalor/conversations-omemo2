@@ -151,7 +151,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                 sqLiteDatabase.rawQuery(
                         "SELECT EXISTS(SELECT endpoint FROM push WHERE account = ? AND transport = ?)",
                         new String[] {
-                            transport.account.getUuid(), transport.transport.toEscapedString()
+                            transport.account.getUuid(), transport.transport.toString()
                         })) {
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getInt(0) > 0;

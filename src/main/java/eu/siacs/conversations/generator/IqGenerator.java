@@ -366,7 +366,7 @@ public class IqGenerator extends AbstractGenerator {
         if (mam.muc()) {
             packet.setTo(mam.getWith());
         } else if (mam.getWith() != null) {
-            data.put("with", mam.getWith().toEscapedString());
+            data.put("with", mam.getWith().toString());
         }
         final long start = mam.getStart();
         final long end = mam.getEnd();
@@ -534,7 +534,7 @@ public class IqGenerator extends AbstractGenerator {
         data.put("token", token);
         data.put("android-id", deviceId);
         if (muc != null) {
-            data.put("muc", muc.toEscapedString());
+            data.put("muc", muc.toString());
         }
         data.submit();
         command.addChild(data);

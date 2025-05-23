@@ -31,11 +31,11 @@ public class ProvisioningUtils {
         }
         final Intent serviceIntent = new Intent(activity, XmppConnectionService.class);
         serviceIntent.setAction(XmppConnectionService.ACTION_PROVISION_ACCOUNT);
-        serviceIntent.putExtra("address", jid.asBareJid().toEscapedString());
+        serviceIntent.putExtra("address", jid.asBareJid().toString());
         serviceIntent.putExtra("password", accountConfiguration.password);
         Compatibility.startService(activity, serviceIntent);
         final Intent intent = new Intent(activity, EditAccountActivity.class);
-        intent.putExtra("jid", jid.asBareJid().toEscapedString());
+        intent.putExtra("jid", jid.asBareJid().toString());
         intent.putExtra("init", true);
         activity.startActivity(intent);
     }

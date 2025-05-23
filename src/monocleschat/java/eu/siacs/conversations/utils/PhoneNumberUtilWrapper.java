@@ -26,12 +26,12 @@ public class PhoneNumberUtilWrapper {
         try {
             return getInstance(context).format(toPhoneNumber(context, jid), PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL).replace(' ','\u202F');
         } catch (Exception e) {
-            return jid.getEscapedLocal();
+            return jid.getLocal();
         }
     }
 
     public static Phonenumber.PhoneNumber toPhoneNumber(Context context, Jid jid) throws NumberParseException {
-        return getInstance(context).parse(jid.getEscapedLocal(), "de");
+        return getInstance(context).parse(jid.getLocal(), "de");
     }
 
     public static String normalize(Context context, String input) throws IllegalArgumentException, NumberParseException {

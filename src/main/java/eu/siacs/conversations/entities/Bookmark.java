@@ -20,7 +20,7 @@ import eu.siacs.conversations.utils.StringUtils;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
-import eu.siacs.conversations.xmpp.InvalidJid;
+
 import eu.siacs.conversations.xmpp.Jid;
 
 public class Bookmark extends Element implements ListItem {
@@ -85,7 +85,7 @@ public class Bookmark extends Element implements ListItem {
 		Bookmark bookmark = new Bookmark(account);
 		bookmark.setAttributes(element.getAttributes());
 		bookmark.setChildren(element.getChildren());
-		bookmark.jid = InvalidJid.getNullForInvalid(bookmark.getAttributeAsJid("jid"));
+		bookmark.jid = Jid.Invalid.getNullForInvalid(bookmark.getAttributeAsJid("jid"));
 		if (bookmark.jid == null) {
 			return null;
 		}
@@ -98,7 +98,7 @@ public class Bookmark extends Element implements ListItem {
 			return null;
 		}
 		final Bookmark bookmark = new Bookmark(account);
-		bookmark.jid = InvalidJid.getNullForInvalid(item.getAttributeAsJid("id"));
+		bookmark.jid = Jid.Invalid.getNullForInvalid(item.getAttributeAsJid("id"));
 		// TODO verify that we only use bare jids and ignore full jids
 		if (bookmark.jid == null) {
 			return null;

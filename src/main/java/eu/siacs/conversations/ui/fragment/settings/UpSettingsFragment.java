@@ -53,7 +53,7 @@ public class UpSettingsFragment extends XmppPreferenceFragment {
 
     private static boolean isJidInvalid(final String input) {
         try {
-            final var jid = Jid.ofEscaped(input);
+            final var jid = Jid.of(input);
             return !jid.isBareJid();
         } catch (final IllegalArgumentException e) {
             return true;
@@ -76,7 +76,7 @@ public class UpSettingsFragment extends XmppPreferenceFragment {
                 ImmutableList.copyOf(
                         Lists.transform(
                                 requireService().getAccounts(),
-                                a -> a.getJid().asBareJid().toEscapedString()));
+                                a -> a.getJid().asBareJid().toString()));
         final ImmutableList.Builder<CharSequence> entries = new ImmutableList.Builder<>();
         final ImmutableList.Builder<CharSequence> entryValues = new ImmutableList.Builder<>();
         entries.add(getString(R.string.no_account_deactivated));

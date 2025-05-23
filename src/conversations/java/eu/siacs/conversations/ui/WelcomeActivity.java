@@ -196,7 +196,7 @@ public class WelcomeActivity extends XmppActivity
     @Override
     public void onAccountCreated(final Account account) {
         final Intent intent = new Intent(this, EditAccountActivity.class);
-        intent.putExtra("jid", account.getJid().asBareJid().toEscapedString());
+        intent.putExtra("jid", account.getJid().asBareJid().toString());
         intent.putExtra("init", true);
         addInviteUri(intent);
         startActivity(intent);

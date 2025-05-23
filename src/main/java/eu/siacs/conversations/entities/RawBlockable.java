@@ -40,7 +40,7 @@ public class RawBlockable implements ListItem, Blockable {
         if (jid.isFullJid()) {
             return jid.getResource();
         } else {
-            return jid.toEscapedString();
+            return jid.toString();
         }
     }
 
@@ -67,7 +67,7 @@ public class RawBlockable implements ListItem, Blockable {
         needle = needle.toLowerCase(Locale.US).trim();
         String[] parts = needle.split("\\s+");
         for (String part : parts) {
-            if (!jid.toEscapedString().contains(part)) {
+            if (!jid.toString().contains(part)) {
                 return false;
             }
         }
@@ -81,7 +81,7 @@ public class RawBlockable implements ListItem, Blockable {
 
     @Override
     public int getAvatarBackgroundColor() {
-        return  UIHelper.getColorForName(jid.toEscapedString());
+        return  UIHelper.getColorForName(jid.toString());
     }
 
     @Override

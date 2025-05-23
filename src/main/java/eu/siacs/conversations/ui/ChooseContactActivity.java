@@ -81,7 +81,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         intent.putExtra(EXTRA_CONVERSATION, conversation.getUuid());
         intent.putExtra(EXTRA_SELECT_MULTIPLE, true);
         intent.putExtra(EXTRA_SHOW_ENTER_JID, true);
-        intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toEscapedString());
+        intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
         return intent;
     }
 
@@ -291,7 +291,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         }
         final var accounts = new ArrayList<Account>();
         for (final var account : xmppConnectionService.getAccounts()) {
-            if (mActivatedAccounts.contains(account.getJid().asBareJid().toEscapedString())) accounts.add(account);
+            if (mActivatedAccounts.contains(account.getJid().asBareJid().toString())) accounts.add(account);
         }
         for (final var contact : extraContacts) {
             if (!filterContacts.contains(contact.getJid().asBareJid().toString())
@@ -413,8 +413,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         this.mActivatedAccounts.clear();
         final var selected = getIntent().getStringExtra(EXTRA_ACCOUNT);
         for (final Account account : xmppConnectionService.getAccounts()) {
-            if (account.isEnabled() && (selected == null || selected.equals(account.getJid().asBareJid().toEscapedString()))) {
-                this.mActivatedAccounts.add(account.getJid().asBareJid().toEscapedString());
+            if (account.isEnabled() && (selected == null || selected.equals(account.getJid().asBareJid().toString()))) {
+                this.mActivatedAccounts.add(account.getJid().asBareJid().toString());
             }
         }
         filterContacts();
@@ -469,7 +469,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         data.putExtra("contact", item.getJid().toString());
         String account = request.getStringExtra(EXTRA_ACCOUNT);
         if (account == null && item instanceof Contact) {
-            account = ((Contact) item).getAccount().getJid().asBareJid().toEscapedString();
+            account = ((Contact) item).getAccount().getJid().asBareJid().toString();
         }
         data.putExtra(EXTRA_ACCOUNT, account);
         data.putExtra(EXTRA_SELECT_MULTIPLE, false);

@@ -2746,8 +2746,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
         // we need to start the UI to a) show it and b) be able to ask for permissions
         final Intent intent = new Intent(xmppConnectionService, RtpSessionActivity.class);
         intent.setAction(RtpSessionActivity.ACTION_ACCEPT_CALL);
-        intent.putExtra(RtpSessionActivity.EXTRA_ACCOUNT, id.account.getJid().toEscapedString());
-        intent.putExtra(RtpSessionActivity.EXTRA_WITH, id.with.toEscapedString());
+        intent.putExtra(RtpSessionActivity.EXTRA_ACCOUNT, id.account.getJid().toString());
+        intent.putExtra(RtpSessionActivity.EXTRA_WITH, id.with.toString());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(RtpSessionActivity.EXTRA_SESSION_ID, id.sessionId);

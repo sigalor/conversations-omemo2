@@ -130,7 +130,7 @@ public class UnifiedPushBroker {
         final UnifiedPushDatabase unifiedPushDatabase = UnifiedPushDatabase.getInstance(service);
         final List<UnifiedPushDatabase.PushTarget> renewals =
                 unifiedPushDatabase.getRenewals(
-                        account.getUuid(), transport.transport.toEscapedString());
+                        account.getUuid(), transport.transport.toString());
         Log.d(
                 Config.LOGTAG,
                 account.getJid().asBareJid()
@@ -205,7 +205,7 @@ public class UnifiedPushBroker {
                 unifiedPushDatabase.updateEndpoint(
                         renewal.instance,
                         transport.account.getUuid(),
-                        transport.transport.toEscapedString(),
+                        transport.transport.toString(),
                         endpoint,
                         expiration);
         if (modified) {
@@ -368,8 +368,8 @@ public class UnifiedPushBroker {
         final Jid transport;
         final Jid jid;
         try {
-            transport = Jid.ofEscaped(Strings.nullToEmpty(pushServerPreference).trim());
-            jid = Jid.ofEscaped(Strings.nullToEmpty(accountPreference).trim());
+            transport = Jid.of(Strings.nullToEmpty(pushServerPreference).trim());
+            jid = Jid.of(Strings.nullToEmpty(accountPreference).trim());
         } catch (final IllegalArgumentException e) {
             return Optional.absent();
         }
@@ -391,7 +391,7 @@ public class UnifiedPushBroker {
         final String uuid = account.getUuid();
         final List<UnifiedPushDatabase.PushTarget> pushTargets =
                 UnifiedPushDatabase.getInstance(service)
-                        .getPushTargets(uuid, transport.toEscapedString());
+                        .getPushTargets(uuid, transport.toString());
         return Iterables.tryFind(
                 pushTargets,
                 pt ->
@@ -454,7 +454,7 @@ public class UnifiedPushBroker {
         final UnifiedPushDatabase.ApplicationEndpoint endpoint =
                 unifiedPushDatabase.getEndpoint(
                         transport.account.getUuid(),
-                        transport.transport.toEscapedString(),
+                        transport.transport.toString(),
                         instance);
         if (endpoint != null) {
             sendEndpoint(messenger, instance, endpoint);

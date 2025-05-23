@@ -177,7 +177,7 @@ public class Reaction {
             if (value == null) {
                 out.nullValue();
             } else {
-                out.value(value.toEscapedString());
+                out.value(value.toString());
             }
         }
 
@@ -188,7 +188,7 @@ public class Reaction {
                 return null;
             } else if (in.peek() == JsonToken.STRING) {
                 final String value = in.nextString();
-                return Jid.ofEscaped(value);
+                return Jid.of(value);
             }
             throw new IOException("Unexpected token");
         }

@@ -316,7 +316,7 @@ public class ImportBackupService extends Service {
                     db.rawQuery(
                             "select count(messages.uuid) from messages join conversations on conversations.uuid=messages.conversationUuid join accounts on conversations.accountUuid=accounts.uuid where accounts.username=? and accounts.server=?",
                             new String[] {
-                                jid.getEscapedLocal(), jid.getDomain().toEscapedString()
+                                jid.getLocal(), jid.getDomain().toString()
                             });
             countCursor.moveToFirst();
             final int count = countCursor.getInt(0);

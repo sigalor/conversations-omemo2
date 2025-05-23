@@ -7,23 +7,24 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityShareWithBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.persistance.DatabaseBackend;
+import eu.siacs.conversations.services.ShortcutService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.ConversationAdapter;
 import eu.siacs.conversations.xmpp.Jid;
-import p32929.easypasscodelock.Utils.EasyLock;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,17 +97,6 @@ public class ShareWithActivity extends XmppActivity
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        // Check if lock is set
-        if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
-            EasyLock.setBackgroundColor(getColor(R.color.black26));
-            EasyLock.checkPassword(this);
-            EasyLock.forgotPassword(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(ShareWithActivity.this, R.string.app_lock_forgot_password, Toast.LENGTH_LONG).show();
-                }
-            });
-        }
         super.onCreate(savedInstanceState);
 
         final ActivityShareWithBinding binding =
@@ -146,10 +136,28 @@ public class ShareWithActivity extends XmppActivity
         if (shortcut.isPresent()) {
             final var extras = shortcut.get().getExtras();
             if (extras == null) {
-                return null;
+                return shortcutIdToConversationFallback(shortcutId);
             } else {
-                return extras.getString(ConversationsActivity.EXTRA_CONVERSATION);
+                final var conversation = extras.getString(ConversationsActivity.EXTRA_CONVERSATION);
+                if (Strings.isNullOrEmpty(conversation)) {
+                    return shortcutIdToConversationFallback(shortcutId);
+                } else {
+                    return conversation;
+                }
             }
+        } else {
+            return shortcutIdToConversationFallback(shortcutId);
+        }
+    }
+
+    private String shortcutIdToConversationFallback(final String shortcutId) {
+        final var parts =
+                Splitter.on(ShortcutService.ID_SEPARATOR).limit(2).splitToList(shortcutId);
+        if (parts.size() == 2) {
+            final var account = Jid.of(parts.get(0));
+            final var jid = Jid.of(parts.get(1));
+            final var database = DatabaseBackend.getInstance(getApplicationContext());
+            return database.findConversationUuid(account, jid);
         } else {
             return null;
         }
@@ -242,7 +250,7 @@ public class ShareWithActivity extends XmppActivity
         final Conversation conversation;
         Account account;
         try {
-            account = xmppConnectionService.findAccountByJid(Jid.ofEscaped(share.account));
+            account = xmppConnectionService.findAccountByJid(Jid.of(share.account));
         } catch (final IllegalArgumentException e) {
             account = null;
         }

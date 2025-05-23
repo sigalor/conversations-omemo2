@@ -308,7 +308,7 @@ public class ExportBackupService extends Worker {
             }
             Log.d(Config.LOGTAG, String.format("exporting data for account %s (%s)", account.getJid().asBareJid(), account.getUuid()));
             final Progress progress = new Progress(notification, max, count);
-            final File file = new File(FileBackend.getBackupDirectory(context), account.getJid().asBareJid().toEscapedString() + ".xml.pgp");
+            final File file = new File(FileBackend.getBackupDirectory(context), account.getJid().asBareJid().toString() + ".xml.pgp");
             files.add(file);
             final File directory = file.getParentFile();
             if (directory != null && directory.mkdirs()) {
@@ -333,7 +333,7 @@ public class ExportBackupService extends Worker {
                     new byte[4096]
                 ),
                 PGPLiteralDataGenerator.UTF8,
-                account.getJid().asBareJid().toEscapedString() + ".xml",
+                account.getJid().asBareJid().toString() + ".xml",
                 PGPLiteralDataGenerator.NOW,
                 new byte[4096]
             ));

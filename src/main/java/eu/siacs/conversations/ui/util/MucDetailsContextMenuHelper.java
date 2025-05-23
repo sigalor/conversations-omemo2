@@ -312,7 +312,7 @@ public final class MucDetailsContextMenuHelper {
                 final var ritem = rosterx.addChild("item");
                 ritem.setAttribute("action", "add");
                 ritem.setAttribute("name", conversation.getMucOptions().getSelf().getNick());
-                ritem.setAttribute("jid", conversation.getAccount().getJid().asBareJid().toEscapedString());
+                ritem.setAttribute("jid", conversation.getAccount().getJid().asBareJid().toString());
                 message.addPayload(rosterx);*/
                 activity.xmppConnectionService.sendMessage(message);
                 return true;

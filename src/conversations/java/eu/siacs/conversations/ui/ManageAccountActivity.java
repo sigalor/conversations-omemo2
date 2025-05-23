@@ -95,7 +95,7 @@ public class ManageAccountActivity extends XmppActivity
             String jid = savedInstanceState.getString(STATE_SELECTED_ACCOUNT);
             if (jid != null) {
                 try {
-                    this.selectedAccountJid = Jid.ofEscaped(jid);
+                    this.selectedAccountJid = Jid.of(jid);
                 } catch (IllegalArgumentException e) {
                     this.selectedAccountJid = null;
                 }
@@ -114,7 +114,7 @@ public class ManageAccountActivity extends XmppActivity
     public void onSaveInstanceState(@NonNull final Bundle savedInstanceState) {
         if (selectedAccount != null) {
             savedInstanceState.putString(
-                    STATE_SELECTED_ACCOUNT, selectedAccount.getJid().asBareJid().toEscapedString());
+                    STATE_SELECTED_ACCOUNT, selectedAccount.getJid().asBareJid().toString());
         }
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -133,7 +133,7 @@ public class ManageAccountActivity extends XmppActivity
             menu.findItem(R.id.mgmt_account_announce_pgp).setVisible(false);
             menu.findItem(R.id.mgmt_account_publish_avatar).setVisible(false);
         }
-        menu.setHeaderTitle(this.selectedAccount.getJid().asBareJid().toEscapedString());
+        menu.setHeaderTitle(this.selectedAccount.getJid().asBareJid().toString());
     }
 
     @Override
@@ -298,7 +298,7 @@ public class ManageAccountActivity extends XmppActivity
 
     private void publishAvatar(Account account) {
         Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
-        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
+        intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
         startActivity(intent);
     }
 

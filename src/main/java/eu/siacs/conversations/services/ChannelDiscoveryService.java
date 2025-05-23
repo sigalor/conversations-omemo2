@@ -262,7 +262,7 @@ public class ChannelDiscoveryService {
                     continue;
                 }
                 for (final String mucService : xmppConnection.getMucServers()) {
-                    Jid jid = Jid.ofEscaped(mucService);
+                    Jid jid = Jid.of(mucService);
                     if (!localMucServices.containsKey(jid)) {
                         localMucServices.put(jid, account);
                     }

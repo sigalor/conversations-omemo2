@@ -1,7 +1,7 @@
 package im.conversations.android.xmpp.model.stanza;
 
 import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.xmpp.InvalidJid;
+
 import eu.siacs.conversations.xmpp.Jid;
 
 import im.conversations.android.xmpp.model.Extension;
@@ -45,7 +45,7 @@ public abstract class Stanza extends StreamElement {
     public boolean isInvalid() {
         final var to = getTo();
         final var from = getFrom();
-        if (to instanceof InvalidJid || from instanceof InvalidJid) {
+        if (to instanceof Jid.Invalid || from instanceof Jid.Invalid) {
             return true;
         }
         return false;

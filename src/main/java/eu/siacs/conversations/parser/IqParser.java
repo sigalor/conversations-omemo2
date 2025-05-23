@@ -37,7 +37,7 @@ import eu.siacs.conversations.entities.Room;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
-import eu.siacs.conversations.xmpp.InvalidJid;
+
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.forms.Data;
@@ -106,7 +106,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         }
         for (final Element item : query.getChildren()) {
             if (item.getName().equals("item")) {
-                final Jid jid = InvalidJid.getNullForInvalid(item.getAttributeAsJid("jid"));
+                final Jid jid = Jid.Invalid.getNullForInvalid(item.getAttributeAsJid("jid"));
                 if (jid == null) {
                     continue;
                 }
@@ -383,7 +383,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                 // Create a collection of Jids from the packet
                 for (final Element item : items) {
                     if (item.getName().equals("item")) {
-                        final Jid jid = InvalidJid.getNullForInvalid(item.getAttributeAsJid("jid"));
+                        final Jid jid = Jid.Invalid.getNullForInvalid(item.getAttributeAsJid("jid"));
                         if (jid != null) {
                             jids.add(jid);
                         }
@@ -417,7 +417,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                 final Collection<Jid> jids = new ArrayList<>(items.size());
                 for (final Element item : items) {
                     if (item.getName().equals("item")) {
-                        final Jid jid = InvalidJid.getNullForInvalid(item.getAttributeAsJid("jid"));
+                        final Jid jid = Jid.Invalid.getNullForInvalid(item.getAttributeAsJid("jid"));
                         if (jid != null) {
                             jids.add(jid);
                         }

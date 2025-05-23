@@ -269,7 +269,7 @@ public final class CryptoHelper {
     }
 
     public static String getFingerprint(Jid jid, String androidId) {
-        return getFingerprint(jid.toEscapedString() + "\00" + androidId);
+        return getFingerprint(jid.toString() + "\00" + androidId);
     }
 
     public static String getAccountFingerprint(Account account, String androidId) {

@@ -400,7 +400,7 @@ public class WebxdcPage implements ConversationPage {
 				final var occupantId = conversation.getMucOptions().getSelf().getOccupantId();
 				if (occupantId != null) return occupantId;
 			}
-			return "xmpp:" + Uri.encode(selfJid().toEscapedString(), "@/+");
+			return "xmpp:" + Uri.encode(selfJid().toString(), "@/+");
 		}
 
 		@JavascriptInterface

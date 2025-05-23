@@ -51,7 +51,7 @@ public class AccountAdapter extends ArrayAdapter<Account> {
         } else {
             viewHolder = (ViewHolder) view.getTag();
         }
-        viewHolder.binding.accountJid.setText(account.getJid().asBareJid().toEscapedString());
+        viewHolder.binding.accountJid.setText(account.getJid().asBareJid().toString());
         AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImage, R.dimen.avatar);
         viewHolder.binding.accountStatus.setText(getContext().getString(account.getStatus().getReadableId()));
         switch (account.getStatus()) {

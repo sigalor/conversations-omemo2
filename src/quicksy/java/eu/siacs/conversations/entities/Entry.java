@@ -63,7 +63,7 @@ public class Entry implements Comparable<Entry> {
             Collections.sort(jids);
             for(Jid jid : jids) {
                 builder.append('\u001e');
-                builder.append(jid.asBareJid().toEscapedString());
+                builder.append(jid.asBareJid().toString());
             }
         }
         @SuppressWarnings("deprecation")

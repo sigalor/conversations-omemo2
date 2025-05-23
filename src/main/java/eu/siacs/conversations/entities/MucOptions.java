@@ -71,7 +71,7 @@ public class MucOptions {
         return this.conversation.getAccount();
     }
 
-    public boolean setSelf(User user) {
+    public boolean setSelf(final User user) {
         this.self = user;
         final boolean roleChanged = this.conversation.setAttribute("role", user.role.toString());
         final boolean affiliationChanged = this.conversation.setAttribute("affiliation", user.affiliation.toString());
@@ -79,8 +79,8 @@ public class MucOptions {
         return roleChanged || affiliationChanged;
     }
 
-    public void changeAffiliation(Jid jid, Affiliation affiliation) {
-        User user = findUserByRealJid(jid);
+    public void changeAffiliation(final Jid jid, final Affiliation affiliation) {
+        var user = findUserByRealJid(jid);
         synchronized (users) {
             if (user == null) {
                 user = new User(this, null, null, null, new HashSet<>());
@@ -130,7 +130,7 @@ public class MucOptions {
             final var identities = serviceDiscoveryResult.getIdentities();
             final String identityName = !identities.isEmpty() ? identities.get(0).getName() : null;
             final Jid jid = conversation.getJid();
-            if (identityName != null && !identityName.equals(jid == null ? null : jid.getEscapedLocal())) {
+            if (identityName != null && !identityName.equals(jid == null ? null : jid.getLocal())) {
                 name = identityName;
             } else {
                 name = null;
@@ -470,13 +470,13 @@ public class MucOptions {
         }
     }
 
-    public List<User> getUsers(int max) {
+    public List<User> getUsers(final int max) {
         ArrayList<User> subset = new ArrayList<>();
-        HashSet<Jid> jids = new HashSet<>();
-        jids.add(account.getJid().asBareJid());
+        HashSet<Jid> addresses = new HashSet<>();
+        addresses.add(account.getJid().asBareJid());
         synchronized (users) {
             for (User user : users) {
-                if (user.getRealJid() == null || (user.getRealJid().getLocal() != null && jids.add(user.getRealJid()))) {
+                if (user.getRealJid() == null || (user.getRealJid().getLocal() != null && addresses.add(user.getRealJid()))) {
                     subset.add(user);
                 }
                 if (subset.size() >= max) {
@@ -1035,7 +1035,7 @@ public class MucOptions {
             }
         }
 
-        public boolean setAvatar(Avatar avatar) {
+        public boolean setAvatar(final Avatar avatar) {
             if (occupantId != null) {
                 options.getConversation().setAttribute("occupantAvatar/" + occupantId, getContact() == null && avatar != null ? avatar.sha1sum : null);
             }

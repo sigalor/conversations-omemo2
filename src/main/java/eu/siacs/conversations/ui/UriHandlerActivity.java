@@ -179,7 +179,7 @@ public class UriHandlerActivity extends BaseActivity {
             final String preAuth = xmppUri.getParameter(XmppUri.PARAMETER_PRE_AUTH);
             final Jid jid = xmppUri.getJid();
             if (xmppUri.isAction(XmppUri.ACTION_REGISTER)) {
-                if (jid.getEscapedLocal() != null && accounts.contains(jid.asBareJid())) {
+                if (jid.getLocal() != null && accounts.contains(jid.asBareJid())) {
                     showError(R.string.account_already_exists);
                     return false;
                 }
@@ -228,7 +228,7 @@ public class UriHandlerActivity extends BaseActivity {
                     intent = new Intent(this, StartConversationActivity.class);
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.setData(uri);
-                    intent.putExtra("account", accounts.get(0).toEscapedString());
+                    intent.putExtra("account", accounts.get(0).toString());
                 }
             } else {
                 intent = new Intent(this, ShareWithActivity.class);
