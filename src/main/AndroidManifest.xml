@@ -162,16 +162,14 @@
 
         <activity
             android:name=".ui.ShareLocationActivity"
-            android:label="@string/title_activity_share_location"
-            android:exported="false" />
+            android:label="@string/title_activity_share_location" />
         <activity
             android:name=".ui.SearchActivity"
-            android:label="@string/search_messages"
-            android:exported="false" />
+            android:label="@string/search_messages" />
+
         <activity
             android:name=".ui.ShowLocationActivity"
-            android:label="@string/title_activity_show_location"
-            android:exported="false" />
+            android:label="@string/title_activity_show_location" />
         <activity
             android:name=".ui.ConversationActivity"
             android:exported="true"
@@ -194,8 +192,8 @@
             android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
             android:name=".ui.ScanActivity"
-            android:exported="false"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.Conversations3.FullScreen"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.UriHandlerActivity"
@@ -275,16 +273,13 @@
         </activity>
         <activity
             android:name=".ui.ChooseContactActivity"
-            android:label="@string/title_activity_choose_contact"
-            android:exported="false" />
+            android:label="@string/title_activity_choose_contact" />
         <activity
             android:name=".ui.BlocklistActivity"
-            android:label="@string/title_activity_block_list"
-            android:exported="false" />
+            android:label="@string/title_activity_block_list" />
         <activity
             android:name=".ui.ChangePasswordActivity"
-            android:label="@string/change_password_on_server"
-            android:exported="false" />
+            android:label="@string/change_password_on_server" />
         <activity
             android:name=".ui.ChooseAccountForProfilePictureActivity"
             android:enabled="false"
@@ -300,7 +295,6 @@
         <activity
             android:name=".ui.ShareViaAccountActivity"
             android:label="@string/title_activity_share_via_account"
-            android:exported="false"
             android:launchMode="singleTop" />
         <activity
             android:name=".ui.EditAccountActivity"
@@ -310,25 +304,20 @@
         <activity
             android:name=".ui.ConferenceDetailsActivity"
             android:label="@string/action_muc_details"
-            android:exported="false"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.ContactDetailsActivity"
-            android:exported="false"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.PublishProfilePictureActivity"
             android:label="@string/mgmt_account_publish_avatar"
-            android:exported="false"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.PublishGroupChatProfilePictureActivity"
-            android:label="@string/group_chat_avatar"
-            android:exported="false" />
+            android:label="@string/group_chat_avatar" />
         <activity
             android:name=".ui.VerifyOTRActivity"
             android:label="@string/verify_otr"
-            android:exported="false"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.ShareWithActivity"
@@ -360,11 +349,9 @@
         <activity
             android:name=".ui.TrustKeysActivity"
             android:label="@string/trust_omemo_fingerprints"
-            android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.AboutActivity"
-            android:exported="false"
             android:parentActivityName=".ui.activity.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -372,11 +359,8 @@
         </activity>
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
-            android:exported="false"
             android:theme="@style/Base.Theme.AppCompat" />
-        <activity
-            android:name=".ui.MemorizingActivity"
-            android:exported="false" />
+        <activity android:name=".ui.MemorizingActivity" />
 
         <activity
             android:name=".ui.MediaBrowserActivity"
@@ -386,8 +370,7 @@
         <activity
             android:name="eu.siacs.conversations.medialib.activities.EditActivity"
             android:theme="@style/Theme.Conversations3.FullScreen"
-            android:configChanges="orientation"
-            android:exported="false"/>
+            android:configChanges="orientation" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -414,15 +397,12 @@
         </activity>
         <activity
             android:name=".ui.MucUsersActivity"
-            android:label="@string/group_chat_members"
-            android:exported="false" />
+            android:label="@string/group_chat_members" />
         <activity
             android:name=".ui.ChannelDiscoveryActivity"
-            android:label="@string/discover_channels"
-            android:exported="false" />
+            android:label="@string/discover_channels" />
         <activity
             android:name=".ui.RtpSessionActivity"
-            android:exported="false"
             android:autoRemoveFromRecents="true"
             android:launchMode="singleInstance"
             android:supportsPictureInPicture="true" />

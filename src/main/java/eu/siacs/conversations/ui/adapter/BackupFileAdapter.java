@@ -98,29 +98,29 @@ public class BackupFileAdapter
         void onClick(BackupFile backupFile);
     }
 
-    static class BitmapWorkerTask extends AsyncTask<Jid, Void, Bitmap> {
+    static class BitmapWorkerTask extends AsyncTask<Jid, Void, Drawable> {
         private final WeakReference<ImageView> imageViewReference;
-        private Jid jid = null;
+        private Jid jid  = null;
         private final int size;
 
-        BitmapWorkerTask(final ImageView imageView) {
+        BitmapWorkerTask(ImageView imageView) {
             imageViewReference = new WeakReference<>(imageView);
             DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
             this.size = ((int) (48 * metrics.density));
         }
 
         @Override
-        protected Bitmap doInBackground(Jid... params) {
+        protected Drawable doInBackground(Jid... params) {
             this.jid = params[0];
             return AvatarService.get(this.jid, size);
         }
 
         @Override
-        protected void onPostExecute(Bitmap bitmap) {
+        protected void onPostExecute(Drawable bitmap) {
             if (bitmap != null && !isCancelled()) {
                 final ImageView imageView = imageViewReference.get();
                 if (imageView != null) {
-                    imageView.setImageBitmap(bitmap);
+                    imageView.setImageDrawable(bitmap);
                     imageView.setBackgroundColor(0x00000000);
                 }
             }

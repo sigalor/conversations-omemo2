@@ -80,7 +80,13 @@ public class ImportBackupWorker extends Worker {
 
     private static final List<String> TABLE_ALLOW_LIST =
             new ImmutableList.Builder<String>()
-                    .add(Account.TABLENAME, Conversation.TABLENAME, Message.TABLENAME)
+                    .add(
+                            Account.TABLENAME,
+                            Conversation.TABLENAME,
+                            Message.TABLENAME,
+                            "webxdc_updates",
+                            "muted_participants"
+                    )
                     .addAll(OMEMO_TABLE_LIST)
                     .build();
 
