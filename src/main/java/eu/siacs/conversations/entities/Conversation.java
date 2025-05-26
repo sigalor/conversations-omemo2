@@ -2134,7 +2134,7 @@ public class Conversation extends AbstractEntity
                 return pg2;
             }
 
-            if (position-2 > sessions.size()) return null;
+            if (position-2 >= sessions.size()) return null;
             ConversationPage session = sessions.get(position-2);
             View v = session.inflateUi(container.getContext(), (s) -> removeSession(s));
             if (v != null && v.getParent() != null) {
