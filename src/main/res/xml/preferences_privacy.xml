@@ -19,20 +19,6 @@
             android:icon="@drawable/ic_visibility_24dp"
             android:summary="@string/pref_broadcast_last_activity_summary"
             android:title="@string/pref_broadcast_last_activity" />
-        <SwitchPreferenceCompat
-            android:defaultValue="@bool/send_link_previews"
-            android:icon="@drawable/ic_link_24dp"
-            android:key="send_link_previews"
-            android:summary="@string/pref_send_link_previews_summary"
-            android:title="@string/pref_send_link_previews" />
-        <SwitchPreferenceCompat
-            android:defaultValue="@bool/show_maps_inside"
-            android:icon="@drawable/ic_menu_mapmode"
-            android:disableDependentsState="false"
-            android:key="show_maps_inside"
-            android:summary="@string/pref_show_mappreview_inside_summary"
-            android:title="@string/pref_show_mappreview_inside" />
-
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_interaction">
         <SwitchPreferenceCompat
@@ -55,6 +41,27 @@
             android:key="disable_reactions_fallback"
             android:summary="@string/pref_disable_reactions_fallback_summary"
             android:title="@string/pref_disable_reactions_fallback_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_ui_options">
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/send_link_previews"
+            android:icon="@drawable/rounded_link_24"
+            android:key="send_link_previews"
+            android:summary="@string/pref_send_link_previews_summary"
+            android:title="@string/pref_send_link_previews" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_maps_inside"
+            android:icon="@drawable/ic_location_pin_24dp"
+            android:disableDependentsState="false"
+            android:key="show_maps_inside"
+            android:summary="@string/pref_show_mappreview_inside_summary"
+            android:title="@string/pref_show_mappreview_inside" />
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/load_image_from_any_link"
+            android:icon="@drawable/ic_image_24dp"
+            android:key="load_image_from_any_link"
+            android:summary="@string/pref_load_image_from_any_link_summary"
+            android:title="@string/pref_load_image_from_any_link_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_presence_settings">
         <SwitchPreferenceCompat

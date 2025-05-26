@@ -30,10 +30,13 @@
 package eu.siacs.conversations.utils;
 
 import com.google.common.base.Strings;
+
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.AesGcmURL;
 import eu.siacs.conversations.http.URL;
+import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -75,7 +78,7 @@ public class MessageUtils {
         return builder.toString();
     }
 
-    public static boolean treatAsDownloadable(final String body, final boolean oob, final boolean legacyEncryption) {
+    public static boolean treatAsDownloadable(final String body, final boolean oob) {
         if (oob) return true;
 
         final String[] lines = body.split("\n");
@@ -106,8 +109,13 @@ public class MessageUtils {
                         && (lines.length == 1 || followedByDataUri);
         final boolean validProtocol =
                 "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
-        final boolean validOob = validProtocol && (oob || encrypted || (legacyEncryption && uri.getPath() != null && (uri.getPath().endsWith(".xdc") || uri.getPath().endsWith(".webp") || uri.getPath().endsWith(".gif") || uri.getPath().endsWith(".png")))) && lines.length == 1;
-        return validAesGcm || validOob;
+        if (XmppActivity.staticXmppConnectionService.getBooleanPreference("load_image_from_any_link", R.bool.load_image_from_any_link)) {
+            final boolean validOob = validProtocol && (oob || encrypted || (uri.getPath() != null && (uri.getPath().endsWith(".xdc") || uri.getPath().endsWith(".webp") || uri.getPath().endsWith(".gif") || uri.getPath().endsWith(".png") || uri.getPath().endsWith(".jpg") || uri.getPath().endsWith(".jpeg") || uri.getPath().endsWith(".bmp")))) && lines.length == 1;
+            return validAesGcm || validOob;
+        } else {
+            final boolean validOob = validProtocol && (oob || encrypted) && lines.length == 1;
+            return validAesGcm || validOob;
+        }
     }
 
     public static String aesgcmDownloadable(final String body) {

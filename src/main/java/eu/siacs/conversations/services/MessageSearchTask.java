@@ -109,7 +109,7 @@ public class MessageSearchTask implements Runnable, Cancellable {
 					}
 					final String body = cursor.getString(indexBody);
 					final boolean oob = cursor.getInt(indexOob) > 0;
-					if (MessageUtils.treatAsDownloadable(body,oob,false)) {
+					if (MessageUtils.treatAsDownloadable(body,oob)) {
 						continue;
 					}
 					final String conversationUuid = cursor.getString(indexConversation);

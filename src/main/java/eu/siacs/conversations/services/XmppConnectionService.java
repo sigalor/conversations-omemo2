@@ -56,7 +56,6 @@ import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
 
 import de.monocles.chat.EmojiSearch;
-import de.monocles.chat.EmojiSearchOld;
 import de.monocles.chat.WebxdcUpdate;
 
 import com.google.common.base.Objects;
@@ -592,7 +591,6 @@ public class XmppConnectionService extends Service {
             new RestrictedEventReceiver(Arrays.asList(TorServiceUtils.ACTION_STATUS));
     private final BroadcastReceiver mInternalScreenEventReceiver = new InternalEventReceiver();
     private EmojiSearch emojiSearch = null;
-    private EmojiSearchOld emojiSearchOld = null;
 
     private static String generateFetchKey(Account account, final Avatar avatar) {
         return account.getJid().asBareJid() + "_" + avatar.owner + "_" + avatar.sha1sum;
@@ -899,7 +897,6 @@ public class XmppConnectionService extends Service {
                             }
                             if (file.length() < 129000) {
                                 emojiSearch.addEmoji(new EmojiSearch.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
-                                emojiSearchOld.addEmoji(new EmojiSearchOld.CustomEmoji(filename, cids[0].toString(), icon, file.getParentFile().getName()));
                             }
                         }
                     } catch (final Exception e) {
@@ -1693,7 +1690,6 @@ public class XmppConnectionService extends Service {
         java.util.logging.Logger.getLogger("").setLevel(java.util.logging.Level.FINEST);
         LibIdnXmppStringprep.setup();
         emojiSearch = new EmojiSearch(this);
-        emojiSearchOld = new EmojiSearchOld(this);
         setTheme(R.style.Theme_Conversations3);
         ThemeHelper.applyCustomColors(this);
         if (Compatibility.runsTwentySix()) {
@@ -7365,10 +7361,6 @@ public class XmppConnectionService extends Service {
         if (mDrawableCache.remove(uuid) != null) {
             Log.d(Config.LOGTAG, "deleted cached preview");
         }
-    }
-
-    public EmojiSearchOld emojiSearchOld() {
-        return emojiSearchOld;
     }
 
     public interface OnMamPreferencesFetched {

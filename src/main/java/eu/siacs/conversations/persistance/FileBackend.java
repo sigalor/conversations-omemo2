@@ -694,10 +694,6 @@ public class FileBackend {
 
     public boolean useImageAsIs(final Uri uri) {
         try {
-            for (Cid cid : calculateCids(uri)) {
-                if (mXmppConnectionService.getUrlForCid(cid) != null) return true;
-            }
-
             long fsize = getUriSize(uri);
             if (fsize == 0 || fsize >= mXmppConnectionService.getResources().getInteger(R.integer.auto_accept_filesize)) {
                 return false;
@@ -2084,15 +2080,7 @@ public class FileBackend {
             cids = calculateCids(new FileInputStream(file));
             fileParams.setCids(List.of(cids));
         } catch (final IOException | NoSuchAlgorithmException e) { }
-        if (url == null) {
-            for (Cid cid : cids) {
-                url = mXmppConnectionService.getUrlForCid(cid);
-                if (url != null) {
-                    fileParams.url = url;
-                    break;
-                }
-            }
-        } else {
+        if (url != null) {
             fileParams.url = url;
         }
         if (fileParams.getName() == null) fileParams.setName(file.getName());
