@@ -44,10 +44,13 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ImageSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -4465,9 +4468,45 @@ public class ConversationFragment extends XmppFragment
                     } else {
                         binding.mucSubject.setVisibility(View.GONE);
                     }
+                } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
+                    Boolean hidden = conversation.statusMessageHidden();
+                    List<String> statusMessages = conversation.getContact().getPresences().getStatusMessages();
+
+                    if (statusMessages.size() == 1 && !hidden) {
+                        final String message = statusMessages.get(0);
+                        binding.mucSubject.setVisibility(View.VISIBLE);
+                        final Spannable span = new SpannableString(message);
+                        if (Emoticons.isOnlyEmoji(message)) {
+                            span.setSpan(
+                                    new RelativeSizeSpan(2.0f),
+                                    0,
+                                    message.length(),
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        binding.mucSubjectText.setText(span);
+                        binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
+                        binding.mucSubjectHide.setOnClickListener(v -> {
+                            conversation.hideStatusMessage();
+                            binding.mucSubject.setVisibility(View.GONE);
+                        });
+                    } else if (statusMessages.size() > 1 && !hidden) {
+                        StringBuilder builder = new StringBuilder();
+                        binding.mucSubject.setVisibility(View.VISIBLE);
+                        int s = statusMessages.size();
+                        for (int i = 0; i < s; ++i) {
+                            builder.append(statusMessages.get(i));
+                            if (i < s - 1) {
+                                builder.append("\n");
+                            }
+                        }
+                        binding.mucSubjectText.setText(builder);
+                    } else {
+                        binding.mucSubject.setVisibility(View.GONE);
+                    }
                 } else {
                     binding.mucSubject.setVisibility(View.GONE);
                 }
+
                 // Jump to Pinned message
                 binding.pinnedMessage.setOnClickListener(v -> {
                     if (selectedMessage != null) jumpTo(selectedMessage);

@@ -60,6 +60,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import androidx.media3.common.util.Log;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -4122,5 +4123,61 @@ public class Conversation extends AbstractEntity
 
             return last.getTimeSent();
         }
+    }
+
+    public void hideStatusMessage() {
+        String statusTs = this.getAttribute("statusTs");
+
+        if (statusTs == null) {
+            this.setAttribute("statusTs", String.valueOf(System.currentTimeMillis() - 1));
+        }
+
+        this.setAttribute("statusHideTs", String.valueOf(System.currentTimeMillis()));
+    }
+
+    public boolean statusMessageHidden() {
+        String statusTs = this.getAttribute("statusTs");
+        String statusHideTs = this.getAttribute("statusHideTs");
+
+        if (statusTs == null) {
+            return false;
+        }
+        if (statusHideTs == null) {
+            return false;
+        }
+        try {
+            return Long.parseLong(statusHideTs) >= Long.parseLong(statusTs);
+        } catch (NumberFormatException e) {
+            Log.w(Config.LOGTAG, "NumberFormatException parsing status timestamps for " + getJid() + ": statusTs=" + statusTs + ", statusHideTs=" + statusHideTs);
+            return false; // Default to not hidden if timestamps are corrupt
+        }
+    }
+
+    /**
+     * Call this method when a contact's XMPP status message
+     * has been updated. This will update the status timestamp and ensure
+     * that any previously hidden status message for this conversation is made visible again.
+     *
+     * @param newStatusMessageText The text of the new status message (can be used if you store it).
+     * @param newStatusTimestamp The timestamp (in milliseconds) of when the new status was set/received.
+     */
+    public void onContactStatusMessageChanged(String newStatusMessageText, long newStatusTimestamp) {
+        this.setAttribute("statusTs", String.valueOf(newStatusTimestamp));
+
+        // To make statusMessageHidden() return false, we ensure statusHideTs is less than statusTs.
+        // Set to an older value:
+        // this.setAttribute("statusHideTs", "0");
+        // or
+        this.setAttribute("statusHideTs", String.valueOf(newStatusTimestamp - 1));
+
+        // If you also store the status message text directly in Conversation attributes:
+        // if (newStatusMessageText != null) {
+        //     this.setAttribute(Conversation.ATTRIBUTE_LAST_STATUS_MESSAGE, newStatusMessageText);
+        // } else {
+        //     this.removeAttribute(Conversation.ATTRIBUTE_LAST_STATUS_MESSAGE);
+        // }
+
+        Log.d(Config.LOGTAG, "Updated status timestamps for conversation " + getJid() +
+                ". statusTs=" + newStatusTimestamp + ", statusHideTs is now removed/older.");
     }
 }

@@ -825,4 +825,5 @@ public class Contact implements ListItem, Blockable {
         private static final int SYNCED_VIA_ADDRESS_BOOK = 8;
         public static final int SYNCED_VIA_OTHER = 9;
     }
+
 }
