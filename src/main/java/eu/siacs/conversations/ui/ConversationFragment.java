@@ -4464,6 +4464,7 @@ public class ConversationFragment extends XmppFragment
                             conversation.getMucOptions().hideSubject();
                             binding.mucSubject.setVisibility(View.GONE);
                         });
+                        binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
                         binding.mucSubject.setVisibility(View.VISIBLE);
                     } else {
                         binding.mucSubject.setVisibility(View.GONE);
@@ -4475,6 +4476,7 @@ public class ConversationFragment extends XmppFragment
                     if (statusMessages.size() == 1 && !hidden) {
                         final String message = statusMessages.get(0);
                         binding.mucSubject.setVisibility(View.VISIBLE);
+                        binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
                         final Spannable span = new SpannableString(message);
                         if (Emoticons.isOnlyEmoji(message)) {
                             span.setSpan(
@@ -4492,6 +4494,7 @@ public class ConversationFragment extends XmppFragment
                     } else if (statusMessages.size() > 1 && !hidden) {
                         StringBuilder builder = new StringBuilder();
                         binding.mucSubject.setVisibility(View.VISIBLE);
+                        binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
                         int s = statusMessages.size();
                         for (int i = 0; i < s; ++i) {
                             builder.append(statusMessages.get(i));
