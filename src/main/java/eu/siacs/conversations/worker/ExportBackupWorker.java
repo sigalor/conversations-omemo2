@@ -565,7 +565,7 @@ public class ExportBackupWorker extends Worker {
         final ArrayList<Uri> uris = new ArrayList<>();
         for (final Uri uri : locations) {
             if ("file".equalsIgnoreCase(uri.getScheme())) {
-                uris.add(FileBackend.getUriForFile(context, new File(uri.getPath())));
+                uris.add(FileBackend.getUriForFile(context, new File(uri.getPath()), new File(uri.getPath()).getName()));
             } else {
                 uris.add(uri);
             }
