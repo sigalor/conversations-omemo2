@@ -100,7 +100,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
     implementation 'com.google.guava:guava:33.4.0-android'
-    quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.13.52'
+    implementation 'io.michaelrocks:libphonenumber-android:8.13.52'
     implementation 'im.conversations.webrtc:webrtc-android:129.0.0'
     implementation 'io.github.nishkarsh:android-permissions:2.1.6'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
@@ -147,10 +147,12 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 34
-        versionCode 184
-        versionName "2.0.7"
-        applicationId "de.monocles.chat"
-        def appName = "monocles chat"
+        versionCode 42134
+        versionName "2.17.12"
+        archivesBaseName += "-$versionName"
+        applicationId "eu.siacs.conversations"
+        resValue "string", "applicationId", applicationId
+        def appName = "Conversations"
         resValue "string", "app_name", appName
         buildConfigField "String", "APP_NAME", "\"$appName\""
         buildConfigField "String", "PRIVACY_POLICY", "\"https://monocles.eu/legal-privacy/#policies-section\""

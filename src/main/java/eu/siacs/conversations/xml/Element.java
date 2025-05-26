@@ -24,7 +24,7 @@ import im.conversations.android.xmpp.model.stanza.Message;
 public class Element implements Node {
 	private final String name;
 	private Hashtable<String, String> attributes = new Hashtable<>();
-	private List<Element> children = new ArrayList<>();
+	protected List<Element> children = new ArrayList<>();
 	private List<Node> childNodes = new ArrayList<>();
 
 	public Element(String name) {
