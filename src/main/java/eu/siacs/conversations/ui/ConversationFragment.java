@@ -4435,7 +4435,11 @@ public class ConversationFragment extends XmppFragment
                     if (notifyConversationRead) binding.messagesView.postDelayed(this::refresh, 1000L);
                 } else {
                     conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
-                    updateStatusMessages();
+                    try {
+                        updateStatusMessages();
+                    } catch (IllegalStateException e) {
+                        Log.e(Config.LOGTAG, "Problem updating status messages on refresh: " + e);
+                    }
                     this.messageListAdapter.notifyDataSetChanged();
                 }
                 if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
