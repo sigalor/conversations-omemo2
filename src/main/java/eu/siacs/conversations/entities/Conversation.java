@@ -2551,7 +2551,7 @@ public class Conversation extends AbstractEntity
                     if (field.error != null) {
                         binding.desc.setVisibility(View.VISIBLE);
                         binding.desc.setText(field.error);
-                        binding.desc.setTextColor(com.google.android.material.R.attr.colorError);
+                        binding.desc.setTextColor(androidx.appcompat.R.attr.colorError);
                     } else {
                         binding.desc.setTextColor(textColor);
                     }
@@ -2651,7 +2651,7 @@ public class Conversation extends AbstractEntity
                     if (field.error != null) {
                         binding.desc.setVisibility(View.VISIBLE);
                         binding.desc.setText(field.error);
-                        binding.desc.setTextColor(com.google.android.material.R.attr.colorError);
+                        binding.desc.setTextColor(androidx.appcompat.R.attr.colorError);
                     } else {
                         binding.desc.setTextColor(textColor);
                     }
@@ -2801,7 +2801,7 @@ public class Conversation extends AbstractEntity
                     if (field.error != null) {
                         binding.desc.setVisibility(View.VISIBLE);
                         binding.desc.setText(field.error);
-                        binding.desc.setTextColor(com.google.android.material.R.attr.colorError);
+                        binding.desc.setTextColor(androidx.appcompat.R.attr.colorError);
                     } else {
                         binding.desc.setTextColor(textColor);
                     }

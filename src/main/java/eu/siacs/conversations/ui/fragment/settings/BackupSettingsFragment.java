@@ -397,7 +397,7 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
 
     private void startExport() {
         final OneTimeWorkRequest exportBackupWorkRequest =
-                new OneTimeWorkRequest.Builder(de.monocles.chat.ExportBackupService.class)
+                new OneTimeWorkRequest.Builder(ExportBackupWorker.class)
                         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                         .build();
         WorkManager.getInstance(requireContext())

@@ -1077,7 +1077,7 @@ public class NotificationService {
             color = account.getColor(false);
         } else {
             TypedValue typedValue = new TypedValue();
-            mXmppConnectionService.getTheme().resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true);
+            mXmppConnectionService.getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true);
             color = typedValue.data;
         }
         mBuilder.setColor(color);

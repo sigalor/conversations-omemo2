@@ -28,8 +28,6 @@
             android:exported="false"
             android:theme="@style/Theme.Conversations3.FullScreen" />
 
-        <service android:name="de.monocles.chat.ExportBackupService" />
-
         <activity
             android:name=".ui.ManageAccountActivity"
             android:label="@string/title_activity_manage_accounts"
