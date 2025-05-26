@@ -5067,7 +5067,8 @@ public class XmppConnectionService extends Service {
                                     mPresenceGenerator.selfPresence(
                                             account,
                                             Presence.Status.ONLINE,
-                                            mucOptions.nonanonymous());
+                                            mucOptions.nonanonymous(),
+                                            mucOptions.getProposedNickPure());  // TODO: check if this is correct
                             packet.setTo(me);
                             sendPresencePacket(account, packet);
                         }
