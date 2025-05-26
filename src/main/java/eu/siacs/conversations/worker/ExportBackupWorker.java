@@ -623,7 +623,10 @@ public class ExportBackupWorker extends Worker {
     private void writeToFile(Conversation conversation) {
         Jid accountJid = resolveAccountUuid(conversation.getAccountUuid());
         Jid contactJid = conversation.getJid();
-        final File dir = new File(FileBackend.getBackupDirectory(getApplicationContext()), accountJid.asBareJid().toString());
+        final var context = getApplicationContext();
+        final var appSettings = new AppSettings(context);
+        final String path = appSettings.getBackupLocationAsPath();
+        final File dir = new File(path, accountJid.asBareJid().toString());
         dir.mkdirs();
 
         BufferedWriter bw = null;

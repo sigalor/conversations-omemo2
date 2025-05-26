@@ -334,8 +334,11 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
     private void exportSettings() {
         boolean success = false;
         ObjectOutputStream output = null;
+        final var context = requireSettingsActivity();
+        final var appSettings = new AppSettings(context);
+        final String path = appSettings.getBackupLocationAsPath();
         try {
-            final File file = new File(FileBackend.getBackupDirectory(requireContext()).getAbsolutePath(), DATE_FORMAT.format(new Date()) + "_settings.dat");
+            final File file = new File(path, DATE_FORMAT.format(new Date()) + "_settings.dat");
             final File directory = file.getParentFile();
             if (directory != null && directory.mkdirs()) {
                 Log.d(Config.LOGTAG, "created backup directory " + directory.getAbsolutePath());
