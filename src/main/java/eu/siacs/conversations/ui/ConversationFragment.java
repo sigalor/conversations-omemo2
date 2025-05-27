@@ -4509,7 +4509,7 @@ public class ConversationFragment extends XmppFragment
                     } else if (statusMessages.size() > 1 && !hidden) {
                         StringBuilder builder = new StringBuilder();
                         binding.mucSubject.setVisibility(View.VISIBLE);
-                        binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
+                        if (activity != null && binding.mucSubjectIcon != null) binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
                         int s = statusMessages.size();
                         for (int i = 0; i < s; ++i) {
                             builder.append(statusMessages.get(i));
