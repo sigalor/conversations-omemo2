@@ -1364,12 +1364,10 @@ public class ConversationFragment extends XmppFragment
         } else if (multi && !conversation.getMucOptions().participating()) {
             this.binding.textInputHint.setVisibility(View.GONE);
             this.binding.textinput.setHint(R.string.you_are_not_participating);
-            this.binding.inputLayout.setBackgroundColor(android.R.color.transparent);
         } else {
             this.binding.textInputHint.setVisibility(View.GONE);
             if (activity == null) return;
             this.binding.textinput.setHint(UIHelper.getMessageHint(activity, conversation));
-            this.binding.inputLayout.setBackground(activity.getDrawable(R.drawable.background_message_bubble));
             activity.invalidateOptionsMenu();
         }
 
@@ -2060,11 +2058,6 @@ public class ConversationFragment extends XmppFragment
 
     public void setupReply(Message message) {
         if (message != null) {
-            InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null) {
-                binding.textinput.requestFocus();
-                inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
-            }
 
             final var correcting = conversation.getCorrectingMessage();
             if (correcting != null && correcting.getUuid().equals(message.getUuid())) return;
@@ -3833,34 +3826,6 @@ public class ConversationFragment extends XmppFragment
         if (activity != null) {
             activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
-        //final var cursord = activity.getDrawable(R.drawable.cursor_on_tertiary_container);
-        /*
-        if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
-            final var bg = MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorSurface);
-            final var accountColor = conversation.getAccount().getColor(activity.isDark());
-            final var colors = MaterialColors.getColorRoles(activity, accountColor);
-            final var accent = activity.isDark() ? ColorUtils.blendARGB(colors.getAccentContainer(), bg, 1.0f - Math.max(0.25f, Color.alpha(accountColor) / 255.0f)) : colors.getAccentContainer();
-            cursord.setTintList(ColorStateList.valueOf(colors.getOnAccentContainer()));
-            binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(accent));
-            binding.textinputSubject.setTextColor(colors.getOnAccentContainer());
-            binding.textinput.setTextColor(colors.getOnAccentContainer());
-            binding.textinputSubject.setHintTextColor(ColorStateList.valueOf(colors.getOnAccentContainer()).withAlpha(115));
-            binding.textinput.setHintTextColor(ColorStateList.valueOf(colors.getOnAccentContainer()).withAlpha(115));
-            binding.textInputHint.setTextColor(colors.getOnAccentContainer());
-        } else {
-            cursord.setTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer)));
-            binding.inputLayout.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(binding.inputLayout, com.google.android.material.R.attr.colorTertiaryContainer)));
-            binding.textinputSubject.setTextColor(MaterialColors.getColor(binding.textinputSubject, com.google.android.material.R.attr.colorOnTertiaryContainer));
-            binding.textinput.setTextColor(MaterialColors.getColor(binding.textinput, com.google.android.material.R.attr.colorOnTertiaryContainer));
-            binding.textinputSubject.setHintTextColor(R.color.hint_on_tertiary_container);
-            binding.textinput.setHintTextColor(R.color.hint_on_tertiary_container);
-            binding.textInputHint.setTextColor(MaterialColors.getColor(binding.textInputHint, com.google.android.material.R.attr.colorOnTertiaryContainer));
-        }
-        if (Build.VERSION.SDK_INT >= 29) {
-            binding.textinputSubject.setTextCursorDrawable(cursord);
-            binding.textinput.setTextCursorDrawable(cursord);
-        }
-        */
 
         setThread(conversation.getThread());
         setupReply(conversation.getReplyTo());
@@ -4639,8 +4604,9 @@ public class ConversationFragment extends XmppFragment
         this.binding.textSendButton.setEnabled(canWrite);
         this.binding.textSendButton.setVisibility(canWrite ? View.VISIBLE : View.GONE);
         this.binding.requestVoice.setVisibility(canWrite ? View.GONE : View.VISIBLE);
-        this.binding.recordVoiceButton.setVisibility(canWrite ? View.VISIBLE : View.GONE);
-        this.binding.takePictureButton.setVisibility(canWrite ? View.VISIBLE : View.GONE);
+        if (!canWrite) {
+            this.binding.emojiButton.setVisibility(GONE);
+        }
         this.binding.textinput.setCursorVisible(canWrite);
         this.binding.textinput.setEnabled(canWrite);
     }
@@ -4681,6 +4647,7 @@ public class ConversationFragment extends XmppFragment
         if (activity != null) {
             this.binding.textSendButton.setIconResource(
                     SendButtonTool.getSendButtonImageResource(action, text.length() > 0 || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
+            this.binding.textSendButton.setPadding(0, 0, 10, 0);
         }
         if (activity == null) return;
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -4689,10 +4656,13 @@ public class ConversationFragment extends XmppFragment
         } else {
             binding.threadIdenticonLayout.setVisibility(GONE);
         }
-        if (!binding.textinput.getText().toString().isEmpty()) {
-            binding.quickButtons.setVisibility(GONE);
+        boolean canWrite = canWrite();
+        if (!binding.textinput.getText().toString().isEmpty() || !canWrite) {
+            binding.recordVoiceButton.setVisibility(GONE);
+            binding.takePictureButton.setVisibility(GONE);
         } else {
-            binding.quickButtons.setVisibility(VISIBLE);
+            binding.recordVoiceButton.setVisibility(VISIBLE);
+            binding.takePictureButton.setVisibility(VISIBLE);
         }
     }
 
@@ -5724,9 +5694,9 @@ public class ConversationFragment extends XmppFragment
                 boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
                 int keyboardHeight = 0;
                 if (activity != null && ViewConfiguration.get(activity).hasPermanentMenuKey()) {
-                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 10;
                 } else if (activity != null) {
-                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                    keyboardHeight  = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom - 10;
                 }
                 if (keyboardHeight > 100 && !(secondaryFragment instanceof ConversationFragment)) {
                     binding.keyboardButton.setVisibility(GONE);
@@ -5736,7 +5706,7 @@ public class ConversationFragment extends XmppFragment
                 } else if (keyboardHeight > 100) {
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
-                    params.height = keyboardHeight - 117;
+                    params.height = keyboardHeight - 127;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.keyboardButton.setVisibility(GONE);
@@ -5768,12 +5738,12 @@ public class ConversationFragment extends XmppFragment
                 if (keyboardOpen && !(secondaryFragment instanceof ConversationFragment)) {
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
-                    params.height = keyboardHeight;
+                    params.height = keyboardHeight - 10;
                     emojipickerview.setLayoutParams(params);
                 } else if (keyboardOpen) {
                     binding.keyboardButton.setVisibility(GONE);
                     binding.emojiButton.setVisibility(VISIBLE);
-                    params.height = keyboardHeight - 125;
+                    params.height = keyboardHeight - 135;
                     emojipickerview.setLayoutParams(params);
                 } else if (binding.emojiButton.getVisibility() == VISIBLE) {
                     binding.keyboardButton.setVisibility(GONE);
@@ -6069,7 +6039,7 @@ public class ConversationFragment extends XmppFragment
             if (activity != null && StickerfilesPaths[position] != null) {
                 File file = new File(StickerfilesPaths[position]);
                 if (file.exists() && file.delete()) { // Check existence before deleting
-                    LoadStickers();     // This will re-scan everything
+                    activity.runOnUiThread(this::LoadStickers);     // This will re-scan everything
                     Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
@@ -6120,7 +6090,7 @@ public class ConversationFragment extends XmppFragment
             if (activity != null && GifsfilesPaths[position] != null) {
                 File file = new File(GifsfilesPaths[position]);
                 if (file.delete()) {
-                    LoadGifs();
+                    activity.runOnUiThread(this::LoadGifs);
                     Toast.makeText(activity, R.string.gif_deleted, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(activity, R.string.failed_to_delete_gif, Toast.LENGTH_LONG).show();
@@ -6261,8 +6231,8 @@ public class ConversationFragment extends XmppFragment
         // Use a Handler to post the loading methods with a delay
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (isAdded() && getActivity() != null) { // Check if fragment is still active
-                LoadStickers();
-                LoadGifs();
+                activity.runOnUiThread(this::LoadStickers);
+                activity.runOnUiThread(this::LoadGifs);
             }
         }, 400);
     }
