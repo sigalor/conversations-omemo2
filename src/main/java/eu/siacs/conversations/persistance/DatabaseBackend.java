@@ -320,7 +320,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + Resolver.Result.DOMAIN
                     + ") ON CONFLICT REPLACE"
                     + ");";
-
+    private static String CREATE_MESSAGE_FILE_DELETED_INDEX = "create index message_file_deleted_index ON " + Message.TABLENAME + "(" + "file_deleted" + ")";
     private static final String CREATE_MESSAGE_TIME_INDEX =
             "CREATE INDEX message_time_index ON "
                     + Message.TABLENAME
@@ -522,10 +522,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + " TEXT,"
                         + Message.MARKABLE
                         + " NUMBER DEFAULT 0,"
+                        + "file_deleted"
+                        + " NUMBER DEFAULT 0,"
                         + Message.DELETED
                         + " NUMBER DEFAULT 0,"
                         + Message.BODY_LANGUAGE
                         + " TEXT,"
+                        + "retractId" + " TEXT,"
                         + Message.OCCUPANT_ID
                         + " TEXT,"
                         + Message.REACTIONS
@@ -541,6 +544,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_TIME_INDEX);
         db.execSQL(CREATE_MESSAGE_CONVERSATION_INDEX);
         db.execSQL(CREATE_MESSAGE_DELETED_INDEX);
+        db.execSQL(CREATE_MESSAGE_FILE_DELETED_INDEX);
         db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
         db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
         db.execSQL(CREATE_CONTATCS_STATEMENT);
@@ -559,6 +563,20 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     private void monoclesDatabase(SQLiteDatabase db) {
+        try {
+            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + "file_deleted" + " NUMBER DEFAULT 0");
+            db.execSQL(CREATE_MESSAGE_DELETED_INDEX);
+            db.execSQL(CREATE_MESSAGE_FILE_DELETED_INDEX);
+            db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
+            db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
+        try {
+            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + "retractId" + " TEXT;");
+        } catch (SQLiteException ex) {
+            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        }
         try {
             db.execSQL(
                     "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " +
