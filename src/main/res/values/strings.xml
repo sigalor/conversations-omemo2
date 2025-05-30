@@ -1473,4 +1473,6 @@
     <string name="pref_load_image_from_any_link_title">Load image links</string>
     <string name="pref_load_image_from_any_link_summary">Automatically loads images from any image link</string>
     <string name="pref_backup_location">Backup location</string>
+    <string name="failed_to_delete_sticker_not_exist">Failed to delete: Sticker not found.</string>
+    <string name="failed_to_delete_gif_not_exist">Failed to delete: GIF not found.</string>
 </resources>
