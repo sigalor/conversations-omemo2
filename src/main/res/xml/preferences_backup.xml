@@ -31,6 +31,7 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="@bool/plain_text_logs"
+        android:icon="@drawable/outline_article_24"
         android:key="export_plain_text_logs"
         android:summary="@string/pref_export_plain_text_logs_summary"
         android:title="@string/pref_export_plain_text_logs" />
