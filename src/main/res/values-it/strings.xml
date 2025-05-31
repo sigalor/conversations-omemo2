@@ -9,7 +9,7 @@
     <string name="action_add_account">Aggiungi profilo</string>
     <string name="action_edit_contact">Modifica il nome</string>
     <string name="action_add_phone_book">Aggiungi alla rubrica</string>
-    <string name="action_delete_contact">Cancella dalla lista</string>
+    <string name="action_delete_contact">Rimuovi contatto</string>
     <string name="action_block_contact">Blocca contatto</string>
     <string name="action_unblock_contact">Sblocca contatto</string>
     <string name="action_block_domain">Blocca dominio</string>
@@ -165,7 +165,7 @@
     <string name="account_status_incompatible_client">Client non compatibile</string>
     <string name="account_status_stream_error">Errore di stream</string>
     <string name="account_status_stream_opening_error">Errore apertura flusso</string>
-    <string name="encryption_choice_unencrypted">TLS</string>
+    <string name="encryption_choice_unencrypted">Nessuno</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo">OMEMO</string>
@@ -462,7 +462,7 @@
     <string name="download_failed_invalid_file">Scaricamento fallito: file non valido</string>
     <string name="account_status_tor_unavailable">Rete Tor non disponibile</string>
     <string name="account_status_bind_failure">Bind fallito</string>
-    <string name="account_status_host_unknown">Il server non è responsabile per questo dominio</string>
+    <string name="account_status_host_unknown">Non responsabile per il dominio</string>
     <string name="server_info_broken">Rotto</string>
     <string name="pref_presence_settings">Disponibilità</string>
     <string name="pref_away_when_screen_off">\"Non disponibile\" a dispositivo bloccato</string>
@@ -671,7 +671,7 @@
     <string name="open_website">Apri sito</string>
     <string name="application_found_to_open_website">Nessuna app trovata per aprire il sito</string>
     <string name="pref_headsup_notifications">Notifiche avvisi</string>
-    <string name="pref_headsup_notifications_summary">Mostra notifiche su avvisi</string>
+    <string name="pref_headsup_notifications_summary">Mostra notifiche a comparsa</string>
     <string name="today">Oggi</string>
     <string name="yesterday">Ieri</string>
     <string name="pref_validate_hostname">Convalida hostname con DNSSEC</string>
@@ -845,7 +845,7 @@
     <string name="create_private_group_chat">Crea chat di gruppo privata</string>
     <string name="create_public_channel">Crea canale pubblico</string>
     <string name="create_dialog_channel_name">Nome del canale</string>
-    <string name="xmpp_address">Indirizzo XMPP</string>
+    <string name="xmpp_address">ID Jabber</string>
     <string name="please_enter_name">Fornire un nome per il canale</string>
     <string name="please_enter_xmpp_address">Fornire un indirizzo XMPP</string>
     <string name="this_is_an_xmpp_address">Questo è un indirizzo XMPP. Fornisci un nome.</string>
@@ -984,7 +984,7 @@
     <string name="unable_to_enable_video">Impossibile attivare il video.</string>
     <string name="plain_text_document">Documento di testo</string>
     <string name="account_registrations_are_not_supported">Le registrazioni di profili non sono supportate</string>
-    <string name="no_xmpp_adddress_found">Nessun indirizzo XMPP trovato</string>
+    <string name="no_xmpp_adddress_found">Nessun ID Jabber trovato</string>
     <string name="account_status_temporary_auth_failure">Errore di autenticazione temporaneo</string>
     <string name="delete_avatar">Elimina avatar</string>
     <string name="audio_video_disabled_tor">Le chiamate sono disattivate quando si usa Tor</string>
@@ -1076,5 +1076,26 @@
     <string name="channel_discover_opt_in_message">La scoperta dei canali usa un servizio di terze parti chiamato &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;L\'uso di questa funzione invierà il tuo indirizzo IP e i termini di ricerca a quel servizio. Vedi la sua &lt;a href=https://search.jabber.network/privacy&gt;informativa sulla privacy&lt;/a&gt; per maggiori informazioni.</string>
     <string name="pref_title_trust_system_ca_store">Autorità di certificazione</string>
     <string name="pref_large_font">Caratteri grandi</string>
-    <string name="pref_large_font_summary">Aumenta la dimensione dei caratteri nei messaggi</string>
+    <string name="pref_large_font_summary">Aumenta la dimensione dei caratteri in messaggi, reazioni e campi di testo</string>
+    <string name="retract_message">Ritira messaggio</string>
+    <string name="this_account_is_offline">Questa utenza non è connessa, i messaggi verranno inviati dopo la riconnessione</string>
+    <string name="this_account_is_connecting">Questa utenza si sta connettendo…</string>
+    <string name="incoming_call_timestamp">Chiamata in arrivo · %s</string>
+    <string name="your_avatar_tap_to_select_new_avatar">La tua foto profilo. Tocca per selezionarne una dalla galleria.</string>
+    <string name="microphone_permission_for_call">Permessi microfono richiesti per completare la chiamata</string>
+    <string name="pref_theme_obsidian">Obsidian</string>
+    <string name="pref_accept_invites_from_strangers_summary">Accetta inviti da persone sconosciute per MUC</string>
+    <string name="pref_accept_invites_from_strangers">Accetta inviti da persone sconosciute</string>
+    <string name="pref_create_backup_one_off_summary">Creare un solo backup adesso</string>
+    <string name="pref_backup_recurring">Backup ricorrente</string>
+    <string name="otr_message">Messaggio OTR</string>
+    <string name="manage_permission_with_nick">"Gestisci privilegi per  %s"</string>
+    <string name="could_not_disable_video">Impossibile disattivare il video.</string>
+    <string name="server_info_bind2">XEP-0386: Bind 2</string>
+    <string name="server_info_sasl2">XEP-0388: Profilo SASL Estendibile</string>
+    <string name="account_status_connection_timeout">Tempo di connessione scaduto</string>
+    <string name="action_add">Nuova conversazione</string>
+    <string name="pref_send_link_previews">Invia anteprime dei link</string>
+    <string name="pref_send_link_previews_summary">Aggiungi i metadati sui link quando invii un messaggio</string>
+    <string name="pref_fullscreen_notification">Notifiche a schermo intero</string>
 </resources>

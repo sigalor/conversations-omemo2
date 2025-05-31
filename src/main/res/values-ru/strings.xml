@@ -165,7 +165,7 @@
     <string name="account_status_incompatible_server">Несовместимый сервер</string>
     <string name="account_status_stream_error">Ошибка потока</string>
     <string name="account_status_stream_opening_error">Ошибка открытия потока</string>
-    <string name="encryption_choice_unencrypted">TLS</string>
+    <string name="encryption_choice_unencrypted">Никто</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo">OMEMO</string>
@@ -835,7 +835,7 @@
     <string name="restore_backup">Восстановить из резервной копии</string>
     <string name="restore">Восстановить</string>
     <string name="enter_password_to_restore">Введите пароль учетной записи %s для восстановления резервной копии.</string>
-    <string name="restore_warning">Не используйте восстановление резервной копии для дублирования установленного приложения (одновременного исполнения). Восстановление резервной копии нужно лишь для того, чтобы перенести данные на другое устройство или на случай потери своего устройства.</string>
+    <string name="restore_warning">Не восстанавливайте ключи Omemo в попытке клонировать (запустить одновременно) установку. Восстановление ключей Omemo предназначено только для миграций или в случае, если вы потеряли исходное устройство.</string>
     <string name="unable_to_restore_backup">Не удалось восстановить резервную копию.</string>
     <string name="unable_to_decrypt_backup">Не удалось расшифровать резервную копию. Вы ввели верный пароль?</string>
     <string name="backup_channel_name">Резервное копирование и восстановление</string>
@@ -874,8 +874,8 @@
     <string name="i_already_have_an_account">У меня уже есть XMPP ID</string>
     <string name="add_existing_account">Добавить существующий аккаунт</string>
     <string name="register_new_account">Создать новую учетную запись</string>
-    <string name="this_looks_like_a_domain">Это похоже на имя домена</string>
-    <string name="add_anway">Добавить все равно</string>
+    <string name="this_looks_like_a_domain">Это похоже на космос</string>
+    <string name="add_anway">Продолжать</string>
     <string name="this_looks_like_channel">Это похоже на адрес канала</string>
     <string name="share_backup_files">Поделиться резервными копиями</string>
     <string name="conversations_backup">Резервная копия Conversations</string>
@@ -1005,7 +1005,7 @@
     <string name="pref_up_push_account_summary">Учётная запись для получения пуш-уведомлений.</string>
     <string name="no_account_deactivated">Нет (неактивно)</string>
     <string name="verifying_omemo_keys_trusted_source_account">Вы собираетесь проверить ключи OMEMO своей учетной записи. Это безопасно только в том случае, если вы перешли по этой ссылке из надежного источника, где только вы могли опубликовать эту ссылку.</string>
-    <string name="restore_warning_continued">Не пытайтесь восстановить резервные копии, которые не были созданы вами!</string>
+    <string name="restore_warning_continued">Восстановите только резервные копии, которые вы лично создали.</string>
     <plurals name="n_missed_calls_from_x">
         <item quantity="one">%1$d пропущенный вызов от %2$s</item>
         <item quantity="few">%1$d пропущенных вызова от %2$s</item>
@@ -1496,4 +1496,22 @@
     <string name="external_providers_list">Список загруженных поставщиков чата с сервера</string>
     <string name="local_providers_list">Использует список местных поставщиков чата</string>
     <string name="error_loading_chat_providers">Ошибка загрузки провайдеров чата</string>
+    <string name="no_i2p_calls">Звонки через I2P невозможны</string>
+    <string name="pref_use_i2p">Подключиться через I2P</string>
+    <string name="account_status_i2p_unavailable">Сеть I2P недоступна</string>
+    <string name="audio_video_disabled_i2p">Звонки отключены при использовании I2P</string>
+    <string name="pref_use_i2p_summary">Туннелировать все соединения через сеть I2P. Требуется клиент I2P</string>
+    <string name="browse_space">Просмотр пространства</string>
+    <string name="failed_to_delete_sticker">Не удалось удалить стикер</string>
+    <string name="pref_load_image_from_any_link_title">Загрузить ссылки на изображения</string>
+    <string name="sticker_deleted">Стикер удален</string>
+    <string name="pref_load_image_from_any_link_summary">Автоматически загружает изображения из любой ссылки на изображение</string>
+    <string name="retry_with_p2p">Повторите с P2P</string>
+    <string name="word_document">Словесный документ</string>
+    <string name="restore_omemo_key">Восстановите ключи Omemo</string>
+    <string name="pref_backup_location">Место резервного копирования</string>
+    <string name="non_quicksy_backup">Quicksy может восстановить только резервные копии для QuickSy.im аккаунтов</string>
+    <string name="account_status_channel_binding">Привязка канала недоступна</string>
+    <string name="failed_to_delete_gif_not_exist">Не удалось удалить: GIF-файл не найден.</string>
+    <string name="failed_to_delete_sticker_not_exist">Не удалось удалить: стикер не найден.</string>
 </resources>

@@ -169,7 +169,7 @@
     <string name="account_status_incompatible_client">客户端不兼容</string>
     <string name="account_status_stream_error">流错误</string>
     <string name="account_status_stream_opening_error">流打开错误</string>
-    <string name="encryption_choice_unencrypted">TLS</string>
+    <string name="encryption_choice_unencrypted">无</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo">OMEMO</string>
@@ -826,7 +826,7 @@
     <string name="restore_backup">恢复备份</string>
     <string name="restore">恢复</string>
     <string name="enter_password_to_restore">请输入 %s 的密码以恢复备份。</string>
-    <string name="restore_warning">请勿使用恢复备份功能尝试克隆（同时运行）安装。恢复备份仅适用于迁移或您丢失原始设备的情况。</string>
+    <string name="restore_warning">请勿通过恢复 OMEMO 密钥尝试克隆（同时运行）安装。恢复 OMEMO 密钥仅适用于迁移或您丢失原始设备的情况。</string>
     <string name="unable_to_restore_backup">无法恢复备份。</string>
     <string name="unable_to_decrypt_backup">无法解密备份。密码是否正确？</string>
     <string name="backup_channel_name">备份和恢复</string>
@@ -865,8 +865,8 @@
     <string name="i_already_have_an_account">我已有 XMPP 地址</string>
     <string name="add_existing_account">添加已有账号</string>
     <string name="register_new_account">注册新账号</string>
-    <string name="this_looks_like_a_domain">这似乎是域名地址</string>
-    <string name="add_anway">仍要添加</string>
+    <string name="this_looks_like_a_domain">这似乎是空间</string>
+    <string name="add_anway">继续</string>
     <string name="this_looks_like_channel">这似乎是频道地址</string>
     <string name="share_backup_files">分享备份文件</string>
     <string name="conversations_backup">monocles chat 备份</string>
@@ -984,7 +984,7 @@
     <string name="group_chats">群聊</string>
     <string name="search_group_chats">搜索群聊</string>
     <string name="delete_from_server">从服务器移除账号</string>
-    <string name="restore_warning_continued">请勿尝试恢复您尚未自行创建的备份！</string>
+    <string name="restore_warning_continued">仅恢复您亲自创建的备份。</string>
     <string name="outdated_backup_file_format">您正尝试导入过时的备份文件格式</string>
     <string name="audiobook">有声读物</string>
     <string name="reconnect_on_other_host">在其他主机上重新连接</string>
@@ -1460,4 +1460,22 @@
     <string name="external_providers_list">从服务器加载的聊天提供者列表</string>
     <string name="pref_load_providers_list_external_summary">从 xmpp.net 服务器加载聊天提供者列表，以进行替代的应用内注册</string>
     <string name="error_loading_chat_providers">加载聊天提供者时出错</string>
+    <string name="pref_use_i2p">通过 I2P 连接</string>
+    <string name="audio_video_disabled_i2p">使用 I2P 时会禁用通话</string>
+    <string name="account_status_i2p_unavailable">无法连接到 I2P 网络</string>
+    <string name="no_i2p_calls">无法通过 I2P 进行通话</string>
+    <string name="pref_use_i2p_summary">通过 I2P 网络传输所有连接。需要 I2P 客户端</string>
+    <string name="browse_space">浏览空间</string>
+    <string name="sticker_deleted">贴纸已删除</string>
+    <string name="failed_to_delete_sticker">无法删除贴纸</string>
+    <string name="pref_load_image_from_any_link_title">加载图片链接‌</string>
+    <string name="pref_load_image_from_any_link_summary">自动从任意图片链接加载图片</string>
+    <string name="pref_backup_location">备份位置</string>
+    <string name="non_quicksy_backup">Quicksy 只能恢复 quicksy.im 账号的备份</string>
+    <string name="account_status_channel_binding">通道绑定不可用</string>
+    <string name="retry_with_p2p">使用 P2P 重试</string>
+    <string name="word_document">Word 文档</string>
+    <string name="restore_omemo_key">恢复 OMEMO 密钥</string>
+    <string name="failed_to_delete_gif_not_exist">无法删除：未找到 GIF。</string>
+    <string name="failed_to_delete_sticker_not_exist">无法删除：未找到贴纸。</string>
 </resources>

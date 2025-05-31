@@ -431,7 +431,7 @@
     <string name="device_does_not_support_certificates">Je apparaat ondersteunt de selectie van cliënt-certificaten niet!</string>
     <string name="pref_connection_options">Verbinding</string>
     <string name="pref_use_tor">Verbinden via Tor</string>
-    <string name="pref_use_tor_summary">Tunnel alle verbindingen door het Tor-netwerk. Hiervoor is de app Orbot nodig.</string>
+    <string name="pref_use_tor_summary">Maak verbinding via het Tor-netwerk. Vereist de app Orbot.</string>
     <string name="account_settings_hostname">Hostnaam</string>
     <string name="account_settings_port">Poort</string>
     <string name="not_a_valid_port">Dit is geen geldig poortnummer</string>
@@ -711,7 +711,7 @@
     <string name="restore_backup">Back-up herstellen</string>
     <string name="restore">Herstellen</string>
     <string name="enter_password_to_restore">Voer het wachtwoord van het account %s in om de back-up te herstellen.</string>
-    <string name="restore_warning">Gebruik de herstelfunctie alleen in het geval van migratie of verlies van je toestel.</string>
+    <string name="restore_warning">Herstel geen OMEMO-sleutels om een installatie te klonen (gelijktijdig uit te voeren). Het herstellen van OMEMO-sleutels is alleen bedoeld voor migraties of bij verlies van je toestel.</string>
     <string name="backup_channel_name">Back-up &amp; Herstel</string>
     <string name="enter_jabber_id">Voer XMPP-adres in</string>
     <string name="create_group_chat">Groepsgesprek creëren</string>
@@ -747,8 +747,8 @@
     <string name="i_already_have_an_account">Ik heb al een account</string>
     <string name="add_existing_account">Bestaande account toevoegen</string>
     <string name="register_new_account">Nieuwe account registreren</string>
-    <string name="this_looks_like_a_domain">Dit is waarschijnlijk een domeinadres</string>
-    <string name="add_anway">Tóch toevoegen</string>
+    <string name="this_looks_like_a_domain">Dit is waarschijnlijk een Space</string>
+    <string name="add_anway">Doorgaan</string>
     <string name="this_looks_like_channel">Dit is waarschijnlijk een adres voor een kanaal</string>
     <string name="share_backup_files">Back-up delen</string>
     <string name="conversations_backup">Back-up</string>
@@ -908,7 +908,7 @@
     <string name="server_info_bind2">XEP-0386: Bind 2</string>
     <string name="pref_enter_is_send_summary">Gebruik de Enter-toets om een bericht te versturen. Ctrl+Enter werkt altijd voor het versturen van een bericht, zelfs als deze optie is uitgeschakeld.</string>
     <string name="hostname_or_onion">Domeinnaam of .onion-adres</string>
-    <string name="pref_notifications_from_strangers_summary">Melding bij berichten van onbekenden.</string>
+    <string name="pref_notifications_from_strangers_summary">Melding bij berichten en oproepen van onbekenden.</string>
     <string name="unable_to_save_recording">Kon de opname niet opslaan</string>
     <string name="ongoing_video_call">Lopend videogesprek</string>
     <string name="incoming_call">Inkomende oproep</string>
@@ -1454,4 +1454,19 @@
     <string name="local_providers_list">Gebruik lokale lijst van providers</string>
     <string name="pref_load_providers_list_external_summary">Laad via xmpp.net een lijst met alternatieve providers waarbij je je kunt registreren</string>
     <string name="error_loading_chat_providers">Fout bij het laden van externe providers</string>
+    <string name="no_i2p_calls">Bellen is niet mogelijk via I2P</string>
+    <string name="pref_use_i2p">Verbinden via I2P</string>
+    <string name="account_status_i2p_unavailable">I2P-network onbereikbaar</string>
+    <string name="pref_use_i2p_summary">Maak verbinding via het I2P-netwerk. Vereist een I2P-client.</string>
+    <string name="audio_video_disabled_i2p">Oproepen zijn uitgeschakeld bij gebruik van I2P</string>
+    <string name="pref_load_image_from_any_link_title">Afbeeldingen van links ophalen</string>
+    <string name="failed_to_delete_sticker">Kon sticker niet verwijderen</string>
+    <string name="sticker_deleted">Sticker is verwijderd</string>
+    <string name="browse_space">Space verkennen</string>
+    <string name="pref_load_image_from_any_link_summary">Download automatisch afbeeldingen behorend bij links naar afbeeldingen</string>
+    <string name="non_quicksy_backup">Quicksy kan alleen back-ups van quicksy.im-accounts herstellen</string>
+    <string name="restore_omemo_key">OMEMO-sleutels herstellen</string>
+    <string name="pref_backup_location">Locatie back-ups</string>
+    <string name="failed_to_delete_sticker_not_exist">Fout bij verwijderen: sticker niet gevonden.</string>
+    <string name="failed_to_delete_gif_not_exist">Fout bij verwijderen: GIF niet gevonden.</string>
 </resources>
