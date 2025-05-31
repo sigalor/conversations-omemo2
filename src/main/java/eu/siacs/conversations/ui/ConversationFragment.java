@@ -3291,7 +3291,7 @@ public class ConversationFragment extends XmppFragment
         try {
             startActivityForResult(intent, attachmentChoice);
         } catch (final ActivityNotFoundException e) {
-            Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_LONG).show();
+            // Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_LONG).show();    // TODO: Fix show toast not when record audio
         }
     }
 
