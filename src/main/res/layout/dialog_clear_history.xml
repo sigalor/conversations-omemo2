@@ -16,7 +16,7 @@
         android:id="@+id/end_conversation_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="true"
+        android:checked="false"
         android:text="@string/archive_this_chat" />
 
 </LinearLayout>
