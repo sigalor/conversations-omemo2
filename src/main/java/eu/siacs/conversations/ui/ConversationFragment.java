@@ -6268,7 +6268,11 @@ public class ConversationFragment extends XmppFragment
                 binding.pinnedMessage.setVisibility(View.VISIBLE);
             }
         }
-        loadMediaFromBackground();
+        try {
+            loadMediaFromBackground();
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "loadMediaFromBackground failed", e);
+        }
     }
 
     private void loadMediaFromBackground() {
