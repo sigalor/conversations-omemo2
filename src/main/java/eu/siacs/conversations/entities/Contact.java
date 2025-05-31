@@ -826,4 +826,8 @@ public class Contact implements ListItem, Blockable {
         public static final int SYNCED_VIA_OTHER = 9;
     }
 
+    // Method to update this Contact's presences/status messages
+    public void updatePresences(List<String> newStatusMessages) {
+        this.presences.updateStatusMessages(newStatusMessages);
+    }
 }

@@ -414,28 +414,6 @@ public class PresenceParser extends AbstractParser
                 }
             }
 
-
-
-            // --- BEGIN INTEGRATION for statusMessageHidden ---
-            if (getSingleStatusMessage(contact) != null) { // Only proceed if there was a status message in this presence
-                final Conversation conversation =
-                        mXmppConnectionService.findOrCreateConversation(
-                                account, contact.getJid().asBareJid(), false, false);
-                if (conversation != null) {
-                    // Assuming AbstractParser.parseTimestamp(packet) gives a relevant timestamp
-                    // for when this presence (and thus status) was received/generated.
-                    long statusTimestamp = AbstractParser.parseTimestamp(packet);
-                    if (statusTimestamp == 0) { // Fallback if packet timestamp isn't suitable
-                        statusTimestamp = System.currentTimeMillis();
-                    }
-                    conversation.onContactStatusMessageChanged(getSingleStatusMessage(contact), statusTimestamp);
-                    mXmppConnectionService.updateConversation(conversation); // Persist changes
-                    // Potentially notify UI specifically for this conversation update if needed,
-                    // though updateConversation might trigger broader UI updates.
-                }
-            }
-            // --- END INTEGRATION ---
-
             boolean online = sizeBefore < contact.getPresences().size();
             mXmppConnectionService.onContactStatusChanged.onContactStatusChanged(contact, online);
         } else if (type.equals("unavailable")) {
@@ -473,26 +451,15 @@ public class PresenceParser extends AbstractParser
                         mXmppConnectionService.findOrCreateConversation(
                                 account, contact.getJid().asBareJid(), false, false);
                 final String statusMessage = packet.findChildContent("status");
-                if (statusMessage != null && !statusMessage.isEmpty()) {
-                    // --- BEGIN INTEGRATION for statusMessageHidden from subscribe ---
-                    if (conversation != null) { // Should exist due to findOrCreateConversation
-                        long statusTimestamp = AbstractParser.parseTimestamp(packet);
-                        if (statusTimestamp == 0) {
-                            statusTimestamp = System.currentTimeMillis();
-                        }
-                        conversation.onContactStatusMessageChanged(statusMessage, statusTimestamp);
-                        mXmppConnectionService.updateConversation(conversation); // Persist changes
-                    }
-                    // --- END INTEGRATION ---
-
-                    if (conversation.countMessages() == 0) { // Original logic to add as a message
-                        conversation.add(
-                                new Message(
-                                        conversation,
-                                        statusMessage,
-                                        Message.ENCRYPTION_NONE,
-                                        Message.STATUS_RECEIVED));
-                    }
+                if (statusMessage != null
+                        && !statusMessage.isEmpty()
+                        && conversation.countMessages() == 0) {
+                    conversation.add(
+                            new Message(
+                                    conversation,
+                                    statusMessage,
+                                    Message.ENCRYPTION_NONE,
+                                    Message.STATUS_RECEIVED));
                 }
             }
         }
@@ -510,34 +477,6 @@ public class PresenceParser extends AbstractParser
             this.parseConferencePresence(packet, account);
         } else {
             this.parseContactPresence(packet, account);
-        }
-    }
-
-    public String getSingleStatusMessage(Contact contact) {
-        List<String> statusMessages = contact.getPresences().getStatusMessages();
-        if (statusMessages.isEmpty()) {
-            return null;
-        } else if (statusMessages.size() == 1) {
-            final String message = statusMessages.get(0);
-            final Spannable span = new SpannableString(message);
-            if (Emoticons.isOnlyEmoji(message)) {
-                span.setSpan(
-                        new RelativeSizeSpan(2.0f),
-                        0,
-                        message.length(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            return span.toString();
-        } else {
-            StringBuilder builder = new StringBuilder();
-            int s = statusMessages.size();
-            for (int i = 0; i < s; ++i) {
-                builder.append(statusMessages.get(i));
-                if (i < s - 1) {
-                    builder.append("\n");
-                }
-            }
-            return builder.toString();
         }
     }
 }

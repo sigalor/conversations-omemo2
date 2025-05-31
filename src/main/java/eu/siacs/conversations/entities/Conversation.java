@@ -19,6 +19,8 @@ import android.net.Uri;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.StaticLayout;
@@ -26,6 +28,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Gravity;
@@ -111,6 +114,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.Set;
@@ -251,6 +255,8 @@ public class Conversation extends AbstractEntity
     private String mLastReceivedOtrMessageId = null;
 
     protected boolean anyMatchSpam = false;
+
+    private String lastKnownStatusText = null; // Store the previous status text
 
     public Conversation(
             final String name, final Account account, final Jid contactJid, final int mode) {
@@ -4151,6 +4157,88 @@ public class Conversation extends AbstractEntity
             Log.w(Config.LOGTAG, "NumberFormatException parsing status timestamps for " + getJid() + ": statusTs=" + statusTs + ", statusHideTs=" + statusHideTs);
             return false; // Default to not hidden if timestamps are corrupt
         }
+    }
+
+    // Get the status message
+    public String getSingleStatusMessage(Contact contact) {
+        List<String> statusMessages = contact.getPresences().getStatusMessages();
+        if (statusMessages.isEmpty()) {
+            return null;
+        } else if (statusMessages.size() == 1) {
+            final String message = statusMessages.get(0);
+            final Spannable span = new SpannableString(message);
+            if (Emoticons.isOnlyEmoji(message)) {
+                span.setSpan(
+                        new RelativeSizeSpan(2.0f),
+                        0,
+                        message.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            return span.toString();
+        } else {
+            StringBuilder builder = new StringBuilder();
+            int s = statusMessages.size();
+            for (int i = 0; i < s; ++i) {
+                builder.append(statusMessages.get(i));
+                if (i < s - 1) {
+                    builder.append("\n");
+                }
+            }
+            return builder.toString();
+        }
+    }
+
+    /**
+     * Retrieves a consolidated single status message from the contact's presences.
+     */
+    private String getSingleStatusMessageTrimmed(Contact contact) {
+        if (contact == null || contact.getPresences() == null) {
+            return null;
+        }
+        List<String> statusMessages = contact.getPresences().getStatusMessages();
+        if (statusMessages == null || statusMessages.isEmpty()) {
+            return null;
+        }
+        for (String msg : statusMessages) {
+            if (!TextUtils.isEmpty(msg)) {
+                return msg.trim(); // Return the first non-empty, trimmed message
+            }
+        }
+        return null; // No non-empty status message found
+    }
+
+    /**
+     * Call this method when the associated Contact object has been updated
+     * with new presence/status information.
+     *
+     * @param updatedContact The Contact object, assumed to have the latest status messages.
+     * @return true if the single status message text changed since the last call, false otherwise.
+     */
+    public boolean onContactUpdatedAndCheckStatusChange(Contact updatedContact) {
+        String currentStatusText = getSingleStatusMessage(updatedContact);
+
+        // More concise check for change using Objects.equals (null-safe)
+        if (!Objects.equals(lastKnownStatusText, currentStatusText)) {
+            /*
+            Log.i(Config.LOGTAG, "Conversation " + (contactJid != null ? contactJid.asBareJid() : "N/A") +
+                    ": Status text changed. Old: '" + lastKnownStatusText +
+                    "', New: '" + currentStatusText + "'");
+            */
+            this.lastKnownStatusText = currentStatusText; // Update for next comparison
+            onContactStatusMessageChanged(currentStatusText, System.currentTimeMillis());
+            return true; // Text has changed
+        }
+
+        // Text has not changed (or both are null and thus equal)
+        return false;
+    }
+
+    /**
+     * Gets the last known status text that was processed by onContactUpdatedAndCheckStatusChange.
+     * Useful if you want the UI to display this value after a change is detected.
+     */
+    public String getLastProcessedStatusText() {
+        return lastKnownStatusText;
     }
 
     /**

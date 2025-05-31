@@ -208,4 +208,12 @@ public class Presences {
         }
         return new Pair<>(typeMap, nameMap);
     }
+
+    private List<String> statusMessages = new java.util.ArrayList<>();
+    public void updateStatusMessages(List<String> newMessages) {
+        this.statusMessages.clear();
+        if (newMessages != null) {
+            this.statusMessages.addAll(newMessages);
+        }
+    }
 }

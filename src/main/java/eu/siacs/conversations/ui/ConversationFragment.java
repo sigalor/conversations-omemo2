@@ -4420,7 +4420,8 @@ public class ConversationFragment extends XmppFragment
         synchronized (this.messageList) {
             if (this.conversation != null) {
                 if (messageListAdapter.hasSelection()) {
-                    if (notifyConversationRead) binding.messagesView.postDelayed(this::refresh, 1000L);
+                    if (notifyConversationRead)
+                        binding.messagesView.postDelayed(this::refresh, 1000L);
                 } else {
                     conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
                     try {
@@ -4444,10 +4445,11 @@ public class ConversationFragment extends XmppFragment
                 updateEditablity();
                 conversation.refreshSessions();
 
-
+                activity.runOnUiThread(() -> {
+                // Show muc subject in conferences and show status message in one-on-one chats
                 if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
                     String subject = conversation.getMucOptions().getSubject();
-                    Boolean hidden = conversation.getMucOptions().subjectHidden();
+                    boolean hidden = conversation.getMucOptions().subjectHidden();
 
                     if (Bookmark.printableValue(subject) && !hidden) {
                         binding.mucSubjectText.setText(subject);
@@ -4456,45 +4458,25 @@ public class ConversationFragment extends XmppFragment
                             conversation.getMucOptions().hideSubject();
                             binding.mucSubject.setVisibility(View.GONE);
                         });
-                        if (activity != null && binding.mucSubjectIcon != null) binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
+                        if (activity != null && binding.mucSubjectIcon != null)
+                            binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
                         binding.mucSubject.setVisibility(View.VISIBLE);
                     } else {
                         binding.mucSubject.setVisibility(View.GONE);
                     }
                 } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
-                    Boolean hidden = conversation.statusMessageHidden();
-                    List<String> statusMessages = conversation.getContact().getPresences().getStatusMessages();
+                    boolean statusChange = conversation.onContactUpdatedAndCheckStatusChange(conversation.getContact());
 
-                    if (statusMessages.size() == 1 && !hidden) {
-                        final String message = statusMessages.get(0);
+                    if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
                         binding.mucSubject.setVisibility(View.VISIBLE);
-                        if (activity != null && binding.mucSubjectIcon != null) binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
-                        final Spannable span = new SpannableString(message);
-                        if (Emoticons.isOnlyEmoji(message)) {
-                            span.setSpan(
-                                    new RelativeSizeSpan(2.0f),
-                                    0,
-                                    message.length(),
-                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
-                        binding.mucSubjectText.setText(span);
+                        if (activity != null && binding.mucSubjectIcon != null)
+                            binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
+                        binding.mucSubjectText.setText(conversation.getLastProcessedStatusText());
                         binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
                         binding.mucSubjectHide.setOnClickListener(v -> {
                             conversation.hideStatusMessage();
                             binding.mucSubject.setVisibility(View.GONE);
                         });
-                    } else if (statusMessages.size() > 1 && !hidden) {
-                        StringBuilder builder = new StringBuilder();
-                        binding.mucSubject.setVisibility(View.VISIBLE);
-                        if (activity != null && binding.mucSubjectIcon != null) binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
-                        int s = statusMessages.size();
-                        for (int i = 0; i < s; ++i) {
-                            builder.append(statusMessages.get(i));
-                            if (i < s - 1) {
-                                builder.append("\n");
-                            }
-                        }
-                        binding.mucSubjectText.setText(builder);
                     } else {
                         binding.mucSubject.setVisibility(View.GONE);
                     }
@@ -4528,7 +4510,7 @@ public class ConversationFragment extends XmppFragment
                             case R.id.quote_message:
                                 quoteMessage(pinnedMessageText);
                                 break;
-                        };
+                        }
                         return true;
                     });
 
@@ -4542,6 +4524,7 @@ public class ConversationFragment extends XmppFragment
                     conversation.setPinnedMessage(null);
                     removePinnedMessage(getConversationReliable(activity).getJid().asBareJid().toString());
                 });
+            });
             }
         }
     }
