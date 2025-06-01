@@ -3279,7 +3279,7 @@ public class ConversationFragment extends XmppFragment
             case ATTACHMENT_CHOICE_RECORD_VOICE:
                 backPressedLeaveVoiceRecorder.setEnabled(true);
                 recordVoice();
-                break;
+                return;
             case ATTACHMENT_CHOICE_LOCATION:
                 intent = GeoHelper.getFetchIntent(activity);
                 break;
@@ -3291,7 +3291,7 @@ public class ConversationFragment extends XmppFragment
         try {
             startActivityForResult(intent, attachmentChoice);
         } catch (final ActivityNotFoundException e) {
-            // Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_LONG).show();    // TODO: Fix show toast not when record audio
+            Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_LONG).show();
         }
     }
 
