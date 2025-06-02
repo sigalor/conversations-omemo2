@@ -4445,7 +4445,7 @@ public class ConversationFragment extends XmppFragment
                 updateEditablity();
                 conversation.refreshSessions();
 
-                activity.runOnUiThread(() -> {
+                if (activity!= null) activity.runOnUiThread(() -> {
                 // Show muc subject in conferences and show status message in one-on-one chats
                 if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
                     String subject = conversation.getMucOptions().getSubject();
