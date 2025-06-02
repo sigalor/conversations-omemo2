@@ -345,7 +345,7 @@
                                 android:layout_alignBottom="@+id/textinput_layout_new"
                                 android:layout_marginEnd="3dp"
                                 android:layout_marginStart="8dp"
-                                android:layout_marginBottom="4dp"
+                                android:layout_marginBottom="5dp"
                                 android:visibility="visible"
                                 android:background="@drawable/thread_hint">
 
@@ -437,7 +437,7 @@
                                     android:paddingRight="4dp"
                                     android:paddingBottom="8dp"
                                     android:singleLine="false"
-                                    android:textSize="14sp"
+                                    android:textSize="16sp"
                                     android:textColor="?colorControlNormal" >
                                     <requestFocus />
                                 </eu.siacs.conversations.ui.widget.EditMessage>

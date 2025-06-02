@@ -1741,7 +1741,7 @@ public class ConversationFragment extends XmppFragment
         if (appSettings.isLargeFont()) {
             binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         } else {
-            binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         }
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
         binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
