@@ -1,0 +1,3 @@
+* Clean up no application found hint
+* Correct caption for files
+* Increase input field text size

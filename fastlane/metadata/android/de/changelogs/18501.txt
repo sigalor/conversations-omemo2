@@ -1,0 +1,3 @@
+* Hinweis auf nicht gefundene Anwendungen korrigieren
+* Bildunterschrift für Dateien korrigieren
+* Textgröße des Eingabefeldes erhöhen
