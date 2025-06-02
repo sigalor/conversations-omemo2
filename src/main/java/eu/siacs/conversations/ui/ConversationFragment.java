@@ -1569,12 +1569,12 @@ public class ConversationFragment extends XmppFragment
 
     public void toggleInputMethod() {
         //Currently no caption possible when E2EE enabled
-        if(conversation.getNextEncryption() == Message.ENCRYPTION_NONE && mediaPreviewAdapter.getItemCount() == 1) {
-            binding.textinput.setVisibility(VISIBLE);
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE && mediaPreviewAdapter.getItemCount() == 1) {
+            binding.textinputLayoutNew.setVisibility(VISIBLE);
             binding.mediaPreview.setVisibility(View.VISIBLE);
         } else {
             boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
-            binding.textinput.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
+            binding.textinputLayoutNew.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
             binding.mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
         }
         updateSendButton();
