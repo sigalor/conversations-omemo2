@@ -109,7 +109,7 @@ public class MessageUtils {
                         && (lines.length == 1 || followedByDataUri);
         final boolean validProtocol =
                 "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
-        if (XmppActivity.staticXmppConnectionService.getBooleanPreference("load_image_from_any_link", R.bool.load_image_from_any_link)) {
+        if (XmppActivity.staticXmppConnectionService != null && XmppActivity.staticXmppConnectionService.getBooleanPreference("load_image_from_any_link", R.bool.load_image_from_any_link)) {
             final boolean validOob = validProtocol && (oob || encrypted || (uri.getPath() != null && (uri.getPath().endsWith(".xdc") || uri.getPath().endsWith(".webp") || uri.getPath().endsWith(".gif") || uri.getPath().endsWith(".png") || uri.getPath().endsWith(".jpg") || uri.getPath().endsWith(".jpeg") || uri.getPath().endsWith(".bmp")))) && lines.length == 1;
             return validAesGcm || validOob;
         } else {
