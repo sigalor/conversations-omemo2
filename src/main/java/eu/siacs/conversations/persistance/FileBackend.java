@@ -1678,10 +1678,10 @@ public class FileBackend {
             return null;
         }
         if (hasAlpha(bm)) {
-            Log.d(Config.LOGTAG, "alpha in avatar detected; uploading as PNG");
+            Log.d(Config.LOGTAG, "alpha in avatar detected; uploading as WEBP");
             bm.recycle();
             bm = cropCenterSquare(image, 96);
-            return getPepAvatar(bm, Bitmap.CompressFormat.PNG, 100);
+            return getPepAvatar(bm, Bitmap.CompressFormat.WEBP, 100);
         }
         return getPepAvatar(bm, format, 100);
     }
@@ -1705,12 +1705,12 @@ public class FileBackend {
                     if (avatar != null) return new Pair(avatar, true);
                 }
 
-                return new Pair(getPepAvatar(drawDrawable(drawable), Bitmap.CompressFormat.PNG, 100), false);
+                return new Pair(getPepAvatar(drawDrawable(drawable), Bitmap.CompressFormat.WEBP, 100), false);
             } else {
                 Bitmap bitmap =
                     BitmapFactory.decodeStream(
                             mXmppConnectionService.getContentResolver().openInputStream(uri));
-                return new Pair(getPepAvatar(bitmap, Bitmap.CompressFormat.PNG, 100), false);
+                return new Pair(getPepAvatar(bitmap, Bitmap.CompressFormat.WEBP, 100), false);
             }
         } catch (Exception e) {
             try {
@@ -1760,7 +1760,7 @@ public class FileBackend {
             mDigestOutputStream.flush();
             mDigestOutputStream.close();
             long chars = mByteArrayOutputStream.size();
-            if (format != Bitmap.CompressFormat.PNG
+            if (format != Bitmap.CompressFormat.WEBP
                     && quality >= 50
                     && chars >= Config.AVATAR_CHAR_LIMIT) {
                 int q = quality - 2;
