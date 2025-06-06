@@ -47,8 +47,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.crypto.BundledTrustManager;
-import eu.siacs.conversations.crypto.CombiningTrustManager;
 import eu.siacs.conversations.crypto.TrustManagers;
 import eu.siacs.conversations.crypto.XmppDomainVerifier;
 import eu.siacs.conversations.entities.MTMDecision;
@@ -500,9 +498,13 @@ public class MemorizingTrustManager {
                 QuickConversationsService.isConversations()
                         && preferences.getBoolean(
                                 "use_tor", master.getResources().getBoolean(R.bool.use_tor));
+        final boolean useI2p =
+                QuickConversationsService.isConversations()
+                        && preferences.getBoolean(
+                                "use_i2p", master.getResources().getBoolean(R.bool.use_i2p));
         try {
             final List<String> results = new ArrayList<>();
-            final InputStream inputStream = HttpConnectionManager.open(url, useTor);
+            final InputStream inputStream = HttpConnectionManager.open(url, useTor, useI2p);
             final String body =
                     CharStreams.toString(
                             new InputStreamReader(
