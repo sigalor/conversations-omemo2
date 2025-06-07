@@ -4408,11 +4408,6 @@ public class ConversationFragment extends XmppFragment
                     "ConversationFragment.refresh() skipped updated because view binding was null");
             return;
         }
-        if (getConversationReliable(activity) != null) {
-            loadAndDisplayLatestPinnedMessage();
-        } else {
-            hidePinnedMessageView();
-        }
         updateChatBG();
         if (this.conversation != null
                 && this.activity != null
@@ -4455,84 +4450,92 @@ public class ConversationFragment extends XmppFragment
                 conversation.refreshSessions();
 
                 if (activity!= null) activity.runOnUiThread(() -> {
-                // Show muc subject in conferences and show status message in one-on-one chats
-                if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
-                    String subject = conversation.getMucOptions().getSubject();
-                    boolean hidden = conversation.getMucOptions().subjectHidden();
 
-                    if (Bookmark.printableValue(subject) && !hidden) {
-                        binding.mucSubjectText.setText(subject);
-                        binding.mucSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
-                        binding.mucSubjectHide.setOnClickListener(v -> {
-                            conversation.getMucOptions().hideSubject();
-                            binding.mucSubject.setVisibility(View.GONE);
-                        });
-                        if (activity != null && binding.mucSubjectIcon != null)
-                            binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
-                        binding.mucSubject.setVisibility(View.VISIBLE);
+                    // Check pinned message presence
+                    if (getConversationReliable(activity) != null) {
+                        loadAndDisplayLatestPinnedMessage();
                     } else {
-                        binding.mucSubject.setVisibility(View.GONE);
+                        hidePinnedMessageView();
                     }
-                } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
-                    boolean statusChange = conversation.onContactUpdatedAndCheckStatusChange(conversation.getContact());
 
-                    if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
-                        binding.mucSubject.setVisibility(View.VISIBLE);
-                        if (activity != null && binding.mucSubjectIcon != null)
-                            binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
-                        binding.mucSubjectText.setText(conversation.getLastProcessedStatusText());
-                        binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
-                        binding.mucSubjectHide.setOnClickListener(v -> {
-                            conversation.hideStatusMessage();
+                    // Show muc subject in conferences and show status message in one-on-one chats
+                    if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
+                        String subject = conversation.getMucOptions().getSubject();
+                        boolean hidden = conversation.getMucOptions().subjectHidden();
+
+                        if (Bookmark.printableValue(subject) && !hidden) {
+                            binding.mucSubjectText.setText(subject);
+                            binding.mucSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
+                            binding.mucSubjectHide.setOnClickListener(v -> {
+                                conversation.getMucOptions().hideSubject();
+                                binding.mucSubject.setVisibility(View.GONE);
+                            });
+                            if (activity != null && binding.mucSubjectIcon != null)
+                                binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
+                            binding.mucSubject.setVisibility(View.VISIBLE);
+                        } else {
                             binding.mucSubject.setVisibility(View.GONE);
-                        });
-                    } else {
-                        binding.mucSubject.setVisibility(View.GONE);
-                    }
-                } else {
-                    binding.mucSubject.setVisibility(View.GONE);
-                }
-
-                // Jump to Pinned message
-                binding.pinnedMessage.setOnClickListener(v -> {
-                    if (selectedMessage != null) jumpTo(selectedMessage);
-                });
-                binding.pinnedMessage.setOnLongClickListener(view -> {
-                    // Initializing the popup menu and giving the reference as current context
-                    PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
-
-                    // Inflating popup menu from popup_menu.xml file
-                    popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
-
-                    //Get text from pinned message TextView
-                    Message pinnedMessageText = new Message(conversation, binding.pinnedMessageText.getText().toString(), conversation.getNextEncryption());
-
-                    // Handling menu item click events
-                    popupMenu.setOnMenuItemClickListener(menuItem -> {
-                        switch (menuItem.getItemId()) {
-                            case R.id.share_with:
-                                ShareUtil.share(activity, pinnedMessageText);
-                                break;
-                            case R.id.copy_message:
-                                ShareUtil.copyToClipboard(activity, pinnedMessageText);
-                                break;
-                            case R.id.quote_message:
-                                quoteMessage(pinnedMessageText);
-                                break;
                         }
+                    } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
+                        boolean statusChange = conversation.onContactUpdatedAndCheckStatusChange(conversation.getContact());
+
+                        if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
+                            binding.mucSubject.setVisibility(View.VISIBLE);
+                            if (activity != null && binding.mucSubjectIcon != null)
+                                binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
+                            binding.mucSubjectText.setText(conversation.getLastProcessedStatusText());
+                            binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
+                            binding.mucSubjectHide.setOnClickListener(v -> {
+                                conversation.hideStatusMessage();
+                                binding.mucSubject.setVisibility(View.GONE);
+                            });
+                        } else {
+                            binding.mucSubject.setVisibility(View.GONE);
+                        }
+                    } else {
+                        binding.mucSubject.setVisibility(View.GONE);
+                    }
+
+                    // Jump to Pinned message
+                    binding.pinnedMessage.setOnClickListener(v -> {
+                        if (selectedMessage != null) jumpTo(selectedMessage);
+                    });
+                    binding.pinnedMessage.setOnLongClickListener(view -> {
+                        // Initializing the popup menu and giving the reference as current context
+                        PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
+
+                        // Inflating popup menu from popup_menu.xml file
+                        popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
+
+                        //Get text from pinned message TextView
+                        Message pinnedMessageText = new Message(conversation, binding.pinnedMessageText.getText().toString(), conversation.getNextEncryption());
+
+                        // Handling menu item click events
+                        popupMenu.setOnMenuItemClickListener(menuItem -> {
+                            switch (menuItem.getItemId()) {
+                                case R.id.share_with:
+                                    ShareUtil.share(activity, pinnedMessageText);
+                                    break;
+                                case R.id.copy_message:
+                                    ShareUtil.copyToClipboard(activity, pinnedMessageText);
+                                    break;
+                                case R.id.quote_message:
+                                    quoteMessage(pinnedMessageText);
+                                    break;
+                            }
+                            return true;
+                        });
+
+                        // Showing the popup menu
+                        popupMenu.show();
+
                         return true;
                     });
-
-                    // Showing the popup menu
-                    popupMenu.show();
-
-                    return true;
+                    // empty Pinned message when click on Pinned message hide
+                    binding.pinnedMessageHide.setOnClickListener(v -> {
+                        unpinCurrentDisplayedMessage();
+                    });
                 });
-                // empty Pinned message when click on Pinned message hide
-                binding.pinnedMessageHide.setOnClickListener(v -> {
-                    unpinCurrentDisplayedMessage();
-                });
-            });
             }
         }
     }
