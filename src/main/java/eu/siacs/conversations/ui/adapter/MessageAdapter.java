@@ -1997,15 +1997,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (showAvatar) {
             final var resources = messageBox.getResources();
             if (clazz == StartBubbleMessageItemViewHolder.class) {
+                layoutParams.setMarginStart(
+                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance));
+                layoutParams.setMarginEnd(0);
+            } else if (clazz == EndBubbleMessageItemViewHolder.class) {
                 layoutParams.setMarginStart(0);
                 layoutParams.setMarginEnd(
-                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance)
-                );
-            } else if (clazz == EndBubbleMessageItemViewHolder.class) {
-                layoutParams.setMarginStart(
-                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance)
-                );
-                layoutParams.setMarginEnd(0);
+                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance));
             } else {
                 throw new AssertionError("Avatar distances are not available on this view type");
             }
