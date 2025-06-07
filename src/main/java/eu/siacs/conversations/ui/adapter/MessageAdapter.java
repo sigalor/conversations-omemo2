@@ -2250,13 +2250,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 switch (bubbleColor) {
                     case SURFACE ->
                             Activities.isNightMode(view.getContext())
-                                    ? com.google.android.material.R.attr.colorSurfaceContainerHigh
-                                    : com.google.android.material.R.attr.colorSurfaceContainerLow;
-                    case SURFACE_HIGH ->
-                            Activities.isNightMode(view.getContext())
-                                    ? com.google.android.material.R.attr
-                                            .colorSurfaceContainerHighest
-                                    : com.google.android.material.R.attr.colorSurfaceContainerHigh;
+                                    ? com.google.android.material.R.attr.colorSurfaceBright
+                                    : com.google.android.material.R.attr.colorOnSurfaceInverse;
+                    case SURFACE_HIGH -> com.google.android.material.R.attr
+                            .colorSurfaceContainerHigh;
                     case PRIMARY -> com.google.android.material.R.attr.colorPrimaryContainer;
                     case SECONDARY -> com.google.android.material.R.attr.colorSecondaryContainer;
                     case TERTIARY -> com.google.android.material.R.attr.colorTertiaryContainer;
