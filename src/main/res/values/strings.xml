@@ -1475,4 +1475,9 @@
     <string name="pref_backup_location">Backup location</string>
     <string name="failed_to_delete_sticker_not_exist">Failed to delete: Sticker not found.</string>
     <string name="failed_to_delete_gif_not_exist">Failed to delete: GIF not found.</string>
+    <string name="error_pinning_message">Failed to pin message</string>
+    <string name="cannot_pin_empty_message">Can\'t pin empty message</string>
+    <string name="message_pinned">Message pinned</string>
+    <string name="message_unpinned">Message unpinned</string>
+    <string name="error_unpinning_message">Failed to unpin message</string>
 </resources>

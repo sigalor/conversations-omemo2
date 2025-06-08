@@ -126,6 +126,7 @@ import com.otaliastudios.autocomplete.AutocompletePresenter;
 import com.otaliastudios.autocomplete.CharPolicy;
 import com.otaliastudios.autocomplete.RecyclerViewPresenter;
 
+import de.monocles.chat.pinnedmessage.PinnedMessageRepository;
 import net.java.otr4j.session.SessionStatus;
 
 import eu.siacs.conversations.AppSettings;
@@ -292,8 +293,6 @@ public class ConversationFragment extends XmppFragment
     public static final String STATE_MEDIA_PREVIEWS =
             ConversationFragment.class.getName() + ".take_photo_uri";
     private static final String STATE_LAST_MESSAGE_UUID = "state_last_message_uuid";
-    private static final String STATE_PINNED_MESSAGE = "state_pinned_message";
-
     private final List<Message> messageList = new ArrayList<>();
     private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
     private final PendingItem<String> pendingConversationsUuid = new PendingItem<>();
@@ -321,6 +320,9 @@ public class ConversationFragment extends XmppFragment
     private String[] StickerfilesNames;
     private String[] GifsfilesPaths;
     private String[] GifsfilesNames;
+
+    private PinnedMessageRepository pinnedMessageRepository;
+    private String currentDisplayedPinnedMessageUuid = null; // To track what's shown
 
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
 
@@ -1638,6 +1640,18 @@ public class ConversationFragment extends XmppFragment
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveVoiceRecorder);
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
         oldOrientation = activity.getRequestedOrientation();
+
+        // Get repository instance - ideally through dependency injection or a singleton accessor
+        if (getActivity() instanceof ConversationsActivity) {
+            // Assuming ConversationsActivity can provide the PinnedMessageRepository instance
+            // This is a placeholder; you'll need a proper way to get this instance.
+            // For example, XmppConnectionService could hold it.
+            pinnedMessageRepository = ((ConversationsActivity) getActivity()).getPinnedMessageRepository();
+        }
+        // Fallback if not available through activity, create new (not ideal for shared state)
+        if (pinnedMessageRepository == null && getActivity() != null) {
+            pinnedMessageRepository = new PinnedMessageRepository(getActivity().getApplicationContext());
+        }
     }
 
     @Override
@@ -1725,12 +1739,6 @@ public class ConversationFragment extends XmppFragment
         binding.getRoot().setOnClickListener(null); // TODO why the fuck did we do this?
 
         backPressedLeaveEmojiPicker.setEnabled(binding.emojisStickerLayout.getHeight() > 100);
-
-        // Load pinned message when screen rotated
-        if (savedInstanceState != null && savedInstanceState.getString(STATE_PINNED_MESSAGE) != null) {
-            this.binding.pinnedMessageText.setText(savedInstanceState.getString(STATE_PINNED_MESSAGE));
-            this.binding.pinnedMessage.setVisibility(View.VISIBLE);
-        }
 
         binding.textinput.setOnEditorActionListener(mEditorActionListener);
         binding.textinput.setRichContentListener(new String[] {"image/*"}, mEditorContentListener);
@@ -2016,10 +2024,7 @@ public class ConversationFragment extends XmppFragment
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
-        // Store the pinned message in SharedPreferences when the view is destroyed
-        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && getConversationReliable(activity) != null) {
-            savePinnedMessageToPreferences(getConversationReliable(activity).getJid().asBareJid().toString(), binding.pinnedMessageText.getText().toString());
-        }
+
         messageListAdapter.setOnContactPictureClicked(null);
         messageListAdapter.setOnContactPictureLongClicked(null);
         messageListAdapter.setOnInlineImageLongClicked(null);
@@ -2243,7 +2248,7 @@ public class ConversationFragment extends XmppFragment
                     && t == null) {
                 copyMessage.setVisible(true);
                 // Copy text message to top
-                if (m.getEncryption() == Message.ENCRYPTION_NONE) pinToTop.setVisible(true);
+                pinToTop.setVisible(true);
                 quoteMessage.setVisible(!showError && !MessageUtils.prepareQuote(m).isEmpty());
                 final String scheme =
                         ShareUtil.getLinkScheme(new SpannableStringBuilder(m.getBody()));
@@ -2395,7 +2400,7 @@ public class ConversationFragment extends XmppFragment
                 return true;
             case R.id.pin_message_to_top:
                 // store for each conversation
-                setNewPinnedMessage(selectedMessage.getBody());
+                pinMessage(selectedMessage);
                 return true;
             case R.id.copy_message:
                 ShareUtil.copyToClipboard(activity, selectedMessage);
@@ -3678,9 +3683,8 @@ public class ConversationFragment extends XmppFragment
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         // Store the pinned message in the bundle for configuration changes
-        if (binding.pinnedMessage.getVisibility() == View.VISIBLE && getConversationReliable(activity) != null) {
-            outState.putString(getPinnedMessageKey(getConversationReliable(activity).getJid().asBareJid().toString()), binding.pinnedMessageText.getText().toString());
-            outState.putString(STATE_PINNED_MESSAGE, binding.pinnedMessageText.getText().toString());
+        if (currentDisplayedPinnedMessageUuid != null) {
+            outState.putString("current_displayed_pinned_uuid", currentDisplayedPinnedMessageUuid);
         }
         if (conversation != null) {
             outState.putString(STATE_CONVERSATION_UUID, conversation.getUuid());
@@ -4446,85 +4450,92 @@ public class ConversationFragment extends XmppFragment
                 conversation.refreshSessions();
 
                 if (activity!= null) activity.runOnUiThread(() -> {
-                // Show muc subject in conferences and show status message in one-on-one chats
-                if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
-                    String subject = conversation.getMucOptions().getSubject();
-                    boolean hidden = conversation.getMucOptions().subjectHidden();
 
-                    if (Bookmark.printableValue(subject) && !hidden) {
-                        binding.mucSubjectText.setText(subject);
-                        binding.mucSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
-                        binding.mucSubjectHide.setOnClickListener(v -> {
-                            conversation.getMucOptions().hideSubject();
-                            binding.mucSubject.setVisibility(View.GONE);
-                        });
-                        if (activity != null && binding.mucSubjectIcon != null)
-                            binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
-                        binding.mucSubject.setVisibility(View.VISIBLE);
+                    // Check pinned message presence
+                    if (getConversationReliable(activity) != null) {
+                        loadAndDisplayLatestPinnedMessage();
                     } else {
-                        binding.mucSubject.setVisibility(View.GONE);
+                        hidePinnedMessageView();
                     }
-                } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
-                    boolean statusChange = conversation.onContactUpdatedAndCheckStatusChange(conversation.getContact());
 
-                    if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
-                        binding.mucSubject.setVisibility(View.VISIBLE);
-                        if (activity != null && binding.mucSubjectIcon != null)
-                            binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
-                        binding.mucSubjectText.setText(conversation.getLastProcessedStatusText());
-                        binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
-                        binding.mucSubjectHide.setOnClickListener(v -> {
-                            conversation.hideStatusMessage();
+                    // Show muc subject in conferences and show status message in one-on-one chats
+                    if (conversation != null && conversation.getMode() == Conversational.MODE_MULTI) {
+                        String subject = conversation.getMucOptions().getSubject();
+                        boolean hidden = conversation.getMucOptions().subjectHidden();
+
+                        if (Bookmark.printableValue(subject) && !hidden) {
+                            binding.mucSubjectText.setText(subject);
+                            binding.mucSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
+                            binding.mucSubjectHide.setOnClickListener(v -> {
+                                conversation.getMucOptions().hideSubject();
+                                binding.mucSubject.setVisibility(View.GONE);
+                            });
+                            if (activity != null && binding.mucSubjectIcon != null)
+                                binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
+                            binding.mucSubject.setVisibility(View.VISIBLE);
+                        } else {
                             binding.mucSubject.setVisibility(View.GONE);
-                        });
-                    } else {
-                        binding.mucSubject.setVisibility(View.GONE);
-                    }
-                } else {
-                    binding.mucSubject.setVisibility(View.GONE);
-                }
-
-                // Jump to Pinned message
-                binding.pinnedMessage.setOnClickListener(v -> {
-                    if (selectedMessage != null) jumpTo(selectedMessage);
-                });
-                binding.pinnedMessage.setOnLongClickListener(view -> {
-                    // Initializing the popup menu and giving the reference as current context
-                    PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
-
-                    // Inflating popup menu from popup_menu.xml file
-                    popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
-
-                    //Get text from pinned message TextView
-                    Message pinnedMessageText = new Message(conversation, binding.pinnedMessageText.getText().toString(), conversation.getNextEncryption());
-
-                    // Handling menu item click events
-                    popupMenu.setOnMenuItemClickListener(menuItem -> {
-                        switch (menuItem.getItemId()) {
-                            case R.id.share_with:
-                                ShareUtil.share(activity, pinnedMessageText);
-                                break;
-                            case R.id.copy_message:
-                                ShareUtil.copyToClipboard(activity, pinnedMessageText);
-                                break;
-                            case R.id.quote_message:
-                                quoteMessage(pinnedMessageText);
-                                break;
                         }
+                    } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
+                        boolean statusChange = conversation.onContactUpdatedAndCheckStatusChange(conversation.getContact());
+
+                        if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
+                            binding.mucSubject.setVisibility(View.VISIBLE);
+                            if (activity != null && binding.mucSubjectIcon != null)
+                                binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
+                            binding.mucSubjectText.setText(conversation.getLastProcessedStatusText());
+                            binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
+                            binding.mucSubjectHide.setOnClickListener(v -> {
+                                conversation.hideStatusMessage();
+                                binding.mucSubject.setVisibility(View.GONE);
+                            });
+                        } else {
+                            binding.mucSubject.setVisibility(View.GONE);
+                        }
+                    } else {
+                        binding.mucSubject.setVisibility(View.GONE);
+                    }
+
+                    // Jump to Pinned message
+                    binding.pinnedMessage.setOnClickListener(v -> {
+                        if (selectedMessage != null) jumpTo(selectedMessage);
+                    });
+                    binding.pinnedMessage.setOnLongClickListener(view -> {
+                        // Initializing the popup menu and giving the reference as current context
+                        PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
+
+                        // Inflating popup menu from popup_menu.xml file
+                        popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
+
+                        //Get text from pinned message TextView
+                        Message pinnedMessageText = new Message(conversation, binding.pinnedMessageText.getText().toString(), conversation.getNextEncryption());
+
+                        // Handling menu item click events
+                        popupMenu.setOnMenuItemClickListener(menuItem -> {
+                            switch (menuItem.getItemId()) {
+                                case R.id.share_with:
+                                    ShareUtil.share(activity, pinnedMessageText);
+                                    break;
+                                case R.id.copy_message:
+                                    ShareUtil.copyToClipboard(activity, pinnedMessageText);
+                                    break;
+                                case R.id.quote_message:
+                                    quoteMessage(pinnedMessageText);
+                                    break;
+                            }
+                            return true;
+                        });
+
+                        // Showing the popup menu
+                        popupMenu.show();
+
                         return true;
                     });
-
-                    // Showing the popup menu
-                    popupMenu.show();
-
-                    return true;
+                    // empty Pinned message when click on Pinned message hide
+                    binding.pinnedMessageHide.setOnClickListener(v -> {
+                        unpinCurrentDisplayedMessage();
+                    });
                 });
-                // empty Pinned message when click on Pinned message hide
-                binding.pinnedMessageHide.setOnClickListener(v -> {
-                    conversation.setPinnedMessage(null);
-                    removePinnedMessage(getConversationReliable(activity).getJid().asBareJid().toString());
-                });
-            });
             }
         }
     }
@@ -6233,24 +6244,11 @@ public class ConversationFragment extends XmppFragment
         this.binding.textformat.setVisibility(View.GONE);
     }
 
-    private String getPinnedMessageKey(String conversationJid) {
-        return PINNED_MESSAGE_KEY_PREFIX + conversationJid;
-    }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.binding.pinnedMessageText.setMovementMethod(new ScrollingMovementMethod());
         this.binding.pinnedMessageText.setTextIsSelectable(true);
-        if (getConversationReliable(activity) != null) {
-            String conversationJid = getConversationReliable(activity).getJid().asBareJid().toString();
-            // Load pinned message from savedInstanceState or SharedPreferences
-            String savedMessage = savedInstanceState != null ? savedInstanceState.getString(getPinnedMessageKey(conversationJid)) : loadPinnedMessageFromPreferences(conversationJid);
-            if (savedMessage != null && !savedMessage.isEmpty()) {
-                binding.pinnedMessageText.setText(savedMessage);
-                binding.pinnedMessage.setVisibility(View.VISIBLE);
-            }
-        }
         try {
             loadMediaFromBackground();
         } catch (Exception e) {
@@ -6265,42 +6263,104 @@ public class ConversationFragment extends XmppFragment
         });
     }
 
-    private void savePinnedMessageToPreferences(String conversationJid, String message) {
-        if (activity != null) {
-            SharedPreferences sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(getPinnedMessageKey(conversationJid), message);
-            editor.apply();
+    private void loadAndDisplayLatestPinnedMessage() {
+        final Conversation conversation = getConversationReliable(activity);
+        if (conversation == null || pinnedMessageRepository == null || getActivity() == null) {
+            hidePinnedMessageView();
+            return;
         }
+
+        // The repository methods are async for file I/O but getDecrypted... might be quick if cached
+        // However, decryption itself should be off main thread. Let's make this call fully async.
+        // For simplicity, directly using the repository here. In a ViewModel pattern, ViewModel would handle this.
+        new Thread(() -> {
+            final PinnedMessageRepository.DecryptedPinnedMessageData pinnedData =
+                    pinnedMessageRepository.getLatestDecryptedPinnedMessageForConversation(conversation.getUuid());
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (pinnedData != null) {
+                        binding.pinnedMessageText.setText(pinnedData.plaintextBody);
+                        binding.pinnedMessageText.setTag(pinnedData.messageUuid); // Store UUID for unpinning
+                        binding.pinnedMessage.setVisibility(View.VISIBLE);
+                        currentDisplayedPinnedMessageUuid = pinnedData.messageUuid;
+
+                        // Click to jump to message
+                        binding.pinnedMessage.setOnClickListener(v -> {
+                            // scrollToMessage(pinnedData.messageUuid);
+                            Log.d(Config.LOGTAG, "Pinned message view clicked: " + pinnedData.messageUuid);
+                        });
+                        // Setup unpin button
+                        // binding.unpinButton.setOnClickListener(v -> unpinCurrentMessage());
+
+                    } else {
+                        hidePinnedMessageView();
+                    }
+                });
+            }
+        }).start();
     }
 
-    private String loadPinnedMessageFromPreferences(String conversationJid) {
-        if (activity != null) {
-            SharedPreferences sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
-            return sharedPreferences.getString(getPinnedMessageKey(conversationJid), null);
+
+    // Called when user explicitly pins a message from the conversation
+    public void pinMessage(final Message messageToPin) {
+        final Conversation conversation = getConversationReliable(activity);
+        if (messageToPin == null || conversation == null || pinnedMessageRepository == null || getActivity() == null) {
+            Toast.makeText(getActivity(), R.string.error_pinning_message, Toast.LENGTH_SHORT).show();
+            return;
         }
-        return null;
+
+        // OMEMO messages should have their body decrypted by this point for display
+        String plaintextBody = messageToPin.getBody(); // Use appropriate method to get plaintext
+        if (plaintextBody == null || plaintextBody.isEmpty()) {
+            Toast.makeText(getActivity(), R.string.cannot_pin_empty_message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        pinnedMessageRepository.pinMessage(messageToPin.getUuid(), conversation.getUuid(), plaintextBody,
+                success -> {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (success) {
+                                Toast.makeText(getActivity(), R.string.message_pinned, Toast.LENGTH_SHORT).show();
+                                loadAndDisplayLatestPinnedMessage(); // Refresh the view
+                            } else {
+                                Toast.makeText(getActivity(), R.string.error_pinning_message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
     }
 
-    // Call this method when you want to remove the pinned message:
-    private void removePinnedMessage(String conversationJid) {
-        binding.pinnedMessageText.setText("");
+    // Call this from an "Unpin" button on the pinned message view
+    public void unpinCurrentDisplayedMessage() {
+        if (currentDisplayedPinnedMessageUuid == null || pinnedMessageRepository == null || getActivity() == null) {
+            return;
+        }
+        String uuidToUnpin = currentDisplayedPinnedMessageUuid; // Copy in case it changes
+
+        pinnedMessageRepository.unpinMessage(uuidToUnpin,
+                success -> {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (success) {
+                                Toast.makeText(getActivity(), R.string.message_unpinned, Toast.LENGTH_SHORT).show();
+                                // If the unpinned message was the one displayed, clear or load next
+                                if (Objects.equals(currentDisplayedPinnedMessageUuid, uuidToUnpin)) {
+                                    loadAndDisplayLatestPinnedMessage(); // This will hide if no more pins
+                                }
+                            } else {
+                                Toast.makeText(getActivity(), R.string.error_unpinning_message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void hidePinnedMessageView() {
         binding.pinnedMessage.setVisibility(View.GONE);
-        // Remove the message from SharedPreferences
-        if (activity != null) {
-            SharedPreferences sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.remove(getPinnedMessageKey(conversationJid));
-            editor.apply();
-        }
-    }
-
-    // Set a new pinned message:
-    private void setNewPinnedMessage(String message) {
-        if (getConversationReliable(activity) != null) {
-            binding.pinnedMessageText.setText(message);
-            binding.pinnedMessage.setVisibility(View.VISIBLE);
-            savePinnedMessageToPreferences(getConversationReliable(activity).getJid().asBareJid().toString(), message);
-        }
+        binding.pinnedMessageText.setText("");
+        binding.pinnedMessageText.setTag(null);
+        currentDisplayedPinnedMessageUuid = null;
     }
 }

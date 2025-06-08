@@ -76,6 +76,7 @@ import de.monocles.chat.FinishOnboarding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.collect.ImmutableList;
 
+import de.monocles.chat.pinnedmessage.PinnedMessageRepository;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.widget.AvatarView;
@@ -1788,5 +1789,9 @@ public class ConversationsActivity extends XmppActivity
     @Override
     public void onShowErrorToast(int resId) {
         runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
+    }
+
+    public PinnedMessageRepository getPinnedMessageRepository() {
+        return new PinnedMessageRepository(this);
     }
 }
