@@ -100,9 +100,9 @@
     <string name="offering">offrendo…</string>
     <string name="waiting">in attesa…</string>
     <string name="no_pgp_key">Nessuna chiave OpenPGP trovata</string>
-    <string name="contact_has_no_pgp_key">Impossibile decifrare il messaggio perchè il contatto non sta annunciando la sua chiave pubblica.\n\n<small>Chiedi al contatto di configurare OpenPGP.</small></string>
+    <string name="contact_has_no_pgp_key">Impossibile decifrare il messaggio perché il contatto non sta annunciando la sua chiave pubblica.\n\n<small>Chiedi al contatto di configurare OpenPGP.</small></string>
     <string name="no_pgp_keys">Nessuna chiave OpenPGP trovata</string>
-    <string name="contacts_have_no_pgp_keys">Impossibile cifrare il messaggio perchè i contatti non stanno annunciando la sua chiave pubblica.\n\n<small>Chiedi loro di configurare OpenPGP.</small></string>
+    <string name="contacts_have_no_pgp_keys">Impossibile cifrare il messaggio perché i contatti non stanno annunciando la sua chiave pubblica.\n\n<small>Chiedi loro di configurare OpenPGP.</small></string>
     <string name="pref_general">Generale</string>
     <string name="pref_accept_files">Accetta i file</string>
     <string name="pref_accept_files_summary">Accetta automaticamente i file più piccoli di…</string>
@@ -129,7 +129,7 @@
     <string name="bad_key_for_encryption">Chiave di cifratura non valida.</string>
     <string name="accept">Accetta</string>
     <string name="error">Si è verificato un errore</string>
-    <string name="recording_error">Errore</string>
+    <string name="recording_error">Errore di registrazione</string>
     <string name="your_account">Il tuo profilo</string>
     <string name="send_presence_updates">Invia aggiornamenti della presenza</string>
     <string name="receive_presence_updates">Ricevi aggiornamenti della presenza</string>
@@ -171,7 +171,7 @@
     <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Elimina profilo</string>
     <string name="mgmt_account_disable">Disattiva temporaneamente</string>
-    <string name="mgmt_account_publish_avatar">Pubblica avatar</string>
+    <string name="mgmt_account_publish_avatar">Pubblica foto profilo</string>
     <string name="mgmt_account_publish_pgp">Pubblica chiave pubblica OpenPGP</string>
     <string name="unpublish_pgp">Rimuovi chiave pubblica OpenPGP</string>
     <string name="unpublish_pgp_message">Sei sicuro di volere rimuovere la tua chiave pubblica OpenPGP dalla dichiarazione di presenza?\nI tuoi contatti non potranno più inviarti messaggi cifrati con OpenPGP.</string>
@@ -250,13 +250,13 @@
     <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s + altri %2$d hanno letto fino a questo punto</string>
     <string name="everyone_has_read_up_to_this_point">Tutti hanno letto fino a questo punto</string>
     <string name="publish">Pubblica</string>
-    <string name="touch_to_choose_picture">Tocca l\'avatar per scegliere un\'immagine dalla galleria</string>
+    <string name="touch_to_choose_picture">Tocca la foto profilo per scegliere un\'immagine dalla galleria</string>
     <string name="publishing">Pubblicazione…</string>
     <string name="error_publish_avatar_server_reject">Il server ha rifiutato la tua pubblicazione</string>
     <string name="error_publish_avatar_converting">Impossibile convertire la tua immagine</string>
-    <string name="error_saving_avatar">Impossibile salvare l’avatar sulla memoria interna</string>
+    <string name="error_saving_avatar">Impossibile salvare la foto profilo sulla memoria interna</string>
     <string name="or_long_press_for_default">(O premi a lungo per ripristinare le impostazioni di default)</string>
-    <string name="error_publish_avatar_no_server_support">Il tuo server non supporta la pubblicazione di avatar</string>
+    <string name="error_publish_avatar_no_server_support">Il tuo server non supporta la pubblicazione di foto profilo</string>
     <string name="private_message">sussurrato</string>
     <string name="private_message_to">a %s</string>
     <string name="send_private_message_to">Invia messaggio privato a %s</string>
@@ -272,7 +272,7 @@
     <string name="request_presence_updates">Prima chiedi gli aggiornamenti della presenza dal tuo contatto.
 \n
 \n<small>Ciò verrà usato per determinare quale app sta usando il tuo contatto</small>.</string>
-    <string name="request_now">Rechiedi adesso</string>
+    <string name="request_now">Richiedi adesso</string>
     <string name="ignore">Ignora</string>
     <string name="without_mutual_presence_updates"><b>Attenzione:</b> inviarlo senza aggiornamenti della presenza reciproci può causare problemi inaspettati.\n\n<small>Vai nei dettagli del contatto per verificare le tue sottoscrizioni alla presenza.</small></string>
     <string name="pref_security_settings">Sicurezza</string>
@@ -342,15 +342,15 @@
     <string name="file_transmission_failed">impossibile condividere il file</string>
     <string name="file_transmission_cancelled">trasmissione file annullata</string>
     <string name="file_deleted">File eliminato</string>
-    <string name="no_application_found_to_open_file">Nessuna app trovata per aprire il file</string>
-    <string name="no_application_found_to_open_link">Nessuna app trovata per aprire il link</string>
-    <string name="no_application_found_to_view_contact">Nessuna app trovata per vedere il contatto</string>
+    <string name="no_application_found_to_open_file">Nessuna applicazione trovata per aprire il file</string>
+    <string name="no_application_found_to_open_link">Nessuna applicazione trovata per aprire il link</string>
+    <string name="no_application_found_to_view_contact">Nessuna applicazione trovata per vedere il contatto</string>
     <string name="pref_show_dynamic_tags">Etichette dinamiche</string>
     <string name="pref_show_dynamic_tags_summary">Mostra etichette in sola lettura sotto i contatti</string>
     <string name="enable_notifications">Attiva le notifiche</string>
     <string name="no_conference_server_found">Nessun server per chat di gruppo trovato</string>
     <string name="conference_creation_failed">Impossibile creare la chat di gruppo</string>
-    <string name="account_image_description">Avatar del profilo</string>
+    <string name="account_image_description">Foto profilo</string>
     <string name="copy_omemo_clipboard_description">Copia impronta OMEMO negli appunti</string>
     <string name="regenerate_omemo_key">Rigenera chiave OMEMO</string>
     <string name="clear_other_devices">Elimina dispositivi</string>
@@ -416,7 +416,7 @@
     <string name="pdf_document">Documento PDF</string>
     <string name="apk">Applicazione Android</string>
     <string name="vcard">Contatto</string>
-    <string name="avatar_has_been_published">Il tuo avatar è stato pubblicato!</string>
+    <string name="avatar_has_been_published">La tua foto profilo è stata pubblicata!</string>
     <string name="sending_x_file">Invio %s</string>
     <string name="offering_x_file">Offrendo %s</string>
     <string name="hide_offline">Nascondi i contatti offline</string>
@@ -428,7 +428,7 @@
     <string name="pref_chat_states_summary">Fai sapere ai tuoi contatti quando stai scrivendo loro un messaggio</string>
     <string name="send_location">Invia la posizione</string>
     <string name="show_location">Mostra la posizione</string>
-    <string name="no_application_found_to_display_location">Nessuna app trovata per mostrare la posizione</string>
+    <string name="no_application_found_to_display_location">Nessuna applicazione trovata per mostrare la posizione</string>
     <string name="location">Posizione</string>
     <string name="title_undo_swipe_out_group_chat">Chat di gruppo privata abbandonata</string>
     <string name="title_undo_swipe_out_channel">Canale pubblico abbandonato</string>
@@ -533,7 +533,7 @@
     <string name="no_keys_just_confirm">Ti stai già fidando dell\'impronta di questa persona. Selezionando “Fatto” stai solo confermando che %s fa parte di questa chat di gruppo.</string>
     <string name="this_account_is_disabled">Hai disattivato questo profilo</string>
     <string name="security_error_invalid_file_access">Errore di sicurezza: accesso file non valido!</string>
-    <string name="no_application_to_share_uri">Nessuna app trovata per condividere l\'URI</string>
+    <string name="no_application_to_share_uri">Nessuna applicazione trovata per condividere l\'URI</string>
     <string name="share_uri_with">Condividi URI con…</string>
     <string name="agree_and_continue">Accetta e continua</string>
     <string name="magic_create_text">È disponibile una guida per la creazione di un profilo su monocles.eu. \nQuando scegli monocles.eu come fornitore potrai comunicare con utenti di altri fornitori dando il tuo indirizzo XMPP completo.</string>
@@ -588,7 +588,7 @@
     <string name="pref_delete_omemo_identities">Elimina le identità OMEMO</string>
     <string name="pref_delete_omemo_identities_summary">Rigenera le tue chiavi OMEMO. I tuoi contatti dovranno verificare un\'altra volta la tua identità. Usalo solo come ultima spiaggia.</string>
     <string name="delete_selected_keys">Cancella le chiavi selezionate</string>
-    <string name="error_publish_avatar_offline">Devi essere connesso per pubblicare l\'avatar.</string>
+    <string name="error_publish_avatar_offline">Devi essere connesso per pubblicare la foto profilo.</string>
     <string name="show_error_message">Mostra messaggio di errore</string>
     <string name="error_message">Messaggio di errore</string>
     <string name="data_saver_enabled">Risparmio dati attivato</string>
@@ -669,7 +669,7 @@
     <string name="sasl_downgrade">Meccanismo SASL degradato</string>
     <string name="account_status_regis_web">Il server richiede la registrazione sul sito</string>
     <string name="open_website">Apri sito</string>
-    <string name="application_found_to_open_website">Nessuna app trovata per aprire il sito</string>
+    <string name="application_found_to_open_website">Nessuna applicazione trovata per aprire il sito web</string>
     <string name="pref_headsup_notifications">Notifiche avvisi</string>
     <string name="pref_headsup_notifications_summary">Mostra notifiche a comparsa</string>
     <string name="today">Oggi</string>
@@ -684,7 +684,7 @@
     <string name="message">Messaggio</string>
     <string name="private_messages_are_disabled">I messaggi privati sono disattivati</string>
     <string name="huawei_protected_apps">App protette</string>
-    <string name="huawei_protected_apps_summary">Per ricevere notifiche anche quando lo schermo è spento, devi aggiungere Conversations all\'elenco delle app protette.</string>
+    <string name="huawei_protected_apps_summary">Per ricevere notifiche anche quando lo schermo è spento, devi aggiungere monocles chat all\'elenco delle app protette.</string>
     <string name="mtm_accept_cert">Accetti il certificato sconosciuto?</string>
     <string name="mtm_trust_anchor">Il certificato del server non è firmato da una Certificate Authority nota.</string>
     <string name="mtm_accept_servername">Accetti il nome del server non corrispondente?</string>
@@ -738,9 +738,9 @@
     <string name="p1_s3_filetransfer">Condivisione file in HTTP per S3</string>
     <string name="pref_start_search">Ricerca diretta</string>
     <string name="pref_start_search_summary">Nella schermata \'Nuova chat\' apri la tastiera e posiziona il cursore nella casella di ricerca</string>
-    <string name="group_chat_avatar">Avatar chat di gruppo</string>
-    <string name="host_does_not_support_group_chat_avatars">L\'host non supporta gli avatar per chat di gruppo</string>
-    <string name="only_the_owner_can_change_group_chat_avatar">Solo il proprietario può cambiare l\'avatar della chat di gruppo</string>
+    <string name="group_chat_avatar">Foto profilo della chat di gruppo</string>
+    <string name="host_does_not_support_group_chat_avatars">L\'host non supporta le foto profilo per le chat di gruppo</string>
+    <string name="only_the_owner_can_change_group_chat_avatar">Solo il proprietario può cambiare la foto profilo della chat di gruppo</string>
     <string name="contact_name">Nome contatto</string>
     <string name="nickname">Soprannome</string>
     <string name="group_chat_name">Nome</string>
@@ -825,12 +825,12 @@
     <string name="reject_request">Rifiuta la richiesta</string>
     <string name="install_orbot">Installa Orbot</string>
     <string name="start_orbot">Avvia Orbot</string>
-    <string name="no_market_app_installed">Nessuna app market installata.</string>
+    <string name="no_market_app_installed">Nessuna applicazione market installata.</string>
     <string name="group_chat_will_make_your_jabber_id_public">Questo canale renderà pubblico il tuo indirizzo XMPP</string>
     <string name="ebook">e-book</string>
     <string name="video_original">Originale (non compresso)</string>
     <string name="open_with">Apri con…</string>
-    <string name="set_profile_picture">Immagine profilo di Conversations</string>
+    <string name="set_profile_picture">Immagine profilo di monocles chat</string>
     <string name="choose_account">Scegli un profilo</string>
     <string name="restore_backup">Ripristina backup</string>
     <string name="restore">Ripristina</string>
@@ -875,10 +875,10 @@
     <string name="add_existing_account">Aggiungi un profilo esistente</string>
     <string name="register_new_account">Registra un nuovo profilo</string>
     <string name="this_looks_like_a_domain">Questo sembra un indirizzo di dominio</string>
-    <string name="add_anway">Aggiungere comunque</string>
+    <string name="add_anway">Aggiungi comunque</string>
     <string name="this_looks_like_channel">Questo sembra un indirizzo di canale</string>
     <string name="share_backup_files">Condividi file di backup</string>
-    <string name="conversations_backup">Backup di Conversations</string>
+    <string name="conversations_backup">Backup di monocles chat</string>
     <string name="event">Evento</string>
     <string name="open_backup">Apri backup</string>
     <string name="not_a_backup_file">Il file selezionato non è un file di backup di monocles chat</string>
@@ -953,8 +953,8 @@
     <string name="could_not_correct_message">Impossibile correggere il messaggio</string>
     <string name="search_all_conversations">Tutte le chat</string>
     <string name="search_this_conversation">Questa chat</string>
-    <string name="your_avatar">Il tuo avatar</string>
-    <string name="avatar_for_x">Avatar di %s</string>
+    <string name="your_avatar">La tua foto profilo</string>
+    <string name="avatar_for_x">Foto profilo di %s</string>
     <string name="encrypted_with_omemo">Crittografato con OMEMO</string>
     <string name="encrypted_with_openpgp">Crittografato con OpenPGP</string>
     <string name="not_encrypted">Non crittografato</string>
@@ -986,7 +986,7 @@
     <string name="account_registrations_are_not_supported">Le registrazioni di profili non sono supportate</string>
     <string name="no_xmpp_adddress_found">Nessun ID Jabber trovato</string>
     <string name="account_status_temporary_auth_failure">Errore di autenticazione temporaneo</string>
-    <string name="delete_avatar">Elimina avatar</string>
+    <string name="delete_avatar">Elimina foto profilo</string>
     <string name="audio_video_disabled_tor">Le chiamate sono disattivate quando si usa Tor</string>
     <string name="switch_to_video">Passa al video</string>
     <string name="reject_switch_to_video">Rifiuta richiesta di passare al video</string>
@@ -1026,7 +1026,7 @@
     <string name="title_activity_new_chat">Nuova chat</string>
     <string name="archive_this_chat">Archivia questa chat</string>
     <string name="title_undo_swipe_out_chat">Chat archiviata</string>
-    <string name="welcome_header">Unisciti a Conversation</string>
+    <string name="welcome_header">Benvenuto in monocles chat</string>
     <string name="pref_use_colorful_bubbles">Messaggi di chat colorati</string>
     <string name="pref_use_colorful_bubbles_summary">Colori di sfondo distinti per messaggi inviati e ricevuti</string>
     <string name="switch_to_chat">Passa alla chat</string>
@@ -1073,13 +1073,13 @@
     <string name="barcode_does_not_contain_fingerprints_for_this_chat">Il codice a barre non contiene impronte per questa chat.</string>
     <string name="rtp_state_contact_offline">Contatto non disponibile</string>
     <string name="detect_mim_summary">L\'associazione dei canali può rilevare alcuni attacchi machine-in-the-middle</string>
-    <string name="channel_discover_opt_in_message">La scoperta dei canali usa un servizio di terze parti chiamato &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;L\'uso di questa funzione invierà il tuo indirizzo IP e i termini di ricerca a quel servizio. Vedi la sua &lt;a href=https://search.jabber.network/privacy&gt;informativa sulla privacy&lt;/a&gt; per maggiori informazioni.</string>
+    <string name="channel_discover_opt_in_message">La scoperta dei canali usa un servizio di terze parti chiamato &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt;.&lt;br&gt;&lt;br&gt;L\'uso di questa funzione invierà il tuo indirizzo IP e i termini di ricerca a quel servizio. Consulta la sua &lt;a href=https://search.jabber.network/privacy&gt;informativa sulla privacy&lt;/a&gt; per maggiori informazioni.</string>
     <string name="pref_title_trust_system_ca_store">Autorità di certificazione</string>
     <string name="pref_large_font">Caratteri grandi</string>
     <string name="pref_large_font_summary">Aumenta la dimensione dei caratteri in messaggi, reazioni e campi di testo</string>
     <string name="retract_message">Ritira messaggio</string>
-    <string name="this_account_is_offline">Questa utenza non è connessa, i messaggi verranno inviati dopo la riconnessione</string>
-    <string name="this_account_is_connecting">Questa utenza si sta connettendo…</string>
+    <string name="this_account_is_offline">Questo profilo non è connesso, i messaggi verranno inviati dopo la riconnessione</string>
+    <string name="this_account_is_connecting">Questo profilo si sta connettendo…</string>
     <string name="incoming_call_timestamp">Chiamata in arrivo · %s</string>
     <string name="your_avatar_tap_to_select_new_avatar">La tua foto profilo. Tocca per selezionarne una dalla galleria.</string>
     <string name="microphone_permission_for_call">Permessi microfono richiesti per completare la chiamata</string>
