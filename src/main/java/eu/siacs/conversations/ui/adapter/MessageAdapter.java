@@ -1997,15 +1997,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (showAvatar) {
             final var resources = messageBox.getResources();
             if (clazz == StartBubbleMessageItemViewHolder.class) {
+                layoutParams.setMarginStart(
+                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance));
+                layoutParams.setMarginEnd(0);
+            } else if (clazz == EndBubbleMessageItemViewHolder.class) {
                 layoutParams.setMarginStart(0);
                 layoutParams.setMarginEnd(
-                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance)
-                );
-            } else if (clazz == EndBubbleMessageItemViewHolder.class) {
-                layoutParams.setMarginStart(
-                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance)
-                );
-                layoutParams.setMarginEnd(0);
+                        resources.getDimensionPixelSize(R.dimen.bubble_avatar_distance));
             } else {
                 throw new AssertionError("Avatar distances are not available on this view type");
             }
@@ -2252,13 +2250,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 switch (bubbleColor) {
                     case SURFACE ->
                             Activities.isNightMode(view.getContext())
-                                    ? com.google.android.material.R.attr.colorSurfaceContainerHigh
-                                    : com.google.android.material.R.attr.colorSurfaceContainerLow;
-                    case SURFACE_HIGH ->
-                            Activities.isNightMode(view.getContext())
-                                    ? com.google.android.material.R.attr
-                                            .colorSurfaceContainerHighest
-                                    : com.google.android.material.R.attr.colorSurfaceContainerHigh;
+                                    ? com.google.android.material.R.attr.colorSurfaceBright
+                                    : com.google.android.material.R.attr.colorOnSurfaceInverse;
+                    case SURFACE_HIGH -> com.google.android.material.R.attr
+                            .colorSurfaceContainerHigh;
                     case PRIMARY -> com.google.android.material.R.attr.colorPrimaryContainer;
                     case SECONDARY -> com.google.android.material.R.attr.colorSecondaryContainer;
                     case TERTIARY -> com.google.android.material.R.attr.colorTertiaryContainer;
