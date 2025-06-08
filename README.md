@@ -1,6 +1,6 @@
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
-🇬🇧🇺🇸… [English Readme version available here](README-en.md) / [Francais ici](README-fr.md)
+🇬🇧🇺🇸… [English Readme version available here](README-en.md) / [Francais ici](README-fr.md) / [Italiano qui](README-it.md)
 
 monocles chat ist moderner und sicherer Android XMPP-Client. Basierend auf blabber.im und der offiziellen Android-App [Conversations](https://github.com/siacs/Conversations) mit einigen Änderungen, insbesondere zur Verbesserung der Benutzerfreundlichkeit, um den Umstieg von oftmals vorinstallierten Messengern zu erleichtern. Die folgenden Bilder geben erste Eindrücke der App:
 
