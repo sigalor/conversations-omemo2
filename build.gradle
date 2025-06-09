@@ -79,7 +79,7 @@ dependencies {
     freeImplementation "androidx.emoji2:emoji2-bundled:1.5.0"
     implementation "androidx.emoji2:emoji2-emojipicker:1.5.0"
 
-    implementation 'org.bouncycastle:bcmail-jdk18on:1.80'
+    implementation 'org.bouncycastle:bcmail-jdk18on:1.81'
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
