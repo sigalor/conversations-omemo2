@@ -356,8 +356,7 @@ public class ImportBackupWorker extends Worker {
                 .setContentText(context.getString(R.string.notification_restored_backup_subtitle))
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.ic_unarchive_24dp);
-        if (QuickConversationsService.isConversations()
-                && AccountUtils.MANAGE_ACCOUNT_ACTIVITY != null) {
+        if (AccountUtils.MANAGE_ACCOUNT_ACTIVITY != null) {
             builder.setContentText(
                     context.getString(R.string.notification_restored_backup_subtitle));
             builder.setContentIntent(

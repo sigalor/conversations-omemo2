@@ -1106,8 +1106,7 @@ public class Conversation extends AbstractEntity
                     return contactJid.getLocal() != null ? contactJid.getLocal() : contactJid;
                 }
             }
-        } else if ((QuickConversationsService.isConversations()
-                || !Config.QUICKSY_DOMAIN.equals(contactJid.getDomain()))
+        } else if (!Config.QUICKSY_DOMAIN.equals(contactJid.getDomain())
                 && isWithStranger()) {
             return contactJid;
         } else {

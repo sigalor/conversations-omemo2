@@ -2261,14 +2261,10 @@ public class NotificationService {
             cancel(ERROR_NOTIFICATION_ID);
             return;
         }
-        final boolean showAllErrors = QuickConversationsService.isConversations();
         final List<Account> errors = new ArrayList<>();
         boolean torNotAvailable = false;
         for (final Account account : mXmppConnectionService.getAccounts()) {
-            if (account.hasErrorStatus()
-                    && account.showErrorNotification()
-                    && (showAllErrors
-                    || account.getLastErrorStatus() == Account.State.UNAUTHORIZED)) {
+            if (account.hasErrorStatus() && account.showErrorNotification()) {
                 errors.add(account);
                 torNotAvailable |= account.getStatus() == Account.State.TOR_NOT_AVAILABLE;
             }

@@ -155,13 +155,11 @@ public class AppSettings {
     }
 
     public boolean isUseTor() {
-        return QuickConversationsService.isConversations()
-                && getBooleanPreference(USE_TOR, R.bool.use_tor);
+        return getBooleanPreference(USE_TOR, R.bool.use_tor);
     }
 
     public boolean isExtendedConnectionOptions() {
-        return QuickConversationsService.isConversations()
-                && getBooleanPreference(
+        return getBooleanPreference(
                         AppSettings.SHOW_CONNECTION_OPTIONS, R.bool.show_connection_options);
     }
 

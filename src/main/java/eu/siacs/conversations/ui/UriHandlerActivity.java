@@ -359,8 +359,7 @@ public class UriHandlerActivity extends BaseActivity {
                     showError(R.string.no_xmpp_adddress_found);
                 }
                 return;
-            } else if (QuickConversationsService.isConversations()
-                    && looksLikeJsonObject(result)
+            } else if (looksLikeJsonObject(result)
                     && allowProvisioning) {
                 ProvisioningUtils.provision(this, result);
                 finish();

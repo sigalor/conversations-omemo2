@@ -495,12 +495,10 @@ public class MemorizingTrustManager {
         Log.d(Config.LOGTAG, "downloading json for " + domain + " from " + url);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(master);
         final boolean useTor =
-                QuickConversationsService.isConversations()
-                        && preferences.getBoolean(
+                preferences.getBoolean(
                                 "use_tor", master.getResources().getBoolean(R.bool.use_tor));
         final boolean useI2p =
-                QuickConversationsService.isConversations()
-                        && preferences.getBoolean(
+                preferences.getBoolean(
                                 "use_i2p", master.getResources().getBoolean(R.bool.use_i2p));
         try {
             final List<String> results = new ArrayList<>();

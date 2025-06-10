@@ -364,8 +364,7 @@ public class StartConversationActivity extends XmppActivity
         final SharedPreferences preferences = getPreferences();
 
         this.mHideOfflineContacts =
-                QuickConversationsService.isConversations()
-                        && preferences.getBoolean("hide_offline", false);
+                preferences.getBoolean("hide_offline", false);
 
         final boolean startSearching =
                 preferences.getBoolean(
@@ -1277,8 +1276,7 @@ public class StartConversationActivity extends XmppActivity
         if (QuickConversationsService.isQuicksy()) {
             setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
         }
-        if (QuickConversationsService.isConversations()
-                && AccountUtils.hasEnabledAccounts(xmppConnectionService)
+        if (AccountUtils.hasEnabledAccounts(xmppConnectionService)
                 && this.contacts.size() == 0
                 && this.conferences.size() == 0
                 && mOpenedFab.compareAndSet(false, true)) {

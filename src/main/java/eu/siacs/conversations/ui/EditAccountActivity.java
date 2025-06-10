@@ -1312,8 +1312,7 @@ public class EditAccountActivity extends OmemoActivity
 
         final boolean editable =
                 !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY)
-                        && !mAccount.isOptionSet(Account.OPTION_FIXED_USERNAME)
-                        && QuickConversationsService.isConversations();
+                        && !mAccount.isOptionSet(Account.OPTION_FIXED_USERNAME);
         this.binding.accountJid.setEnabled(editable);
         this.binding.accountJid.setFocusable(editable);
         this.binding.accountJid.setFocusableInTouchMode(editable);
@@ -1335,8 +1334,7 @@ public class EditAccountActivity extends OmemoActivity
                 mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)
                         || !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY);
         final boolean neverLoggedIn =
-                !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY)
-                        && QuickConversationsService.isConversations();
+                !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY);
         final boolean editPassword = mAccount.unauthorized() || neverLoggedIn;
 
         this.binding.accountPasswordLayout.setPasswordVisibilityToggleEnabled(togglePassword);

@@ -5318,7 +5318,7 @@ public class ConversationFragment extends XmppFragment
             popupMenu.inflate(R.menu.account_context);
             final Menu menu = popupMenu.getMenu();
             menu.findItem(R.id.action_manage_accounts)
-                    .setVisible(QuickConversationsService.isConversations());
+                    .setVisible(true);
             popupMenu.setOnMenuItemClickListener(
                     item -> {
                         final XmppActivity activity = this.activity;

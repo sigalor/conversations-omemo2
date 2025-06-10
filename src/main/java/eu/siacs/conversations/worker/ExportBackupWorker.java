@@ -458,9 +458,7 @@ public class ExportBackupWorker extends Worker {
                     } else if (Account.OPTIONS.equals(accountCursor.getColumnName(i))
                             && value.matches("\\d+")) {
                         int intValue = Integer.parseInt(value);
-                        if (QuickConversationsService.isConversations()) {
-                            intValue |= 1 << Account.OPTION_DISABLED;
-                        }
+                        intValue |= 1 << Account.OPTION_DISABLED;
                         writer.value(intValue);
                     } else {
                         writer.value(value);
