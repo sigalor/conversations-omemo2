@@ -355,7 +355,7 @@ public class ConferenceDetailsActivity extends XmppActivity
         GridManager.setupLayoutManager(this, this.binding.users, R.dimen.media_size);
         this.binding.recentThreads.setOnItemClickListener((a0, v, pos, a3) -> {
             final Conversation.Thread thread = (Conversation.Thread) binding.recentThreads.getAdapter().getItem(pos);
-            switchToConversation(mConversation, null, false, null, false, true, null, thread.getThreadId());
+            switchToConversation(mConversation, null, false, null, false, true, null, thread.getThreadId(), null);
         });
         this.binding.invite.setOnClickListener(v -> inviteToConversation(mConversation));
         this.binding.showUsers.setOnClickListener(

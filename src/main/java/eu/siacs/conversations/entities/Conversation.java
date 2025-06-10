@@ -218,7 +218,9 @@ public class Conversation extends AbstractEntity
     private static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
     private static final String ATTRIBUTE_CORRECTING_MESSAGE = "correcting_message";
     protected final ArrayList<Message> messages = new ArrayList<>();
+    protected final ArrayList<Message> historyPartMessages = new ArrayList<>();
     public AtomicBoolean messagesLoaded = new AtomicBoolean(true);
+    public AtomicBoolean historyPartLoadedForward = new AtomicBoolean(true);
     protected Account account = null;
     private String draftMessage;
     private final String name;
@@ -784,11 +786,18 @@ public class Conversation extends AbstractEntity
     }
 
     public void populateWithMessages(final List<Message> messages, XmppConnectionService xmppConnectionService) {
-        synchronized (this.messages) {
+        if (historyPartMessages.size() > 0) {
             messages.clear();
-            messages.addAll(this.messages);
+            messages.addAll(this.historyPartMessages);
             threads.clear();
             reactions.clear();
+        } else {
+            synchronized (this.messages) {
+                messages.clear();
+                messages.addAll(this.messages);
+                threads.clear();
+                reactions.clear();
+            }
         }
         Set<String> extraIds = new HashSet<>();
         for (ListIterator<Message> iterator = messages.listIterator(messages.size()); iterator.hasPrevious(); ) {
@@ -1676,15 +1685,72 @@ public class Conversation extends AbstractEntity
 
     public void prepend(int offset, Message message) {
         checkSpam(message);
+
+        List<Message> properListToAdd;
+
+        if (!historyPartMessages.isEmpty()) {
+            properListToAdd = historyPartMessages;
+        } else {
+            properListToAdd = this.messages;
+        }
+
         synchronized (this.messages) {
-            this.messages.add(Math.min(offset, this.messages.size()), message);
+            properListToAdd.add(Math.min(offset, properListToAdd.size()), message);
+        }
+
+        if (!historyPartMessages.isEmpty() && hasDuplicateMessage(historyPartMessages.get(historyPartMessages.size() - 1))) {
+            messages.addAll(0, historyPartMessages);
+            jumpToLatest();
         }
     }
 
-    public void addAll(int index, List<Message> messages) {
+    public void addAll(int index, List<Message> messages, boolean fromPagination) {
+        if (messages.isEmpty()) return;
         checkSpam(messages.toArray(new Message[0]));
+
+        List<Message> newM = new ArrayList<>();
+
+        if (nextCounterpart == null) {
+            for(Message m : messages) {
+                if (!m.isPrivateMessage() && m.encryption != Message.ENCRYPTION_OTR) {
+                    newM.add(m);
+                }
+            }
+
+        } else {
+            for(Message m : messages) {
+                String res1 = m.getCounterpart() == null ? null : m.getCounterpart().getResource();
+                String res2 = nextCounterpart == null ? null : nextCounterpart.getResource();
+
+
+                if ((m.isPrivateMessage() || m.encryption == Message.ENCRYPTION_OTR) && Objects.equals(res1, res2)) {
+                    newM.add(m);
+                }
+            }
+
+        }
+
         synchronized (this.messages) {
-            this.messages.addAll(index, messages);
+            List<Message> properListToAdd;
+
+            if (fromPagination && !historyPartMessages.isEmpty() && checkIsMergeable(newM)) {
+                historyPartMessages.addAll(newM);
+                newM = filterExisted(historyPartMessages);
+                index = 0;
+                jumpToLatest();
+            }
+
+            if (fromPagination && !historyPartMessages.isEmpty()) {
+                properListToAdd = historyPartMessages;
+            } else {
+                properListToAdd = this.messages;
+            }
+
+            if (index == -1) {
+                properListToAdd.addAll(newM);
+            } else {
+                properListToAdd.addAll(index, newM);
+            }
         }
         account.getPgpDecryptionService().decrypt(messages);
     }
@@ -1716,6 +1782,43 @@ public class Conversation extends AbstractEntity
                     });
             untieMessages();
         }
+    }
+
+    public void jumpToHistoryPart(List<Message> messages) {
+        historyPartMessages.clear();
+
+        if (checkIsMergeable(messages)) {
+            addAll(0, filterExisted(messages), false);
+        } else {
+            historyPartMessages.addAll(messages);
+        }
+    }
+
+    public void jumpToLatest() {
+        historyPartMessages.clear();
+    }
+
+    public boolean isInHistoryPart() {
+        return !historyPartMessages.isEmpty();
+    }
+
+    private boolean checkIsMergeable(List<Message> messages) {
+        if (messages.isEmpty()) return true;
+        return findDuplicateMessage(messages.get(messages.size() - 1)) != null;
+    }
+
+    private List<Message> filterExisted(List<Message> messages) {
+        if (messages.isEmpty()) return Collections.emptyList();
+
+        List<Message> result = new ArrayList<>();
+
+        for (Message m : messages) {
+            if (findDuplicateMessage(m) == null) {
+                result.add(m);
+            }
+        }
+
+        return result;
     }
 
     private void untieMessages() {

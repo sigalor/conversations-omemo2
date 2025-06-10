@@ -167,6 +167,7 @@ public class ConversationsActivity extends XmppActivity
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_NODE = "node";
     public static final String EXTRA_JID = "jid";
+    public static final String EXTRA_MESSAGE_UUID = "messageUuid";
 
     private static final List<String> VIEW_AND_SHARE_ACTIONS =
             Arrays.asList(

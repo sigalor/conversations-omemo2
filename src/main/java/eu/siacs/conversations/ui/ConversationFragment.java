@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,6 +69,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.CycleInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.WindowManager;
@@ -148,6 +150,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -321,6 +324,8 @@ public class ConversationFragment extends XmppFragment
     private String[] GifsfilesPaths;
     private String[] GifsfilesNames;
 
+    private LinkedList<Message> replyJumps = new LinkedList<>();
+
     private PinnedMessageRepository pinnedMessageRepository;
     private String currentDisplayedPinnedMessageUuid = null; // To track what's shown
 
@@ -488,7 +493,6 @@ public class ConversationFragment extends XmppFragment
                 @Override
                 public void onScrollStateChanged(AbsListView view, int scrollState) {
                     if (AbsListView.OnScrollListener.SCROLL_STATE_IDLE == scrollState) {
-                        updateThreadFromLastMessage();
                         fireReadEvent();
                     }
                 }
@@ -501,112 +505,146 @@ public class ConversationFragment extends XmppFragment
                         int totalItemCount) {
                     toggleScrollDownButton(view);
                     synchronized (ConversationFragment.this.messageList) {
-                        if (firstVisibleItem < 5
-                                && conversation != null
-                                && conversation.messagesLoaded.compareAndSet(true, false)
-                                && messageList.size() > 0) {
-                            long timestamp = conversation.loadMoreTimestamp();
-                            activity.xmppConnectionService.loadMoreMessages(
-                                    conversation,
-                                    timestamp,
-                                    new XmppConnectionService.OnMoreMessagesLoaded() {
-                                        @Override
-                                        public void onMoreMessagesLoaded(
-                                                final int c, final Conversation conversation) {
-                                            if (ConversationFragment.this.conversation
-                                                    != conversation) {
-                                                conversation.messagesLoaded.set(true);
-                                                return;
-                                            }
-                                            runOnUiThread(
-                                                    () -> {
-                                                        synchronized (messageList) {
-                                                            final int oldPosition =
-                                                                    binding.messagesView
-                                                                            .getFirstVisiblePosition();
-                                                            Message message = null;
-                                                            int childPos;
-                                                            for (childPos = 0;
-                                                                 childPos + oldPosition
-                                                                         < messageList.size();
-                                                                 ++childPos) {
-                                                                message =
-                                                                        messageList.get(
-                                                                                oldPosition
-                                                                                        + childPos);
-                                                                if (message.getType()
-                                                                        != Message.TYPE_STATUS) {
-                                                                    break;
-                                                                }
-                                                            }
-                                                            final String uuid =
-                                                                    message != null
-                                                                            ? message.getUuid()
-                                                                            : null;
-                                                            View v =
-                                                                    binding.messagesView.getChildAt(
-                                                                            childPos);
-                                                            final int pxOffset =
-                                                                    (v == null) ? 0 : v.getTop();
-                                                            ConversationFragment.this.conversation
-                                                                    .populateWithMessages(
-                                                                            ConversationFragment
-                                                                                    .this
-                                                                                    .messageList, activity == null ? null : activity.xmppConnectionService);
-                                                            try {
-                                                                updateStatusMessages();
-                                                            } catch (IllegalStateException e) {
-                                                                Log.d(
-                                                                        Config.LOGTAG,
-                                                                        "caught illegal state"
-                                                                                + " exception while"
-                                                                                + " updating status"
-                                                                                + " messages");
-                                                            }
-                                                            messageListAdapter
-                                                                    .notifyDataSetChanged();
-                                                            int pos =
-                                                                    Math.max(
-                                                                            getIndexOf(
-                                                                                    uuid,
-                                                                                    messageList),
-                                                                            0);
-                                                            binding.messagesView
-                                                                    .setSelectionFromTop(
-                                                                            pos, pxOffset);
-                                                            if (messageLoaderToast != null) {
-                                                                messageLoaderToast.cancel();
-                                                            }
-                                                            conversation.messagesLoaded.set(true);
-                                                        }
-                                                    });
-                                        }
-
-                                        @Override
-                                        public void informUser(final int resId) {
-
-                                            runOnUiThread(
-                                                    () -> {
-                                                        if (messageLoaderToast != null) {
-                                                            messageLoaderToast.cancel();
-                                                        }
-                                                        if (ConversationFragment.this.conversation
-                                                                != conversation) {
-                                                            return;
-                                                        }
-                                                        messageLoaderToast =
-                                                                Toast.makeText(
-                                                                        view.getContext(),
-                                                                        resId,
-                                                                        Toast.LENGTH_LONG);
-                                                        messageLoaderToast.show();
-                                                    });
-                                        }
-                                    });
-                        }
+                        boolean paginateBackward = firstVisibleItem < 5;
+                        boolean paginationForward = conversation.isInHistoryPart() && firstVisibleItem + visibleItemCount + 5 > totalItemCount;
+                        loadMoreMessages(paginateBackward, paginationForward, view);
                     }
                 }
             };
+
+    private void loadMoreMessages(boolean paginateBackward, boolean paginationForward, AbsListView view) {
+        if (paginateBackward && !conversation.messagesLoaded.get()) {
+            paginateBackward = false;
+        }
+
+        if (
+                conversation != null &&
+                        messageList.size() > 0 &&
+                        ((paginateBackward && conversation.messagesLoaded.compareAndSet(true, false)) ||
+                                (paginationForward && conversation.historyPartLoadedForward.compareAndSet(true, false)))
+        ) {
+            long timestamp;
+
+            if (paginateBackward) {
+                if (messageList.get(0).getType() == Message.TYPE_STATUS
+                        && messageList.size() >= 2) {
+                    timestamp = messageList.get(1).getTimeSent();
+                } else {
+                    timestamp = messageList.get(0).getTimeSent();
+                }
+            } else {
+                if (messageList.get(messageList.size() - 1).getType() == Message.TYPE_STATUS
+                        && messageList.size() >= 2) {
+                    timestamp = messageList.get(messageList.size() - 2).getTimeSent();
+                } else {
+                    timestamp = messageList.get(messageList.size() - 1).getTimeSent();
+                }
+            }
+
+            boolean finalPaginateBackward = paginateBackward;
+            activity.xmppConnectionService.loadMoreMessages(
+                    conversation,
+                    timestamp,
+                    !paginateBackward,
+                    new XmppConnectionService.OnMoreMessagesLoaded() {
+                        @Override
+                        public void onMoreMessagesLoaded(
+                                final int c, final Conversation conversation) {
+                            if (ConversationFragment.this.conversation
+                                    != conversation) {
+                                conversation.messagesLoaded.set(true);
+                                return;
+                            }
+                            runOnUiThread(
+                                    () -> {
+                                        synchronized (messageList) {
+                                            final int oldPosition =
+                                                    binding.messagesView
+                                                            .getFirstVisiblePosition();
+                                            Message message = null;
+                                            int childPos;
+                                            for (childPos = 0;
+                                                 childPos + oldPosition
+                                                         < messageList.size();
+                                                 ++childPos) {
+                                                message =
+                                                        messageList.get(
+                                                                oldPosition
+                                                                        + childPos);
+                                                if (message.getType()
+                                                        != Message.TYPE_STATUS) {
+                                                    break;
+                                                }
+                                            }
+                                            final String uuid =
+                                                    message != null
+                                                            ? message.getUuid()
+                                                            : null;
+                                            View v =
+                                                    binding.messagesView.getChildAt(
+                                                            childPos);
+                                            final int pxOffset =
+                                                    (v == null) ? 0 : v.getTop();
+                                            ConversationFragment.this.conversation
+                                                    .populateWithMessages(
+                                                            ConversationFragment
+                                                                    .this
+                                                                    .messageList,
+                                                            activity == null ? null : activity.xmppConnectionService);
+                                            try {
+                                                updateStatusMessages();
+                                            } catch (IllegalStateException e) {
+                                                Log.d(
+                                                        Config.LOGTAG,
+                                                        "caught illegal state exception while updating status messages");
+                                            }
+                                            messageListAdapter
+                                                    .notifyDataSetChanged();
+                                            int pos =
+                                                    Math.max(
+                                                            getIndexOf(
+                                                                    uuid,
+                                                                    messageList),
+                                                            0);
+                                            binding.messagesView
+                                                    .setSelectionFromTop(
+                                                            pos, pxOffset);
+                                            if (messageLoaderToast != null) {
+                                                messageLoaderToast.cancel();
+                                            }
+
+                                            if (!finalPaginateBackward) {
+                                                conversation.historyPartLoadedForward.set(true);
+                                            } else {
+                                                conversation.messagesLoaded.set(true);
+                                            }
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void informUser(final int resId) {
+
+                            runOnUiThread(
+                                    () -> {
+                                        if (messageLoaderToast != null) {
+                                            messageLoaderToast.cancel();
+                                        }
+                                        if (ConversationFragment.this.conversation
+                                                != conversation) {
+                                            return;
+                                        }
+                                        messageLoaderToast =
+                                                Toast.makeText(
+                                                        view.getContext(),
+                                                        resId,
+                                                        Toast.LENGTH_LONG);
+                                        messageLoaderToast.show();
+                                    });
+                        }
+                    });
+        }
+    }
     private final EditMessage.OnCommitContentListener mEditorContentListener =
             new EditMessage.OnCommitContentListener() {
                 @Override
@@ -768,6 +806,28 @@ public class ConversationFragment extends XmppFragment
                 @Override
                 public void onClick(View v) {
                     stopScrolling();
+
+                    if (!replyJumps.isEmpty()) {
+                        int lastVisiblePosition = binding.messagesView.getLastVisiblePosition();
+                        Message lastVisibleMessage = messageListAdapter.getItem(lastVisiblePosition);
+                        if (lastVisibleMessage == null) {
+                            replyJumps.clear();
+                        } else {
+                            while (!replyJumps.isEmpty()) {
+                                Message jump = replyJumps.pop();
+                                if (jump.getTimeSent() > lastVisibleMessage.getTimeSent()) {
+                                    Runnable postSelectionRunnable = () -> highlightMessage(jump.getUuid());
+                                    updateSelection(jump.getUuid(), binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    if (conversation.isInHistoryPart()) {
+                        conversation.jumpToLatest();
+                        refresh(false);
+                    }
                     setSelection(binding.messagesView.getCount() - 1, true);
                 }
             };
@@ -885,6 +945,7 @@ public class ConversationFragment extends XmppFragment
     private int lastCompletionCursor;
     private boolean firstWord = false;
     private Message mPendingDownloadableMessage;
+    private ProgressDialog fetchHistoryDialog;
 
     private static ConversationFragment findConversationFragment(Activity activity) {
         Fragment fragment = activity.getFragmentManager().findFragmentById(R.id.main_fragment);
@@ -983,7 +1044,7 @@ public class ConversationFragment extends XmppFragment
         if (conversation == null) {
             return;
         }
-        if (scrolledToBottom(listView)) {
+        if (scrolledToBottom(listView) && !conversation.isInHistoryPart()) {
             lastMessageUuid = null;
             hideUnreadMessagesCount();
         } else {
@@ -1003,6 +1064,26 @@ public class ConversationFragment extends XmppFragment
             return messages.size() - 1;
         }
         for (int i = 0; i < messages.size(); ++i) {
+            if (uuid.equals(messages.get(i).getUuid())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getIndexOfExtended(String uuid, List<Message> messages) {
+        if (uuid == null) {
+            return messages.size() - 1;
+        }
+        for (int i = 0; i < messages.size(); ++i) {
+            if (uuid.equals(messages.get(i).getServerMsgId())) {
+                return i;
+            }
+
+            if (uuid.equals(messages.get(i).getRemoteMsgId())) {
+                return i;
+            }
+
             if (uuid.equals(messages.get(i).getUuid())) {
                 return i;
             }
@@ -1652,6 +1733,9 @@ public class ConversationFragment extends XmppFragment
         if (pinnedMessageRepository == null && getActivity() != null) {
             pinnedMessageRepository = new PinnedMessageRepository(getActivity().getApplicationContext());
         }
+        if (savedInstanceState == null) {
+            conversation.jumpToLatest();
+        }
     }
 
     @Override
@@ -1782,6 +1866,7 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnContactPictureLongClicked(this);
         messageListAdapter.setOnInlineImageLongClicked(this);
         messageListAdapter.setConversationFragment(this);
+        // messageListAdapter.setReplyClickListener(this::scrollToReply);       //TODO add a better scrol to reply later
         binding.messagesView.setAdapter(messageListAdapter);
 
         binding.textinput.addTextChangedListener(
@@ -2120,6 +2205,114 @@ public class ConversationFragment extends XmppFragment
             }
         }
         updateSendButton();
+    }
+
+
+    private void scrollToReply(Message message) {
+        Element reply = message.getReply();
+        if (reply == null) return;
+
+        String replyId = reply.getAttribute("id");
+
+        if (replyId != null) {
+            Runnable postSelectionRunnable = () -> highlightMessage(replyId);
+            replyJumps.push(message);
+            updateSelection(replyId, binding.messagesView.getHeight() / 2, postSelectionRunnable, true, false);
+        }
+    }
+
+    private void highlightMessage(String uuid) {
+        binding.messagesView.postDelayed(() -> {
+            int actualIndex = getIndexOfExtended(uuid, messageList);
+
+            if (actualIndex == -1) {
+                return;
+            }
+
+            View view = ListViewUtils.getViewByPosition(actualIndex, binding.messagesView);
+            View messageBox = view.findViewById(R.id.message_box);
+            if (messageBox != null) {
+                messageBox.animate()
+                        .scaleX(1.14f)
+                        .scaleY(1.14f)
+                        .setInterpolator(new CycleInterpolator(0.5f))
+                        .setDuration(400L)
+                        .start();
+            }
+        }, 300L);
+    }
+
+    private void updateSelection(String uuid, Integer offsetFormTop, Runnable selectionUpdatedRunnable, boolean populateFromMam, boolean recursiveFetch) {
+        if (recursiveFetch && (fetchHistoryDialog == null || !fetchHistoryDialog.isShowing())) return;
+
+        int pos = getIndexOfExtended(uuid, messageList);
+
+        Runnable updateSelectionRunnable = () -> {
+            FragmentConversationBinding binding = ConversationFragment.this.binding;
+
+            Runnable performRunnable = () -> {
+                if (offsetFormTop != null) {
+                    binding.messagesView.setSelectionFromTop(pos, offsetFormTop);
+                    return;
+                }
+
+                binding.messagesView.setSelection(pos);
+            };
+
+            performRunnable.run();
+            binding.messagesView.post(performRunnable);
+
+            if (selectionUpdatedRunnable != null) {
+                selectionUpdatedRunnable.run();
+            }
+        };
+
+        if (pos != -1) {
+            hideFetchHistoryDialog();
+            updateSelectionRunnable.run();
+        } else {
+            activity.xmppConnectionService.jumpToMessage(conversation, uuid, new XmppConnectionService.JumpToMessageListener() {
+                @Override
+                public void onSuccess() {
+                    activity.runOnUiThread(() -> {
+                        refresh(false);
+                        conversation.messagesLoaded.set(true);
+                        conversation.historyPartLoadedForward.set(true);
+                        toggleScrollDownButton();
+                        updateSelection(uuid, binding.messagesView.getHeight() / 2, selectionUpdatedRunnable, populateFromMam, false);
+                    });
+                }
+
+                @Override
+                public void onNotFound() {
+                    activity.runOnUiThread(() -> {
+                        if (populateFromMam && conversation.hasMessagesLeftOnServer()) {
+                            showFetchHistoryDialog();
+                            loadMoreMessages(true, false, binding.messagesView);
+                            binding.messagesView.postDelayed(() -> updateSelection(uuid, binding.messagesView.getHeight() / 2, selectionUpdatedRunnable, populateFromMam, true), 500L);
+                        } else {
+                            hideFetchHistoryDialog();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    private void showFetchHistoryDialog() {
+        if (fetchHistoryDialog != null && fetchHistoryDialog.isShowing()) return;
+
+        fetchHistoryDialog = new ProgressDialog(getActivity());
+        fetchHistoryDialog.setIndeterminate(true);
+        fetchHistoryDialog.setMessage(getString(R.string.please_wait));
+        fetchHistoryDialog.setCancelable(true);
+        fetchHistoryDialog.show();
+    }
+
+    private void hideFetchHistoryDialog() {
+        if (fetchHistoryDialog != null && fetchHistoryDialog.isShowing()) {
+            fetchHistoryDialog.hide();
+        }
     }
 
     @Override
@@ -3736,7 +3929,7 @@ public class ConversationFragment extends XmppFragment
         super.onStart();
         if (this.reInitRequiredOnStart && this.conversation != null) {
             final Bundle extras = pendingExtras.pop();
-            reInit(this.conversation, extras != null);
+            reInit(this.conversation, extras != null, extras != null && extras.getString(ConversationsActivity.EXTRA_MESSAGE_UUID) != null);
             if (extras != null) {
                 processExtras(extras);
             }
@@ -3803,7 +3996,7 @@ public class ConversationFragment extends XmppFragment
             this.saveMessageDraftStopAudioPlayer();
         }
         this.clearPending();
-        if (this.reInit(conversation, extras != null)) {
+        if (this.reInit(conversation, extras != null, extras != null && extras.getString(ConversationsActivity.EXTRA_MESSAGE_UUID) != null)) {
             if (extras != null) {
                 processExtras(extras);
             }
@@ -3816,13 +4009,13 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void reInit(Conversation conversation) {
-        reInit(conversation, false);
+        reInit(conversation, false, false);
         if (activity != null) {
             activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
     }
 
-    private boolean reInit(final Conversation conversation, final boolean hasExtras) {
+    private boolean reInit(final Conversation conversation, final boolean hasExtras, final boolean hasMessageUUID) {
         if (conversation == null) {
             return false;
         }
@@ -3880,7 +4073,7 @@ public class ConversationFragment extends XmppFragment
         this.conversation.messagesLoaded.set(true);
         Log.d(Config.LOGTAG, "scrolledToBottomAndNoPending=" + scrolledToBottomAndNoPending);
 
-        if (hasExtras || scrolledToBottomAndNoPending) {
+        if (!hasMessageUUID && (hasExtras || scrolledToBottomAndNoPending)) {
             resetUnreadMessagesCount();
             synchronized (this.messageList) {
                 Log.d(Config.LOGTAG, "jump to first unread message");
@@ -3923,9 +4116,8 @@ public class ConversationFragment extends XmppFragment
             });
             refreshCommands(false);
         }
-
         binding.commandsNote.setVisibility(activity.xmppConnectionService.isOnboarding() ? View.VISIBLE : View.GONE);
-
+        replyJumps.clear();
         return true;
     }
 
@@ -3999,6 +4191,7 @@ public class ConversationFragment extends XmppFragment
         }
         this.binding.scrollToBottomButton.setEnabled(false);
         this.binding.scrollToBottomButton.hide();
+        replyJumps.clear();
         this.binding.unreadCountCustomView.setVisibility(View.GONE);
     }
 
@@ -4010,7 +4203,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean scrolledToBottom() {
-        return this.binding != null && scrolledToBottom(this.binding.messagesView);
+        return !conversation.isInHistoryPart() && this.binding != null && scrolledToBottom(this.binding.messagesView);
     }
 
     private void processExtras(final Bundle extras) {
@@ -4131,6 +4324,11 @@ public class ConversationFragment extends XmppFragment
             if (!conversation.switchToSession("jabber:iq:register")) {
                 conversation.startCommand(commandFor(Jid.of("cheogram.com/CHEOGRAM%jabber:iq:register"), "jabber:iq:register"), activity.xmppConnectionService);
             }
+        }
+        String messageUuid = extras.getString(ConversationsActivity.EXTRA_MESSAGE_UUID);
+        if (messageUuid != null) {
+            Runnable postSelectionRunnable = () -> highlightMessage(messageUuid);
+            updateSelection(messageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
         }
     }
 

@@ -308,7 +308,7 @@ public class ContactDetailsActivity extends OmemoActivity
             }
             final var conversation = xmppConnectionService.findOrCreateConversation(thisAccount, contact.getJid(), false, true);
             final Conversation.Thread thread = (Conversation.Thread) binding.recentThreads.getAdapter().getItem(pos);
-            switchToConversation(conversation, null, false, null, false, true, null, thread.getThreadId());
+            switchToConversation(conversation, null, false, null, false, true, null, thread.getThreadId(), null);
         });
     }
 
