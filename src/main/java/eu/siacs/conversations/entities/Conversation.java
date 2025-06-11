@@ -983,6 +983,8 @@ public class Conversation extends AbstractEntity
     @Override
     public int compareTo(@NonNull Conversation another) {
         return ComparisonChain.start()
+                .compareFalseFirst(another.getBooleanAttribute(ATTRIBUTE_PINNED_ON_TOP, false) && another.withSelf(),
+                        getBooleanAttribute(ATTRIBUTE_PINNED_ON_TOP, false) && withSelf())
                 .compareFalseFirst(
                         another.getBooleanAttribute(ATTRIBUTE_PINNED_ON_TOP, false),
                         getBooleanAttribute(ATTRIBUTE_PINNED_ON_TOP, false))

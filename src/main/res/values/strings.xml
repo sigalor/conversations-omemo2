@@ -1125,6 +1125,7 @@
     <string name="pref_show_show_nav_drawer_summary">Activate a navigation drawer to better sort chats</string>
     <string name="pref_show_show_nav_drawer">Navigation drawer</string>
     <string name="note_to_self">Note to Self</string>
+    <string name="note_to_self_conversation_title">Note to self (%1$s)</string>
     <string name="show_link_previews">Show link previews</string>
     <string name="show_link_previews_summary">Show a link description when sender included it</string>
     <string name="internal_meda_viewer_title">Internal media viewer</string>

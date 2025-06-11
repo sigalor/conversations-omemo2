@@ -36,6 +36,11 @@
         android:visible="@bool/show_individual_search_options"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_note_to_self"
+        android:orderInCategory="80"
+        android:title="@string/note_to_self"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_easy_invite"
         android:orderInCategory="89"
         app:showAsAction="ifRoom"

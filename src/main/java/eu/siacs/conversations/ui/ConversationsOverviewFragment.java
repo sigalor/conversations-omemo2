@@ -363,6 +363,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		menuInflater.inflate(R.menu.fragment_conversations_overview, menu);
 		AccountUtils.showHideMenuItems(menu);
 		final MenuItem easyOnboardInvite = menu.findItem(R.id.action_easy_invite);
+		MenuItem noteToSelf = menu.findItem(R.id.action_note_to_self);
 		easyOnboardInvite.setVisible(EasyOnboardingInvite.anyHasSupport(activity == null ? null : activity.xmppConnectionService));
 		if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
 			final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
@@ -370,6 +371,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 			final MenuItem settings = menu.findItem(R.id.action_settings);
 			if (settings != null) settings.setVisible(false);
+		}
+		if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
+			noteToSelf.setVisible(false);
 		}
 	}
 
