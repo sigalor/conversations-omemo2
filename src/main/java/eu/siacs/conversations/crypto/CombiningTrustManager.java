@@ -1,9 +1,9 @@
 package eu.siacs.conversations.crypto;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
+
 import com.google.common.collect.ImmutableList;
-import eu.siacs.conversations.Config;
+
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -11,10 +11,12 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.net.ssl.X509TrustManager;
 
-@SuppressLint("CustomX509TrustManager")
-public final class CombiningTrustManager implements X509TrustManager {
+import eu.siacs.conversations.Config;
+
+public class CombiningTrustManager implements X509TrustManager {
 
     private final List<X509TrustManager> trustManagers;
 
@@ -30,7 +32,6 @@ public final class CombiningTrustManager implements X509TrustManager {
             final X509TrustManager trustManager = iterator.next();
             try {
                 trustManager.checkClientTrusted(chain, authType);
-                return;
             } catch (final CertificateException certificateException) {
                 if (iterator.hasNext()) {
                     continue;
@@ -38,7 +39,6 @@ public final class CombiningTrustManager implements X509TrustManager {
                 throw certificateException;
             }
         }
-        throw new CertificateException("No trust managers configured");
     }
 
     @Override
@@ -50,20 +50,29 @@ public final class CombiningTrustManager implements X509TrustManager {
                         + " is configured with "
                         + this.trustManagers.size()
                         + " TrustManagers");
+        int i = 0;
         for (final Iterator<X509TrustManager> iterator = this.trustManagers.iterator();
                 iterator.hasNext(); ) {
             final X509TrustManager trustManager = iterator.next();
             try {
                 trustManager.checkServerTrusted(chain, authType);
+                Log.d(
+                        Config.LOGTAG,
+                        "certificate check passed on " + trustManager.getClass().getName()+". chain length was "+chain.length);
                 return;
             } catch (final CertificateException certificateException) {
+                Log.d(
+                        Config.LOGTAG,
+                        "failed to verify in [" + i + "]/" + trustManager.getClass().getName(),
+                        certificateException);
                 if (iterator.hasNext()) {
                     continue;
                 }
                 throw certificateException;
+            } finally {
+                ++i;
             }
         }
-        throw new CertificateException("No trust managers configured");
     }
 
     @Override

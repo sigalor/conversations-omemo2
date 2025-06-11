@@ -1,22 +1,24 @@
 package eu.siacs.conversations.crypto;
 
 import android.content.Context;
+
 import androidx.annotation.Nullable;
+
 import com.google.common.collect.Iterables;
-import eu.siacs.conversations.R;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-public final class TrustManagers {
+import eu.siacs.conversations.R;
 
-    private static final char[] BUNDLED_KEYSTORE_PASSWORD = "letsencrypt".toCharArray();
+public final class TrustManagers {
 
     private TrustManagers() {
         throw new IllegalStateException("Do not instantiate me");
@@ -38,17 +40,16 @@ public final class TrustManagers {
         return createTrustManager(null);
     }
 
-    public static X509TrustManager createDefaultWithBundledLetsEncrypt(final Context context)
+    public static X509TrustManager defaultWithBundledLetsEncrypt(final Context context)
             throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        final var bundleTrustManager =
-                createWithKeyStore(context.getResources().openRawResource(R.raw.letsencrypt));
+        final BundledTrustManager bundleTrustManager =
+                BundledTrustManager.builder()
+                        .loadKeyStore(
+                                context.getResources().openRawResource(R.raw.letsencrypt),
+                                "letsencrypt")
+                        .build();
         return CombiningTrustManager.combineWithDefault(bundleTrustManager);
     }
 
-    private static X509TrustManager createWithKeyStore(final InputStream inputStream)
-            throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException {
-        final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, BUNDLED_KEYSTORE_PASSWORD);
-        return TrustManagers.createTrustManager(keyStore);
-    }
+
 }
