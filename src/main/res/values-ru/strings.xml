@@ -1514,4 +1514,9 @@
     <string name="account_status_channel_binding">Привязка канала недоступна</string>
     <string name="failed_to_delete_gif_not_exist">Не удалось удалить: GIF-файл не найден.</string>
     <string name="failed_to_delete_sticker_not_exist">Не удалось удалить: стикер не найден.</string>
+    <string name="message_pinned">Сообщение закреплено</string>
+    <string name="message_unpinned">Сообщение откреплено</string>
+    <string name="error_unpinning_message">Не удалось открепить сообщение</string>
+    <string name="error_pinning_message">Не удалось закрепить сообщение</string>
+    <string name="cannot_pin_empty_message">Невозможно закрепить пустое сообщение</string>
 </resources>

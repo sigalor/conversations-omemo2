@@ -134,7 +134,7 @@
     <string name="send_presence_updates">Enviar atualizações de presença</string>
     <string name="receive_presence_updates">Receber atualizações de presença</string>
     <string name="ask_for_presence_updates">Solicitar atualizações de presença</string>
-    <string name="attach_choose_picture">Selecionar uma imagem</string>
+    <string name="attach_choose_picture">Selecionar imagem</string>
     <string name="attach_take_picture">Tirar uma foto</string>
     <string name="preemptively_grant">Autorizar antecipadamente as solicitações de inscrição</string>
     <string name="error_not_an_image_file">O arquivo selecionado não é uma imagem</string>
@@ -163,7 +163,7 @@
     <string name="account_status_incompatible_client">Cliente incompatível</string>
     <string name="account_status_stream_error">Erro de fluxo</string>
     <string name="account_status_stream_opening_error">Erro na abertura do fluxo</string>
-    <string name="encryption_choice_unencrypted">Pronto</string>
+    <string name="encryption_choice_unencrypted">Nenhum</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo">OMEMO</string>
@@ -325,7 +325,7 @@
     <string name="restoring_backup">Restaurando o backup</string>
     <string name="notification_restored_backup_title">Seu backup foi restaurado</string>
     <string name="notification_restored_backup_subtitle">Não se esqueça de habilitar a conta.</string>
-    <string name="choose_file">Selecione o arquivo</string>
+    <string name="choose_file">Selecionar arquivo</string>
     <string name="receiving_x_file">Recebendo %1$s (completou %2$d%%)</string>
     <string name="download_x_file">Baixar %s</string>
     <string name="delete_x_file">Excluir %s</string>
@@ -523,7 +523,7 @@
     <string name="selection_too_large">A área selecionada é muito grande</string>
     <string name="no_accounts">(Nenhuma conta ativa)</string>
     <string name="this_field_is_required">Este campo é necessário</string>
-    <string name="correct_message">Corrigir a mensagem</string>
+    <string name="correct_message">Corrigir mensagem</string>
     <string name="send_corrected_message">Enviar a mensagem corrigida</string>
     <string name="no_keys_just_confirm">Você já validou as impressões digitais desse contato e confirma sua confiabilidade. Ao selecionar \"Concluído\" você está apenas confirmando que %s é parte desta conversa em grupo.</string>
     <string name="this_account_is_disabled">Você desabilitou essa conta</string>
@@ -1151,7 +1151,7 @@
     <string name="pref_set_text_collapsable_summary">Recolhe texto com mais de 8 linhas</string>
     <string name="pref_set_text_collapsable">Beta: recolher texto longo</string>
     <string name="show_more">...mostrar mais</string>
-    <string name="note_to_self">Nota para mim mesmo</string>
+    <string name="note_to_self">Mensagem para mim</string>
     <string name="show_link_previews_summary">Mostrar uma descrição do link quando o remetente o incluiu</string>
     <string name="internal_meda_viewer_title">Visualizador de mídia interna</string>
     <string name="create_new_account">Eu preciso me registrar</string>
@@ -1226,7 +1226,7 @@
     <string name="show_avatar">Mostrar avatar</string>
     <string name="do_you_really_want_to_retract_this_message">Você realmente deseja retratar esta mensagem?</string>
     <string name="store_media_only_in_cache">Armazene mídia somente no cache</string>
-    <string name="choose_widget">Escolha o widget</string>
+    <string name="choose_widget">Escolher widget</string>
     <string name="pref_show_own_accounts">Mostrar nome da conta</string>
     <string name="pref_show_mappreview_inside_summary">Exiba as prévias do mapa diretamente na visualização da conversa, uma conexão com o servidor Monocles será estabelecida.</string>
     <string name="pref_show_own_accounts_summary">Mostra a conta usada na visão geral e nos detalhes das mensagens</string>

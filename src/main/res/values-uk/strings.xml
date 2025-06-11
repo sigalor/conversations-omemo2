@@ -1533,4 +1533,10 @@
     <string name="word_document">документ Word</string>
     <string name="failed_to_delete_sticker_not_exist">Не вдалося видалити: наклейку не знайдено.</string>
     <string name="failed_to_delete_gif_not_exist">Не вдалося видалити: GIF не знайдено.</string>
+    <string name="error_pinning_message">Не вдалося закріпити повідомлення</string>
+    <string name="cannot_pin_empty_message">Неможливо закріпити порожнє повідомлення</string>
+    <string name="message_pinned">Повідомлення закріплено</string>
+    <string name="message_unpinned">Повідомлення відкріплено</string>
+    <string name="error_unpinning_message">Не вдалося відкріпити повідомлення</string>
+    <string name="note_to_self_conversation_title">Нотатка для себе (%1$s)</string>
 </resources>

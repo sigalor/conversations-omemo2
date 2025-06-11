@@ -1478,4 +1478,9 @@
     <string name="restore_omemo_key">恢复 OMEMO 密钥</string>
     <string name="failed_to_delete_gif_not_exist">无法删除：未找到 GIF。</string>
     <string name="failed_to_delete_sticker_not_exist">无法删除：未找到贴纸。</string>
+    <string name="error_pinning_message">无法置顶消息</string>
+    <string name="cannot_pin_empty_message">无法置顶空消息</string>
+    <string name="message_pinned">消息已置顶</string>
+    <string name="message_unpinned">消息已取消置顶</string>
+    <string name="error_unpinning_message">无法取消置顶消息</string>
 </resources>

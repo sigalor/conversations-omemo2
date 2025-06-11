@@ -767,7 +767,7 @@
     <string name="return_to_ongoing_call">Terug naar actieve oproep</string>
     <string name="could_not_switch_camera">Kan de camera niet omschakelen</string>
     <string name="add_to_favorites">Aan favorieten toevoegen</string>
-    <string name="remove_from_favorites">Uit favorieten verwijderen</string>
+    <string name="remove_from_favorites">Losmaken</string>
     <string name="could_not_correct_message">Bericht kon niet worden gecorrigeerd</string>
     <string name="search_all_conversations">Alle gesprekken</string>
     <string name="search_this_conversation">Dit gesprek</string>
@@ -1432,7 +1432,7 @@
     <string name="custom_notifications">Meldingen aanpassen</string>
     <string name="custom_notifications_enable">Aangepaste meldingsinstellingen (belang, geluid, trillen) inschakelen voor dit gesprek?</string>
     <string name="account_status_connection_timeout">Time-out bij verbinden</string>
-    <string name="pin_to_top">Bovenaan vastzetten</string>
+    <string name="pin_to_top">Vastzetten</string>
     <string name="pref_disable_reactions_fallback_summary">Schakelt de fallback van reacties uit voor clients die nog geen reacties ondersteunen</string>
     <string name="pref_disable_reactions_fallback_title">Fallback voor reacties uitschakelen</string>
     <string name="cleared_thread">Thread gewist</string>
@@ -1469,4 +1469,9 @@
     <string name="pref_backup_location">Locatie back-ups</string>
     <string name="failed_to_delete_sticker_not_exist">Fout bij verwijderen: sticker niet gevonden.</string>
     <string name="failed_to_delete_gif_not_exist">Fout bij verwijderen: GIF niet gevonden.</string>
+    <string name="cannot_pin_empty_message">Kan geen leeg bericht vastzetten</string>
+    <string name="message_pinned">Bericht vastgezet</string>
+    <string name="error_unpinning_message">Kan bericht niet losmaken</string>
+    <string name="message_unpinned">Bericht losgemaakt</string>
+    <string name="error_pinning_message">Bericht vastzetten mislukt</string>
 </resources>

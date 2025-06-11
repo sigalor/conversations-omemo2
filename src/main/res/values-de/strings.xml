@@ -1487,4 +1487,10 @@
     <string name="pref_backup_location">Sicherungsort</string>
     <string name="failed_to_delete_sticker_not_exist">Löschen fehlgeschlagen: Sticker nicht gefunden.</string>
     <string name="restore_omemo_key">OMEMO-Schlüssel wiederherstellen</string>
+    <string name="cannot_pin_empty_message">Leere Nachricht kann nicht angeheftet werden</string>
+    <string name="message_pinned">Nachricht angeheftet</string>
+    <string name="message_unpinned">Nachricht abgelöst</string>
+    <string name="error_unpinning_message">Nachricht konnte nicht abgelöst werden</string>
+    <string name="error_pinning_message">Anheften der Nachricht fehlgeschlagen</string>
+    <string name="note_to_self_conversation_title">Notiz an mich (%1$s)</string>
 </resources>
