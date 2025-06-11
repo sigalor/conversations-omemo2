@@ -915,6 +915,7 @@ public class StartConversationActivity extends XmppActivity
         final MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
         final MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
         final MenuItem privacyPolicyMenuItem = menu.findItem(R.id.action_privacy_policy);
+        MenuItem noteToSelf = menu.findItem(R.id.action_note_to_self);
         privacyPolicyMenuItem.setVisible(
                 BuildConfig.PRIVACY_POLICY != null
                         && QuickConversationsService.isPlayStoreFlavor());
@@ -924,6 +925,9 @@ public class StartConversationActivity extends XmppActivity
         } else {
             menuHideOffline.setVisible(true);
             menuHideOffline.setChecked(this.mHideOfflineContacts);
+        }
+        if (xmppConnectionService.getAccounts().size() != 1) {
+            noteToSelf.setVisible(false);
         }
         mMenuSearchView = menu.findItem(R.id.action_search);
         mMenuSearchView.setOnActionExpandListener(mOnActionExpandListener);
@@ -976,6 +980,12 @@ public class StartConversationActivity extends XmppActivity
                     filter(mSearchEditText.getText().toString());
                 }
                 invalidateOptionsMenu();
+            case R.id.action_note_to_self:
+                final List<Account> accounts = xmppConnectionService.getAccounts();
+                if (accounts.size() == 1) {
+                    final Contact self = new Contact(accounts.get(0).getSelfContact());
+                    openConversationForContact(self);
+                }
         }
         return super.onOptionsItemSelected(item);
     }
