@@ -1707,37 +1707,14 @@ public class Conversation extends AbstractEntity
     }
 
     public void addAll(int index, List<Message> messages, boolean fromPagination) {
-        if (messages.isEmpty()) return;
         checkSpam(messages.toArray(new Message[0]));
-
-        List<Message> newM = new ArrayList<>();
-
-        if (nextCounterpart == null) {
-            for(Message m : messages) {
-                if (!m.isPrivateMessage() && m.encryption != Message.ENCRYPTION_OTR) {
-                    newM.add(m);
-                }
-            }
-
-        } else {
-            for(Message m : messages) {
-                String res1 = m.getCounterpart() == null ? null : m.getCounterpart().getResource();
-                String res2 = nextCounterpart == null ? null : nextCounterpart.getResource();
-
-
-                if ((m.isPrivateMessage() || m.encryption == Message.ENCRYPTION_OTR) && Objects.equals(res1, res2)) {
-                    newM.add(m);
-                }
-            }
-
-        }
 
         synchronized (this.messages) {
             List<Message> properListToAdd;
 
-            if (fromPagination && !historyPartMessages.isEmpty() && checkIsMergeable(newM)) {
-                historyPartMessages.addAll(newM);
-                newM = filterExisted(historyPartMessages);
+            if (fromPagination && !historyPartMessages.isEmpty() && checkIsMergeable(messages)) {
+                historyPartMessages.addAll(messages);
+                messages = filterExisted(historyPartMessages);
                 index = 0;
                 jumpToLatest();
             }
@@ -1749,9 +1726,9 @@ public class Conversation extends AbstractEntity
             }
 
             if (index == -1) {
-                properListToAdd.addAll(newM);
+                properListToAdd.addAll(messages);
             } else {
-                properListToAdd.addAll(index, newM);
+                properListToAdd.addAll(index, messages);
             }
         }
         account.getPgpDecryptionService().decrypt(messages);
