@@ -513,7 +513,7 @@ public class ConversationFragment extends XmppFragment
             };
 
     private void loadMoreMessages(boolean paginateBackward, boolean paginationForward, AbsListView view) {
-        if (paginateBackward && !conversation.messagesLoaded.get()) {
+        if (paginateBackward && (conversation != null && !conversation.messagesLoaded.get())) {
             paginateBackward = false;
         }
 
