@@ -129,8 +129,7 @@
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
                     android:layout_below="@+id/pinned_message"
-                    tools:listitem="@layout/item_message_end"
-                    android:animateLayoutChanges="true" />
+                    tools:listitem="@layout/item_message_end" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/scroll_to_bottom_button"
