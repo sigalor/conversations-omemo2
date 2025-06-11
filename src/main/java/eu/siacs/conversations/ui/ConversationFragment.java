@@ -506,7 +506,7 @@ public class ConversationFragment extends XmppFragment
                     toggleScrollDownButton(view);
                     synchronized (ConversationFragment.this.messageList) {
                         boolean paginateBackward = firstVisibleItem < 5;
-                        boolean paginationForward = conversation.isInHistoryPart() && firstVisibleItem + visibleItemCount + 5 > totalItemCount;
+                        boolean paginationForward = conversation != null && conversation.isInHistoryPart() && firstVisibleItem + visibleItemCount + 5 > totalItemCount;
                         loadMoreMessages(paginateBackward, paginationForward, view);
                     }
                 }
