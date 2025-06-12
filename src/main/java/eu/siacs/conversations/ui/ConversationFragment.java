@@ -1730,7 +1730,7 @@ public class ConversationFragment extends XmppFragment
         if (pinnedMessageRepository == null && getActivity() != null) {
             pinnedMessageRepository = new PinnedMessageRepository(getActivity().getApplicationContext());
         }
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && conversation != null) {
             conversation.jumpToLatest();
         }
     }
