@@ -1712,13 +1712,6 @@ public class Conversation extends AbstractEntity
         synchronized (this.messages) {
             List<Message> properListToAdd;
 
-            if (fromPagination && !historyPartMessages.isEmpty() && checkIsMergeable(messages)) {
-                historyPartMessages.addAll(messages);
-                messages = filterExisted(historyPartMessages);
-                index = 0;
-                jumpToLatest();
-            }
-
             if (fromPagination && !historyPartMessages.isEmpty()) {
                 properListToAdd = historyPartMessages;
             } else {
@@ -1765,12 +1758,7 @@ public class Conversation extends AbstractEntity
 
     public void jumpToHistoryPart(List<Message> messages) {
         historyPartMessages.clear();
-
-        if (checkIsMergeable(messages)) {
-            addAll(0, filterExisted(messages), false);
-        } else {
-            historyPartMessages.addAll(messages);
-        }
+        historyPartMessages.addAll(messages);
     }
 
     public void jumpToLatest() {
@@ -1779,25 +1767,6 @@ public class Conversation extends AbstractEntity
 
     public boolean isInHistoryPart() {
         return !historyPartMessages.isEmpty();
-    }
-
-    private boolean checkIsMergeable(List<Message> messages) {
-        if (messages.isEmpty()) return true;
-        return findDuplicateMessage(messages.get(messages.size() - 1)) != null;
-    }
-
-    private List<Message> filterExisted(List<Message> messages) {
-        if (messages.isEmpty()) return Collections.emptyList();
-
-        List<Message> result = new ArrayList<>();
-
-        for (Message m : messages) {
-            if (findDuplicateMessage(m) == null) {
-                result.add(m);
-            }
-        }
-
-        return result;
     }
 
     private void untieMessages() {
