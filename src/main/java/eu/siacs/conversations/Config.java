@@ -88,11 +88,11 @@ public final class Config {
     // media file formats. Homogenous Android or Conversations only deployments can switch to opus
     // and webp
     public static final int AVATAR_SIZE = 480;
-    public static final Bitmap.CompressFormat AVATAR_FORMAT = Bitmap.CompressFormat.JPEG;
+    public static final Bitmap.CompressFormat AVATAR_FORMAT = Bitmap.CompressFormat.WEBP;
     public static final int AVATAR_CHAR_LIMIT = 9400;
 
     public static final int IMAGE_SIZE = 1920;
-    public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.JPEG;
+    public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.WEBP;
     public static final int IMAGE_QUALITY = 75;
 
     public static final boolean USE_OPUS_VOICE_MESSAGES = false;
