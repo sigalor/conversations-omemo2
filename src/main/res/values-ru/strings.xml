@@ -1519,4 +1519,5 @@
     <string name="error_unpinning_message">Не удалось открепить сообщение</string>
     <string name="error_pinning_message">Не удалось закрепить сообщение</string>
     <string name="cannot_pin_empty_message">Невозможно закрепить пустое сообщение</string>
+    <string name="note_to_self_conversation_title">Примечание для себя (%1$s)</string>
 </resources>

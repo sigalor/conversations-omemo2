@@ -1160,7 +1160,7 @@
     <string name="detect_mim_summary">WAARSCHUWING: de verbinding zal verbroken worden als de server dit niet ondersteunt</string>
     <string name="pref_title_trust_system_ca_store">Certificaatautoriteiten</string>
     <string name="pref_title_trust_system_ca_store_summary">Vertrouw de CA-certificaten van het systeem</string>
-    <string name="detect_mim">Kanaalbinding vereisen</string>
+    <string name="detect_mim">Channel binding vereisen</string>
     <string name="pref_large_font_summary">Vergoot de letters in berichtenbubbels, reacties en invoervelden</string>
     <string name="pref_backup_summary">Eenmalig maken, terugkerend plannen</string>
     <string name="pref_create_backup_one_off_summary">Eenmalige back-up maken</string>
@@ -1474,4 +1474,8 @@
     <string name="error_unpinning_message">Kan bericht niet losmaken</string>
     <string name="message_unpinned">Bericht losgemaakt</string>
     <string name="error_pinning_message">Bericht vastzetten mislukt</string>
+    <string name="account_status_channel_binding">Channel binding niet beschikbaar</string>
+    <string name="retry_with_p2p">Met P2P proberen</string>
+    <string name="word_document">Word-document</string>
+    <string name="note_to_self_conversation_title">Notities (%1$s)</string>
 </resources>
