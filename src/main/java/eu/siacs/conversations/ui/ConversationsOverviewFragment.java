@@ -398,7 +398,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				menuContactDetails.setVisible(false);
 				menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 				menuOngoingCall.setVisible(false);
-				menuArchiveChat.setTitle("Leave " + (conversation.getMucOptions().isPrivateAndNonAnonymous() ? "group chat" : "Channel"));
+				menuArchiveChat.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.leave_group : R.string.action_end_conversation_channel);
 			} else {
 				final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
 				final Optional<OngoingRtpSession> ongoingRtpSession = service == null ? Optional.absent() : service.getJingleConnectionManager().getOngoingRtpConnection(conversation.getContact());
