@@ -1,17 +1,3 @@
-# Ogłoszenie:
-
-## Monocles Messenger zmienia nazwę na monocles chat
-
-Czego możesz się spodziewać:
-- Zakres funkcjonalności się nie zmienia
-- Pokoje czatów przeznaczonych do udzielania wsparcia zostają połączone
-- Kolory jak i logotypy zostaną zadaptowane pod "monocles chat"
-- Aplikacja będzie wciąż do pobrania za darmo na Codebergu oraz F-Droidzie
-
-~ monocles team
-
------
-
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
 🇩🇪… [Deutsche Version der Readme hier verfügbar.](README.md) /  [Francais ici](README-fr.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md)
