@@ -1,17 +1,3 @@
-# Annonce:
-
-## Monocles Messenger devient monocles chat
-
-Ce que vous pouvez attendre :
-- La gamme de fonctions reste la même
-- Les salons de chat du support sont fusionnés
-- Les couleurs et les logos sont adaptés au chat de monocles.
-- L'application est toujours disponible gratuitement sur codeberg et F-Droid Store.
-
-L'équipe monocles
-
------
-
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
 🇩🇪… [Deutsche Version der Readme hier verfügbar.](README.md) / 🇬🇧🇺🇸… [English Readme version available here](README-en.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md)
