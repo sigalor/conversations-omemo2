@@ -2130,7 +2130,7 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    private void quoteMessage(Message message) {
+    public void quoteMessage(Message message) {
         if (message.isPrivateMessage()) privateMessageWith(message.getCounterpart());
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             setThread(message.getThread());
@@ -2155,7 +2155,7 @@ public class ConversationFragment extends XmppFragment
         return false;
     }
 
-    public void setupReply(Message message) {
+    private void setupReply(Message message) {
         if (message != null) {
 
             final var correcting = conversation.getCorrectingMessage();

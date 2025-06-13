@@ -1457,7 +1457,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 swipeLayout.refreshDrawableState();
                 //when the BottomView totally show.
                 if (mConversationFragment != null) {
-                    mConversationFragment.setupReply(message);
+                    mConversationFragment.quoteMessage(message);
                 } else {
                     activity.switchToConversationAndQuote(wrap(message.getConversation()), MessageUtils.prepareQuote(message));
                 }
