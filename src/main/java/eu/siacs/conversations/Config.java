@@ -92,7 +92,7 @@ public final class Config {
     public static final int AVATAR_CHAR_LIMIT = 9400;
 
     public static final int IMAGE_SIZE = 1920;
-    public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.WEBP;
+    public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.JPEG;
     public static final int IMAGE_QUALITY = 75;
 
     public static final boolean USE_OPUS_VOICE_MESSAGES = false;
