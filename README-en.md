@@ -1,17 +1,3 @@
-# Announcement:
-
-## Monocles Messenger becomes monocles chat
-
-What you can expect:
-- Range of functions remains the same
-- Support chat rooms are merged
-- Colors and logos are adapted to monocles chat
-- App is still available for free on codeberg and F-Droid Store
-
-Your monocles Team
-
------
-
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
 🇩🇪… [Deutsche Version der Readme hier verfügbar.](README.md) /  [Francais ici](README-fr.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md)
