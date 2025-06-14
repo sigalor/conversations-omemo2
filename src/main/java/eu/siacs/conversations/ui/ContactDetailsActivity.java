@@ -957,7 +957,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_chat_black_24dp), null, null, null);
                 binding.command.setCompoundDrawablePadding(20);
             } else if (item.getName().equals("url")) {
-                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.outline_circle_24), null, null, null);
+                binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.rounded_link_24), null, null, null);
                 binding.command.setCompoundDrawablePadding(20);
             }
 
@@ -1005,7 +1005,7 @@ public class ContactDetailsActivity extends OmemoActivity
                     binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                     binding.command.setText(uri.toString());
-                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_link_24dp), null, null, null);
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.rounded_link_24), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
                 } else {
                     binding.command.setText(uri.toString());

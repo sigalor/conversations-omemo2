@@ -1833,6 +1833,10 @@ public class ConversationFragment extends XmppFragment
             binding.textinput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         }
         binding.textSendButton.setOnClickListener(this.mSendButtonListener);
+        binding.textSendButton.setPadding(0, 0, 10, 0);
+        binding.mucSubjectIcon.setPadding(0, 0, 10, 0);
+        binding.statusMessageIcon.setPadding(0, 0, 10, 0);
+
         binding.cancelButton.setOnClickListener(this.mCancelVoiceRecord);
         binding.shareButton.setOnClickListener(this.mShareVoiceRecord);
         binding.contextPreviewCancel.setOnClickListener((v) -> {
@@ -4660,13 +4664,16 @@ public class ConversationFragment extends XmppFragment
 
                         if (Bookmark.printableValue(subject) && !hidden) {
                             binding.mucSubjectText.setText(subject);
+                            binding.mucSubjectIcon.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
                             binding.mucSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
                             binding.mucSubjectHide.setOnClickListener(v -> {
                                 conversation.getMucOptions().hideSubject();
                                 binding.mucSubject.setVisibility(View.GONE);
                             });
-                            if (activity != null && binding.mucSubjectIcon != null)
-                                binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.subject));
+                            if (activity != null && binding.mucSubjectIcon != null) {
+                                binding.statusMessageIcon.setVisibility(GONE);
+                                binding.mucSubjectIcon.setVisibility(VISIBLE);
+                            }
                             binding.mucSubject.setVisibility(View.VISIBLE);
                         } else {
                             binding.mucSubject.setVisibility(View.GONE);
@@ -4676,9 +4683,12 @@ public class ConversationFragment extends XmppFragment
 
                         if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
                             binding.mucSubject.setVisibility(View.VISIBLE);
-                            if (activity != null && binding.mucSubjectIcon != null)
-                                binding.mucSubjectIcon.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_announcement_24dp));
+                            if (activity != null && binding.statusMessageIcon != null) {
+                                binding.mucSubjectIcon.setVisibility(GONE);
+                                binding.statusMessageIcon.setVisibility(VISIBLE);
+                            }
                             binding.mucSubjectText.setText(conversation.getLastProcessedStatusText());
+                            binding.statusMessageIcon.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
                             binding.mucSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
                             binding.mucSubjectHide.setOnClickListener(v -> {
                                 conversation.hideStatusMessage();
@@ -4843,12 +4853,13 @@ public class ConversationFragment extends XmppFragment
         }
         this.binding.textSendButton.setTag(action);
         this.binding.textSendButton.setIconTint(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.textSendButton, status)));
+        this.binding.mucSubjectIcon.setIconTint(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.mucSubjectIcon, status)));
+        this.binding.statusMessageIcon.setIconTint(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.statusMessageIcon, status)));
         // TODO send button color
         final Activity activity = getActivity();
         if (activity != null) {
             this.binding.textSendButton.setIconResource(
                     SendButtonTool.getSendButtonImageResource(action, text.length() > 0 || hasAttachments || (c.getThread() != null && binding.textinputSubject.getText().length() > 0)));
-            this.binding.textSendButton.setPadding(0, 0, 10, 0);
         }
         if (activity == null) return;
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
