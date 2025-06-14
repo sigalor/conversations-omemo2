@@ -62,6 +62,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.FragmentConversationsOverviewBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -73,6 +74,7 @@ import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.PendingActionHelper;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.ScrollState;
+import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.EasyOnboardingInvite;
 import eu.siacs.conversations.utils.ThemeHelper;
@@ -530,6 +532,14 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			case R.id.action_easy_invite:
 				selectAccountToStartEasyInvite();
 				return true;
+			case R.id.action_note_to_self:
+				final List<Account> accounts = activity.xmppConnectionService.getAccounts();
+				if (accounts.size() == 1) {
+					final Contact self = new Contact(accounts.get(0).getSelfContact());
+					Conversation conversation = activity.xmppConnectionService.findOrCreateConversation(self.getAccount(), self.getJid(), false, false, null, true, null);
+					SoftKeyboardUtils.hideSoftKeyboard(activity);
+					activity.switchToConversation(conversation);
+				}
 		}
 		return super.onOptionsItemSelected(item);
 	}
