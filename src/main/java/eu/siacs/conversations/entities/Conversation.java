@@ -2146,7 +2146,7 @@ public class Conversation extends AbstractEntity
         }
 
         public boolean switchToSession(final String node) {
-            if (sessions == null) return false;
+            if (sessions == null || node == null) return false;
 
             int i = 0;
             for (ConversationPage session : sessions) {
