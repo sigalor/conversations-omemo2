@@ -102,6 +102,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.emoji2.emojipicker.EmojiPickerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 
@@ -1818,6 +1819,24 @@ public class ConversationFragment extends XmppFragment
         this.binding =
                 DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); // TODO why the fuck did we do this?
+
+        // Check if we should adjust the soft keyboard
+        binding.conversationViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    if (activity != null) {
+                        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                    }
+                } else {
+                    if (activity != null) {
+                        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    }
+                }
+            }
+        });
 
         backPressedLeaveEmojiPicker.setEnabled(binding.emojisStickerLayout.getHeight() > 100);
 
@@ -4011,9 +4030,6 @@ public class ConversationFragment extends XmppFragment
 
     private void reInit(Conversation conversation) {
         reInit(conversation, false, false);
-        if (activity != null) {
-            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        }
     }
 
     private boolean reInit(final Conversation conversation, final boolean hasExtras, final boolean hasMessageUUID) {
@@ -4033,10 +4049,6 @@ public class ConversationFragment extends XmppFragment
             return false;
         }
         updateinputfield(canSendMeCommand());
-        if (activity != null) {
-            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        }
-
         setThread(conversation.getThread());
         setupReply(conversation.getReplyTo());
 
@@ -4598,9 +4610,6 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public void refresh() {
-        if (activity != null) {
-            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        }
         if (this.binding == null) {
             Log.d(
                     Config.LOGTAG,
