@@ -106,7 +106,7 @@
         <SwitchPreferenceCompat
             android:defaultValue="@bool/pinned_status_message"
             android:icon="@drawable/rounded_info_24"
-            android:key="show_own_accounts"
+            android:key="pinned_status_message"
             android:summary="@string/pref_pinned_status_message_summary"
             android:title="@string/pref_pinned_status_message" />
         <SwitchPreferenceCompat
