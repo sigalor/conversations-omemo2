@@ -1482,4 +1482,6 @@
     <string name="message_unpinned">Message unpinned</string>
     <string name="error_unpinning_message">Failed to unpin message</string>
     <string name="leave_group">Leave group</string>
+    <string name="pref_pinned_status_message">Pinned status message</string>
+    <string name="pref_pinned_status_message_summary">Shows and updates the status message at the top of the view in one to one chats</string>
 </resources>

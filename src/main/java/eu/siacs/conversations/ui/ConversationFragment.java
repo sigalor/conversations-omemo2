@@ -4687,7 +4687,7 @@ public class ConversationFragment extends XmppFragment
                         } else {
                             binding.mucSubject.setVisibility(View.GONE);
                         }
-                    } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE) {
+                    } else if (conversation != null && conversation.getMode() == Conversational.MODE_SINGLE && activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("pinned_status_message", R.bool.pinned_status_message)) {
                         boolean statusChange = conversation.onContactUpdatedAndCheckStatusChange(conversation.getContact());
 
                         if (conversation.getLastProcessedStatusText() != null && (statusChange || !conversation.statusMessageHidden())) {
