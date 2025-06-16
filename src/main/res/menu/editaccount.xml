@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/action_change_presence"
-        android:icon="@drawable/outline_circle_24"
+        android:icon="@drawable/rounded_info_24"
         app:showAsAction="always"
         android:title="@string/edit_status_message"/>
 

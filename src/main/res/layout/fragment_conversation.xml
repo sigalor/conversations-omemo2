@@ -65,7 +65,7 @@
                         android:layout_height="24dp"
                         android:layout_marginEnd="8dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        app:icon="@drawable/outline_circle_24"
+                        app:icon="@drawable/rounded_info_24"
                         app:iconSize="24dp" />
 
                     <TextView
