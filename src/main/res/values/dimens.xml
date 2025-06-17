@@ -90,7 +90,7 @@
     <dimen name="colorpicker_hue_width">30dp</dimen>
 
     <!--Lockscreen-->
-    <dimen name="forgot_password_margin_bottom">13.6dp</dimen>
+    <dimen name="forgot_password_margin_bottom">40dp</dimen>
     <dimen name="number_pad_margin_top">7.3dp</dimen>
     <dimen name="number_pad_parent_margin">14.5dp</dimen>
 

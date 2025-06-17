@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/background_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="?colorSurface"
     android:orientation="vertical"
     tools:context="p32929.easypasscodelock.Activities.LockscreenActivity">
+
+    <ImageView
+        android:id="@+id/monocles_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:contentDescription="Logo"
+        android:src="@drawable/monocleslogo_chat_signet"
+        android:visibility="visible"
+        tools:ignore="HardcodedText"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/logo"
@@ -15,7 +27,7 @@
         android:layout_above="@+id/input_password_layout"
         android:layout_centerHorizontal="true"
         android:contentDescription="Lock"
-        android:src="@drawable/lock_icon"
+        android:src="@drawable/outline_lock_24_icon"
         android:visibility="visible"
         tools:ignore="HardcodedText"
         tools:visibility="visible" />
@@ -39,7 +51,7 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="16dp"
             android:text="@string/enter_your_password_txt"
-            android:textColor="#FFFFFF"
+            android:textColor="?colorControlNormal"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -52,18 +64,16 @@
             <TextView
                 android:id="@+id/dotText"
                 android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:height="48dp"
+                android:layout_height="48dp"
+                android:layout_margin="8dp"
                 android:inputType="textPassword"
-                android:minHeight="48dp"
                 android:textAlignment="textEnd"
-                android:textColor="#FFFFFF"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
             <ImageButton
                 android:id="@+id/lbtnDelete"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_margin="8dp"
@@ -75,7 +85,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:background="#FFFFFF" />
+            android:background="?colorControlNormal" />
 
     </LinearLayout>
 
@@ -94,37 +104,40 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn1"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="1"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn2"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="2"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn3"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="3"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
 
@@ -137,37 +150,40 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn4"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="4"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn5"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="5"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn6"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="6"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
 
@@ -180,37 +196,40 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn7"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="7"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn8"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="8"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn9"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="9"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
 
@@ -229,19 +248,21 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp"
                 android:visibility="invisible" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/lbtn0"
-                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="0"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
+                android:textColor="?colorControlNormal"
                 android:textSize="24sp" />
 
             <ImageButton
@@ -251,6 +272,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:contentDescription="@string/ok"
+                android:layout_marginHorizontal="@dimen/number_pad_parent_margin"
                 android:src="@drawable/rounded_keyboard_return_24" />
 
 
@@ -268,7 +290,7 @@
         android:layout_marginBottom="@dimen/forgot_password_margin_bottom"
         android:text="@string/forgot_password_txt"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="?colorControlNormal"
         android:textSize="16sp"
         android:textStyle="bold" />
 

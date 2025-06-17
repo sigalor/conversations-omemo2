@@ -73,8 +73,6 @@ public class LockscreenActivity extends LockscreenHandler implements ActivityCha
         TextView textViewForgotPassword = findViewById(R.id.forgot_pass_textview);
         ImageButton buttonEnter = findViewById(R.id.lbtnEnter);
         ImageButton imageButtonDelete = findViewById(R.id.lbtnDelete);
-        RelativeLayout relativeLayoutBackground = findViewById(R.id.background_layout);
-        relativeLayoutBackground.setBackgroundColor(EasyLock.backgroundColor);
 
         textViewForgotPassword.setOnClickListener(EasyLock.onClickListener);
 
