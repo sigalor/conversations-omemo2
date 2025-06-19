@@ -926,7 +926,7 @@ public class StartConversationActivity extends XmppActivity
             menuHideOffline.setVisible(true);
             menuHideOffline.setChecked(this.mHideOfflineContacts);
         }
-        if (xmppConnectionService.getAccounts().size() != 1) {
+        if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() != 1) {
             noteToSelf.setVisible(false);
         }
         mMenuSearchView = menu.findItem(R.id.action_search);
@@ -959,6 +959,27 @@ public class StartConversationActivity extends XmppActivity
         }
         updateSearchViewHint();
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean res = super.onPrepareOptionsMenu(menu);
+        boolean navBarVisible = binding.bottomNavigation.getVisibility() == VISIBLE;
+        MenuItem manageAccount = menu.findItem(R.id.action_account);
+        MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+        MenuItem noteToSelf = menu.findItem(R.id.action_note_to_self);
+        if (navBarVisible) {
+            manageAccount.setVisible(false);
+            manageAccounts.setVisible(false);
+        } else {
+            AccountUtils.showHideMenuItems(menu);
+        }
+
+        if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() != 1) {
+            noteToSelf.setVisible(false);
+        }
+
+        return res;
     }
 
     @Override
