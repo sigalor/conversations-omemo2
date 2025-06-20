@@ -1539,4 +1539,7 @@
     <string name="message_unpinned">Повідомлення відкріплено</string>
     <string name="error_unpinning_message">Не вдалося відкріпити повідомлення</string>
     <string name="note_to_self_conversation_title">Нотатка для себе (%1$s)</string>
+    <string name="leave_group">Покинути групу</string>
+    <string name="pref_pinned_status_message_summary">Показує та оновлює повідомлення про стан у верхній частині вікна в приватних чатах</string>
+    <string name="pref_pinned_status_message">Закріплене повідомлення стану</string>
 </resources>

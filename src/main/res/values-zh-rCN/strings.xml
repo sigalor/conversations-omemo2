@@ -1483,4 +1483,8 @@
     <string name="message_pinned">消息已置顶</string>
     <string name="message_unpinned">消息已取消置顶</string>
     <string name="error_unpinning_message">无法取消置顶消息</string>
+    <string name="note_to_self_conversation_title">自我备注（%1$s）</string>
+    <string name="leave_group">离开群聊</string>
+    <string name="pref_pinned_status_message">置顶状态消息</string>
+    <string name="pref_pinned_status_message_summary">在一对一聊天界面顶部显示并更新状态消息</string>
 </resources>

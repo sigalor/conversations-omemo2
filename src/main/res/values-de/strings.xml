@@ -1493,4 +1493,5 @@
     <string name="error_unpinning_message">Nachricht konnte nicht abgelöst werden</string>
     <string name="error_pinning_message">Anheften der Nachricht fehlgeschlagen</string>
     <string name="note_to_self_conversation_title">Notiz an mich (%1$s)</string>
+    <string name="leave_group">Gruppe verlassen</string>
 </resources>

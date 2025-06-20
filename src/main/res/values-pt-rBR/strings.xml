@@ -1490,4 +1490,12 @@
     <string name="browse_space">Explorar o domínio</string>
     <string name="failed_to_delete_gif_not_exist">Falha ao excluir: GIF não encontrado</string>
     <string name="failed_to_delete_sticker_not_exist">Falha ao excluir: figurinha não encontrada</string>
+    <string name="message_pinned">Mensagem fixada</string>
+    <string name="message_unpinned">Mensagem não fixada</string>
+    <string name="error_pinning_message">Falha ao fixar mensagem</string>
+    <string name="cannot_pin_empty_message">Não é possível fixar mensagem vazia</string>
+    <string name="leave_group">Sair do grupo</string>
+    <string name="pref_pinned_status_message">Status da mensagem fixada</string>
+    <string name="pref_pinned_status_message_summary">Exibe e atualiza a mensagem de status na parte superior da visualização em conversas individuais</string>
+    <string name="error_unpinning_message">Falha ao desfixar mensagem</string>
 </resources>

@@ -1478,4 +1478,7 @@
     <string name="retry_with_p2p">Met P2P proberen</string>
     <string name="word_document">Word-document</string>
     <string name="note_to_self_conversation_title">Notities (%1$s)</string>
+    <string name="leave_group">Groep verlaten</string>
+    <string name="pref_pinned_status_message">Vastgezet statusbericht</string>
+    <string name="pref_pinned_status_message_summary">Toont het statusbericht bovenaan in 1-op-1-gesprekken</string>
 </resources>
