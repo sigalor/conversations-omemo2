@@ -2129,7 +2129,9 @@ public class ConversationFragment extends XmppFragment
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(Config.LOGTAG, "ConversationFragment.onDestroyView()");
-
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
         messageListAdapter.setOnContactPictureClicked(null);
         messageListAdapter.setOnContactPictureLongClicked(null);
         messageListAdapter.setOnInlineImageLongClicked(null);
