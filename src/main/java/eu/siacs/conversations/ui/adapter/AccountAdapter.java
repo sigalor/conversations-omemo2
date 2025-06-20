@@ -109,6 +109,7 @@ public class AccountAdapter extends ArrayAdapter<Account> {
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
             viewHolder.binding.frame.setBackgroundColor(account.getColor(activity.isDark()));
         }
+        viewHolder.binding.accountStatusMessage.setText(account.getPresenceStatusMessage());
         return view;
     }
 

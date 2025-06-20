@@ -965,7 +965,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                 case LOGGED_OUT:
                     return R.string.account_state_logged_out;
                 case ONLINE:
-                    return R.string.account_status_online;
+                    return R.string.rtp_state_connected;
                 case CONNECTING:
                     return R.string.account_status_connecting;
                 case OFFLINE:

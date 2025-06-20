@@ -27,7 +27,7 @@
     <PreferenceCategory android:title="@string/pref_category_server_connection">
         <SwitchPreferenceCompat
             android:defaultValue="@bool/enforce_dane"
-            android:icon="@drawable/shield_verified"
+            android:icon="@drawable/shield_verified_big"
             android:key="enforce_dane"
             android:summary="@string/pref_enforce_dane_summary"
             android:title="@string/pref_enforce_dane" />
