@@ -1,0 +1,15 @@
+* Fehlende Wörter hinzufügen
+* Wischen zum Antworten korrigieren
+* Menü „Notiz an mich selbst“ in der Chat-Übersicht korrigiert
+* Link- und Anwesenheitssymbole ändern + Gruppenbetreff und Statusnachrichten-Symbole mit Anwesenheit einfärben
+* Behebt mögliche NPE
+* Behebt Tastatur/Emojipicker beim Wechsel zwischen Chat, Befehlen und WebXDC-Seite
+* Einstellung hinzufügen, um angeheftete und aktualisierte Statusmeldungen dauerhaft zu deaktivieren
+* Verbessertes Symbol für Statusmeldungen
+* Verbessert den Sperrbildschirm der App
+* Behebung eines möglichen Absturzes
+* onPrepareOptionsMenu hinzufügen
+* Liste der Unterhaltungen im Tablet-Modus korrigiert
+* Verbessert die Kontenübersicht
+* Behebung des Soft-Input-Modus beim Öffnen des Chats über die Benachrichtigung
+* Übersetzungen aktualisieren

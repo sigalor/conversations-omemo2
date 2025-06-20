@@ -1,0 +1,15 @@
+* Add missing strings
+* Correct swipe to reply
+* Fix note to self menu in chat overview
+* Change link and presence icons + colorize group subject and status message icons with presence
+* Fix potential NPE
+* Fix keyboard/emojipicker when switching between chat, commands and WebXDC page
+* Add setting to permanently disable pinned and updated status messages
+* Improve status message icon
+* Improve app lock screen
+* Fix potential crash
+* Add onPrepareOptionsMenu
+* Fix conversations list in tablet mode
+* Improve accounts overview
+* Fix soft input mode when opening chat from notification
+* Update translations
