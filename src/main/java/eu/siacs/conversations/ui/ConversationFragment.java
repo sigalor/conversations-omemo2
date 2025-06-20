@@ -4659,6 +4659,10 @@ public class ConversationFragment extends XmppFragment
                 updateEditablity();
                 conversation.refreshSessions();
 
+                if (activity != null && (binding.tabLayout.getVisibility() == View.GONE || binding.conversationViewPager.getCurrentItem() == 0)) {
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                }
+
                 if (activity!= null) activity.runOnUiThread(() -> {
 
                     // Check pinned message presence
