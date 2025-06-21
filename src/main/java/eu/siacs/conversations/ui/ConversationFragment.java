@@ -5640,7 +5640,16 @@ public class ConversationFragment extends XmppFragment
                     .add("ONEPLUS A6003")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
                     .add("ONEPLUS A6010")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
                     .add("ONEPLUS A6013")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
+                    .add("Pixel 2") // Pixel 2 // https://codeberg.org/iNPUTmice/Conversations/issues/526
                     .add("Pixel 4a")        // Pixel 4a https://github.com/iNPUTmice/Conversations/issues/4223
+                    .add("SC-03K") // Samsung Galaxy S9+
+                    .add("SCV39") // Samsung Galaxy S9+
+                    .add("SM-G965F") // Samsung Galaxy S9+
+                    .add("SM-G965N") // Samsung Galaxy S9+
+                    .add("SM-G9650") // Samsung Galaxy S9+
+                    .add("SM-G965W") // Samsung Galaxy S9+
+                    .add("SM-G965U") // Samsung Galaxy S9+
+                    .add("SM-G965U1") // Samsung Galaxy S9+  // https://codeberg.org/iNPUTmice/Conversations/issues/526
                     .add("WP12 Pro")        // Oukitel WP 12 Pro https://github.com/iNPUTmice/Conversations/issues/4223
                     .add("Volla Phone X")   // Volla Phone X https://github.com/iNPUTmice/Conversations/issues/4223
                     .add("Redmi Note 12S")  // Xiaomi Redmi Note 12S Model name
