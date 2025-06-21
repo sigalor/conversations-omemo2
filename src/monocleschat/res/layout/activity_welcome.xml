@@ -451,11 +451,11 @@
                             android:layout_height="match_parent"
                             android:ellipsize="end"
                             android:gravity="center_vertical"
-                            android:text="@string/store_media_only_in_cache"
+                            android:text="@string/pref_blind_trust_before_verification"
                             android:textAppearance="?textAppearanceBody1" />
 
                         <ImageButton
-                            android:id="@+id/action_info_store_media_only_in_cache"
+                            android:id="@+id/action_info_blind_trust"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="?attr/selectableItemBackgroundBorderless"
@@ -464,7 +464,7 @@
                             android:src="@drawable/ic_help_24dp" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/store_media_only_in_cache"
+                            android:id="@+id/blind_trust"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:gravity="center_vertical" />
@@ -521,6 +521,34 @@
 
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/use_secure_tls"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical" />
+                    </TableRow>
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/card_padding_regular">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
+                            android:text="@string/pref_send_crash_reports"
+                            android:textAppearance="?textAppearanceBody1" />
+
+                        <ImageButton
+                            android:id="@+id/action_info_send_crash_reports"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/image_button_padding"
+                            android:src="@drawable/ic_help_24dp" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/send_crash_reports"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:gravity="center_vertical" />

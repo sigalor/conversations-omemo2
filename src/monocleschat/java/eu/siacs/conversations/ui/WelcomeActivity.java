@@ -51,7 +51,8 @@ import static eu.siacs.conversations.AppSettings.SECURE_TLS;
 import static eu.siacs.conversations.AppSettings.SHOW_LINK_PREVIEWS;
 import static eu.siacs.conversations.AppSettings.SHOW_MAPS_INSIDE;
 import static eu.siacs.conversations.AppSettings.UNENCRYPTED_REACTIONS;
-import static eu.siacs.conversations.AppSettings.USE_CACHE_STORAGE;
+import static eu.siacs.conversations.AppSettings.BLIND_TRUST_BEFORE_VERIFICATION;
+import static eu.siacs.conversations.AppSettings.SEND_CRASH_REPORTS;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
 import static eu.siacs.conversations.xml.Namespace.CHAT_STATES;
@@ -71,9 +72,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     static final int CHATSTATES = 5;
     static final int CONFIRMMESSAGES = 6;
     static final int LASTSEEN = 7;
-    static final int INNERSTORAGE = 8;
+    static final int BLINDTRUST = 8;
     static final int ENFORCEDANE = 9;
     static final int USESECURETLSCIPHERS = 10;
+    static final int SENDCRASHREPORTS = 11;
 
     private XmppUri inviteUri;
     private Account onboardingAccount = null;
@@ -263,9 +265,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         this.binding.actionInfoChatStates.setOnClickListener(string -> showInfo(CHATSTATES));
         this.binding.actionInfoConfirmMessages.setOnClickListener(string -> showInfo(CONFIRMMESSAGES));
         this.binding.actionInfoLastSeen.setOnClickListener(string -> showInfo(LASTSEEN));
-        this.binding.actionInfoStoreMediaOnlyInCache.setOnClickListener(string -> showInfo(INNERSTORAGE));
+        this.binding.actionInfoBlindTrust.setOnClickListener(string -> showInfo(BLINDTRUST));
         this.binding.actionInfoDane.setOnClickListener(string -> showInfo(ENFORCEDANE));
         this.binding.actionInfoUseSecureTls.setOnClickListener(string -> showInfo(USESECURETLSCIPHERS));
+        this.binding.actionInfoSendCrashReports.setOnClickListener(string -> showInfo(SENDCRASHREPORTS));
     }
 
     private void getDefaults() {
@@ -277,9 +280,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         this.binding.chatStates.setChecked(getResources().getBoolean(R.bool.chat_states));
         this.binding.confirmMessages.setChecked(getResources().getBoolean(R.bool.confirm_messages));
         this.binding.lastSeen.setChecked(getResources().getBoolean(R.bool.last_activity));
-        this.binding.storeMediaOnlyInCache.setChecked(getResources().getBoolean(R.bool.default_store_media_in_cache));
+        this.binding.blindTrust.setChecked(getResources().getBoolean(R.bool.btbv));
         this.binding.dane.setChecked(getResources().getBoolean(R.bool.enforce_dane));
         this.binding.useSecureTls.setChecked(getResources().getBoolean(R.bool.secure_tls));
+        this.binding.sendCrashReports.setChecked(getResources().getBoolean(R.bool.send_crash_reports));
     }
 
 
@@ -319,9 +323,9 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 title = getString(R.string.pref_broadcast_last_activity);
                 message = getString(R.string.pref_broadcast_last_activity_summary);
                 break;
-            case INNERSTORAGE:
-                title = getString(R.string.store_media_only_in_cache);
-                message = getString(R.string.pref_store_media_in_cache);
+            case BLINDTRUST:
+                title = getString(R.string.pref_blind_trust_before_verification);
+                message = getString(R.string.blindly_trusted_omemo_keys);
                 break;
             case ENFORCEDANE:
                 title = getString(R.string.pref_enforce_dane);
@@ -330,6 +334,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             case USESECURETLSCIPHERS:
                 title = getString(R.string.pref_secure_tls);
                 message = getString(R.string.pref_secure_tls_summary);
+                break;
+            case SENDCRASHREPORTS:
+                title = getString(R.string.pref_send_crash_reports);
+                message = getString(R.string.pref_never_send_crash_summary);
                 break;
             default:
                 title = getString(R.string.error);
@@ -354,7 +362,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         preferences.edit().putBoolean(CHAT_STATES, this.binding.chatStates.isChecked()).apply();
         preferences.edit().putBoolean(CONFIRM_MESSAGES, this.binding.confirmMessages.isChecked()).apply();
         preferences.edit().putBoolean(BROADCAST_LAST_ACTIVITY, this.binding.lastSeen.isChecked()).apply();
-        preferences.edit().putBoolean(USE_CACHE_STORAGE, this.binding.storeMediaOnlyInCache.isChecked()).apply();
+        preferences.edit().putBoolean(BLIND_TRUST_BEFORE_VERIFICATION, this.binding.blindTrust.isChecked()).apply();
         preferences.edit().putBoolean(DANE_ENFORCED, this.binding.dane.isChecked()).apply();
         preferences.edit().putBoolean(SECURE_TLS, this.binding.useSecureTls.isChecked()).apply();
     }
