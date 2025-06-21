@@ -34,8 +34,8 @@ import java.util.TimeZone;
 public class MessageGenerator extends AbstractGenerator {
     public static final String OTR_FALLBACK_MESSAGE = "I would like to start a private (OTR encrypted) conversation but your client doesn’t seem to support that";
     private static final String OMEMO_FALLBACK_MESSAGE =
-            "I sent you an OMEMO encrypted message but your client doesn’t seem to support that."
-                    + " Find more information on https://conversations.im/omemo";
+            "I sent you an OMEMO encrypted message but your client doesn’t seem to support that.";
+                    // + " Find more information on https://conversations.im/omemo";
     private static final String PGP_FALLBACK_MESSAGE =
             "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
 
