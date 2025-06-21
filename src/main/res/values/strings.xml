@@ -1410,7 +1410,7 @@
     <string name="pref_hide_media_title">Hide media in gallery</string>
     <string name="pref_hide_media_summary">Hide received and sent media from system gallery views</string>
     <string name="pref_secure_tls_summary">Use only securest TLS ciphers if available on server</string>
-    <string name="pref_secure_tls">Use secure TLS ciphers only</string>
+    <string name="pref_secure_tls">Use securest TLS ciphers only</string>
     <string name="pref_prefer_ipv6_summary">Prefers IPv6 when connecting</string>
     <string name="pref_prefer_ipv6">Prefer IPv6</string>
     <string name="pref_use_colored_muc_names">Use colored user names</string>
