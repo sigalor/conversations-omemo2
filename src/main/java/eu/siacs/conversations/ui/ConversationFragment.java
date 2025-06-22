@@ -16,6 +16,7 @@ import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
@@ -29,7 +30,9 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.icu.util.Calendar;
 import android.icu.util.TimeZone;
 import android.media.MediaRecorder;
@@ -78,6 +81,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -6284,8 +6288,7 @@ public class ConversationFragment extends XmppFragment
                     if (activity != null && StickerfilesPaths != null && position < StickerfilesPaths.length && StickerfilesPaths[position] != null) {
                         File file = new File(StickerfilesPaths[position]);
                         if (file.exists()) {
-                            final var displayName = file.getName();
-                            ViewUtil.view(activity, file, "image/*", displayName);
+                            showStickerPreviewDialog(file);
                         } else {
                             Toast.makeText(activity, R.string.cant_open_file, Toast.LENGTH_LONG).show(); // Example for non-existent file
                         }
@@ -6342,8 +6345,7 @@ public class ConversationFragment extends XmppFragment
                     if (activity != null && GifsfilesPaths != null && position < GifsfilesPaths.length && GifsfilesPaths[position] != null) {
                         File file = new File(GifsfilesPaths[position]);
                         if (file.exists()) {
-                            final var displayName = file.getName();
-                            ViewUtil.view(activity, file, "image/*", displayName);
+                            showStickerPreviewDialog(file);
                         } else {
                             Toast.makeText(activity, R.string.cant_open_file, Toast.LENGTH_LONG).show();
                         }
@@ -6427,6 +6429,33 @@ public class ConversationFragment extends XmppFragment
         String lowerName = fileName.toLowerCase();
         return  lowerName.endsWith(".gif") ||
                 lowerName.endsWith(".webp"); // Common Android image format
+    }
+
+    // New method to show the sticker preview dialog
+    private void showStickerPreviewDialog(File stickerFile) {
+        if (activity == null || stickerFile == null || !stickerFile.exists()) {
+            return;
+        }
+
+        final Dialog dialog = new Dialog(activity);
+        dialog.setContentView(R.layout.dialog_sticker_preview); // Your custom layout
+
+        ImageView stickerPreviewImageView = dialog.findViewById(R.id.sticker_preview_image_view);
+
+        // Use Glide (or your preferred image loading library) to load the sticker
+        Glide.with(activity) // 'this' refers to the ConversationFragment instance
+                .load(stickerFile)
+                .into(stickerPreviewImageView);
+
+        // Optional: Make the dialog dismiss when the image is clicked
+        stickerPreviewImageView.setOnClickListener(v -> dialog.dismiss());
+
+        // Optional: Make dialog background transparent if your layout has rounded corners
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialog.show();
     }
 
     private boolean canSendMeCommand() {
