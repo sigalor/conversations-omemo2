@@ -6284,18 +6284,10 @@ public class ConversationFragment extends XmppFragment
                     if (activity != null && StickerfilesPaths != null && position < StickerfilesPaths.length && StickerfilesPaths[position] != null) {
                         File file = new File(StickerfilesPaths[position]);
                         if (file.exists()) {
-                            // Deletion should also be off the main thread if it's slow,
-                            // but for simplicity here, we'll keep it as is.
-                            // For true background deletion, you'd execute another Runnable.
-                            if (file.delete()) {
-                                // Re-load stickers on the background thread after deletion
-                                backgroundExecutor.execute(this::LoadStickers);
-                                Toast.makeText(activity, R.string.sticker_deleted, Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(activity, R.string.failed_to_delete_sticker, Toast.LENGTH_LONG).show();
-                            }
+                            final var displayName = file.getName();
+                            ViewUtil.view(activity, file, "image/*", displayName);
                         } else {
-                            Toast.makeText(activity, R.string.failed_to_delete_sticker_not_exist, Toast.LENGTH_LONG).show(); // Example for non-existent file
+                            Toast.makeText(activity, R.string.cant_open_file, Toast.LENGTH_LONG).show(); // Example for non-existent file
                         }
                     }
                     return true;
@@ -6350,14 +6342,10 @@ public class ConversationFragment extends XmppFragment
                     if (activity != null && GifsfilesPaths != null && position < GifsfilesPaths.length && GifsfilesPaths[position] != null) {
                         File file = new File(GifsfilesPaths[position]);
                         if (file.exists()) {
-                            if (file.delete()) {
-                                backgroundExecutor.execute(this::LoadGifs); // Re-load on background thread
-                                Toast.makeText(activity, R.string.gif_deleted, Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(activity, R.string.failed_to_delete_gif, Toast.LENGTH_LONG).show();
-                            }
+                            final var displayName = file.getName();
+                            ViewUtil.view(activity, file, "image/*", displayName);
                         } else {
-                            Toast.makeText(activity, R.string.failed_to_delete_gif_not_exist, Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, R.string.cant_open_file, Toast.LENGTH_LONG).show();
                         }
                     }
                     return true;
