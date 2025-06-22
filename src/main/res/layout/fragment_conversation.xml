@@ -448,9 +448,7 @@
                                     android:paddingBottom="8dp"
                                     android:singleLine="false"
                                     android:textSize="16sp"
-                                    android:textColor="?colorControlNormal" >
-                                    <requestFocus />
-                                </eu.siacs.conversations.ui.widget.EditMessage>
+                                    android:textColor="?colorControlNormal" />
                             </RelativeLayout>
 
                             <ImageButton

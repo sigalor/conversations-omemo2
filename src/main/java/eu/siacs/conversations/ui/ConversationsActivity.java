@@ -1237,7 +1237,7 @@ public class ConversationsActivity extends XmppActivity
                 try {
                     fragmentTransaction.commit();
                 } catch (IllegalStateException e) {
-                    Log.w(Config.LOGTAG, "sate loss while opening conversation", e);
+                    Log.w(Config.LOGTAG, "state loss while opening conversation", e);
                     // allowing state loss is probably fine since view intents et all are already
                     // stored and a click can probably be 'ignored'
                     return;
@@ -1250,6 +1250,7 @@ public class ConversationsActivity extends XmppActivity
         if (mainNeedsRefresh) {
             refreshFragment(R.id.main_fragment);
         }
+        if (findViewById(R.id.textinput) != null) findViewById(R.id.textinput).requestFocus();
         invalidateActionBarTitle();
     }
 

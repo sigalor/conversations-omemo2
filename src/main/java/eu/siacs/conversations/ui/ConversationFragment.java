@@ -3520,6 +3520,7 @@ public class ConversationFragment extends XmppFragment
         super.onResume();
         binding.messagesView.post(this::fireReadEvent);
         updateChatBG();
+        binding.textinput.requestFocus();
     }
 
     private void fireReadEvent() {
