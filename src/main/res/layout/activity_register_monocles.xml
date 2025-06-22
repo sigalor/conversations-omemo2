@@ -60,15 +60,11 @@
                         android:text="@string/monocles_account_introduction"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-                    <de.monocles.chat.ReadMoreTextView
+                    <TextView
                         android:id="@+id/instructions_monocles_account"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/monocles_account_details"
-                        app:colorClickableText="?attr/colorAccent"
-                        app:trimExpandedText="@string/show_less"
-                        app:trimCollapsedText="@string/show_more"
-                        app:trimMode="trimModeLength"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                     <Button
