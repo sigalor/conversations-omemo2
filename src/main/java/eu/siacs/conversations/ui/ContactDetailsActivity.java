@@ -626,7 +626,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 contact, binding.detailsContactBadge, R.dimen.avatar_on_details_screen_size);
         binding.detailsContactBadge.setOnClickListener(this::onBadgeClick);
         binding.detailsContactBadge.setOnLongClickListener(v -> {
-            ShowAvatarPopup(ContactDetailsActivity.this, contact);
+            ShowAvatarPopup(contact);
             return true;
         });
         binding.detailsContactKeys.removeAllViews();

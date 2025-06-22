@@ -1472,8 +1472,8 @@ public abstract class XmppActivity extends ActionBarActivity {
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 
-    public void ShowAvatarPopup(final Activity activity, final AvatarService.Avatarable user) {
-        final Dialog dialog = new Dialog(activity);
+    public void ShowAvatarPopup(final AvatarService.Avatarable user) {
+        final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.avatar_dialog); // Your custom layout
         ImageView imageView = dialog.findViewById(R.id.avatar);
         AvatarWorkerTask.loadAvatar(user, imageView, R.dimen.avatar_big);

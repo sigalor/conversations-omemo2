@@ -213,7 +213,7 @@ public final class MucDetailsContextMenuHelper {
         Jid jid = user.getRealJid();
         switch (item.getItemId()) {
             case R.id.action_show_avatar:
-                activity.ShowAvatarPopup(activity, user);
+                activity.ShowAvatarPopup(user);
                 return true;
             case R.id.action_contact_details:
                 final Jid realJid = user.getRealJid();

@@ -318,7 +318,7 @@ public class ConferenceDetailsActivity extends XmppActivity
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 switch (menuItem.getItemId()) {
                     case R.id.action_show_avatar:
-                        ShowAvatarPopup(ConferenceDetailsActivity.this, mConversation);
+                        ShowAvatarPopup(mConversation);
                         return true;
                     case R.id.action_block_avatar:
                         new MaterialAlertDialogBuilder(this)
