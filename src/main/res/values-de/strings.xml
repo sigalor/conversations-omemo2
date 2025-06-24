@@ -1426,7 +1426,7 @@
     <string name="pref_use_colored_muc_names_summary">Farbige Benutzernamen in Gruppenchats anzeigen</string>
     <string name="delete_avatar_message">Möchten Sie Ihren Avatar löschen? Einige Clients zeigen möglicherweise weiterhin eine zwischengespeicherte Kopie Ihres Avatars an.</string>
     <string name="pref_secure_tls_summary">Verwenden Sie nur die sichersten TLS-Chiffren, falls auf dem Server verfügbar</string>
-    <string name="pref_secure_tls">Nur sichere TLS-Verschlüsselungen verwenden</string>
+    <string name="pref_secure_tls">Ausschließlich sicherste TLS-Verschlüsselungen verwenden</string>
     <string name="pref_allow_unencrypted_reactions_summary">Verwendung unverschlüsselter Reaktionen in Ende-zu-Ende-verschlüsselten Chats zulassen</string>
     <string name="pref_allow_unencrypted_reactions">Reaktionen in E2EE Chats</string>
     <string name="pref_show_muc_pm_title">Private Nachricht im Channel anzeigen</string>
@@ -1496,4 +1496,5 @@
     <string name="leave_group">Gruppe verlassen</string>
     <string name="pref_pinned_status_message_summary">Zeigt und aktualisiert die Statusmeldung am oberen Rand der Ansicht in Einzelchats</string>
     <string name="pref_pinned_status_message">Angeheftete Statusmeldung</string>
+    <string name="sticker_preview_content_description">Vergrößerte Sticker-Vorschau</string>
 </resources>

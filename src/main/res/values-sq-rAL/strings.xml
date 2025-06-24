@@ -1412,7 +1412,7 @@
     <string name="download_stickers_text">Do të donit të shkarkohen disa paketa parazgjedhje ngjitësish?</string>
     <string name="block_avatar_question">Doni vërtet të bllokohet ky avatar?</string>
     <string name="spam">Të padëshiruar</string>
-    <string name="pref_secure_tls">Përdor vetëm shifra TLS të siguruara</string>
+    <string name="pref_secure_tls">Përdor vetëm shifrat TLS më të siguruara</string>
     <string name="pref_prefer_ipv6_summary">Parapëlqen IPv6, kur bëhet lidhje</string>
     <string name="pref_prefer_ipv6">Parapëlqe IPv6</string>
     <string name="pref_use_colored_muc_names_summary">Përdor emra të ngjyrosur përdoruesish në fjalosje grupi</string>
@@ -1491,4 +1491,8 @@
     <string name="failed_to_delete_gif_not_exist">S’u arrit të fshihej: S’u gjet GIF.</string>
     <string name="failed_to_delete_sticker_not_exist">S’u arrit të fshihej: S’u gjet ngjitës.</string>
     <string name="note_to_self_conversation_title">Shënim vetes (%1$s)</string>
+    <string name="leave_group">Braktiseni grupin</string>
+    <string name="sticker_preview_content_description">Paraparje e zmadhuar ngjitësi</string>
+    <string name="pref_pinned_status_message">Mesazh i fiksuar gjendjeje</string>
+    <string name="pref_pinned_status_message_summary">Shfaq dhe përditëson mesazhin e gjendjes në krye të pamjes në fjalosje tek për tek</string>
 </resources>
