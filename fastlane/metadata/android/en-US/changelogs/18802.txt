@@ -13,3 +13,6 @@
 * Improve accounts overview
 * Fix soft input mode when opening chat from notification
 * Update translations
+* Change some defaults
+* Add further preference to intro screen
+* Add Samsung Galaxy S9+ and Google Pixel 2 to the list of AAC sensitive devices
