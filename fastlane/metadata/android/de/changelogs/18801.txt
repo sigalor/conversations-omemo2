@@ -16,3 +16,7 @@
 * Einige Standardeinstellungen ändern
 * Hinzufügen weiterer Einstellungen zum Intro-Bildschirm
 * Hinzufügen von Samsung Galaxy S9+ und Google Pixel 2 zu der Liste der AAC-empfindlichen Geräte
+* Direktes Setzen des Fokus auf das Eingabefeld beim Öffnen des Chats
+* Monocles-Registrierungsinformationen bereinigen
+* Sticker/GIF bei langem Drücken anzeigen, anstatt sie zu löschen
+* Avatar-Vorschau bereinigen

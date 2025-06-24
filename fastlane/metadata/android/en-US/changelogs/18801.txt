@@ -16,3 +16,7 @@
 * Change some defaults
 * Add further preference to intro screen
 * Add Samsung Galaxy S9+ and Google Pixel 2 to the list of AAC sensitive devices
+* Directly set focus on input field when opening chat
+* Clean up monocles registration info
+* View Sticker/GIF on long press instead of deleting it
+* Clean up avatar preview
