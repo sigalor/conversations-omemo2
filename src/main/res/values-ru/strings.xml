@@ -1441,7 +1441,7 @@
     <string name="show_media_summary">Хотели бы вы отображать полученные и отправленные медиафайлы в галерее вашей системы?</string>
     <string name="pref_hide_media_title">Скрыть медиа в галерее</string>
     <string name="pref_hide_media_summary">Скрыть полученные и отправленные медиа файлы в системной галерее</string>
-    <string name="pref_secure_tls">Используйте только безопасные шифры TLS</string>
+    <string name="pref_secure_tls">Используйте только самые безопасные шифры TLS</string>
     <string name="pref_secure_tls_summary">Используйте только самые надёжные шифры TLS, если они доступны на сервере</string>
     <string name="pref_prefer_ipv6">Предпочитаю IPv6</string>
     <string name="pref_use_colored_muc_names_summary">Используйте цветные имена пользователей в групповых чатах</string>
@@ -1523,4 +1523,5 @@
     <string name="leave_group">Покинуть группу</string>
     <string name="pref_pinned_status_message">Закреплено сообщение о статусе</string>
     <string name="pref_pinned_status_message_summary">Показывает и обновляет сообщение о статусе в верхней части представления в чате один на один</string>
+    <string name="sticker_preview_content_description">Увеличенный предварительный просмотр стикера</string>
 </resources>

@@ -1405,8 +1405,8 @@
     <string name="show_media_summary">是否在系统图库中显示接收和发送的媒体？</string>
     <string name="pref_hide_media_title">在图库中隐藏媒体</string>
     <string name="pref_hide_media_summary">在系统图库视图中隐藏接收和发送的媒体</string>
-    <string name="pref_secure_tls_summary">如果服务器上支持，仅使用最安全的 TLS 密码</string>
-    <string name="pref_secure_tls">仅安全 TLS 密码</string>
+    <string name="pref_secure_tls_summary">如果服务器支持，仅使用最安全的 TLS 加密</string>
+    <string name="pref_secure_tls">仅最安全的 TLS 加密</string>
     <string name="pref_export_plain_text_logs_summary">以人类可读的纯文本导出未加密消息</string>
     <string name="delete_avatar_message">是否删除头像？部分客户端可能会继续显示已缓存的头像副本。</string>
     <string name="pref_prefer_ipv6">首选 IPv6</string>
@@ -1487,4 +1487,5 @@
     <string name="leave_group">离开群聊</string>
     <string name="pref_pinned_status_message">置顶状态消息</string>
     <string name="pref_pinned_status_message_summary">在一对一聊天界面顶部显示并更新状态消息</string>
+    <string name="sticker_preview_content_description">贴纸放大预览</string>
 </resources>

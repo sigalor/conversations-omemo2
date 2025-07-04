@@ -1398,7 +1398,7 @@
     <string name="pref_call_integration_summary">Oproepen vanuit deze app reageren op gewone telefoongesprekken, bijvoorbeeld d.mv. het beëindigen van een gesprek wanneer een ander gesprek begint.</string>
     <string name="pref_hide_media_summary">Verberg ontvangen en verzonden media voor je galerij-app(s)</string>
     <string name="pref_hide_media_title">Verbergen voor galerij</string>
-    <string name="pref_secure_tls">Alleen veilige TLS-methodes gebruiken</string>
+    <string name="pref_secure_tls">Alleen veiligste TLS-methodes gebruiken</string>
     <string name="pref_secure_tls_summary">Gebruik alleen de veiligste TLS-ciphers indien beschikbaar op de server.</string>
     <string name="simple_commons">Simple commons</string>
     <string name="pref_prefer_ipv6">IPv6 prefereren</string>
@@ -1481,4 +1481,5 @@
     <string name="leave_group">Groep verlaten</string>
     <string name="pref_pinned_status_message">Vastgezet statusbericht</string>
     <string name="pref_pinned_status_message_summary">Toont het statusbericht bovenaan in 1-op-1-gesprekken</string>
+    <string name="sticker_preview_content_description">Grotere voorbeelden stickers</string>
 </resources>

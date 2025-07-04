@@ -1460,8 +1460,8 @@
     <string name="pref_call_integration_summary">Виклики з цього застосунку взаємодіють зі звичайними телефонними дзвінками — наприклад, завершення одного дзвінка, коли починається інший.</string>
     <string name="pref_hide_media_summary">Приховати отримані та надіслані файли в перегляді системної галереї</string>
     <string name="pref_hide_media_title">Приховати медіа в галереї</string>
-    <string name="pref_secure_tls">Тільки безпечні TLS-шифри</string>
-    <string name="pref_secure_tls_summary">Використовувати тільки безпечні TLS-шифри, якщо доступно на сервері</string>
+    <string name="pref_secure_tls">Тільки найбезпечніші TLS-шифри</string>
+    <string name="pref_secure_tls_summary">Використовувати тільки найбезпечніші TLS-шифри, якщо доступно на сервері</string>
     <string name="pref_prefer_ipv6_summary">Віддавати перевагу IPv6 під час з\'єднання</string>
     <string name="pref_use_colored_muc_names_summary">Використовувати кольорові імена користувачів у групових чатах</string>
     <string name="error_export_settings">Помилка під час експорту налаштувань</string>
@@ -1542,4 +1542,5 @@
     <string name="leave_group">Покинути групу</string>
     <string name="pref_pinned_status_message_summary">Показує та оновлює повідомлення про стан у верхній частині вікна в приватних чатах</string>
     <string name="pref_pinned_status_message">Закріплене повідомлення стану</string>
+    <string name="sticker_preview_content_description">Збільшений перегляд наклейок</string>
 </resources>
