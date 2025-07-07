@@ -2243,9 +2243,9 @@ public class Conversation extends AbstractEntity
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Conversation";
+                    return xmppConnectionService.getString(R.string.conversation);
                 case 1:
-                    return "Commands";
+                    return xmppConnectionService.getString(R.string.commands);
                 default:
                     ConversationPage session = sessions.get(position-2);
                     if (session == null) return super.getPageTitle(position);

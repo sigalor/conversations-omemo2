@@ -1485,4 +1485,6 @@
     <string name="pref_pinned_status_message">Pinned status message</string>
     <string name="pref_pinned_status_message_summary">Shows and updates the status message at the top of the view in one to one chats</string>
     <string name="sticker_preview_content_description">Enlarged sticker preview</string>
+    <string name="conversation">Conversation</string>
+    <string name="commands">Commands</string>
 </resources>
