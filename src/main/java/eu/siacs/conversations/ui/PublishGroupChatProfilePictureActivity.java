@@ -152,7 +152,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity
             }
         }
 
-        CropImage.activity(uri).setOutputCompressFormat(Bitmap.CompressFormat.WEBP)
+        CropImage.activity(uri).setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                 .setAspectRatio(1, 1)
                 .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
                 .start(this);

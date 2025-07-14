@@ -145,7 +145,7 @@ public class BarcodeProvider extends ContentProvider implements ServiceConnectio
 							file.createNewFile();
 							Bitmap bitmap = create2dBarcodeBitmap(account.getShareableUri(), 1024);
 							OutputStream outputStream = new FileOutputStream(file);
-							bitmap.compress(Bitmap.CompressFormat.WEBP, 100, outputStream);
+							bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
 							outputStream.close();
 							outputStream.flush();
 						}

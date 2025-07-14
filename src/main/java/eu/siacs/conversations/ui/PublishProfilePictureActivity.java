@@ -209,7 +209,7 @@ public class PublishProfilePictureActivity extends XmppActivity
                     REQUEST_CHOOSE_PICTURE);
         } else {
             CropImage.activity()
-                    .setOutputCompressFormat(Bitmap.CompressFormat.WEBP)
+                    .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                     .setAspectRatio(1, 1)
                     .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
                     .start(activity);
@@ -270,7 +270,7 @@ public class PublishProfilePictureActivity extends XmppActivity
         }
 
         CropImage.activity(uri)
-                .setOutputCompressFormat(Bitmap.CompressFormat.WEBP)
+                .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                 .setAspectRatio(1, 1)
                 .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
                 .start(this);
