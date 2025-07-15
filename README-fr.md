@@ -9,6 +9,9 @@ Les changements visent à améliorer la convivialité et à faciliter la transit
 
 ## Télécharger
 monocles chat est disponible dans F-Droid
+<a href="https://f-droid.org/app/de.monocles.chat"><img src="https://f-droid.org/badge/get-it-on-fr.png" alt="Now on F-Droid" height="100"></a>
+<a href="https://play.google.com/store/apps/details?id=eu.monocles.chat"><img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/art/GetItOnGooglePlay_Badge_Web_color_French.png" alt="Now on Google Play" height="100"></a>
+
 Alternativement, les APKs de la release et de la beta-release sont disponibles via codeberg : [Releases](https://codeberg.org/Arne/monocles_chat/releases/latest) 
 
 #### monocles chat nightly et beta
