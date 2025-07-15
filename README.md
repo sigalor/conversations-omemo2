@@ -8,9 +8,13 @@ monocles chat ist moderner und sicherer Android XMPP-Client. Basierend auf blabb
 
 Vorschaubilder erstellt von Pigeonalley (https://pigeonalley.com)
 
+### Download
+
 Download ist hier möglich:
 <a href="https://f-droid.org/app/de.monocles.chat"><img src="https://f-droid.org/badge/get-it-on-de.png" alt="Jetzt bei F-Droid" height="100"></a>
 <a href="https://play.google.com/store/apps/details?id=eu.monocles.chat"><img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/art/GetItOnGooglePlay_Badge_Web_color_German.png" alt="Jetzt bei Google Play" height="100"></a>
+
+### Social Media
 
 Folge uns auf <a rel="me" href="https://monocles.social/@monocles">monocles social</a> 
 
