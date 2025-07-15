@@ -27,7 +27,7 @@ monocles chat è disponibile per l'installazione su F-Droid
 In alternativa, gli APK delle versioni beta sono disponibili tramite codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases) 
 
 <a href="https://f-droid.org/app/de.monocles.chat"><img src="https://f-droid.org/badge/get-it-on-it.png" alt="Scaricalo su F-Droid" height="100"></a>
-<a href="https://play.google.com/store/apps/details?id=eu.monocles.chat"><img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/art/GetItOnGooglePlay_Badge_Web_color_Italien.png" alt="Now on Google Play" height="100"></a>
+<a href="https://play.google.com/store/apps/details?id=eu.monocles.chat"><img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/art/GetItOnGooglePlay_Badge_Web_color_Italian.png" alt="Now on Google Play" height="100"></a>
 
 
 
