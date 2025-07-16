@@ -12,14 +12,11 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
-
-import org.checkerframework.checker.units.qual.N;
 
 import java.io.Closeable;
 import java.io.File;
