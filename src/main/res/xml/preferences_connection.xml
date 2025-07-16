@@ -16,6 +16,7 @@
             android:title="@string/pref_use_tor" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/use_i2p"
+            android:icon="@drawable/i2p_connection"
             android:key="use_i2p"
             android:summary="@string/pref_use_i2p_summary"
             android:title="@string/pref_use_i2p" />
