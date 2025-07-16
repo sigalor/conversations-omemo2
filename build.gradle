@@ -56,11 +56,6 @@ dependencies {
 
     implementation 'androidx.viewpager:viewpager:1.0.0'
 
-    playstoreImplementation('com.google.firebase:firebase-messaging:24.1.1') {
-        exclude group: 'com.google.firebase', module: 'firebase-core'
-        exclude group: 'com.google.firebase', module: 'firebase-analytics'
-        exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
-    }
     monocleschatPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
     monocleschatPlaystoreImplementation 'com.github.singpolyma:play-licensing:1c637ea03c'
     conversationsPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
