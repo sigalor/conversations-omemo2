@@ -54,6 +54,9 @@ import androidx.media3.session.MediaSession; // Media3 MediaSession
 // For a pure Media3 setup, MediaSessionCompat is not directly used with the Media3 player in the same way.
 import androidx.media3.ui.PlayerView; // If your binding uses PlayerView, ensure it's the Media3 one
 
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 
 import java.io.File;
@@ -300,7 +303,13 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
         try {
             binding.messageImageView.setVisibility(View.VISIBLE);
-            Glide.with(this).load(uri).into(binding.messageImageView);
+            Glide.with(this)
+                    .load(uri)
+                    .apply(new RequestOptions()
+                            .fitCenter()
+                            .format(DecodeFormat.PREFER_ARGB_8888)
+                            .override(Target.SIZE_ORIGINAL))
+                    .into(binding.messageImageView);
             binding.messageImageView.setOnPhotoTapListener((view, motionEvent, listener) -> {
                 if (isImage) {
                     if (binding.speedDial.isShown()) {
