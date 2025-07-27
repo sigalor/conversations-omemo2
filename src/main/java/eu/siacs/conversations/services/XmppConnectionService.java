@@ -864,7 +864,7 @@ public class XmppConnectionService extends Service {
         });
     }
 
-    private File stickerDir() {
+    public File stickerDir() {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final String dir = p.getString("sticker_directory", "Stickers");
         if (dir.startsWith("content://")) {
