@@ -6735,6 +6735,9 @@ public class XmppConnectionService extends Service {
                 if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
                     FILE_ATTACHMENT_EXECUTOR.execute(() -> {
                         XmppAxolotlMessage axolotlMessage = conversation.getAccount().getAxolotlService().encrypt(body, conversation);
+                        if (axolotlMessage == null) {
+                            return;
+                        }
                         packet.setAxolotlMessage(axolotlMessage.toElement());
                         packet.addChild("encryption", "urn:xmpp:eme:0")
                                 .setAttribute("name", "OMEMO")
