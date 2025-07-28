@@ -394,7 +394,8 @@ public class StartConversationActivity extends XmppActivity
         } else if(intent.hasExtra(EXTRA_ACCOUNT_FILTER)) {
             pendingViewIntent.push(intent);
             setIntent(intent);
-        } else if (isViewIntent(intent)) {
+        }
+        if (isViewIntent(intent) && pendingViewIntent.peek() == null) {
             pendingViewIntent.push(intent);
             createdByViewIntent = true;
             setIntent(createLauncherIntent(this));
