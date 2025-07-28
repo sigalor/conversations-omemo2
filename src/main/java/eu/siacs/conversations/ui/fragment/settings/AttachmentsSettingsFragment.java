@@ -213,13 +213,13 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
                             InputStream in;
                             OutputStream out;
                             try {
-                                File stickerfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath());
+                                File stickerfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "Custom");
                                 //create output directory if it doesn't exist
                                 if (!stickerfolder.exists()) {
                                     stickerfolder.mkdirs();
                                 }
                                 String filename = getFileName(imageUri);
-                                File newSticker = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + filename);
+                                File newSticker = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "Custom" + File.separator + filename);
 
                                 in = requireXmppActivity().getContentResolver().openInputStream(imageUri);
                                 out = new FileOutputStream(newSticker);
@@ -252,13 +252,13 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
                         InputStream in;
                         OutputStream out;
                         try {
-                            File stickerfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath());
+                            File stickerfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "Custom");
                             //create output directory if it doesn't exist
                             if (!stickerfolder.exists()) {
                                 stickerfolder.mkdirs();
                             }
                             String filename = getFileName(imageUri);
-                            File newSticker = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + filename);
+                            File newSticker = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "Custom" + File.separator + filename);
 
                             in = requireXmppActivity().getContentResolver().openInputStream(imageUri);
                             out = new FileOutputStream(newSticker);
@@ -298,13 +298,13 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
                             InputStream in;
                             OutputStream out;
                             try {
-                                File gifsfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath());
+                                File gifsfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "GIFs");
                                 //create output directory if it doesn't exist
                                 if (!gifsfolder.exists()) {
                                     gifsfolder.mkdirs();
                                 }
                                 String filename = getFileName(imageUri);
-                                File newGif = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + filename);
+                                File newGif = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "GIFs" + File.separator + filename);
 
                                 in = requireXmppActivity().getContentResolver().openInputStream(imageUri);
                                 out = new FileOutputStream(newGif);
@@ -334,13 +334,13 @@ public class AttachmentsSettingsFragment extends XmppPreferenceFragment {
                         InputStream in;
                         OutputStream out;
                         try {
-                            File gifsfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath());
+                            File gifsfolder = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "GIFs");
                             //create output directory if it doesn't exist
                             if (!gifsfolder.exists()) {
                                 gifsfolder.mkdirs();
                             }
                             String filename = getFileName(imageUri);
-                            File newGif = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + filename);
+                            File newGif = new File(requireXmppActivity().xmppConnectionService.stickerDir().getAbsolutePath() + File.separator + "GIFs" + File.separator + filename);
 
                             in = requireXmppActivity().getContentResolver().openInputStream(imageUri);
                             out = new FileOutputStream(newGif);
