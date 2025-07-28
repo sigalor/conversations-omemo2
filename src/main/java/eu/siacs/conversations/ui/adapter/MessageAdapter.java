@@ -1744,7 +1744,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final BubbleMessageItemViewHolder viewHolder) {
 
         // new reactions popup
-        Consumer<Collection<String>> callback = reactions -> activity.xmppConnectionService.sendReactions(message, reactions);
+        Consumer<Collection<String>> callback = reactions -> {
+            if (mConversationFragment.requireTrustKeys()) {
+                return;
+            }
+            activity.xmppConnectionService.sendReactions(message, reactions);
+        };
         ReactionsConfig config = new ReactionsConfigBuilder(activity)
                 .withReactions(new int[]{
                         R.drawable.heart,
@@ -1826,6 +1831,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     callback.accept(reactionBuilder.build());
                 }
             } else if (positionPopup.equals(6)) {
+                if (mConversationFragment.requireTrustKeys()) {
+                    return true;
+                }
+
                 final var intent = new Intent(activity, AddReactionActivity.class);
                 intent.putExtra("conversation", message.getConversation().getUuid());
                 intent.putExtra("message", message.getUuid());
@@ -2116,6 +2125,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void sendReactions(final Message message, final Collection<String> reactions) {
+        if (mConversationFragment.requireTrustKeys()) {
+            return;
+        }
         if (!message.isPrivateMessage() && activity.xmppConnectionService.sendReactions(message, reactions)) {
             return;
         }
@@ -2123,6 +2135,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void sendCustomReaction(final Message inReplyTo, final EmojiSearch.CustomEmoji emoji) {
+        if (mConversationFragment.requireTrustKeys()) {
+            return;
+        }
         final var message = inReplyTo.reply();
         message.appendBody(emoji.toInsert());
         Message.configurePrivateMessage(message);
@@ -2130,6 +2145,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void removeCustomReaction(final Conversational conversation, final Reaction reaction) {
+        if (mConversationFragment.requireTrustKeys()) {
+            return;
+        }
         if (!(conversation instanceof Conversation)) {
             Toast.makeText(activity, R.string.could_not_add_reaction, Toast.LENGTH_LONG).show();
             return;
@@ -2150,6 +2168,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void addReaction(final Message message) {
+        if (mConversationFragment.requireTrustKeys()) {
+            return;
+        }
         activity.addReaction(
                 message,
                 reactions -> {

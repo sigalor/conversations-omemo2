@@ -270,6 +270,7 @@ public class ConversationFragment extends XmppFragment
     private FileObserver mFileObserver;
 
 
+    public static final int REQUEST_TRUST_KEYS_NONE = 0x0;
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
     public static final int REQUEST_ENCRYPT_MESSAGE = 0x0207;
@@ -1389,6 +1390,10 @@ public class ConversationFragment extends XmppFragment
         setupReply(null);
     }
 
+    public boolean requireTrustKeys() {
+        return trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_NONE);
+    }
+
     private boolean trustKeysIfNeeded(final Conversation conversation, final int requestCode) {
         return conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL
                 && trustKeysIfNeeded(requestCode);
@@ -1491,6 +1496,8 @@ public class ConversationFragment extends XmppFragment
                 } catch (final FileBackend.FileCopyException e) {
                     Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case REQUEST_TRUST_KEYS_NONE:
                 break;
             case REQUEST_TRUST_KEYS_TEXT:
                 sendMessage();
