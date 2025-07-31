@@ -2640,6 +2640,9 @@ public class ConversationFragment extends XmppFragment
             case R.id.send_again_as_p2p:
                 resendMessage(selectedMessage, true);
                 return true;
+            case R.id.copy_link:
+                ShareUtil.copyLinkToClipboard(activity, selectedMessage);
+                return true;
             case R.id.copy_url:
                 ShareUtil.copyUrlToClipboard(activity, selectedMessage);
                 return true;
