@@ -1543,4 +1543,16 @@
     <string name="pref_pinned_status_message_summary">Показує та оновлює повідомлення про стан у верхній частині вікна в приватних чатах</string>
     <string name="pref_pinned_status_message">Закріплене повідомлення стану</string>
     <string name="sticker_preview_content_description">Збільшений перегляд наклейок</string>
+    <string name="conversation">Розмова</string>
+    <string name="commands">Команди</string>
+    <string name="import_own_stickers_summary">Імпорт власних наклейок. Використовуйте їх з оригінальною назвою файлу.</string>
+    <string name="import_own_stickers">Імпортувати наклейки</string>
+    <string name="sticker_imported">Наклейки імпортовано</string>
+    <string name="import_sticker_failed">Не вдалося імпортувати наклейки</string>
+    <string name="import_gif_failed">Не вдалося імпортувати файли GIF</string>
+    <string name="sticker_download_started">Завантаження наклейок розпочато</string>
+    <string name="sticker_saved">Наклейку збережено</string>
+    <string name="import_own_gifs_summary">Імпорт власних файлів GIF. Вони будуть відсортовані за назвою файлу.</string>
+    <string name="import_own_gifs">Імпортувати файли GIF</string>
+    <string name="gif_imported">Файли GIF імпортовано</string>
 </resources>

@@ -1524,4 +1524,16 @@
     <string name="pref_pinned_status_message">Закреплено сообщение о статусе</string>
     <string name="pref_pinned_status_message_summary">Показывает и обновляет сообщение о статусе в верхней части представления в чате один на один</string>
     <string name="sticker_preview_content_description">Увеличенный предварительный просмотр стикера</string>
+    <string name="conversation">Беседа</string>
+    <string name="commands">Команды</string>
+    <string name="sticker_saved">Наклейка сохранена</string>
+    <string name="sticker_imported">Наклейка импортируется</string>
+    <string name="import_sticker_failed">Не удалось импортировать наклейку</string>
+    <string name="import_gif_failed">Не удалось импортировать GIFS</string>
+    <string name="gif_imported">GIF -файлы импортируются</string>
+    <string name="import_own_gifs">Импортировать собственные гифки</string>
+    <string name="sticker_download_started">Загрузка наклейки</string>
+    <string name="import_own_stickers">Импорт наклеек</string>
+    <string name="import_own_stickers_summary">Импортируйте свои наклейки. Используйте их с исходным именем файла.</string>
+    <string name="import_own_gifs_summary">Импортируйте свои собственные гифки. Они будут отсортированы по имени файла.</string>
 </resources>

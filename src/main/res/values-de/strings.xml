@@ -1497,4 +1497,16 @@
     <string name="pref_pinned_status_message_summary">Zeigt und aktualisiert die Statusmeldung am oberen Rand der Ansicht in Einzelchats</string>
     <string name="pref_pinned_status_message">Angeheftete Statusmeldung</string>
     <string name="sticker_preview_content_description">Vergrößerte Sticker-Vorschau</string>
+    <string name="import_own_stickers_summary">Importieren Sie Ihre eigenen Sticker. Verwenden Sie sie mit dem ursprünglichen Dateinamen.</string>
+    <string name="import_own_gifs_summary">Importiere eigene GIFs. Sie werden nach dem Dateinamen sortiert.</string>
+    <string name="sticker_saved">Sticker gespeichert</string>
+    <string name="sticker_imported">Sticker importiert</string>
+    <string name="import_sticker_failed">Sticker kann nicht importiert werden</string>
+    <string name="import_gif_failed">GIFs konnten nicht importiert werden</string>
+    <string name="gif_imported">GIFs importiert</string>
+    <string name="import_own_gifs">Importiere eigene GIFs</string>
+    <string name="import_own_stickers">Importiere Sticker</string>
+    <string name="sticker_download_started">Sticker-Download gestartet</string>
+    <string name="conversation">Chat</string>
+    <string name="commands">Befehle</string>
 </resources>

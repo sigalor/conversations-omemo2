@@ -1482,4 +1482,16 @@
     <string name="pref_pinned_status_message">Vastgezet statusbericht</string>
     <string name="pref_pinned_status_message_summary">Toont het statusbericht bovenaan in 1-op-1-gesprekken</string>
     <string name="sticker_preview_content_description">Grotere voorbeelden stickers</string>
+    <string name="conversation">Gesprek</string>
+    <string name="commands">Opdrachten</string>
+    <string name="import_own_gifs">Eigen GIFs importeren</string>
+    <string name="sticker_saved">Sticker opgeslagen</string>
+    <string name="sticker_imported">Sticker geïmporteerd</string>
+    <string name="import_sticker_failed">Fout bij het importeren van de sticker</string>
+    <string name="import_gif_failed">Fout bij het importeren van de GIFs</string>
+    <string name="gif_imported">GIFs geïmporteerd</string>
+    <string name="sticker_download_started">Downloaden van stickers gestart</string>
+    <string name="import_own_gifs_summary">Importeer je eigen GIF\'s. De volgorde gaat op bestandsnaam.</string>
+    <string name="import_own_stickers">Stickers importeren</string>
+    <string name="import_own_stickers_summary">Importeer je eigen stickers. Gebruik ze met de originele bestandsnaam.</string>
 </resources>
