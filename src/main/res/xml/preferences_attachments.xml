@@ -52,9 +52,11 @@
             android:key="internal_meda_viewer"
             android:title="@string/internal_meda_viewer_title"
             android:summary="@string/internal_meda_viewer_summary" />
+        <!--
         <Preference
             android:title="@string/change_stickers_location"
             android:key="sticker_directory" />
+        -->
         <Preference
             android:title="@string/update_default_stickers"
             android:key="download_default_stickers" />

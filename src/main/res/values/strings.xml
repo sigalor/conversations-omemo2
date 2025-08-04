@@ -1497,4 +1497,6 @@
     <string name="import_own_gifs">Import own GIFs</string>
     <string name="import_own_gifs_summary">Import your own GIFs. They will be sorted by the filename.</string>
     <string name="sticker_download_started">Sticker download started</string>
+    <string name="choose_stickerpack_to_add_sticker">Choose a sticker pack to add this sticker to</string>
+    <string name="choose_sticker_pack">Choose sticker pack</string>
 </resources>

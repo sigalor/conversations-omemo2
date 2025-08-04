@@ -865,6 +865,7 @@ public class XmppConnectionService extends Service {
     }
 
     public File stickerDir() {
+        /*
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final String dir = p.getString("sticker_directory", "Stickers");
         if (dir.startsWith("content://")) {
@@ -874,6 +875,8 @@ public class XmppConnectionService extends Service {
         } else {
             return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + dir);
         }
+         */
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + "Stickers");
     }
 
     public void rescanStickers() {
