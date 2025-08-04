@@ -783,7 +783,7 @@ public class ConferenceDetailsActivity extends XmppActivity
                     final MaterialAlertDialogBuilder deleteFromRosterDialog = new MaterialAlertDialogBuilder(ConferenceDetailsActivity.this);
                     deleteFromRosterDialog.setNegativeButton(getString(R.string.cancel), null);
                     deleteFromRosterDialog.setTitle(getString(R.string.action_delete_contact));
-                    deleteFromRosterDialog.setMessage(getString(R.string.remove_bookmark_text, mConversation.getBookmark().getBookmarkName().toString()));
+                    deleteFromRosterDialog.setMessage(getString(R.string.remove_bookmark_text, mConversation.getBookmark().getBookmarkName()));
                     deleteFromRosterDialog.setPositiveButton(getString(R.string.delete),
                             (dialog, which) -> {
                                 deleteBookmark();
