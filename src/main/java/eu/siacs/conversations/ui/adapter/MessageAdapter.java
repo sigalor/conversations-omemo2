@@ -640,15 +640,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
         viewHolder.messageBody().setTypeface(null, Typeface.NORMAL);
 
-        // Display the linkDescriptions object only when there's something
-        // to show
-        ListAdapter adapter = viewHolder.linkDescriptions().getAdapter();
-        if (adapter != null && !adapter.isEmpty()) {
-            viewHolder.linkDescriptions().setVisibility(View.VISIBLE);
-        } else {
-            viewHolder.linkDescriptions().setVisibility(GONE);
-        }
-
         final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody().getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
         viewHolder.messageBody().setLayoutParams(layoutParams);
