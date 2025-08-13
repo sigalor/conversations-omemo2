@@ -531,6 +531,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
 
         public String getType(Contact gateway) {
             List<String> types = getTypes(gateway);
+            if (types.contains("pstn")) return "pstn";
             return types.isEmpty() ? null : types.get(0);
         }
 
