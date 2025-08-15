@@ -6400,7 +6400,8 @@ public class ConversationFragment extends XmppFragment
                 lowerName.endsWith(".jpg") ||
                 lowerName.endsWith(".jpeg") ||
                 lowerName.endsWith(".webp") || // Common Android image format
-                lowerName.endsWith(".bmp");
+                lowerName.endsWith(".bmp") ||
+                lowerName.endsWith(".svg");
     }
 
     /**
