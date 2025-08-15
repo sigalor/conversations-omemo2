@@ -1547,12 +1547,14 @@
     <string name="commands">Команди</string>
     <string name="import_own_stickers_summary">Імпорт власних наклейок. Використовуйте їх з оригінальною назвою файлу.</string>
     <string name="import_own_stickers">Імпортувати наклейки</string>
-    <string name="sticker_imported">Наклейки імпортовано</string>
-    <string name="import_sticker_failed">Не вдалося імпортувати наклейки</string>
+    <string name="sticker_imported">Наклейку імпортовано</string>
+    <string name="import_sticker_failed">Не вдалося імпортувати наклейку</string>
     <string name="import_gif_failed">Не вдалося імпортувати файли GIF</string>
     <string name="sticker_download_started">Завантаження наклейок розпочато</string>
     <string name="sticker_saved">Наклейку збережено</string>
     <string name="import_own_gifs_summary">Імпорт власних файлів GIF. Вони будуть відсортовані за назвою файлу.</string>
     <string name="import_own_gifs">Імпортувати файли GIF</string>
     <string name="gif_imported">Файли GIF імпортовано</string>
+    <string name="choose_sticker_pack">Виберіть набір наклейок</string>
+    <string name="choose_stickerpack_to_add_sticker">Виберіть, до якого набору наклейок додати цю наклейку</string>
 </resources>

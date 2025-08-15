@@ -74,7 +74,7 @@
     <string name="attach_file">Прикрепить файл</string>
     <string name="not_in_roster">Контакт не находится в вашем списке контактов. Хотите добавить его?</string>
     <string name="add_contact">Добавить контакт</string>
-    <string name="send_failed">доставка не удалась</string>
+    <string name="send_failed">отправка не удалась</string>
     <string name="preparing_image">Подготовка к передаче изображения</string>
     <string name="preparing_images">Подготовка к передаче изображений</string>
     <string name="sharing_files_please_wait">Обмен файлами. Пожалуйста, подождите…</string>
@@ -88,7 +88,7 @@
 \n
 \n<b>Предупреждение:</b> Данная операция не удалит копии этого файла, хранящиеся на других устройствах или серверах. </string>
     <string name="choose_presence">Выберите устройство</string>
-    <string name="send_unencrypted_message">Нешифрованное сообщение</string>
+    <string name="send_unencrypted_message">Незашифрованное сообщение</string>
     <string name="send_message">Сообщение</string>
     <string name="send_message_to_x">Сообщение для %s</string>
     <string name="send_omemo_x509_message">v\\OMEMO-зашифр. сообщение</string>
@@ -165,7 +165,7 @@
     <string name="account_status_incompatible_server">Несовместимый сервер</string>
     <string name="account_status_stream_error">Ошибка потока</string>
     <string name="account_status_stream_opening_error">Ошибка открытия потока</string>
-    <string name="encryption_choice_unencrypted">Никто</string>
+    <string name="encryption_choice_unencrypted">Ничего</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo">OMEMO</string>
@@ -200,13 +200,13 @@
     <string name="server_info_available">доступно</string>
     <string name="server_info_unavailable">недоступно</string>
     <string name="missing_public_keys">Отсутствие анонсирования открытых ключей</string>
-    <string name="last_seen_now">Присутствие: только что</string>
-    <string name="last_seen_min">Присутствие: одну минуту назад</string>
-    <string name="last_seen_mins">Присутствие: %d мин. назад</string>
-    <string name="last_seen_hour">Присутствие: один час назад</string>
-    <string name="last_seen_hours">Присутствие: %d час. назад</string>
-    <string name="last_seen_day">Присутствие: один день назад</string>
-    <string name="last_seen_days">Присутствие: %d дн. назад</string>
+    <string name="last_seen_now">Был в сети: только что</string>
+    <string name="last_seen_min">Был в сети: одну минуту назад</string>
+    <string name="last_seen_mins">Был в сети: %d мин. назад</string>
+    <string name="last_seen_hour">Был в сети: один час назад</string>
+    <string name="last_seen_hours">Был в сети: %d час. назад</string>
+    <string name="last_seen_day">Был в сети: один день назад</string>
+    <string name="last_seen_days">Был в сети: %d дн. назад</string>
     <string name="install_openkeychain">Зашифрованное сообщение. Установите OpenKeychain, чтобы расшифровать его.</string>
     <string name="openpgp_messages_found">Найдены новые сообщения зашифрованные в OpenPGP</string>
     <string name="openpgp_key_id">ID OpenPGP ключа</string>
@@ -245,7 +245,7 @@
     <string name="leave">Покинуть</string>
     <string name="contact_added_you">Собеседник добавил вас в список контактов</string>
     <string name="add_back">Добавить в ответ</string>
-    <string name="contact_has_read_up_to_this_point">%s прочитал сообщений до этого момента</string>
+    <string name="contact_has_read_up_to_this_point">%s прочитал сообщения до этого момента</string>
     <string name="contacts_have_read_up_to_this_point">%s прочитали сообщения до этого момента</string>
     <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s + ещё %2$d прочитали до этого места</string>
     <string name="everyone_has_read_up_to_this_point">Все прочитали сообщения до этого момента</string>
@@ -253,7 +253,7 @@
     <string name="touch_to_choose_picture">Нажмите на аватар, чтобы выбрать новую фотографию из галереи</string>
     <string name="publishing">Установка…</string>
     <string name="error_publish_avatar_server_reject">Сервер отказал в вашей публикации</string>
-    <string name="error_publish_avatar_converting">Не удалось преобразовать вашу фотографию</string>
+    <string name="error_publish_avatar_converting">Не удалось конвертировать вашу фотографию</string>
     <string name="error_saving_avatar">Не удалось сохранить аватар</string>
     <string name="or_long_press_for_default">(Или долгое прикосновение, чтобы вернуть значения по умолчанию)</string>
     <string name="error_publish_avatar_no_server_support">Ваш сервер не поддерживает публикацию аватаров</string>
@@ -325,7 +325,7 @@
     <string name="notification_restored_backup_title">Восстановление из резервной копии выполнено</string>
     <string name="notification_restored_backup_subtitle">Не забудьте включить учётную запись.</string>
     <string name="choose_file">Выбрать файл</string>
-    <string name="receiving_x_file">%1$s загружается (%2$d%% выполнено)</string>
+    <string name="receiving_x_file">%1$s загружается (%2$d%% получено)</string>
     <string name="download_x_file">Скачать %s</string>
     <string name="delete_x_file">Удалить %s</string>
     <string name="file">файл</string>
@@ -539,7 +539,7 @@
     <string name="pick_your_username">Выберите своё имя пользователя</string>
     <string name="pref_manually_change_presence">Управлять доступностью вручную</string>
     <string name="pref_manually_change_presence_summary">Устанавливать свою доступность при редактировании сообщения состояния.</string>
-    <string name="status_message">Статусное собщение</string>
+    <string name="status_message">Статусное сообщение</string>
     <string name="presence_chat">Свободен для общения</string>
     <string name="presence_online">В сети</string>
     <string name="presence_away">Отошёл</string>
@@ -1210,7 +1210,7 @@
     <string name="pref_set_text_collapsable">Бета-версия: свернуть длинный текст</string>
     <string name="pref_jump_to_commands_tab">Перейти к командам</string>
     <string name="pref_jump_to_commands_tab_summary">Автоматически переходить на страницу команд, если она доступна</string>
-    <string name="stickers">Наклейки</string>
+    <string name="stickers">Стикеры</string>
     <string name="gifs">Гифки</string>
     <string name="gif_deleted">GIF-файл удалён</string>
     <string name="failed_to_delete_gif">Не удалось удалить GIF</string>
@@ -1370,7 +1370,7 @@
     <string name="could_not_modify_call">Не удалось изменить вызов</string>
     <string name="pref_accept_invites_from_strangers">Принимать приглашения от незнакомцев</string>
     <string name="pref_auto_accept_unmetered_summary">Не используйте указанный выше предел размера в сетях без ограничений</string>
-    <string name="change_stickers_location">Изменить расположение наклеек</string>
+    <string name="change_stickers_location">Изменить расположение стикеров</string>
     <string name="clear_blocked_media">Очистить заблокированные носители</string>
     <string name="unban_from_group_chat">Разблокировать в групповом чате</string>
     <string name="unban_from_channel">Разблокировать в канале</string>
@@ -1463,11 +1463,11 @@
     <string name="set_preferences_title">Установить настройки</string>
     <string name="pref_store_media_in_cache">По умолчанию для всей системы медиафайлы хранятся только в кеше.</string>
     <string name="set_preferences_summary">Здесь вы можете изменить настройки по умолчанию для некоторых наиболее важных предпочтений перед входом в систему, чтобы повысить вашу конфиденциальность и безопасность. Вы можете изменить их все снова после входа в систему.</string>
-    <string name="monocles_account_introduction">Чтобы напрямую начать чат, зарегистрируйтесь сейчас, и <b>получите безопасную учётную запись поставщика Monocles, серверы которого питается от возобновляемой энергии</b>.</string>
+    <string name="monocles_account_introduction">Чтобы напрямую начать чат, зарегистрируйтесь сейчас, и <b>получите безопасную учётную запись поставщика Monocles, сервера которого питаются от возобновляемой энергии</b>.</string>
     <string name="monocles_account_details">Это включает в себя:\n● Один месяц временного хранения чата\n● Электронная почта с хранением 2 ГБ\n\n необязательно: \n● 5 ГБ облачного хранилища (NextCloud)\n● Календарь и контакт синхронизации\n● Безопасный инструмент конференции \n и подробнее о <a href="https://monocles.eu/more/"> https://monocles.eu/more/ </a></string>
     <string name="create_monocles_account">Зарегистрироваться</string>
     <string name="or_use_another">… или выберите ещё один</string>
-    <string name="use_monocles">Я предпочитаю монокли</string>
+    <string name="use_monocles">Я предпочитаю monocles</string>
     <string name="account_status_connection_timeout">Тайм-аут подключения</string>
     <string name="pref_align_start">Слева от сообщения</string>
     <string name="custom_notifications">Пользовательские уведомления</string>
@@ -1502,9 +1502,9 @@
     <string name="audio_video_disabled_i2p">Звонки отключены при использовании I2P</string>
     <string name="pref_use_i2p_summary">Туннелировать все соединения через сеть I2P. Требуется клиент I2P</string>
     <string name="browse_space">Просмотр пространства</string>
-    <string name="failed_to_delete_sticker">Не удалось удалить наклейку</string>
+    <string name="failed_to_delete_sticker">Не удалось удалить стикер</string>
     <string name="pref_load_image_from_any_link_title">Скачивать изображения по ссылкам</string>
-    <string name="sticker_deleted">Наклейка удалена</string>
+    <string name="sticker_deleted">Стикер удален</string>
     <string name="pref_load_image_from_any_link_summary">Автоматически загружает изображения из любой ссылки на изображение</string>
     <string name="retry_with_p2p">Повторите с P2P</string>
     <string name="word_document">Словесный документ</string>
@@ -1513,7 +1513,7 @@
     <string name="non_quicksy_backup">Quicksy может восстановить только резервные копии для учётных записей QuickSy.im</string>
     <string name="account_status_channel_binding">Привязка канала недоступна</string>
     <string name="failed_to_delete_gif_not_exist">Не удалось удалить: GIF-файл не найден.</string>
-    <string name="failed_to_delete_sticker_not_exist">Не удалось удалить: наклейка не найдена.</string>
+    <string name="failed_to_delete_sticker_not_exist">Не удалось удалить: стикер не найден.</string>
     <string name="message_pinned">Сообщение закреплено</string>
     <string name="message_unpinned">Сообщение откреплено</string>
     <string name="error_unpinning_message">Не удалось открепить сообщение</string>
@@ -1526,8 +1526,8 @@
     <string name="sticker_preview_content_description">Увеличенный предварительный просмотр стикера</string>
     <string name="conversation">Беседа</string>
     <string name="commands">Команды</string>
-    <string name="sticker_saved">Наклейка сохранена</string>
-    <string name="sticker_imported">Наклейка импортируется</string>
+    <string name="sticker_saved">Стикер сохранен</string>
+    <string name="sticker_imported">Стикер импортируется</string>
     <string name="import_sticker_failed">Не удалось импортировать наклейку</string>
     <string name="import_gif_failed">Не удалось импортировать GIFS</string>
     <string name="gif_imported">GIF -файлы импортируются</string>
@@ -1536,4 +1536,6 @@
     <string name="import_own_stickers">Импорт наклеек</string>
     <string name="import_own_stickers_summary">Импортируйте свои наклейки. Используйте их с исходным именем файла.</string>
     <string name="import_own_gifs_summary">Импортируйте свои собственные гифки. Они будут отсортированы по имени файла.</string>
+    <string name="choose_sticker_pack">Выберите пакет наклеек</string>
+    <string name="choose_stickerpack_to_add_sticker">Выберите пакет наклеек, чтобы добавить</string>
 </resources>

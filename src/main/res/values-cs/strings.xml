@@ -1214,4 +1214,6 @@
     <string name="unknown_file_location">Neznámé umístění souboru</string>
     <string name="out_of_memory_error">Chyba nedostatku paměti</string>
     <string name="pref_call_integration_summary">Hovory z této aplikace interagují s běžnými telefonními hovory, například ukončení jednoho hovoru, když začne další.</string>
+    <string name="action_dialpad">Klávesnice</string>
+    <string name="account_status_connection_timeout">Vypršel časový limit</string>
 </resources>

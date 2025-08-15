@@ -1494,4 +1494,6 @@
     <string name="import_own_gifs_summary">Importeer je eigen GIF\'s. De volgorde gaat op bestandsnaam.</string>
     <string name="import_own_stickers">Stickers importeren</string>
     <string name="import_own_stickers_summary">Importeer je eigen stickers. Gebruik ze met de originele bestandsnaam.</string>
+    <string name="choose_stickerpack_to_add_sticker">Kies het stickerpakket om deze sticker aan toe te voegen</string>
+    <string name="choose_sticker_pack">Stickerpakket kiezen</string>
 </resources>

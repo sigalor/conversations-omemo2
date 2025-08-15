@@ -1500,4 +1500,6 @@
     <string name="import_own_gifs">导入自己的 GIF</string>
     <string name="import_own_gifs_summary">导入您自己的 GIF。它们将按文件名排序。</string>
     <string name="sticker_download_started">贴纸下载已开始</string>
+    <string name="choose_stickerpack_to_add_sticker">选择一个贴纸包来添加此贴纸</string>
+    <string name="choose_sticker_pack">选择贴纸包</string>
 </resources>

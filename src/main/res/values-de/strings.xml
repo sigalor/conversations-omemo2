@@ -1509,4 +1509,6 @@
     <string name="sticker_download_started">Sticker-Download gestartet</string>
     <string name="conversation">Chat</string>
     <string name="commands">Befehle</string>
+    <string name="choose_sticker_pack">Wähle ein Sticker Paket aus</string>
+    <string name="choose_stickerpack_to_add_sticker">Wähle ein Stickerpaket aus, zu welchem dieser Sticker hinzugefügt werden soll</string>
 </resources>
