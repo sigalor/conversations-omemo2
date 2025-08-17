@@ -125,6 +125,17 @@ public class ContactDetailsActivity extends OmemoActivity
                     xmppConnectionService.deleteContactOnServer(contact);
                 }
             };
+
+        private void archiveContact() {
+            Account thisAccount = xmppConnectionService.findAccountByJid(accountJid);
+            if (thisAccount == null) {
+                return;
+            }
+            final var conversation = xmppConnectionService.findOrCreateConversation(thisAccount, contact.getJid(), false, true);
+            xmppConnectionService.archiveConversation(conversation);
+        };
+
+
     private final OnCheckedChangeListener mOnSendCheckedChange =
             new OnCheckedChangeListener() {
 
@@ -372,19 +383,6 @@ public class ContactDetailsActivity extends OmemoActivity
             case R.id.action_share_uri:
                 shareLink(false);
                 break;
-            case R.id.action_delete_contact:
-                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-                builder.setNegativeButton(getString(R.string.cancel), null);
-                builder.setTitle(getString(R.string.action_delete_contact))
-                        .setMessage(
-                                JidDialog.style(
-                                        this,
-                                        R.string.remove_contact_text,
-                                        contact.getJid().toString()))
-                        .setPositiveButton(getString(R.string.delete), removeFromRoster)
-                        .create()
-                        .show();
-                break;
             case R.id.action_save:
                 saveEdits();
                 break;
@@ -520,6 +518,24 @@ public class ContactDetailsActivity extends OmemoActivity
         invalidateOptionsMenu();
         setTitle(R.string.action_contact_details);
         if (contact.showInRoster()) {
+            binding.archiveContactButton.setVisibility(View.VISIBLE);
+            binding.archiveContactButton.setText(getString(R.string.action_archive_chat));
+            binding.archiveContactButton.getBackground().setTint(getResources().getColor(R.color.md_theme_dark_error));
+            this.binding.archiveContactButton.setOnClickListener(v1 -> {
+                final MaterialAlertDialogBuilder archiveDialog = new MaterialAlertDialogBuilder(ContactDetailsActivity.this);
+                archiveDialog.setTitle(getString(R.string.action_archive_chat));
+                archiveDialog.setMessage(getString(R.string.archive_contact_text));
+                archiveDialog.setNegativeButton(getString(R.string.cancel), null);
+                archiveDialog.setPositiveButton(getString(R.string.action_archive_chat),
+                        (dialog, which) -> {
+                            startActivity(new Intent(xmppConnectionService, ConversationsActivity.class));
+                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                            archiveContact();
+                            finish();
+                        });
+                archiveDialog.create().show();
+            });
+
             binding.detailsSendPresence.setVisibility(View.VISIBLE);
             binding.detailsReceivePresence.setVisibility(View.VISIBLE);
             binding.addContactButton.setVisibility(View.VISIBLE);
@@ -532,6 +548,7 @@ public class ContactDetailsActivity extends OmemoActivity
                         .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().toString()))
                         .setPositiveButton(getString(R.string.delete), removeFromRoster).create().show();
             });
+
             binding.detailsSendPresence.setOnCheckedChangeListener(null);
             binding.detailsReceivePresence.setOnCheckedChangeListener(null);
 
@@ -592,6 +609,24 @@ public class ContactDetailsActivity extends OmemoActivity
             binding.detailsSendPresence.setOnCheckedChangeListener(this.mOnSendCheckedChange);
             binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
         } else {
+            binding.archiveContactButton.setVisibility(View.VISIBLE);
+            binding.archiveContactButton.setText(getString(R.string.close_chat));
+            binding.archiveContactButton.getBackground().setTint(getResources().getColor(R.color.md_theme_dark_error));
+            this.binding.archiveContactButton.setOnClickListener(v1 -> {
+                final MaterialAlertDialogBuilder archiveDialog = new MaterialAlertDialogBuilder(ContactDetailsActivity.this);
+                archiveDialog.setTitle(getString(R.string.close_chat));
+                archiveDialog.setMessage(getString(R.string.close_chat_text));
+                archiveDialog.setNegativeButton(getString(R.string.cancel), null);
+                archiveDialog.setPositiveButton(getString(R.string.close_chat),
+                        (dialog, which) -> {
+                            startActivity(new Intent(xmppConnectionService, ConversationsActivity.class));
+                            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                            archiveContact();
+                            finish();
+                        });
+                archiveDialog.create().show();
+            });
+
             binding.addContactButton.setVisibility(View.VISIBLE);
             binding.addContactButton.setText(getString(R.string.add_contact));
             binding.addContactButton.getBackground().setTint(getResources().getColor(R.color.md_theme_light_surface));

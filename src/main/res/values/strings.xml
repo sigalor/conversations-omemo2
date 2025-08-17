@@ -1499,4 +1499,7 @@
     <string name="sticker_download_started">Sticker download started</string>
     <string name="choose_stickerpack_to_add_sticker">Choose a sticker pack to add this sticker to</string>
     <string name="choose_sticker_pack">Choose sticker pack</string>
+    <string name="archive_contact_text">Archives this chat. You can still find it in the contacts list.</string>
+    <string name="close_chat">Close chat</string>
+    <string name="close_chat_text">Closes this chat completely. You won\'t find it in your contacts list anymore.</string>
 </resources>
