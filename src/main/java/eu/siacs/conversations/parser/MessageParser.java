@@ -365,7 +365,7 @@ public class MessageParser extends AbstractParser
     private void parseEvent(final Element event, final Jid from, final Account account) {
         final Element items = event.findChild("items");
         final String node = items == null ? null : items.getAttribute("node");
-        if ("urn:xmpp:avatar:metadata".equals(node)) {
+        if (Namespace.AVATAR_METADATA.equals(node)) {
             Avatar avatar = Avatar.parseMetadata(items);
             if (avatar != null) {
                 avatar.owner = from.asBareJid();
