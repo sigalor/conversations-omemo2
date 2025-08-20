@@ -59,17 +59,30 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/message_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:padding="6dp"
+                    android:lines="1"
+                    android:visibility="gone"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textAppearance="?textAppearanceBodySmall" />
+
                 <include
                     android:id="@+id/message_content"
                     layout="@layout/item_message_content" />
 
-                <com.wefika.flowlayout.FlowLayout
+                <LinearLayout
                     android:id="@+id/status_line"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginHorizontal="10dp"
-                    android:layout_marginVertical="4dp"
+                    android:gravity="start"
+                    android:padding="8dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -147,18 +160,7 @@
                         android:textAppearance="?textAppearanceBodySmall"
                         android:textColor="?colorOnTertiaryContainer"
                         tools:text="10:42" />
-
-                    <TextView
-                        android:id="@+id/message_username"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center_vertical"
-                        android:visibility="gone"
-                        android:textStyle="bold"
-                        android:textSize="12sp"
-                        android:textAppearance="?textAppearanceBodySmall" />
-                </com.wefika.flowlayout.FlowLayout>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 

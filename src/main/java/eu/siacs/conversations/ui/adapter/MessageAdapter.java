@@ -6,6 +6,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
@@ -505,6 +506,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody().setTypeface(null, Typeface.NORMAL);
         viewHolder.messageBody().setVisibility(View.VISIBLE);
         setTextColor(viewHolder.messageBody(), bubbleColor);
+        viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.CLEAR);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        }
         final var body = getSpannableBody(message);
         ImageSpan[] imageSpans = body.getSpans(0, body.length(), ImageSpan.class);
         float size = imageSpans.length == 1 || Emoticons.isEmoji(body.toString()) ? 5.0f : 2.0f;
@@ -639,6 +647,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         setTextColor(viewHolder.messageBody(), bubbleColor);
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
         viewHolder.messageBody().setTypeface(null, Typeface.NORMAL);
+        viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.SRC);
 
         final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody().getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -1081,8 +1090,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.downloadButton().setVisibility(View.GONE);
         viewHolder.audioPlayer().setVisibility(View.GONE);
         viewHolder.image().setVisibility(View.VISIBLE);
-        final FileParams params = message.getFileParams();
-        imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != GONE, viewHolder);
+        if (message.isFileOrImage() && viewHolder.messageBody().getVisibility() == GONE) {
+            viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.CLEAR);
+            viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+            if (viewHolder.username() != null) {
+                viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+                viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+            }
+        }
+
         activity.loadBitmap(message, viewHolder.image());
         viewHolder.image().setOnClickListener(v -> openDownloadable(message));
     }
@@ -1604,7 +1621,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayTextMessage(viewHolder, message, bubbleColor);
             }
         }
-
+        /*
         if (!black && viewHolder.image().getLayoutParams().width > metrics.density * 110) {
             footerWrap = true;
         }
@@ -1613,6 +1630,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         LinearLayout.LayoutParams statusParams = (LinearLayout.LayoutParams) viewHolder.statusLine().getLayoutParams();
         statusParams.width = footerWrap ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT;
         viewHolder.statusLine().setLayoutParams(statusParams);
+        */
 
         final Function<Reaction, GetThumbnailForCid> reactionThumbnailer = (r) -> new Thumbnailer(conversation.getAccount(), r, conversation.canInferPresence());
         if (received) {
