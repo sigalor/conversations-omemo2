@@ -43,6 +43,7 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.jingle.RtpCapability;
 import eu.siacs.conversations.xmpp.pep.Avatar;
+import eu.siacs.conversations.xmpp.pep.UserTune;
 
 public class Contact implements ListItem, Blockable {
     public static final String TABLENAME = "contacts";
@@ -80,6 +81,7 @@ public class Contact implements ListItem, Blockable {
     private boolean mActive = false;
     private long mLastseen = 0;
     private String mLastPresence = null;
+    private UserTune mUserTune = null;
     private RtpCapability.Capability rtpCapability;
 
     public Contact(Contact other) {
@@ -688,6 +690,10 @@ public class Contact implements ListItem, Blockable {
     public String getLastResource() {
         return this.mLastPresence;
     }
+
+    public void setUserTune(UserTune tune) { this.mUserTune = tune; }
+
+    public UserTune getUserTune() { return this.mUserTune; }
 
     public String getServerName() {
         return serverName;

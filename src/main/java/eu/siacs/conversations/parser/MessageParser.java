@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 import eu.siacs.conversations.crypto.OtrService;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.entities.ServiceDiscoveryResult;
+import eu.siacs.conversations.xmpp.pep.UserTune;
 import io.ipfs.cid.Cid;
 
 import eu.siacs.conversations.AppSettings;
@@ -365,7 +367,7 @@ public class MessageParser extends AbstractParser
     private void parseEvent(final Element event, final Jid from, final Account account) {
         final Element items = event.findChild("items");
         final String node = items == null ? null : items.getAttribute("node");
-        if ("urn:xmpp:avatar:metadata".equals(node)) {
+        if (Namespace.AVATAR_METADATA.equals(node)) {
             Avatar avatar = Avatar.parseMetadata(items);
             if (avatar != null) {
                 avatar.owner = from.asBareJid();
@@ -462,6 +464,17 @@ public class MessageParser extends AbstractParser
                 && account.getJid().asBareJid().equals(from)) {
             final Element item = items.findChild("item");
             mXmppConnectionService.processMdsItem(account, item);
+        } else if (Namespace.USER_TUNE.equals(node)) {
+            final Conversation conversation =
+                    mXmppConnectionService.find(account, from.asBareJid());
+            final Contact contact = conversation.getContact();
+            final UserTune lastTune = contact.getUserTune();
+            final UserTune thisTune = UserTune.parse(items);
+
+            if (!Objects.equals(lastTune, thisTune)) {
+                contact.setUserTune(UserTune.parse(items));
+                mXmppConnectionService.updateConversationUi();
+            }
         } else {
             Log.d(
                     Config.LOGTAG,

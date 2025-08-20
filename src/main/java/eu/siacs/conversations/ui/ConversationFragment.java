@@ -141,6 +141,7 @@ import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
+import eu.siacs.conversations.xmpp.pep.UserTune;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
@@ -4729,6 +4730,20 @@ public class ConversationFragment extends XmppFragment
                         binding.mucSubject.setVisibility(View.GONE);
                     }
 
+                    UserTune tune = conversation.getContact().getUserTune();
+                    if (tune != null) {
+                        binding.tuneSubjectText.setText(
+                                getString(R.string.user_tune_listening_to, tune.title, tune.artist));
+                        binding.tuneSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
+                        binding.tuneSubjectHide.setOnClickListener(v -> {
+                            binding.tuneSubject.setVisibility(View.GONE);
+                            conversation.getContact().setUserTune(null);
+                        });
+                        binding.tuneSubject.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.tuneSubject.setVisibility(View.GONE);
+                    }
+
                     // Jump to Pinned message
                     binding.pinnedMessage.setOnClickListener(v -> {
                         if (selectedMessage != null) jumpTo(selectedMessage);
@@ -4883,6 +4898,7 @@ public class ConversationFragment extends XmppFragment
         this.binding.textSendButton.setIconTint(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.textSendButton, status)));
         this.binding.mucSubjectIcon.setIconTint(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.mucSubjectIcon, status)));
         this.binding.statusMessageIcon.setIconTint(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.statusMessageIcon, status)));
+        this.binding.tuneSubjectIcon.setImageTintList(ColorStateList.valueOf(SendButtonTool.getSendButtonColor(this.binding.statusMessageIcon, status)));
         // TODO send button color
         final Activity activity = getActivity();
         if (activity != null) {
