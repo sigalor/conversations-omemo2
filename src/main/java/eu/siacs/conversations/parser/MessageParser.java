@@ -467,13 +467,21 @@ public class MessageParser extends AbstractParser
         } else if (Namespace.USER_TUNE.equals(node)) {
             final Conversation conversation =
                     mXmppConnectionService.find(account, from.asBareJid());
-            final Contact contact = conversation.getContact();
-            final UserTune lastTune = contact.getUserTune();
-            final UserTune thisTune = UserTune.parse(items);
+            if (conversation != null) { // Check if conversation exists
+                final Contact contact = conversation.getContact();
+                    if (contact != null) { // Check if contact exists
+                        final UserTune lastTune = contact.getUserTune();
+                        final UserTune thisTune = UserTune.parse(items);
 
-            if (!Objects.equals(lastTune, thisTune)) {
-                contact.setUserTune(UserTune.parse(items));
-                mXmppConnectionService.updateConversationUi();
+                        if (!Objects.equals(lastTune, thisTune)) {
+                            contact.setUserTune(UserTune.parse(items));
+                            mXmppConnectionService.updateConversationUi();
+                        }
+                } else {
+                    Log.w(Config.LOGTAG, "Contact not found for conversation: " + conversation.getJid());
+                }
+            } else {
+                Log.w(Config.LOGTAG, "Conversation not found for JID: " + from.asBareJid());
             }
         } else {
             Log.d(
