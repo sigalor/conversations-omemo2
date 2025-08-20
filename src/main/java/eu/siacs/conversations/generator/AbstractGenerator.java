@@ -39,7 +39,8 @@ public abstract class AbstractGenerator {
             "urn:xmpp:ping",
             "jabber:iq:version",
             "http://jabber.org/protocol/chatstates",
-            Namespace.REACTIONS
+            Namespace.REACTIONS,
+            Namespace.USER_TUNE + "+notify",
     };
     private final String[] MESSAGE_CONFIRMATION_FEATURES = {
             "urn:xmpp:chat-markers:0", "urn:xmpp:receipts"

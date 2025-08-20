@@ -1502,4 +1502,5 @@
     <string name="archive_contact_text">Archives this chat. You can still find it in the contacts list.</string>
     <string name="close_chat">Close chat</string>
     <string name="close_chat_text">Closes this chat completely. You won\'t find it in your contacts list anymore.</string>
+    <string name="user_tune_listening_to">Listening to %1$s - %2$s</string>
 </resources>
