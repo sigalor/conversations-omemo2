@@ -1,5 +1,6 @@
 package eu.siacs.conversations.generator;
 
+import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Base64OutputStream;
@@ -192,6 +193,40 @@ public class IqGenerator extends AbstractGenerator {
         final Element data = item.addChild("data", Namespace.AVATAR_DATA);
         data.setContent(avatar.image);
         return publish(Namespace.AVATAR_DATA, item, options);
+    }
+
+    public Iq publishUserTune(MediaMetadata metadata, final Bundle options) {
+        final Element item = new Element("item");
+        item.setAttribute("id", "monoclesUserTune");
+
+        final Element tuneElement = item.addChild("tune", Namespace.USER_TUNE);
+
+        CharSequence artist = metadata.getText(MediaMetadata.METADATA_KEY_ARTIST);
+        if (artist != null) {
+            tuneElement.addChild("artist").setContent(artist.toString());
+        }
+
+        CharSequence title = metadata.getText(MediaMetadata.METADATA_KEY_TITLE);
+        if (title != null) {
+            tuneElement.addChild("title").setContent(title.toString());
+        }
+
+        CharSequence album = metadata.getText(MediaMetadata.METADATA_KEY_ALBUM);
+        if (album != null) {
+            tuneElement.addChild("source").setContent(album.toString());
+        }
+
+        Long trackNumber = metadata.getLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER);
+        if (trackNumber != null && trackNumber > 0) {
+            tuneElement.addChild("track").setContent(trackNumber.toString());
+        }
+
+        Long durationMs = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+        if (durationMs != null && durationMs > 0) {
+            tuneElement.addChild("length").setContent(String.valueOf(durationMs / 1000));
+        }
+
+        return publish(Namespace.USER_TUNE, item, options);
     }
 
     public Iq publishElement(

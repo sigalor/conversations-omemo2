@@ -11,6 +11,14 @@
         <service
             android:name="de.monocles.chat.DownloadDefaultStickers"
             android:foregroundServiceType="dataSync" />
+        <service
+            android:name="de.monocles.chat.UpdateNowPlayingService"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
         <service android:name="de.monocles.chat.ConnectionService"
             android:label="monocles"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"

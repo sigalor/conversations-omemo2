@@ -25,6 +25,7 @@ import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -109,6 +110,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -284,6 +286,9 @@ public class XmppConnectionService extends Service {
     private final static Executor COPY_TO_DOWNLOAD_EXECUTOR = Executors.newSingleThreadExecutor();
     private final ScheduledExecutorService internalPingExecutor =
             Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService userTuneUpdateExecutor =
+            Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> pendingUserTuneUpdate;
     private static final SerialSingleThreadExecutor VIDEO_COMPRESSION_EXECUTOR =
             new SerialSingleThreadExecutor("VideoCompression");
     private final SerialSingleThreadExecutor mDatabaseWriterExecutor =
@@ -6587,6 +6592,51 @@ public class XmppConnectionService extends Service {
                 item,
                 itemId.toString(),
                 PublishOptions.persistentWhitelistAccessMaxItems());
+    }
+
+    public boolean publishUserTuneAsync(MediaMetadata metadata) {
+        CharSequence artist = metadata.getText(MediaMetadata.METADATA_KEY_ARTIST);
+        CharSequence title  = metadata.getText(MediaMetadata.METADATA_KEY_TITLE);
+        CharSequence album  = metadata.getText(MediaMetadata.METADATA_KEY_ALBUM);
+
+        // Media without artist/title/album are likely not music, abort updating this track.
+        if (artist == null || title == null || album == null) {
+            return false;
+        }
+
+        if (pendingUserTuneUpdate != null && !pendingUserTuneUpdate.isDone()) {
+            pendingUserTuneUpdate.cancel(false);
+        }
+
+        // XEP-0118 Implementation Notes
+        // To prevent a large number of updates when a user is skipping through tracks, an
+        // implementation SHOULD wait several seconds before publishing new tune information.
+        pendingUserTuneUpdate = userTuneUpdateExecutor.schedule(() -> {
+            for (Account account : accounts) {
+                final Bundle options = null;
+
+                Log.d(Config.LOGTAG,
+                        account.getJid().asBareJid() + ": publishing user tune. options=" + options);
+
+                final Iq packet = this.mIqGenerator.publishUserTune(metadata, options);
+                this.sendIqPacket(account,
+                        packet,
+                        result -> {
+                            if (result.getType() != Iq.Type.RESULT) {
+                                Element error = result.findChild("error");
+                                Log.d(
+                                        Config.LOGTAG,
+                                        account.getJid().asBareJid()
+                                                + ": server rejected user tune "
+                                                + (error != null ? error.toString() : ""));
+                            }
+                        });
+            }
+        }, 3, TimeUnit.SECONDS);
+
+        Log.d(Config.LOGTAG, "Update user tune: " + artist + " - " + title);
+
+        return true;
     }
 
     public boolean sendReactions(final Message message, final Collection<String> reactions) {
