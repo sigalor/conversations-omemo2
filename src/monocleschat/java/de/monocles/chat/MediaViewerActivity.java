@@ -306,7 +306,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
             Glide.with(this)
                     .load(uri)
                     .apply(new RequestOptions()
-                            .fitCenter()
+                            .optionalFitCenter()
                             .format(DecodeFormat.PREFER_ARGB_8888)
                             .override(Target.SIZE_ORIGINAL))
                     .into(binding.messageImageView);
