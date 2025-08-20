@@ -404,7 +404,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
                 final String displayName = UIHelper.getMessageDisplayName(message);
                 if (displayName != null) {
-                    timeInfoBuilder.add("");
                     viewHolder.username().setVisibility(View.VISIBLE);
                     viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
                 }
