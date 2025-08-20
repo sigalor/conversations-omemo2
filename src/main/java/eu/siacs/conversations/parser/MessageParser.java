@@ -467,7 +467,15 @@ public class MessageParser extends AbstractParser
         } else if (Namespace.USER_TUNE.equals(node)) {
             final Conversation conversation =
                     mXmppConnectionService.find(account, from.asBareJid());
+            if (conversation == null) {
+                return;
+            }
+
             final Contact contact = conversation.getContact();
+            if (contact == null) {
+                return;
+            }
+
             final UserTune lastTune = contact.getUserTune();
             final UserTune thisTune = UserTune.parse(items);
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="@string/pref_category_engagement_notifications">
         <SwitchPreferenceCompat
             android:defaultValue="@bool/confirm_messages"
@@ -92,6 +93,21 @@
             android:key="treat_vibrate_as_silent"
             android:summary="@string/pref_treat_vibrate_as_dnd_summary"
             android:title="@string/pref_treat_vibrate_as_silent" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_now_playing">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:disableDependentsState="true"
+            android:icon="@drawable/ic_play_circle_24dp"
+            android:key="load_now_playing_from_system"
+            android:title="@string/pref_send_now_playing"
+            android:summary="@string/pref_auto_update_now_playing" />
+
+        <ListPreference
+            android:defaultValue="@integer/update_track_longer_than_secs"
+            android:key="update_track_longer_than"
+            android:title="@string/pref_update_track_longer_than"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory android:key="category_application" android:title="@string/pref_category_application">
         <SwitchPreferenceCompat
