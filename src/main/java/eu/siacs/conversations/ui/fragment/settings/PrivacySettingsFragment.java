@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.ListPreference;
 import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.R;
@@ -53,7 +54,7 @@ public class PrivacySettingsFragment extends XmppPreferenceFragment {
                     }
                 });
 
-        final SwitchPreference updateNowPlaying = findPreference("load_now_playing_from_system");
+        final SwitchPreferenceCompat updateNowPlaying = findPreference("load_now_playing_from_system");
         if (updateNowPlaying == null) {
             throw new IllegalStateException("The preference resource file is missing preferences");
         }
@@ -98,7 +99,7 @@ public class PrivacySettingsFragment extends XmppPreferenceFragment {
     public void onResume() {
         super.onResume();
 
-        final SwitchPreference updateNowPlaying = findPreference("load_now_playing_from_system");
+        final SwitchPreferenceCompat updateNowPlaying = findPreference("load_now_playing_from_system");
         if (updateNowPlaying == null) {
             throw new IllegalStateException("The preference resource file is missing preferences");
         }
