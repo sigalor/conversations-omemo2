@@ -647,6 +647,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
         viewHolder.messageBody().setTypeface(null, Typeface.NORMAL);
         viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.SRC);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
 
         final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody().getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -911,6 +913,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 break;
             }
         }
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setText(text);
@@ -927,6 +931,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         WebxdcPage webxdc = new WebxdcPage(activity, webxdcCid, message);
         displayTextMessage(viewHolder, message, bubbleColor);
         viewHolder.image().setVisibility(GONE);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setIconResource(0);
@@ -993,6 +999,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image().setVisibility(GONE);
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         viewHolder
                 .downloadButton()
                 .setText(
@@ -1012,6 +1020,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image().setVisibility(View.GONE);
         viewHolder.audioPlayer().setVisibility(View.GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         final var uri = message.wholeIsKnownURI();
         if ("bitcoin".equals(uri.getScheme())) {
             final var amount = uri.getQueryParameter("amount");
@@ -1047,6 +1057,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         displayTextMessage(viewHolder, message, bubbleColor);
         final String url = GeoHelper.MapPreviewUri(message, activity);
         viewHolder.audioPlayer().setVisibility(GONE);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
             Glide.with(activity)
                     .load(Uri.parse(url))
@@ -1075,6 +1087,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         displayTextMessage(viewHolder, message, bubbleColor);
         viewHolder.image().setVisibility(View.GONE);
         viewHolder.downloadButton().setVisibility(View.GONE);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         final RelativeLayout audioPlayer = viewHolder.audioPlayer();
         audioPlayer.setVisibility(View.VISIBLE);
         AudioPlayer.ViewHolder.get(audioPlayer).setBubbleColor(bubbleColor);
@@ -1097,6 +1111,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
                 viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
             }
+        } else {
+            final FileParams params = message.getFileParams();
+            imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != GONE, viewHolder);
         }
 
         activity.loadBitmap(message, viewHolder.image());
