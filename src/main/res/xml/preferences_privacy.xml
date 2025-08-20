@@ -95,7 +95,7 @@
             android:title="@string/pref_treat_vibrate_as_silent" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_now_playing">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:icon="@drawable/ic_play_circle_24dp"
