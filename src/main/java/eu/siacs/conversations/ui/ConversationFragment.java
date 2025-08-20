@@ -4734,7 +4734,7 @@ public class ConversationFragment extends XmppFragment
                     if (tune != null) {
                         binding.tuneSubjectText.setText(
                                 getString(R.string.user_tune_listening_to, tune.title, tune.artist));
-                        binding.tuneSubject.setOnClickListener(v -> ConferenceDetailsActivity.open(getActivity(), conversation));
+                        binding.tuneSubject.setOnClickListener(v -> activity.switchToContactDetails(conversation.getContact()));
                         binding.tuneSubjectHide.setOnClickListener(v -> {
                             binding.tuneSubject.setVisibility(View.GONE);
                             conversation.getContact().setUserTune(null);
