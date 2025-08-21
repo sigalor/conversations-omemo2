@@ -298,9 +298,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final int status = message.getStatus();
         final boolean error;
         final Transferable transferable = message.getTransferable();
-        final boolean multiReceived =
-                message.getConversation().getMode() == Conversation.MODE_MULTI
-                        && message.getStatus() <= Message.STATUS_RECEIVED;
+
         final boolean sent = status != Message.STATUS_RECEIVED;
         final boolean showUserNickname =
                 message.getConversation().getMode() == Conversation.MODE_MULTI
@@ -401,16 +399,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (fileSize != null) {
                 timeInfoBuilder.add(fileSize);
             }
-            if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
-                final String displayName = UIHelper.getMessageDisplayName(message);
-                if (displayName != null) {
-                    viewHolder.username().setVisibility(View.VISIBLE);
-                    viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
-                }
-            } else {
-                viewHolder.username().setText(null);
-                viewHolder.username().setVisibility(GONE);
-            }
             if (bodyLanguage != null) {
                 timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
             }
@@ -510,7 +498,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
         if (viewHolder.username() != null) {
             viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
-            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
         }
         final var body = getSpannableBody(message);
         ImageSpan[] imageSpans = body.getSpans(0, body.length(), ImageSpan.class);
@@ -649,6 +637,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.SRC);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
 
         final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody().getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -915,6 +907,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setText(text);
@@ -933,6 +929,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image().setVisibility(GONE);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.downloadButton().setIconResource(0);
@@ -1001,6 +1001,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         viewHolder
                 .downloadButton()
                 .setText(
@@ -1022,6 +1026,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.downloadButton().setVisibility(View.VISIBLE);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         final var uri = message.wholeIsKnownURI();
         if ("bitcoin".equals(uri.getScheme())) {
             final var amount = uri.getQueryParameter("amount");
@@ -1059,6 +1067,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
             Glide.with(activity)
                     .load(Uri.parse(url))
@@ -1089,6 +1101,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.downloadButton().setVisibility(View.GONE);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
         viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         final RelativeLayout audioPlayer = viewHolder.audioPlayer();
         audioPlayer.setVisibility(View.VISIBLE);
         AudioPlayer.ViewHolder.get(audioPlayer).setBubbleColor(bubbleColor);
@@ -1438,7 +1454,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder instanceof StartBubbleMessageItemViewHolder
                             ? !mergeIntoTop
                             : !mergeIntoBottom;
-            setRequiresAvatar(viewHolder, requiresAvatar);
+            setRequiresAvatar(viewHolder, requiresAvatar, message);
             AvatarWorkerTask.loadAvatar(message, viewHolder.contactPicture(), R.dimen.avatar);
         } else {
             viewHolder.contactPicture().setVisibility(View.GONE);
@@ -2077,17 +2093,32 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     private void setRequiresAvatar(
-            final BubbleMessageItemViewHolder viewHolder, final boolean requiresAvatar) {
+            final BubbleMessageItemViewHolder viewHolder, final boolean requiresAvatar, Message message) {
         final var layoutParams = viewHolder.contactPicture().getLayoutParams();
+        final boolean multiReceived =
+                message.getConversation().getMode() == Conversation.MODE_MULTI
+                        && message.getStatus() <= Message.STATUS_RECEIVED;
         if (requiresAvatar) {
             final var resources = viewHolder.contactPicture().getResources();
             final var avatarSize = resources.getDimensionPixelSize(R.dimen.bubble_avatar_size);
             layoutParams.height = avatarSize;
             viewHolder.contactPicture().setVisibility(View.VISIBLE);
             viewHolder.messageBox().setMinimumHeight(avatarSize);
+            if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
+                final String displayName = UIHelper.getMessageDisplayName(message);
+                if (displayName != null) {
+                    viewHolder.username().setVisibility(View.VISIBLE);
+                    viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
+                }
+            } else {
+                viewHolder.username().setText(null);
+                viewHolder.username().setVisibility(GONE);
+            }
         } else {
             layoutParams.height = 0;
             viewHolder.contactPicture().setVisibility(View.INVISIBLE);
+            viewHolder.username().setText(null);
+            viewHolder.username().setVisibility(GONE);
             viewHolder.messageBox().setMinimumHeight(0);
         }
         viewHolder.contactPicture().setLayoutParams(layoutParams);
