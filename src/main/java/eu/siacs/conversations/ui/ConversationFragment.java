@@ -115,6 +115,7 @@ import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
 import de.monocles.chat.StickersAdapter;
+import de.monocles.chat.StickersMigration;
 import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcStore;
 import de.monocles.chat.EditMessageSelectionActionModeCallback;
@@ -282,7 +283,6 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_COMMIT_ATTACHMENTS = 0x0212;
     public static final int REQUEST_START_AUDIO_CALL = 0x213;
     public static final int REQUEST_START_VIDEO_CALL = 0x214;
-    public static final int REQUEST_SAVE_STICKER = 0x215;
     public static final int REQUEST_WEBXDC_STORE = 0x216;
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
@@ -325,7 +325,7 @@ public class ConversationFragment extends XmppFragment
     private boolean reInitRequiredOnStart = true;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
-    File dirStickers = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + File.separator + "Stickers");
+    File dirStickers;
     private String[] StickerfilesPaths;
     private String[] StickerfilesNames;
     private String[] GifsfilesPaths;
@@ -1487,17 +1487,6 @@ public class ConversationFragment extends XmppFragment
                 mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, data.getData(), Attachment.Type.FILE));
                 toggleInputMethod();
                 break;
-            case REQUEST_SAVE_STICKER:
-                final DocumentFile df = DocumentFile.fromSingleUri(activity, data.getData());
-                final File f = savingAsSticker;
-                savingAsSticker = null;
-                try {
-                    activity.xmppConnectionService.getFileBackend().copyFileToDocumentFile(activity, f, df);
-                    Toast.makeText(activity, "Sticker saved", Toast.LENGTH_SHORT).show();
-                } catch (final FileBackend.FileCopyException e) {
-                    Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
-                }
-                break;
             case REQUEST_TRUST_KEYS_NONE:
                 break;
             case REQUEST_TRUST_KEYS_TEXT:
@@ -1715,6 +1704,8 @@ public class ConversationFragment extends XmppFragment
             throw new IllegalStateException(
                     "Trying to attach fragment to activity that is not the ConversationsActivity");
         }
+        dirStickers = StickersMigration.getStickersDir(activity);
+        StickersMigration.requireMigration(activity);
     }
 
     @Override
@@ -3691,31 +3682,14 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void saveAsSticker(final File file, final String name) {
-        savingAsSticker = file;
-
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(MimeUtils.guessMimeTypeFromUri(activity, FileBackend.getUriForFile(activity, file, file.getName())));
-        intent.putExtra(Intent.EXTRA_TITLE, name);
-
-        // SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
-        // final String dir = p.getString("sticker_directory", "Stickers");
-        final String dir = "Stickers";
-        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + "monocles chat" + File.separator + "Stickers").mkdirs();
-        Uri uri;
-        if (Build.VERSION.SDK_INT >= 29) {
-            Intent tmp = ((StorageManager) activity.getSystemService(Context.STORAGE_SERVICE)).getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-            uri = tmp.getParcelableExtra("android.provider.extra.INITIAL_URI");
-            if (uri != null) {
-                uri = Uri.parse(uri.toString().replace("/root/", "/document/") + "%3ADocuments%2F" + "monocles chat%2F" + dir);
-            }
-        } else {
-            uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2F" + "monocles chat%2F" + dir);
+        final DocumentFile df = DocumentFile.fromFile(new File(dirStickers, file.getName()));
+        try {
+            activity.xmppConnectionService.getFileBackend().copyFileToDocumentFile(activity, file, df);
+            Toast.makeText(activity, "Sticker saved", Toast.LENGTH_SHORT).show();
+            LoadStickers();
+        } catch (final FileBackend.FileCopyException e) {
+            Toast.makeText(activity, e.getResId(), Toast.LENGTH_SHORT).show();
         }
-        intent.putExtra("android.provider.extra.INITIAL_URI", uri);
-        intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
-        Toast.makeText(activity, R.string.choose_stickerpack_to_add_sticker, Toast.LENGTH_SHORT).show();
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_sticker_pack)), REQUEST_SAVE_STICKER);
     }
 
     private void deleteFile(final Message message) {
@@ -6390,7 +6364,10 @@ public class ConversationFragment extends XmppFragment
             return;
         }
 
+
         File[] listedFiles = directory.listFiles();
+
+
         if (listedFiles != null) {
             for (File file : listedFiles) {
                 if (file.isDirectory()) {
