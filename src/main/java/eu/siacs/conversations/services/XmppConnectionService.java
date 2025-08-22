@@ -57,6 +57,7 @@ import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
 
 import de.monocles.chat.EmojiSearch;
+import de.monocles.chat.StickersMigration;
 import de.monocles.chat.WebxdcUpdate;
 
 import com.google.common.base.Objects;
@@ -881,7 +882,7 @@ public class XmppConnectionService extends Service {
             return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + dir);
         }
          */
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + "Stickers");
+        return StickersMigration.getStickersDir(this);
     }
 
     public void rescanStickers() {

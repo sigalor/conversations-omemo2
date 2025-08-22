@@ -187,7 +187,7 @@ public class DownloadDefaultStickers extends Service {
 			return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + dir);
 		}
 		*/
-		return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/monocles chat" + "/" + "Stickers");
+		return StickersMigration.getStickersDir(getApplicationContext());
 	}
 
 	@Override
