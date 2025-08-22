@@ -2110,7 +2110,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.username().setVisibility(View.VISIBLE);
                     viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
                 }
-            } else {
+            } else if (viewHolder.username() != null) {
                 viewHolder.username().setText(null);
                 viewHolder.username().setVisibility(GONE);
             }
