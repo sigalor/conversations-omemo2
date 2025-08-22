@@ -1127,11 +1127,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
                 viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
             }
-        } else {
-            final FileParams params = message.getFileParams();
-            imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != GONE, viewHolder);
         }
-
+        final FileParams params = message.getFileParams();
+        imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != GONE, viewHolder);
         activity.loadBitmap(message, viewHolder.image());
         viewHolder.image().setOnClickListener(v -> openDownloadable(message));
     }
@@ -1185,45 +1183,45 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
 
+        // --- Start of Simplified Corner Rounding ---
         ShapeAppearanceModel.Builder shapeBuilder = new ShapeAppearanceModel.Builder();
-        boolean shapeChanged = false; // Flag to track if we need to rebuild
 
-        if (!otherAbove) {
-            shapeBuilder = shapeBuilder.setTopRightCorner(CornerFamily.ROUNDED, this.bubbleRadiusDim);
-            if (viewHolder instanceof EndBubbleMessageItemViewHolder) {
-                shapeBuilder = shapeBuilder.setTopLeftCorner(CornerFamily.ROUNDED, this.bubbleRadiusDim);
-            }
-        }
+        // Set all corners to be rounded with imageRadiusDim (or use bubbleRadiusDim if preferred)
+        shapeBuilder = shapeBuilder.setAllCorners(CornerFamily.ROUNDED, this.imageRadiusDim);
 
-        if (small) {
-            shapeBuilder = shapeBuilder.setAllCorners(CornerFamily.ROUNDED, this.imageRadiusDim);
-            // Padding can be set directly without checking old values, it's cheap.
+        image.setShapeAppearanceModel(shapeBuilder.build());
+        // --- End of Simplified Corner Rounding ---
+
+
+        // Adjust padding based on the 'small' flag or other criteria if needed.
+        // If you always want the same padding, you can set it unconditionally.
+        if (small) { // Or some other condition you define for padding
             image.setPadding(0, (int) this.padding8dp, 0, 0);
         } else {
             image.setPadding(0, 0, 0, 0);
         }
 
-        // This is the most direct way if caching `ShapeAppearanceModel` instances is too complex
-        image.setShapeAppearanceModel(shapeBuilder.build());
 
-
-        if (!small) {
-            // Optimize LayoutParams for messageBody and inReplyToQuote
-            // Get params once, modify, then set.
+        // The rest of the logic for adjusting messageBody and inReplyToQuote widths
+        // can remain if it's still relevant to your layout when an image is present.
+        // However, if the image corners are always fully rounded, the visual interaction
+        // with these elements might change, so review if this is still needed as is.
+        if (!small) { // This condition might also need re-evaluation.
+            // For example, if you want these width adjustments to always happen
+            // when an image is present, regardless of 'small'.
             final ViewGroup.LayoutParams bodyLayoutParams = viewHolder.messageBody().getLayoutParams();
-            int targetWidth = (int) (scaledW - this.padding22dp); // Use pre-calculated padding22dp
+            int targetWidth = (int) (scaledW - this.padding22dp);
 
             if (bodyLayoutParams.width != targetWidth) {
                 bodyLayoutParams.width = targetWidth;
                 viewHolder.messageBody().setLayoutParams(bodyLayoutParams);
             }
 
-            // Only modify quote params if the view exists (assuming inReplyToQuote() can be null or GONE)
             if (viewHolder.inReplyToQuote().getVisibility() == View.VISIBLE) {
                 final ViewGroup.LayoutParams qLayoutParams = viewHolder.inReplyToQuote().getLayoutParams();
                 if (qLayoutParams.width != targetWidth) {
                     qLayoutParams.width = targetWidth;
-                    viewHolder.inReplyToQuote().setLayoutParams(qLayoutParams); // Corrected from messageBody()
+                    viewHolder.inReplyToQuote().setLayoutParams(qLayoutParams);
                 }
             }
         }
