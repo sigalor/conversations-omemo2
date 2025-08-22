@@ -1771,6 +1771,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         displayStatus(viewHolder, message, bubbleColor);
 
+        if (message.getConversation().getMode() == Conversation.MODE_SINGLE && viewHolder.username() != null) {
+            viewHolder.username().setText(null);
+            viewHolder.username().setVisibility(GONE);
+        }
+
        viewHolder.messageBody().setAccessibilityDelegate(new View.AccessibilityDelegate() {
             @Override
             public void sendAccessibilityEvent(@NonNull View host, int eventType) {
