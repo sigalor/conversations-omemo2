@@ -2520,11 +2520,12 @@ public class ConversationFragment extends XmppFragment
                                 && !c.getContact().getPresences().isEmpty();
                 retryAsP2P.setVisible(fileNotUploaded && isPeerOnline);
             }
-            if (m.hasFileOnRemoteHost()
+            if (m.getEncryption() == Message.ENCRYPTION_NONE && (
+                    m.hasFileOnRemoteHost()
                     || m.isGeoUri()
                     || m.treatAsDownloadable()
                     || unInitiatedButKnownSize
-                    || t instanceof HttpDownloadConnection) {
+                    || t instanceof HttpDownloadConnection)) {
                 copyUrl.setVisible(true);
             }
             if (m.isFileOrImage() && deleted && m.hasFileOnRemoteHost()) {
