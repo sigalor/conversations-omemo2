@@ -2117,8 +2117,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             layoutParams.height = 0;
             viewHolder.contactPicture().setVisibility(View.INVISIBLE);
-            viewHolder.username().setText(null);
-            viewHolder.username().setVisibility(GONE);
+            if (viewHolder.username() != null) {
+                viewHolder.username().setText(null);
+                viewHolder.username().setVisibility(GONE);
+            }
             viewHolder.messageBox().setMinimumHeight(0);
         }
         viewHolder.contactPicture().setLayoutParams(layoutParams);
