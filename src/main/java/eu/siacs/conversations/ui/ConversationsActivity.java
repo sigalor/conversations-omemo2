@@ -545,7 +545,7 @@ public class ConversationsActivity extends XmppActivity
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         settings.setIdentifier(DRAWER_SETTINGS);
         settings.setSelectable(false);
-        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, "Settings");
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, getString(R.string.action_settings));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(settings, R.drawable.ic_settings_24dp);
         com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, settings);
 
