@@ -96,8 +96,8 @@
 
     <!-- bubble avatar -->
     <dimen name="bubble_horizontal_padding">8dp</dimen>
-    <dimen name="bubble_vertical_padding">4dp</dimen>
-    <dimen name="bubble_vertical_padding_minimum">-6dp</dimen>
+    <dimen name="bubble_vertical_padding">6dp</dimen>
+    <dimen name="bubble_vertical_padding_minimum">1dp</dimen>
     <dimen name="bubble_avatar_size">48dp</dimen>
     <dimen name="bubble_avatar_distance">6dp</dimen>
 </resources>

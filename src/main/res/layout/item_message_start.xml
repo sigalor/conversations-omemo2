@@ -9,7 +9,9 @@
         app:drag_edge="left"
         app:show_mode="pull_out"
         android:id="@+id/layout_swipe"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/bubble_horizontal_padding"
+        android:paddingVertical="@dimen/bubble_vertical_padding">
 
     <RelativeLayout
         android:id="@+id/bottom_wrapper"
@@ -22,9 +24,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/bubble_horizontal_padding"
-        android:paddingVertical="@dimen/bubble_vertical_padding">
+        android:layout_height="wrap_content">
 
         <eu.siacs.conversations.ui.widget.AvatarView
             android:id="@+id/message_photo"
