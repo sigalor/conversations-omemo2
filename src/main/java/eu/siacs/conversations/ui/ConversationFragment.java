@@ -1509,7 +1509,8 @@ public class ConversationFragment extends XmppFragment
                 }
                 final List<Attachment> imageUris =
                         Attachment.extractAttachments(getActivity(), data, Attachment.Type.IMAGE);
-                if (imageUris.size() == 1 && imageUris.get(0).getMime().startsWith("image/")) {
+                if (imageUris.size() == 1 && imageUris.get(0).getMime().startsWith("image/")
+                        && !imageUris.get(0).getMime().equals("image/gif")) {
                     editImage(imageUris.get(0).getUri());
                 } else {
                     mediaPreviewAdapter.addMediaPreviews(imageUris);
