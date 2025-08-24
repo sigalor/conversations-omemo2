@@ -1507,4 +1507,6 @@
     <string name="pref_send_now_playing">Send now playing status</string>
     <string name="pref_auto_update_now_playing">Automatically update now playing status from system (Requires notification listener permission)</string>
     <string name="pref_update_track_longer_than">Only update tracks longer than</string>
+    <string name="message_retracted">Message retracted</string>
+    <string name="message_is_too_long">Message is too long</string>
 </resources>
