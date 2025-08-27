@@ -1509,4 +1509,7 @@
     <string name="pref_update_track_longer_than">Only update tracks longer than</string>
     <string name="message_retracted">Message retracted</string>
     <string name="message_is_too_long">Message is too long</string>
+    <string name="you_retracted_this_message">You retracted this message</string>
+    <string name="cannot_retract_message_no_id">Cannot retract message, no ID.</string>
+    <string name="message_was_retracted_by">Message was retracted by</string>
 </resources>

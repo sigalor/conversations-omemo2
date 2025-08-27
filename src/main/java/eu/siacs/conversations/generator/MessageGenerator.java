@@ -75,8 +75,15 @@ public class MessageGenerator extends AbstractGenerator {
                 && !conversation.getMucOptions().stableId()) {
             packet.addExtension(new OriginId(message.getUuid()));
         }
-        if (message.edited()) {
+        if (message.edited() && !message.isDeleted()) {
             packet.addExtension(new Replace(message.getEditedIdWireFormat()));
+        }
+        if (message.isDeleted()) {
+            Element apply = packet.addChild("apply-to", "urn:xmpp:fasten:0").setAttribute("id", (message.getRetractId() != null ? message.getRetractId() : (message.getRemoteMsgId() != null ? message.getRemoteMsgId() : (message.getEditedIdWireFormat() != null ? message.getEditedIdWireFormat() : message.getUuid()))));
+            apply.addChild("retract", "urn:xmpp:message-retract:0");
+            packet.addChild("fallback", "urn:xmpp:fallback:0");
+            packet.addChild("store", "urn:xmpp:hints");
+            packet.setBody("");
         }
         if (!legacyEncryption) {
             if (message.getSubject() != null && message.getSubject().length() > 0) packet.addChild("subject").setContent(message.getSubject());
@@ -154,7 +161,8 @@ public class MessageGenerator extends AbstractGenerator {
             packet = preparePacket(message, false);
             packet.addChild("x", Namespace.OOB).addChild("url").setContent(fileParams.url);
         }
-        if (message.getRawBody() != null) packet.setBody(message.getRawBody());
+        if (message.getRawBody() != null && !message.isDeleted())
+            packet.setBody(message.getRawBody());
         return packet;
     }
 

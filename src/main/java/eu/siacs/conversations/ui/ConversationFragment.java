@@ -2488,8 +2488,9 @@ public class ConversationFragment extends XmppFragment
                     && !m.isGeoUri()
                     && m.getConversation() instanceof Conversation) {
                 correctMessage.setVisible(true);
-                if (!m.getBody().equals("") && !m.getBody().equals(" ")) retractMessage.setVisible(true);
+                retractMessage.setVisible(true);
             }
+            if (m.isFileOrImage() && !deleted && m.getStatus() != Message.STATUS_RECEIVED) retractMessage.setVisible(true); //TODO also allow retraction when not yet downloaded
             if (m.getStatus() == Message.STATUS_WAITING) {
                 correctMessage.setVisible(true);
                 retractMessage.setVisible(true);
@@ -2581,34 +2582,56 @@ public class ConversationFragment extends XmppFragment
                         .setMessage(R.string.do_you_really_want_to_retract_this_message)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             final var message = selectedMessage;
-                            if (message.getStatus() == Message.STATUS_WAITING || message.getStatus() == Message.STATUS_OFFERED) {
-                                activity.xmppConnectionService.deleteMessage(message);
-                                return;
-                            }
-                            Element reactions = message.getReactionsEl();
-                            if (reactions != null) {
-                                final Message previousReaction = conversation.findMessageReactingTo(reactions.getAttribute("id"), null);
-                                if (previousReaction != null) reactions = previousReaction.getReactionsEl();
-                                for (Element el : reactions.getChildren()) {
-                                    if (message.getRawBody().endsWith(el.getContent())) {
-                                        reactions.removeChild(el);
-                                    }
-                                }
-                                message.setReactions(reactions);
-                                if (previousReaction != null) {
-                                    previousReaction.setReactions(reactions);
-                                    activity.xmppConnectionService.updateMessage(previousReaction);
-                                }
-                            } else {
-                                message.setInReplyTo(null);
+                            if (message.getConversation() instanceof Conversation) {
+
+                                message.setDeleted(true);
+
+                                long time = System.currentTimeMillis();
+                                message.setRetractId(message.getRemoteMsgId() != null ? message.getRemoteMsgId() : message.getUuid());
+                                message.setErrorMessage(null);
+                                message.putEdited(message.getUuid(), message.getServerMsgId());
+                                message.setBody("");
+                                message.setServerMsgId(null);
+                                message.setRemoteMsgId(message.getRemoteMsgId());
+                                message.setRelativeFilePath(null);
+                                message.resetFileParams();
+                                message.clearReplyReact();
                                 message.clearPayloads();
+                                message.setDeleted(true);
+                                Transferable transferable = message.getTransferable();
+                                if (transferable != null) {
+                                    transferable.cancel();
+                                }
+                                message.setTransferable(null); // And cancel ongoing transfer if applicable
+
+                                message.setType(Message.TYPE_TEXT);
+                                message.setCounterpart(message.getCounterpart());
+                                message.setTrueCounterpart(message.getTrueCounterpart());
+                                message.setTime(time);
+                                message.setUuid(UUID.randomUUID().toString());
+                                message.setCarbon(false);
+                                message.resetFileParams();
+                                message.clearReplyReact();
+                                if (message.getRemoteMsgId() == null) message.setRemoteMsgId(message.getUuid());
+                                message.setRelativeFilePath(null);
+                                message.resetFileParams();
+                                message.clearReplyReact();
+                                message.clearPayloads();
+                                message.setDeleted(true);
+                                message.setTime(time); //set new time here to keep orginal timestamps
+                                message.setTransferable(null); // And cancel ongoing transfer if applicable
+
+                                if (message.getStatus() >= Message.STATUS_SEND) {
+                                    //only send retraction messages for outgoing messages!
+                                    sendMessage(message);
+                                }
                             }
-                            message.setBody("_"+activity.getString(R.string.message_retracted)+"_");
-                            message.setSubject(null);
-                            message.putEdited(message.getUuid(), message.getServerMsgId());
-                            message.setServerMsgId(null);
-                            message.setUuid(UUID.randomUUID().toString());
-                            sendMessage(message);
+                            message.setDeleted(true);
+                            activity.xmppConnectionService.updateMessage(message, message.getUuid());
+                            activity.xmppConnectionService.deleteMessage(message);
+                            activity.xmppConnectionService.updateMessage(message, message.getUuid());
+                            activity.onConversationsListItemUpdated();
+                            refresh();
                         })
                         .setNegativeButton(R.string.no, null).show();
                 return true;
@@ -3350,6 +3373,7 @@ public class ConversationFragment extends XmppFragment
                 || MessageUtils.unInitiatedButKnownSize(message)) {
             createNewConnection(message);
         } else {
+            message.setDeleted(true);
             Log.d(
                     Config.LOGTAG,
                     message.getConversation().getAccount() + ": unable to start downloadable");
