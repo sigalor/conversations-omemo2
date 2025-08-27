@@ -576,11 +576,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
         }
         try {
-            db.beginTransaction();
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
-            db.setTransactionSuccessful();
-            db.endTransaction();
-            requiresMessageIndexRebuild = true;
         } catch (SQLiteException ex) {
             Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
         }
