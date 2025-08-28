@@ -2268,6 +2268,24 @@ public class ConversationFragment extends XmppFragment
         }, 300L);
     }
 
+    public void fadeOutMessage(String uuid) {
+            int actualIndex = getIndexOfExtended(uuid, messageList);
+
+            if (actualIndex == -1) {
+                return;
+            }
+
+            View view = ListViewUtils.getViewByPosition(actualIndex, binding.messagesView);
+            View messageBox = view.findViewById(R.id.message_box);
+            if (messageBox != null) {
+                messageBox.animate()
+                        .translationX(50)
+                        .alpha(0.1f)
+                        .setDuration(400L)
+                        .start();
+            }
+    }
+
     private void updateSelection(String uuid, Integer offsetFormTop, Runnable selectionUpdatedRunnable, boolean populateFromMam, boolean recursiveFetch) {
         if (recursiveFetch && (fetchHistoryDialog == null || !fetchHistoryDialog.isShowing())) return;
 
@@ -2582,54 +2600,57 @@ public class ConversationFragment extends XmppFragment
                         .setMessage(R.string.do_you_really_want_to_retract_this_message)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             final var message = selectedMessage;
-                            if (message.getConversation() instanceof Conversation) {
+                            fadeOutMessage(message.getUuid());
+                            binding.messagesView.postDelayed(() -> {
+                                if (message.getConversation() instanceof Conversation) {
 
-                                message.setDeleted(true);
+                                    message.setDeleted(true);
 
-                                long time = System.currentTimeMillis();
-                                message.setRetractId(message.getRemoteMsgId() != null ? message.getRemoteMsgId() : message.getUuid());
-                                message.setErrorMessage(null);
-                                message.putEdited(message.getUuid(), message.getServerMsgId());
-                                message.setBody(activity.getString(R.string.message_retracted));
-                                message.setServerMsgId(null);
-                                message.setRemoteMsgId(message.getRemoteMsgId());
-                                message.setRelativeFilePath(null);
-                                message.resetFileParams();
-                                message.clearReplyReact();
-                                message.clearPayloads();
-                                message.setDeleted(true);
-                                Transferable transferable = message.getTransferable();
-                                if (transferable != null) {
-                                    transferable.cancel();
+                                    long time = System.currentTimeMillis();
+                                    message.setRetractId(message.getRemoteMsgId() != null ? message.getRemoteMsgId() : message.getUuid());
+                                    message.setErrorMessage(null);
+                                    message.putEdited(message.getUuid(), message.getServerMsgId());
+                                    message.setBody(activity.getString(R.string.message_retracted));
+                                    message.setServerMsgId(null);
+                                    message.setRemoteMsgId(message.getRemoteMsgId());
+                                    message.setRelativeFilePath(null);
+                                    message.resetFileParams();
+                                    message.clearReplyReact();
+                                    message.clearPayloads();
+                                    message.setDeleted(true);
+                                    Transferable transferable = message.getTransferable();
+                                    if (transferable != null) {
+                                        transferable.cancel();
+                                    }
+                                    message.setTransferable(null); // And cancel ongoing transfer if applicable
+
+                                    message.setType(Message.TYPE_TEXT);
+                                    message.setCounterpart(message.getCounterpart());
+                                    message.setTrueCounterpart(message.getTrueCounterpart());
+                                    message.setTime(time);
+                                    message.setUuid(UUID.randomUUID().toString());
+                                    message.setCarbon(false);
+                                    message.resetFileParams();
+                                    message.clearReplyReact();
+                                    if (message.getRemoteMsgId() == null) message.setRemoteMsgId(message.getUuid());
+                                    message.setRelativeFilePath(null);
+                                    message.resetFileParams();
+                                    message.clearReplyReact();
+                                    message.clearPayloads();
+                                    message.setDeleted(true);
+                                    message.setTime(time); //set new time here to keep orginal timestamps
+                                    message.setTransferable(null); // And cancel ongoing transfer if applicable
+
+                                    if (message.getStatus() >= Message.STATUS_SEND) {
+                                        //only send retraction messages for outgoing messages!
+                                        sendMessage(message);
+                                    }
                                 }
-                                message.setTransferable(null); // And cancel ongoing transfer if applicable
-
-                                message.setType(Message.TYPE_TEXT);
-                                message.setCounterpart(message.getCounterpart());
-                                message.setTrueCounterpart(message.getTrueCounterpart());
-                                message.setTime(time);
-                                message.setUuid(UUID.randomUUID().toString());
-                                message.setCarbon(false);
-                                message.resetFileParams();
-                                message.clearReplyReact();
-                                if (message.getRemoteMsgId() == null) message.setRemoteMsgId(message.getUuid());
-                                message.setRelativeFilePath(null);
-                                message.resetFileParams();
-                                message.clearReplyReact();
-                                message.clearPayloads();
                                 message.setDeleted(true);
-                                message.setTime(time); //set new time here to keep orginal timestamps
-                                message.setTransferable(null); // And cancel ongoing transfer if applicable
-
-                                if (message.getStatus() >= Message.STATUS_SEND) {
-                                    //only send retraction messages for outgoing messages!
-                                    sendMessage(message);
-                                }
-                            }
-                            message.setDeleted(true);
-                            activity.xmppConnectionService.updateMessage(message, message.getUuid());
-                            activity.onConversationsListItemUpdated();
-                            refresh();
+                                activity.xmppConnectionService.updateMessage(message, message.getUuid());
+                                activity.onConversationsListItemUpdated();
+                                refresh();
+                            }, 300L);
                         })
                         .setNegativeButton(R.string.no, null).show();
                 return true;
