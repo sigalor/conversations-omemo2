@@ -1291,6 +1291,7 @@ public class MessageParser extends AbstractParser
                         }
                         replacedMessage.setDeleted(true);
                         replacedMessage.setRetractId(replacedMessage.getRetractId() == null ? (replacedMessage.getRemoteMsgId() == null ? message.getUuid() : replacedMessage.getRemoteMsgId()) : replacedMessage.getRetractId());
+                        mXmppConnectionService.updateMessage(replacedMessage, replacedMessage.getUuid());
                         replacedMessage.markRead();
                         mXmppConnectionService.getNotificationService().updateNotification();
                         return;
