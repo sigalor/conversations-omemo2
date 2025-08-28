@@ -365,6 +365,7 @@ public class Conversation extends AbstractEntity
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (message.isDeleted() || message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (asReaction(message) != null) continue;
                 if (message.isRead()) {
@@ -383,6 +384,7 @@ public class Conversation extends AbstractEntity
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
+                if (message.isDeleted() || message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (asReaction(message) != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
@@ -1092,6 +1094,7 @@ public class Conversation extends AbstractEntity
                 final Message message = messages.get(i);
                 // **NEW CHECK: Skip deleted or retracted messages**
                 if (message.isDeleted() || message.getRetractId() != null) {
+                    message.markRead();
                     continue;
                 }
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
@@ -1811,6 +1814,7 @@ public class Conversation extends AbstractEntity
             for (final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
+                if (message.isDeleted() || message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 final boolean muted = xmppConnectionService != null && message.getStatus() == Message.STATUS_RECEIVED && getMode() == Conversation.MODE_MULTI && xmppConnectionService.isMucUserMuted(new MucOptions.User(null, getJid(), message.getOccupantId(), null, null));
                 if (muted) continue;
@@ -1832,6 +1836,7 @@ public class Conversation extends AbstractEntity
             for (Message message : messages) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
+                if (message.isDeleted() || message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
                     ++count;
