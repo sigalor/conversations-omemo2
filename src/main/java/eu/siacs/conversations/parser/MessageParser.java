@@ -1178,114 +1178,6 @@ public class MessageParser extends AbstractParser
             } else {
                 updateLastseen(account, from);
             }
-            /*
-            // TODO: New message retraction and moderation
-            if (replaceElement != null && replacementId != null &&
-                    (replaceElement.getName().equals("retract") || replaceElement.getName().equals("moderate"))) { // Check if it's a retraction/moderation
-
-                // 'replacementId' is the ID of the message to be retracted/moderated.
-                // 'packet' is the retraction/moderation message itself.
-
-                // Message originalMessage = mXmppConnectionService.findMessageByStanzaId(account, replacementId); // Or by UUID if that's what 'id' refers to
-                Message originalMessage = conversation.findMessageWithRemoteIdAndCounterpart(replacementId, counterpart); // Or by UUID if that's what 'id' refers to
-                if (originalMessage != null) {
-                    // Ensure the retraction is from the original sender (or an authorized entity in MUC)
-                    boolean authorizedToRetract = false;
-                    if (originalMessage.getConversation().getMode() == Conversational.MODE_MULTI) {
-                        final boolean fingerprintsMatch =
-                                originalMessage.getFingerprint() == null
-                                        || originalMessage
-                                        .getFingerprint()
-                                        .equals(message.getFingerprint());
-                        final boolean trueCountersMatch =
-                                originalMessage.getTrueCounterpart() != null
-                                        && message.getTrueCounterpart() != null
-                                        && originalMessage
-                                        .getTrueCounterpart()
-                                        .asBareJid()
-                                        .equals(message.getTrueCounterpart().asBareJid());
-                        final boolean occupantIdMatch =
-                                originalMessage.getOccupantId() != null
-                                        && originalMessage
-                                        .getOccupantId()
-                                        .equals(message.getOccupantId());
-                        final boolean mucUserMatches =
-                                query == null
-                                        && originalMessage.sameMucUser(
-                                        message); // can not be checked when using mam
-                        final boolean duplicate = conversation.hasDuplicateMessage(message);
-                        if (fingerprintsMatch && (trueCountersMatch || occupantIdMatch || !conversationMultiMode || mucUserMatches || counterpart.isBareJid()) && !duplicate) {
-                            authorizedToRetract = true;
-                        }
-                    } else { // 1-to-1 chat
-                        if (originalMessage.getCounterpart() != null && originalMessage.getCounterpart().asBareJid().equals(packet.getFrom().asBareJid())) {
-                            authorizedToRetract = true;
-                        }
-                    }
-
-
-                    if (authorizedToRetract) {
-                        Log.d(Config.LOGTAG, "Retracting message ID: " + replacementId + " from " + packet.getFrom());
-
-                        if (originalMessage.getContact() != null && originalMessage.getContact().getDisplayName() != null) {
-                            originalMessage.setBody(mXmppConnectionService.getString(R.string.message_was_retracted_by) + " " + originalMessage.getContact().getDisplayName()); // Placeholder
-                        } else {
-                            originalMessage.setBody(mXmppConnectionService.getString(R.string.message_was_retracted_by) + " " + originalMessage.getCounterpart().getResource()); // Placeholder
-                        }
-                        originalMessage.setType(Message.TYPE_TEXT_RETRACTED_BY_SENDER); // Define a new type or set a flag
-                        // originalMessage.setEncryption(Message.ENCRYPTION_NONE); // Retracted messages usually don't need encryption display but keep the encryption type for now
-
-                        // Clear other sensitive fields if necessary
-                        // originalMessage.setEncryptedBody(null);
-
-                        originalMessage.setDeleted(true);
-                        originalMessage.setRetractId(replacementId);
-
-                        mXmppConnectionService.getFileBackend().deleteFile(originalMessage);
-                        mXmppConnectionService.evictPreview(message.getUuid());
-                        List<Element> thumbs = originalMessage.getFileParams() != null ? originalMessage.getFileParams().getThumbnails() : null;
-                        if (thumbs != null && !thumbs.isEmpty()) {
-                            for (Element thumb : thumbs) {
-                                Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                                if (uri.getScheme().equals("cid")) {
-                                    Cid cid = BobTransfer.cid(uri);
-                                    if (cid == null) continue;
-                                    DownloadableFile f = mXmppConnectionService.getFileForCid(cid);
-                                    if (f != null) {
-                                        mXmppConnectionService.evictPreview(f);
-                                        f.delete();
-                                    }
-                                }
-                            }
-                        }
-                        originalMessage.clearPayloads();
-                        originalMessage.setFileParams(null);
-                        originalMessage.setRelativeFilePath(null);
-                        originalMessage.resetFileParams();
-
-                        // Update message in the database
-                        mXmppConnectionService.updateMessage(originalMessage, true); // true for remote update, notify UI
-
-                        // Optional: You might not want to save the retraction message itself as a new displayed message,
-                        // or mark it specially. For now, the 'return true' below will skip further processing.
-                        // You could also delete the 'packet' (the retraction message) from the DB if it was temporarily stored.
-                        mXmppConnectionService.deleteMessage(originalMessage);
-
-                        // Mark this incoming 'packet' (the retraction stanza) as processed
-                        // so it doesn't get displayed as a regular message.
-                        // return true;
-                        // or
-                        return; // Skip further processing of this packet as a normal message
-                    } else {
-                        Log.w(Config.LOGTAG, "Unauthorized attempt to retract message ID: " + replacementId + " from " + packet.getFrom());
-                    }
-                } else {
-                    Log.d(Config.LOGTAG, "Original message for retraction not found. ID: " + replacementId);
-                    // TODO Store the retraction request to apply if the original message arrives later (XEP-0424 recommendation)
-                    // This requires a new mechanism to store pending retractions.
-                }
-            }
-            */
 
             // Old but working message retraction and moderation
             if (replacementId != null && mXmppConnectionService.allowMessageCorrection()) {
@@ -1397,10 +1289,10 @@ public class MessageParser extends AbstractParser
                                         .decrypt(replacedMessage, false);
                             }
                         }
+                        replacedMessage.setDeleted(true);
+                        replacedMessage.setRetractId(replacedMessage.getRetractId() == null ? (replacedMessage.getRemoteMsgId() == null ? message.getUuid() : replacedMessage.getRemoteMsgId()) : replacedMessage.getRetractId());
+                        replacedMessage.markRead();
                         mXmppConnectionService.getNotificationService().updateNotification();
-                        mXmppConnectionService.updateMessage(replacedMessage, true);
-                        mXmppConnectionService.deleteMessage(replacedMessage);
-                        mXmppConnectionService.updateConversationUi();
                         return;
                     } else {
                         Log.d(

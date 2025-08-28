@@ -2590,7 +2590,7 @@ public class ConversationFragment extends XmppFragment
                                 message.setRetractId(message.getRemoteMsgId() != null ? message.getRemoteMsgId() : message.getUuid());
                                 message.setErrorMessage(null);
                                 message.putEdited(message.getUuid(), message.getServerMsgId());
-                                message.setBody("");
+                                message.setBody(activity.getString(R.string.message_retracted));
                                 message.setServerMsgId(null);
                                 message.setRemoteMsgId(message.getRemoteMsgId());
                                 message.setRelativeFilePath(null);
@@ -2627,8 +2627,6 @@ public class ConversationFragment extends XmppFragment
                                 }
                             }
                             message.setDeleted(true);
-                            activity.xmppConnectionService.updateMessage(message, message.getUuid());
-                            activity.xmppConnectionService.deleteMessage(message);
                             activity.xmppConnectionService.updateMessage(message, message.getUuid());
                             activity.onConversationsListItemUpdated();
                             refresh();

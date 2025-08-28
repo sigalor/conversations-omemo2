@@ -83,7 +83,7 @@ public class MessageGenerator extends AbstractGenerator {
             apply.addChild("retract", "urn:xmpp:message-retract:0");
             packet.addChild("fallback", "urn:xmpp:fallback:0");
             packet.addChild("store", "urn:xmpp:hints");
-            packet.setBody("");
+            packet.setBody("This person attempted to retract a previous message, but it's unsupported by your client.");
         }
         if (!legacyEncryption) {
             if (message.getSubject() != null && message.getSubject().length() > 0) packet.addChild("subject").setContent(message.getSubject());
