@@ -1896,6 +1896,7 @@ public class Conversation extends AbstractEntity
         synchronized (this.messages) {
             for (int i = messages.size() - 1; i >= 0; i--) {
                 final Message message = messages.get(i);
+                if (message.isDeleted() || message.getRetractId() != null) continue;
                 if (uuid.equals(message.getUuid())) {
                     return count;
                 }
