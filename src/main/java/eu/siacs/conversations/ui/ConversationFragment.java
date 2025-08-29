@@ -2610,7 +2610,7 @@ public class ConversationFragment extends XmppFragment
                                     message.setRetractId(message.getRemoteMsgId() != null ? message.getRemoteMsgId() : message.getUuid());
                                     message.setErrorMessage(null);
                                     message.putEdited(message.getUuid(), message.getServerMsgId());
-                                    message.setBody(activity.getString(R.string.message_retracted));
+                                    message.setBody("");
                                     message.setServerMsgId(null);
                                     message.setRemoteMsgId(message.getRemoteMsgId());
                                     message.setRelativeFilePath(null);
