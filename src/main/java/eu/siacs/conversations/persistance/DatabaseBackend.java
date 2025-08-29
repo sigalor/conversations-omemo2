@@ -1289,8 +1289,37 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             }
         }
         if (oldVersion < 63 && newVersion >= 63) {
-            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
+            if (!columnExists(db, Message.TABLENAME, Message.RETRACT_ID)) {
+                db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
+            }
         }
+    }
+
+    /**
+     * Checks if a specific column exists in the given table.
+     *
+     * @param db        The SQLiteDatabase instance.
+     * @param tableName The name of the table to check.
+     * @param columnName The name of the column to check.
+     * @return true if the column exists, false otherwise.
+     */
+    private boolean columnExists(SQLiteDatabase db, String tableName, String columnName) {
+        Cursor cursor = null;
+        try {
+            // Querying with a limit of 0 is an efficient way to get column metadata
+            cursor = db.query(tableName, null, null, null, null, null, null, "0");
+            if (cursor != null) {
+                return cursor.getColumnIndex(columnName) != -1;
+            }
+        } catch (Exception e) {
+            // Log the exception if necessary
+            Log.e("DBHelper", "Error checking if column exists: " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return false;
     }
 
     private void canonicalizeJids(SQLiteDatabase db) {
