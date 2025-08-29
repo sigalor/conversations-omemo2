@@ -1557,4 +1557,12 @@
     <string name="gif_imported">Файли GIF імпортовано</string>
     <string name="choose_sticker_pack">Виберіть набір наклейок</string>
     <string name="choose_stickerpack_to_add_sticker">Виберіть, до якого набору наклейок додати цю наклейку</string>
+    <string name="pref_now_playing">Відтворюється</string>
+    <string name="pref_send_now_playing">Надсилати статус поточного відтворення</string>
+    <string name="pref_auto_update_now_playing">Автоматично оновлювати статус відтворення із системи (потрібен дозвіл на отримання сповіщень)</string>
+    <string name="pref_update_track_longer_than">Оновлювати лише треки довші, ніж</string>
+    <string name="user_tune_listening_to">Слухає %1$s – %2$s</string>
+    <string name="close_chat">Закрити розмову</string>
+    <string name="close_chat_text">Остаточно закриє цю розмову. Ви більше не знайдете її у своєму списку контактів.</string>
+    <string name="archive_contact_text">Архівує цю розмову. Ви можете знайти її у списку контактів.</string>
 </resources>

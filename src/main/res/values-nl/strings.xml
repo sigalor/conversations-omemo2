@@ -1140,7 +1140,7 @@
     <string name="could_not_delete_account_from_server">Kan account niet verwijderen van server</string>
     <string name="privacy_policy">Privacybeleid</string>
     <string name="contact_list_integration_not_available">Integratie met je adresboek is niet beschikbaar</string>
-    <string name="delete_and_close">Gesprek sluiten &amp; archiveren</string>
+    <string name="delete_and_close">Gesprek afsluiten &amp; archiveren</string>
     <string name="no_certificate_selected">Geen cliëntcertificaat geselecteerd!</string>
     <string name="pref_title_security">Beveiliging</string>
     <string name="pref_summary_security">E2E-versleuteling, blind vertrouwen vóór verificatie, MITM-detectie</string>
@@ -1496,4 +1496,12 @@
     <string name="import_own_stickers_summary">Importeer je eigen stickers. Gebruik ze met de originele bestandsnaam.</string>
     <string name="choose_stickerpack_to_add_sticker">Kies het stickerpakket om deze sticker aan toe te voegen</string>
     <string name="choose_sticker_pack">Stickerpakket kiezen</string>
+    <string name="pref_update_track_longer_than">Alleen bijwerken als het nummer langer is dan</string>
+    <string name="archive_contact_text">Archiveert dit gesprek. Je kunt het gesprek terugvinden via Contacten.</string>
+    <string name="close_chat">Gesprek afsluiten</string>
+    <string name="close_chat_text">Sluit dit gesprek volledig af. Je zult het gesprek niet meer kunnen terugvinden bij Contacten.</string>
+    <string name="user_tune_listening_to">Luistert naar %1$s - %2$s</string>
+    <string name="pref_send_now_playing">Delen naar welk nummer je luistert</string>
+    <string name="pref_auto_update_now_playing">Deel automatisch naar welk nummer je aan het luisteren bent. Vereist het recht om meldingen uit te lezen.</string>
+    <string name="pref_now_playing">Muziek luisteren delen</string>
 </resources>

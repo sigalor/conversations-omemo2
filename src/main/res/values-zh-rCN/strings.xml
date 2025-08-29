@@ -1502,4 +1502,12 @@
     <string name="sticker_download_started">贴纸下载已开始</string>
     <string name="choose_stickerpack_to_add_sticker">选择一个贴纸包来添加此贴纸</string>
     <string name="choose_sticker_pack">选择贴纸包</string>
+    <string name="close_chat_text">完全关闭此聊天。您将无法再在联系人列表中找到它。</string>
+    <string name="archive_contact_text">归档此聊天。您仍然可以在联系人列表中找到它。</string>
+    <string name="close_chat">关闭聊天</string>
+    <string name="user_tune_listening_to">正在收听 %1$s - %2$s</string>
+    <string name="pref_send_now_playing">发送当前播放状态</string>
+    <string name="pref_auto_update_now_playing">自动从系统更新当前播放状态（需要通知监听器权限）</string>
+    <string name="pref_now_playing">当前播放</string>
+    <string name="pref_update_track_longer_than">仅更新超过以下时长的曲目</string>
 </resources>
