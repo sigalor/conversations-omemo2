@@ -2233,7 +2233,7 @@ public class ConversationFragment extends XmppFragment
         updateSendButton();
     }
 
-
+    // TODO: Add better scrolling to reply
     private void scrollToReply(Message message) {
         Element reply = message.getReply();
         if (reply == null) return;
@@ -2638,7 +2638,7 @@ public class ConversationFragment extends XmppFragment
                                     message.clearReplyReact();
                                     message.clearPayloads();
                                     message.setDeleted(true);
-                                    message.setTime(time); //set new time here to keep orginal timestamps
+                                    message.setTime(time); //set new time here to keep orginial timestamps
                                     message.setTransferable(null); // And cancel ongoing transfer if applicable
 
                                     if (message.getStatus() >= Message.STATUS_SEND) {
