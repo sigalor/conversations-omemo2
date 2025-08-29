@@ -1237,6 +1237,10 @@ public class MessageParser extends AbstractParser
                                 replacedMessage.clearPayloads();
                                 replacedMessage.setFileParams(null);
                                 replacedMessage.addPayload(replaceElement);
+
+                                replacedMessage.setDeleted(true);
+                                replacedMessage.setRetractId(replacedMessage.getRetractId() == null ? (replacedMessage.getRemoteMsgId() == null ? message.getUuid() : replacedMessage.getRemoteMsgId()) : replacedMessage.getRetractId());
+                                mXmppConnectionService.updateMessage(replacedMessage, replacedMessage.getUuid());
                             } else {
                                 replacedMessage.clearPayloads();
                                 for (final var p : message.getPayloads()) {
@@ -1289,9 +1293,6 @@ public class MessageParser extends AbstractParser
                                         .decrypt(replacedMessage, false);
                             }
                         }
-                        replacedMessage.setDeleted(true);
-                        replacedMessage.setRetractId(replacedMessage.getRetractId() == null ? (replacedMessage.getRemoteMsgId() == null ? message.getUuid() : replacedMessage.getRemoteMsgId()) : replacedMessage.getRetractId());
-                        mXmppConnectionService.updateMessage(replacedMessage, replacedMessage.getUuid());
                         mXmppConnectionService.getNotificationService().updateNotification();
                         return;
                     } else {
