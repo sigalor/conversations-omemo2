@@ -475,6 +475,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image().setVisibility(View.GONE);
         viewHolder.messageBody().setTypeface(null, Typeface.ITALIC);
         viewHolder.messageBody().setVisibility(View.VISIBLE);
+        viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.SRC);
+        viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+        viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+        if (viewHolder.username() != null) {
+            viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
+        }
         viewHolder.messageBody().setText(text);
         viewHolder
                 .messageBody()
@@ -1123,6 +1130,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.CLEAR);
             viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
             viewHolder.statusLine().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
+            viewHolder.inReplyToBox().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
+            viewHolder.inReplyToBox().setBackgroundTintList(bubbleToColorStateList(viewHolder.inReplyToBox(), bubbleColor));
+            viewHolder.inReplyToQuote().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_surface_container));
+            viewHolder.inReplyToQuote().setBackgroundTintList(bubbleToColorStateList(viewHolder.inReplyToQuote(), bubbleColor));
             if (viewHolder.username() != null) {
                 viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
                 viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
