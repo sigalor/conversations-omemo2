@@ -144,6 +144,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final String ERROR_MESSAGE_CANCELLED = "eu.siacs.conversations.cancelled";
 
     public static final Object PLAIN_TEXT_SPAN = new PlainTextSpan();
+    public static final String DELETED_MESSAGE_BODY = "de.monocles.chat.message_deleted";
 
     public boolean markable = false;
     protected String conversationUuid;
@@ -1521,6 +1522,14 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public boolean needsUploading() {
         return isFileOrImage() && getFileParams().url == null;
+    }
+
+    public void setOob(boolean isOob) {
+        this.oob = isOob;
+    }
+
+    public List<Edit> getEditedList() {
+        return edits;
     }
 
     public static class FileParams {

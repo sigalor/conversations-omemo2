@@ -72,7 +72,7 @@ public class Edit {
         return jsonObject;
     }
 
-    String getEditedId() {
+    public String getEditedId() {
         return editedId;
     }
 

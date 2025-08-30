@@ -139,6 +139,7 @@ import net.java.otr4j.session.SessionStatus;
 
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.entities.Bookmark;
+import eu.siacs.conversations.entities.Edit;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
@@ -2602,52 +2603,56 @@ public class ConversationFragment extends XmppFragment
                             final var message = selectedMessage;
                             fadeOutMessage(message.getUuid());
                             binding.messagesView.postDelayed(() -> {
+                                final Message finalMessage = message;
                                 if (message.getConversation() instanceof Conversation) {
 
-                                    message.setDeleted(true);
+                                    Message retractedMessage = finalMessage;
+                                    retractedMessage.setDeleted(true);
 
                                     long time = System.currentTimeMillis();
-                                    message.setRetractId(message.getRemoteMsgId() != null ? message.getRemoteMsgId() : message.getUuid());
-                                    message.setErrorMessage(null);
-                                    message.putEdited(message.getUuid(), message.getServerMsgId());
-                                    message.setBody("");
-                                    message.setServerMsgId(null);
-                                    message.setRemoteMsgId(message.getRemoteMsgId());
-                                    message.setRelativeFilePath(null);
-                                    message.resetFileParams();
-                                    message.clearReplyReact();
-                                    message.clearPayloads();
-                                    message.setDeleted(true);
-                                    Transferable transferable = message.getTransferable();
-                                    if (transferable != null) {
-                                        transferable.cancel();
+                                    Message retractmessage = new Message(conversation,
+                                            "This person attempted to retract a previous message, but it's unsupported by your client.",
+                                            Message.ENCRYPTION_NONE,
+                                            Message.STATUS_SEND);
+                                    if (retractedMessage.getEditedList().size() > 0) {
+                                        retractmessage.setRetractId(retractedMessage.getEditedList().get(0).getEditedId());
+                                    } else {
+                                        retractmessage.setRetractId(retractedMessage.getRemoteMsgId() != null ? retractedMessage.getRemoteMsgId() : retractedMessage.getUuid());
                                     }
-                                    message.setTransferable(null); // And cancel ongoing transfer if applicable
 
-                                    message.setType(Message.TYPE_TEXT);
-                                    message.setCounterpart(message.getCounterpart());
-                                    message.setTrueCounterpart(message.getTrueCounterpart());
-                                    message.setTime(time);
-                                    message.setUuid(UUID.randomUUID().toString());
-                                    message.setCarbon(false);
-                                    message.resetFileParams();
-                                    message.clearReplyReact();
-                                    if (message.getRemoteMsgId() == null) message.setRemoteMsgId(message.getUuid());
-                                    message.setRelativeFilePath(null);
-                                    message.resetFileParams();
-                                    message.clearReplyReact();
-                                    message.clearPayloads();
-                                    message.setDeleted(true);
-                                    message.setTime(time); //set new time here to keep orginial timestamps
-                                    message.setTransferable(null); // And cancel ongoing transfer if applicable
+                                    retractedMessage.putEdited(retractedMessage.getUuid(), retractedMessage.getServerMsgId());  //TODO: Maybe add: , retractedMessage.getBody(), retractedMessage.getTimeSent());
+                                    retractedMessage.setBody(Message.DELETED_MESSAGE_BODY);
+                                    retractedMessage.setServerMsgId(null);
+                                    retractedMessage.setRemoteMsgId(message.getRemoteMsgId());
+                                    retractedMessage.setDeleted(true);
 
-                                    if (message.getStatus() >= Message.STATUS_SEND) {
+                                    retractmessage.setType(Message.TYPE_TEXT);
+                                    retractmessage.setCounterpart(message.getCounterpart());
+                                    retractmessage.setTrueCounterpart(message.getTrueCounterpart());
+                                    retractmessage.setTime(time);
+                                    retractmessage.setUuid(UUID.randomUUID().toString());
+                                    retractmessage.setCarbon(false);
+                                    retractmessage.setOob(false);
+                                    retractmessage.resetFileParams();   //TODO: Check if we need this
+                                    retractmessage.setRemoteMsgId(retractmessage.getUuid());
+                                    retractmessage.setDeleted(true);
+                                    retractedMessage.setTime(time); //set new time here to keep original timestamps
+                                    for (Edit itm : retractedMessage.getEditedList()) {
+                                        Message tmpRetractedMessage = conversation.findMessageWithUuidOrRemoteId(itm.getEditedId());
+                                        if (tmpRetractedMessage != null) {
+                                            tmpRetractedMessage.setDeleted(true);
+                                            activity.xmppConnectionService.updateMessage(tmpRetractedMessage, tmpRetractedMessage.getUuid());
+                                        }
+                                    }
+                                    activity.xmppConnectionService.updateMessage(retractedMessage, retractedMessage.getUuid());
+                                    if (finalMessage.getStatus() >= Message.STATUS_SEND) {
                                         //only send retraction messages for outgoing messages!
-                                        sendMessage(message);
+                                        sendMessage(retractmessage);
                                     }
+                                    activity.xmppConnectionService.deleteMessage(retractedMessage);
+                                    activity.xmppConnectionService.deleteMessage(retractmessage);
                                 }
-                                message.setDeleted(true);
-                                activity.xmppConnectionService.updateMessage(message, message.getUuid());
+                                activity.xmppConnectionService.deleteMessage(message);
                                 activity.onConversationsListItemUpdated();
                                 refresh();
                             }, 300L);

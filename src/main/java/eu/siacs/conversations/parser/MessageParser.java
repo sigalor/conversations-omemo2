@@ -1239,7 +1239,7 @@ public class MessageParser extends AbstractParser
                                 replacedMessage.addPayload(replaceElement);
 
                                 replacedMessage.setDeleted(true);
-                                replacedMessage.setRetractId(replacedMessage.getRetractId() == null ? (replacedMessage.getRemoteMsgId() == null ? message.getUuid() : replacedMessage.getRemoteMsgId()) : replacedMessage.getRetractId());
+                                replacedMessage.setRetractId(replacementId);
                                 mXmppConnectionService.updateMessage(replacedMessage, replacedMessage.getUuid());
                             } else {
                                 replacedMessage.clearPayloads();
