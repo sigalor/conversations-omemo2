@@ -38,6 +38,7 @@ public class AppSettings {
 
     public static final String TRUST_SYSTEM_CA_STORE = "trust_system_ca_store";
     public static final String DANE_ENFORCED = "enforce_dane";
+    public static final String CUSTOM_RESOURCE_NAME = "custom_resource_name";
     public static final String REQUIRE_CHANNEL_BINDING = "channel_binding_required";
     public static final String NOTIFICATION_RINGTONE = "notification_ringtone";
     public static final String NOTIFICATION_HEADS_UP = "notification_headsup";

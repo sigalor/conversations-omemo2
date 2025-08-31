@@ -1512,4 +1512,7 @@
     <string name="you_retracted_this_message">You retracted this message</string>
     <string name="cannot_retract_message_no_id">Cannot retract message, no ID.</string>
     <string name="message_was_retracted_by">Message was retracted by</string>
+    <string name="pref_custom_resource_name">Custom client resource name</string>
+    <string name="pref_custom_resource_name_summary">Set a custom name for your client\'s resource</string>
+    <string name="pref_custom_resource_name_dialog_title">Enter custom resource name</string>
 </resources>

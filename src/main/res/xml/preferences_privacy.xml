@@ -20,6 +20,13 @@
             android:icon="@drawable/ic_visibility_24dp"
             android:summary="@string/pref_broadcast_last_activity_summary"
             android:title="@string/pref_broadcast_last_activity" />
+        <EditTextPreference
+            app:key="custom_resource_name"
+            android:icon="@drawable/monocleslogo_chat_signet"
+            app:title="@string/pref_custom_resource_name"
+            app:summary="@string/pref_custom_resource_name_summary"
+            app:dialogTitle="@string/pref_custom_resource_name_dialog_title"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_interaction">
         <SwitchPreferenceCompat

@@ -3,6 +3,7 @@ package eu.siacs.conversations.xmpp;
 import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
@@ -2113,11 +2115,18 @@ public class XmppConnection implements Runnable {
             return;
         }
         clearIqCallbacks();
+        /*
         if (account.getJid().isBareJid()) {
             account.setResource(createNewResource());
         } else {
             fixResource(mXmppConnectionService, account);
         }
+        */
+        // New resource setting
+        Context context = mXmppConnectionService.getApplicationContext();
+        String clientResource = getEffectiveClientResource(context);
+        account.setResource(clientResource);
+
         final Iq iq = new Iq(Iq.Type.SET);
         final String resource =
                 Config.USE_RANDOM_RESOURCE_ON_EVERY_BIND
@@ -3338,6 +3347,33 @@ public class XmppConnection implements Runnable {
 
         public boolean mdsServerAssist() {
             return hasDiscoFeature(account.getJid().asBareJid(), Namespace.MDS_DISPLAYED);
+        }
+    }
+
+    /**
+     * Retrieves the custom resource from SharedPreferences or use a default one
+     */
+    private String getEffectiveClientResource(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String customResource = sharedPreferences.getString("custom_resource_name", null);
+
+        if (customResource != null && !customResource.trim().isEmpty()) {
+            Log.d(Config.LOGTAG, "Using custom resource: " + customResource);
+            return customResource;
+        } else {
+            // Fallback to original default resource generation logic
+            String appName = "monocles chat"; // A sensible default
+            try {
+                // appName = context.getString(R.string.app_name);
+                appName = BuildConfig.APP_NAME + " " + BuildConfig.VERSION_NAME;
+            } catch (Exception e) {
+                Log.w(Config.LOGTAG, "Could not get appName from BuildConfig, using default.",e);
+            }
+            // String defaultResource = String.format("%s.%s", appName, CryptoHelper.random(3));
+            String defaultResource = String.format("%s", appName);
+            Log.d(Config.LOGTAG, "Using default generated resource: " + defaultResource);
+            return defaultResource;
+
         }
     }
 }
