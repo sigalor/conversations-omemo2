@@ -18,7 +18,7 @@ public class PhoneHelper {
 
     @SuppressLint("HardwareIds")
     public static String getAndroidId(final Context context) {
-        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return null; // Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
     public static Uri getProfilePictureUri(final Context context) {

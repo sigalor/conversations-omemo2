@@ -795,7 +795,7 @@ public class ConversationsActivity extends XmppActivity
 
     private String getBatteryOptimizationPreferenceKey() {
         @SuppressLint("HardwareIds")
-        String device = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        String device = null; // Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         return "show_battery_optimization" + (device == null ? "" : device);
     }
 
