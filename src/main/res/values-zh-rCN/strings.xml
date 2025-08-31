@@ -1510,4 +1510,9 @@
     <string name="pref_auto_update_now_playing">自动从系统更新当前播放状态（需要通知监听器权限）</string>
     <string name="pref_now_playing">当前播放</string>
     <string name="pref_update_track_longer_than">仅更新超过以下时长的曲目</string>
+    <string name="message_is_too_long">消息太长</string>
+    <string name="you_retracted_this_message">您已撤回此消息</string>
+    <string name="cannot_retract_message_no_id">无法撤回消息，没有 ID。</string>
+    <string name="message_was_retracted_by">消息已撤回，由</string>
+    <string name="message_retracted">消息已撤回</string>
 </resources>

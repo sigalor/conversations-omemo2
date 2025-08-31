@@ -888,7 +888,7 @@
     <string name="rtp_state_declined_or_busy">Зайнято</string>
     <string name="rtp_state_connectivity_error">Неможливо здійснити виклик</string>
     <string name="rtp_state_connectivity_lost_error">З\'єднання втрачено</string>
-    <string name="rtp_state_retracted">Відхилені виклики</string>
+    <string name="rtp_state_retracted">Виклик скасовано</string>
     <string name="rtp_state_application_failure">Помилка застосунку</string>
     <string name="hang_up">Завершити</string>
     <string name="ongoing_call">Активний виклик</string>
@@ -1204,7 +1204,7 @@
     <string name="pref_send_link_previews_summary">Додавати метадані про посилання під час надсилання повідомлення</string>
     <string name="schedule_message">Надіслати пізніше</string>
     <string name="pref_show_thread_feature">Значок тем</string>
-    <string name="retract_message">Відкликати повідомлення</string>
+    <string name="retract_message">Видалити повідомлення</string>
     <string name="failed_to_delete_gif">Не вдалося видалити GIF</string>
     <string name="this_account_is_connecting">Цей обліковий запис підключається…</string>
     <string name="this_account_is_offline">Цей обліковий запис поза мережею, повідомлення будуть надіслані, як тільки відновиться з\'єднання</string>
@@ -1220,7 +1220,7 @@
     <string name="call_is_using_bluetooth">Виклик здійснюється через Bluetooth.</string>
     <string name="flip_camera">Розвернути камеру</string>
     <string name="video_is_disabled_tap_to_enable">Відео вимкнено. Торкніться, щоб увімкнути.</string>
-    <string name="do_you_really_want_to_retract_this_message">Ви справді хочете відкликати це повідомлення?</string>
+    <string name="do_you_really_want_to_retract_this_message">Ви справді хочете видалити це повідомлення?</string>
     <string name="pref_set_text_collapsable">Бета: Згортати довгий текст</string>
     <string name="pref_show_show_nav_drawer_summary">Увімкнути навігаційну панель для кращого сортування розмов</string>
     <string name="pref_show_show_nav_drawer">Навігаційна панель</string>
@@ -1565,4 +1565,9 @@
     <string name="close_chat">Закрити розмову</string>
     <string name="close_chat_text">Остаточно закриє цю розмову. Ви більше не знайдете її у своєму списку контактів.</string>
     <string name="archive_contact_text">Архівує цю розмову. Ви можете знайти її у списку контактів.</string>
+    <string name="message_retracted">Повідомлення видалено</string>
+    <string name="you_retracted_this_message">Ви видалили це повідомлення</string>
+    <string name="cannot_retract_message_no_id">Неможливо видалити повідомлення, немає ідентифікатора.</string>
+    <string name="message_was_retracted_by">Повідомлення видалено</string>
+    <string name="message_is_too_long">Повідомлення занадто довге</string>
 </resources>

@@ -995,7 +995,7 @@
     <string name="reject_switch_to_video">Videogesprek weigeren</string>
     <string name="unified_push_distributor">UnifiedPush Distributor</string>
     <string name="pref_up_push_account_title">Account</string>
-    <string name="retract_message">Bericht intrekken</string>
+    <string name="retract_message">Bericht verwijderen</string>
     <string name="incoming_call_duration_timestamp">Inkomende oproep (%s) · %s</string>
     <string name="outgoing_call_duration_timestamp">Uitgaande oproep (%s) · %s</string>
     <string name="outgoing_call_timestamp">Uitgaande oproep · %s</string>
@@ -1185,7 +1185,7 @@
     <string name="welcome_to_monocles_chat">Welkom bij monocles chat</string>
     <string name="monocles_chat_intro_description">monocles chat is een app die je verbindt met het wereldwijde netwerk XMPP. Dit netwerk bevat zogenaamde gateways om te chatten met andere netwerken, zoals SMS, IRC, Matrix en meer.</string>
     <string name="how_the_xmpp_network_works">Hoe XMPP werkt</string>
-    <string name="do_you_really_want_to_retract_this_message">Dit bericht echt intrekken?</string>
+    <string name="do_you_really_want_to_retract_this_message">Dit bericht echt verwijderen?</string>
     <string name="store_media_only_in_cache">Media alleen in cache opslaan</string>
     <string name="cant_open_file">Kan bestand niet openen</string>
     <string name="encryption">Versleuteling</string>
@@ -1504,4 +1504,9 @@
     <string name="pref_send_now_playing">Delen naar welk nummer je luistert</string>
     <string name="pref_auto_update_now_playing">Deel automatisch naar welk nummer je aan het luisteren bent. Vereist het recht om meldingen uit te lezen.</string>
     <string name="pref_now_playing">Muziek luisteren delen</string>
+    <string name="message_was_retracted_by">Bericht is verwijderd door</string>
+    <string name="message_retracted">Bericht verwijderd</string>
+    <string name="message_is_too_long">Bericht is te lang</string>
+    <string name="you_retracted_this_message">Je hebt dit bericht verwijderd</string>
+    <string name="cannot_retract_message_no_id">Kan dit bericht zonder ID niet verwijderen.</string>
 </resources>
