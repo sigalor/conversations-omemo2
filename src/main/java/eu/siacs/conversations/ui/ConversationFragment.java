@@ -2612,7 +2612,7 @@ public class ConversationFragment extends XmppFragment
                                     long time = System.currentTimeMillis();
                                     Message retractmessage = new Message(conversation,
                                             "This person attempted to retract a previous message, but it's unsupported by your client.",
-                                            Message.ENCRYPTION_NONE,
+                                            message.getEncryption(),        // Message.ENCRYPTION_NONE doesn't work for encrypted messages
                                             Message.STATUS_SEND);
                                     if (retractedMessage.getEditedList().size() > 0) {
                                         retractmessage.setRetractId(retractedMessage.getEditedList().get(0).getEditedId());
