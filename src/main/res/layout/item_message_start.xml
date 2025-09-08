@@ -66,7 +66,7 @@
                     android:layout_gravity="center_vertical"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="@dimen/bubble_horizontal_padding"
-                    android:paddingVertical="@dimen/bubble_vertical_padding"
+                    android:paddingVertical="4dp"
                     android:lines="1"
                     android:visibility="gone"
                     android:textStyle="bold"
@@ -84,7 +84,7 @@
                     android:layout_gravity="start"
                     android:gravity="start"
                     android:paddingHorizontal="@dimen/bubble_horizontal_padding"
-                    android:paddingVertical="@dimen/bubble_vertical_padding"
+                    android:paddingVertical="4dp"
                     android:orientation="horizontal">
 
                     <TextView

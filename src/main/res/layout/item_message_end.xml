@@ -67,7 +67,7 @@
                     android:layout_gravity="end"
                     android:gravity="end"
                     android:paddingHorizontal="@dimen/bubble_horizontal_padding"
-                    android:paddingVertical="@dimen/bubble_vertical_padding"
+                    android:paddingVertical="4dp"
                     android:orientation="horizontal">
 
                     <TextView
