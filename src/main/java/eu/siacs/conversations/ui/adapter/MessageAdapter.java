@@ -1752,8 +1752,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             viewHolder.inReplyToBox().setVisibility(View.VISIBLE);
             viewHolder.inReplyTo().setText(UIHelper.getMessageDisplayName(message.getInReplyTo()));
-            viewHolder.inReplyTo().setOnClickListener((v) -> mConversationFragment.jumpTo(message.getInReplyTo()));
-            viewHolder.inReplyToQuote().setOnClickListener((v) -> mConversationFragment.jumpTo(message.getInReplyTo()));
+            viewHolder.inReplyTo().setOnClickListener((v) ->
+                    mConversationFragment.scrollToReply(message.getInReplyTo()));
+            viewHolder.inReplyToQuote().setOnClickListener((v) ->
+                    mConversationFragment.scrollToReply(message.getInReplyTo()));
             setTextColor(viewHolder.inReplyTo(), bubbleColor);
         }
 
