@@ -4768,10 +4768,6 @@ public class ConversationFragment extends XmppFragment
                         binding.tuneSubject.setVisibility(View.GONE);
                     }
 
-                    // Jump to Pinned message
-                    binding.pinnedMessage.setOnClickListener(v -> {
-                        if (selectedMessage != null) jumpTo(selectedMessage);
-                    });
                     binding.pinnedMessage.setOnLongClickListener(view -> {
                         // Initializing the popup menu and giving the reference as current context
                         PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
@@ -6587,8 +6583,13 @@ public class ConversationFragment extends XmppFragment
 
                         // Click to jump to message
                         binding.pinnedMessage.setOnClickListener(v -> {
-                            // scrollToMessage(pinnedData.messageUuid);
-                            Log.d(Config.LOGTAG, "Pinned message view clicked: " + pinnedData.messageUuid);
+                            if (currentDisplayedPinnedMessageUuid != null) {
+                                Log.d(Config.LOGTAG, "Jumping to pinned message with UUID: " + currentDisplayedPinnedMessageUuid);
+                                Runnable postSelectionRunnable = () -> highlightMessage(currentDisplayedPinnedMessageUuid);
+                                updateSelection(currentDisplayedPinnedMessageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
+                            } else {
+                                Log.w(Config.LOGTAG, "Pinned message clicked, but currentDisplayedPinnedMessageUuid is null.");
+                            }
                         });
                         // Setup unpin button
                         // binding.unpinButton.setOnClickListener(v -> unpinCurrentMessage());
