@@ -365,6 +365,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         preferences.edit().putBoolean(BLIND_TRUST_BEFORE_VERIFICATION, this.binding.blindTrust.isChecked()).apply();
         preferences.edit().putBoolean(DANE_ENFORCED, this.binding.dane.isChecked()).apply();
         preferences.edit().putBoolean(SECURE_TLS, this.binding.useSecureTls.isChecked()).apply();
+        preferences.edit().putBoolean(SEND_CRASH_REPORTS, this.binding.sendCrashReports.isChecked()).apply();
     }
 
     @Override
