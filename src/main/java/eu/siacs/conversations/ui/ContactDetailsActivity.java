@@ -970,7 +970,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 xmppConnectionService.updateConversation(conversation);
             } else {
                 binding.storeInCache.setEnabled(true);
-                binding.storeInCache.setChecked(conversation.storeInCache());
+                binding.storeInCache.setChecked(conversation.storeInCache(xmppConnectionService));
                 binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
                     conversation.setStoreInCache(checked);
                     xmppConnectionService.updateConversation(conversation);

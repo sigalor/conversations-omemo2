@@ -646,7 +646,7 @@ public class ConferenceDetailsActivity extends XmppActivity
                     xmppConnectionService.updateConversation(mConversation);
                 } else {
                     binding.storeInCache.setEnabled(true);
-                    binding.storeInCache.setChecked(mConversation.storeInCache());
+                    binding.storeInCache.setChecked(mConversation.storeInCache(xmppConnectionService));
                     binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
                         mConversation.setStoreInCache(checked);
                         xmppConnectionService.updateConversation(mConversation);

@@ -5901,7 +5901,7 @@ public class ConversationFragment extends XmppFragment
         final String filename =
                 String.format("RECORDING_%s.%s", dateFormat.format(new Date()), extension);
         final File parentDirectory;
-        if (conversation.storeInCache()) {
+        if (conversation.storeInCache(activity.xmppConnectionService)) {
             parentDirectory = new File(activity.xmppConnectionService.getCacheDir(), "/media");
         } else {
             parentDirectory =

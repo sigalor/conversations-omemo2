@@ -1139,7 +1139,7 @@ public class FileBackend {
         }
         final File appDirectory =
                 new File(String.valueOf(parentDirectory));
-        if (message == null || message.getStatus() == Message.STATUS_DUMMY || (message.getConversation() instanceof Conversation && ((Conversation) message.getConversation()).storeInCache())) {
+        if (message == null || message.getStatus() == Message.STATUS_DUMMY || (message.getConversation() instanceof Conversation && ((Conversation) message.getConversation()).storeInCache(mXmppConnectionService))) {
             final var mediaCache = new File(mXmppConnectionService.getCacheDir(), "/media");
             return new File(mediaCache, filename);
         } else {
