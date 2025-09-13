@@ -1891,7 +1891,7 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnContactPictureLongClicked(this);
         messageListAdapter.setOnInlineImageLongClicked(this);
         messageListAdapter.setConversationFragment(this);
-        // messageListAdapter.setReplyClickListener(this::scrollToReply);       //TODO add a better scrol to reply later
+        messageListAdapter.setReplyClickListener(this::scrollToReply);
         binding.messagesView.setAdapter(messageListAdapter);
 
         binding.textinput.addTextChangedListener(
@@ -2142,6 +2142,7 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnInlineImageLongClicked(null);
         messageListAdapter.setConversationFragment(null);
         messageListAdapter.setOnMessageBoxClicked(null);
+        messageListAdapter.setReplyClickListener(null);
         binding.conversationViewPager.setAdapter(null);
         if (conversation != null) conversation.setupViewPager(null, null, false, null);
     }
@@ -2235,7 +2236,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     // TODO: Use this to scroll to the reply
-    public void scrollToReply(Message message) {
+    private void scrollToReply(Message message) {
         Element reply = message.getReply();
         if (reply == null) return;
 
@@ -2260,8 +2261,8 @@ public class ConversationFragment extends XmppFragment
             View messageBox = view.findViewById(R.id.message_box);
             if (messageBox != null) {
                 messageBox.animate()
-                        .scaleX(1.14f)
-                        .scaleY(1.14f)
+                        .scaleX(1.10f)
+                        .scaleY(1.10f)
                         .setInterpolator(new CycleInterpolator(0.5f))
                         .setDuration(400L)
                         .start();

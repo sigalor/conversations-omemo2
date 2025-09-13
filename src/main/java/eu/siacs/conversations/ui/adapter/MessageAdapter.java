@@ -18,6 +18,7 @@ import android.text.Spanned;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.style.ImageSpan;
 import android.text.style.ClickableSpan;
 import android.text.format.DateUtils;
@@ -89,6 +90,7 @@ import eu.siacs.conversations.ui.AddReactionActivity;
 import io.ipfs.cid.Cid;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -181,6 +183,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final Map<String, WebxdcUpdate> lastWebxdcUpdate = new HashMap<>();
     private String selectionUuid = null;
     private final AppSettings appSettings;
+    private ReplyClickListener replyClickListener;
+
 
     private final float imagePreviewWidthTarget;
     private final float bubbleRadiusDim;
@@ -238,6 +242,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     public void setOnMessageBoxClicked(OnContactPictureClicked listener) {
         this.mOnMessageBoxClickedListener = listener;
+    }
+
+    public void setReplyClickListener(ReplyClickListener listener) {
+        this.replyClickListener = listener;
     }
 
     public void setConversationFragment(ConversationFragment frag) {
@@ -1747,15 +1755,25 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.subject().setText(subject);
         }
 
+
+        WeakReference<ReplyClickListener> listener = new WeakReference<>(replyClickListener);
         if (message.getInReplyTo() == null) {
             viewHolder.inReplyToBox().setVisibility(GONE);
         } else {
             viewHolder.inReplyToBox().setVisibility(View.VISIBLE);
             viewHolder.inReplyTo().setText(UIHelper.getMessageDisplayName(message.getInReplyTo()));
-            viewHolder.inReplyTo().setOnClickListener((v) ->
-                    mConversationFragment.scrollToReply(message.getInReplyTo()));
-            viewHolder.inReplyToQuote().setOnClickListener((v) ->
-                    mConversationFragment.scrollToReply(message.getInReplyTo()));
+            viewHolder.inReplyTo().setOnClickListener(v -> {
+                ReplyClickListener l = listener.get();
+                if (l != null) {
+                    l.onReplyClick(message);
+                }
+            });
+            viewHolder.inReplyToQuote().setOnClickListener(v -> {
+                ReplyClickListener l = listener.get();
+                if (l != null) {
+                    l.onReplyClick(message);
+                }
+            });
             setTextColor(viewHolder.inReplyTo(), bubbleColor);
         }
 
@@ -2906,5 +2924,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     true,
                     true);
         }
+    }
+
+    public interface ReplyClickListener {
+        void onReplyClick(Message message);
     }
 }
