@@ -526,7 +526,6 @@ public class ContactDetailsActivity extends OmemoActivity
         final MenuItem unblock = menu.findItem(R.id.action_unblock);
         edit = menu.findItem(R.id.action_edit_contact);
         save = menu.findItem(R.id.action_save);
-        final MenuItem delete = menu.findItem(R.id.action_delete_contact);
         final MenuItem customNotifications = menu.findItem(R.id.action_custom_notifications);
         customNotifications.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
         if (contact == null) {
@@ -545,7 +544,6 @@ public class ContactDetailsActivity extends OmemoActivity
         }
         if (!contact.showInRoster()) {
             edit.setVisible(false);
-            delete.setVisible(false);
         }
         edit.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override

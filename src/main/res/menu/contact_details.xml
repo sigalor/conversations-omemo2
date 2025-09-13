@@ -35,11 +35,6 @@
                 android:title="@string/show_qr_code" />
         </menu>
     </item>
-    <item
-        android:id="@+id/action_delete_contact"
-        android:orderInCategory="10"
-        android:title="@string/action_delete_contact"
-        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_block"
