@@ -316,6 +316,9 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
             case R.id.action_add_account_with_cert:
                 addAccountFromKey();
                 break;
+            case R.id.action_restart_onboarding:
+                startActivity(new Intent(this, WelcomeActivity.class));
+                break;
             default:
                 break;
         }

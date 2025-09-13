@@ -23,6 +23,10 @@
         android:id="@+id/action_disable_all"
         android:title="@string/disable_all_accounts" />
     <item
+        android:id="@+id/action_restart_onboarding"
+        android:title="@string/restart_onboarding" />
+
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
