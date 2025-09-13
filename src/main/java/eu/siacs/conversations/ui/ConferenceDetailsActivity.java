@@ -577,7 +577,7 @@ public class ConferenceDetailsActivity extends XmppActivity
         share.setVisible(!groupChat);
         AccountUtils.showHideMenuItems(menu);
         final MenuItem customNotifications = menu.findItem(R.id.action_custom_notifications);
-        if (customNotifications != null) customNotifications.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
+        customNotifications.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
         return super.onCreateOptionsMenu(menu);
     }
 

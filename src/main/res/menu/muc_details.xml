@@ -25,9 +25,14 @@
         android:id="@+id/action_advanced_mode"
         android:checkable="true"
         android:checked="false"
-        android:orderInCategory="85"
+        android:orderInCategory="75"
         app:showAsAction="never"
         android:title="@string/advanced_mode"/>
+    <item
+        android:id="@+id/action_custom_notifications"
+        android:orderInCategory="85"
+        android:title="@string/custom_notifications"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_accounts"
         android:orderInCategory="90"
