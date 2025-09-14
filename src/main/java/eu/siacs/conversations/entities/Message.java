@@ -490,8 +490,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public void updateReplyTo(final Message replyTo, Spanned body) {
         clearReplyReact();
 
-        if (body == null) body = new SpannableStringBuilder(getBody(true));
-        //setBody(QuoteHelper.quote(MessageUtils.prepareQuote(replyTo)) + "\n");
+        if (body == null) body = new SpannableStringBuilder(getBody(false));
+        setBody(QuoteHelper.quote(MessageUtils.prepareQuote(replyTo)) + "\n");
 
         final String replyId = replyTo.replyId();
         if (replyId == null) return;
