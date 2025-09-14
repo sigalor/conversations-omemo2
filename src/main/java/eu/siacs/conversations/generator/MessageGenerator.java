@@ -93,7 +93,10 @@ public class MessageGenerator extends AbstractGenerator {
             }
         } else {
             for (Element el : message.getPayloads()) {
-                if ("thread".equals(el.getName())) packet.addChild(el);
+                if ("thread".equals(el.getName()) ||
+                        ("reply".equals(el.getName()) && "urn:xmpp:reply:0".equals(el.getNamespace()))) {
+                    packet.addChild(el);
+                }
             }
         }
         return packet;
