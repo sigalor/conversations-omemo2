@@ -1731,7 +1731,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     emoji -> showDetailedReaction(message, emoji),
                     emoji -> sendCustomReaction(message, emoji),
                     reaction -> removeCustomReaction(conversation, reaction),
-                    () -> addReaction(message));
+                    () -> {
+                        if (mConversationFragment.requireTrustKeys()) {
+                            return;
+                        }
+
+                        final var intent = new Intent(activity, AddReactionActivity.class);
+                        intent.putExtra("conversation", message.getConversation().getUuid());
+                        intent.putExtra("message", message.getUuid());
+                        activity.startActivity(intent);
+                    });
         } else {
             if (viewHolder instanceof StartBubbleMessageItemViewHolder startViewHolder) {
                 startViewHolder.encryption().setVisibility(View.GONE);
