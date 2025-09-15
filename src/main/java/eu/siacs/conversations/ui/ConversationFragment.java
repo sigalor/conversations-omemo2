@@ -6551,7 +6551,6 @@ public class ConversationFragment extends XmppFragment
         });
     }
 
-
     private void loadAndDisplayLatestPinnedMessage() {
         final Conversation conversation = getConversationReliable(activity);
         if (conversation == null || pinnedMessageRepository == null || getActivity() == null) {
@@ -6574,16 +6573,17 @@ public class ConversationFragment extends XmppFragment
                         binding.pinnedMessageText.setVisibility(View.GONE);
                         binding.pinnedMessageImageThumbnail.setVisibility(View.GONE);
                         binding.pinnedMessageFileIcon.setVisibility(View.GONE);
+                        String contentDescriptionForContainer = getString(R.string.pinned_item);
 
-                        if (pinnedData.cid != null && isImageCid(pinnedData.cid)) { // You'll need an isImageCid helper
+                        if (pinnedData.cid != null && isDisplayableMediaCid(pinnedData.cid)) { // You'll need an isDisplayableMediaCid helper
                             binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
                             // TODO: You need a way to get a displayable Uri from the CID
                             // This is highly dependent on how your CIDs map to actual files.
                             // For example, if CIDs are stored as content URIs or file paths in a local cache:
-                            File imageFile = activity.xmppConnectionService.getFileForCid(pinnedData.cid);
-                            if (imageFile != null) {
+                            File mediaFile = activity.xmppConnectionService.getFileForCid(pinnedData.cid);
+                            if (mediaFile != null) {
                                 Glide.with(ConversationFragment.this)
-                                        .load(imageFile)
+                                        .load(mediaFile)
                                         .placeholder(R.drawable.ic_image_24dp) // Optional placeholder
                                         .error(R.drawable.rounded_broken_image_24) // Optional error
                                         .into(binding.pinnedMessageImageThumbnail);
@@ -6599,9 +6599,14 @@ public class ConversationFragment extends XmppFragment
                                 }
                             }
                             // Set content description for accessibility
-                            binding.pinnedMessageImageThumbnail.setContentDescription(getString(R.string.pinned_image_preview,
-                                    pinnedData.plaintextBody != null ? pinnedData.plaintextBody : getString(R.string.image_attachment)));
-
+                            if (isVideoCid(pinnedData.cid)) {
+                                contentDescriptionForContainer = getString(R.string.pinned_video_preview,
+                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : getString(R.string.video_attachment));
+                            } else {
+                                contentDescriptionForContainer = getString(R.string.pinned_image_preview,
+                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : getString(R.string.image_attachment));
+                            }
+                            binding.pinnedMessageImageThumbnail.setContentDescription(contentDescriptionForContainer);
 
                         } else if (pinnedData.cid != null) { // Generic file
                             // TODO: Set appropriate file icon based on MIME type derived from CID or filename
@@ -6644,11 +6649,9 @@ public class ConversationFragment extends XmppFragment
 
     // Helper method to determine if a CID likely represents an image
     // This is a placeholder - implement based on your CID structure or associated metadata
-    private boolean isImageCid(Cid cid) {
+    private boolean isDisplayableMediaCid(Cid cid) {
         if (cid == null) return false;
-        // Example: Check based on a naming convention or if you store MIME types with CIDs
-        // This is highly dependent on your application's logic for handling CIDs.
-        // You might have a separate lookup mechanism or the CID itself might contain hints.
+
         File file = activity.xmppConnectionService.getFileForCid(cid);
         String lowerFilePath = file.getAbsolutePath();
         return lowerFilePath.endsWith(".png") ||
@@ -6656,8 +6659,23 @@ public class ConversationFragment extends XmppFragment
                 lowerFilePath.endsWith(".jpeg") ||
                 lowerFilePath.endsWith(".webp") || // Common Android image format
                 lowerFilePath.endsWith(".bmp") ||
-                lowerFilePath.endsWith(".svg");
+                lowerFilePath.endsWith(".svg") ||
+                lowerFilePath.endsWith(".gif") ||
+                lowerFilePath.endsWith(".mp4") ||
+                lowerFilePath.endsWith(".webm") ||
+                lowerFilePath.endsWith(".mkv") ||
+                lowerFilePath.endsWith(".3gp");
         // A more robust way would be to look up metadata associated with the CID if possible.
+    }
+
+    private boolean isVideoCid(Cid cid) {
+        if (cid == null) return false;
+        File file = activity.xmppConnectionService.getFileForCid(cid);
+        String lowerFilePath = file.getAbsolutePath();
+        // Video types
+        return lowerFilePath.endsWith(".mp4") || lowerFilePath.endsWith(".mkv") ||
+                lowerFilePath.endsWith(".webm") || lowerFilePath.endsWith(".3gp");
+        // Similar MIME type check as above could be used here too
     }
 
     // Called when user explicitly pins a message from the conversation

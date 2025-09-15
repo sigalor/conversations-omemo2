@@ -1523,4 +1523,7 @@
     <string name="image_attachment">Image attachment</string>
     <string name="pinned_image_preview">Pinned image</string>
     <string name="pinned_text_preview">Pinned text</string>
+    <string name="pinned_item">Pinned item</string>
+    <string name="pinned_video_preview">Pinned video</string>
+    <string name="video_attachment">Video attachment</string>
 </resources>
