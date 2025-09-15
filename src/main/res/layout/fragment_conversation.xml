@@ -130,7 +130,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/pinned_message"
+                    android:id="@+id/pinned_message_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
@@ -143,24 +143,53 @@
                     android:paddingEnd="16dp"
                     android:background="?attr/colorSurface"
                     android:animateLayoutChanges="true"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
+                        android:id="@+id/pinned_message_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/outline_push_pin_24"
                         android:layout_marginEnd="8dp" />
 
-                    <TextView
-                        android:id="@+id/pinned_message_text"
+                    <FrameLayout
+                        android:id="@+id/pinned_content_area"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:maxLines="6"
-                        android:freezesText="true"
-                        android:autoLink="web"
-                        android:scrollbars="vertical"
-                        android:textAppearance="?textAppearanceCaption" />
+                        android:layout_gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/pinned_message_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="6"
+                            android:freezesText="true"
+                            android:autoLink="web"
+                            android:scrollbars="vertical"
+                            android:textAppearance="?textAppearanceCaption" />
+
+                        <ImageView
+                            android:id="@+id/pinned_message_image_thumbnail"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            tools:src="@tools:sample/backgrounds/scenic"
+                            tools:visibility="visible" />
+
+
+                        <ImageView
+                            android:id="@+id/pinned_message_file_icon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_attach_file_24dp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                    </FrameLayout>
 
                     <ImageView
                         android:id="@+id/pinned_message_hide"
@@ -182,7 +211,7 @@
                     android:listSelector="@android:color/transparent"
                     android:stackFromBottom="true"
                     android:transcriptMode="normal"
-                    android:layout_below="@+id/pinned_message"
+                    android:layout_below="@+id/pinned_message_container"
                     tools:listitem="@layout/item_message_end" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton

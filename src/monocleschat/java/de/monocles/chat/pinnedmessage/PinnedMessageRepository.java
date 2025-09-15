@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import de.monocles.chat.pinnedmessage.PinnedMessage;
 import de.monocles.chat.pinnedmessage.CryptoUtils;
+import io.ipfs.cid.Cid;
 
 public class PinnedMessageRepository {
     private static final String TAG = "PinnedMsgRepo";
@@ -137,26 +138,43 @@ public class PinnedMessageRepository {
         });
     }
 
-    public void pinMessage(String messageUuid, String conversationUuid, String plaintextBody, final OnPinCompleteListener listener) {
+    /**
+     * Pins a message.
+     *
+     * @param messageUuid      The unique ID of the message.
+     * @param conversationUuid The unique ID of the conversation.
+     * @param plaintextBody    The plaintext body of the message (can be null if pinning a file/image by CID).
+     * @param cid              The Content Identifier for a file/image (can be null if pinning plaintext).
+     * @param listener         Callback for completion.
+     */
+    public void pinMessage(String messageUuid, String conversationUuid, String plaintextBody, Cid cid, final OnPinCompleteListener listener) {
         if (messageUuid == null || conversationUuid == null || plaintextBody == null) {
             if (listener != null) listener.onPinComplete(false);
             return;
         }
 
         executorService.submit(() -> {
-            CryptoUtils.EncryptionResult encryptionResult = CryptoUtils.encrypt(plaintextBody.getBytes(StandardCharsets.UTF_8));
-            if (encryptionResult == null) {
-                Log.e(TAG, "Failed to encrypt message body for pinning: " + messageUuid);
-                if (listener != null) listener.onPinComplete(false);
-                return;
+            byte[] encryptedText = null;
+            byte[] iv = null;
+
+            if (plaintextBody != null) {
+                CryptoUtils.EncryptionResult encryptionResult = CryptoUtils.encrypt(plaintextBody.getBytes(StandardCharsets.UTF_8));
+                if (encryptionResult == null) {
+                    Log.e(TAG, "Failed to encrypt message body for pinning: " + messageUuid);
+                    if (listener != null) listener.onPinComplete(false);
+                    return;
+                }
+                encryptedText = encryptionResult.ciphertext;
+                iv = encryptionResult.iv;
             }
 
             PinnedMessage newPinnedMessage = new PinnedMessage(
                     messageUuid,
                     conversationUuid,
-                    encryptionResult.ciphertext,
-                    encryptionResult.iv,
-                    System.currentTimeMillis()
+                    encryptedText, // Will be null if only CID is provided
+                    iv,            // Will be null if only CID is provided
+                    System.currentTimeMillis(),
+                    cid            // Store the CID
             );
 
             synchronized (pinnedMessagesCache) {
@@ -185,6 +203,7 @@ public class PinnedMessageRepository {
         if (listener != null) listener.onUnpinComplete(removed);
     }
 
+
     // This method returns the decrypted content for UI display
     public DecryptedPinnedMessageData getDecryptedPinnedMessage(String messageUuid) {
         PinnedMessage foundMessage;
@@ -196,19 +215,25 @@ public class PinnedMessageRepository {
         }
 
         if (foundMessage != null) {
-            byte[] decryptedBytes = CryptoUtils.decrypt(foundMessage.getIv(), foundMessage.getEncryptedContent());
-            if (decryptedBytes != null) {
-                return new DecryptedPinnedMessageData(
-                        foundMessage.getMessageUuid(),
-                        foundMessage.getConversationUuid(),
-                        new String(decryptedBytes, StandardCharsets.UTF_8),
-                        foundMessage.getTimestamp()
-                );
-            } else {
-                Log.w(TAG, "Failed to decrypt pinned message on retrieval: " + messageUuid);
-                // Optionally remove the corrupt entry here
-                // unpinMessage(messageUuid, null);
+            String decryptedText = null;
+            if (foundMessage.getEncryptedContent() != null && foundMessage.getIv() != null) {
+                byte[] decryptedBytes = CryptoUtils.decrypt(foundMessage.getIv(), foundMessage.getEncryptedContent());
+                if (decryptedBytes != null) {
+                    decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8);
+                } else {
+                    Log.w(TAG, "Failed to decrypt pinned message content: " + messageUuid);
+                    // Optionally remove the corrupt entry here if decryption fails consistently
+                    // unpinMessage(messageUuid, null);
+                }
             }
+            // Return data even if only CID is present and text decryption failed or was not applicable
+            return new DecryptedPinnedMessageData(
+                    foundMessage.getMessageUuid(),
+                    foundMessage.getConversationUuid(),
+                    decryptedText,
+                    foundMessage.getTimestamp(),
+                    foundMessage.getCid() // Include CID
+            );
         }
         return null;
     }
@@ -225,18 +250,24 @@ public class PinnedMessageRepository {
 
         if (!conversationPins.isEmpty()) {
             PinnedMessage latest = conversationPins.get(0);
-            byte[] decryptedBytes = CryptoUtils.decrypt(latest.getIv(), latest.getEncryptedContent());
-            if (decryptedBytes != null) {
-                return new DecryptedPinnedMessageData(
-                        latest.getMessageUuid(),
-                        latest.getConversationUuid(),
-                        new String(decryptedBytes, StandardCharsets.UTF_8),
-                        latest.getTimestamp()
-                );
-            } else {
-                Log.w(TAG, "Failed to decrypt latest pinned message for conversation " + conversationUuid + ", UUID: " + latest.getMessageUuid());
-                // Optionally remove corrupt entry
+            String decryptedText = null;
+
+            if (latest.getEncryptedContent() != null && latest.getIv() != null) {
+                byte[] decryptedBytes = CryptoUtils.decrypt(latest.getIv(), latest.getEncryptedContent());
+                if (decryptedBytes != null) {
+                    decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8);
+                } else {
+                    Log.w(TAG, "Failed to decrypt latest pinned message content for conversation " + conversationUuid + ", UUID: " + latest.getMessageUuid());
+                }
             }
+
+            return new DecryptedPinnedMessageData(
+                    latest.getMessageUuid(),
+                    latest.getConversationUuid(),
+                    decryptedText,
+                    latest.getTimestamp(),
+                    latest.getCid() // Include CID
+            );
         }
         return null;
     }
@@ -249,14 +280,16 @@ public class PinnedMessageRepository {
     public static class DecryptedPinnedMessageData {
         public final String messageUuid;
         public final String conversationUuid;
-        public final String plaintextBody;
+        public final String plaintextBody; // Can be null if only CID is present
         public final long timestamp;
+        public final Cid cid; // New field
 
-        public DecryptedPinnedMessageData(String messageUuid, String conversationUuid, String plaintextBody, long timestamp) {
+        public DecryptedPinnedMessageData(String messageUuid, String conversationUuid, String plaintextBody, long timestamp, Cid cid) {
             this.messageUuid = messageUuid;
             this.conversationUuid = conversationUuid;
             this.plaintextBody = plaintextBody;
             this.timestamp = timestamp;
+            this.cid = cid; // Initialize new field
         }
     }
 }

@@ -1519,4 +1519,8 @@
     <string name="edit_sytemaccount">Phone contact</string>
     <string name="edit_chat_contact">Chat contact</string>
     <string name="restart_onboarding">Restart onboarding</string>
+    <string name="cannot_pin_empty_content">Can not pin empty content</string>
+    <string name="image_attachment">Image attachment</string>
+    <string name="pinned_image_preview">Pinned image</string>
+    <string name="pinned_text_preview">Pinned text</string>
 </resources>

@@ -336,6 +336,7 @@ public class ConversationFragment extends XmppFragment
 
     private PinnedMessageRepository pinnedMessageRepository;
     private String currentDisplayedPinnedMessageUuid = null; // To track what's shown
+    private Cid currentDisplayedPinnedMessageCid = null; // Store CID for potential actions
 
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
 
@@ -1725,14 +1726,12 @@ public class ConversationFragment extends XmppFragment
         activity.getOnBackPressedDispatcher().addCallback(this, backPressedLeaveEmojiPicker);
         oldOrientation = activity.getRequestedOrientation();
 
-        // Get repository instance - ideally through dependency injection or a singleton accessor
+        // Get repository instance
         if (getActivity() instanceof ConversationsActivity) {
-            // Assuming ConversationsActivity can provide the PinnedMessageRepository instance
-            // This is a placeholder; you'll need a proper way to get this instance.
-            // For example, XmppConnectionService could hold it.
+
             pinnedMessageRepository = ((ConversationsActivity) getActivity()).getPinnedMessageRepository();
         }
-        // Fallback if not available through activity, create new (not ideal for shared state)
+        // Fallback if not available through activity
         if (pinnedMessageRepository == null && getActivity() != null) {
             pinnedMessageRepository = new PinnedMessageRepository(getActivity().getApplicationContext());
         }
@@ -2488,8 +2487,7 @@ public class ConversationFragment extends XmppFragment
                     && !unInitiatedButKnownSize
                     && t == null) {
                 copyMessage.setVisible(true);
-                // Copy text message to top
-                pinToTop.setVisible(true);
+
                 quoteMessage.setVisible(!showError && !MessageUtils.prepareQuote(m).isEmpty());
                 final String scheme =
                         ShareUtil.getLinkScheme(new SpannableStringBuilder(m.getBody()));
@@ -2525,6 +2523,9 @@ public class ConversationFragment extends XmppFragment
                     && !unInitiatedButKnownSize
                     && t == null) {
                 shareWith.setVisible(true);
+
+                // pin to top
+                pinToTop.setVisible(true);
             }
             if (m.getStatus() == Message.STATUS_SEND_FAILED) {
                 sendAgain.setVisible(true);
@@ -4759,9 +4760,9 @@ public class ConversationFragment extends XmppFragment
                         binding.tuneSubject.setVisibility(View.GONE);
                     }
 
-                    binding.pinnedMessage.setOnLongClickListener(view -> {
+                    binding.pinnedMessageContainer.setOnLongClickListener(view -> {
                         // Initializing the popup menu and giving the reference as current context
-                        PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessage);
+                        PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessageContainer);
 
                         // Inflating popup menu from popup_menu.xml file
                         popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
@@ -6550,6 +6551,7 @@ public class ConversationFragment extends XmppFragment
         });
     }
 
+
     private void loadAndDisplayLatestPinnedMessage() {
         final Conversation conversation = getConversationReliable(activity);
         if (conversation == null || pinnedMessageRepository == null || getActivity() == null) {
@@ -6557,33 +6559,78 @@ public class ConversationFragment extends XmppFragment
             return;
         }
 
-        // The repository methods are async for file I/O but getDecrypted... might be quick if cached
-        // However, decryption itself should be off main thread. Let's make this call fully async.
-        // For simplicity, directly using the repository here. In a ViewModel pattern, ViewModel would handle this.
+        // Using a background thread for repository access
         new Thread(() -> {
             final PinnedMessageRepository.DecryptedPinnedMessageData pinnedData =
                     pinnedMessageRepository.getLatestDecryptedPinnedMessageForConversation(conversation.getUuid());
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (pinnedData != null) {
-                        binding.pinnedMessageText.setText(pinnedData.plaintextBody);
-                        binding.pinnedMessageText.setTag(pinnedData.messageUuid); // Store UUID for unpinning
-                        binding.pinnedMessage.setVisibility(View.VISIBLE);
+                    if (pinnedData != null && (pinnedData.plaintextBody != null || pinnedData.cid != null)) {
                         currentDisplayedPinnedMessageUuid = pinnedData.messageUuid;
+                        currentDisplayedPinnedMessageCid = pinnedData.cid; // Store CID
+
+                        // Reset visibility of content types
+                        binding.pinnedMessageText.setVisibility(View.GONE);
+                        binding.pinnedMessageImageThumbnail.setVisibility(View.GONE);
+                        binding.pinnedMessageFileIcon.setVisibility(View.GONE);
+
+                        if (pinnedData.cid != null && isImageCid(pinnedData.cid)) { // You'll need an isImageCid helper
+                            binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
+                            // TODO: You need a way to get a displayable Uri from the CID
+                            // This is highly dependent on how your CIDs map to actual files.
+                            // For example, if CIDs are stored as content URIs or file paths in a local cache:
+                            File imageFile = activity.xmppConnectionService.getFileForCid(pinnedData.cid);
+                            if (imageFile != null) {
+                                Glide.with(ConversationFragment.this)
+                                        .load(imageFile)
+                                        .placeholder(R.drawable.ic_image_24dp) // Optional placeholder
+                                        .error(R.drawable.rounded_broken_image_24) // Optional error
+                                        .into(binding.pinnedMessageImageThumbnail);
+                            } else {
+                                // Fallback if URI can't be resolved, maybe show text or generic file icon
+                                if (pinnedData.plaintextBody != null && !pinnedData.plaintextBody.isEmpty()) {
+                                    binding.pinnedMessageText.setText(pinnedData.plaintextBody);
+                                    binding.pinnedMessageText.setVisibility(View.VISIBLE);
+                                } else {
+                                    // You might want to set a more specific icon based on file type from CID
+                                    binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_attach_file_24dp);
+                                }
+                            }
+                            // Set content description for accessibility
+                            binding.pinnedMessageImageThumbnail.setContentDescription(getString(R.string.pinned_image_preview,
+                                    pinnedData.plaintextBody != null ? pinnedData.plaintextBody : getString(R.string.image_attachment)));
+
+
+                        } else if (pinnedData.cid != null) { // Generic file
+                            // TODO: Set appropriate file icon based on MIME type derived from CID or filename
+                            binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_attach_file_24dp); // Helper needed
+                            // Set content description for accessibility
+                        } else if (pinnedData.plaintextBody != null && !pinnedData.plaintextBody.isEmpty()) { // Text only
+                            binding.pinnedMessageText.setText(pinnedData.plaintextBody);
+                            binding.pinnedMessageText.setVisibility(View.VISIBLE);
+                            // Set content description for accessibility
+                            binding.pinnedMessageText.setContentDescription(getString(R.string.pinned_text_preview, pinnedData.plaintextBody));
+                        } else {
+                            // Should not happen if validation in repository is correct, but good to handle
+                            hidePinnedMessageView();
+                            return;
+                        }
+
+                        binding.pinnedMessageContainer.setTag(pinnedData.messageUuid); // Store UUID for jumping
+                        binding.pinnedMessageContainer.setVisibility(View.VISIBLE);
 
                         // Click to jump to message
-                        binding.pinnedMessage.setOnClickListener(v -> {
+                        binding.pinnedMessageContainer.setOnClickListener(v -> {
                             if (currentDisplayedPinnedMessageUuid != null) {
                                 Log.d(Config.LOGTAG, "Jumping to pinned message with UUID: " + currentDisplayedPinnedMessageUuid);
                                 Runnable postSelectionRunnable = () -> highlightMessage(currentDisplayedPinnedMessageUuid);
                                 updateSelection(currentDisplayedPinnedMessageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
-                            } else {
-                                Log.w(Config.LOGTAG, "Pinned message clicked, but currentDisplayedPinnedMessageUuid is null.");
                             }
                         });
+
                         // Setup unpin button
-                        // binding.unpinButton.setOnClickListener(v -> unpinCurrentMessage());
+                        binding.pinnedMessageHide.setOnClickListener(v -> unpinCurrentDisplayedMessage());
 
                     } else {
                         hidePinnedMessageView();
@@ -6593,6 +6640,23 @@ public class ConversationFragment extends XmppFragment
         }).start();
     }
 
+    // Helper method to determine if a CID likely represents an image
+    // This is a placeholder - implement based on your CID structure or associated metadata
+    private boolean isImageCid(Cid cid) {
+        if (cid == null) return false;
+        // Example: Check based on a naming convention or if you store MIME types with CIDs
+        // This is highly dependent on your application's logic for handling CIDs.
+        // You might have a separate lookup mechanism or the CID itself might contain hints.
+        File file = activity.xmppConnectionService.getFileForCid(cid);
+        String lowerFilePath = file.getAbsolutePath();
+        return lowerFilePath.endsWith(".png") ||
+                lowerFilePath.endsWith(".jpg") ||
+                lowerFilePath.endsWith(".jpeg") ||
+                lowerFilePath.endsWith(".webp") || // Common Android image format
+                lowerFilePath.endsWith(".bmp") ||
+                lowerFilePath.endsWith(".svg");
+        // A more robust way would be to look up metadata associated with the CID if possible.
+    }
 
     // Called when user explicitly pins a message from the conversation
     public void pinMessage(final Message messageToPin) {
@@ -6602,14 +6666,30 @@ public class ConversationFragment extends XmppFragment
             return;
         }
 
-        // OMEMO messages should have their body decrypted by this point for display
         String plaintextBody = messageToPin.getBody(); // Use appropriate method to get plaintext
-        if (plaintextBody == null || plaintextBody.isEmpty()) {
-            Toast.makeText(getActivity(), R.string.cannot_pin_empty_message, Toast.LENGTH_SHORT).show();
-            return;
+
+        // --- START NEW ---
+        // Attempt to get a CID from the message.
+        // This depends on how CIDs are stored or associated with your Message object.
+        Cid cid = null;
+        if (messageToPin.isFileOrImage()) { // Or some other method to check if it's a file/image
+            cid = messageToPin.getFileParams().getCids().get(0); // Assuming there's only one CID
         }
 
-        pinnedMessageRepository.pinMessage(messageToPin.getUuid(), conversation.getUuid(), plaintextBody,
+        // You might want to allow pinning even if plaintextBody is empty, if a CID exists.
+        // The repository now handles the case where plaintextBody is null but CID is present.
+        if ((plaintextBody == null || plaintextBody.isEmpty()) && (cid == null || cid.toString().isEmpty())) {
+            Toast.makeText(getActivity(), R.string.cannot_pin_empty_content, Toast.LENGTH_SHORT).show(); // Updated string
+            return;
+        }
+        // --- END NEW ---
+
+        // Call the updated repository method, now including the CID
+        pinnedMessageRepository.pinMessage(
+                messageToPin.getUuid(),
+                conversation.getUuid(),
+                plaintextBody, // This can be null if you're only pinning based on CID
+                cid,           // Pass the CID here
                 success -> {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
@@ -6650,9 +6730,14 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void hidePinnedMessageView() {
-        binding.pinnedMessage.setVisibility(View.GONE);
-        binding.pinnedMessageText.setText("");
-        binding.pinnedMessageText.setTag(null);
+        if (binding.pinnedMessageContainer != null) { // Check if views are initialized
+            binding.pinnedMessageContainer.setVisibility(View.GONE);
+            binding.pinnedMessageText.setText("");
+            binding.pinnedMessageImageThumbnail.setImageDrawable(null); // Clear image
+            binding.pinnedMessageFileIcon.setImageDrawable(null); // Clear Icon
+            binding.pinnedMessageContainer.setTag(null);
+        }
         currentDisplayedPinnedMessageUuid = null;
+        currentDisplayedPinnedMessageCid = null;
     }
 }
