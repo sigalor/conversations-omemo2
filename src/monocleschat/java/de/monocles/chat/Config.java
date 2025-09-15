@@ -19,8 +19,7 @@ public class Config {
 
         // use this fallback server if provider list can't be updated automatically
         public static final List<String> DOMAINS = Arrays.asList(
-                "monocles.eu",
-                "conversations.im"
+                "monocles.eu"
         );
 
         // don't use these servers in provider list
@@ -37,7 +36,7 @@ public class Config {
             } catch (Exception e) {
                 Log.d(LOGTAG, "Error getting random server ", e);
             }
-            return "conversations.im";
+            return "monocles.eu";
         }
     }
 }

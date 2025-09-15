@@ -28,7 +28,7 @@ public class ProviderService extends AsyncTask<XmppActivity, Object, Boolean> {
     }
 
     public static List<String> getProviders() {
-        final HashSet<String> provider = new HashSet<>(Config.DOMAIN.DOMAINS);
+        final HashSet<String> provider = new HashSet<>();
         if (!providers.isEmpty()) {
             provider.addAll(providers);
         }
