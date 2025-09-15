@@ -6594,7 +6594,8 @@ public class ConversationFragment extends XmppFragment
                                     binding.pinnedMessageText.setVisibility(View.VISIBLE);
                                 } else {
                                     // You might want to set a more specific icon based on file type from CID
-                                    binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_attach_file_24dp);
+                                    binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_description_24dp);
+                                    binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
                                 }
                             }
                             // Set content description for accessibility
@@ -6604,7 +6605,8 @@ public class ConversationFragment extends XmppFragment
 
                         } else if (pinnedData.cid != null) { // Generic file
                             // TODO: Set appropriate file icon based on MIME type derived from CID or filename
-                            binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_attach_file_24dp); // Helper needed
+                            binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_description_24dp); // Helper needed
+                            binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
                             // Set content description for accessibility
                         } else if (pinnedData.plaintextBody != null && !pinnedData.plaintextBody.isEmpty()) { // Text only
                             binding.pinnedMessageText.setText(pinnedData.plaintextBody);

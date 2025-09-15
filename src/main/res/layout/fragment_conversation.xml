@@ -185,7 +185,7 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_attach_file_24dp"
+                            android:src="@drawable/ic_description_24dp"
                             android:visibility="gone"
                             tools:visibility="visible" />
 
