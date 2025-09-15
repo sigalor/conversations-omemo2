@@ -6653,6 +6653,7 @@ public class ConversationFragment extends XmppFragment
         if (cid == null) return false;
 
         File file = activity.xmppConnectionService.getFileForCid(cid);
+        if (file == null) return false;
         String lowerFilePath = file.getAbsolutePath();
         return lowerFilePath.endsWith(".png") ||
                 lowerFilePath.endsWith(".jpg") ||
@@ -6671,6 +6672,7 @@ public class ConversationFragment extends XmppFragment
     private boolean isVideoCid(Cid cid) {
         if (cid == null) return false;
         File file = activity.xmppConnectionService.getFileForCid(cid);
+        if (file == null) return false;
         String lowerFilePath = file.getAbsolutePath();
         // Video types
         return lowerFilePath.endsWith(".mp4") || lowerFilePath.endsWith(".mkv") ||
