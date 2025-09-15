@@ -1526,4 +1526,6 @@
     <string name="pinned_item">Pinned item</string>
     <string name="pinned_video_preview">Pinned video</string>
     <string name="video_attachment">Video attachment</string>
+    <string name="pinned_audio_with_text_preview">Pinned audio</string>
+    <string name="pinned_audio_no_preview">Pinned audio file</string>
 </resources>

@@ -6608,6 +6608,20 @@ public class ConversationFragment extends XmppFragment
                             }
                             binding.pinnedMessageImageThumbnail.setContentDescription(contentDescriptionForContainer);
 
+                        } else if (pinnedData.cid != null && isAudioCid(pinnedData.cid)) { // Audio File
+                            // TODO: Add audio player directly in the pinned message container
+                            binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
+                            binding.pinnedMessageFileIcon.setImageResource(R.drawable.audio_file_24dp);
+                            if (pinnedData.plaintextBody != null && !pinnedData.plaintextBody.isEmpty()) {
+                                binding.pinnedMessageText.setText(pinnedData.plaintextBody);
+                                binding.pinnedMessageText.setVisibility(View.VISIBLE);
+                                // Optional: Adjust layout if text and icon are shown together
+                                // e.g., move text to the side of the icon, or ensure enough padding.
+                                contentDescriptionForContainer = getString(R.string.pinned_audio_with_text_preview, pinnedData.plaintextBody);
+                            } else {
+                                contentDescriptionForContainer = getString(R.string.pinned_audio_no_preview);
+                            }
+                            binding.pinnedMessageFileIcon.setContentDescription(contentDescriptionForContainer);
                         } else if (pinnedData.cid != null) { // Generic file
                             // TODO: Set appropriate file icon based on MIME type derived from CID or filename
                             binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_description_24dp); // Helper needed
@@ -6647,26 +6661,14 @@ public class ConversationFragment extends XmppFragment
         }).start();
     }
 
-    // Helper method to determine if a CID likely represents an image
-    // This is a placeholder - implement based on your CID structure or associated metadata
+    // Helper method to determine if a CID likely represents an image or video
     private boolean isDisplayableMediaCid(Cid cid) {
         if (cid == null) return false;
-
         File file = activity.xmppConnectionService.getFileForCid(cid);
         if (file == null) return false;
         String lowerFilePath = file.getAbsolutePath();
-        return lowerFilePath.endsWith(".png") ||
-                lowerFilePath.endsWith(".jpg") ||
-                lowerFilePath.endsWith(".jpeg") ||
-                lowerFilePath.endsWith(".webp") || // Common Android image format
-                lowerFilePath.endsWith(".bmp") ||
-                lowerFilePath.endsWith(".svg") ||
-                lowerFilePath.endsWith(".gif") ||
-                lowerFilePath.endsWith(".mp4") ||
-                lowerFilePath.endsWith(".webm") ||
-                lowerFilePath.endsWith(".mkv") ||
-                lowerFilePath.endsWith(".3gp");
-        // A more robust way would be to look up metadata associated with the CID if possible.
+        String mimeType = MimeUtils.guessFromPath(lowerFilePath);
+        return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/"));
     }
 
     private boolean isVideoCid(Cid cid) {
@@ -6674,10 +6676,19 @@ public class ConversationFragment extends XmppFragment
         File file = activity.xmppConnectionService.getFileForCid(cid);
         if (file == null) return false;
         String lowerFilePath = file.getAbsolutePath();
+        String mimeType = MimeUtils.guessFromPath(lowerFilePath);
         // Video types
-        return lowerFilePath.endsWith(".mp4") || lowerFilePath.endsWith(".mkv") ||
-                lowerFilePath.endsWith(".webm") || lowerFilePath.endsWith(".3gp");
-        // Similar MIME type check as above could be used here too
+        return mimeType != null && mimeType.startsWith("video/");
+    }
+
+    private boolean isAudioCid(Cid cid) {
+        if (cid == null) return false;
+        File file = activity.xmppConnectionService.getFileForCid(cid);
+        if (file == null) return false;
+        String lowerFilePath = file.getAbsolutePath();
+        String mimeType = MimeUtils.guessFromPath(lowerFilePath);
+        // Audio types
+        return mimeType != null && mimeType.startsWith("audio/");
     }
 
     // Called when user explicitly pins a message from the conversation
