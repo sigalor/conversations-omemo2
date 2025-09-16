@@ -174,7 +174,7 @@
                             android:id="@+id/pinned_message_image_thumbnail"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
-                            android:scaleType="centerCrop"
+                            android:scaleType="fitCenter"
                             android:visibility="gone"
                             tools:src="@tools:sample/backgrounds/scenic"
                             tools:visibility="visible" />
