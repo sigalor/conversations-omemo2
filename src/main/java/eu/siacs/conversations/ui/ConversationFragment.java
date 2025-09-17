@@ -6612,11 +6612,11 @@ public class ConversationFragment extends XmppFragment
                             }
                             // Set content description for accessibility
                             if (isVideoCid(pinnedData.cid)) {
-                                contentDescriptionForContainer = getString(R.string.pinned_video_preview,
-                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : getString(R.string.video_attachment));
+                                contentDescriptionForContainer = activity.getString(R.string.pinned_video_preview,
+                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : activity.getString(R.string.video_attachment));
                             } else {
-                                contentDescriptionForContainer = getString(R.string.pinned_image_preview,
-                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : getString(R.string.image_attachment));
+                                contentDescriptionForContainer = activity.getString(R.string.pinned_image_preview,
+                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : activity.getString(R.string.image_attachment));
                             }
                             binding.pinnedMessageImageThumbnail.setContentDescription(contentDescriptionForContainer);
 
@@ -6629,9 +6629,9 @@ public class ConversationFragment extends XmppFragment
                                 binding.pinnedMessageText.setVisibility(View.VISIBLE);
                                 // Optional: Adjust layout if text and icon are shown together
                                 // e.g., move text to the side of the icon, or ensure enough padding.
-                                contentDescriptionForContainer = getString(R.string.pinned_audio_with_text_preview, pinnedData.plaintextBody);
+                                contentDescriptionForContainer = activity.getString(R.string.pinned_audio_with_text_preview, pinnedData.plaintextBody);
                             } else {
-                                contentDescriptionForContainer = getString(R.string.pinned_audio_no_preview);
+                                contentDescriptionForContainer = activity.getString(R.string.pinned_audio_no_preview);
                             }
                             binding.pinnedMessageFileIcon.setContentDescription(contentDescriptionForContainer);
                         } else if (pinnedData.cid != null) { // Generic file
@@ -6657,7 +6657,7 @@ public class ConversationFragment extends XmppFragment
                             binding.pinnedMessageText.setText(pinnedData.plaintextBody);
                             binding.pinnedMessageText.setVisibility(View.VISIBLE);
                             // Set content description for accessibility
-                            binding.pinnedMessageText.setContentDescription(getString(R.string.pinned_text_preview, pinnedData.plaintextBody));
+                            binding.pinnedMessageText.setContentDescription(activity.getString(R.string.pinned_text_preview, pinnedData.plaintextBody));
                         } else {
                             // Should not happen if validation in repository is correct, but good to handle
                             hidePinnedMessageView();
@@ -6672,7 +6672,7 @@ public class ConversationFragment extends XmppFragment
                             if (currentDisplayedPinnedMessageUuid != null) {
                                 Log.d(Config.LOGTAG, "Jumping to pinned message with UUID: " + currentDisplayedPinnedMessageUuid);
                                 Runnable postSelectionRunnable = () -> highlightMessage(currentDisplayedPinnedMessageUuid);
-                                updateSelection(currentDisplayedPinnedMessageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
+                                updateSelection(currentDisplayedPinnedMessageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, true, false);
                             }
                         });
 
