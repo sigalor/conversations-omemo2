@@ -176,4 +176,26 @@ public class GeoHelper {
 		}
 		return activity.getResources().getString(R.string.mappreview_url) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
 	}
+
+	public static String MapPreviewUriFromString(String geoString, Activity activity) {
+		Matcher matcher = GEO_URI.matcher(geoString);
+		if (!matcher.matches()) {
+			return null;
+		}
+		double latitude;
+		double longitude;
+		try {
+			latitude = Double.parseDouble(matcher.group(1));
+			if (latitude > 90.0 || latitude < -90.0) {
+				return null;
+			}
+			longitude = Double.parseDouble(matcher.group(2));
+			if (longitude > 180.0 || longitude < -180.0) {
+				return null;
+			}
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
+		return activity.getResources().getString(R.string.mappreview_url) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
+	}
 }

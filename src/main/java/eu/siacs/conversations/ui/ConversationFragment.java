@@ -6577,11 +6577,9 @@ public class ConversationFragment extends XmppFragment
 
                         if (pinnedData.cid != null && isDisplayableMediaCid(pinnedData.cid)) { // You'll need an isDisplayableMediaCid helper
                             binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
-                            // TODO: You need a way to get a displayable Uri from the CID
-                            // This is highly dependent on how your CIDs map to actual files.
-                            // For example, if CIDs are stored as content URIs or file paths in a local cache:
                             File mediaFile = activity.xmppConnectionService.getFileForCid(pinnedData.cid);
                             if (mediaFile != null) {
+                                // Show media thumbnail
                                 Glide.with(ConversationFragment.this)
                                         .load(mediaFile)
                                         .placeholder(R.drawable.ic_image_24dp) // Optional placeholder
@@ -6627,6 +6625,20 @@ public class ConversationFragment extends XmppFragment
                             binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_description_24dp); // Helper needed
                             binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
                             // Set content description for accessibility
+                        } else if (pinnedData.plaintextBody.startsWith("geo:")) {
+                            final String url = GeoHelper.MapPreviewUriFromString(pinnedData.plaintextBody, activity);
+                            if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
+                                binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
+                                Glide.with(activity)
+                                        .load(Uri.parse(url))
+                                        .placeholder(R.drawable.marker)
+                                        .error(R.drawable.marker)
+                                        .into(binding.pinnedMessageImageThumbnail);
+                            } else {
+                                binding.pinnedMessageText.setText(pinnedData.plaintextBody);
+                                binding.pinnedMessageText.setVisibility(View.VISIBLE);
+                                // Set content description for accessibility
+                            }
                         } else if (pinnedData.plaintextBody != null && !pinnedData.plaintextBody.isEmpty()) { // Text only
                             binding.pinnedMessageText.setText(pinnedData.plaintextBody);
                             binding.pinnedMessageText.setVisibility(View.VISIBLE);
@@ -6698,9 +6710,12 @@ public class ConversationFragment extends XmppFragment
             Toast.makeText(activity, R.string.error_pinning_message, Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String plaintextBody = messageToPin.getBody(); // Use appropriate method to get plaintext
-
+        String plaintextBody;
+        if (messageToPin.isGeoUri()) {
+            plaintextBody = messageToPin.getRawBody();
+        } else {
+            plaintextBody = messageToPin.getBody(); // Use appropriate method to get plaintext
+        }
         // --- START NEW ---
         // Attempt to get a CID from the message.
         // This depends on how CIDs are stored or associated with your Message object.
