@@ -2186,7 +2186,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setupReply(Message message) {
-        /*
+        /*          //Activate to disable reply to yourself
         if (message != null) {
 
             final var correcting = conversation.getCorrectingMessage();
@@ -2203,6 +2203,20 @@ public class ConversationFragment extends XmppFragment
         if ((message.isFileOrImage() || message.isOOb()) && binding.imageReplyPreview != null) {
             binding.imageReplyPreview.setVisibility(VISIBLE);
             Glide.with(activity).load(message.getRelativeFilePath()).placeholder(R.drawable.ic_image_24dp).thumbnail(0.2f).into(binding.imageReplyPreview);
+        } else if (message.isGeoUri()) {
+            if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside) && binding.imageReplyPreview != null) {
+                final String url = GeoHelper.MapPreviewUri(message, activity);
+                binding.imageReplyPreview.setVisibility(View.VISIBLE);
+                Glide.with(activity)
+                        .load(Uri.parse(url))
+                        .placeholder(R.drawable.marker)
+                        .error(R.drawable.marker)
+                        .into(binding.imageReplyPreview);
+            } else {
+                Glide.with(activity).clear(binding.imageReplyPreview);
+                binding.imageReplyPreview.setVisibility(GONE);
+                body = SpannableStringBuilder.valueOf(message.getRawBody());
+            }
         } else if (binding.imageReplyPreview != null) {
             Glide.with(activity).clear(binding.imageReplyPreview);
             binding.imageReplyPreview.setVisibility(GONE);
@@ -6626,8 +6640,8 @@ public class ConversationFragment extends XmppFragment
                             binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
                             // Set content description for accessibility
                         } else if (pinnedData.plaintextBody.startsWith("geo:")) {
-                            final String url = GeoHelper.MapPreviewUriFromString(pinnedData.plaintextBody, activity);
                             if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_maps_inside", R.bool.show_maps_inside)) {
+                                final String url = GeoHelper.MapPreviewUriFromString(pinnedData.plaintextBody, activity);
                                 binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
                                 Glide.with(activity)
                                         .load(Uri.parse(url))
