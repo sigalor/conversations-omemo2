@@ -177,7 +177,7 @@
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
                             android:visibility="gone"
-                            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
+                            app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage"
                             tools:src="@tools:sample/backgrounds/scenic"
                             tools:visibility="visible" />
 
@@ -345,7 +345,7 @@
                             android:layout_marginLeft="12dp"
                             android:layout_marginStart="12dp"
                             android:scaleType="fitCenter"
-                            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
+                            app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage"
                             android:visibility="gone" />
 
                         <de.monocles.chat.ReadMoreTextView
