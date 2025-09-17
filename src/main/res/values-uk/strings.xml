@@ -470,7 +470,7 @@
     <string name="unable_to_fetch_mam_prefs">Не вдалося отримати налаштування архівації</string>
     <string name="captcha_required">Потрібно розв\'язати головоломку</string>
     <string name="captcha_hint">Уведіть текст із зображення вище</string>
-    <string name="certificate_chain_is_not_trusted">Ланцюжок сертифікатів не довірений</string>
+    <string name="certificate_chain_is_not_trusted">Недовірений ланцюжок сертифікатів</string>
     <string name="jid_does_not_match_certificate">Адреса XMPP не відповідає сертифікату</string>
     <string name="action_renew_certificate">Оновити сертифікат</string>
     <string name="error_fetching_omemo_key">Помилка отримання ключа OMEMO!</string>
@@ -518,7 +518,7 @@
     <string name="no_application_to_share_uri">Не знайдено застосунку, щоб поділитися URI</string>
     <string name="share_uri_with">Поділитися URI…</string>
     <string name="agree_and_continue">Погодитися та продовжити</string>
-    <string name="magic_create_text">Ми проведемо Вас крок за кроком, щоб створити обліковий запис із випадковим паролем; можете використовувати цей пароль і надалі або змінити його на наступній сторінці. \\nВи зможете спілкуватися з користувачами цього та інших постачальників — просто повідомте їм свою повну адресу XMPP.</string>
+    <string name="magic_create_text">Ми допоможемо Вам створити обліковий запис із випадковим паролем, який можна буде змінити на наступній сторінці.\nПісля цього Ви зможете спілкуватися з користувачами цього та інших постачальників — просто повідомте їм свою повну адресу XMPP.</string>
     <string name="your_full_jid_will_be">Ваша повна адреса XMPP: %s</string>
     <string name="create_account">Створити обліковий запис</string>
     <string name="use_own_provider">Застосувати дані мого постачальника</string>
@@ -566,7 +566,7 @@
     <string name="remote_server_not_found">Віддалений сервер не знайдено</string>
     <string name="remote_server_timeout">Затримка відповіді сервера</string>
     <string name="unable_to_update_account">Не вдалося оновити обліковий запис</string>
-    <string name="report_jid_as_spammer">Надіслати скаргу про те, що контакт із цим ID розсилає спам.</string>
+    <string name="report_jid_as_spammer">Надіслати скаргу про спам від цієї адреси XMPP.</string>
     <string name="pref_delete_omemo_identities">Вилучити ідентифікаційні дані OMEMO</string>
     <string name="pref_delete_omemo_identities_summary">Створити наново Ваші ключі OMEMO. Всі Ваші контакти будуть змушені підтвердити Вас знову. Використовуйте це, лише якщо немає іншого вибору.</string>
     <string name="delete_selected_keys">Вилучити вибрані ключі</string>
@@ -792,7 +792,7 @@
     <string name="temporarily_unavailable">Тимчасово недоступний. Будь ласка, спробуйте знову пізніше.</string>
     <string name="no_network_connection">Відсутнє з\'єднання з мережею.</string>
     <string name="try_again_in_x">Будь ласка, спробуйте ще раз через %s</string>
-    <string name="rate_limited">Ви обмежені за рейтингом</string>
+    <string name="rate_limited">У вас обмеження частоти звернень</string>
     <string name="too_many_attempts">Забагато спроб</string>
     <string name="the_app_is_out_of_date">Ви користуєтеся застарілою версією застосунку.</string>
     <string name="update">Оновити</string>
@@ -813,12 +813,12 @@
     <string name="choose_account">Виберіть обліковий запис</string>
     <string name="restore_backup">Відновити з резервної копії</string>
     <string name="restore">Відновити</string>
-    <string name="enter_password_to_restore">Введіть пароль до облікового запису %s, щоб відновити з резервної копії.</string>
+    <string name="enter_password_to_restore">Уведіть пароль до облікового запису %s, щоб відновити з резервної копії.</string>
     <string name="restore_warning">Не відновлюйте ключі OMEMO з метою клонування застосунку (запускати одночасно ще один примірник). Відновлення ключів OMEMO призначене виключно для перенесення даних або на випадок втрати оригінального пристрою.</string>
     <string name="unable_to_restore_backup">Неможливо відновити з резервної копії.</string>
     <string name="unable_to_decrypt_backup">Не вдалося розшифрувати резервну копію. Чи правильний пароль?</string>
     <string name="backup_channel_name">Створити або відновити резервну копію</string>
-    <string name="enter_jabber_id">Введіть адресу XMPP</string>
+    <string name="enter_jabber_id">Уведіть адресу XMPP</string>
     <string name="create_group_chat">Створити групу</string>
     <string name="join_public_channel">Приєднатися до публічного каналу</string>
     <string name="create_private_group_chat">Створити приватну групу</string>
@@ -827,7 +827,7 @@
     <string name="xmpp_address">Адреса XMPP</string>
     <string name="please_enter_name">Будь ласка, дайте назву цьому каналу</string>
     <string name="please_enter_xmpp_address">Будь ласка, надайте адресу XMPP</string>
-    <string name="this_is_an_xmpp_address">Це адреса XMPP. Будь ласка, додайте назву.</string>
+    <string name="this_is_an_xmpp_address">Це адреса XMPP. Будь ласка, надайте назву.</string>
     <string name="creating_channel">Створення публічного каналу…</string>
     <string name="channel_already_exists">Цей канал уже існує</string>
     <string name="joined_an_existing_channel">Ви приєдналися до наявного каналу</string>
@@ -966,9 +966,7 @@
     </plurals>
     <string name="error_security_exception">Застосунок для передачі зображення не надав достатніх дозволів.</string>
     <string name="audio_video_disabled_tor">Виклики вимкнені при використанні Tor</string>
-    <string name="sync_with_contacts_long">%1$s обробляє Ваш список контактів локально, на Вашому пристрої, щоб показати імена та зображення профілю для відповідних контактів у XMPP.
-\n
-\nУсі дані списку контактів залишаються на Вашому пристрої!</string>
+    <string name="sync_with_contacts_long">%1$s обробляє Ваш список контактів локально, на Вашому пристрої, щоб показати імена та зображення профілю для відповідних контактів у XMPP. \n \nУсі дані списку контактів залишаються на Вашому пристрої!</string>
     <string name="missed_calls_channel_name">Пропущені виклики</string>
     <string name="data_saver_enabled_explained">Ваша операційна система обмежує для %1$s доступ до Інтернету у фоновому режимі. Щоб отримувати сповіщення про нові повідомлення, Вам потрібно дозволити необмежений доступ для %1$s, коли заощадження трафіку ввімкнено.
 \n%1$s намагатиметься по можливості економити трафік.</string>
@@ -1403,7 +1401,7 @@
     <string name="pref_create_backup_warning">Повні резервні копії призначені для відновлення у випадку втрати пристрою або для перенесення даних на новий пристрій. Не можна відновлювати резервну копію в іншому застосунку, залишаючи цей підключеним!</string>
     <string name="pref_ring_from_strangers_summary">Незнайомець — контакт, якого немає у Вашому списку, кому Ви ніколи не надсилали повідомлення</string>
     <string name="pref_ring_from_strangers">Дзвонити при викликах від незнайомців</string>
-    <string name="enter_a_new_password_txt">Введіть новий пароль</string>
+    <string name="enter_a_new_password_txt">Уведіть новий пароль</string>
     <string name="please_enter_a_new_password_again_txt">Будь ласка, введіть новий пароль ще раз</string>
     <string name="pref_app_lock_enable_summary">Увімкнути блокування застосунку. Майте на увазі, що Ви не зможете відкрити застосунок, якщо забудете PIN-код.</string>
     <string name="confirm_password_txt">Підтвердити пароль</string>
@@ -1418,7 +1416,7 @@
     <string name="pref_app_lock_enable_title">Увімкнути блокування застосунку</string>
     <string name="app_lock_forgot_password">Перевстановіть застосунок і завантажте резервну копію розмов</string>
     <string name="new_message">Нове повідомлення</string>
-    <string name="enter_your_password_txt">Введіть свій пароль</string>
+    <string name="enter_your_password_txt">Уведіть свій пароль</string>
     <string name="search_chats">Шукати в чатах</string>
     <string name="call">Виклик</string>
     <string name="write">Написати</string>
@@ -1570,4 +1568,20 @@
     <string name="cannot_retract_message_no_id">Неможливо видалити повідомлення, немає ідентифікатора.</string>
     <string name="message_was_retracted_by">Повідомлення видалено</string>
     <string name="message_is_too_long">Повідомлення занадто довге</string>
+    <string name="pref_custom_resource_name">Власна назва ресурсу клієнта</string>
+    <string name="pref_custom_resource_name_summary">Встановіть власну назву для ресурсу вашого клієнта</string>
+    <string name="pref_custom_resource_name_dialog_title">Уведіть власну назву ресурсу клієнта</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Редагувати контакт чату чи телефонний контакт?</string>
+    <string name="edit_sytemaccount">Телефонний контакт</string>
+    <string name="edit_chat_contact">Контакт чату</string>
+    <string name="restart_onboarding">Перезапустити посібник</string>
+    <string name="image_attachment">Вкладене зображення</string>
+    <string name="video_attachment">Вкладене відео</string>
+    <string name="cannot_pin_empty_content">Неможливо закріпити порожній вміст</string>
+    <string name="pinned_image_preview">Закріплене зображення</string>
+    <string name="pinned_text_preview">Закріплений текст</string>
+    <string name="pinned_item">Закріплений елемент</string>
+    <string name="pinned_video_preview">Закріплене відео</string>
+    <string name="pinned_audio_no_preview">Закріплений аудіофайл</string>
+    <string name="pinned_audio_with_text_preview">Закріплене аудіо</string>
 </resources>

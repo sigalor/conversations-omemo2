@@ -511,9 +511,7 @@
     <string name="no_storage_permission">Permiteți %1$s acces la stocarea externă</string>
     <string name="no_camera_permission">Permiteți %1$s acces la camera foto</string>
     <string name="sync_with_contacts">Integrarea listei de contacte</string>
-    <string name="sync_with_contacts_long">%1$s procesează lista de contacte la nivel local, pe dispozitiv, pentru a vă arăta numele și pozele de profil ale contactelor pe care le aveți și pe XMPP.
-\n
-\nDatele din lista de contacte nu părăsesc niciodată dispozitivul dumneavoastră!</string>
+    <string name="sync_with_contacts_long">%1$s procesează lista de contacte la nivel local, pe dispozitiv, pentru a vă arăta numele și pozele de profil ale contactelor pe care le aveți și pe XMPP. \n \nDatele din lista de contacte nu părăsesc niciodată dispozitivul dumneavoastră!</string>
     <string name="notify_on_all_messages">Notifică la toate mesajele</string>
     <string name="notify_only_when_highlighted">Notifică doar atunci când cineva vă menționează numele</string>
     <string name="notify_never">Notificări dezactivate</string>

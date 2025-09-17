@@ -934,9 +934,7 @@
 \n<small>前往「聯絡人詳細資料」以驗證您的線上狀態訂閱。</small></string>
     <string name="pref_autojoin_summary">加入或離開多使用者聊天時設定「自動加入」旗標，並回應其他用戶端所做的修改。</string>
     <string name="clear_other_devices_desc">您確定要從 OMEMO 宣告中清除所有裝置嗎？您的裝置在下次連線時將會重新宣告，但可能不會收到您傳送的訊息。</string>
-    <string name="sync_with_contacts_long">%1$s 在您的設備上本地處理您的通訊錄，以向您顯示 XMPP 上相符的聯絡人名稱和個人資料頭像。
-\n
-\n任何通訊錄數據都不會離開您的設備！</string>
+    <string name="sync_with_contacts_long">%1$s 在您的設備上本地處理您的通訊錄，以向您顯示 XMPP 上相符的聯絡人名稱和個人資料頭像。 \n \n任何通訊錄數據都不會離開您的設備！</string>
     <string name="battery_optimizations_enabled_dialog">您的裝置正在為 %1$s 採用強力電池效能最佳化，這可能會導致通知延遲甚至訊息遺失。
 \n
 \n您將被要求將其停用。</string>

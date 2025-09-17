@@ -531,7 +531,7 @@
     <string name="share_uri_with">Partager l\'URI avec…</string>
     <string name="agree_and_continue">Accepter et continuer</string>
     <string name="magic_create_text">Nous vous guiderons tout au long du processus de création d\'un compte sur monocles.eu. \nLorsque vous sélectionnerez monocles.eu en tant que fournisseur, vous pourrez communiquer avec les utilisateurs d\'autres fournisseurs en leur fournissant votre adresse XMPP complète.</string>
-    <string name="your_full_jid_will_be">Votre adresse XMPP complète sera : %s</string>
+    <string name="your_full_jid_will_be">Votre adresse XMPP complète sera : %s</string>
     <string name="create_account">Créer un compte</string>
     <string name="use_own_provider">Utiliser votre propre fournisseur</string>
     <string name="pick_your_username">Choisissez votre nom d\'utilisateur</string>
@@ -881,7 +881,7 @@
     <string name="group_chats_and_channels"><![CDATA[Canaux et groupes de discussion]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Serveur local</string>
-    <string name="pref_channel_discovery_summary">La plupart des utilisateurs devraient choisir « jabber.network » pour de meilleures suggestions provenant de l’écosystème public entier de XMPP.</string>
+    <string name="pref_channel_discovery_summary">La plupart des utilisateurs devraient choisir « jabber.network » pour de meilleures suggestions provenant de l’écosystème public entier de XMPP.</string>
     <string name="pref_channel_discovery">Méthode de découverte des canaux</string>
     <string name="backup">Sauvegarde</string>
     <string name="category_about">À propos</string>
@@ -969,9 +969,7 @@
     <string name="backup_started_message">La sauvegarde a débuté. Vous serez notifié une fois terminé.</string>
     <string name="conference_technical_problems">Vous avez quitté ce groupe pour des raisons techniques</string>
     <string name="delete_from_server">Supprimer le compte du serveur</string>
-    <string name="sync_with_contacts_long">%1$s traite votre liste de contacts sur votre appareil pour afficher les noms et les photo de profil des contacts correspondants sur XMPP.
-\n
-\nVotre liste de contacts ne quitte jamais votre appareil !</string>
+    <string name="sync_with_contacts_long">%1$s traite votre liste de contacts sur votre appareil pour afficher les noms et les photo de profil des contacts correspondants sur XMPP. \n \nVotre liste de contacts ne quitte jamais votre appareil !</string>
     <string name="multimedia_file">ficher multimédia</string>
     <string name="search_group_chats">Rechercher des groupes</string>
     <string name="outgoing_call_duration_timestamp">Appel sortant (%s) · %s</string>

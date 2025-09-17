@@ -506,9 +506,7 @@
     <string name="no_storage_permission"> %1$s den Zugriff auf den externen Speicher gewähren</string>
     <string name="no_camera_permission">%1$s den Zugriff auf die Kamera gewähren</string>
     <string name="sync_with_contacts">Kontaktlistenintegration</string>
-    <string name="sync_with_contacts_long">%1$s verarbeitet deine Kontaktliste lokal auf deinem Gerät, um dir die Namen und Profilbilder von passenden Kontakten auf XMPP zu zeigen.
-\n
-\nKeine Daten der Kontaktliste verlassen jemals dein Gerät!</string>
+    <string name="sync_with_contacts_long">%1$s verarbeitet deine Kontaktliste lokal auf deinem Gerät, um dir die Namen und Profilbilder von passenden Kontakten auf XMPP zu zeigen. \n \nKeine Daten der Kontaktliste verlassen jemals dein Gerät!</string>
     <string name="notify_on_all_messages">Bei allen Nachrichten benachrichtigen</string>
     <string name="notify_only_when_highlighted">Nur benachrichtigen, wenn ich erwähnt werde</string>
     <string name="notify_never">Benachrichtigungen deaktiviert</string>
@@ -532,7 +530,7 @@
     <string name="no_application_to_share_uri">Keine App zum Teilen der URI gefunden</string>
     <string name="share_uri_with">Teile URI mit…</string>
     <string name="agree_and_continue">Zustimmen und fortfahren</string>
-    <string name="magic_create_text">Wir führen Dich durch den Prozess der Erstellung eines Kontos mit einem zufälligen Passwort, das Du auf der nächsten Seite verwenden oder in Dein eigenes Passwort ändern kannst. \\nDanach kannst Du mit Nutzern dieses und anderer Anbieter kommunizieren, indem Du ihnen Ihre vollständige XMPP-Adresse mitteilen.</string>
+    <string name="magic_create_text">Wir führen Dich durch die Erstellung eines Kontos mit einem zufälligen Passwort, das Du auf der nächsten Seite ändern kannst.\nDanach kannst Du mit Nutzern dieses und anderer Anbieter kommunizieren, indem Du deine vollständige XMPP-Adresse teilst.</string>
     <string name="your_full_jid_will_be">Deine vollständige XMPP-Adresse lautet: %s</string>
     <string name="create_account">Konto erstellen</string>
     <string name="use_own_provider">Nutze eigenen Provider</string>
@@ -1275,12 +1273,10 @@
     <string name="pref_theme_custom">Benutzerdefiniert</string>
     <string name="invalid_image_path">Ungültiger Pfad zum Bild</string>
     <string name="save_to_downloads_success">Datei wurde erfolgreich im Download-Ordner gespeichert</string>
-    <string name="magic_create_text_on_x">Du wurdest zu to %1$s eingeladen. monocles chat wird dich durch den Registrierungsprozess leiten.
-\nDurch die Registrierung bei %1$s kannst du auch mit Menschen bei anderen Anbietern kommunizieren, indem du ihnen deine XMPP-Adresse mitteilst.</string>
+    <string name="magic_create_text_on_x">Du wurdest zu to %1$s eingeladen. monocles chat wird dich durch den Registrierungsprozess leiten. \nDurch die Registrierung bei %1$s kannst du auch mit Menschen bei anderen Anbietern kommunizieren, indem du ihnen deine XMPP-Adresse mitteilst.</string>
     <string name="share_invite_with">Teile Einladung mit …</string>
     <string name="other_aspect_ratio">Andere</string>
-    <string name="magic_create_text_fixed">Du wurdest zu to %1$s eingeladen. Es wurde bereits ein Benutzername für dich ausgewählt. monoces chat führt dich durch den Registrierungsprozess.
-\nDu wirst auch mit Menschen bei anderen Anbietern kommunizieren können, indem du ihnen deine XMPP-Adresse mitteilst.</string>
+    <string name="magic_create_text_fixed">Du wurdest zu to %1$s eingeladen. Es wurde bereits ein Benutzername für dich ausgewählt. monoces chat führt dich durch den Registrierungsprozess. \nDu wirst auch mit Menschen bei anderen Anbietern kommunizieren können, indem du ihnen deine XMPP-Adresse mitteilst.</string>
     <string name="no_background_set">Kein eigener Hintergrund gesetzt</string>
     <string name="pref_show_navigation_bar_summary">Als zusätzliche Navigationsmöglichkeit wird eine Navigationsleiste am unteren Bildschirmrand angezeigt</string>
     <string name="resize_and_save">Größe der Auswahl anpassen und speichern</string>
@@ -1295,7 +1291,7 @@
     <string name="simple_commons">Einfacher Anhang</string>
     <string name="out_of_memory_error">Speicherplatzmangel</string>
     <string name="could_not_create_file">Konnte Datei nicht erstellen</string>
-    <string name="get_jabber_id">Erhalte eine Chatadresse</string>
+    <string name="get_jabber_id">Erhalte eine XMPP-Adresse</string>
     <string name="mappreview_url">https://staticmap.monocles.eu/map.png</string>
     <string name="example_jid">username@monocles.eu</string>
     <string name="view_privacy_policy">Datenschutzrichtlinie ansehen</string>
@@ -1519,4 +1515,25 @@
     <string name="pref_now_playing">Aktuelle Wiedergabe</string>
     <string name="pref_send_now_playing">Aktuellen Wiedergabestatus senden</string>
     <string name="pref_update_track_longer_than">Nur Tracks aktualisieren, die länger sind als</string>
+    <string name="message_retracted">Nachricht zurückgezogen</string>
+    <string name="message_is_too_long">Die Nachricht ist zu lang</string>
+    <string name="you_retracted_this_message">Sie haben diese Nachricht zurückgezogen</string>
+    <string name="cannot_retract_message_no_id">Nachricht kann nicht zurückgezogen werden, keine ID.</string>
+    <string name="message_was_retracted_by">Die Nachricht wurde zurückgezogen von</string>
+    <string name="pref_custom_resource_name">Benutzerdefinierter Client-Ressourcenname</string>
+    <string name="pref_custom_resource_name_summary">Legen Sie einen benutzerdefinierten Namen für die Ressource Ihres Clients fest</string>
+    <string name="pref_custom_resource_name_dialog_title">Benutzerdefinierten Ressourcennamen eingeben</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Chat-Kontakt oder Telefonkontakt bearbeiten?</string>
+    <string name="edit_sytemaccount">Telefonkontakt</string>
+    <string name="edit_chat_contact">Chat-Kontakt</string>
+    <string name="restart_onboarding">Onboarding neu starten</string>
+    <string name="cannot_pin_empty_content">Leere Inhalte können nicht angeheftet werden</string>
+    <string name="image_attachment">Bildanhang</string>
+    <string name="pinned_image_preview">Angeheftetes Bild</string>
+    <string name="pinned_text_preview">Angehefteter Text</string>
+    <string name="pinned_item">Angehefteter Beitrag</string>
+    <string name="pinned_video_preview">Angeheftetes Video</string>
+    <string name="video_attachment">Videoanhang</string>
+    <string name="pinned_audio_with_text_preview">Angeheftete Audiodatei</string>
+    <string name="pinned_audio_no_preview">Angeheftete Audiodatei</string>
 </resources>

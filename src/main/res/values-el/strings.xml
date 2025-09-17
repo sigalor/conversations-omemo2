@@ -496,10 +496,7 @@
     <string name="no_storage_permission">Απόδοση δικαιώματος στο %1$s για πρόσβαση στον εξωτερικό αποθηκευτικό χώρο</string>
     <string name="no_camera_permission">Απόδοση δικαιώματος στο %1$s για πρόσβαση στην φωτογραφική μηχανή</string>
     <string name="sync_with_contacts">Συγχρονισμός με επαφές</string>
-    <string name="sync_with_contacts_long">Το %1$s ζητάει το δικαίωμα να έχει πρόσβαση στο βιβλίο διευθύνσεων για να το ταιριάξει με την λίστα επαφών XMPP σας.
-\nΑυτή η ενέργεια θα εμφανίσει τα πλήρη ονόματα και τις εικόνες προφίλ των επαφών σας.
-\n
-\nΤο %1$s θα διαβάσει μόνο το βιβλίο διευθύνσεών σας και θα το ταιριάξει τοπικά χωρίς να μεταφορτώσει κανένα στοιχείο στον διακομιστή σας.</string>
+    <string name="sync_with_contacts_long">Το %1$s ζητάει το δικαίωμα να έχει πρόσβαση στο βιβλίο διευθύνσεων για να το ταιριάξει με την λίστα επαφών XMPP σας. \nΑυτή η ενέργεια θα εμφανίσει τα πλήρη ονόματα και τις εικόνες προφίλ των επαφών σας. \n \nΤο %1$s θα διαβάσει μόνο το βιβλίο διευθύνσεών σας και θα το ταιριάξει τοπικά χωρίς να μεταφορτώσει κανένα στοιχείο στον διακομιστή σας.</string>
     <string name="notify_on_all_messages">Ειδοποίηση για όλα τα μηνύματα</string>
     <string name="notify_only_when_highlighted">Ειδοποίηση μόνο όταν αναφέρεται το όνομά μου</string>
     <string name="notify_never">Οι ειδοποιήσεις απενεργοποιήθηκαν</string>
@@ -870,7 +867,7 @@
     <string name="group_chats_and_channels"><![CDATA[Ομαδικές συνομιλίες & Κανάλια]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Τοπικός διακομιστής</string>
-    <string name="pref_channel_discovery_summary">Οι περισσότεροι χρήστες πρέπει να επιλέξουν  ‘jabber.network’ για καλύτερες προτάσεις από το σύνολο του οικοσυστήματος XMPP.</string>
+    <string name="pref_channel_discovery_summary">Οι περισσότεροι χρήστες πρέπει να επιλέξουν ‘jabber.network’ για καλύτερες προτάσεις από το σύνολο του οικοσυστήματος XMPP.</string>
     <string name="pref_channel_discovery">Μέθοδος εύρεσης καναλιού</string>
     <string name="backup">Αντίγραφο ασφαλείας</string>
     <string name="category_about">Σχετικά με</string>

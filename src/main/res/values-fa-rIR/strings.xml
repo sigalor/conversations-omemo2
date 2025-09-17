@@ -823,9 +823,7 @@
     <string name="please_enter_your_phone_number">لطفاً شمارهٔ تلفن خود را وارد کنید.</string>
     <string name="shared_text_with_x">نوشته با %s هم‌رسانی شد</string>
     <string name="try_again_in_x">لطفاً %s دیگر دوباره تلاش کنید</string>
-    <string name="sync_with_contacts_long">%1$s فهرست مخاطبان شما را به طور محلی، فقط روی همین دستگاه، بررسی می‌کند تا نام و تصویر نمایهٔ مخاطبان مشترک در XMPP را نشان دهد.
-\n
-\nهیچ اطلاعاتی دربارهٔ فهرست مخاطبان شما به جایی فرستاده نمی‌شود!</string>
+    <string name="sync_with_contacts_long">%1$s فهرست مخاطبان شما را به طور محلی، فقط روی همین دستگاه، بررسی می‌کند تا نام و تصویر نمایهٔ مخاطبان مشترک در XMPP را نشان دهد. \n \nهیچ اطلاعاتی دربارهٔ فهرست مخاطبان شما به جایی فرستاده نمی‌شود!</string>
     <string name="not_trusted">اعتمادنشده</string>
     <string name="hostname_example">‪xmpp.example.com‬</string>
     <string name="pref_treat_vibrate_as_silent">لرزش معادل بی‌صدا</string>

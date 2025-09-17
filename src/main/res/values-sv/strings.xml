@@ -513,10 +513,7 @@
     <string name="no_storage_permission">Bevilja %1$s åtkomst till extern lagring</string>
     <string name="no_camera_permission">Bevilja %1$s åtkomst till kameran</string>
     <string name="sync_with_contacts">Kontaktlistintegration</string>
-    <string name="sync_with_contacts_long">%1$s vill ha behörighet att komma åt din adressbok för att matcha den med din XMPP-kontaktlista.
-\nDetta kommer att visa dina kontakters fullständiga namn och visningsbilder.
-\n
-\n%1$s kommer bara att läsa din adressbok och matcha den lokalt, utan att ladda upp något till din server.</string>
+    <string name="sync_with_contacts_long">%1$s vill ha behörighet att komma åt din adressbok för att matcha den med din XMPP-kontaktlista. \nDetta kommer att visa dina kontakters fullständiga namn och visningsbilder. \n \n%1$s kommer bara att läsa din adressbok och matcha den lokalt, utan att ladda upp något till din server.</string>
     <string name="notify_on_all_messages">Avisering för alla meddelanden</string>
     <string name="notify_only_when_highlighted">Avisering endast vid ett omnämnande</string>
     <string name="notify_never">Aviseringar inaktiverade</string>

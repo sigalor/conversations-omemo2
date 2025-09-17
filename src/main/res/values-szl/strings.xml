@@ -519,10 +519,7 @@
     <string name="no_storage_permission">Przizwōl %1$s na dostymp do zewnyntrznego składu</string>
     <string name="no_camera_permission">Przizwōl %1$s na dostymp do aparatu</string>
     <string name="sync_with_contacts">Synchrōnizuj z kōntaktami</string>
-    <string name="sync_with_contacts_long">%1$s potrzebuje twojij zwōle na dopasowanie twojich kōntaktōw XMPP z wykazym kōntaktōw w telefōnie.
-\nTo pokoże jejich połne miana i awatary.
-\n
-\n%1$s ino przeczyto twoje kōntakty i dopasuje je lokalnie, bez wysyłanio na twōj serwer.</string>
+    <string name="sync_with_contacts_long">%1$s potrzebuje twojij zwōle na dopasowanie twojich kōntaktōw XMPP z wykazym kōntaktōw w telefōnie. \nTo pokoże jejich połne miana i awatary. \n \n%1$s ino przeczyto twoje kōntakty i dopasuje je lokalnie, bez wysyłanio na twōj serwer.</string>
     <string name="notify_on_all_messages">Powiadōm ô wszyskich wiadōmościach</string>
     <string name="notify_only_when_highlighted">Powiadōmiej ino w przipodku spōmniynio ô mie</string>
     <string name="notify_never">Powiadōmiynia zastawiōne</string>

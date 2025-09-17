@@ -63,7 +63,7 @@
     <string name="save">Kaydet</string>
     <string name="ok">Tamam</string>
     <string name="crash_report_title">%1$s çöktü </string>
-    <string name="crash_report_message">XMPP hesabınız ile yığın izleri göndermeniz %1$s\'ın  devam eden gelişimine yardımcı olur.</string>
+    <string name="crash_report_message">XMPP hesabınız ile yığın izleri göndermeniz %1$s\'ın devam eden gelişimine yardımcı olur.</string>
     <string name="send_now">Şimdi gönder</string>
     <string name="send_never">Bir daha sorma</string>
     <string name="problem_connecting_to_account">Hesaba bağlanılamadı</string>
@@ -393,7 +393,7 @@
     <string name="conference_options">Özel grup konuşması ayarları</string>
     <string name="channel_options">Ortak kanal ayarları </string>
     <string name="members_only">Özel, yalnızca üyeler</string>
-    <string name="non_anonymous">XMPP adreslerini herkes için görünür yap </string>
+    <string name="non_anonymous">XMPP adreslerini herkes için görünür yap</string>
     <string name="moderated">Kanalı denetimli hale getir</string>
     <string name="you_are_not_participating">Katılımcı değilsiniz</string>
     <string name="modified_conference_options">Düzenlenmiş grup konuşması seçenekleri!</string>
@@ -508,9 +508,7 @@
     <string name="no_storage_permission">%1$s\'ın harici depolama erişimine izin ver</string>
     <string name="no_camera_permission">%1$s\'ın kamera erişimine izin ver</string>
     <string name="sync_with_contacts">Kişiler entegrasyonu</string>
-    <string name="sync_with_contacts_long">%1$s kişilerinizi yerel olarak, cihazınızda, XMPP\'de bulunan kişilerinizin isimlerini ve profil fotoğraflarını göstermek için işler.
-\n
-\nKişileriniz hakkında hiçbir bilgi cihazınızdan ayrılmaz!</string>
+    <string name="sync_with_contacts_long">%1$s kişilerinizi yerel olarak, cihazınızda, XMPP\'de bulunan kişilerinizin isimlerini ve profil fotoğraflarını göstermek için işler. \n \nKişileriniz hakkında hiçbir bilgi cihazınızdan ayrılmaz!</string>
     <string name="notify_on_all_messages">Tüm iletilerde uyar</string>
     <string name="notify_only_when_highlighted">Yalnızca bahsedilğinde haber ver</string>
     <string name="notify_never">Uyarılar devre dışı</string>

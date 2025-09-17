@@ -906,9 +906,7 @@
     <string name="shared_images_with_x">Figurat iu dhanë %s</string>
     <string name="shared_text_with_x">Teksti iu dha %s</string>
     <string name="no_storage_permission">Akordoji %1$s hyrje te depozitë e jashtme</string>
-    <string name="sync_with_contacts_long">%1$s e përpunon lokalisht listën tuaj të kontakteve, në pajisjen tuaj, për t’ju shfaqur emrat dhe foto profili për kontakte me përkim në XMPP.
-\n
-\nNga pajisja juaj s’del kurrë ndonjë e dhënë liste kontaktesh!</string>
+    <string name="sync_with_contacts_long">%1$s e përpunon lokalisht listën tuaj të kontakteve, në pajisjen tuaj, për t’ju shfaqur emrat dhe foto profili për kontakte me përkim në XMPP. \n \nNga pajisja juaj s’del kurrë ndonjë e dhënë liste kontaktesh!</string>
     <string name="pref_picture_compression_summary">Ndihmëz: Përdorni “Zgjidhni kartelë”, në vend se “Zgjidhni foto”, për të dërguar figura të pangjeshura, pavarësisht nga ky rregullim.</string>
     <string name="battery_optimizations_enabled_explained">Pajisja juaj përdor optimizime shumë të thella baterie për %1$s, çka mund të shpjerë në vonesa njoftimesh, ose madje edhe humbje mesazhesh.
 \nRekomandohet të çaktivizohen ato.</string>

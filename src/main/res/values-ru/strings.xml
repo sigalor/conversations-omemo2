@@ -65,7 +65,7 @@
     <string name="save">Сохранить</string>
     <string name="ok">ОК</string>
     <string name="crash_report_title">В %1$s произошёл сбой</string>
-    <string name="crash_report_message">Отправляя отчёты об ошибках, вы помогаете совершенствованию %1$s.</string>
+    <string name="crash_report_message">Использование вашего адреса XMPP для отправки трассировок стека помогает дальнейшей разработке %1$s.</string>
     <string name="send_now">Отправить сейчас</string>
     <string name="send_never">Больше не спрашивать</string>
     <string name="problem_connecting_to_account">Не удалось подключиться к аккаунту</string>
@@ -504,9 +504,7 @@
     <string name="no_storage_permission">Предоставить %1$s разрешение на использование внешнего накопителя</string>
     <string name="no_camera_permission">Предоставить %1$s разрешение на использование камеры</string>
     <string name="sync_with_contacts">Интеграция списка контактов</string>
-    <string name="sync_with_contacts_long">%1$s обрабатывает ваш список контактов локально, на вашем устройстве, чтобы показать вам имена и изображения профиля для сопоставления контактов по XMPP.
-\n
-\nНикакие данные списка контактов никогда не покидают ваше устройство!</string>
+    <string name="sync_with_contacts_long">%1$s обрабатывает ваш список контактов локально, на вашем устройстве, чтобы показать вам имена и изображения профиля для сопоставления контактов по XMPP. \n \nНикакие данные списка контактов никогда не покидают ваше устройство!</string>
     <string name="notify_on_all_messages">Все сообщения</string>
     <string name="notify_only_when_highlighted">Уведомлять только при упоминании</string>
     <string name="notify_never">Уведомления выключены</string>
@@ -532,7 +530,7 @@
     <string name="no_application_to_share_uri">Не найдено приложения для передачи URI</string>
     <string name="share_uri_with">Поделиться URI-адресом через…</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
-    <string name="magic_create_text">Мы создадим аккаунт со случайным паролем, который Вы можете сохранить или изменить на свой на следующей странице. \\nЗатем Вы сможете общаться с пользователями этого или других серверов, предоставляя им свой полный XMPP-адрес.</string>
+    <string name="magic_create_text">Мы поможем вам создать учетную запись со случайным паролем, который вы сможете изменить на следующей странице. \nПосле этого вы сможете общаться с пользователями этого и других провайдеров, поделившись своим полным XMPP-адресом.</string>
     <string name="your_full_jid_will_be">Ваш полный XMPP-адрес будет: %s</string>
     <string name="create_account">Создать аккаунт</string>
     <string name="use_own_provider">Использовать свой провайдер</string>
@@ -871,7 +869,7 @@
     <string name="discover_channels">Найти каналы</string>
     <string name="search_channels">Поиск каналов</string>
     <string name="channel_discovery_opt_in_title">Возможно нарушение конфиденциальности!</string>
-    <string name="i_already_have_an_account">У меня уже есть XMPP ID</string>
+    <string name="i_already_have_an_account">У меня уже есть XMPP -адрес</string>
     <string name="add_existing_account">Добавить существующий аккаунт</string>
     <string name="register_new_account">Зарегистрировать новый аккаунт</string>
     <string name="this_looks_like_a_domain">Это похоже на космос</string>
@@ -890,7 +888,7 @@
     <string name="group_chats_and_channels"><![CDATA[Группы и каналы]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Локальный сервер</string>
-    <string name="pref_channel_discovery_summary">Большиству пользователей следует выбрать ‘jabber.network’ для получения наиболее подходящих предложений от всей публичной экосистемы XMPP.</string>
+    <string name="pref_channel_discovery_summary">Большинству пользователей следует выбрать ‘jabber.network’ для получения наиболее подходящих предложений от всей публичной экосистемы XMPP.</string>
     <string name="pref_channel_discovery">Способ поиска каналов</string>
     <string name="backup">Резервное копирование</string>
     <string name="category_about">О приложении</string>
@@ -1263,7 +1261,7 @@
     <string name="filter">фильтр</string>
     <string name="could_not_create_file">не удалось создать файл</string>
     <string name="save_to_downloads">Сохранять в Скачанное</string>
-    <string name="do_you_have_an_account">У вас уже есть XMPP ID? Это может быть в случае, если вы уже используете другой XMPP-клиент или использовали monocles chat, Conversations или Snikket ранее. Если нет, вы можете создать новый XMPP ID прямо сейчас.</string>
+    <string name="do_you_have_an_account">У вас уже есть XMPP-адрес? Это может быть в случае, если вы уже используете другой XMPP-клиент или использовали monocles chat, Conversations или Snikket ранее. Если нет, вы можете создать новый XMPP-адрес прямо сейчас.</string>
     <string name="refresh_feature_discovery">Обновить обнаружение функций</string>
     <string name="pref_chat_background_summary">Выберите собственный файл изображения в качестве фона чата.</string>
     <string name="resize_and_save">Изменить размер выделенного фрагмента и сохранить</string>
@@ -1308,7 +1306,7 @@
     <string name="magic_create_text_fixed">Вас пригласили в %1$s. Имя пользователя уже предложено для Вас. Мы проведём Вас через процесс создания аккаунта.\nВы сможете общаться с пользователями других серверов, сообщив им свой полный адрес XMPP.</string>
     <string name="pref_dialler_integration_incoming_summary">Входящие вызовы с телефонных номеров могут поступать на номеронабиратель вашей системы вместо настроек уведомлений этого приложения</string>
     <string name="invalid_values">Пожалуйста, введите допустимое разрешение</string>
-    <string name="get_jabber_id">Получить XMPP-идентификатор</string>
+    <string name="get_jabber_id">Получить XMPP-адрес</string>
     <string name="custom_background">Свой фон</string>
     <string name="one_participant">Один участник</string>
     <string name="custom">Стандарт</string>
@@ -1337,7 +1335,7 @@
     <string name="custom_tertiary_color">Свой третий цвет</string>
     <string name="compose_using_rich_text">Текст с использованием форматированного текста</string>
     <string name="compose_using_rich_text_summary">Редактор сообщений будет отображать форматирование по мере ввода текста</string>
-    <string name="xmpp_network_description">Сеть XMPP питается по протоколу под названием XMPP. Это децентрализованная сеть, что означает, что никто не владеет и не контролирует все это. Это федеративная сеть, которая означает, что каждый может запустить сервис XMPP. Сообщения другим пользователям XMPP по умолчанию зашифрованы с Omemo.\n\nАдреса называются идентификаторы XMPP и выглядят аналогично адресам электронной почты:</string>
+    <string name="xmpp_network_description">Сеть XMPP работает по протоколу под названием XMPP. Это децентрализованная сеть, что означает, что никто не владеет и не контролирует все это. Это федеративная сеть, которая означает, что каждый может запустить сервис XMPP. Сообщения другим пользователям XMPP по умолчанию зашифрованы с Omemo.\n\nАдреса называются XMPP-адрес и выглядят аналогично адресам электронной почты:</string>
     <string name="custom_background_color">Свой цвет фона</string>
     <string name="italic">Курсив</string>
     <string name="monospace">Моноширинный</string>
@@ -1546,4 +1544,25 @@
     <string name="close_chat_text">Полностью закрывает этот чат. Вы больше не найдёте его в списке контактов.</string>
     <string name="archive_contact_text">Архивирует этот чат. Вы всё ещё можете найти его в списке контактов.</string>
     <string name="pref_auto_update_now_playing">Автоматически обновлять статус текущего воспроизведения из системы (требуется разрешение прослушивания уведомлений)</string>
+    <string name="cannot_retract_message_no_id">Невозможно отозвать сообщение, нет идентификатора.</string>
+    <string name="message_was_retracted_by">Сообщение было отозвано</string>
+    <string name="message_is_too_long">Сообщение слишком длинное</string>
+    <string name="you_retracted_this_message">Вы отозвали это сообщение</string>
+    <string name="message_retracted">Сообщение отозвано</string>
+    <string name="pref_custom_resource_name">Имя пользовательского клиентского ресурса</string>
+    <string name="pref_custom_resource_name_summary">Задайте индивидуальное имя для ресурса вашего клиента</string>
+    <string name="pref_custom_resource_name_dialog_title">Введите имя пользовательского ресурса</string>
+    <string name="edit_sytemaccount_or_xmppaccount">Редактировать контакт чата или телефонный контакт?</string>
+    <string name="edit_sytemaccount">Телефонный контакт</string>
+    <string name="edit_chat_contact">Контакт чата</string>
+    <string name="restart_onboarding">Перезапустить адаптацию</string>
+    <string name="cannot_pin_empty_content">Невозможно закрепить пустой контент</string>
+    <string name="image_attachment">Прикрепление изображения</string>
+    <string name="pinned_image_preview">Закрепленное изображение</string>
+    <string name="pinned_text_preview">Закрепленный текст</string>
+    <string name="pinned_item">Закрепленный элемент</string>
+    <string name="pinned_video_preview">Закрепленное видео</string>
+    <string name="video_attachment">Видео-вложение</string>
+    <string name="pinned_audio_with_text_preview">Закрепленное аудио</string>
+    <string name="pinned_audio_no_preview">Закрепленный аудиофайл</string>
 </resources>

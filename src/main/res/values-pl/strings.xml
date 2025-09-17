@@ -65,7 +65,7 @@
     <string name="save">Zapisz</string>
     <string name="ok">Ok</string>
     <string name="crash_report_title">%1$s uległo awarii</string>
-    <string name="crash_report_message">Używanie Twojego konta XMPP do wysyłania śladów stosu pomaga w ciągłym rozwoju %1$s.</string>
+    <string name="crash_report_message">Używanie Twojego konta XMPP do wysyłania śladów stosu pomaga w ciągłym rozwoju %1$s.</string>
     <string name="send_now">Wyślij teraz</string>
     <string name="send_never">Nie pytaj ponownie</string>
     <string name="problem_connecting_to_account">Nie można połączyć z kontem</string>
@@ -517,9 +517,7 @@
     <string name="no_storage_permission">Pozwól %1$s na dostęp do zewnętrznego magazynu</string>
     <string name="no_camera_permission">Pozwól %1$s na dostępu do aparatu</string>
     <string name="sync_with_contacts">Integracja listy kontaktów</string>
-    <string name="sync_with_contacts_long">%1$s przetwarza twoje kontakty lokalnie, na twoim urządzeniu, by pokazać nazwę i awatar profilu zgodny z kontaktami z XMPP.
-\n
-\nŻaden kontakt nie opuści twojego urządzenia!</string>
+    <string name="sync_with_contacts_long">%1$s przetwarza twoje kontakty lokalnie, na twoim urządzeniu, by pokazać nazwę i awatar profilu zgodny z kontaktami z XMPP. \n \nŻaden kontakt nie opuści twojego urządzenia!</string>
     <string name="notify_on_all_messages">Powiadom o wszystkich wiadomościach</string>
     <string name="notify_only_when_highlighted">Powiadamiaj tylko w przypadku wzmianki o mnie</string>
     <string name="notify_never">Powiadomienia wyłączone</string>
@@ -593,7 +591,7 @@
     <string name="remote_server_not_found">Nie znaleziono serwera</string>
     <string name="remote_server_timeout">Brak odpowiedzi od zdalnego serwera</string>
     <string name="unable_to_update_account">Nie można zaktualizować konta</string>
-    <string name="report_jid_as_spammer">Zgłoś spam z tego adresu XMPP.</string>
+    <string name="report_jid_as_spammer">Zgłoś spam z tego adresu XMPP.</string>
     <string name="pref_delete_omemo_identities">Usuń tożsamości OMEMO</string>
     <string name="pref_delete_omemo_identities_summary">Wygeneruj jeszcze raz klucze OMEMO. Wszystkie twoje kontakty będą musiały zweryfikować cię ponownie. Użyj tego tylko w ostateczności.</string>
     <string name="delete_selected_keys">Usuń zaznaczone klucze</string>
@@ -906,7 +904,7 @@
     <string name="group_chats_and_channels"><![CDATA[Rozmowy grupowe i kanały]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Serwer lokalny</string>
-    <string name="pref_channel_discovery_summary">Większość użytkowników powinna wybrać \'jabber.network\' dla lepszych sugestii z całego ekosystemu XMPP. </string>
+    <string name="pref_channel_discovery_summary">Większość użytkowników powinna wybrać \'jabber.network\' dla lepszych sugestii z całego ekosystemu XMPP.</string>
     <string name="pref_channel_discovery">Metoda odkrywania kanałów</string>
     <string name="backup">Kopia zapasowa</string>
     <string name="category_about">O aplikacji</string>

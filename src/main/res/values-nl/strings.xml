@@ -280,7 +280,7 @@
     <string name="send_again">Opnieuw versturen</string>
     <string name="file_url">Bestands-URL</string>
     <string name="url_copied_to_clipboard">URL gekopieerd naar klembord</string>
-    <string name="jabber_id_copied_to_clipboard">ID is gekopieerd naar het klembord</string>
+    <string name="jabber_id_copied_to_clipboard">XMPP-adres is gekopieerd naar het klembord</string>
     <string name="error_message_copied_to_clipboard">De foutmelding is naar het klembord gekopieerd</string>
     <string name="web_address">webadres</string>
     <string name="scan_qr_code">QR-code scannen</string>
@@ -366,9 +366,9 @@
     <string name="pref_enter_is_send">Enter is versturen</string>
     <string name="pref_display_enter_key">Enter-toets tonen</string>
     <string name="pref_display_enter_key_summary">Verander de Emoticon-toets in een Enter-toets</string>
-    <string name="audio">audio</string>
-    <string name="video">video</string>
-    <string name="image">afbeelding</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+    <string name="image">Afbeelding</string>
     <string name="pdf_document">PDF-document</string>
     <string name="apk">Android-applicatie</string>
     <string name="vcard">Contact</string>
@@ -455,7 +455,7 @@
     <string name="selection_too_large">Het gekozen vlak is te groot</string>
     <string name="no_accounts">(Geen actieve accounts)</string>
     <string name="this_field_is_required">Dit veld is vereist</string>
-    <string name="correct_message">Bericht corrigeren</string>
+    <string name="correct_message">Corrigeren</string>
     <string name="send_corrected_message">Gecorrigeerd bericht versturen</string>
     <string name="this_account_is_disabled">Je hebt dit account uitgeschakeld</string>
     <string name="share_uri_with">URI delen met…</string>
@@ -622,7 +622,7 @@
     <string name="pref_use_share_location_plugin">Plug-in voor delen van locatie</string>
     <string name="pref_use_share_location_plugin_summary">Gebruik de ‘Plug-in voor delen van locatie’ in plaats van de ingebouwde kaart</string>
     <string name="copy_link">Link kopiëren</string>
-    <string name="copy_jabber_id">JID kopiëren</string>
+    <string name="copy_jabber_id">XMPP-adres kopiëren</string>
     <string name="p1_s3_filetransfer">HTTP Bestandsdeling voor S3</string>
     <string name="pref_start_search">Rechtstreeks zoeken</string>
     <string name="pref_start_search_summary">Open het toetsenbord op het scherm ‘Nieuw gesprek’ en plaats de cursor in het zoekveld</string>
@@ -702,7 +702,7 @@
     <string name="install_orbot">Orbot installeren</string>
     <string name="start_orbot">Orbot starten</string>
     <string name="no_market_app_installed">Geen appwinkel geïnstalleerd.</string>
-    <string name="group_chat_will_make_your_jabber_id_public">Dit kanaal openbaart je XMPP-adres</string>
+    <string name="group_chat_will_make_your_jabber_id_public">Dit kanaal zal je XMPP-adres openbaren</string>
     <string name="ebook">e-book</string>
     <string name="video_original">Origineel (zonder compressie)</string>
     <string name="open_with">Open met…</string>
@@ -722,7 +722,7 @@
     <string name="xmpp_address">XMPP-adres</string>
     <string name="please_enter_name">Geef een naam op voor het kanaal</string>
     <string name="please_enter_xmpp_address">Vul een XMPP-adres in</string>
-    <string name="this_is_an_xmpp_address">Dit is een XMPP-adres. Vul een naam in.</string>
+    <string name="this_is_an_xmpp_address">Dit is een XMPP-adres. Voer een naam in.</string>
     <string name="creating_channel">Openbaar kanaal aanmaken…</string>
     <string name="channel_already_exists">Dit kanaal bestaat al</string>
     <string name="joined_an_existing_channel">Je neemt nu deel aan de bestaand kanaal</string>
@@ -766,7 +766,7 @@
     <string name="only_one_call_at_a_time">Er kan maar één oproep tegelijk actief zijn.</string>
     <string name="return_to_ongoing_call">Terug naar actieve oproep</string>
     <string name="could_not_switch_camera">Kan de camera niet omschakelen</string>
-    <string name="add_to_favorites">Aan favorieten toevoegen</string>
+    <string name="add_to_favorites">Vastzetten</string>
     <string name="remove_from_favorites">Losmaken</string>
     <string name="could_not_correct_message">Bericht kon niet worden gecorrigeerd</string>
     <string name="search_all_conversations">Alle gesprekken</string>
@@ -983,7 +983,7 @@
     <string name="disable_tor_to_make_call">Schakel Tor uit voor oproepen of gebruik Tor in VPN-modus</string>
     <string name="pref_up_push_account_summary">De account waarmee pushberichten worden ontvangen.</string>
     <string name="pref_up_push_server_title">Push-server</string>
-    <string name="vector_graphic">vectorafbeelding</string>
+    <string name="vector_graphic">Vectorafbeelding</string>
     <string name="multimedia_file">mediabestand</string>
     <string name="download_failed_invalid_file">Download mislukt: ongeldig bestand</string>
     <string name="verifying_omemo_keys_trusted_source_account">Je staat op het punt om de OMEMO-sleutels van je eigen account te verifiëren. Dit is alleen veilig als je deze link hebt gevolgd vanuit een vertrouwde bron waar alleen jij deze link kunt hebben gepubliceerd.</string>
@@ -995,7 +995,7 @@
     <string name="reject_switch_to_video">Videogesprek weigeren</string>
     <string name="unified_push_distributor">UnifiedPush Distributor</string>
     <string name="pref_up_push_account_title">Account</string>
-    <string name="retract_message">Bericht verwijderen</string>
+    <string name="retract_message">Verwijderen</string>
     <string name="incoming_call_duration_timestamp">Inkomende oproep (%s) · %s</string>
     <string name="outgoing_call_duration_timestamp">Uitgaande oproep (%s) · %s</string>
     <string name="outgoing_call_timestamp">Uitgaande oproep · %s</string>
@@ -1019,7 +1019,7 @@
     <string name="report_spam">Spam rapporteren</string>
     <string name="report_spam_and_block">Spam rapporteren en afzender blokkeren</string>
     <string name="add_subject">Onderwerp toevoegen</string>
-    <string name="magic_create_text">We leiden je door het proces van het aanmaken van een account met een willekeurig wachtwoord (dat je kunt blijven gebruiken of op de volgende pagina kunt wijzigen).\\nVervolgens kunnen gebruikers van deze én andere providers met jou communiceren via dit XMPP-adres.</string>
+    <string name="magic_create_text">We leiden je door het proces van het aanmaken van een account met een willekeurig wachtwoord (dat je kunt blijven gebruiken of op de volgende pagina kunt wijzigen).\n \nVervolgens kunnen gebruikers van deze én andere providers met jou communiceren via dit XMPP-adres.</string>
     <string name="battery_optimizations_enabled_explained">Dit apparaat voert sterke batterijoptimalisaties uit op %1$s die kunnen leiden tot vertraagde meldingen of zelfs verlies van berichten.\nHet is aanbevolen om deze optimalisaties uit te schakelen.</string>
     <string name="pref_broadcast_last_activity">Laatste gebruikersinteractie uitzenden</string>
     <string name="delivery_failed_channel_name">Mislukte leveringen</string>
@@ -1259,7 +1259,7 @@
     <string name="add_reaction">Reactie toevoegen…</string>
     <string name="add_reaction_title">Reactie toevoegen</string>
     <string name="more_reactions">Meer reacties</string>
-    <string name="do_you_have_an_account">Heb je al een XMPP-adres/Jabber-ID? Dit kan het geval zijn als je al een andere XMPP-client gebruikt of eerder monocles chat, Conversations of Snikket hebt gebruikt. Zo niet, dan kun je nu een nieuw XMPP-adres aanmaken.</string>
+    <string name="do_you_have_an_account">Heb je al een XMPP-adres? Dit kan het geval zijn als je al een andere XMPP-client gebruikt of eerder monocles chat, Conversations of Snikket hebt gebruikt. Zo niet, dan kun je nu een nieuw XMPP-adres aanmaken.</string>
     <string name="server_select_text">XMPP is een provider-onafhankelijk instant messaging-netwerk. Je kunt deze client gebruiken met iedere XMPP-dienst.</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_next">Volgende</string>
@@ -1284,7 +1284,7 @@
     <string name="group_chats_and_channels"><![CDATA[Groepsgesprekken & kanalen]]></string>
     <string name="compose_using_rich_text_summary">Het invoerveld toont de opmaak tijdens het typen</string>
     <string name="compose_using_rich_text">Tekstopmaak gebruiken</string>
-    <string name="xmpp_network_description">Het XMPP-netwerk wordt aangedreven door het protocol XMPP. Het is een gedecentraliseerd netwerk, wat betekent dat niemand het hele netwerk bezit of controleert. Het is ook gefedereerd, wat betekent dat iedereen een XMPP-dienst kan draaien. Berichten naar andere XMPP-gebruikers zijn standaard end-to-end versleuteld met OMEMO.\n\nXMPP-adressen (ook wel Jabber-IDs genoemd) lijken op e-mailadressen:</string>
+    <string name="xmpp_network_description">Het XMPP-netwerk wordt aangedreven door het protocol XMPP. Het is een gedecentraliseerd netwerk, wat betekent dat niemand het hele netwerk bezit of controleert. Het is ook gefedereerd, wat betekent dat iedereen een XMPP-dienst kan draaien. Berichten naar andere XMPP-gebruikers zijn standaard end-to-end versleuteld met OMEMO.\n\nXMPP-adressen lijken op e-mailadressen:</string>
     <string name="example_jid">gebruiker@monocles.eu</string>
     <string name="view_privacy_policy">Privacybeleid bekijken</string>
     <string name="follow_system_dark_mode">Systeeminstelling volgen</string>
@@ -1509,4 +1509,20 @@
     <string name="message_is_too_long">Bericht is te lang</string>
     <string name="you_retracted_this_message">Je hebt dit bericht verwijderd</string>
     <string name="cannot_retract_message_no_id">Kan dit bericht zonder ID niet verwijderen.</string>
+    <string name="pref_custom_resource_name_dialog_title">Vul een naam in</string>
+    <string name="pref_custom_resource_name">Aangepaste identificatie voor deze app</string>
+    <string name="pref_custom_resource_name_summary">Stel de naam in waarmee anderen je gebruik van deze app in je profiel kunnen zien</string>
+    <string name="edit_sytemaccount_or_xmppaccount">XMPP-contact of contact in je Android-adresboek bewerken?</string>
+    <string name="edit_sytemaccount">Adresboek</string>
+    <string name="edit_chat_contact">XMPP</string>
+    <string name="restart_onboarding">Onboarding opnieuw starten</string>
+    <string name="cannot_pin_empty_content">Kan geen leeg bericht vastzetten</string>
+    <string name="image_attachment">Afbeelding</string>
+    <string name="pinned_image_preview">Vastgezette afbeelding</string>
+    <string name="pinned_text_preview">Vastgezet bericht</string>
+    <string name="pinned_item">Vastgezet item</string>
+    <string name="pinned_video_preview">Vastgezette video</string>
+    <string name="video_attachment">Video</string>
+    <string name="pinned_audio_with_text_preview">Vastgezette audio</string>
+    <string name="pinned_audio_no_preview">Vastgezet geluidsbestand</string>
 </resources>

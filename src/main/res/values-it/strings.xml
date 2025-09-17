@@ -510,9 +510,7 @@
     <string name="no_storage_permission">Dai a %1$s l\'accesso all\'archiviazione esterna</string>
     <string name="no_camera_permission">Dai a %1$s l\'accesso alla fotocamera</string>
     <string name="sync_with_contacts">Integrazione della lista contatti</string>
-    <string name="sync_with_contacts_long">%1$s legge l\'elenco dei tuoi contatti in locale, sul tuo dispositivo, per mostrarti i nomi e le immagini dei profili in modo da far combaciare i contatti su XMPP.
-\n
-\nI dati dell\'elenco dei contatti non lasciano mai il dispositivo!</string>
+    <string name="sync_with_contacts_long">%1$s legge l\'elenco dei tuoi contatti in locale, sul tuo dispositivo, per mostrarti i nomi e le immagini dei profili in modo da far combaciare i contatti su XMPP. \n \nI dati dell\'elenco dei contatti non lasciano mai il dispositivo!</string>
     <string name="notify_on_all_messages">Notifica per tutti i messaggi</string>
     <string name="notify_only_when_highlighted">Notifica solo quando menzionato</string>
     <string name="notify_never">Notifiche disattivate</string>

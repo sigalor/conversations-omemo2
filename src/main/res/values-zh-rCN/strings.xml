@@ -62,7 +62,7 @@
     <string name="save">保存</string>
     <string name="ok">确定</string>
     <string name="crash_report_title">%1$s 崩溃了</string>
-    <string name="crash_report_message">使用您的 XMPP 账号发送崩溃报告有助于 %1$s 的持续开发。</string>
+    <string name="crash_report_message">使用您的 XMPP 地址发送崩溃报告有助于 %1$s 的持续开发。</string>
     <string name="send_now">立即发送</string>
     <string name="send_never">不再询问</string>
     <string name="problem_connecting_to_account">无法连接到账号</string>
@@ -516,7 +516,7 @@
     <string name="no_storage_permission">授予 %1$s 访问外部存储的权限</string>
     <string name="no_camera_permission">授予 %1$s 访问相机的权限</string>
     <string name="sync_with_contacts">联系人列表集成</string>
-    <string name="sync_with_contacts_long">%1$s 在您的设备上本地处理您的联系人列表，以向您显示 XMPP 上匹配联系人的名称和个人资料照片。 \n \n任何联系人列表数据都不会离开您的设备！</string>
+    <string name="sync_with_contacts_long">%1$s 在您的设备上本地处理您的联系人列表，以向您显示 XMPP 上匹配联系人的名称和个人资料照片。 \n\n任何联系人列表数据都不会离开您的设备！</string>
     <string name="notify_on_all_messages">通知所有消息</string>
     <string name="notify_only_when_highlighted">仅在提及时通知</string>
     <string name="notify_never">通知已禁用</string>
@@ -540,7 +540,7 @@
     <string name="no_application_to_share_uri">未找到可以分享 URI 的应用</string>
     <string name="share_uri_with">分享 URI…</string>
     <string name="agree_and_continue">同意并继续</string>
-    <string name="magic_create_text">我们将引导您完成创建账号的流程，将会为您生成随机密码。您可以在下一页使用该密码或将其更改为您自己的密码。\\n之后，您只需向本服务提供者和其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方互通消息。</string>
+    <string name="magic_create_text">我们将引导您使用随机密码创建账号，您可以在下一页更改此密码。\n之后，您只需向本服务提供者和其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方互通消息。</string>
     <string name="your_full_jid_will_be">您的完整 XMPP 地址将是：%s</string>
     <string name="create_account">创建账号</string>
     <string name="use_own_provider">使用我自己的提供者</string>
@@ -940,8 +940,8 @@
     <string name="search_this_conversation">此聊天</string>
     <string name="your_avatar">您的头像</string>
     <string name="avatar_for_x">%s 的头像</string>
-    <string name="encrypted_with_omemo">用 OMEMO 加密</string>
-    <string name="encrypted_with_openpgp">用 OpenPGP 加密</string>
+    <string name="encrypted_with_omemo">使用 OMEMO 加密</string>
+    <string name="encrypted_with_openpgp">使用 OpenPGP 加密</string>
     <string name="not_encrypted">未加密</string>
     <string name="exit">退出</string>
     <string name="record_voice_mail">录制语音留言</string>
@@ -971,7 +971,7 @@
     <string name="audio_video_disabled_tor">使用 Tor 时会禁用通话</string>
     <string name="switch_to_video">切换到视频</string>
     <string name="reject_switch_to_video">拒绝视频切换请求</string>
-    <string name="pref_up_push_account_title">XMPP 账号</string>
+    <string name="pref_up_push_account_title">账号</string>
     <string name="pref_up_push_server_title">推送服务器</string>
     <string name="no_account_deactivated">无（已停用）</string>
     <string name="unified_push_distributor">UnifiedPush 分发程序</string>
@@ -992,7 +992,7 @@
     <string name="log_in">登录</string>
     <string name="hide_notification">隐藏通知</string>
     <string name="contact_uses_unverified_keys">对方使用未经验证的设备。扫描其二维码进行验证并阻止主动式中间人攻击。</string>
-    <string name="log_out">退出</string>
+    <string name="log_out">登出</string>
     <string name="account_state_logged_out">已登出</string>
     <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证并阻止主动式中间人攻击。</string>
     <string name="report_spam_and_block">举报垃圾信息并屏蔽垃圾信息发送者</string>
@@ -1280,7 +1280,7 @@
     <string name="request_to_speak">请求发言权</string>
     <string name="subject">主题</string>
     <string name="magic_create_text_on_x">您已受邀加入 %1$s。我们将引导您完成创建账号的流程。\n当选择 %1$s 作为服务提供者时，您只需向其他服务提供者的用户提供您的完整 XMPP 地址，即可与对方互通消息。</string>
-    <string name="do_you_have_an_account">您是否已有 XMPP 账号？如果您已经在使用其他 XMPP 客户端或之前使用过 monocles chat、Conversations 或 Snikket 等客户端，可能已经有账号了。如果没有，您现在就可以创建新账号。</string>
+    <string name="do_you_have_an_account">您是否已有 XMPP 地址？如果您已经在使用其他 XMPP 客户端或之前使用过 monocles chat、Conversations 或 Snikket 等客户端，可能已经拥有了。如果没有，您现在就可以创建新地址。</string>
     <string name="pref_dialler_integration_incoming_summary">来自电话号码的来电可能会用您的系统拨号器而不是此应用的通知设置响铃</string>
     <string name="moderate_reason">审核撤回原因</string>
     <string name="out_of_memory_error">内存不足错误</string>
@@ -1405,8 +1405,8 @@
     <string name="show_media_summary">是否在系统图库中显示接收和发送的媒体？</string>
     <string name="pref_hide_media_title">在图库中隐藏媒体</string>
     <string name="pref_hide_media_summary">在系统图库视图中隐藏接收和发送的媒体</string>
-    <string name="pref_secure_tls_summary">如果服务器支持，仅使用最安全的 TLS 加密</string>
-    <string name="pref_secure_tls">仅最安全的 TLS 加密</string>
+    <string name="pref_secure_tls_summary">如果服务器支持，仅使用最安全的 TLS 密码套件</string>
+    <string name="pref_secure_tls">仅最安全的 TLS 密码套件</string>
     <string name="pref_export_plain_text_logs_summary">以人类可读的纯文本导出未加密消息</string>
     <string name="delete_avatar_message">是否删除头像？部分客户端可能会继续显示已缓存的头像副本。</string>
     <string name="pref_prefer_ipv6">首选 IPv6</string>
@@ -1515,4 +1515,20 @@
     <string name="cannot_retract_message_no_id">无法撤回消息，没有 ID。</string>
     <string name="message_was_retracted_by">消息已撤回，由</string>
     <string name="message_retracted">消息已撤回</string>
+    <string name="pref_custom_resource_name">自定义客户端资源名称</string>
+    <string name="pref_custom_resource_name_summary">为客户端的资源设置自定义名称</string>
+    <string name="pref_custom_resource_name_dialog_title">输入自定义资源名称</string>
+    <string name="edit_sytemaccount_or_xmppaccount">编辑聊天联系人还是电话联系人？</string>
+    <string name="edit_sytemaccount">电话联系人</string>
+    <string name="edit_chat_contact">聊天联系人</string>
+    <string name="restart_onboarding">重新开始新手引导</string>
+    <string name="cannot_pin_empty_content">无法置顶空内容</string>
+    <string name="image_attachment">图片附件</string>
+    <string name="pinned_image_preview">置顶的图片</string>
+    <string name="pinned_text_preview">置顶的文本</string>
+    <string name="pinned_item">置顶的项目</string>
+    <string name="pinned_video_preview">置顶的视频</string>
+    <string name="video_attachment">视频附件</string>
+    <string name="pinned_audio_with_text_preview">置顶的音频</string>
+    <string name="pinned_audio_no_preview">置顶的音频文件</string>
 </resources>
