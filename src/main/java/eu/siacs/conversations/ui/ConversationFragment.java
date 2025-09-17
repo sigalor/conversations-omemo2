@@ -6672,7 +6672,7 @@ public class ConversationFragment extends XmppFragment
                             if (currentDisplayedPinnedMessageUuid != null) {
                                 Log.d(Config.LOGTAG, "Jumping to pinned message with UUID: " + currentDisplayedPinnedMessageUuid);
                                 Runnable postSelectionRunnable = () -> highlightMessage(currentDisplayedPinnedMessageUuid);
-                                updateSelection(currentDisplayedPinnedMessageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, true, false);
+                                updateSelection(currentDisplayedPinnedMessageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
                             }
                         });
 
