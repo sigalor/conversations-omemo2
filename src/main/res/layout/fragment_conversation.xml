@@ -170,12 +170,14 @@
                             android:scrollbars="vertical"
                             android:textAppearance="?textAppearanceCaption" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/pinned_message_image_thumbnail"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
                             android:visibility="gone"
+                            app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo"
                             tools:src="@tools:sample/backgrounds/scenic"
                             tools:visibility="visible" />
 
