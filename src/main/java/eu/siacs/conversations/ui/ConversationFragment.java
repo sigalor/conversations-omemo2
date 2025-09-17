@@ -6587,7 +6587,7 @@ public class ConversationFragment extends XmppFragment
                         binding.pinnedMessageText.setVisibility(View.GONE);
                         binding.pinnedMessageImageThumbnail.setVisibility(View.GONE);
                         binding.pinnedMessageFileIcon.setVisibility(View.GONE);
-                        String contentDescriptionForContainer = activity.getString(R.string.pinned_item);
+                        String contentDescriptionForContainer;
 
                         if (pinnedData.cid != null && isDisplayableMediaCid(pinnedData.cid)) { // You'll need an isDisplayableMediaCid helper
                             binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
