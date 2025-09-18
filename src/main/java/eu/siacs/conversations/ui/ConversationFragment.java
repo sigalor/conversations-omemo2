@@ -4773,42 +4773,6 @@ public class ConversationFragment extends XmppFragment
                     } else {
                         binding.tuneSubject.setVisibility(View.GONE);
                     }
-
-                    binding.pinnedMessageContainer.setOnLongClickListener(view -> {
-                        // Initializing the popup menu and giving the reference as current context
-                        PopupMenu popupMenu = new PopupMenu(activity, binding.pinnedMessageContainer);
-
-                        // Inflating popup menu from popup_menu.xml file
-                        popupMenu.getMenuInflater().inflate(R.menu.pinned_message, popupMenu.getMenu());
-
-                        //Get text from pinned message TextView
-                        Message pinnedMessageText = new Message(conversation, binding.pinnedMessageText.getText().toString(), conversation.getNextEncryption());
-
-                        // Handling menu item click events
-                        popupMenu.setOnMenuItemClickListener(menuItem -> {
-                            switch (menuItem.getItemId()) {
-                                case R.id.share_with:
-                                    ShareUtil.share(activity, pinnedMessageText);
-                                    break;
-                                case R.id.copy_message:
-                                    ShareUtil.copyToClipboard(activity, pinnedMessageText);
-                                    break;
-                                case R.id.quote_message:
-                                    quoteMessage(pinnedMessageText);
-                                    break;
-                            }
-                            return true;
-                        });
-
-                        // Showing the popup menu
-                        popupMenu.show();
-
-                        return true;
-                    });
-                    // empty Pinned message when click on Pinned message hide
-                    binding.pinnedMessageHide.setOnClickListener(v -> {
-                        unpinCurrentDisplayedMessage();
-                    });
                 });
             }
         }
@@ -6549,8 +6513,6 @@ public class ConversationFragment extends XmppFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.binding.pinnedMessageText.setMovementMethod(new ScrollingMovementMethod());
-        this.binding.pinnedMessageText.setTextIsSelectable(true);
         try {
             loadMediaFromBackground();
         } catch (Exception e) {
