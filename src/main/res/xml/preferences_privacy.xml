@@ -105,7 +105,7 @@
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:disableDependentsState="true"
-            android:icon="@drawable/ic_play_circle_24dp"
+            android:icon="@drawable/rounded_play_arrow_36"
             android:key="load_now_playing_from_system"
             android:title="@string/pref_send_now_playing"
             android:summary="@string/pref_auto_update_now_playing" />
