@@ -17,7 +17,6 @@
 * Fix reply click to scroll to replied message
 * Allow sending replies with OMEMO
 * Allow reply to yourself
-* Update XEP-0118 status and add XEP-0461 to doap file
 * Fix message replies fallback
 * Directly open all reactions choice when tapping on add additional reaction
 * Allow pinning images and files to the top

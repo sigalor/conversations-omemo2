@@ -17,7 +17,6 @@
 * Klick zum Scrollen zur beantworteten Nachricht korrigieren
 * Antworten mit OMEMO zulassen
 * Antworten an sich selbst zulassen
-* Status von XEP-0118 aktualisieren und XEP-0461 zur DOAP-Datei hinzufügen
 * Fallback für Nachrichtenantworten beheben
 * Alle Reaktionsoptionen direkt öffnen, wenn auf „Weitere Reaktion hinzufügen” getippt wird
 * Bilder und Dateien oben anheften
