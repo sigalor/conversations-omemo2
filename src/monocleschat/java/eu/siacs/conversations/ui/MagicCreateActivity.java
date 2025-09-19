@@ -120,25 +120,25 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             binding.instructions.setText(getString(R.string.magic_create_text_fixed, domain));
             binding.username.setEnabled(false);
             binding.username.setText(this.username);
-            updateFullJidInformation(this.username);
-            // Hide server selection
+            domains.clear();
+            domains.add(this.domain);
+            adapter.notifyDataSetChanged();
+            binding.server.setSelection(0);
             binding.servertitle.setVisibility(View.GONE);
-            binding.loadProvidersListExternalText.setVisibility(View.GONE);
-            binding.server.setEnabled(false);
             binding.server.setVisibility(View.GONE);
-            binding.useOwn.setEnabled(false);
-            binding.useOwn.setChecked(true);
             binding.useOwn.setVisibility(View.GONE);
+            binding.loadProvidersListExternalText.setVisibility(View.GONE);
+            updateFullJidInformation(this.username);
         } else if (domain != null) {
             binding.instructions.setText(getString(R.string.magic_create_text_on_x, domain));
-            // Hide server selection
+            domains.clear();
+            domains.add(this.domain);
+            adapter.notifyDataSetChanged();
+            binding.server.setSelection(0);
             binding.servertitle.setVisibility(View.GONE);
-            binding.loadProvidersListExternalText.setVisibility(View.GONE);
-            binding.server.setEnabled(false);
             binding.server.setVisibility(View.GONE);
-            binding.useOwn.setEnabled(false);
-            binding.useOwn.setChecked(true);
             binding.useOwn.setVisibility(View.GONE);
+            binding.loadProvidersListExternalText.setVisibility(View.GONE);
         }
         binding.createAccount.setOnClickListener(v -> {
             try {
