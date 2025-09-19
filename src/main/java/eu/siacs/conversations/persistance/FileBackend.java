@@ -895,10 +895,12 @@ public class FileBackend {
         try {
             setupRelativeFilePath(message, uri, extension);
             copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
+            /*  //TODO for now we don't use the original filename
             final String name = getDisplayNameFromUri(uri);
             if (name != null) {
                 message.getFileParams().setName(name);
             }
+            */
         } catch (final XmppConnectionService.BlockedMediaException e) {
             message.setRelativeFilePath(null);
             message.setDeleted(true);

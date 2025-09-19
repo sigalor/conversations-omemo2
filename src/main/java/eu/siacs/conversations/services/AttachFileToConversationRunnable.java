@@ -71,6 +71,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
                 message.setEncryption(encryption);
                 mXmppConnectionService.sendMessage(message, () -> callback.success(message));
             });
+            /*      // TODO for now we copy all files to private storage
         } else if (path != null && !FileBackend.isPathBlacklisted(path)) {
             message.setRelativeFilePath(path);
             mXmppConnectionService.getFileBackend().updateFileParams(message);
@@ -79,6 +80,7 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
             } else {
                 mXmppConnectionService.sendMessage(message, () -> callback.success(message));
             }
+             */
         } else {
             try {
                 mXmppConnectionService
