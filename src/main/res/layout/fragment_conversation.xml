@@ -167,7 +167,6 @@
                             android:maxLines="6"
                             android:ellipsize="end"
                             android:freezesText="true"
-                            android:autoLink="web"
                             android:textAppearance="?textAppearanceCaption" />
 
                         <com.google.android.material.imageview.ShapeableImageView
