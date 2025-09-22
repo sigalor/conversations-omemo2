@@ -365,7 +365,7 @@ public class Conversation extends AbstractEntity
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
-                if (message.isDeleted() || message.getRetractId() != null) continue;
+                if (message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (asReaction(message) != null) continue;
                 if (message.isRead()) {
@@ -384,7 +384,7 @@ public class Conversation extends AbstractEntity
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
-                if (message.isDeleted() || message.getRetractId() != null) continue;
+                if (message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (asReaction(message) != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
@@ -805,8 +805,8 @@ public class Conversation extends AbstractEntity
         for (ListIterator<Message> iterator = messages.listIterator(messages.size()); iterator.hasPrevious(); ) {
             Message m = iterator.previous();
 
-            // **New Check: Remove deleted or retracted messages**
-            if (m.isDeleted() || m.getRetractId() != null) {
+            // **New Check: retracted messages**
+            if (m.getRetractId() != null) {
                 iterator.remove();
                 continue; // Move to the next message
             }
@@ -1092,8 +1092,8 @@ public class Conversation extends AbstractEntity
         synchronized (this.messages) {
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
-                // **NEW CHECK: Skip deleted or retracted messages**
-                if (message.isDeleted() || message.getRetractId() != null) {
+                // **NEW CHECK: Skip retracted messages**
+                if (message.getRetractId() != null) {
                     message.markRead();
                     continue;
                 }
@@ -1698,7 +1698,7 @@ public class Conversation extends AbstractEntity
 
     public void add(Message message) {
         checkSpam(message);
-        if (message.isDeleted() || message.getRetractId() != null) {
+        if (message.getRetractId() != null) {
             return; // Don't add it
         }
         synchronized (this.messages) {
@@ -1708,7 +1708,7 @@ public class Conversation extends AbstractEntity
 
     public void prepend(int offset, Message message) {
         checkSpam(message);
-        if (message.isDeleted() || message.getRetractId() != null) {
+        if (message.getRetractId() != null) {
             return; // Don't add it
         }
         List<Message> properListToAdd;
@@ -1733,7 +1733,7 @@ public class Conversation extends AbstractEntity
         checkSpam(messages.toArray(new Message[0]));
         List<Message> filteredMessages = new ArrayList<>();
         for (Message message : messages) {
-            if (message.isDeleted() || message.getRetractId() != null) {
+            if (message.getRetractId() != null) {
                 // Optionally, ensure it's removed from the main list if it could exist there
                 synchronized (this.messages) {
                     this.messages.remove(message);
@@ -1818,7 +1818,7 @@ public class Conversation extends AbstractEntity
             for (final Message message : Lists.reverse(this.messages)) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
-                if (message.isDeleted() || message.getRetractId() != null) continue;
+                if (message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 final boolean muted = xmppConnectionService != null && message.getStatus() == Message.STATUS_RECEIVED && getMode() == Conversation.MODE_MULTI && xmppConnectionService.isMucUserMuted(new MucOptions.User(null, getJid(), message.getOccupantId(), null, null));
                 if (muted) continue;
@@ -1840,7 +1840,7 @@ public class Conversation extends AbstractEntity
             for (Message message : messages) {
                 if (message.getSubject() != null && !message.isOOb() && (message.getRawBody() == null || message.getRawBody().length() == 0)) continue;
                 if (asReaction(message) != null) continue;
-                if (message.isDeleted() || message.getRetractId() != null) continue;
+                if (message.getRetractId() != null) continue;
                 if ((message.getRawBody() == null || "".equals(message.getRawBody()) || " ".equals(message.getRawBody())) && message.getReply() != null && message.edited() && message.getHtml() != null) continue;
                 if (message.getStatus() == Message.STATUS_RECEIVED) {
                     ++count;
@@ -1900,7 +1900,7 @@ public class Conversation extends AbstractEntity
         synchronized (this.messages) {
             for (int i = messages.size() - 1; i >= 0; i--) {
                 final Message message = messages.get(i);
-                if (message.isDeleted() || message.getRetractId() != null) continue;
+                if (message.getRetractId() != null) continue;
                 if (uuid.equals(message.getUuid())) {
                     return count;
                 }
