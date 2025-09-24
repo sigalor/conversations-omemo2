@@ -6549,7 +6549,6 @@ public class ConversationFragment extends XmppFragment
                         binding.pinnedMessageText.setVisibility(View.GONE);
                         binding.pinnedMessageImageThumbnail.setVisibility(View.GONE);
                         binding.pinnedMessageFileIcon.setVisibility(View.GONE);
-                        String contentDescriptionForContainer;
 
                         if (pinnedData.cid != null && isDisplayableMediaCid(pinnedData.cid)) { // You'll need an isDisplayableMediaCid helper
                             binding.pinnedMessageImageThumbnail.setVisibility(View.VISIBLE);
@@ -6572,16 +6571,6 @@ public class ConversationFragment extends XmppFragment
                                     binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
                                 }
                             }
-                            // Set content description for accessibility
-                            if (isVideoCid(pinnedData.cid)) {
-                                contentDescriptionForContainer = activity.getString(R.string.pinned_video_preview,
-                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : activity.getString(R.string.video_attachment));
-                            } else {
-                                contentDescriptionForContainer = activity.getString(R.string.pinned_image_preview,
-                                        pinnedData.plaintextBody != null ? pinnedData.plaintextBody : activity.getString(R.string.image_attachment));
-                            }
-                            binding.pinnedMessageImageThumbnail.setContentDescription(contentDescriptionForContainer);
-
                         } else if (pinnedData.cid != null && isAudioCid(pinnedData.cid)) { // Audio File
                             // TODO: Add audio player directly in the pinned message container
                             binding.pinnedMessageFileIcon.setVisibility(View.VISIBLE);
@@ -6591,11 +6580,7 @@ public class ConversationFragment extends XmppFragment
                                 binding.pinnedMessageText.setVisibility(View.VISIBLE);
                                 // Optional: Adjust layout if text and icon are shown together
                                 // e.g., move text to the side of the icon, or ensure enough padding.
-                                contentDescriptionForContainer = activity.getString(R.string.pinned_audio_with_text_preview, pinnedData.plaintextBody);
-                            } else {
-                                contentDescriptionForContainer = activity.getString(R.string.pinned_audio_no_preview);
                             }
-                            binding.pinnedMessageFileIcon.setContentDescription(contentDescriptionForContainer);
                         } else if (pinnedData.cid != null) { // Generic file
                             // TODO: Set appropriate file icon based on MIME type derived from CID or filename
                             binding.pinnedMessageFileIcon.setImageResource(R.drawable.ic_description_24dp); // Helper needed
@@ -6613,13 +6598,10 @@ public class ConversationFragment extends XmppFragment
                             } else {
                                 binding.pinnedMessageText.setText(pinnedData.plaintextBody);
                                 binding.pinnedMessageText.setVisibility(View.VISIBLE);
-                                // Set content description for accessibility
                             }
                         } else if (pinnedData.plaintextBody != null && !pinnedData.plaintextBody.isEmpty()) { // Text only
                             binding.pinnedMessageText.setText(pinnedData.plaintextBody);
                             binding.pinnedMessageText.setVisibility(View.VISIBLE);
-                            // Set content description for accessibility
-                            binding.pinnedMessageText.setContentDescription(activity.getString(R.string.pinned_text_preview, pinnedData.plaintextBody));
                         } else {
                             // Should not happen if validation in repository is correct, but good to handle
                             hidePinnedMessageView();
