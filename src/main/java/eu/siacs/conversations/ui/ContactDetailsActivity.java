@@ -1081,6 +1081,10 @@ public class ContactDetailsActivity extends OmemoActivity
                     binding.command.setText(uri.getSchemeSpecificPart());
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.wownero_24dp), null, null, null);
                     binding.command.setCompoundDrawablePadding(20);
+                } else if (uri.getScheme().equals("taler")) {
+                    binding.command.setText(uri.getSchemeSpecificPart());
+                    binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.taler_icon_24dp), null, null, null);
+                    binding.command.setCompoundDrawablePadding(20);
                 } else if (uri.getScheme().equals("https") && "liberapay.com".equals(uri.getHost())) {
                     binding.command.setText(uri.getPath().substring(1));
                     binding.command.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.liberapay), null, null, null);

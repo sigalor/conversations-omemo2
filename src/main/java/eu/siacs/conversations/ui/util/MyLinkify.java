@@ -140,6 +140,7 @@ public class MyLinkify {
         Linkify.addLinks(body, Patterns.ETHEREUM_URI, "ethereum");
         Linkify.addLinks(body, Patterns.MONERO_URI, "monero");
         Linkify.addLinks(body, Patterns.WOWNERO_URI, "wownero");
+        Linkify.addLinks(body, Patterns.URI_TALER, "taler");
         Linkify.addLinks(body, Patterns.AUTOLINK_WEB_URL, "http", WEBURL_MATCH_FILTER, WEBURL_TRANSFORM_FILTER);
         if (includeGeo) {
             Linkify.addLinks(body, GeoHelper.GEO_URI, "geo");

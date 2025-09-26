@@ -1071,6 +1071,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             final var formattedAmount = amount == null || amount.isEmpty() ? "" : amount + " ";
             viewHolder.downloadButton().setIconResource(R.drawable.wownero_24dp);
             viewHolder.downloadButton().setText("Send " + formattedAmount + "Wownero");
+        } else if ("taler".equals(uri.getScheme())) {
+            final var amount = uri.getQueryParameter("amount");
+            final var formattedAmount = amount == null || amount.isEmpty() ? "" : amount + " ";
+            viewHolder.downloadButton().setIconResource(R.drawable.taler_icon_24dp);
+            viewHolder.downloadButton().setText("Send " + formattedAmount + "Taler");
         }
         viewHolder.downloadButton().setOnClickListener(v -> new FixedURLSpan(message.getRawBody()).onClick(v));
     }

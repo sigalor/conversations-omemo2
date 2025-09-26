@@ -66,6 +66,8 @@ public class Patterns {
                     + "\\;\\/\\?\\@\\&\\=\\#\\~\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_])"
                     + "|(?:\\%[a-fA-F0-9]{2}))+)?");
 
+    public static final Pattern URI_TALER = Pattern.compile("taler://\\S+");
+
     /**
      *  Regular expression to match all IANA top-level domains.
      *  List accurate as of 2011/07/18.  List taken from:

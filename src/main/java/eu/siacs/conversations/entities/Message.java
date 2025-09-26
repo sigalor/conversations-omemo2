@@ -1446,7 +1446,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public synchronized Uri wholeIsKnownURI() {
         if (wholeIsKnownURI != null) return wholeIsKnownURI;
 
-        if (Patterns.BITCOIN_URI.matcher(body).matches() ||Patterns.BITCOINCASH_URI.matcher(body).matches() || Patterns.ETHEREUM_URI.matcher(body).matches() || Patterns.MONERO_URI.matcher(body).matches() || Patterns.WOWNERO_URI.matcher(body).matches()) {
+        if (Patterns.BITCOIN_URI.matcher(body).matches() ||Patterns.BITCOINCASH_URI.matcher(body).matches() || Patterns.ETHEREUM_URI.matcher(body).matches() || Patterns.MONERO_URI.matcher(body).matches() || Patterns.WOWNERO_URI.matcher(body).matches() || Patterns.URI_TALER.matcher(body).matches()) {
             wholeIsKnownURI = Uri.parse(body.replace(":", "://")); // hack to make query parser work
         }
 
