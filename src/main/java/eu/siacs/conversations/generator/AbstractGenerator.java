@@ -46,6 +46,9 @@ public abstract class AbstractGenerator {
             "urn:xmpp:chat-markers:0", "urn:xmpp:receipts"
     };
     private final String[] MESSAGE_CORRECTION_FEATURES = {"urn:xmpp:message-correct:0"};
+    private final String[] MESSAGE_RETRACTION_FEATURES = {
+            "urn:xmpp:message-retract:0"
+    };
     private final String[] PRIVACY_SENSITIVE = {
             "urn:xmpp:time" // XEP-0202: Entity Time leaks time zone
     };
@@ -121,6 +124,7 @@ public abstract class AbstractGenerator {
         }
         if (mXmppConnectionService.allowMessageCorrection()) {
             features.addAll(Arrays.asList(MESSAGE_CORRECTION_FEATURES));
+            features.addAll(Arrays.asList(MESSAGE_RETRACTION_FEATURES));
         }
         if (Config.supportOmemo()) {
             features.add(AxolotlService.PEP_DEVICE_LIST_NOTIFY);
