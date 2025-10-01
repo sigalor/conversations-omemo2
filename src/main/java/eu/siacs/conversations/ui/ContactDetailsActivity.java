@@ -1019,8 +1019,7 @@ public class ContactDetailsActivity extends OmemoActivity
                     int limit = GridManager.getCurrentColumnCount(binding.media);
                     mMediaAdapter.setAttachments(
                             attachments.subList(0, Math.min(limit, attachments.size())));
-                    binding.mediaWrapper.setVisibility(
-                            attachments.size() > 0 ? View.VISIBLE : View.GONE);
+                    binding.showMedia.setVisibility(attachments.size() > 0 ? View.VISIBLE : View.GONE);
                 });
     }
 
