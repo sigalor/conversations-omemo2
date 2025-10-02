@@ -2115,13 +2115,7 @@ public class XmppConnection implements Runnable {
             return;
         }
         clearIqCallbacks();
-        /*
-        if (account.getJid().isBareJid()) {
-            account.setResource(createNewResource());
-        } else {
-            fixResource(mXmppConnectionService, account);
-        }
-        */
+
         // New resource setting
         Context context = mXmppConnectionService.getApplicationContext();
         String clientResource = getEffectiveClientResource(context);
@@ -2171,7 +2165,7 @@ public class XmppConnection implements Runnable {
                         if (packet.getType() == Iq.Type.ERROR
                                 && error != null
                                 && error.hasChild("conflict")) {
-                            account.setResource(createNewResource());
+                            account.setResource(clientResource);
                         }
                         throw new StateChangingError(Account.State.BIND_FAILURE);
                     }
@@ -2516,7 +2510,9 @@ public class XmppConnection implements Runnable {
             if (loginInfo.saslVersion == SaslMechanism.Version.SASL_2) {
                 this.appSettings.resetInstallationId();
             }
-            account.setResource(createNewResource());
+            Context context = mXmppConnectionService.getApplicationContext();
+            String clientResource = getEffectiveClientResource(context);
+            account.setResource(clientResource);
             Log.d(
                     Config.LOGTAG,
                     account.getJid().asBareJid()
@@ -2634,10 +2630,6 @@ public class XmppConnection implements Runnable {
         stream.setAttribute("xmlns", Namespace.JABBER_CLIENT);
         stream.setAttribute("xmlns:stream", Namespace.STREAMS);
         tagWriter.writeTag(stream, flush);
-    }
-
-    private static String createNewResource() {
-        return String.format("%s.%s", BuildConfig.APP_NAME, CryptoHelper.random(3));
     }
 
     public String sendIqPacket(final Iq packet, final Consumer<Iq> callback) {
@@ -3359,7 +3351,7 @@ public class XmppConnection implements Runnable {
 
         if (customResource != null && !customResource.trim().isEmpty()) {
             Log.d(Config.LOGTAG, "Using custom resource: " + customResource);
-            return customResource;
+            return String.format("%s.%s", customResource, CryptoHelper.random(3));
         } else {
             // Fallback to original default resource generation logic
             String appName = "monocles chat"; // A sensible default
@@ -3369,8 +3361,8 @@ public class XmppConnection implements Runnable {
             } catch (Exception e) {
                 Log.w(Config.LOGTAG, "Could not get appName from BuildConfig, using default.",e);
             }
-            // String defaultResource = String.format("%s.%s", appName, CryptoHelper.random(3));
-            String defaultResource = String.format("%s", appName);
+            String defaultResource = String.format("%s.%s", appName, CryptoHelper.random(3));
+            // String defaultResource = String.format("%s", appName);
             Log.d(Config.LOGTAG, "Using default generated resource: " + defaultResource);
             return defaultResource;
 
