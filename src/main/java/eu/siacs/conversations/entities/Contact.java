@@ -31,6 +31,7 @@ import java.util.Objects;
 
 import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.Config;
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.android.AbstractPhoneContact;
 import eu.siacs.conversations.android.JabberIdContact;
 import eu.siacs.conversations.persistance.FileBackend;
@@ -221,7 +222,7 @@ public class Contact implements ListItem, Blockable {
     public List<Tag> getGroupTags() {
         final ArrayList<Tag> tags = new ArrayList<>();
         for (final String group : getGroups(true)) {
-            tags.add(new Tag(group, false));
+            tags.add(new Tag(group));
         }
         return tags;
     }
@@ -231,18 +232,16 @@ public class Contact implements ListItem, Blockable {
         final HashSet<Tag> tags = new HashSet<>();
         tags.addAll(getGroupTags());
         for (final String tag : getSystemTags(true)) {
-            tags.add(new Tag(tag, isActive()));
+            tags.add(new Tag(tag));
+        }
+        if (isBlocked()) {
+            tags.add(new Tag(context.getString(R.string.blocked)));
         }
         Presence.Status status = getShownStatus();
         if (!showInRoster() && getSystemAccount() != null) {
-            tags.add(new Tag("Android", isActive()));
+            tags.add(new Tag("Android"));
         }
         return new ArrayList<>(tags);
-    }
-
-    @Override
-    public boolean getActive() {
-        return isActive();
     }
 
     public boolean match(Context context, String needle) {

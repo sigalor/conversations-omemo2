@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemUserPreviewBinding;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
@@ -42,6 +43,14 @@ public class UserPreviewAdapter extends ListAdapter<MucOptions.User, UserPreview
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         final MucOptions.User user = getItem(position);
         AvatarWorkerTask.loadAvatar(user, viewHolder.binding.avatar, R.dimen.media_size);
+
+        Contact contact = user.getContact();
+        if (contact != null) {
+            viewHolder.binding.presenceIndicator.setStatus(user.getContact());
+        } else {
+            viewHolder.binding.presenceIndicator.setStatus(null);
+        }
+
         viewHolder
                 .binding
                 .getRoot()
@@ -51,7 +60,6 @@ public class UserPreviewAdapter extends ListAdapter<MucOptions.User, UserPreview
                             if (activity == null) {
                                 return;
                             }
-                            final var contact = user.getContact();
                             if (user.getRole() == MucOptions.Role.NONE && contact != null) {
                                 Toast.makeText(
                                                 activity,

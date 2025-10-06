@@ -42,6 +42,11 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center" >
+
                             <eu.siacs.conversations.ui.widget.AvatarView
                                 android:id="@+id/details_contact_badge"
                                 android:layout_width="@dimen/avatar_on_details_screen_size"
@@ -49,6 +54,18 @@
                                 android:scaleType="centerCrop"
                                 android:layout_marginBottom="24dp"
                                 android:layout_gravity="center" />
+
+                            <de.monocles.chat.widget.PresenceIndicator
+                                android:id="@+id/presence_indicator"
+                                android:layout_gravity="bottom|end"
+                                android:layout_width="@dimen/presence_indicator_size"
+                                android:layout_height="@dimen/presence_indicator_size"
+                                android:layout_marginEnd="@dimen/presence_indicator_offset"
+                                android:layout_marginBottom="@dimen/presence_indicator_offset"
+                                android:layout_alignBottom="@id/details_contact_badge"
+                                android:layout_alignEnd="@id/details_contact_badge" />
+
+                            </RelativeLayout>
 
                             <TextView
                                 android:id="@+id/details_contact_name"

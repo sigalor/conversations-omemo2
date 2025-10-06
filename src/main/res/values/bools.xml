@@ -25,4 +25,5 @@
     <bool name="use_i2p">false</bool>
     <bool name="load_image_from_any_link">false</bool>
     <bool name="pinned_status_message">true</bool>
+    <bool name="show_contact_status">true</bool>
 </resources>

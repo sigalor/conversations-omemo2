@@ -55,11 +55,6 @@ public class RawBlockable implements ListItem, Blockable {
     }
 
     @Override
-    public boolean getActive() {
-        return false;
-    }
-
-    @Override
     public boolean match(Context context, String needle) {
         if (TextUtils.isEmpty(needle)) {
             return true;

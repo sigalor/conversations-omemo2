@@ -14,6 +14,7 @@ import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.widget.TextView;
 import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
@@ -653,4 +654,27 @@ public class UIHelper {
         }
         return user;
     }
+
+    @Nullable
+    public static Integer getColorForStatus(Presence.Status status) {
+        if (status == null) {
+            return null;
+        }
+
+        switch (status) {
+            case CHAT:
+                return 0xff259b24;
+            case AWAY:
+                return 0xffff9800;
+            case XA:
+                return 0xfff44336;
+            case DND:
+                return 0xfff44336;
+            case ONLINE:
+                return 0xff259b24;
+            default:
+                return null;
+        }
+    }
+
 }

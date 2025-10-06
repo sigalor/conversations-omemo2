@@ -12,5 +12,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
+
+        <de.monocles.chat.widget.PresenceIndicator
+            android:id="@+id/presence_indicator"
+            android:layout_gravity="bottom|end"
+            android:layout_width="@dimen/presence_indicator_size"
+            android:layout_height="@dimen/presence_indicator_size"
+            android:layout_marginEnd="@dimen/presence_indicator_offset"
+            android:layout_marginBottom="@dimen/presence_indicator_offset" />
+
     </eu.siacs.conversations.ui.widget.SquareFrameLayout>
 </layout>

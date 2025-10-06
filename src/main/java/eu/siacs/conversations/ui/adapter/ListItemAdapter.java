@@ -23,6 +23,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
+import de.monocles.chat.widget.PresenceIndicator;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -153,11 +154,13 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		}
 		viewHolder.name.setText(item.getDisplayName());
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
-		if (item.getActive()) {
-			viewHolder.userActiveIndicator.setVisibility(View.VISIBLE);
+
+		if (item instanceof Contact) {
+			viewHolder.presenceIndicator.setStatus(((Contact) item));
 		} else {
-			viewHolder.userActiveIndicator.setVisibility(View.GONE);
+			viewHolder.presenceIndicator.setStatus(null);
 		}
+
 		return view;
 	}
 
@@ -178,7 +181,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		private View inner;
 		private ConstraintLayout tags;
 		private Flow flowWidget;
-		private ImageView userActiveIndicator;
+		private PresenceIndicator presenceIndicator;
 
 		private ViewHolder() {
 
@@ -193,7 +196,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			viewHolder.tags = binding.tags;
 			viewHolder.inner = binding.inner;
 			viewHolder.flowWidget = binding.flowWidget;
-			viewHolder.userActiveIndicator = binding.userActiveIndicator;
+			viewHolder.presenceIndicator = binding.presenceIndicator;
 			binding.getRoot().setTag(viewHolder);
 			return viewHolder;
 		}

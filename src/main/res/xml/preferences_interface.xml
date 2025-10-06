@@ -98,6 +98,12 @@
             android:summary="@string/pref_use_unicolored_chatbg_summary"
             android:title="@string/pref_use_unicolored_chatbg" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/show_contact_status"
+            android:icon="@drawable/active_indicator"
+            android:key="show_contact_status"
+            android:summary="@string/pref_show_contact_presence_details"
+            android:title="@string/pref_show_contact_presence" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/show_own_accounts"
             android:icon="@drawable/ic_person_24dp"
             android:key="show_own_accounts"

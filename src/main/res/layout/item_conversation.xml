@@ -26,16 +26,15 @@
                     android:layout_alignParentStart="true"
                     android:scaleType="centerCrop" />
 
-                <ImageView
-                    android:id="@+id/user_active_indicator"
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    android:layout_alignBottom="@+id/conversation_image"
-                    android:layout_alignEnd="@+id/conversation_image"
-                    android:layout_marginBottom="0dp"
-                    android:layout_marginEnd="2dp"
-                    android:visibility="gone"
-                    android:src="@drawable/active_indicator" />
+                <de.monocles.chat.widget.PresenceIndicator
+                    android:id="@+id/presence_indicator"
+                    android:layout_gravity="bottom|end"
+                    android:layout_width="@dimen/presence_indicator_size"
+                    android:layout_height="@dimen/presence_indicator_size"
+                    android:layout_marginEnd="@dimen/presence_indicator_offset"
+                    android:layout_marginBottom="@dimen/presence_indicator_offset"
+                    android:layout_alignBottom="@id/conversation_image"
+                    android:layout_alignEnd="@id/conversation_image" />
 
                 <RelativeLayout
                     android:layout_width="fill_parent"

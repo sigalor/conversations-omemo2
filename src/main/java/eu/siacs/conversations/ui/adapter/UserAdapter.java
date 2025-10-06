@@ -116,9 +116,11 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
                 viewHolder.binding.contactJid.setVisibility(View.VISIBLE);
                 viewHolder.binding.contactJid.setText(name);
             }
+            viewHolder.binding.presenceIndicator.setStatus(contact);
         } else {
             viewHolder.binding.contactDisplayName.setText(Strings.nullToEmpty(name));
             viewHolder.binding.contactJid.setText(ConferenceDetailsActivity.getStatus(viewHolder.binding.getRoot().getContext(), user, advancedMode));
+            viewHolder.binding.presenceIndicator.setStatus(null);
         }
         if (advancedMode && user.getPgpKeyId() != 0) {
             viewHolder.binding.key.setVisibility(View.VISIBLE);

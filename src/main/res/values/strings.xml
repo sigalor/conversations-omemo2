@@ -1528,4 +1528,6 @@
     <string name="video_attachment">Video attachment</string>
     <string name="pinned_audio_with_text_preview">Pinned audio</string>
     <string name="pinned_audio_no_preview">Pinned audio file</string>
+    <string name="pref_show_contact_presence_details">Show contact presence nearby contact avatar</string>
+    <string name="pref_show_contact_presence">Contact presence</string>
 </resources>

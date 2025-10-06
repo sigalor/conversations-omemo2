@@ -715,6 +715,9 @@ public class ContactDetailsActivity extends OmemoActivity
             ShowAvatarPopup(contact);
             return true;
         });
+
+        binding.presenceIndicator.setStatus(contact);
+
         binding.detailsContactKeys.removeAllViews();
         boolean hasKeys = false;
         final LayoutInflater inflater = getLayoutInflater();

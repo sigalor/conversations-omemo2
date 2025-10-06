@@ -1953,7 +1953,7 @@ public class StartConversationActivity extends XmppActivity
         }
 
         public void setTags(final List<ListItem.Tag> tags) {
-            ListItem.Tag channelTag = new ListItem.Tag("Channel", false);
+            ListItem.Tag channelTag = new ListItem.Tag("Channel");
             String needle = mSearchEditText == null ? "" : mSearchEditText.getText().toString().toLowerCase(Locale.US).trim();
             HashSet<String> parts = new HashSet<>(Arrays.asList(needle.split("[,\\s]+")));
             this.tags = tags.stream().filter(

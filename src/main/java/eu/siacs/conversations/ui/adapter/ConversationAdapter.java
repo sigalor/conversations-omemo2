@@ -17,6 +17,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.common.base.Optional;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemConversationBinding;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
@@ -138,6 +139,14 @@ public class ConversationAdapter
             viewHolder.binding.conversationName.setTypeface(null, Typeface.NORMAL);
         } else {
             viewHolder.binding.conversationName.setTypeface(null, Typeface.BOLD);
+        }
+
+        Contact contact = conversation.getContact();
+
+        if (contact != null) {
+            viewHolder.binding.presenceIndicator.setStatus(contact);
+        } else {
+            viewHolder.binding.presenceIndicator.setStatus(null);
         }
 
         if (draft != null) {
@@ -269,11 +278,6 @@ public class ConversationAdapter
                 conversation,
                 viewHolder.binding.conversationImage,
                 R.dimen.avatar_on_conversation_overview);
-        if (conversation.getMode() == Conversational.MODE_SINGLE && conversation.getContact().isActive()) {
-            viewHolder.binding.userActiveIndicator.setVisibility(View.VISIBLE);
-        } else {
-            viewHolder.binding.userActiveIndicator.setVisibility(View.GONE);
-        }
         viewHolder.itemView.setOnClickListener(v -> listener.onConversationClick(v, conversation));
     }
 
