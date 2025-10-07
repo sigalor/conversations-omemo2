@@ -94,6 +94,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.WorkerThread;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
@@ -6631,24 +6632,27 @@ public class ConversationFragment extends XmppFragment
         }).start();
     }
 
-    // Helper method to determine if a CID likely represents an image or video
-    private boolean isDisplayableMediaCid(Cid cid) {
-        if (cid == null) return false;
+    /**
+     * Checks if a given Cid corresponds to a displayable image or video file.
+     * This method performs file system operations and MUST be called from a background thread.
+     */
+    @WorkerThread
+    private boolean isDisplayableMediaCid(@Nullable Cid cid) {
+        if (cid == null) {
+            return false;
+        }
+        // Add null checks for activity and the service to prevent crashes.
+        if (activity == null || activity.xmppConnectionService == null) {
+            return false;
+        }
         File file = activity.xmppConnectionService.getFileForCid(cid);
-        if (file == null) return false;
-        String lowerFilePath = file.getAbsolutePath();
-        String mimeType = MimeUtils.guessFromPath(lowerFilePath);
-        return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/"));
-    }
+        if (file == null) {
+            return false;
+        }
+        String filePath = file.getAbsolutePath();
+        String mimeType = MimeUtils.guessFromPath(filePath);
 
-    private boolean isVideoCid(Cid cid) {
-        if (cid == null) return false;
-        File file = activity.xmppConnectionService.getFileForCid(cid);
-        if (file == null) return false;
-        String lowerFilePath = file.getAbsolutePath();
-        String mimeType = MimeUtils.guessFromPath(lowerFilePath);
-        // Video types
-        return mimeType != null && mimeType.startsWith("video/");
+        return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/"));
     }
 
     private boolean isAudioCid(Cid cid) {
