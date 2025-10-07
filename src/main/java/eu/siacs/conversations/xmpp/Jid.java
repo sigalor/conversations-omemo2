@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import eu.siacs.conversations.utils.IP;
 import im.conversations.android.xmpp.model.stanza.Stanza;
 import java.io.Serializable;
+import java.net.IDN;
 import java.util.regex.Pattern;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Domainpart;
@@ -15,7 +16,7 @@ public abstract class Jid implements Comparable<Jid>, Serializable, CharSequence
 
     private static final Pattern HOSTNAME_PATTERN =
             Pattern.compile(
-                    "^(?=.{1,253}$)(?=.{1,253}$)(?!-)(?!.*--)(?!.*-$)[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$");
+                    "^(?=.{1,253}$)(?:xn--)?[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.(?:xn--)?[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$");
 
     public static Jid of(
             final CharSequence local, final CharSequence domain, final CharSequence resource) {
@@ -86,7 +87,8 @@ public abstract class Jid implements Comparable<Jid>, Serializable, CharSequence
         if (domain.isEmpty()) {
             throw new IllegalArgumentException("Domain can not be empty");
         }
-        if (HOSTNAME_PATTERN.matcher(domain).matches() || IP.matches(domain)) {
+        final var codedDomain = IDN.toASCII(domain);
+        if (HOSTNAME_PATTERN.matcher(codedDomain).matches() || IP.matches(codedDomain)) {
             return jid;
         }
         throw new IllegalArgumentException("Invalid hostname");
