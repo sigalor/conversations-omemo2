@@ -1824,7 +1824,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final boolean showUserNickname =
                 message.getConversation().getMode() == Conversation.MODE_MULTI
                         && viewHolder instanceof StartBubbleMessageItemViewHolder;
-        if (!showAvatar) {
+        if (!showAvatar || (message.getConversation().getMode() == Conversation.MODE_SINGLE && showAvatar)) {
             if (mForceNames || multiReceived || showUserNickname || (message.getTrueCounterpart() != null && message.getContact() != null)) {
                 final String displayName = UIHelper.getMessageDisplayName(message);
                 if (viewHolder.username() != null && displayName != null) {
