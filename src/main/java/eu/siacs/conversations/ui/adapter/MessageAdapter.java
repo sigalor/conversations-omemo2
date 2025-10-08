@@ -402,28 +402,19 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 UIHelper.readableTimeDifferenceFull(getContext(), message.getTimeSent());
         final String bodyLanguage = message.getBodyLanguage();
         final ImmutableList.Builder<String> timeInfoBuilder = new ImmutableList.Builder<>();
-        if (message.getStatus() <= Message.STATUS_RECEIVED) {
-            timeInfoBuilder.add(formattedTime);
-            if (fileSize != null) {
-                timeInfoBuilder.add(fileSize);
-            }
-            if (bodyLanguage != null) {
-                timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
-            }
+
+        if (fileSize != null) {
+            timeInfoBuilder.add(fileSize);
+        }
+        if (bodyLanguage != null) {
+            timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
+        }
+        // for space reasons we display only 'additional status info' (send progress or concrete
+        // failure reason) or the time
+        if (additionalStatusInfo != null) {
+            timeInfoBuilder.add(additionalStatusInfo);
         } else {
-            if (bodyLanguage != null) {
-                timeInfoBuilder.add(bodyLanguage.toUpperCase(Locale.US));
-            }
-            if (fileSize != null) {
-                timeInfoBuilder.add(fileSize);
-            }
-            // for space reasons we display only 'additional status info' (send progress or concrete
-            // failure reason) or the time
-            if (additionalStatusInfo != null) {
-                timeInfoBuilder.add(additionalStatusInfo);
-            } else {
-                timeInfoBuilder.add(formattedTime);
-            }
+            timeInfoBuilder.add(formattedTime);
         }
         final var timeInfo = timeInfoBuilder.build();
         viewHolder.time().setText(Joiner.on(" · ").join(timeInfo));
@@ -1490,7 +1481,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         setAvatarDistance(viewHolder.messageBox(), viewHolder.getClass(), showAvatar);
         viewHolder.messageBox().setClipToOutline(true); //remove to show tails
-
         resetClickListener(viewHolder.messageBox(), viewHolder.messageBody());
 
         viewHolder.messageBox().setOnClickListener(v -> {
@@ -1828,7 +1818,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.username().setVisibility(GONE);
         }
 
-       viewHolder.messageBody().setAccessibilityDelegate(new View.AccessibilityDelegate() {
+        final boolean multiReceived =
+                message.getConversation().getMode() == Conversation.MODE_MULTI
+                        && message.getStatus() <= Message.STATUS_RECEIVED;
+        final boolean showUserNickname =
+                message.getConversation().getMode() == Conversation.MODE_MULTI
+                        && viewHolder instanceof StartBubbleMessageItemViewHolder;
+        if (!showAvatar) {
+            if (mForceNames || multiReceived || showUserNickname || (message.getTrueCounterpart() != null && message.getContact() != null)) {
+                final String displayName = UIHelper.getMessageDisplayName(message);
+                if (viewHolder.username() != null && displayName != null) {
+                    viewHolder.username().setVisibility(View.VISIBLE);
+                    viewHolder.username().setText(UIHelper.getColoredUsername(activity.xmppConnectionService, message));
+                }
+            } else if (viewHolder.username() != null) {
+                viewHolder.username().setText(null);
+                viewHolder.username().setVisibility(GONE);
+            }
+        }
+
+        viewHolder.messageBody().setAccessibilityDelegate(new View.AccessibilityDelegate() {
             @Override
             public void sendAccessibilityEvent(@NonNull View host, int eventType) {
                 super.sendAccessibilityEvent(host, eventType);
@@ -2153,13 +2162,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final boolean multiReceived =
                 message.getConversation().getMode() == Conversation.MODE_MULTI
                         && message.getStatus() <= Message.STATUS_RECEIVED;
+        final boolean showUserNickname =
+                message.getConversation().getMode() == Conversation.MODE_MULTI
+                        && viewHolder instanceof StartBubbleMessageItemViewHolder;
         if (requiresAvatar) {
             final var resources = viewHolder.contactPicture().getResources();
             final var avatarSize = resources.getDimensionPixelSize(R.dimen.bubble_avatar_size);
             layoutParams.height = avatarSize;
             viewHolder.contactPicture().setVisibility(View.VISIBLE);
             viewHolder.messageBox().setMinimumHeight(avatarSize);
-            if (mForceNames || multiReceived || (message.getTrueCounterpart() != null && message.getContact() != null)) {
+            if (mForceNames || multiReceived || showUserNickname || (message.getTrueCounterpart() != null && message.getContact() != null)) {
                 final String displayName = UIHelper.getMessageDisplayName(message);
                 if (viewHolder.username() != null && displayName != null) {
                     viewHolder.username().setVisibility(View.VISIBLE);
