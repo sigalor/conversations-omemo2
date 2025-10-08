@@ -196,6 +196,7 @@
                         android:id="@+id/pinned_message_hide"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
+                        android:contentDescription="@string/unpin_message"
                         android:src="@drawable/rounded_close_24"
                         android:layout_marginStart="8dp" />
 

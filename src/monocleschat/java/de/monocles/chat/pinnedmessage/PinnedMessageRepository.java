@@ -48,6 +48,13 @@ public class PinnedMessageRepository {
     // In-memory cache. For a production app with many pins, consider a database or more optimized file access.
     private final List<PinnedMessage> pinnedMessagesCache = Collections.synchronizedList(new ArrayList<>());
 
+    public void delete(String uuid, String messageUuid) {
+        synchronized (pinnedMessagesCache) {
+            pinnedMessagesCache.removeIf(pm -> pm.getMessageUuid().equals(messageUuid));
+        }
+        savePinnedMessagesAsync();
+    }
+
 
     // Gson TypeAdapter for byte[] to Base64 String and vice-versa
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
@@ -272,9 +279,74 @@ public class PinnedMessageRepository {
         return null;
     }
 
+    /**
+     * Retrieves all decrypted pinned messages for a specific conversation, sorted from newest to oldest.
+     * This method performs decryption and should be called from a background thread.
+     *
+     * @param conversationUuid The unique ID of the conversation.
+     * @return A list of decrypted pinned message data. Returns an empty list if none are found or on error.
+     */
+    public List<DecryptedPinnedMessageData> getAllDecryptedPinnedMessagesForConversation(String conversationUuid) {
+        if (conversationUuid == null) {
+            return Collections.emptyList();
+        }
+
+        final List<PinnedMessage> conversationPins;
+        synchronized (pinnedMessagesCache) {
+            conversationPins = pinnedMessagesCache.stream()
+                    .filter(pm -> pm.getConversationUuid().equals(conversationUuid))
+                    .sorted(Comparator.comparingLong(PinnedMessage::getTimestamp).reversed()) // Newest first
+                    .collect(Collectors.toList());
+        }
+
+        if (conversationPins.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final List<DecryptedPinnedMessageData> decryptedMessages = new ArrayList<>();
+        for (PinnedMessage pin : conversationPins) {
+            String decryptedText = null;
+            if (pin.getEncryptedContent() != null && pin.getIv() != null) {
+                byte[] decryptedBytes = CryptoUtils.decrypt(pin.getIv(), pin.getEncryptedContent());
+                if (decryptedBytes != null) {
+                    decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8);
+                } else {
+                    Log.w(TAG, "Failed to decrypt pinned message content for UUID: " + pin.getMessageUuid());
+                    // The UI can show a placeholder if plaintextBody is null
+                }
+            }
+            decryptedMessages.add(new DecryptedPinnedMessageData(
+                    pin.getMessageUuid(),
+                    pin.getConversationUuid(),
+                    decryptedText,
+                    pin.getTimestamp(),
+                    pin.getCid()
+            ));
+        }
+        return decryptedMessages;
+    }
+
+    /**
+     * Asynchronously retrieves all decrypted pinned messages for a conversation.
+     *
+     * @param conversationUuid The conversation's unique ID.
+     * @param listener         The callback to be invoked with the list of decrypted messages.
+     */
+    public void getAllDecryptedPinnedMessagesForConversationAsync(String conversationUuid, final OnAllPinsLoadedListener listener) {
+        executorService.submit(() -> {
+            List<DecryptedPinnedMessageData> result = getAllDecryptedPinnedMessagesForConversation(conversationUuid);
+            if (listener != null) {
+                // The calling class should handle posting this to the main thread if UI updates are needed.
+                listener.onAllPinsLoaded(result);
+            }
+        });
+    }
+
+
     // Callbacks for async operations
     public interface OnPinCompleteListener { void onPinComplete(boolean success); }
     public interface OnUnpinCompleteListener { void onUnpinComplete(boolean success); }
+    public interface OnAllPinsLoadedListener { void onAllPinsLoaded(List<DecryptedPinnedMessageData> messages); }
 
     // Data class for returning decrypted data to the UI layer
     public static class DecryptedPinnedMessageData {

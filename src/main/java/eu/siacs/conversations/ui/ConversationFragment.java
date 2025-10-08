@@ -43,18 +43,13 @@ import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.storage.StorageManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ImageSpan;
-import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -159,7 +154,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -196,7 +190,6 @@ import eu.siacs.conversations.http.HttpDownloadConnection;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.CallIntegrationConnectionService;
 import eu.siacs.conversations.services.MessageArchiveService;
-import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.CommandAdapter;
 import eu.siacs.conversations.ui.adapter.MediaPreviewAdapter;
@@ -246,11 +239,16 @@ import im.conversations.android.xmpp.model.stanza.Iq;
 
 import me.drakeet.support.toast.ToastCompat;
 
+import android.widget.ListPopupWindow;
+
+import de.monocles.chat.pinnedmessage.PinnedMessageAdapter;
+
 public class ConversationFragment extends XmppFragment
         implements EditMessage.KeyboardListener,
         MessageAdapter.OnContactPictureLongClicked,
         MessageAdapter.OnContactPictureClicked,
-        MessageAdapter.OnInlineImageLongClicked {
+        MessageAdapter.OnInlineImageLongClicked,
+        PinnedMessageAdapter.OnUnpinClickListener {
 
     //Voice recorder
     private MediaRecorder mRecorder;
@@ -335,6 +333,7 @@ public class ConversationFragment extends XmppFragment
 
     private Message previousClickedReply = null;
 
+    private ListPopupWindow pinnedMessagesPopup;
     private PinnedMessageRepository pinnedMessageRepository;
     private String currentDisplayedPinnedMessageUuid = null; // To track what's shown
     private Cid currentDisplayedPinnedMessageCid = null; // Store CID for potential actions
@@ -1824,6 +1823,17 @@ public class ConversationFragment extends XmppFragment
         this.binding =
                 DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
         binding.getRoot().setOnClickListener(null); // TODO why the fuck did we do this?
+
+        binding.pinnedMessageContainer.setOnLongClickListener(v -> {
+            if (conversation != null) {
+                // Use the async method from your repository
+                pinnedMessageRepository.getAllDecryptedPinnedMessagesForConversationAsync(
+                        conversation.getUuid(),
+                        this::handlePinnedMessagesLoaded
+                );
+            }
+            return true;
+        });
 
         // Check if we should adjust the soft keyboard
         binding.conversationViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -6749,5 +6759,82 @@ public class ConversationFragment extends XmppFragment
         }
         currentDisplayedPinnedMessageUuid = null;
         currentDisplayedPinnedMessageCid = null;
+    }
+
+    private void handlePinnedMessagesLoaded(List<PinnedMessageRepository.DecryptedPinnedMessageData> pinnedMessages) {
+        // This callback is from a background thread, so switch to the UI thread
+        if (getActivity() == null) return;
+        getActivity().runOnUiThread(() -> {
+            if (pinnedMessages.size() > 1) {
+                showPinnedMessagesPopup(pinnedMessages);
+            } else if (pinnedMessages.size() == 1) {
+                // If only one, jump directly to it
+                if (pinnedMessages.get(0).messageUuid != null) {
+                    Log.d(Config.LOGTAG, "Jumping to pinned message with UUID: " + pinnedMessages.get(0).messageUuid);
+                    Runnable postSelectionRunnable = () -> highlightMessage(pinnedMessages.get(0).messageUuid);
+                    updateSelection(pinnedMessages.get(0).messageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
+                }
+            }
+        });
+    }
+
+    private void showPinnedMessagesPopup(List<PinnedMessageRepository.DecryptedPinnedMessageData> pinnedMessages) {
+        if (activity == null) return;
+
+        pinnedMessagesPopup = new ListPopupWindow(activity);
+        pinnedMessagesPopup.setAnchorView(binding.pinnedMessageContainer);
+
+        // Create the adapter, passing 'this' for both listener implementations
+        PinnedMessageAdapter adapter = new PinnedMessageAdapter(
+                activity,
+                pinnedMessages,
+                this::onPinnedMessageItemClick, // Method reference for jumping
+                this::onUnpinClick              // Method reference for unpinning
+        );
+        pinnedMessagesPopup.setAdapter(adapter);
+
+        // We no longer need a popup-level OnItemClickListener, as it's handled in the adapter.
+        // This prevents the double-triggering and pressed-state issues.
+
+        pinnedMessagesPopup.setContentWidth(binding.pinnedMessageContainer.getWidth());
+        pinnedMessagesPopup.setModal(true);
+        pinnedMessagesPopup.show();
+    }
+
+    // This method handles the jump action
+    public void onPinnedMessageItemClick(PinnedMessageRepository.DecryptedPinnedMessageData messageData) {
+        if (messageData != null && messageData.messageUuid != null) {
+            Log.d(Config.LOGTAG, "Jumping to pinned message with UUID: " + messageData.messageUuid);
+            Runnable postSelectionRunnable = () -> highlightMessage(messageData.messageUuid);
+            updateSelection(messageData.messageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
+        }
+        // Dismiss the popup after an item is clicked
+        if (pinnedMessagesPopup != null && pinnedMessagesPopup.isShowing()) {
+            pinnedMessagesPopup.dismiss();
+        }
+    }
+
+    public void onUnpinClick(PinnedMessageRepository.DecryptedPinnedMessageData messageData) {
+        if (conversation != null) {
+            // Use your repository to delete the message
+            backgroundExecutor.execute(() -> pinnedMessageRepository.delete(conversation.getUuid(), messageData.messageUuid));
+
+            // Remove the item from the adapter to update the UI instantly
+            if (pinnedMessagesPopup != null && pinnedMessagesPopup.getListView() != null) {
+                PinnedMessageAdapter adapter = (PinnedMessageAdapter) pinnedMessagesPopup.getListView().getAdapter();
+                if (adapter != null) {
+                    adapter.remove(messageData);
+                    adapter.notifyDataSetChanged();
+
+                    // If the popup is now empty, dismiss it and update the main pinned message bar
+                    if (adapter.getCount() == 0) {
+                        pinnedMessagesPopup.dismiss();
+                        if (activity != null) activity.runOnUiThread(() -> hidePinnedMessageView());
+                    } else {
+                        loadAndDisplayLatestPinnedMessage(); // Refresh the main pinned bar
+                    }
+                }
+            }
+        }
     }
 }
