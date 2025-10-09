@@ -2535,7 +2535,7 @@ public class ConversationFragment extends XmppFragment
                 correctMessage.setVisible(true);
                 retractMessage.setVisible(true);
             }
-            if ((m.isGeoUri() || m.isFileOrImage()) && m.getStatus() != Message.STATUS_RECEIVED) retractMessage.setVisible(true); //TODO also allow retraction when not yet downloaded
+            if (m.getStatus() == Message.STATUS_SEND || m.getStatus() == Message.STATUS_SEND_FAILED) retractMessage.setVisible(true);
             if (m.getStatus() == Message.STATUS_WAITING) {
                 correctMessage.setVisible(true);
                 retractMessage.setVisible(true);
