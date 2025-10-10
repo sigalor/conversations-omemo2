@@ -2343,7 +2343,7 @@ public class ConversationFragment extends XmppFragment
             hideFetchHistoryDialog();
             updateSelectionRunnable.run();
         } else {
-            activity.xmppConnectionService.jumpToMessage(conversation, uuid, new XmppConnectionService.JumpToMessageListener() {
+            if (activity != null && activity.xmppConnectionService != null) activity.xmppConnectionService.jumpToMessage(conversation, uuid, new XmppConnectionService.JumpToMessageListener() {
                 @Override
                 public void onSuccess() {
                     activity.runOnUiThread(() -> {
