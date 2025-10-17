@@ -104,6 +104,12 @@
             android:summary="@string/pref_show_contact_presence_details"
             android:title="@string/pref_show_contact_presence" />
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/always_full_timestamps"
+            android:icon="@drawable/outline_123_24"
+            android:key="always_full_timestamps"
+            android:summary="@string/pref_always_show_full_timestamps_summary"
+            android:title="@string/pref_always_show_full_timestamps" />
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/show_own_accounts"
             android:icon="@drawable/ic_person_24dp"
             android:key="show_own_accounts"

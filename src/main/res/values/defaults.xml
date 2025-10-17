@@ -68,4 +68,6 @@
     <bool name="default_nomedia">true</bool>
     <bool name="show_muc_pm">true</bool>
     <bool name="align_start">false</bool>
+    <bool name="always_full_timestamps">false</bool>
+    <bool name="skip_image_editor_screen">false</bool>
 </resources>

@@ -4211,6 +4211,7 @@ public class Conversation extends AbstractEntity
         }
     }
 
+    // Set the status message hidden timestamp
     public void hideStatusMessage() {
         String statusTs = this.getAttribute("statusTs");
 

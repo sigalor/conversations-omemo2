@@ -89,25 +89,25 @@ public class UIHelper {
     private static final int FULL_DATE_FLAGS =
             DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE;
 
-    public static String readableTimeDifference(Context context, long time) {
-        return readableTimeDifference(context, time, false);
+    public static String readableTimeDifference(Context context, long time, boolean allowRelative) {
+        return readableTimeDifference(context, time, false, allowRelative);
     }
 
-    public static String readableTimeDifferenceFull(Context context, long time) {
-        return readableTimeDifference(context, time, true);
+    public static String readableTimeDifferenceFull(Context context, long time, boolean allowRelative) {
+        return readableTimeDifference(context, time, true, allowRelative);
     }
 
-    private static String readableTimeDifference(Context context, long time, boolean fullDate) {
+    private static String readableTimeDifference(Context context, long time, boolean fullDate, boolean allowRelative) {
         if (time == 0) {
             return context.getString(R.string.just_now);
         }
         Date date = new Date(time);
         long difference = (System.currentTimeMillis() - time) / 1000;
-        if (difference < 60) {
+        if (difference < 60 && allowRelative) {
             return context.getString(R.string.just_now);
-        } else if (difference < 60 * 2) {
+        } else if (difference < 60 * 2 && allowRelative) {
             return context.getString(R.string.minute_ago);
-        } else if (difference < 60 * 15) {
+        } else if (difference < 60 * 15 && allowRelative) {
             return context.getString(R.string.minutes_ago, Math.round(difference / 60.0));
         } else if (today(date)) {
             java.text.DateFormat df = DateFormat.getTimeFormat(context);

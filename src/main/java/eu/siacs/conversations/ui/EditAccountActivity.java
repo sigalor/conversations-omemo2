@@ -1374,7 +1374,7 @@ public class EditAccountActivity extends OmemoActivity
             showOsOptimizationWarning(showBatteryWarning, showDataSaverWarning);
             this.binding.sessionEst.setText(
                     UIHelper.readableTimeDifferenceFull(
-                            this, this.mAccount.getXmppConnection().getLastSessionEstablished()));
+                            this, this.mAccount.getXmppConnection().getLastSessionEstablished(), allowRelativeTimestamps()));
             if (features.rosterVersioning()) {
                 this.binding.serverInfoRosterVersion.setText(R.string.server_info_available);
             } else {
@@ -1848,5 +1848,10 @@ public class EditAccountActivity extends OmemoActivity
                 xmppConnectionService.restartFileObserver();
             }
         }
+    }
+
+    private boolean allowRelativeTimestamps() {
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
+        return !p.getBoolean("always_full_timestamps", getResources().getBoolean(R.bool.always_full_timestamps));
     }
 }

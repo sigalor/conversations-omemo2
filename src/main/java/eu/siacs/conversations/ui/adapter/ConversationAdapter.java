@@ -1,7 +1,9 @@
 package eu.siacs.conversations.ui.adapter;
 
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.LayoutInflater;
@@ -38,9 +40,13 @@ public class ConversationAdapter
     private final List<Conversation> conversations;
     private OnConversationClickListener listener;
 
+    private boolean allowRelativeTimestamps = true;
+
     public ConversationAdapter(XmppActivity activity, List<Conversation> conversations) {
         this.activity = activity;
         this.conversations = conversations;
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
+        allowRelativeTimestamps = !p.getBoolean("always_full_timestamps", activity.getResources().getBoolean(R.bool.always_full_timestamps));
     }
 
     @NonNull
@@ -273,7 +279,7 @@ public class ConversationAdapter
                         ? View.VISIBLE
                         : View.GONE);
         viewHolder.binding.conversationLastupdate.setText(
-                UIHelper.readableTimeDifference(activity, timestamp));
+                UIHelper.readableTimeDifference(activity, timestamp, allowRelativeTimestamps));
         AvatarWorkerTask.loadAvatar(
                 conversation,
                 viewHolder.binding.conversationImage,

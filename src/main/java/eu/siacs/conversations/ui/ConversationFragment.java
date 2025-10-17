@@ -1512,7 +1512,7 @@ public class ConversationFragment extends XmppFragment
                 final List<Attachment> imageUris =
                         Attachment.extractAttachments(activity, data, Attachment.Type.IMAGE);
                 if (imageUris.size() == 1 && imageUris.get(0).getMime().startsWith("image/")
-                        && !imageUris.get(0).getMime().equals("image/gif")) {
+                        && !imageUris.get(0).getMime().equals("image/gif") && !skipImageEditor()) {
                     editImage(imageUris.get(0).getUri());
                 } else {
                     mediaPreviewAdapter.addMediaPreviews(imageUris);
@@ -1522,7 +1522,7 @@ public class ConversationFragment extends XmppFragment
             }
             case ATTACHMENT_CHOICE_TAKE_PHOTO: {
                 final Uri takePhotoUri = pendingTakePhotoUri.pop();
-                if (takePhotoUri != null) {
+                if (takePhotoUri != null && !skipImageEditor()) {
                     editImage(takePhotoUri);
                 } else {
                     Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
@@ -5301,6 +5301,11 @@ public class ConversationFragment extends XmppFragment
     private boolean enterIsSend() {
         final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
         return p.getBoolean("enter_is_send", getResources().getBoolean(R.bool.enter_is_send));
+    }
+
+    private boolean skipImageEditor() {
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return p.getBoolean("skip_image_editor_screen", getResources().getBoolean(R.bool.skip_image_editor_screen));
     }
 
     public boolean onArrowUpCtrlPressed() {

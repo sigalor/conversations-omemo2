@@ -52,27 +52,35 @@
             android:key="internal_meda_viewer"
             android:title="@string/internal_meda_viewer_title"
             android:summary="@string/internal_meda_viewer_summary" />
-        <!--
-        <Preference
-            android:title="@string/change_stickers_location"
-            android:key="sticker_directory" />
-        -->
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/skip_image_editor_screen"
+            android:icon="@drawable/outline_edit_square_24"
+            android:key="skip_image_editor_screen"
+            android:summary="@string/pref_skip_image_editor_screen_summary"
+            android:title="@string/pref_skip_image_editor_screen" />
         <Preference
             android:title="@string/update_default_stickers"
+            android:icon="@drawable/ic_cloud_download_24dp"
+            android:summary="@string/update_default_stickers_summary"
             android:key="download_default_stickers" />
         <Preference
             android:title="@string/import_own_stickers"
+            android:icon="@drawable/ic_download_24dp"
             android:summary="@string/import_own_stickers_summary"
             android:key="import_own_stickers" />
         <Preference
             android:title="@string/import_own_gifs"
+            android:icon="@drawable/ic_download_24dp"
             android:summary="@string/import_own_gifs_summary"
             android:key="import_own_gifs" />
         <Preference
             android:title="@string/clear_blocked_media"
+            android:icon="@drawable/ic_delete_24dp"
+            android:summary="@string/pref_clear_blocked_media_summary"
             android:key="clear_blocked_media" />
         <ListPreference
             android:title="@string/voice_message_codec"
+            android:icon="@drawable/audio_file_24dp"
             android:defaultValue="opus"
             android:entries="@array/voice_codec_entries"
             android:entryValues="@array/voice_codec_values"

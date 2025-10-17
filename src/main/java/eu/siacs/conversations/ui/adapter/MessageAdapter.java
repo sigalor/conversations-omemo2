@@ -5,6 +5,7 @@ import static android.view.View.GONE;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -13,6 +14,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.Spannable;
@@ -195,6 +197,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private final float targetImageWidthSmallThreshold;
     private final float targetImageWidthLargeThreshold;
 
+    private boolean allowRelativeTimestamps = true;
+
     public MessageAdapter(
             final XmppActivity activity, final List<Message> messages, final boolean forceNames) {
         super(activity, 0, messages);
@@ -212,6 +216,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         appSettings = new AppSettings(activity);
         updatePreferences();
         this.mForceNames = forceNames;
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
+        allowRelativeTimestamps = !p.getBoolean("always_full_timestamps", activity.getResources().getBoolean(R.bool.always_full_timestamps));
     }
 
     public MessageAdapter(final XmppActivity activity, final List<Message> messages) {
@@ -399,7 +405,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         final String formattedTime =
-                UIHelper.readableTimeDifferenceFull(getContext(), message.getTimeSent());
+                UIHelper.readableTimeDifferenceFull(getContext(), message.getTimeSent(), allowRelativeTimestamps);
         final String bodyLanguage = message.getBodyLanguage();
         final ImmutableList.Builder<String> timeInfoBuilder = new ImmutableList.Builder<>();
 
@@ -2034,7 +2040,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                                 R.string.incoming_call_duration_timestamp,
                                 TimeFrameUtils.resolve(activity, duration),
                                 UIHelper.readableTimeDifferenceFull(
-                                        activity, message.getTimeSent())));
+                                        activity, message.getTimeSent(), allowRelativeTimestamps)));
             } else if (rtpSessionStatus.successful) {
                 viewHolder.binding.messageBody.setText(R.string.incoming_call);
             } else {
@@ -2042,7 +2048,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         activity.getString(
                                 R.string.missed_call_timestamp,
                                 UIHelper.readableTimeDifferenceFull(
-                                        activity, message.getTimeSent())));
+                                        activity, message.getTimeSent(), allowRelativeTimestamps)));
             }
         } else {
             if (duration > 0) {
@@ -2051,13 +2057,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                                 R.string.outgoing_call_duration_timestamp,
                                 TimeFrameUtils.resolve(activity, duration),
                                 UIHelper.readableTimeDifferenceFull(
-                                        activity, message.getTimeSent())));
+                                        activity, message.getTimeSent(), allowRelativeTimestamps)));
             } else {
                 viewHolder.binding.messageBody.setText(
                         activity.getString(
                                 R.string.outgoing_call_timestamp,
                                 UIHelper.readableTimeDifferenceFull(
-                                        activity, message.getTimeSent())));
+                                        activity, message.getTimeSent(), allowRelativeTimestamps)));
             }
         }
         if (colorfulBackground) {
