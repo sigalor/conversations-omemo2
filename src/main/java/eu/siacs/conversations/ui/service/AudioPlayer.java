@@ -117,8 +117,20 @@ public class AudioPlayer
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
         try {
             mediaMetadataRetriever.setDataSource(message.getRelativeFilePath());
+            if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null && mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null) {
+                String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                viewHolder.title.setText(String.format("%s - %s", artist, album));
+            }
         } catch (Exception e) {
             Log.w(Config.LOGTAG, e);
+        } finally {
+            try {
+                mediaMetadataRetriever.release();
+            } catch (Exception e) {
+                // Can fail on some older Android versions, log if needed
+                Log.e(Config.LOGTAG, "Error releasing MediaMetadataRetriever", e);
+            }
         }
         final ColorStateList color =
                 MessageAdapter.bubbleToOnSurfaceColorStateList(
@@ -142,9 +154,6 @@ public class AudioPlayer
             viewHolder.playPause.setIconResource(R.drawable.rounded_play_arrow_36);
             viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
             viewHolder.runtime.setText(formatTime(message.getFileParams().runtime));
-            if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST) != null) {
-                viewHolder.title.setText(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST) + " - " + mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM));
-            }
             viewHolder.progress.setProgress(0);
             viewHolder.progress.setEnabled(false);
             return false;
