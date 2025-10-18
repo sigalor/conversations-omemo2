@@ -1100,7 +1100,7 @@
     <string name="welcome_to_monocles_chat">Welcome to monocles chat</string>
     <string name="monocles_chat_intro_description">monocles chat is an app that connects you to a global network called XMPP. This network includes services, called gateways, for chatting with other networks such as SMS, IRC, Matrix, and more.</string>
     <string name="how_the_xmpp_network_works">How the XMPP network works</string>
-    <string name="do_you_really_want_to_retract_this_message">Do you really want to retract this message?</string>
+    <string name="do_you_really_want_to_retract_this_message">Are you sure you want to retract this message? A retraction request will be sent, but it may not be accepted by the recipient\'s client.</string>
     <string name="show_avatar">Show avatar</string>
     <string name="block_avatar">Block avatar</string>
     <string name="pref_show_less_avatars">Show less avatars</string>
