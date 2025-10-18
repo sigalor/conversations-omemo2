@@ -228,7 +228,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 MessageItemViewHolder viewHolder = (MessageItemViewHolder) releasedChild.getTag();
 
                 // Check if the view was swiped far enough to the right
-                if (viewHolder != null && viewHolder.position >= 0 && viewHolder.position < getCount() && horizontalOffset > releasedChild.getWidth()/6) {
+                if (viewHolder != null && viewHolder.position >= 0 && viewHolder.position < getCount() && horizontalOffset > releasedChild.getWidth()/8) {
                     Message m = getItem(viewHolder.position);
                     if (messageBoxSwipedListener != null) {
                         messageBoxSwipedListener.onMessageBoxReleasedAfterSwipe(m);
@@ -247,7 +247,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             horizontalOffset = fixedLeft;
 
             // Trigger haptic feedback when swiped far enough to the right
-            if (horizontalOffset > child.getWidth()/6 && swipedEnoughFirstTime) {
+            if (horizontalOffset > child.getWidth()/8 && swipedEnoughFirstTime) {
                 swipedEnoughFirstTime = false;
                 messageBoxSwipedListener.onMessageBoxSwipedEnough();
             }

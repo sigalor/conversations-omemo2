@@ -31,7 +31,7 @@ class DraggableListView : ListView {
         }
 
         dragHelper = if (dragHelperCallback != null) {
-            ViewDragHelper.create(this, 0.8f, dragHelperCallback)
+            ViewDragHelper.create(this, 0.77f, dragHelperCallback)
         } else {
             null
         }
