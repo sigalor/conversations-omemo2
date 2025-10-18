@@ -3,28 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <com.daimajia.swipe.SwipeLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        app:drag_edge="left"
-        app:show_mode="pull_out"
-        android:id="@+id/layout_swipe"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/bubble_horizontal_padding"
-        android:paddingVertical="@dimen/bubble_vertical_padding">
-
-    <RelativeLayout
-        android:id="@+id/bottom_wrapper"
-        android:layout_width="80sp"
-        android:weightSum="1"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:clickable="true"
-        android:focusable="true" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/bubble_horizontal_padding"
+        android:paddingVertical="@dimen/bubble_vertical_padding">
 
         <eu.siacs.conversations.ui.widget.AvatarView
             android:id="@+id/message_photo"
@@ -190,5 +173,4 @@
             app:layout_constraintStart_toStartOf="@+id/message_box"
             app:layout_constraintTop_toBottomOf="@+id/reactions_anchor" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.daimajia.swipe.SwipeLayout>
 </layout>

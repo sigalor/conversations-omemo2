@@ -115,7 +115,6 @@ dependencies {
     implementation 'com.github.singpolyma:OpenGraphParser:d0882eadb2'
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
     implementation 'net.fellbaum:jemoji:1.4.1'
-    implementation "com.daimajia.swipelayout:library:1.2.0@aar"
     implementation 'com.github.bumptech.glide:glide:4.15.1' // For photo editor compatibility
 
     implementation 'com.github.natario1:Autocomplete:v1.1.0'

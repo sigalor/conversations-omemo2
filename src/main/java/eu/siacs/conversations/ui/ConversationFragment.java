@@ -44,6 +44,8 @@ import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -343,6 +345,7 @@ public class ConversationFragment extends XmppFragment
     private KeyboardHeightProvider.KeyboardHeightListener keyboardHeightListener = null;
     private KeyboardHeightProvider keyboardHeightProvider = null;
     private static final String PINNED_MESSAGE_KEY_PREFIX = "pinned_message_";
+    private Vibrator vibrator;
 
     protected OnClickListener clickToVerify = new OnClickListener() {
         @Override
@@ -1709,6 +1712,7 @@ public class ConversationFragment extends XmppFragment
         }
         dirStickers = StickersMigration.getStickersDir(activity);
         StickersMigration.requireMigration(activity);
+        vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Override
@@ -1901,6 +1905,25 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnContactPictureLongClicked(this);
         messageListAdapter.setOnInlineImageLongClicked(this);
         messageListAdapter.setConversationFragment(this);
+        messageListAdapter.setOnMessageBoxSwiped(
+                new MessageAdapter.MessageBoxSwipedListener() {
+                    @Override
+                    public void onMessageBoxReleasedAfterSwipe(Message message) {
+                        quoteMessage(message);
+                    }
+
+                    @Override
+                    public void onMessageBoxSwipedEnough() {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            vibrator.vibrate(VibrationEffect.createOneShot(10L, 127));
+                        } else {
+                            vibrator.vibrate(10L);
+                        }
+                    }
+                }
+        );
         messageListAdapter.setReplyClickListener(this::scrollToReply);
         binding.messagesView.setAdapter(messageListAdapter);
 
@@ -2153,6 +2176,7 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setConversationFragment(null);
         messageListAdapter.setOnMessageBoxClicked(null);
         messageListAdapter.setReplyClickListener(null);
+        binding.messagesView.clearDragHelper();
         binding.conversationViewPager.setAdapter(null);
         if (conversation != null) conversation.setupViewPager(null, null, false, null);
     }
