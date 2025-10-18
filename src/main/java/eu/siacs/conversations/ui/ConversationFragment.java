@@ -2437,16 +2437,18 @@ public class ConversationFragment extends XmppFragment
             extensions.clear();
             final var xmppConnectionService = activity.xmppConnectionService;
             final var dir = new File(xmppConnectionService.getExternalFilesDir(null), "extensions");
-            for (File file : Files.fileTraverser().breadthFirst(dir)) {
-                if (file.isFile() && file.canRead()) {
-                    final var dummy = new Message(conversation, null, conversation.getNextEncryption());
-                    dummy.setStatus(Message.STATUS_DUMMY);
-                    dummy.setThread(conversation.getThread());
-                    dummy.setUuid(file.getName());
-                    final var xdc = new WebxdcPage(activity, file, dummy);
-                    extensions.add(xdc);
-                    final var item = menu.add(0x1, extensions.size() - 1, 0, xdc.getName());
-                    item.setIcon(xdc.getIcon(24));
+            if (dir.exists() && dir.isDirectory()) { // Check if dir exists and is a directory
+                for (File file : Files.fileTraverser().breadthFirst(dir)) {
+                    if (file.isFile() && file.canRead() && file.getName().endsWith(".xdc")) { // check for .xdc extension
+                        final var dummy = new Message(conversation, null, conversation.getNextEncryption());
+                        dummy.setStatus(Message.STATUS_DUMMY);
+                        dummy.setThread(conversation.getThread());
+                        dummy.setUuid(file.getName());
+                        final var xdc = new WebxdcPage(activity, file, dummy);
+                        extensions.add(xdc);
+                        final var item = menu.add(0x1, extensions.size() - 1, 0, xdc.getName());
+                        item.setIcon(xdc.getIcon(24));
+                    }
                 }
             }
             ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu, TextUtils.isEmpty(binding.textinput.getText()));
