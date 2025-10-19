@@ -6640,6 +6640,21 @@ public class XmppConnectionService extends Service {
         return true;
     }
 
+    public void stopPublishingUserTuneAsync() {
+        if (pendingUserTuneUpdate != null && !pendingUserTuneUpdate.isDone()) {
+            pendingUserTuneUpdate.cancel(false);
+        }
+        pendingUserTuneUpdate = userTuneUpdateExecutor.schedule(() -> {
+            for (Account account : accounts) {
+                if (!account.isOnlineAndConnected()) {
+                    continue;
+                }
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": revoking user tune");
+                sendIqPacket(account, mIqGenerator.publishUserTune(), null);
+            }
+        }, 3, TimeUnit.SECONDS);
+    }
+
     public boolean sendReactions(final Message message, final Collection<String> reactions) {
         if (message.isPrivateMessage()) throw new IllegalArgumentException("Reactions to PM not implemented");
         if (message.getConversation() instanceof Conversation conversation) {

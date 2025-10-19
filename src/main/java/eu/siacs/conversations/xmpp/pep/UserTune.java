@@ -8,6 +8,9 @@ import eu.siacs.conversations.xmpp.Jid;
 
 public class UserTune {
 
+    // A sentinel object to indicate that the user has stopped listening to a tune.
+    public static final UserTune STOP = new UserTune();
+
     // Complete details weren't included since we haven't make way to display them in UI.
     public String title;
     public String artist;
@@ -31,6 +34,11 @@ public class UserTune {
 
         tune.title = tuneElement.findChildContent("title");
         tune.artist = tuneElement.findChildContent("artist");
+
+        // According to XEP-0118, an empty <tune/> element indicates the user is no longer listening.
+        if (tuneElement.getChildren().size() == 0) {
+            return STOP;
+        }
 
         if (tune.title == null || tune.title.equals("")) {
             return null;

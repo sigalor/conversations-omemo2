@@ -79,6 +79,8 @@ public class UpdateNowPlayingService extends NotificationListenerService {
         Context context = getApplicationContext();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (!prefs.getBoolean("load_now_playing_from_system", false)) {
+            // If the feature is disabled, we should also stop any currently published tune.
+            xmppConnectionService.stopPublishingUserTuneAsync();
             return;
         }
 
@@ -93,12 +95,13 @@ public class UpdateNowPlayingService extends NotificationListenerService {
             return;
         }
 
+        boolean isAnythingPlaying = false;
         for (MediaController controller : controllers) {
             MediaMetadata metadata = controller.getMetadata();
             PlaybackState playbackState = controller.getPlaybackState();
 
             if (playbackState != null && playbackState.getState() == PlaybackState.STATE_PLAYING) {
-
+                isAnythingPlaying = true;
                 if (metadata == null) {
                     continue;
                 }
@@ -109,9 +112,15 @@ public class UpdateNowPlayingService extends NotificationListenerService {
                 }
 
                 if (xmppConnectionService.publishUserTuneAsync(metadata)) {
-                    break;
+                    // We found and published a playing track, so we can stop looking.
+                    return;
                 }
             }
+        }
+
+        // If we looped through all controllers and nothing was playing, send the stop command.
+        if (!isAnythingPlaying) {
+            xmppConnectionService.stopPublishingUserTuneAsync();
         }
     }
 }

@@ -195,6 +195,13 @@ public class IqGenerator extends AbstractGenerator {
         return publish(Namespace.AVATAR_DATA, item, options);
     }
 
+    public Iq publishUserTune() {
+        final Element item = new Element("item");
+        item.setAttribute("id", "monoclesUserTune");
+        item.addChild("tune", Namespace.USER_TUNE);
+        return publish(Namespace.USER_TUNE, item, null);
+    }
+
     public Iq publishUserTune(MediaMetadata metadata, final Bundle options) {
         final Element item = new Element("item");
         item.setAttribute("id", "monoclesUserTune");
