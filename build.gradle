@@ -214,7 +214,6 @@ android {
         }
         free {
             dimension "distribution"
-            versionNameSuffix "+free"
         }
     }
 
