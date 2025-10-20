@@ -394,7 +394,8 @@ public class ConversationsActivity extends XmppActivity
                 final var all = new com.mikepenz.materialdrawer.model.ProfileDrawerItem();
                 all.setIdentifier(100);
                 com.mikepenz.materialdrawer.model.interfaces.DescribableKt.setDescriptionText(all, getString(R.string.all_accounts));
-                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.main_logo);
+                com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(all, R.drawable.monocleslogo_chat_icon_day_night);
+                com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(all, getString(R.string.all_accounts));
                 accountHeader.addProfile(all, 0);
             }
 
