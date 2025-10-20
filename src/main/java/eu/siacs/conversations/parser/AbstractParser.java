@@ -163,11 +163,13 @@ public abstract class AbstractParser {
 			}
 		} catch (final Exception e) { }
 		Set<MucOptions.Hat> hats = new TreeSet<>();
-		for (Element hat : hatsEl.getChildren()) {
-			if ("hat".equals(hat.getName()) && ("urn:xmpp:hats:0".equals(hat.getNamespace()) || "xmpp:prosody.im/protocol/hats:1".equals(hat.getNamespace()))) {
-				hats.add(new MucOptions.Hat(hat));
-			}
-		}
+        if (hatsEl != null) {
+            for (final var hat : hatsEl.getChildren()) {
+                if ("hat".equals(hat.getName()) && ("urn:xmpp:hats:0".equals(hat.getNamespace()) || "xmpp:prosody.im/protocol/hats:1".equals(hat.getNamespace()))) {
+                    hats.add(new MucOptions.Hat(hat));
+                }
+            }
+        }
 		MucOptions.User user = new MucOptions.User(conference.getMucOptions(), fullJid, occupantId == null ? null : occupantId.getAttribute("id"), nickname, hatsEl == null ? null : hats);
 		if (Jid.Invalid.isValid(realJid)) {
 			user.setRealJid(realJid);

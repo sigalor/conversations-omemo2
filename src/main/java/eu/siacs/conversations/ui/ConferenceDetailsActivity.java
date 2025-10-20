@@ -900,11 +900,14 @@ public class ConferenceDetailsActivity extends XmppActivity
     }
 
     public static String getStatus(Context context, User user, final boolean advanced) {
+        var hats = context.getString(user.getRole().getResId());
         if (advanced) {
+            for (final var hat : user.getHats()) {
+                hats += ", " + hat;
+            }
             return String.format(
-                    "%s (%s)",
-                    context.getString(user.getAffiliation().getResId()),
-                    context.getString(user.getRole().getResId()));
+                    "%s, %s",
+                    context.getString(user.getAffiliation().getResId()), hats);
         } else {
             return context.getString(user.getAffiliation().getResId());
         }

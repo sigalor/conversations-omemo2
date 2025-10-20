@@ -510,6 +510,7 @@ public class MucOptions {
     }
 
     public static List<User> sub(List<User> users, int max) {
+        if (users.size() < max) return users;
         ArrayList<User> subset = new ArrayList<>();
         HashSet<Jid> jids = new HashSet<>();
         for (User user : users) {
