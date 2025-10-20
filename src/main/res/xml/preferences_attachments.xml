@@ -81,7 +81,7 @@
         <ListPreference
             android:title="@string/voice_message_codec"
             android:icon="@drawable/audio_file_24dp"
-            android:defaultValue="opus"
+            android:defaultValue="aac"
             android:entries="@array/voice_codec_entries"
             android:entryValues="@array/voice_codec_values"
             android:key="voice_message_codec"

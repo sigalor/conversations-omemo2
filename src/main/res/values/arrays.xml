@@ -142,13 +142,13 @@
 
 	<string-array name="voice_codec_entries">
 		<item>Opus (best)</item>
-		<item>MPEG4</item>
+		<item>AAC</item>
 		<item>3GPP</item>
 	</string-array>
 
 	<string-array name="voice_codec_values">
 		<item>opus</item>
-		<item>mpeg4</item>
+		<item>aac</item>
 		<item>3gpp</item>
 	</string-array>
 

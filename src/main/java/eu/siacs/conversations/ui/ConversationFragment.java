@@ -5694,29 +5694,6 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    private static final Set<String> AAC_SENSITIVE_DEVICES =
-            new ImmutableSet.Builder<String>()
-                    .add("FP4")             // Fairphone 4 https://codeberg.org/monocles/monocles_chat/issues/133
-                    .add("ONEPLUS A6000")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
-                    .add("ONEPLUS A6003")   // OnePlus 6 https://github.com/iNPUTmice/Conversations/issues/4329
-                    .add("ONEPLUS A6010")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
-                    .add("ONEPLUS A6013")   // OnePlus 6T https://codeberg.org/monocles/monocles_chat/issues/133
-                    .add("Pixel 2") // Pixel 2 // https://codeberg.org/iNPUTmice/Conversations/issues/526
-                    .add("Pixel 4a")        // Pixel 4a https://github.com/iNPUTmice/Conversations/issues/4223
-                    .add("SC-03K") // Samsung Galaxy S9+
-                    .add("SCV39") // Samsung Galaxy S9+
-                    .add("SM-G965F") // Samsung Galaxy S9+
-                    .add("SM-G965N") // Samsung Galaxy S9+
-                    .add("SM-G9650") // Samsung Galaxy S9+
-                    .add("SM-G965W") // Samsung Galaxy S9+
-                    .add("SM-G965U") // Samsung Galaxy S9+
-                    .add("SM-G965U1") // Samsung Galaxy S9+  // https://codeberg.org/iNPUTmice/Conversations/issues/526
-                    .add("WP12 Pro")        // Oukitel WP 12 Pro https://github.com/iNPUTmice/Conversations/issues/4223
-                    .add("Volla Phone X")   // Volla Phone X https://github.com/iNPUTmice/Conversations/issues/4223
-                    .add("Redmi Note 12S")  // Xiaomi Redmi Note 12S Model name
-                    .add("23030RAC7Y")      // Xiaomi Redmi Note 12S Code
-                    .build();
-
     private boolean startRecording() {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -5733,19 +5710,13 @@ public class ConversationFragment extends XmppFragment
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
             mRecorder.setAudioEncodingBitRate(64000);
             mRecorder.setAudioSamplingRate(48000);
-        } else if ("mpeg4".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
+        } else if ("aac".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
             outputFormat = MediaRecorder.OutputFormat.MPEG_4;
             mRecorder.setOutputFormat(outputFormat);
-            if (AAC_SENSITIVE_DEVICES.contains(Build.MODEL) && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
-                // Changing these three settings for AAC sensitive devices for Android<=13 might lead to sporadically truncated (cut-off) voice messages.
-                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-                mRecorder.setAudioSamplingRate(24_000);
-                mRecorder.setAudioEncodingBitRate(28_000);
-            } else {
-                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                mRecorder.setAudioSamplingRate(44_100);
-                mRecorder.setAudioEncodingBitRate(64_000);
-            }
+            // Default for AAC sensitive devices
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
+            mRecorder.setAudioSamplingRate(24_000);
+            mRecorder.setAudioEncodingBitRate(28_000);
         } else {
             outputFormat = MediaRecorder.OutputFormat.THREE_GPP;
             mRecorder.setOutputFormat(outputFormat);
@@ -5885,7 +5856,7 @@ public class ConversationFragment extends XmppFragment
                             //attachFileToConversation(conversation, Uri.fromFile(outputFile), "audio/oga;codecs=opus");
                             binding.recordingVoiceActivity.setVisibility(View.GONE);
                         });
-            } else if ("mpeg4".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
+            } else if ("aac".equals(userChosenCodec) || !Config.USE_OPUS_VOICE_MESSAGES) {
                 try {
                     if (!latch.await(8, TimeUnit.SECONDS)) {
                         Log.d(Config.LOGTAG, "time out waiting for output file to be written");
