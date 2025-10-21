@@ -114,24 +114,26 @@ public class AudioPlayer
         MessageAdapter.setTextColor(viewHolder.runtime, viewHolder.bubbleColor);
         MessageAdapter.setTextColor(viewHolder.title, viewHolder.bubbleColor);
         viewHolder.progress.setOnSeekBarChangeListener(this);
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        try {
-            mediaMetadataRetriever.setDataSource(message.getRelativeFilePath());
-            if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null && mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null) {
-                String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                viewHolder.title.setText(String.format("%s - %s", artist, album));
-            }
-        } catch (Exception e) {
-            Log.w(Config.LOGTAG, e);
-        } finally {
+        executor.execute(() -> {
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
             try {
-                mediaMetadataRetriever.release();
+                mediaMetadataRetriever.setDataSource(message.getRelativeFilePath());
+                if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null && mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null) {
+                    String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                    handler.post(() -> viewHolder.title.setText(String.format("%s - %s", artist, album)));
+                }
             } catch (Exception e) {
-                // Can fail on some older Android versions, log if needed
-                Log.e(Config.LOGTAG, "Error releasing MediaMetadataRetriever", e);
+                Log.w(Config.LOGTAG, e);
+            } finally {
+                try {
+                    mediaMetadataRetriever.release();
+                } catch (Exception e) {
+                    // Can fail on some older Android versions, log if needed
+                    Log.e(Config.LOGTAG, "Error releasing MediaMetadataRetriever", e);
+                }
             }
-        }
+        });
         final ColorStateList color =
                 MessageAdapter.bubbleToOnSurfaceColorStateList(
                         viewHolder.progress, viewHolder.bubbleColor);
