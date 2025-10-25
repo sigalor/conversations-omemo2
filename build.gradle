@@ -54,7 +54,7 @@ dependencies {
     implementation project(':libs:annotation')
     annotationProcessor project(':libs:annotation-processor')
 
-    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.viewpager:viewpager:1.1.0'
 
     monocleschatPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
     monocleschatPlaystoreImplementation 'com.github.singpolyma:play-licensing:1c637ea03c'
@@ -62,30 +62,30 @@ dependencies {
     quicksyPlaystoreImplementation 'com.google.android.gms:play-services-auth-api-phone:18.2.0'
     implementation 'com.github.open-keychain.open-keychain:openpgp-api:v5.7.1'
     implementation("com.github.CanHub:Android-Image-Cropper:2.2.0")
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.exifinterface:exifinterface:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.exifinterface:exifinterface:1.4.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "androidx.preference:preference:1.2.1"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'com.google.android.material:material:1.13.0-beta01'
-    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.work:work-runtime:2.10.5'
 
-    implementation "androidx.emoji2:emoji2:1.5.0"
-    freeImplementation "androidx.emoji2:emoji2-bundled:1.5.0"
-    implementation "androidx.emoji2:emoji2-emojipicker:1.5.0"
+    implementation "androidx.emoji2:emoji2:1.6.0"
+    freeImplementation "androidx.emoji2:emoji2-bundled:1.6.0"
+    implementation "androidx.emoji2:emoji2-emojipicker:1.6.0"
 
-    implementation 'org.bouncycastle:bcmail-jdk18on:1.81'
+    implementation 'org.bouncycastle:bcmail-jdk18on:1.82'
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
     implementation "com.wefika:flowlayout:0.4.1"
 
     //noinspection GradleDependency
-    implementation 'io.deepmedia.community:transcoder-android:0.11.1'
+    implementation 'io.deepmedia.community:transcoder-android:0.11.2'
 
     implementation 'org.jxmpp:jxmpp-jid:1.0.3'
     implementation 'org.jxmpp:jxmpp-stringprep-libidn:1.0.3'
-    implementation 'org.osmdroid:osmdroid-android:6.1.16'
+    implementation 'org.osmdroid:osmdroid-android:6.1.20'
     implementation 'org.hsluv:hsluv:0.2'
     implementation 'org.conscrypt:conscrypt-android:2.5.3'
     implementation 'me.drakeet.support:toastcompat:1.1.0'
@@ -95,12 +95,12 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:2.11.0"
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
-    implementation 'com.google.guava:guava:33.4.6-android'
+    implementation 'com.google.guava:guava:33.5.0-android'
     implementation 'io.michaelrocks:libphonenumber-android:8.13.52'
     implementation 'im.conversations.webrtc:webrtc-android:129.0.0'
-    implementation 'io.github.nishkarsh:android-permissions:2.1.6'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'io.github.nishkarsh:android-permissions:2.1.8'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.documentfile:documentfile:1.1.0'
     implementation 'androidx.browser:browser:1.8.0'
     implementation 'com.github.martin-stone:hsv-alpha-color-picker-android:3.1.0'
     implementation 'com.github.ipld:java-cid:v1.3.1'
@@ -110,7 +110,7 @@ dependencies {
     implementation 'com.github.singpolyma:android-identicons:3361281bd4'
     implementation 'com.github.woltapp:blurhash:master'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    implementation 'org.tomlj:tomlj:1.1.0'
+    implementation 'org.tomlj:tomlj:1.1.1'
     implementation 'com.tbuonomo:dotsindicator:4.2'
     implementation 'com.github.singpolyma:OpenGraphParser:d0882eadb2'
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
@@ -118,7 +118,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.15.1' // For photo editor compatibility
 
     implementation 'com.github.natario1:Autocomplete:v1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'com.github.inusedname:AndroidPhotoFilters:1.0.7.2'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'com.mikepenz:materialdrawer:10.0.0-b01'
