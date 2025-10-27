@@ -1124,7 +1124,7 @@
     <string name="welcome_to_monocles_chat">欢迎使用 monocles chat</string>
     <string name="monocles_chat_intro_description">monocles chat 将您连接到称为 XMPP 的全球网络。此网络包括称为网关的服务，用于与短信、IRC、Matrix 等其他网络聊天。</string>
     <string name="how_the_xmpp_network_works">XMPP 网络的运作方式</string>
-    <string name="do_you_really_want_to_retract_this_message">是否确定要撤回此消息？</string>
+    <string name="do_you_really_want_to_retract_this_message">是否确定要撤回此消息？将会发送撤回请求，但接收者的客户端可能不会接受。</string>
     <string name="store_media_only_in_cache">仅将媒体存储在缓存中</string>
     <string name="cant_open_file">无法打开文件</string>
     <string name="encryption">加密</string>
@@ -1396,9 +1396,9 @@
     <string name="is_requesting_to_speak">请求发言</string>
     <string name="open">打开</string>
     <string name="pref_call_integration">通话集成</string>
-    <string name="pref_extensions_summary">添加、移除和配置扩展程序</string>
-    <string name="pref_extensions_title">扩展程序</string>
-    <string name="add_extension">添加扩展程序</string>
+    <string name="pref_extensions_summary">添加、移除和配置扩展</string>
+    <string name="pref_extensions_title">扩展</string>
+    <string name="add_extension">添加扩展</string>
     <string name="show_media_title">在图库中显示媒体？</string>
     <string name="reaction_to">至</string>
     <string name="pref_call_integration_summary">此应用的通话会与常规通话交互，例如新通话开始时自动结束当前通话。</string>
@@ -1531,4 +1531,18 @@
     <string name="video_attachment">视频附件</string>
     <string name="pinned_audio_with_text_preview">置顶的音频</string>
     <string name="pinned_audio_no_preview">置顶的音频文件</string>
+    <string name="pref_show_contact_presence_details">在联系人头像旁显示联系人在线状态</string>
+    <string name="pref_show_contact_presence">联系人在线状态</string>
+    <string name="pinned_media">置顶的媒体</string>
+    <string name="unpin_message">取消置顶消息</string>
+    <string name="pref_always_show_full_timestamps">显示完整时间戳</string>
+    <string name="pref_always_show_full_timestamps_summary">始终显示完整的消息时间戳，不显示“刚刚”、“1 分钟前”等表述</string>
+    <string name="pref_skip_image_editor_screen">跳过图片编辑器‌</string>
+    <string name="pref_skip_image_editor_screen_summary">对于单张图片附件，不要自动打开图片编辑器界面</string>
+    <string name="update_default_stickers_summary">下载默认贴纸集</string>
+    <string name="pref_clear_blocked_media_summary">取消屏蔽所有已屏蔽的媒体，包括头像</string>
+    <string name="delete_extension_title">删除扩展</string>
+    <string name="delete_extension_message">是否确定要删除扩展“%1$s”？</string>
+    <string name="extension_deleted">扩展已删除</string>
+    <string name="error_deleting_extension">无法删除扩展</string>
 </resources>

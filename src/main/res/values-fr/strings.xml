@@ -1109,7 +1109,7 @@
     <string name="video_is_enabled_tap_to_disable">La vidéo est activée. Appuyez pour la désactiver.</string>
     <string name="welcome_to_monocles_chat">Bienvenue sur monocles chat</string>
     <string name="how_the_xmpp_network_works">Comment fonctionne le réseau XMPP</string>
-    <string name="do_you_really_want_to_retract_this_message">Voulez-vous vraiment retirer ce message ?</string>
+    <string name="do_you_really_want_to_retract_this_message">Voulez-vous vraiment retirer ce message ?</string>
     <string name="show_avatar">Afficher l\'avatar</string>
     <string name="cant_open_file">Impossible d\'ouvrir le fichier</string>
     <string name="encryption">Chiffrement</string>

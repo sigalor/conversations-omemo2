@@ -489,14 +489,14 @@
     <string name="hostname_or_onion">Сервер- или .onion-адрес</string>
     <string name="not_a_valid_port">Это недопустимый номер порта</string>
     <string name="not_valid_hostname">Это недопустимое имя сервера</string>
-    <string name="connected_accounts">%1$d из %2$d аккаунтов подклюнены</string>
+    <string name="connected_accounts">%1$d из %2$d аккаунтов подключены</string>
     <plurals name="x_messages">
         <item quantity="one">%d сообщение</item>
         <item quantity="few">%d сообщения</item>
         <item quantity="many">%d сообщений</item>
         <item quantity="other">%d сообщений</item>
     </plurals>
-    <string name="load_more_messages">Получить больше сообщений</string>
+    <string name="load_more_messages">%1$d из %2$d аккаунтов подключены%2$d</string>
     <string name="shared_file_with_x">Файл отправлен %s</string>
     <string name="shared_image_with_x">Изображение отправлено %s</string>
     <string name="shared_images_with_x">Изображения отправлены %s</string>
@@ -1153,7 +1153,7 @@
     <string name="server_info_login_mechanism">Способ входа</string>
     <string name="welcome_to_monocles_chat">Добро пожаловать в чат monocles</string>
     <string name="how_the_xmpp_network_works">Как работает сеть XMPP</string>
-    <string name="do_you_really_want_to_retract_this_message">Вы действительно хотите отозвать это сообщение?</string>
+    <string name="do_you_really_want_to_retract_this_message">Вы уверены, что хотите отозвать это сообщение? Запрос на отзыв будет отправлен, но клиент получателя может его не принять.</string>
     <string name="show_avatar">Показать аватар</string>
     <string name="store_media_only_in_cache">Хранить медиа только в кэше</string>
     <string name="cant_open_file">Невозможно открыть файл</string>
@@ -1565,4 +1565,18 @@
     <string name="video_attachment">Видео-вложение</string>
     <string name="pinned_audio_with_text_preview">Закрепленное аудио</string>
     <string name="pinned_audio_no_preview">Закрепленный аудиофайл</string>
+    <string name="pref_show_contact_presence_details">Показать контактное присутствие рядом с аватаром контакта</string>
+    <string name="pref_show_contact_presence">Контактное присутствие</string>
+    <string name="pinned_media">Закрепленные медиафайлы</string>
+    <string name="unpin_message">Открепить сообщение</string>
+    <string name="pref_always_show_full_timestamps">Показать полные временные метки</string>
+    <string name="pref_always_show_full_timestamps_summary">Всегда показывать полные временные метки сообщений без «сейчас», «1 минуту назад» и т. д.</string>
+    <string name="pref_skip_image_editor_screen">Пропустить редактор изображений</string>
+    <string name="pref_skip_image_editor_screen_summary">Не открывать автоматически экран редактора изображений для прикрепленных отдельных изображений</string>
+    <string name="update_default_stickers_summary">Загрузите набор наклеек по умолчанию</string>
+    <string name="pref_clear_blocked_media_summary">Разблокируйте все заблокированные медиафайлы, включая аватары</string>
+    <string name="delete_extension_title">Удалить расширение</string>
+    <string name="delete_extension_message">Вы уверены, что хотите удалить расширение \"%1$s\"?</string>
+    <string name="extension_deleted">Расширение удалено</string>
+    <string name="error_deleting_extension">Не удалось удалить расширение</string>
 </resources>

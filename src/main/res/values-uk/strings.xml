@@ -1218,7 +1218,7 @@
     <string name="call_is_using_bluetooth">Виклик здійснюється через Bluetooth.</string>
     <string name="flip_camera">Розвернути камеру</string>
     <string name="video_is_disabled_tap_to_enable">Відео вимкнено. Торкніться, щоб увімкнути.</string>
-    <string name="do_you_really_want_to_retract_this_message">Ви справді хочете видалити це повідомлення?</string>
+    <string name="do_you_really_want_to_retract_this_message">Ви впевнені, що хочете видалити це повідомлення? Запит на видалення буде надіслано, але клієнт одержувача може його не прийняти.</string>
     <string name="pref_set_text_collapsable">Бета: Згортати довгий текст</string>
     <string name="pref_show_show_nav_drawer_summary">Увімкнути навігаційну панель для кращого сортування розмов</string>
     <string name="pref_show_show_nav_drawer">Навігаційна панель</string>
@@ -1584,4 +1584,18 @@
     <string name="pinned_video_preview">Закріплене відео</string>
     <string name="pinned_audio_no_preview">Закріплений аудіофайл</string>
     <string name="pinned_audio_with_text_preview">Закріплене аудіо</string>
+    <string name="pref_show_contact_presence_details">Показувати поруч із аватаром контакту його присутність</string>
+    <string name="pref_show_contact_presence">Присутність контакту</string>
+    <string name="unpin_message">Відкріпити повідомлення</string>
+    <string name="pinned_media">Закріплене медіа</string>
+    <string name="delete_extension_title">Видалити розширення</string>
+    <string name="extension_deleted">Розширення видалено</string>
+    <string name="error_deleting_extension">Не вдалося видалити розширення</string>
+    <string name="delete_extension_message">Ви впевнені, що хочете видалити розширення «%1$s»?</string>
+    <string name="pref_always_show_full_timestamps">Показувати часові позначки</string>
+    <string name="pref_always_show_full_timestamps_summary">Завжди показувати повні часові позначки повідомлень замість «щойно», «1 хвилину тому» тощо</string>
+    <string name="pref_skip_image_editor_screen">Пропускати редактор зображень</string>
+    <string name="pref_skip_image_editor_screen_summary">Не відкривати автоматично екран редагування для вкладень з одним зображенням</string>
+    <string name="update_default_stickers_summary">Завантажити набір наклейок за замовчуванням</string>
+    <string name="pref_clear_blocked_media_summary">Розблокувати всі заблоковані медіа, включаючи аватари</string>
 </resources>
