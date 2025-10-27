@@ -1,0 +1,1 @@
+Android için güvenli bir XMPP sohbet istemcisidir

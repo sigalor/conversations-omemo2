@@ -1,0 +1,26 @@
+monocles chat, modern ve güvenli bir Android XMPP sohbet istemcisidir. 
+Conversations'ı temel alır ve blabber.im ile Cheogram'ın özelliklerini içerir, ancak birçok değişiklik ve ek özellik ile kullanılabilirliği ve güvenliği artırır.
+
+Bağlantı güvenliği ve kişisel verilerin korunması bizim için çok önemlidir,
+bu nedenle sohbet ile sunucu arasında şifreli bağlantılar kullanırız, böylece
+yabancıların mesajlarınızı ele geçirip okumasını neredeyse imkansız hale getiririz. Bu nedenle eski şifreleme takımlarını kaldırdık. Bunlar monocles chat sunucusuna uyarlanmıştır, ancak yine de günümüz standartlarını kullanan diğer xmpp sunucularıyla uyumludur.
+
+Bu sizin için yeterli değilse, OMEMO
+veya OpenPGP gibi uçtan uca mesaj şifreleme kullanılabilir. Bu, mesajların gönderen cihazda şifrelenmesini
+ve yalnızca alıcı cihaz tarafından şifresinin çözülmesini sağlar.
+
+Özellikler:
+* <a href="https://en.wikipedia.org/wiki/Off-the-Record_Messaging">OTR</a>, <a href="http://conversations.im/omemo/">OMEMO</a> veya <a href="http://openpgp.org/about/">OpenPGP</a> ile uçtan uca şifreleme
+* Görüntülerin yanı sıra diğer dosyaları da gönderip alabilirsiniz
+* Konumları gönderip alabilirsiniz
+* Sesli mesajları gönderip alabilirsiniz
+* Kişilerinizin profil resimlerinin (avatarların) entegrasyonu
+* Mesaj geçmişini diğer istemcilerle senkronize edin
+* Konferanslar veya grup sohbetleri
+* Kişi listesi entegrasyonu (kişi listeniz sunucu ile paylaşılmaz)
+* Sesli/Görüntülü aramalar
+* Çok düşük pil tüketimi
+* Durum mesajları
+* Veritabanının yerel depolama alanına günlük yedeklenmesi
+
+Yardıma mı ihtiyacınız var? Lütfen destek grubu sohbetimize katılın <a href="xmpp:support@conference.monocles.eu">support@conference.monocles.de</a>.
