@@ -1,0 +1,34 @@
+* Don't filter out deleted messages but retracted messages only
+* Remove unnecessary content descriptions for pinned messages to prevent crash
+* Style Geo messages with empty body like media message
+* Add taler URI support
+* Advertise support for XEP-0424 Message Retraction
+* Always show 'Store media only in cache' switch in contact and conference details
+* Send an empty body for retracted messages
+* Update client resource handling and generation
+* Replace active indicator with improved presence indicator
+* Add isBlocked tag
+* Support unicode jid in EditAccountActivity
+* Refactor isDisplayableMediaCid and remove unused isVideoCid
+* Fix missing username in MMS groups
+* Show username when avatar for 1:1 chats is visible in MMS groups
+* Replace encrypted lock icon
+* Experimental: Pinned message popup menu on long press
+* Allow retracting all sent and failed to send messages
+* Fix rare crash when jumping to message
+* Add option for full timestamps
+* Add option to skip image editor
+* Add missing preferences strings and icons
+* Display artist and title in audio player
+* Clarify message retraction warning
+* Refactor: Replace swipe-to-reply library with custom implementation
+* Allow deleting extensions
+* Reduce swipe distance for reply
+* Handle stop event for UserTune
+* Remove versionNameSuffix for free flavor
+* Fix NPE when parsing hats
+* Show self in MUC user list
+* Display own hats in conference details
+* Use AAC as default audio codec for voice messages
+* Use better icon in drawer for all accounts and set name to "All accounts"
+* Guard against null url in oob stanza

@@ -1,0 +1,34 @@
+* Filtere keine gelöschten Nachrichten heraus, sondern nur zurückgezogene Nachrichten.
+* Entferne unnötige Inhaltsbeschreibungen für angeheftete Nachrichten, um Abstürze zu vermeiden.
+* Gestalte Geo-Nachrichten mit leerem Textkörper wie Mediennachrichten.
+* Füge Unterstützung für taler-URIs hinzu.
+* Bewirb die Unterstützung für XEP-0424 Message Retraction.
+* Zeige den Schalter „Medien nur im Cache speichern” immer in den Kontakt- und Konferenzdetails an.
+* Leeren Textkörper für zurückgezogene Nachrichten senden
+* Aktualisierung der Client-Ressourcenverwaltung und -generierung
+* Aktive Anzeige durch verbesserte Präsenzanzeige ersetzen
+* isBlocked-Tag hinzufügen
+* Unicode-JID in EditAccountActivity unterstützen
+* isDisplayableMediaCid umgestalten und ungenutztes isVideoCid entfernen
+* Fehlenden Benutzernamen in MMS-Gruppen korrigieren
+* Benutzernamen anzeigen, wenn Avatar für 1:1-Chats in MMS-Gruppen sichtbar ist
+* Verschlüsseltes Schloss-Symbol ersetzen
+* Experimentell: Popup-Menü für angeheftete Nachrichten bei langem Drücken
+* Zurückziehen aller gesendeten und nicht gesendeten Nachrichten ermöglichen
+* Seltenen Absturz beim Springen zu einer Nachricht beheben
+* Option für vollständige Zeitstempel hinzufügen
+* Option zum Überspringen des Bildeditors hinzufügen
+* Fehlende Einstellungszeichenfolgen und Symbole hinzufügen
+* Anzeige von Interpret und Titel im Audio-Player
+* Klarstellung der Warnung beim Zurückziehen von Nachrichten
+* Refaktorisierung: Ersetzen der Swipe-to-Reply-Bibliothek durch eine benutzerdefinierte Implementierung
+* Löschen von Erweiterungen zulassen
+* Verringern der Wischdistanz für Antworten
+* Behandeln von Stoppereignissen für UserTune
+* Entfernen von versionNameSuffix für kostenlose Version
+* Beheben von NPE beim Parsen von Hats
+* Anzeigen von sich selbst in der MUC-Benutzerliste
+* Anzeigen eigener Hats in Konferenzdetails
+* AAC als Standard-Audio-Codec für Sprachnachrichten verwenden
+* Besseres Symbol in der Seitenleiste für alle Konten verwenden und Namen auf „Alle Konten” setzen
+* Schutz vor Null-URLs in OOB-Stanza
