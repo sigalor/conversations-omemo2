@@ -1525,8 +1525,14 @@ public class ConversationFragment extends XmppFragment
             }
             case ATTACHMENT_CHOICE_TAKE_PHOTO: {
                 final Uri takePhotoUri = pendingTakePhotoUri.pop();
-                if (takePhotoUri != null && !skipImageEditor()) {
-                    editImage(takePhotoUri);
+                if (takePhotoUri != null) {
+                    if (!skipImageEditor()) {
+                        editImage(takePhotoUri);
+                    } else {
+                        mediaPreviewAdapter.addMediaPreviews(
+                                Attachment.of(activity, takePhotoUri, Attachment.Type.IMAGE));
+                        toggleInputMethod();
+                    }
                 } else {
                     Log.d(Config.LOGTAG, "lost take photo uri. unable to to attach");
                 }
