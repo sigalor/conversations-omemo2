@@ -24,7 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.primitives.Longs;
 import com.google.common.io.Files;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +40,9 @@ import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.worker.ExportBackupWorker;
+
+import java.io.File;
+import java.nio.file.Paths;
 
 public class ExtensionSettingsFragment extends androidx.fragment.app.Fragment {
     FragmentExtensionSettingsBinding binding;
@@ -139,13 +142,32 @@ public class ExtensionSettingsFragment extends androidx.fragment.app.Fragment {
     }
 
     private void deleteExtension(File file) {
-        if (file != null && file.delete()) {
-            Toast.makeText(requireActivity(), R.string.extension_deleted, Toast.LENGTH_SHORT).show();
-            binding.extensionList.getAdapter().notifyDataSetChanged();
-        } else {
+        if (file == null) {
             Toast.makeText(requireActivity(), R.string.error_deleting_extension, Toast.LENGTH_SHORT).show();
+            Log.e("ExtensionSettings", "Attempted to delete a null file reference.");
+            return;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Use the fully qualified name to resolve the ambiguity
+                java.nio.file.Files.deleteIfExists(file.toPath());
+            } else {
+                if (!file.delete() && file.exists()) {
+                    // Throw an exception if delete() returns false and the file still exists
+                    throw new IOException("Failed to delete file: " + file.getAbsolutePath());
+                }
+            }
+            Toast.makeText(requireActivity(), R.string.extension_deleted, Toast.LENGTH_SHORT).show();
+            // It's better to be specific about what changed in the adapter
+            // but notifyDataSetChanged() is okay for now.
+            binding.extensionList.getAdapter().notifyDataSetChanged();
+        } catch (Exception e) {
+            Log.e("ExtensionSettings", "Error deleting extension: " + file.getAbsolutePath(), e);
+            String errorMessage = getString(R.string.error_deleting_extension) + ": " + e.getMessage();
+            Toast.makeText(requireActivity(), errorMessage, Toast.LENGTH_LONG).show();
         }
     }
+
 
 
     @Override
