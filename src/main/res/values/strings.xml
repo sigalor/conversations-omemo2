@@ -1062,7 +1062,7 @@
     <string name="pref_category_operating_system">Operating System</string>
     <string name="pref_privacy_summary">Typing notifications, Last Seen, Availability</string>
     <string name="pref_connection_summary">Hostname &amp; Port, Tor</string>
-    <string name="pref_connection_summary_w_cd">Hostname &amp; Port, Tor, Channel Discovery</string>
+    <string name="pref_connection_summary_w_cd">Hostname &amp; Port, Tor, P2P, Channel Discovery</string>
     <string name="pref_keyboard_options">Keyboard</string>
     <string name="pref_category_engagement_notifications">Engagement notifications</string>
     <string name="pref_category_application">Application</string>
@@ -1542,4 +1542,6 @@
     <string name="delete_extension_message">Are you sure you want to delete the extension \"%1$s\"?</string>
     <string name="extension_deleted">Extension deleted</string>
     <string name="error_deleting_extension">Could not delete extension</string>
+    <string name="pref_use_relays">Always use relays</string>
+    <string name="pref_use_relays_summary">Relay all P2P connections (calls and file transfers) through your server to avoid revealing your IP address.</string>
 </resources>

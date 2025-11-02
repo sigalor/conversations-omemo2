@@ -259,7 +259,8 @@ public class WebRTCWrapper {
     synchronized void initializePeerConnection(
             final Set<Media> media,
             final Collection<PeerConnection.IceServer> iceServers,
-            final boolean trickle)
+            final boolean trickle,
+            final boolean useRelay)
             throws InitializationException {
         Preconditions.checkState(this.eglBase != null);
         Preconditions.checkNotNull(media);
@@ -286,7 +287,8 @@ public class WebRTCWrapper {
                                         .createAudioDeviceModule())
                         .createPeerConnectionFactory();
 
-        final PeerConnection.RTCConfiguration rtcConfig = buildConfiguration(iceServers, trickle);
+        final PeerConnection.RTCConfiguration rtcConfig =
+                buildConfiguration(iceServers, trickle, useRelay);
         final PeerConnection peerConnection =
                 requirePeerConnectionFactory()
                         .createPeerConnection(rtcConfig, peerConnectionObserver);
@@ -401,7 +403,9 @@ public class WebRTCWrapper {
     }
 
     public static PeerConnection.RTCConfiguration buildConfiguration(
-            final Collection<PeerConnection.IceServer> iceServers, final boolean trickle) {
+            final Collection<PeerConnection.IceServer> iceServers,
+            final boolean trickle,
+            final boolean useRelay) {
         final PeerConnection.RTCConfiguration rtcConfig =
                 new PeerConnection.RTCConfiguration(ImmutableList.copyOf(iceServers));
         rtcConfig.tcpCandidatePolicy =
@@ -416,12 +420,18 @@ public class WebRTCWrapper {
         rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN;
         rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.NEGOTIATE;
         rtcConfig.enableImplicitRollback = true;
+        rtcConfig.iceTransportsType =
+                useRelay
+                        ? PeerConnection.IceTransportsType.RELAY
+                        : PeerConnection.IceTransportsType.ALL;
         return rtcConfig;
     }
 
     void reconfigurePeerConnection(
-            final Set<PeerConnection.IceServer> iceServers, final boolean trickle) {
-        requirePeerConnection().setConfiguration(buildConfiguration(iceServers, trickle));
+            final Set<PeerConnection.IceServer> iceServers,
+            final boolean trickle,
+            final boolean useRelay) {
+        requirePeerConnection().setConfiguration(buildConfiguration(iceServers, trickle, useRelay));
     }
 
     void restartIceAsync() {
