@@ -1794,6 +1794,21 @@ public class ConversationsActivity extends XmppActivity
         runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
     }
 
+    @Override
+    public void onBackPressed() {
+        FragmentManager fm = getFragmentManager();
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            Fragment f = fm.getFragments().get(fm.getFragments().size() - 1);
+            if (f != null && f instanceof ConversationFragment) {
+                if (((ConversationFragment) f).onBackPressed()) {
+                    return;
+                }
+            }
+        }
+
+        super.onBackPressed();
+    }
+
     public PinnedMessageRepository getPinnedMessageRepository() {
         return new PinnedMessageRepository(this);
     }

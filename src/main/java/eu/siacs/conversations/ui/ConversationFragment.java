@@ -118,6 +118,7 @@ import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcStore;
 import de.monocles.chat.EditMessageSelectionActionModeCallback;
 
+import com.github.pgreze.reactions.ReactionPopup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
@@ -272,6 +273,8 @@ public class ConversationFragment extends XmppFragment
     private File mOutputFile;
 
     private FileObserver mFileObserver;
+
+    public ReactionPopup reactionPopup = null;
 
 
     public static final int REQUEST_TRUST_KEYS_NONE = 0x0;
@@ -2971,6 +2974,10 @@ public class ConversationFragment extends XmppFragment
             //activity.finish();
             binding.recordingVoiceActivity.setVisibility(View.GONE);
             return false;
+        }
+        if (reactionPopup != null && reactionPopup.isShowing()) {
+            reactionPopup.dismiss();
+            return true;
         }
         return false;
     }
@@ -6001,6 +6008,9 @@ public class ConversationFragment extends XmppFragment
                     showTextFormat(me);
                 } else {
                     hideTextFormat();
+                }
+                if (reactionPopup != null && reactionPopup.isShowing()) {
+                    reactionPopup.dismiss();
                 }
                 return ViewCompat.onApplyWindowInsets(v, insets);
             });
