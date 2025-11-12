@@ -104,4 +104,5 @@
     <!-- presence indicator -->
     <dimen name="presence_indicator_size">12dp</dimen>
     <dimen name="presence_indicator_offset">2dp</dimen>
+    <dimen name="thumbnail_size">80dp</dimen>
 </resources>
