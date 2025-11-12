@@ -5,5 +5,5 @@
         app:showAsAction="ifRoom"
         android:showAsAction="ifRoom"
         android:title="@string/done"
-        android:icon="@drawable/ic_done_24dp"/>
+        android:icon="@drawable/rounded_done_outline_24"/>
 </menu>
