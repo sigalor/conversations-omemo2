@@ -2,6 +2,6 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <share-target android:targetClass="eu.siacs.conversations.ui.ShareWithActivity">
         <data android:mimeType="*/*" />
-        <category android:name="de.monocles.chat.SHARE_TARGET" />
+        <category android:name="eu.siacs.conversations.category.SHARE_TARGET" />
     </share-target>
 </shortcuts>
