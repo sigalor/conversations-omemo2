@@ -2667,7 +2667,7 @@ public class ConversationFragment extends XmppFragment
                         .setMessage(R.string.do_you_really_want_to_retract_this_message)
                         .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                             final var message = selectedMessage;
-                            fadeOutMessage(message.getUuid());
+                            //fadeOutMessage(message.getUuid());
                             binding.messagesView.postDelayed(() -> {
                                 final Message finalMessage = message;
                                 if (message.getConversation() instanceof Conversation) {
