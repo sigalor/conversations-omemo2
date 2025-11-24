@@ -1,0 +1,9 @@
+* Allow retracting file/geo messages and before upload
+* Improve extension deletion logic
+* Dismiss reaction popup when back pressed or IME closed
+* Setting to always use relays
+* Update and add photo filter library
+* Fix photo editor menu overlapping with status bar
+* More visible confirmation icon
+* Fix Share Target category name (direct share)
+* Disable message fade out on retraction fixes rarely showing transparent messages

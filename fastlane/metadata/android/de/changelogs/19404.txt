@@ -1,0 +1,9 @@
+* Zurückziehen von Datei-/Geodaten-Nachrichten und vor dem Hochladen ermöglichen
+* Logik zum Löschen von Erweiterungen verbessern
+* Reactions-Popup schließen, wenn die Zurück-Taste gedrückt oder die IME geschlossen wird
+* Einstellung, um immer Relais zu verwenden
+* Fotofilter-Bibliothek aktualisieren und hinzufügen
+* Überlappung des Fotoeditor-Menüs mit der Statusleiste beheben
+* Besser sichtbares Bestätigungssymbol
+* Namen der Kategorie „Freigabziel“ (direkte Freigabe) korrigieren
+* Ausblenden von Nachrichten beim Zurückziehen deaktivieren, um selten auftretende transparente Nachrichten zu beheben
