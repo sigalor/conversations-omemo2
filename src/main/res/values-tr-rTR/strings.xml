@@ -122,7 +122,7 @@
     <string name="pref_prevent_screenshots_summary">Uygulama değiştiricide uygulama içeriğini gizle ve ekran görüntülerini engelle</string>
     <string name="pref_ui_options">Kullanıcı Arayüzü</string>
     <string name="openpgp_error">OpenKeychain bir hata verdi.</string>
-    <string name="bad_key_for_encryption">Kötü anahar şifrelemesi.</string>
+    <string name="bad_key_for_encryption">Kötü anahtar şifrelemesi.</string>
     <string name="accept">Kabul et</string>
     <string name="error">Bir hata oluştu</string>
     <string name="recording_error">Hata</string>
@@ -567,7 +567,7 @@
     <string name="payment_required">Ödeme gerekli</string>
     <string name="missing_internet_permission">İnternet kullanıma izin ver</string>
     <string name="me">Ben</string>
-    <string name="contact_asks_for_presence_subscription">Kişi, müsaitlik aboneliği talep ediyor</string>
+    <string name="contact_asks_for_presence_subscription">Kişi, müsaitlik durumu aboneliği talep ediyor</string>
     <string name="allow">İzin ver</string>
     <string name="no_permission_to_access_x">%s\'e erişim hakkınız yok</string>
     <string name="remote_server_not_found">Uzak sunucu bulunamadı</string>
@@ -852,7 +852,7 @@
     <string name="file_too_large">Dosya çok büyük</string>
     <string name="attach">Ekle</string>
     <string name="discover_channels">Kanalları keşfet</string>
-    <string name="search_channels">Kanal ara</string>
+    <string name="search_channels">Kanalları ara</string>
     <string name="channel_discovery_opt_in_title">Olası gizlilik ihlali!</string>
     <string name="i_already_have_an_account">Zaten bir XMPP adresim var</string>
     <string name="add_existing_account">Varolan bir hesap ekle</string>
@@ -1047,7 +1047,7 @@
     <string name="remove_bookmark">%s için yer imini kaldırmak ister misiniz?</string>
     <string name="pref_autojoin_summary">Bir gruba katılırken \"autojoin\" (otomatik katıl) işaretini ayarla ve diğer istemciler tarafından yapılan değişikliklere tepki ver.</string>
     <string name="title_undo_swipe_out_chat">Sohbet arşivlendi</string>
-    <string name="search_group_chats">Grup ara</string>
+    <string name="search_group_chats">Grup sohbetlerini ara</string>
     <string name="barcode_does_not_contain_fingerprints_for_this_chat">Barkod, bu sohbet için parmak izi bilgisi barındırmıyor.</string>
     <string name="channel_discover_opt_in_message">Grup keşfetme &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; adlı bir hizmeti kullanır.&lt;br&gt;&lt;br&gt;Bu özelliği kullanmanız IP adresinizi ve aramalarınızı bu hizmete gönderecektir. Daha fazla bilgi için hizmetin &lt;a href=https://search.jabber.network/privacy&gt;Gizlilik Politikasına&lt;/a&gt; göz atın.</string>
     <string name="outdated_backup_file_format">Artık desteklenmeyen bir yedek dosyası türünü geri yüklemeye çalışıyorsunuz</string>
@@ -1529,7 +1529,7 @@
     <string name="video_attachment">Video eki</string>
     <string name="pinned_audio_with_text_preview">Sabitlenmiş ses</string>
     <string name="pinned_audio_no_preview">Sabitlenmiş ses dosyası</string>
-    <string name="pref_show_contact_presence_details">Yakındaki kişi avatarını göster</string>
+    <string name="pref_show_contact_presence_details">Kişi avatarının yanında kişilerin durumunu göster</string>
     <string name="pref_show_contact_presence">Kişi mevcudiyeti</string>
     <string name="pinned_media">Sabitlenmiş medya</string>
     <string name="unpin_message">Mesajı sabitlemeyi kaldır</string>
