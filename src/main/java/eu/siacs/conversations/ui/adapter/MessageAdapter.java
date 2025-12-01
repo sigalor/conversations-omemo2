@@ -744,6 +744,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         viewHolder.messageBody().setVisibility(View.VISIBLE);
         setTextColor(viewHolder.messageBody(), bubbleColor);
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
+        setTextSize(viewHolder.inReplyTo(), this.bubbleDesign.largeFont);
+        setTextSize(viewHolder.inReplyToQuote(), this.bubbleDesign.largeFont);
         viewHolder.messageBody().setTypeface(null, Typeface.NORMAL);
         viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.SRC);
         viewHolder.statusLine().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
