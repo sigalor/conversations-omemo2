@@ -62,6 +62,15 @@ public class EmojiSearch {
 	}
 
 	public synchronized void addEmoji(final Emoji one) {
+		if (one instanceof CustomEmoji) {
+			for (Emoji e : emoji) {
+				if (one.shortcodeMatch(e.uniquePart())) {
+					one.shortcodes.clear();
+					one.shortcodes.addAll(e.shortcodes);
+					break;
+				}
+			}
+		}
 		emoji.add(one);
 	}
 
@@ -74,18 +83,6 @@ public class EmojiSearch {
 			int shortcodeScore = e.shortcodes.isEmpty() ? 0 : Collections.max(Lists.transform(e.shortcodes, (shortcode) -> FuzzySearch.ratio(q, shortcode)));
 			int tagScore = e.tags.isEmpty() ? 0 : Collections.max(Lists.transform(e.tags, (tag) -> FuzzySearch.ratio(q, tag))) - 2;
 			pq.addTopK(e, Math.max(shortcodeScore, tagScore), 10);
-		}
-
-		for (BoundExtractedResult<Emoji> r : new ArrayList<>(pq)) {
-			for (Emoji e : emoji) {
-				if (e.shortcodeMatch(r.getReferent().uniquePart())) {
-					// hack see https://stackoverflow.com/questions/76880072/imagespan-with-emojicompat
-					e.shortcodes.clear();
-					e.shortcodes.addAll(r.getReferent().shortcodes);
-
-					pq.addTopK(e, r.getScore() - 1, 10);
-				}
-			}
 		}
 
 		List<Emoji> result = new ArrayList<>();
