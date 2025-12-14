@@ -138,7 +138,7 @@ public class EditAccountActivity extends OmemoActivity
     private Account mAccount;
 
     // Supported VCard4 fields based on what ContactDetailsActivity supports
-    private static final String[] VCARD_TYPES = {"fn", "org", "title", "role", "url", "note", "tel", "email"};
+    private static final String[] VCARD_TYPES = {"xmpp", "org", "title", "role", "url", "note", "tel", "email", "taler", "other"};
     private boolean mVCardModified = false;
     private boolean mIsLoadingVCard = false;
 
@@ -1879,11 +1879,10 @@ public class EditAccountActivity extends OmemoActivity
             if (vcard4 == null) return;
 
             runOnUiThread(() -> {
-                mIsLoadingVCard = true; // <--- Start loading
+                mIsLoadingVCard = true;
                 binding.profileDetailsContainer.removeAllViews();
 
                 for (Element el : vcard4.getChildren()) {
-                    // ... (Your existing logic to find type/value) ...
                     String type = el.getName();
                     String value = null;
                     if (el.findChildEnsureSingle("uri", Namespace.VCARD4) != null) {
@@ -1896,7 +1895,7 @@ public class EditAccountActivity extends OmemoActivity
                         addVCardRow(type, value);
                     }
                 }
-                mIsLoadingVCard = false; // <--- Stop loading
+                mIsLoadingVCard = false;
             });
         });
     }
@@ -1989,16 +1988,25 @@ public class EditAccountActivity extends OmemoActivity
                 uri.setContent(value);
                 item.addChild(uri);
             } else if (type.equals("tel")) {
-                // <tel><uri>tel:...</uri></tel>
                 Element uri = new Element("uri");
                 if (!value.startsWith("tel:")) value = "tel:" + value;
                 uri.setContent(value);
                 item.addChild(uri);
-            } else if (type.equals("email")) {
-                // <email><text>...</text></email>
-                Element text = new Element("text");
-                text.setContent(value);
-                item.addChild(text);
+            } else if (type.equals("xmpp")) {
+                Element uri = new Element("uri");
+                if (!value.startsWith("xmpp:")) value = "xmpp:" + value;
+                uri.setContent(value);
+                item.addChild(uri);
+            } else if (type.equals("mailto")) {
+                Element uri = new Element("mailto");
+                if (!value.startsWith("mailto:")) value = "mailto:" + value;
+                uri.setContent(value);
+                item.addChild(uri);
+            } else if (type.equals("taler")) {
+                Element uri = new Element("taler");
+                if (!value.startsWith("taler:")) value = "taler:" + value;
+                uri.setContent(value);
+                item.addChild(uri);
             } else {
                 // fn, nickname, note, org, title, role, etc use <text>
                 Element text = new Element("text");
@@ -2009,9 +2017,6 @@ public class EditAccountActivity extends OmemoActivity
             vcardElement.addChild(item);
         }
 
-        // To fix the timeout, we rely on the service to send it.
-        // If the service is reporting timeout but data saves, the service's IQ handler is too strict.
-        // We can force a UI refresh immediately here since we know it usually works.
         mVCardModified = false;
         refreshUi();
 
