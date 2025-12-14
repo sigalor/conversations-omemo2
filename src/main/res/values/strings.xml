@@ -1561,4 +1561,7 @@
     <string name="struck">Struck</string>
     <string name="whisper">Whisper</string>
     <string name="lime">Lime</string>
+    <string name="vcard_details">Profile details</string>
+    <string name="add_profile_field">Add profile field</string>
+    <string name="value">Value</string>
 </resources>

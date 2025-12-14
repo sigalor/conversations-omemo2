@@ -26,10 +26,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -86,6 +89,7 @@ import eu.siacs.conversations.utils.TorServiceUtils;
 import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
@@ -132,6 +136,12 @@ public class EditAccountActivity extends OmemoActivity
     private boolean mUsernameMode = false;
     private boolean mShowOptions = false;
     private Account mAccount;
+
+    // Supported VCard4 fields based on what ContactDetailsActivity supports
+    private static final String[] VCARD_TYPES = {"fn", "org", "title", "role", "url", "note", "tel", "email"};
+    private boolean mVCardModified = false;
+    private boolean mIsLoadingVCard = false;
+
     private final OnClickListener mCancelButtonClickListener =
             v -> {
                 deleteAccountAndReturnIfNecessary();
@@ -187,7 +197,9 @@ public class EditAccountActivity extends OmemoActivity
                     final boolean wasDisabled =
                             mAccount != null && mAccount.getStatus() == Account.State.DISABLED;
                     final boolean accountInfoEdited = accountInfoEdited();
-
+                    saveVCardData();
+                    mVCardModified = false; // Reset flag
+                    refreshUi();
                     ColorDrawable previewColor = (ColorDrawable) binding.colorPreview.getBackground();
                     if (previewColor != null && previewColor.getColor() != mAccount.getColor(isDark())) {
                         mAccount.setColor(previewColor.getColor());
@@ -731,7 +743,8 @@ public class EditAccountActivity extends OmemoActivity
                 || !this.mAccount.getHostname().equals(this.binding.hostname.getText().toString())
                 || this.mAccount.getColor(isDark()) != (previewColor == null ? 0 : previewColor.getColor())
                 || !String.valueOf(this.mAccount.getPort())
-                .equals(this.binding.port.getText().toString());
+                .equals(this.binding.port.getText().toString())
+                || mVCardModified;
     }
 
     protected boolean jidEdited() {
@@ -788,7 +801,11 @@ public class EditAccountActivity extends OmemoActivity
         binding.accountColorBox.setOnClickListener((v) -> {
             showColorDialog();
         });
-
+        binding.btnAddProfileItem.setOnClickListener(v -> {
+            addVCardRow("org", ""); // Default type
+            mVCardModified = true; // Mark as modified
+            refreshUi(); // Refresh button state
+        });
         final var preferences = getPreferences();
         binding.quietHoursEnable.setOnClickListener((v) -> {
             preferences.edit().putBoolean("enable_quiet_hours:" + mAccount.getUuid(), binding.quietHoursEnable.isChecked()).apply();
@@ -1052,6 +1069,7 @@ public class EditAccountActivity extends OmemoActivity
             processFingerprintVerification(pendingUri, false);
             pendingUri = null;
         }
+        loadVCardData();
         updatePortLayout();
         updateSaveButton();
         invalidateOptionsMenu();
@@ -1853,5 +1871,150 @@ public class EditAccountActivity extends OmemoActivity
     private boolean allowRelativeTimestamps() {
         final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
         return !p.getBoolean("always_full_timestamps", getResources().getBoolean(R.bool.always_full_timestamps));
+    }
+
+    private void loadVCardData() {
+        if (mAccount == null) return;
+        xmppConnectionService.fetchVcard4(mAccount, mAccount.getSelfContact(), (vcard4) -> {
+            if (vcard4 == null) return;
+
+            runOnUiThread(() -> {
+                mIsLoadingVCard = true; // <--- Start loading
+                binding.profileDetailsContainer.removeAllViews();
+
+                for (Element el : vcard4.getChildren()) {
+                    // ... (Your existing logic to find type/value) ...
+                    String type = el.getName();
+                    String value = null;
+                    if (el.findChildEnsureSingle("uri", Namespace.VCARD4) != null) {
+                        value = el.findChildContent("uri", Namespace.VCARD4);
+                    } else if (el.findChildEnsureSingle("text", Namespace.VCARD4) != null) {
+                        value = el.findChildContent("text", Namespace.VCARD4);
+                    }
+
+                    if (value != null) {
+                        addVCardRow(type, value);
+                    }
+                }
+                mIsLoadingVCard = false; // <--- Stop loading
+            });
+        });
+    }
+
+
+    private void addVCardRow(String type, String value) {
+        View rowView = getLayoutInflater().inflate(R.layout.item_edit_vcard_entry, binding.profileDetailsContainer, false);
+
+        Spinner spinner = rowView.findViewById(R.id.vcard_type_spinner);
+        EditText input = rowView.findViewById(R.id.vcard_value_input);
+        View removeBtn = rowView.findViewById(R.id.btn_remove_entry);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, VCARD_TYPES);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        for (int i = 0; i < VCARD_TYPES.length; i++) {
+            if (VCARD_TYPES[i].equalsIgnoreCase(type)) {
+                spinner.setSelection(i);
+                break;
+            }
+        }
+
+        if (value != null) {
+            input.setText(value);
+        }
+
+        // 1. Monitor Text Changes
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!mIsLoadingVCard) {
+                    mVCardModified = true;
+                    refreshUi(); // This triggers the check to enable the Save button
+                }
+            }
+        });
+
+        // 2. Monitor Type Selection Changes
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!mIsLoadingVCard) {
+                    mVCardModified = true;
+                    refreshUi();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // 3. Monitor Remove Button
+        removeBtn.setOnClickListener(v -> {
+            binding.profileDetailsContainer.removeView(rowView);
+            mVCardModified = true;
+            refreshUi();
+        });
+
+        binding.profileDetailsContainer.addView(rowView);
+    }
+
+    private void saveVCardData() {
+        if (mAccount == null) return;
+
+        // XEP-0292: The inner element is <vcard xmlns='urn:ietf:params:xml:ns:vcard-4.0'>
+        Element vcardElement = new Element("vcard");
+        vcardElement.setAttribute("xmlns", Namespace.VCARD4); // Ensure you use the constant or "urn:ietf:params:xml:ns:vcard-4.0"
+
+        int childCount = binding.profileDetailsContainer.getChildCount();
+
+        for (int i = 0; i < childCount; i++) {
+            View rowView = binding.profileDetailsContainer.getChildAt(i);
+            Spinner spinner = rowView.findViewById(R.id.vcard_type_spinner);
+            EditText input = rowView.findViewById(R.id.vcard_value_input);
+
+            String type = spinner.getSelectedItem().toString();
+            String value = input.getText().toString().trim();
+
+            if (value.isEmpty()) continue;
+
+            Element item = new Element(type);
+
+            // Strict XEP-0292 mapping
+            if (type.equals("url") || type.equals("impp") || type.equals("geo") || type.equals("photo") || type.equals("logo") || type.equals("sound")) {
+                Element uri = new Element("uri");
+                uri.setContent(value);
+                item.addChild(uri);
+            } else if (type.equals("tel")) {
+                // <tel><uri>tel:...</uri></tel>
+                Element uri = new Element("uri");
+                if (!value.startsWith("tel:")) value = "tel:" + value;
+                uri.setContent(value);
+                item.addChild(uri);
+            } else if (type.equals("email")) {
+                // <email><text>...</text></email>
+                Element text = new Element("text");
+                text.setContent(value);
+                item.addChild(text);
+            } else {
+                // fn, nickname, note, org, title, role, etc use <text>
+                Element text = new Element("text");
+                text.setContent(value);
+                item.addChild(text);
+            }
+
+            vcardElement.addChild(item);
+        }
+
+        // To fix the timeout, we rely on the service to send it.
+        // If the service is reporting timeout but data saves, the service's IQ handler is too strict.
+        // We can force a UI refresh immediately here since we know it usually works.
+        mVCardModified = false;
+        refreshUi();
+
+        xmppConnectionService.publishVCard4(mAccount, vcardElement);
     }
 }

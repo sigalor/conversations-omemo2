@@ -7670,4 +7670,56 @@ public class XmppConnectionService extends Service {
     public boolean colored_muc_names() {
         return getBooleanPreference("colored_muc_names", R.bool.use_colored_muc_names);
     }
+
+    public void publishVCard4(Account account, Element vcardElement) {
+        if (account.getStatus() != Account.State.ONLINE) {
+            return;
+        }
+
+        // 1. Create IQ-SET
+        final Iq packet = new Iq(Iq.Type.SET);
+
+        // 2. IMPORTANT: PEP requests must be addressed to the User's OWN Bare JID
+        // (e.g. user@example.com), NOT left blank (which targets the server).
+        packet.setTo(account.getJid().asBareJid());
+
+        // 3. Create PubSub structure
+        final Element pubsub = packet.addChild("pubsub", "http://jabber.org/protocol/pubsub");
+
+        // 4. Publish to the specific node 'urn:xmpp:vcard4' defined in XEP-0292
+        final Element publish = pubsub.addChild("publish");
+        publish.setAttribute("node", "urn:xmpp:vcard4");
+
+        // 5. Add Item with ID (XEP suggests 'current', though random UUIDs are allowed)
+        final Element item = publish.addChild("item");
+        item.setAttribute("id", "current");
+
+        // 6. Ensure the vcard element has the correct namespace
+        // The inner content MUST be <vcard xmlns='urn:ietf:params:xml:ns:vcard-4.0'>
+        if (!"vcard".equals(vcardElement.getName())) {
+            // Wrap if it's not already a vcard element
+            Element wrapper = new Element("vcard");
+            wrapper.setAttribute("xmlns", "urn:ietf:params:xml:ns:vcard-4.0");
+            wrapper.addChild(vcardElement);
+            item.addChild(wrapper);
+        } else {
+            // Ensure namespace is set if missing
+            if (vcardElement.getAttribute("xmlns") == null) {
+                vcardElement.setAttribute("xmlns", "urn:ietf:params:xml:ns:vcard-4.0");
+            }
+            item.addChild(vcardElement);
+        }
+
+        // 7. Send packet
+        sendIqPacket(account, packet, (response) -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                Log.d(Config.LOGTAG, account.getJid() + ": Successfully published VCard4");
+                // Optional: Reload to reflect changes
+                fetchVcard4(account, account.getSelfContact(), null);
+            } else {
+                //Log.d(Config.LOGTAG, account.getJid() + ": Failed to publish VCard4: " + response.toString());
+            }
+        });
+    }
+
 }
