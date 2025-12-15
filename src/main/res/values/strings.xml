@@ -1566,4 +1566,5 @@
     <string name="value">Value</string>
     <string name="drag_handle">Drag handle</string>
     <string name="remove_entry">Remove entry</string>
+    <string name="vcard_qr_code">Show QR code</string>
 </resources>

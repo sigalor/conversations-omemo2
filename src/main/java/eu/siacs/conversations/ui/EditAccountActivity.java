@@ -141,7 +141,7 @@ public class EditAccountActivity extends OmemoActivity
     private Account mAccount;
 
     // Supported VCard4 fields based on what ContactDetailsActivity supports
-    private static final String[] VCARD_TYPES = {"xmpp", "org", "title", "role", "url", "note", "tel", "email", "taler", "other"};
+    private static final String[] VCARD_TYPES = {"fn", "xmpp", "org", "title", "role", "url", "note", "tel", "email", "taler", "other"};
     private boolean mVCardModified = false;
     private boolean mIsLoadingVCard = false;
 
@@ -808,6 +808,14 @@ public class EditAccountActivity extends OmemoActivity
             addVCardRow("org", ""); // Default type
             mVCardModified = true; // Mark as modified
             refreshUi(); // Refresh button state
+        });
+        binding.btnShowQrCode.setOnClickListener(v -> {
+            String vcardString = generateVCardString();
+            if (vcardString != null && !vcardString.isEmpty()) {
+                showQrCodeDialog(vcardString);
+            } else {
+                Toast.makeText(this, "No profile data to generate QR", Toast.LENGTH_SHORT).show();
+            }
         });
         final var preferences = getPreferences();
         binding.quietHoursEnable.setOnClickListener((v) -> {
@@ -1968,7 +1976,9 @@ public class EditAccountActivity extends OmemoActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(rowView);
                 // Start drag on the whole row
-                v.startDragAndDrop(null, shadowBuilder, rowView, 0);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    v.startDragAndDrop(null, shadowBuilder, rowView, 0);
+                }
                 return true;
             }
             return false;
@@ -2026,6 +2036,11 @@ public class EditAccountActivity extends OmemoActivity
                 if (!value.startsWith("taler:")) value = "taler:" + value;
                 uri.setContent(value);
                 item.addChild(uri);
+            } else if (type.equals("fn")) {
+                // Specific handling for Formatted Name (FN)
+                Element text = new Element("text");
+                text.setContent(value);
+                item.addChild(text);
             } else {
                 // other, nickname, note, org, title, role, etc use <text>
                 Element text = new Element("text");
@@ -2077,4 +2092,113 @@ public class EditAccountActivity extends OmemoActivity
         }
     };
 
+    private String generateVCardString() {
+        int childCount = binding.profileDetailsContainer.getChildCount();
+        if (childCount == 0 && mAccount.getDisplayName() == null) return null;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("BEGIN:VCARD\n");
+        sb.append("VERSION:4.0\n");
+
+        // Add FN (Formatted Name) if available from account or calculate it
+        // Depending on your logic, you might want to pull this from a specific 'nickname' row or the account object
+        // if (mAccount.getDisplayName() != null && !mAccount.getDisplayName().isEmpty()) {
+        //     sb.append("FN:").append(mAccount.getDisplayName()).append("\n");
+        // }
+
+        for (int i = 0; i < childCount; i++) {
+            View rowView = binding.profileDetailsContainer.getChildAt(i);
+            Spinner spinner = rowView.findViewById(R.id.vcard_type_spinner);
+            EditText input = rowView.findViewById(R.id.vcard_value_input);
+
+            String type = spinner.getSelectedItem().toString();
+            String value = input.getText().toString().trim();
+
+            if (value.isEmpty()) continue;
+
+            // Simple mapping from internal types to VCard properties
+            switch (type) {
+                case "fn":
+                    sb.append("FN:").append(value).append("\n");
+                    break;
+                case "tel":
+                    sb.append("TEL;VALUE=uri:").append(value.startsWith("tel:") ? value : "tel:" + value).append("\n");
+                    break;
+                case "mailto":
+                    sb.append("EMAIL:").append(value.startsWith("mailto:") ? value.substring(7) : value).append("\n");
+                    break;
+                case "xmpp":
+                    sb.append("IMPP:").append(value.startsWith("xmpp:") ? value : "xmpp:" + value).append("\n");
+                    break;
+                case "url":
+                    sb.append("URL:").append(value).append("\n");
+                    break;
+                case "nickname":
+                    sb.append("NICKNAME:").append(value).append("\n");
+                    break;
+                case "note":
+                    sb.append("NOTE:").append(value).append("\n");
+                    break;
+                case "org":
+                    sb.append("ORG:").append(value).append("\n");
+                    break;
+                case "title":
+                    sb.append("TITLE:").append(value).append("\n");
+                    break;
+                case "role":
+                    sb.append("ROLE:").append(value).append("\n");
+                    break;
+                case "bday":
+                    sb.append("BDAY:").append(value).append("\n");
+                    break;
+                // Add other cases as needed based on VCARD_TYPES
+                default:
+                    // Fallback for generic text
+                    sb.append("X-").append(type.toUpperCase()).append(":").append(value).append("\n");
+                    break;
+            }
+        }
+
+        sb.append("END:VCARD");
+        return sb.toString();
+    }
+
+    private void showQrCodeDialog(String content) {
+        try {
+            // Calculate dimensions
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
+
+            // Generate QR Bitmap
+            com.google.zxing.MultiFormatWriter writer = new com.google.zxing.MultiFormatWriter();
+            com.google.zxing.common.BitMatrix result = writer.encode(content, com.google.zxing.BarcodeFormat.QR_CODE, width, width);
+
+            // Convert BitMatrix to Bitmap
+            int w = result.getWidth();
+            int h = result.getHeight();
+            int[] pixels = new int[w * h];
+            for (int y = 0; y < h; y++) {
+                int offset = y * w;
+                for (int x = 0; x < w; x++) {
+                    pixels[offset + x] = result.get(x, y) ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
+                }
+            }
+            android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888);
+            bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
+
+            // Show in Dialog
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            imageView.setPadding(32, 32, 32, 32);
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("VCard QR Code")
+                    .setView(imageView)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to generate QR Code", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
