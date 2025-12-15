@@ -1564,4 +1564,6 @@
     <string name="vcard_details">Profile details</string>
     <string name="add_profile_field">Add profile field</string>
     <string name="value">Value</string>
+    <string name="drag_handle">Drag handle</string>
+    <string name="remove_entry">Remove entry</string>
 </resources>

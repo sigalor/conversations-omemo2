@@ -8,7 +8,7 @@
 
     <Spinner
         android:id="@+id/vcard_type_spinner"
-        android:layout_width="110dp"
+        android:layout_width="109dp"
         android:layout_height="wrap_content" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -25,11 +25,33 @@
             android:inputType="textMultiLine" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageButton
-        android:id="@+id/btn_remove_entry"
+    <!-- Container for Action Buttons -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_delete_24dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="@color/red_500" />
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <!-- Delete Button -->
+        <ImageButton
+            android:id="@+id/btn_remove_entry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_delete_24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/remove_entry"
+            android:padding="3dp"
+            app:tint="@color/red_500" />
+
+        <!-- Drag Handle -->
+        <ImageButton
+            android:id="@+id/btn_drag_entry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/rounded_drag_handle_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/drag_handle"
+            android:padding="3dp"
+            app:tint="?attr/colorControlNormal" />
+    </LinearLayout>
 </LinearLayout>

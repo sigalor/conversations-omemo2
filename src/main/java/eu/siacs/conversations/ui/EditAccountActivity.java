@@ -22,10 +22,13 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -1907,6 +1910,7 @@ public class EditAccountActivity extends OmemoActivity
         Spinner spinner = rowView.findViewById(R.id.vcard_type_spinner);
         EditText input = rowView.findViewById(R.id.vcard_value_input);
         View removeBtn = rowView.findViewById(R.id.btn_remove_entry);
+        View dragBtn = rowView.findViewById(R.id.btn_drag_entry);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, VCARD_TYPES);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -1958,6 +1962,21 @@ public class EditAccountActivity extends OmemoActivity
             refreshUi();
         });
 
+        // 4. Enable Drag and Drop via the specific handle
+        // Using OnTouchListener allows immediate drag start without a long press delay
+        dragBtn.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(rowView);
+                // Start drag on the whole row
+                v.startDragAndDrop(null, shadowBuilder, rowView, 0);
+                return true;
+            }
+            return false;
+        });
+
+        // Ensure the container listens for drags
+        binding.profileDetailsContainer.setOnDragListener(mProfileDragListener);
+
         binding.profileDetailsContainer.addView(rowView);
     }
 
@@ -2008,7 +2027,7 @@ public class EditAccountActivity extends OmemoActivity
                 uri.setContent(value);
                 item.addChild(uri);
             } else {
-                // fn, nickname, note, org, title, role, etc use <text>
+                // other, nickname, note, org, title, role, etc use <text>
                 Element text = new Element("text");
                 text.setContent(value);
                 item.addChild(text);
@@ -2022,4 +2041,40 @@ public class EditAccountActivity extends OmemoActivity
 
         xmppConnectionService.publishVCard4(mAccount, vcardElement);
     }
+
+    private final View.OnDragListener mProfileDragListener = (v, event) -> {
+        switch (event.getAction()) {
+            case DragEvent.ACTION_DRAG_STARTED:
+                return true;
+            case DragEvent.ACTION_DRAG_LOCATION:
+                final View draggedView = (View) event.getLocalState();
+                final ViewGroup container = (ViewGroup) v;
+                final float y = event.getY();
+                View targetView = null;
+
+                // Find the child view under the current drag position
+                for (int i = 0; i < container.getChildCount(); i++) {
+                    final View child = container.getChildAt(i);
+                    if (y > child.getTop() && y < child.getBottom()) {
+                        targetView = child;
+                        break;
+                    }
+                }
+
+                // If we found a target and it's not the one we are dragging, swap them
+                if (targetView != null && targetView != draggedView) {
+                    final int targetIndex = container.indexOfChild(targetView);
+                    container.removeView(draggedView);
+                    container.addView(draggedView, targetIndex);
+                }
+                return true;
+            case DragEvent.ACTION_DROP:
+                mVCardModified = true;
+                refreshUi();
+                return true;
+            default:
+                return false;
+        }
+    };
+
 }
