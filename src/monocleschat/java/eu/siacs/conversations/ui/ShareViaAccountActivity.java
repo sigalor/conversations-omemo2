@@ -1,7 +1,9 @@
 package eu.siacs.conversations.ui;
 
 import android.os.Bundle;
-import android.widget.ListView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ public class ShareViaAccountActivity extends XmppActivity {
     public static final String EXTRA_BODY = "body";
 
     protected final List<Account> accountList = new ArrayList<>();
-    protected ListView accountListView;
+    protected RecyclerView accountListView;
     protected AccountAdapter mAccountAdapter;
 
     @Override
@@ -37,19 +39,31 @@ public class ShareViaAccountActivity extends XmppActivity {
         setContentView(R.layout.activity_manage_accounts);
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
+
         accountListView = findViewById(R.id.account_list);
-        this.mAccountAdapter = new AccountAdapter(this, accountList, false);
+        accountListView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Pass the click listener directly to the Adapter constructor
+        // We pass 'null' for drag listener, context menu listener, and move listener
+        // as this activity doesn't use those features.
+        this.mAccountAdapter = new AccountAdapter(this, accountList,
+                this::onAccountClicked,
+                null,
+                null,
+                null);
+
         accountListView.setAdapter(this.mAccountAdapter);
-        accountListView.setOnItemClickListener((arg0, view, position, arg3) -> {
-            final Account account = accountList.get(position);
-            final String action = getAction();
-            if (action != null && action.equals("command")) {
-                startCommand(account, getJid(), new XmppUri(getIntent().getData()).getParameter("node"));
-            } else {
-                switchToConversation(getConversation(account), getBody(), false, null, false, false, action);
-            }
-            finish();
-        });
+    }
+
+
+    private void onAccountClicked(Account account) {
+        final String action = getAction();
+        if (action != null && action.equals("command")) {
+            startCommand(account, getJid(), new XmppUri(getIntent().getData()).getParameter("node"));
+        } else {
+            switchToConversation(getConversation(account), getBody(), false, null, false, false, action);
+        }
+        finish();
     }
 
     @Override

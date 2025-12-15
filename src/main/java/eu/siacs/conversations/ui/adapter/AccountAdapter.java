@@ -1,122 +1,201 @@
-package eu.siacs.conversations.ui.adapter;
-
+package eu.siacs.conversations.ui.adapter;import android.annotation.SuppressLint;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
-import androidx.core.graphics.ColorUtils;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemAccountBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
-import eu.siacs.conversations.utils.UIHelper;
-
+import java.util.Collections;
 import java.util.List;
 
-public class AccountAdapter extends ArrayAdapter<Account> {
+public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHolder> {
 
     private final XmppActivity activity;
+    private final List<Account> accounts;
     private final boolean showStateButton;
+    private final OnAccountClickListener onAccountClickListener;
+    private final OnStartDragListener mDragStartListener;
+    private OnContextAccountSelected contextAccountListener;
 
-    public AccountAdapter(XmppActivity activity, List<Account> objects, boolean showStateButton) {
-        super(activity, 0, objects);
-        this.activity = activity;
-        this.showStateButton = showStateButton;
+    public interface OnAccountClickListener {
+        void onAccountClick(Account account);
     }
 
-    public AccountAdapter(XmppActivity activity, List<Account> objects) {
-        super(activity, 0, objects);
+    public interface OnStartDragListener {
+        void onStartDrag(RecyclerView.ViewHolder viewHolder);
+    }
+
+    // New Interface for Context Menu
+    public interface OnContextAccountSelected {
+        void onContextAccountSelected(Account account);
+    }
+
+    public interface OnAccountMovedListener {
+        void onAccountMoved();
+    }
+
+    // Add a field
+    private final OnAccountMovedListener mOnAccountMovedListener;
+
+    // Update Constructor to accept the listener
+    public AccountAdapter(XmppActivity activity, List<Account> accounts, OnAccountClickListener onAccountClickListener, OnStartDragListener dragStartListener, OnContextAccountSelected contextAccountListener, OnAccountMovedListener onAccountMovedListener) {
         this.activity = activity;
+        this.accounts = accounts;
         this.showStateButton = true;
+        this.onAccountClickListener = onAccountClickListener;
+        this.mDragStartListener = dragStartListener;
+        this.contextAccountListener = contextAccountListener;
+        this.mOnAccountMovedListener = onAccountMovedListener;
+    }
+
+    public void setContextAccountListener(OnContextAccountSelected listener) {
+        this.contextAccountListener = listener;
     }
 
     @NonNull
     @Override
-    public View getView(int position, View view, @NonNull ViewGroup parent) {
-        final Account account = getItem(position);
-        final ViewHolder viewHolder;
-        if (view == null) {
-            ItemAccountBinding binding =
-                    DataBindingUtil.inflate(
-                            LayoutInflater.from(parent.getContext()),
-                            R.layout.item_account,
-                            parent,
-                            false);
-            view = binding.getRoot();
-            viewHolder = new ViewHolder(binding);
-            view.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) view.getTag();
-        }
-        viewHolder.binding.accountJid.setText(account.getJid().asBareJid().toString());
-        AvatarWorkerTask.loadAvatar(account, viewHolder.binding.accountImage, R.dimen.avatar);
-        viewHolder.binding.accountStatus.setText(
-                getContext().getString(account.getStatus().getReadableId()));
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ItemAccountBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.getContext()),
+                R.layout.item_account,
+                parent,
+                false);
+        return new ViewHolder(binding);
+    }
+
+    @Override
+    public int getItemCount() {
+        return accounts.size();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        final Account account = accounts.get(position);
+
+        holder.binding.accountJid.setText(account.getJid().asBareJid().toString());
+        AvatarWorkerTask.loadAvatar(account, holder.binding.accountImage, R.dimen.avatar);
+        holder.binding.accountStatus.setText(
+                activity.getString(account.getStatus().getReadableId()));
+
         switch (account.getStatus()) {
             case ONLINE:
-                viewHolder.binding.accountStatus.setTextColor(
-                        MaterialColors.getColor(
-                                viewHolder.binding.accountStatus,
-                                androidx.appcompat.R.attr.colorPrimary));
+                holder.binding.accountStatus.setTextColor(
+                        MaterialColors.getColor(holder.binding.accountStatus, androidx.appcompat.R.attr.colorPrimary));
                 break;
             case DISABLED:
             case LOGGED_OUT:
             case CONNECTING:
-                viewHolder.binding.accountStatus.setTextColor(
-                        MaterialColors.getColor(
-                                viewHolder.binding.accountStatus,
-                                com.google.android.material.R.attr.colorOnSurfaceVariant));
+                holder.binding.accountStatus.setTextColor(
+                        MaterialColors.getColor(holder.binding.accountStatus, com.google.android.material.R.attr.colorOnSurfaceVariant));
                 break;
             default:
-                viewHolder.binding.accountStatus.setTextColor(
-                        MaterialColors.getColor(
-                                viewHolder.binding.accountStatus,
-                                androidx.appcompat.R.attr.colorError));
+                holder.binding.accountStatus.setTextColor(
+                        MaterialColors.getColor(holder.binding.accountStatus, androidx.appcompat.R.attr.colorError));
                 break;
         }
+
         if (account.isOnlineAndConnected()) {
-            viewHolder.binding.verificationIndicator.setVisibility(View.VISIBLE);
+            holder.binding.verificationIndicator.setVisibility(View.VISIBLE);
             if (account.getXmppConnection() != null && account.getXmppConnection().resolverAuthenticated()) {
                 if (account.getXmppConnection().daneVerified()) {
-                    viewHolder.binding.verificationIndicator.setImageResource(R.drawable.shield_verified);
+                    holder.binding.verificationIndicator.setImageResource(R.drawable.shield_verified);
                 } else {
-                    viewHolder.binding.verificationIndicator.setImageResource(R.drawable.shield);
+                    holder.binding.verificationIndicator.setImageResource(R.drawable.shield);
                 }
             } else {
-                viewHolder.binding.verificationIndicator.setImageResource(R.drawable.shield_question);
+                holder.binding.verificationIndicator.setImageResource(R.drawable.shield_question);
             }
         } else {
-            viewHolder.binding.verificationIndicator.setVisibility(View.GONE);
+            holder.binding.verificationIndicator.setVisibility(View.GONE);
         }
+
         final boolean isDisabled = (account.getStatus() == Account.State.DISABLED);
-        viewHolder.binding.tglAccountStatus.setOnCheckedChangeListener(null);
-        viewHolder.binding.tglAccountStatus.setChecked(!isDisabled);
+        holder.binding.tglAccountStatus.setOnCheckedChangeListener(null);
+        holder.binding.tglAccountStatus.setChecked(!isDisabled);
+
         if (this.showStateButton) {
-            viewHolder.binding.tglAccountStatus.setVisibility(View.VISIBLE);
+            holder.binding.tglAccountStatus.setVisibility(View.VISIBLE);
         } else {
-            viewHolder.binding.tglAccountStatus.setVisibility(View.GONE);
+            holder.binding.tglAccountStatus.setVisibility(View.GONE);
         }
-        viewHolder.binding.tglAccountStatus.setOnCheckedChangeListener(
-                (compoundButton, b) -> {
-                    if (b == isDisabled && activity instanceof OnTglAccountState) {
-                        ((OnTglAccountState) activity).onClickTglAccountState(account, b);
-                    }
-                });
+
+        holder.binding.tglAccountStatus.setOnCheckedChangeListener((compoundButton, b) -> {
+            if (b == isDisabled && activity instanceof OnTglAccountState) {
+                ((OnTglAccountState) activity).onClickTglAccountState(account, b);
+            }
+        });
+
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
-            viewHolder.binding.frame.setBackgroundColor(account.getColor(activity.isDark()));
+            holder.binding.frame.setBackgroundColor(account.getColor(activity.isDark()));
         }
-        viewHolder.binding.accountStatusMessage.setText(account.getPresenceStatusMessage());
-        return view;
+
+        holder.binding.accountStatusMessage.setText(account.getPresenceStatusMessage());
+
+        holder.binding.getRoot().setOnClickListener(v -> {
+            if (onAccountClickListener != null) {
+                onAccountClickListener.onAccountClick(account);
+            }
+        });
+
+        // --- Context Menu Wiring ---
+        holder.binding.getRoot().setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+            if (contextAccountListener != null) {
+                // 1. Notify activity which account is selected
+                contextAccountListener.onContextAccountSelected(account);
+                // 2. Ask activity to populate the menu
+                activity.onCreateContextMenu(menu, v, menuInfo);
+            }
+        });
+
+        // Setup Drag Handle
+        try {
+            View dragHandle = holder.binding.getRoot().findViewById(R.id.drag_handle);
+            if (dragHandle != null) {
+                dragHandle.setVisibility(View.VISIBLE);
+                dragHandle.setOnTouchListener((v, event) -> {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        if (mDragStartListener != null) {
+                            mDragStartListener.onStartDrag(holder);
+                        }
+                    }
+                    return false;
+                });
+            }
+        } catch (Exception ignored) {}
     }
 
-    private static class ViewHolder {
-        private final ItemAccountBinding binding;
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(accounts, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(accounts, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
 
+        // Notify that data has changed so we can persist
+        if (mOnAccountMovedListener != null) {
+            mOnAccountMovedListener.onAccountMoved();
+        }
+        return true;
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public final ItemAccountBinding binding;
         private ViewHolder(ItemAccountBinding binding) {
+            super(binding.getRoot());
             this.binding = binding;
         }
     }

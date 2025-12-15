@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityManageAccountsBinding;
@@ -33,12 +34,20 @@ public class ChooseAccountForProfilePictureActivity extends XmppActivity {
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar(), false);
-        this.mAccountAdapter = new AccountAdapter(this, accountList, false);
+
+        // Setup LayoutManager for RecyclerView
+        binding.accountList.setLayoutManager(new LinearLayoutManager(this));
+
+        // Pass the click listener directly to the Adapter constructor.
+        // We pass 'null' for drag listener, context menu listener, and move listener
+        // because this activity does not need reordering or context actions.
+        this.mAccountAdapter = new AccountAdapter(this, accountList,
+                this::goToProfilePictureActivity,
+                null,
+                null,
+                null);
+
         binding.accountList.setAdapter(this.mAccountAdapter);
-        binding.accountList.setOnItemClickListener((arg0, view, position, arg3) -> {
-            final Account account = accountList.get(position);
-            goToProfilePictureActivity(account);
-        });
     }
 
     @Override

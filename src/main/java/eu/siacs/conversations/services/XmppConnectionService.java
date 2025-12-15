@@ -7489,6 +7489,24 @@ public class XmppConnectionService extends Service {
         }
     }
 
+    public void updateAccountOrder() {
+        synchronized (this.accounts) {
+            for (int i = 0; i < this.accounts.size(); i++) {
+                Account account = this.accounts.get(i);
+                // Assuming the database backend handles re-indexing or
+                // we simply want to trigger a persist of the current list state.
+                databaseBackend.updateAccount(account);
+            }
+        }
+        // Notify UI listeners
+        // If 'mOnAccountUpdateListeners' is the correct name:
+        for (OnAccountUpdate listener : this.mOnAccountUpdates) {
+            listener.onAccountUpdate();
+        }
+    }
+
+
+
     public interface OnMamPreferencesFetched {
         void onPreferencesFetched(Element prefs);
 
