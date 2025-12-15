@@ -107,7 +107,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 63;
+    private static final int DATABASE_VERSION = 64;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -1293,6 +1293,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
             }
         }
+        if (oldVersion < 64) {
+            try {
+                db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN ordering INTEGER DEFAULT 0");
+            } catch (Exception e) {
+                Log.e(Config.LOGTAG, "Failed to add ordering column to account table", e);
+            }
+        }
     }
 
     /**
@@ -1595,8 +1602,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public void createAccount(Account account) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.insert(Account.TABLENAME, null, account.getContentValues());
+        final var db = this.getWritableDatabase();
+        final ContentValues values = account.getContentValues();
+        values.put("ordering", account.getOrdering());
+        db.insert(Account.TABLENAME, null, values);
     }
 
     public void insertDiscoveryResult(ServiceDiscoveryResult result) {
@@ -2236,19 +2245,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private List<Account> getAccounts(SQLiteDatabase db) {
         final List<Account> list = new ArrayList<>();
         try (final Cursor cursor =
-                     db.query(Account.TABLENAME, null, null, null, null, null, null)) {
+                     db.query(Account.TABLENAME, null, null, null, null, null, "ordering ASC")) {
             while (cursor != null && cursor.moveToNext()) {
                 list.add(Account.fromCursor(cursor));
             }
         }
+        // Ensure you read the value if needed, though typically we just rely on the sort order
+        // account.setOrder(cursor.getInt(cursor.getColumnIndex("ordering")));
         return list;
     }
 
     public boolean updateAccount(Account account) {
         final var db = this.getWritableDatabase();
         final String[] args = {account.getUuid()};
+        final ContentValues values = account.getContentValues();
+        values.put("ordering", account.getOrdering());
         final int rows =
-                db.update(Account.TABLENAME, account.getContentValues(), Account.UUID + "=?", args);
+                db.update(Account.TABLENAME, values, Account.UUID + "=?", args);
         return rows == 1;
     }
 

@@ -75,6 +75,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     public static final String FAST_MECHANISM = "fast_mechanism";
     public static final String FAST_TOKEN = "fast_token";
 
+    private int ordering = 0;
     public static final int OPTION_DISABLED = 1;
     public static final int OPTION_REGISTER = 2;
     public static final int OPTION_MAGIC_CREATE = 4;
@@ -1036,5 +1037,13 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                     return R.string.account_status_unknown;
             }
         }
+    }
+
+    public int getOrdering() {
+        return ordering;
+    }
+
+    public void setOrdering(int ordering) {
+        this.ordering = ordering;
     }
 }
