@@ -1975,14 +1975,24 @@ public class EditAccountActivity extends OmemoActivity
         dragBtn.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(rowView);
+
+                // Fix for crash: Pass valid ClipData instead of null.
+                // Use a custom MIME type so EditTexts ignore this drag and don't try to insert text.
+                android.content.ClipData data = new android.content.ClipData(
+                        "vcard_reorder",
+                        new String[]{"application/x-private-reorder"},
+                        new android.content.ClipData.Item("")
+                );
+
                 // Start drag on the whole row
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    v.startDragAndDrop(null, shadowBuilder, rowView, 0);
+                    v.startDragAndDrop(data, shadowBuilder, rowView, 0);
                 }
                 return true;
             }
             return false;
         });
+
 
         // Ensure the container listens for drags
         binding.profileDetailsContainer.setOnDragListener(mProfileDragListener);
