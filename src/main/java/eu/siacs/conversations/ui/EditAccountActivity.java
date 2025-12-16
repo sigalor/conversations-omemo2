@@ -1398,6 +1398,7 @@ public class EditAccountActivity extends OmemoActivity
         if (this.mAccount.isOnlineAndConnected() && !this.mFetchingAvatar) {
             final Features features = this.mAccount.getXmppConnection().getFeatures();
             this.binding.stats.setVisibility(View.VISIBLE);
+            this.binding.vcard.setVisibility(View.VISIBLE);
             boolean showBatteryWarning = isOptimizingBattery();
             boolean showDataSaverWarning = isAffectedByDataSaver();
             showOsOptimizationWarning(showBatteryWarning, showDataSaverWarning);
@@ -1610,6 +1611,7 @@ public class EditAccountActivity extends OmemoActivity
             }
             removeErrorsOnAllBut(errorLayout);
             this.binding.stats.setVisibility(View.GONE);
+            this.binding.vcard.setVisibility(View.GONE);
             this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
             this.binding.verificationBox.setVisibility(View.GONE);
         }
