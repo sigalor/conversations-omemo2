@@ -3646,6 +3646,8 @@ public class ConversationFragment extends XmppFragment
         super.onResume();
         binding.messagesView.post(this::fireReadEvent);
         updateChatBG();
+        LoadStickers();
+        LoadGifs();
         binding.textinput.requestFocus();
     }
 
