@@ -389,8 +389,6 @@
 
                     <eu.siacs.conversations.ui.widget.EditMessage
                         android:id="@+id/textinput_subject"
-                        android:textColor="?colorControlNormal"
-                        android:textColorHint="?colorControlNormal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="12dp"
@@ -402,6 +400,10 @@
                         android:padding="8dp"
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="textShortMessage|textMultiLine|textCapSentences"
+                        android:textColorHighlight="?attr/colorControlHighlight"
+                        android:textColorLink="?attr/colorAccent"
+                        android:textColorHint="?android:attr/textColorHint"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:visibility="gone" />
 
                     <RelativeLayout
@@ -520,7 +522,10 @@
                                     android:paddingBottom="8dp"
                                     android:singleLine="false"
                                     android:textSize="16sp"
-                                    android:textColor="?colorControlNormal" />
+                                    android:textColorHighlight="?attr/colorControlHighlight"
+                                    android:textColorLink="?attr/colorAccent"
+                                    android:textColorHint="?android:attr/textColorHint"
+                                    android:textColor="?android:attr/textColorPrimary" />
                             </RelativeLayout>
 
                             <ImageButton
