@@ -959,6 +959,7 @@ public class EditAccountActivity extends OmemoActivity
                 configureActionBar(getSupportActionBar(), !openedFromNotification);
             } else {
                 this.binding.avater.setVisibility(View.GONE);
+                this.binding.vcard.setVisibility(View.GONE);
                 configureActionBar(
                         getSupportActionBar(), !(init && Config.MAGIC_CREATE_DOMAIN == null));
                 if (mForceRegister != null) {
