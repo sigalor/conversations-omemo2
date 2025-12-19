@@ -47,7 +47,7 @@ import static eu.siacs.conversations.AppSettings.BROADCAST_LAST_ACTIVITY;
 import static eu.siacs.conversations.AppSettings.CONFIRM_MESSAGES;
 import static eu.siacs.conversations.AppSettings.DANE_ENFORCED;
 import static eu.siacs.conversations.AppSettings.LOAD_PROVIDERS_EXTERNAL;
-import static eu.siacs.conversations.AppSettings.SECURE_TLS;
+import static eu.siacs.conversations.AppSettings.REQUIRE_TLS_V1_3;
 import static eu.siacs.conversations.AppSettings.SHOW_LINK_PREVIEWS;
 import static eu.siacs.conversations.AppSettings.SHOW_MAPS_INSIDE;
 import static eu.siacs.conversations.AppSettings.UNENCRYPTED_REACTIONS;
@@ -285,7 +285,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         this.binding.lastSeen.setChecked(getResources().getBoolean(R.bool.last_activity));
         this.binding.blindTrust.setChecked(getResources().getBoolean(R.bool.btbv));
         this.binding.dane.setChecked(getResources().getBoolean(R.bool.enforce_dane));
-        this.binding.useSecureTls.setChecked(getResources().getBoolean(R.bool.secure_tls));
+        this.binding.useSecureTls.setChecked(getResources().getBoolean(R.bool.require_tls_v1_3));
         this.binding.storeInCache.setChecked(getResources().getBoolean(R.bool.default_store_media_in_cache));
         this.binding.sendCrashReports.setChecked(getResources().getBoolean(R.bool.send_crash_reports));
     }
@@ -336,8 +336,8 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 message = getString(R.string.pref_enforce_dane_summary);
                 break;
             case USESECURETLSCIPHERS:
-                title = getString(R.string.pref_secure_tls);
-                message = getString(R.string.pref_secure_tls_summary);
+                title = getString(R.string.strong_transport_security);
+                message = getString(R.string.require_tls_v1_3);
                 break;
             case USECACHESTORAGE:
                 title = getString(R.string.store_media_only_in_cache);
@@ -372,7 +372,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         preferences.edit().putBoolean(BROADCAST_LAST_ACTIVITY, this.binding.lastSeen.isChecked()).apply();
         preferences.edit().putBoolean(BLIND_TRUST_BEFORE_VERIFICATION, this.binding.blindTrust.isChecked()).apply();
         preferences.edit().putBoolean(DANE_ENFORCED, this.binding.dane.isChecked()).apply();
-        preferences.edit().putBoolean(SECURE_TLS, this.binding.useSecureTls.isChecked()).apply();
+        preferences.edit().putBoolean(REQUIRE_TLS_V1_3, this.binding.useSecureTls.isChecked()).apply();
         preferences.edit().putBoolean(USE_CACHE_STORAGE, this.binding.storeInCache.isChecked()).apply();
         preferences.edit().putBoolean(SEND_CRASH_REPORTS, this.binding.sendCrashReports.isChecked()).apply();
     }

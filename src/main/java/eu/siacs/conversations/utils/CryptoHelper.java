@@ -15,9 +15,6 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import java.io.InputStream;
 import java.io.IOException;
 
-import eu.siacs.conversations.AppSettings;
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Message;
@@ -31,21 +28,12 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import io.ipfs.cid.Cid;
 import io.ipfs.multihash.Multihash;
-
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
-import eu.siacs.conversations.entities.Account;
-import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.xmpp.Jid;
 
 public final class CryptoHelper {
 
@@ -164,41 +152,6 @@ public final class CryptoHelper {
             builder.insert(i, ':');
         }
         return builder.toString();
-    }
-
-    public static String[] getOrderedCipherSuites(final String[] platformSupportedCipherSuites) {
-        final var appSettings = new AppSettings(Conversations.getContext());
-        if (appSettings.isSecureTLS()) {
-            final Collection<String> secureCipherSuites = new LinkedHashSet<>(Arrays.asList(Config.SECURE_CIPHERS));
-            final List<String> platformCiphers = Arrays.asList(platformSupportedCipherSuites);
-            secureCipherSuites.retainAll(platformCiphers);
-            secureCipherSuites.addAll(platformCiphers);
-            filterWeakCipherSuites(secureCipherSuites);
-            secureCipherSuites.remove("TLS_FALLBACK_SCSV");
-            return secureCipherSuites.toArray(new String[secureCipherSuites.size()]);
-        } else {
-            final Collection<String> cipherSuites = new LinkedHashSet<>(Arrays.asList(Config.ENABLED_CIPHERS));
-            final List<String> platformCiphers = Arrays.asList(platformSupportedCipherSuites);
-            cipherSuites.retainAll(platformCiphers);
-            cipherSuites.addAll(platformCiphers);
-            filterWeakCipherSuites(cipherSuites);
-            cipherSuites.remove("TLS_FALLBACK_SCSV");
-            return cipherSuites.toArray(new String[cipherSuites.size()]);
-        }
-    }
-
-    private static void filterWeakCipherSuites(final Collection<String> cipherSuites) {
-        final Iterator<String> it = cipherSuites.iterator();
-        while (it.hasNext()) {
-            String cipherName = it.next();
-            // remove all ciphers with no or very weak encryption or no authentication
-            for (String weakCipherPattern : Config.WEAK_CIPHER_PATTERNS) {
-                if (cipherName.contains(weakCipherPattern)) {
-                    it.remove();
-                    break;
-                }
-            }
-        }
     }
 
     public static Pair<Jid, String> extractJidAndName(X509Certificate certificate)

@@ -158,39 +158,6 @@ public final class Config {
 
     public static final int EXPIRY_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
-    //only allow secure tls chipers now
-    public static final String[] ENABLED_CIPHERS = {
-            //TLS 1.3
-			"TLS_AES_256_GCM_SHA384",
-			"TLS_CHACHA20_POLY1305_SHA256",
-			"TLS_AES_128_GCM_SHA256",
-            //TLS 1.2 with traditional key agreement and encryption
-			"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-			"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-			"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-			"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
-			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-			"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-    };
-
-    public static final String[] SECURE_CIPHERS = {
-            //TLS 1.3
-			"TLS_AES_256_GCM_SHA384",
-			"TLS_CHACHA20_POLY1305_SHA256",
-			"TLS_AES_128_GCM_SHA256",
-    };
-
-
-
-    public static final String[] WEAK_CIPHER_PATTERNS = {
-            "_NULL_",
-            "_EXPORT_",
-            "_anon_",
-            "_RC4_",
-            "_DES_",
-            "_MD5",
-    };
-
     public static class OMEMO_EXCEPTIONS {
         // if the own account matches one of the following domains OMEMO won’t be turned on
         // automatically

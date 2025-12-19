@@ -196,7 +196,7 @@ public class QuickConversationsService extends AbstractQuickConversationsService
             final SSLSocketFactory socketFactory;
             try {
                 socketFactory =
-                        new TLSSocketFactory(new X509TrustManager[] {trustManager}, SECURE_RANDOM);
+                        new TLSSocketFactory(new X509TrustManager[] {trustManager}, context);
             } catch (final KeyManagementException | NoSuchAlgorithmException e) {
                 Log.e(Config.LOGTAG, "could not configured bundled LetsEncrypt", e);
                 return;

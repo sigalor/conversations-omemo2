@@ -10,9 +10,14 @@ import androidx.preference.PreferenceManager;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+
 import eu.siacs.conversations.persistance.FileBackend;
-import eu.siacs.conversations.services.QuickConversationsService;
+import eu.siacs.conversations.xmpp.Jid;
+
 import java.security.SecureRandom;
+import java.util.Objects;
+import java.util.Set;
 
 public class AppSettings {
 
@@ -40,6 +45,7 @@ public class AppSettings {
     public static final String DANE_ENFORCED = "enforce_dane";
     public static final String CUSTOM_RESOURCE_NAME = "custom_resource_name";
     public static final String REQUIRE_CHANNEL_BINDING = "channel_binding_required";
+    public static final String REQUIRE_TLS_V1_3 = "require_tls_v1_3";
     public static final String NOTIFICATION_RINGTONE = "notification_ringtone";
     public static final String NOTIFICATION_HEADS_UP = "notification_headsup";
     public static final String NOTIFICATION_VIBRATE = "vibrate_on_notification";
@@ -68,6 +74,19 @@ public class AppSettings {
 
     private static final String EXTERNAL_STORAGE_AUTHORITY =
             "com.android.externalstorage.documents";
+
+    public static final Set<Jid> SECURE_DOMAINS;
+
+    static {
+        final var builder = new ImmutableSet.Builder<Jid>();
+        if (Objects.nonNull(Config.MAGIC_CREATE_DOMAIN)) {
+            builder.add(Jid.ofDomain(Config.MAGIC_CREATE_DOMAIN));
+        }
+        if (Objects.nonNull(Config.QUICKSY_DOMAIN)) {
+            builder.add(Config.QUICKSY_DOMAIN);
+        }
+        SECURE_DOMAINS = builder.build();
+    }
 
     private final Context context;
 
@@ -242,6 +261,10 @@ public class AppSettings {
 
     public boolean isRequireChannelBinding() {
         return getBooleanPreference(REQUIRE_CHANNEL_BINDING, R.bool.require_channel_binding);
+    }
+
+    public boolean isRequireTlsV13() {
+        return getBooleanPreference(REQUIRE_TLS_V1_3, R.bool.require_tls_v1_3);
     }
 
     public synchronized long getInstallationId() {
