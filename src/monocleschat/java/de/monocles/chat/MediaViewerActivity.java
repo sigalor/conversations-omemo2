@@ -1,7 +1,10 @@
 package de.monocles.chat;
 
+import android.app.PendingIntent;
 import android.app.PictureInPictureParams;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,8 +20,10 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 // import android.support.v4.media.session.MediaSessionCompat; // Keep if needed for other reasons, but Media3 has its own session
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Rational;
 import android.view.GestureDetector;
@@ -26,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -60,13 +66,18 @@ import com.bumptech.glide.request.target.Target;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMediaViewerBinding;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.persistance.FileBackend;
+import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.Rationals;
 import eu.siacs.conversations.utils.Compatibility;
@@ -192,6 +203,8 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
     }
 
+
+
     @Override
     protected void refreshUiReal() {
 
@@ -253,6 +266,12 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
                 .create()
         );
+        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_save, R.drawable.ic_save_24dp)
+                .setLabel(R.string.save_to_downloads)
+                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
+                .create()
+        );
+
 
         if (isDeletableFile(mFile)) {
             binding.speedDial.setOnActionSelectedListener(actionItem -> {
@@ -262,6 +281,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                         break;
                     case R.id.action_open:
                         open();
+                        break;
+                    case R.id.action_save:
+                        saveToDownloads(mFile);
                         break;
                     case R.id.action_delete:
                         deleteFile();
@@ -280,6 +302,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                     case R.id.action_open:
                         open();
                         break;
+                    case R.id.action_save:
+                        saveToDownloads(mFile);
+                        break;
                     default:
                         return false;
                 }
@@ -288,6 +313,25 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
         binding.speedDial.getMainFab().setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
     }
+
+    private void saveToDownloads(File file) {
+        this.xmppConnectionService.copyAttachmentToDownloadsFolder(file, new UiCallback<>() {
+            @Override
+            public void success(Integer object) {
+                runOnUiThread(() -> Toast.makeText(MediaViewerActivity.this, getString(R.string.save_to_downloads_success), Toast.LENGTH_LONG).show());
+            }
+
+            @Override
+            public void error(int errorCode, Integer object) {
+                runOnUiThread(() -> Toast.makeText(MediaViewerActivity.this, getString(object), Toast.LENGTH_LONG).show());
+            }
+
+            @Override
+            public void userInputRequired(PendingIntent pi, Integer object) {
+            }
+        });
+    }
+
 
     private void DisplayImage(final File file, final Uri uri) {
         BitmapFactory.Options options = new BitmapFactory.Options();

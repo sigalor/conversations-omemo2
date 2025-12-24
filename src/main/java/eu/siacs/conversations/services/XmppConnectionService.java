@@ -633,6 +633,17 @@ public class XmppConnectionService extends Service {
         });
     }
 
+    public void copyAttachmentToDownloadsFolder(File file, final UiCallback<Integer> callback) {
+        COPY_TO_DOWNLOAD_EXECUTOR.execute(() -> {
+            try {
+                fileBackend.copyAttachmentToDownloadsFolder(file);
+                callback.success(-1);
+            } catch (FileBackend.FileCopyException e) {
+                callback.error(-1, e.getResId());
+            }
+        });
+    }
+
     public PgpEngine getPgpEngine() {
         if (!Config.supportOpenPgp()) {
             return null;
