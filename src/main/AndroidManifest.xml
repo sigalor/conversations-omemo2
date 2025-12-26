@@ -362,6 +362,9 @@
             android:label="@string/media_browser" />
         <activity android:name=".ui.AddReactionActivity" />
 
+        <activity android:name=".ui.ConversationCalendarActivity"
+            android:label="@string/title_activity_calendar" />
+
         <activity
             android:name="eu.siacs.conversations.medialib.activities.EditActivity"
             android:theme="@style/Theme.Conversations3.FullScreen"

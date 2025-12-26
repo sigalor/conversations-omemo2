@@ -288,6 +288,7 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_COMMIT_ATTACHMENTS = 0x0212;
     public static final int REQUEST_START_AUDIO_CALL = 0x213;
     public static final int REQUEST_START_VIDEO_CALL = 0x214;
+    public static final int REQUEST_PICK_DATE = 0x0215;
     public static final int REQUEST_WEBXDC_STORE = 0x216;
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
@@ -1509,6 +1510,14 @@ public class ConversationFragment extends XmppFragment
             case REQUEST_START_VIDEO_CALL:
                 triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
                 break;
+            case REQUEST_PICK_DATE:
+                String messageUuid = data.getStringExtra(ConversationsActivity.EXTRA_MESSAGE_UUID);
+                if (messageUuid != null) {
+                    Runnable postSelectionRunnable = () -> highlightMessage(messageUuid);
+                    updateSelection(messageUuid, binding.messagesView.getHeight() / 2, postSelectionRunnable, false, false);
+                }
+
+                break;
             case ATTACHMENT_CHOICE_CHOOSE_IMAGE: {
                 final Uri takePhotoUri = pendingTakePhotoUri.pop();
                 if (takePhotoUri != null && (data == null || (data.getData() == null && data.getClipData() == null))) {
@@ -1934,6 +1943,11 @@ public class ConversationFragment extends XmppFragment
                 }
         );
         messageListAdapter.setReplyClickListener(this::scrollToReply);
+
+        messageListAdapter.setOnDateSeparatorClickListener(timestamp -> startActivityForResult(ConversationCalendarActivity.Companion.createIntent(
+                activity, conversation.getUuid(), timestamp
+        ), REQUEST_PICK_DATE));
+
         binding.messagesView.setAdapter(messageListAdapter);
 
         binding.textinput.addTextChangedListener(
@@ -2185,6 +2199,7 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setConversationFragment(null);
         messageListAdapter.setOnMessageBoxClicked(null);
         messageListAdapter.setReplyClickListener(null);
+        messageListAdapter.setOnDateSeparatorClickListener(null);
         binding.messagesView.clearDragHelper();
         binding.conversationViewPager.setAdapter(null);
         if (conversation != null) conversation.setupViewPager(null, null, false, null);
@@ -2861,6 +2876,14 @@ public class ConversationFragment extends XmppFragment
                 break;
             case R.id.action_archive:
                 activity.xmppConnectionService.archiveConversation(conversation);
+                break;
+            case R.id.action_open_calendar:
+                startActivityForResult(
+                        ConversationCalendarActivity.Companion.createIntent(
+                                activity, conversation.getUuid(), null
+                        ),
+                        REQUEST_PICK_DATE
+                );
                 break;
             case R.id.action_contact_details:
                 activity.switchToContactDetails(conversation.getContact());

@@ -1494,6 +1494,10 @@ public class XmppConnectionService extends Service {
                 == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_DISABLED;
     }
 
+    public Map<Integer, Integer> getMessagesCountGroupByDay(String conversationUuid, int year, int month) {
+        return databaseBackend.getMessagesCountGroupByDay(conversationUuid, year, month);
+    }
+
     private void directReply(final Conversation conversation, final String body, final String lastMessageUuid, final boolean dismissAfterReply) {
         final Message inReplyTo = lastMessageUuid == null ? null : conversation.findMessageWithUuid(lastMessageUuid);
         Message message = new Message(conversation, body, conversation.getNextEncryption());

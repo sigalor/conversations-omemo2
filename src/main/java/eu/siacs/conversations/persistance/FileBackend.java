@@ -38,6 +38,8 @@ import androidx.annotation.StringRes;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.exifinterface.media.ExifInterface;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
@@ -88,8 +90,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -630,6 +634,19 @@ public class FileBackend {
             final File file = getFileForPath(relativeFilePath.path, mime);
             attachments.add(Attachment.of(relativeFilePath.uuid, file, mime));
         }
+        return attachments;
+    }
+
+    public Map<Integer, Attachment> convertToAttachments(Map<Integer, DatabaseBackend.FilePath> relativeFilePaths) {
+        final Map<Integer, Attachment> attachments = new HashMap<>();
+        relativeFilePaths.forEach((key, value) -> {
+            final String mime =
+                    MimeUtils.guessMimeTypeFromExtension(
+                            MimeUtils.extractRelevantExtension(value.path));
+            final File file = getFileForPath(value.path, mime);
+            attachments.put(key, Attachment.of(value.uuid, file, mime));
+        });
+
         return attachments;
     }
 

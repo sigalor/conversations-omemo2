@@ -127,6 +127,11 @@
         android:title="@string/action_archive_chat"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_open_calendar"
+        android:orderInCategory="67"
+        android:title="@string/action_open_calendar"
+        app:showAsAction="never" />
+    <item
         android:orderInCategory="70"
         android:title="@string/more_options">
         <menu>

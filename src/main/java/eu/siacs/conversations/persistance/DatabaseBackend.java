@@ -40,6 +40,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -2066,6 +2068,97 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return filesPaths;
     }
 
+    public Map<Integer, FilePath> getRelativeFilePathsForConversationForMonth(String conversationUuid, int year, int month) {
+        final var db = this.getReadableDatabase();
+
+        Map<Integer, FilePath> dayToFilePath = new HashMap<>();
+
+        // Calculate the start and end timestamps for the given month
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1, 0, 0, 0); // Month is 0-indexed in Calendar
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTimeMillis = calendar.getTimeInMillis();
+
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        long endTimeMillis = calendar.getTimeInMillis();
+
+        long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 1000;
+
+        String sql = "SELECT " +
+                Message.UUID + ", " +
+                Message.RELATIVE_FILE_PATH + ", " +
+                "CAST(strftime('%d', " + Message.TIME_SENT + " / 1000 + " + offset +", 'unixepoch') AS INTEGER) AS day_of_month, " +
+                "COUNT(" + Message.UUID + ") AS message_count " +
+                "FROM " + Message.TABLENAME + " " +
+                "WHERE " + Message.CONVERSATION + " = ? " +
+                "AND " + Message.TIME_SENT + " >= ? " +
+                "AND " + Message.TIME_SENT + " <= ? " +
+                "AND " + Message.DELETED + " = 0 " +
+                "AND " + Message.RELATIVE_FILE_PATH + " IS NOT NULL " +
+                "GROUP BY day_of_month " +
+                "ORDER BY day_of_month ASC;";
+
+        String[] selectionArgs = {
+                conversationUuid,
+                String.valueOf(startTimeMillis),
+                String.valueOf(endTimeMillis)
+        };
+
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+
+        if (cursor != null) {
+            try {
+                int dayOfMonthIndex = cursor.getColumnIndex("day_of_month");
+                int messageCountIndex = cursor.getColumnIndex("message_count");
+                int uuidIndex = cursor.getColumnIndex(Message.UUID);
+                int relativePathIndex = cursor.getColumnIndex(Message.RELATIVE_FILE_PATH);
+
+                if (dayOfMonthIndex != -1 && messageCountIndex != -1) {
+                    while (cursor.moveToNext()) {
+                        int day = cursor.getInt(dayOfMonthIndex);
+                        String uuid = cursor.getString(uuidIndex);
+                        String relativePath = cursor.getString(relativePathIndex);
+                        dayToFilePath.put(day, new FilePath(uuid, relativePath));
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        return dayToFilePath;
+
+
+        /*Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1, 0, 0, 0); // Month is 0-indexed in Calendar
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTimeMillis = calendar.getTimeInMillis();
+
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        long endTimeMillis = calendar.getTimeInMillis();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        final String SQL =
+                "select uuid,relativeFilePath from messages where type in (1,2,5) and deleted=0 and"
+                        + " "
+                        + Message.RELATIVE_FILE_PATH
+                        + " is not null and conversationUuid=? AND " + Message.TIME_SENT + " >= ? AND " + Message.TIME_SENT + " <= ?  order by"
+                        + " timeSent desc";
+        String[] args = {
+                uuid,
+                String.valueOf(startTimeMillis),
+                String.valueOf(endTimeMillis)
+        };
+        Cursor cursor = db.rawQuery(SQL, args);
+        List<FilePath> filesPaths = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            filesPaths.add(new FilePath(cursor.getString(0), cursor.getString(1)));
+        }
+        cursor.close();
+        return filesPaths; */
+    }
+
     public Message getMessageWithServerMsgId(
             final Conversation conversation, final String messageId) {
         final var db = this.getReadableDatabase();
@@ -3149,6 +3242,61 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
         cursor.close();
         return contacts;
+    }
+
+    public Map<Integer, Integer> getMessagesCountGroupByDay(String conversationUuid, int year, int month) {
+        final var db = this.getReadableDatabase();
+
+        Map<Integer, Integer> messagesPerDay = new HashMap<>();
+
+        // Calculate the start and end timestamps for the given month
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1, 0, 0, 0); // Month is 0-indexed in Calendar
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTimeMillis = calendar.getTimeInMillis();
+
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        long endTimeMillis = calendar.getTimeInMillis();
+
+        long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 1000;
+
+        String sql = "SELECT " +
+                "CAST(strftime('%d', " + Message.TIME_SENT + " / 1000 + " + offset +", 'unixepoch') AS INTEGER) AS day_of_month, " +
+                "COUNT(" + Message.UUID + ") AS message_count " +
+                "FROM " + Message.TABLENAME + " " +
+                "WHERE " + Message.CONVERSATION + " = ? " +
+                "AND " + Message.TIME_SENT + " >= ? " +
+                "AND " + Message.TIME_SENT + " <= ? " +
+                "AND " + Message.DELETED + " = 0 " +
+                "GROUP BY day_of_month " +
+                "ORDER BY day_of_month ASC;";
+
+        String[] selectionArgs = {
+                conversationUuid,
+                String.valueOf(startTimeMillis),
+                String.valueOf(endTimeMillis)
+        };
+
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+
+        if (cursor != null) {
+            try {
+                int dayOfMonthIndex = cursor.getColumnIndex("day_of_month");
+                int messageCountIndex = cursor.getColumnIndex("message_count");
+
+                if (dayOfMonthIndex != -1 && messageCountIndex != -1) {
+                    while (cursor.moveToNext()) {
+                        int day = cursor.getInt(dayOfMonthIndex);
+                        int count = cursor.getInt(messageCountIndex);
+                        messagesPerDay.put(day, count);
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        return messagesPerDay;
     }
 
     public Iterable<Message> getMessagesIterable(final Conversation conversation) {

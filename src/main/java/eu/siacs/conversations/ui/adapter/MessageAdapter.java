@@ -189,7 +189,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
     private String selectionUuid = null;
     private final AppSettings appSettings;
     private ReplyClickListener replyClickListener;
-
+    private OnDateSeparatorClickListener onDateSeparatorClickListener;
 
     private final float imagePreviewWidthTarget;
     private final float bubbleRadiusDim;
@@ -347,6 +347,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
     public void setReplyClickListener(ReplyClickListener listener) {
         this.replyClickListener = listener;
+    }
+
+    public void setOnDateSeparatorClickListener(OnDateSeparatorClickListener listener) {
+        this.onDateSeparatorClickListener = listener;
     }
 
     public void setConversationFragment(ConversationFragment frag) {
@@ -2081,6 +2085,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             setBackgroundTint(viewHolder.binding.messageBox, BubbleColor.SURFACE_HIGH);
             setTextColor(viewHolder.binding.messageBody, BubbleColor.SURFACE_HIGH);
         }
+        viewHolder.binding.messageBox.setOnClickListener(v -> onDateSeparatorClickListener.onDateSeparatorClick(message.getTimeSent()));
         return viewHolder.binding.getRoot();
     }
 
@@ -3000,6 +3005,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
     public interface ReplyClickListener {
         void onReplyClick(Message message);
+    }
+
+    public interface OnDateSeparatorClickListener {
+        void onDateSeparatorClick(long timestamp);
     }
 
     public void setOnMessageBoxSwiped(MessageBoxSwipedListener listener) {
