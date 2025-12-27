@@ -454,6 +454,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + " TEXT,"
                         + Account.FAST_TOKEN
                         + " TEXT,"
+                        + "ordering INTEGER DEFAULT 0,"
                         + Account.PORT
                         + " NUMBER DEFAULT 5222)");
         db.execSQL(
@@ -1295,7 +1296,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
             }
         }
-        if (oldVersion < 64) {
+        if (oldVersion < 64 && newVersion >= 64) {
             try {
                 db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN ordering INTEGER DEFAULT 0");
             } catch (Exception e) {
