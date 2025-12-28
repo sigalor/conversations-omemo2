@@ -1542,7 +1542,7 @@
     <string name="delete_extension_title">Uzantıyı Sil</string>
     <string name="delete_extension_message">\"%1$s\" uzantısını silmek istediğinizden emin misiniz?</string>
     <string name="extension_deleted">Uzantı silindi</string>
-    <string name="openkeychain_required_long"><![CDATA[%1$s mesajlari sifreleme ve sifre cozme islemleri icin ve genel anahtarlarinizi yonetmek icin <b>OpenKeychain</b> kullanir.<br><br>GPLv3+ lisansi altindadir ve F-Droid ile Google Play'de mevcuttur.<br><br><small>(Lutfen sonrasinda %1$s uygulamasini yeniden baslatiniz.)</small>]]></string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s mesajlari sifreleme ve sifre cozme islemleri icin ve genel anahtarlarinizi yonetmek icin <b>OpenKeychain</b> kullanir.<br><br>GPLv3+ lisansi altindadir ve F-Droid ile Google Play\'de mevcuttur.<br><br><small>(Lutfen sonrasinda %1$s uygulamasini yeniden baslatiniz.)</small>]]></string>
     <string name="pref_use_relays_summary">IP adresinizin açığa çıkmasını önlemek için tüm P2P bağlantılarını (aramalar ve dosya aktarımları) sunucunuz üzerinden aktarın.</string>
     <string name="peer_to_peer">Eşler arası</string>
     <string name="pref_use_relays">Her zaman aktarıcıları kullan</string>
