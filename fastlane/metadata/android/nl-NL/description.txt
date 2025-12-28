@@ -1,0 +1,21 @@
+monocles chat is een moderne en veilige Android XMPP-chatclient (gebaseerd op Conversations) met extra functionaliteit van blabber.im en Cheogram. Daarnaast bevat het vele aanpassingen en extra functies die de bruikbaarheid en veiligheid verbeteren.
+
+Een veilige verbinding en de bescherming van persoonlijke gegevens zijn erg belangrijk voor ons, dus dwingen we versleutelde verbindingen met de server af, waardoor het bijna onmogelijk is dat vreemden je berichten kunnen onderscheppen en lezen. Daarom hebben we oudere versleutelingsopties verwijderd. De versleuteling is speciaal aangepast aan de monocles chat-server, maar is nog steeds compatibel met alle andere XMPP-servers die de huidige standaarden gebruiken.
+
+Als dat niet voldoende is, kun je end-to-end-berichtenversleuteling zoals OMEMO of OpenPGP gebruiken. Hierdoor kunnen berichten worden versleuteld op het verzendende apparaat en alleen worden ontsleuteld door het apparaat waarvoor ze bedoeld zijn.
+
+Functies:
+* End-to-end-versleuteling met <a href="http://conversations.im/omemo/">OMEMO</a>, <a href="https://en.wikipedia.org/wiki/Off-the-Record_Messaging">OTR</a> of <a href="http://openpgp.org/about/">OpenPGP</a>
+* Verzenden en ontvangen van afbeeldingen en andere bestanden
+* Verzenden en ontvangen van locaties
+* Verzenden en ontvangen van spraakberichten
+* Integratie van profielfoto's (avatars) van je contacten
+* Synchroniseren van berichtengeschiedenis met andere clients
+* Conferenties of groepschats
+* Integratie van adresboek (er vindt géén uitwisseling van je adresboek met de server plaats)
+* Audio-/videogesprekken
+* Zeer laag batterijverbruik
+* Statusberichten
+* Dagelijkse back-ups van de database naar lokale opslag
+
+Hulp nodig? Word dan lid van onze groepschat <a href="xmpp:support@conference.monocles.eu">support@conference.monocles.de</a>.
