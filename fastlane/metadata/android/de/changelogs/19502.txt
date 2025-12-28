@@ -1,0 +1,11 @@
+* Einführung des VCard4-Profil-Editors
+* Hinzufügen eines VCard-QR-Code-Generators zum Konto-Editor
+* Hinzufügen einer Drag-and-Drop-Funktion zum Neuanordnen von Konten
+* Behebung des Problems, dass Sticker und GIFs nach dem Drehen des Bildschirms verschwinden
+* Versuch, die Sichtbarkeit der Textfarbe im Eingabefeld zu verbessern
+* Aktualisierung der TLSv1.3-Einstellung (Standardmäßig aktiviert)
+* Option zum Speichern von Medien im Download-Ordner im Medien-Viewer hinzugefügt
+* Chat-Verlaufskalender eingeführt
+* EmojiSearch.addEmoji behebt CustomEmoji-Shortcodes
+* Korrekte Größe für alle Body-Elemente verwenden
+* Wasm-Erweiterung und application/wasm MIME hinzugefügt

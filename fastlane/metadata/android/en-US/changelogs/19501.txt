@@ -1,0 +1,11 @@
+* Introduce VCard4 profile editor
+* Add VCard QR code generator to account editor
+* Add drag and drop account reordering
+* Fix disappearing stickers and gifs after screen rotation
+* Try to improve input field text color visibility
+* Update TLSv1.3 setting (Default on)
+* Add option to save media to downloads folder in media viewer
+* Introduce chat history calendar
+* EmojiSearch.addEmoji fixes CustomEmoji shortcodes
+* Use correct size for all body elements
+* add wasm extension and application/wasm MIME
