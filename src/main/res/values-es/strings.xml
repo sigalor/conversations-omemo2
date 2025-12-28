@@ -4,7 +4,7 @@
     <string name="action_accounts">Gestionar cuentas</string>
     <string name="action_account">Gestionar cuenta</string>
     <string name="action_contact_details">Detalles del contacto</string>
-    <string name="action_muc_details">Detalles de conversación</string>
+    <string name="action_muc_details">Detalles de conversación grupal</string>
     <string name="channel_details">Detalles del canal</string>
     <string name="action_add_account">Añadir cuenta</string>
     <string name="action_edit_contact">Editar nombre</string>
@@ -21,8 +21,8 @@
     <string name="title_activity_choose_contact">Seleccionar Contacto</string>
     <string name="title_activity_choose_contacts">Seleccionar Contactos</string>
     <string name="title_activity_share_via_account">Compartir via cuenta</string>
-    <string name="title_activity_block_list">Lista contactos bloqueados</string>
-    <string name="just_now">ahora</string>
+    <string name="title_activity_block_list">Lista de bloqueados</string>
+    <string name="just_now">justo ahora</string>
     <string name="minute_ago">hace 1 min</string>
     <string name="minutes_ago">hace %d min</string>
     <plurals name="x_unread_conversations">
@@ -1418,4 +1418,11 @@
     <string name="dnssec_dane_verified">DNSSEC + DANE verificado</string>
     <string name="dnssec_verified">DNSSEC verificado</string>
     <string name="account_color_used_on">Usado en conversaciones, listas de contactos y notificaciones</string>
+    <string name="lime">Lima</string>
+    <string name="account_status_channel_binding">Canal no disponible</string>
+    <string name="retry_with_p2p">Reintentar con P2P</string>
+    <string name="word_document">documento de Word</string>
+    <string name="restore_omemo_key">Restaurar claves OMEMO</string>
+    <string name="non_quicksy_backup">Quicksy solo puede restaurar las copias de seguridad de las cuentas quicksy.im</string>
+    <string name="note_to_self_conversation_title">Recordatorios (%1$s)</string>
 </resources>

@@ -1060,7 +1060,7 @@
     <string name="pref_category_operating_system">Sistem Operativ</string>
     <string name="pref_privacy_summary">Njoftime shtypjeje, Parë Së Fundi, I lirë/I zënë</string>
     <string name="pref_connection_summary">Strehëemër &amp; Portë, Tor</string>
-    <string name="pref_connection_summary_w_cd">Strehëemër &amp; Portë, Tor, Pikazje Kanalesh</string>
+    <string name="pref_connection_summary_w_cd">Strehëemër &amp; Portë, Tor, P2P, Pikasje Kanalesh</string>
     <string name="pref_keyboard_options">Tastierë</string>
     <string name="pref_category_engagement_notifications">Njoftime angazhimi</string>
     <string name="pref_category_application">Aplikacion</string>
@@ -1550,4 +1550,19 @@
     <string name="delete_extension_title">Fshije Zgjerimin</string>
     <string name="delete_extension_message">Jeni i sigurt se doni të fshihet zgjerimi “%1$s”?</string>
     <string name="extension_deleted">Zgjerimi u fshi</string>
+    <string name="pref_use_relays">Përdor gjithmonë rele</string>
+    <string name="pref_use_relays_summary">Kalojini tërë lidhjet P2P (thirrje dhe shpërngulje kartelash) përmes shërbyesit tuaj për të shmangur lënien zbuluar të adresës tuaj IP.</string>
+    <string name="strong_transport_security">Sigurie e fuqishme transportesh</string>
+    <string name="require_tls_v1_3">Kërko Doemos Protokoll Sigurie Shtrese Transporti (TLS) Version 1.3 për krejt lidhjet</string>
+    <string name="april">Prill</string>
+    <string name="mars">Mars</string>
+    <string name="vcard_details">Hollësi profili</string>
+    <string name="add_profile_field">Shtoni fushë profili</string>
+    <string name="value">Vlerë</string>
+    <string name="remove_entry">Hiqe zërin</string>
+    <string name="vcard_qr_code">Shfaq kod QR</string>
+    <string name="error_saving_file">S’u ruajt dot kartelë</string>
+    <string name="total_messages_per_month">Mesazhe gjithsej për muaj: %s</string>
+    <string name="action_open_calendar">Hapni kalendarin</string>
+    <string name="title_activity_calendar">Kalendar</string>
 </resources>

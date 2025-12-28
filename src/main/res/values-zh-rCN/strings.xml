@@ -625,7 +625,7 @@
     <string name="show_inactive_devices">显示非活动设备</string>
     <string name="hide_inactive_devices">隐藏非活动设备</string>
     <string name="distrust_omemo_key">不信任设备</string>
-    <string name="distrust_omemo_key_text">是否确定要移除此设备的验证状态‌？\n此设备及其消息将被标记为“不受信任”。</string>
+    <string name="distrust_omemo_key_text">是否确定要移除此设备的验证状态？\n此设备及其消息将被标记为“不受信任”。</string>
     <plurals name="seconds">
         <item quantity="other">%d 秒</item>
     </plurals>
@@ -1042,7 +1042,7 @@
     <string name="pref_category_sending">发送</string>
     <string name="pref_category_receiving">接收</string>
     <string name="pref_connection_summary">主机名和端口、Tor</string>
-    <string name="pref_connection_summary_w_cd">主机名和端口、Tor、频道发现</string>
+    <string name="pref_connection_summary_w_cd">主机名和端口、Tor、P2P、频道发现</string>
     <string name="pref_keyboard_options">键盘</string>
     <string name="pref_category_application">应用程序</string>
     <string name="pref_category_interaction">互动</string>
@@ -1468,7 +1468,7 @@
     <string name="browse_space">浏览空间</string>
     <string name="sticker_deleted">贴纸已删除</string>
     <string name="failed_to_delete_sticker">无法删除贴纸</string>
-    <string name="pref_load_image_from_any_link_title">加载图片链接‌</string>
+    <string name="pref_load_image_from_any_link_title">加载图片链接</string>
     <string name="pref_load_image_from_any_link_summary">自动从任意图片链接加载图片</string>
     <string name="pref_backup_location">备份位置</string>
     <string name="non_quicksy_backup">Quicksy 只能恢复 quicksy.im 账号的备份</string>
@@ -1490,11 +1490,11 @@
     <string name="sticker_preview_content_description">贴纸放大预览</string>
     <string name="conversation">对话</string>
     <string name="commands">命令</string>
-    <string name="import_own_stickers">导入贴纸‌</string>
+    <string name="import_own_stickers">导入贴纸</string>
     <string name="import_gif_failed">无法导入 GIF</string>
     <string name="import_own_stickers_summary">导入您自己的贴纸。使用原始文件名。</string>
     <string name="sticker_saved">贴纸已保存</string>
-    <string name="sticker_imported">贴纸已导入‌</string>
+    <string name="sticker_imported">贴纸已导入</string>
     <string name="import_sticker_failed">无法导入贴纸</string>
     <string name="gif_imported">GIF 已导入</string>
     <string name="import_own_gifs">导入自己的 GIF</string>
@@ -1537,7 +1537,7 @@
     <string name="unpin_message">取消置顶消息</string>
     <string name="pref_always_show_full_timestamps">显示完整时间戳</string>
     <string name="pref_always_show_full_timestamps_summary">始终显示完整的消息时间戳，不显示“刚刚”、“1 分钟前”等表述</string>
-    <string name="pref_skip_image_editor_screen">跳过图片编辑器‌</string>
+    <string name="pref_skip_image_editor_screen">跳过图片编辑器</string>
     <string name="pref_skip_image_editor_screen_summary">对于单张图片附件，不要自动打开图片编辑器界面</string>
     <string name="update_default_stickers_summary">下载默认贴纸集</string>
     <string name="pref_clear_blocked_media_summary">取消屏蔽所有已屏蔽的媒体，包括头像</string>
@@ -1545,4 +1545,35 @@
     <string name="delete_extension_message">是否确定要删除扩展“%1$s”？</string>
     <string name="extension_deleted">扩展已删除</string>
     <string name="error_deleting_extension">无法删除扩展</string>
+    <string name="pref_use_relays">始终使用中继</string>
+    <string name="pref_use_relays_summary">通过您的服务器中继所有 P2P 连接（通话和文件传输），以避免泄露您的 IP 地址。</string>
+    <string name="peer_to_peer">P2P（点对点）</string>
+    <string name="clarendon">Clarendon</string>
+    <string name="oldman">OldMan</string>
+    <string name="haan">Haan</string>
+    <string name="april">April</string>
+    <string name="mars">Mars</string>
+    <string name="rise">Rise</string>
+    <string name="audrey">Audrey</string>
+    <string name="metropolis">Metropolis</string>
+    <string name="cruz">Cruz</string>
+    <string name="adele">Adele</string>
+    <string name="amazon">Amazon</string>
+    <string name="starlit">Starlit</string>
+    <string name="bluemess">BlueMess</string>
+    <string name="struck">Struck</string>
+    <string name="whisper">Whisper</string>
+    <string name="lime">Lime</string>
+    <string name="vcard_qr_code">显示二维码</string>
+    <string name="value">值</string>
+    <string name="remove_entry">移除条目</string>
+    <string name="vcard_details">个人资料详情</string>
+    <string name="add_profile_field">添加个人资料字段</string>
+    <string name="drag_handle">拖动手柄</string>
+    <string name="strong_transport_security">强传输安全性</string>
+    <string name="require_tls_v1_3">所有连接均需使用传输层安全性（TLS）协议版本 1.3</string>
+    <string name="error_saving_file">无法保存文件</string>
+    <string name="action_open_calendar">打开日历</string>
+    <string name="title_activity_calendar">日历</string>
+    <string name="total_messages_per_month">每月消息总数：%s</string>
 </resources>

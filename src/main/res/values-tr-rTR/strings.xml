@@ -73,8 +73,8 @@
     <string name="not_in_roster">Eksik olan bu kişiyi listenize eklemek ister misiniz?</string>
     <string name="add_contact">Kişi ekle</string>
     <string name="send_failed">ulaştırılamadı</string>
-    <string name="preparing_image">Görüntü gönderilmeye hazırlanılıyor</string>
-    <string name="preparing_images">Görüntüler gönderilmeye hazırlanılıyor</string>
+    <string name="preparing_image">Görsel gönderilmeye hazırlanılıyor</string>
+    <string name="preparing_images">Görseller gönderilmeye hazırlanılıyor</string>
     <string name="sharing_files_please_wait">Dosyalar Paylaşılıyor. Lütfen bekleyin…</string>
     <string name="action_clear_history">Geçmişi sil</string>
     <string name="clear_conversation_history">Sohbet geçmişini sil</string>
@@ -201,7 +201,7 @@
     <string name="last_seen_mins">en son %d dakika önce görüldü</string>
     <string name="last_seen_hour">en son bir saat önce görüldü</string>
     <string name="last_seen_hours">en son %d saat önce görüldü</string>
-    <string name="last_seen_day">en son bir saat önce görüldü</string>
+    <string name="last_seen_day">en son bir gün önce görüldü</string>
     <string name="last_seen_days">en son %d gün önce görüldü</string>
     <string name="install_openkeychain">Şifrelenmiş mesaj. Çözmek için lütfen OpenKeychain kurun.</string>
     <string name="openpgp_messages_found">Yeni şifrelenmiş OpenPGP mesajları bulundu</string>
@@ -371,7 +371,7 @@
     <string name="advanced_mode">Gelişmiş mod</string>
     <string name="grant_membership">Üye ayrıcalıkları tanı</string>
     <string name="remove_membership">Üye ayrıcalıklarını kaldır</string>
-    <string name="grant_admin_privileges">Yönetici ayrıcalıklarını kabul et</string>
+    <string name="grant_admin_privileges">Yönetici ayrıcalıkları tanı</string>
     <string name="remove_admin_privileges">Yönetici ayrıcalıklarını geri çevir</string>
     <string name="grant_owner_privileges">Sahip ayrıcalıkları tanı</string>
     <string name="remove_owner_privileges">Sahip ayrıcalıklarını kaldır</string>
@@ -392,7 +392,7 @@
     <string name="modified_conference_options">Grup sohbeti seçenekleri düzenlendi!</string>
     <string name="could_not_modify_conference_options">Grup sohbet seçenekleri düzenlenemedi</string>
     <string name="never">Hiçbir zaman</string>
-    <string name="until_further_notice">İkinci bildirime kadar</string>
+    <string name="until_further_notice">Bir sonraki bildiriye kadar</string>
     <string name="snooze">Ertele</string>
     <string name="reply">Cevapla</string>
     <string name="mark_as_read">Okundu olarak işaretle</string>
@@ -403,7 +403,7 @@
     <string name="pref_display_enter_key_summary">İfade simgesi tuşunu \"enter\" tuşu olarak değiştir</string>
     <string name="audio">ses</string>
     <string name="video">video</string>
-    <string name="image">görüntü</string>
+    <string name="image">görsel</string>
     <string name="vector_graphic">Vektör grafik</string>
     <string name="multimedia_file">Multimedya dosyası</string>
     <string name="pdf_document">PDF belgesi</string>
@@ -495,8 +495,8 @@
     </plurals>
     <string name="load_more_messages">Daha fazla mesaj yükle</string>
     <string name="shared_file_with_x">Dosya %s ile paylaşıldı</string>
-    <string name="shared_image_with_x">Görüntü %s ile paylaşıldı</string>
-    <string name="shared_images_with_x">Görüntüler %s ile paylaşıldı</string>
+    <string name="shared_image_with_x">Görsel %s ile paylaşıldı</string>
+    <string name="shared_images_with_x">Görseller %s ile paylaşıldı</string>
     <string name="shared_text_with_x">Metin %s ile paylaşıldı</string>
     <string name="no_storage_permission">%1$s\'ın harici depolama erişimine izin ver</string>
     <string name="no_camera_permission">%1$s\'ın kamera erişimine izin ver</string>
@@ -507,7 +507,7 @@
     <string name="notify_never">Bildirimler devre dışı</string>
     <string name="notify_paused">Bildirimler geçici olarak durduruldu</string>
     <string name="pref_picture_compression">Görüntü sıkıştırma</string>
-    <string name="pref_picture_compression_summary">İpucu: Bu ayardan bağımsız olarak tek tek görüntüleri sıkıştırılmamış olarak göndermek için \"Resim seç\" yerine \"Dosya seç\" seçeneğini kullanın.</string>
+    <string name="pref_picture_compression_summary">İpucu: Bu ayardan bağımsız olarak tek tek görselleri sıkıştırılmamış olarak göndermek için \"Resim seç\" yerine \"Dosya seç\" seçeneğini kullanın.</string>
     <string name="always">Her zaman</string>
     <string name="large_images_only">Sadece büyük resimler</string>
     <string name="battery_optimizations_enabled">Pil optimizasyonları etkinleştirildi</string>
@@ -887,7 +887,7 @@
     <string name="rtp_state_accepting_call">Arama kabul ediliyor</string>
     <string name="rtp_state_ending_call">Arama sonlandırılıyor</string>
     <string name="answer_call">Cevapla</string>
-    <string name="dismiss_call">Reddet</string>
+    <string name="dismiss_call">Yok say</string>
     <string name="rtp_state_finding_device">Cihazlar keşfediliyor</string>
     <string name="rtp_state_ringing">Çaldırılıyor</string>
     <string name="rtp_state_declined_or_busy">Meşgul</string>
@@ -983,7 +983,7 @@
     <string name="pref_light_dark_mode">Açık/Koyu tema</string>
     <string name="pref_privacy_summary">Yazıyor bildirimi, Son görülme, Müsaitlik</string>
     <string name="pref_connection_summary">Sunucu adı ve Portu, Tor</string>
-    <string name="pref_connection_summary_w_cd">Sunucu adı ve Portu, Tor, Kanal Keşfi</string>
+    <string name="pref_connection_summary_w_cd">Sunucu Adı ve Bağlantı Noktası, Tor, P2P, Kanal Keşfi</string>
     <string name="contact_list_integration_not_available">Kişiler entegrasyonu mevcut değil</string>
     <string name="privacy_policy">Gizlilik politikası</string>
     <string name="title_activity_share_with">Şununla paylaş…</string>
@@ -1542,4 +1542,24 @@
     <string name="delete_extension_title">Uzantıyı Sil</string>
     <string name="delete_extension_message">\"%1$s\" uzantısını silmek istediğinizden emin misiniz?</string>
     <string name="extension_deleted">Uzantı silindi</string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s mesajlari sifreleme ve sifre cozme islemleri icin ve genel anahtarlarinizi yonetmek icin <b>OpenKeychain</b> kullanir.<br><br>GPLv3+ lisansi altindadir ve F-Droid ile Google Play'de mevcuttur.<br><br><small>(Lutfen sonrasinda %1$s uygulamasini yeniden baslatiniz.)</small>]]></string>
+    <string name="pref_use_relays_summary">IP adresinizin açığa çıkmasını önlemek için tüm P2P bağlantılarını (aramalar ve dosya aktarımları) sunucunuz üzerinden aktarın.</string>
+    <string name="peer_to_peer">Eşler arası</string>
+    <string name="pref_use_relays">Her zaman aktarıcıları kullan</string>
+    <string name="whisper">Fısıltı</string>
+    <string name="lime">Limon</string>
+    <string name="mars">Kızıl Gezegen</string>
+    <string name="clarendon">Clarendon</string>
+    <string name="oldman">YaşlıAdam</string>
+    <string name="haan">Haan</string>
+    <string name="april">Nisan</string>
+    <string name="rise">Yükseliş</string>
+    <string name="audrey">Audrey</string>
+    <string name="metropolis">Büyükşehir</string>
+    <string name="cruz">Cruz</string>
+    <string name="adele">Adele</string>
+    <string name="amazon">Amazon</string>
+    <string name="starlit">Yıldız ışığı</string>
+    <string name="bluemess">MaviKargaşa</string>
+    <string name="struck">Vurulmuş</string>
 </resources>
