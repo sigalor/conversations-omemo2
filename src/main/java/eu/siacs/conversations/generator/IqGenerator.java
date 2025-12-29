@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -246,21 +248,32 @@ public class IqGenerator extends AbstractGenerator {
 
     public Iq publishStory(final String url, final String type, final String title, Bundle options) {
         final Element item = new Element("item");
+        // This is the pubsub <item/> ID, which is different from the atom <entry> <id/>
         item.setAttribute("id", UUID.randomUUID().toString());
-
         final Element entry = item.addChild("entry", Namespace.ATOM);
-        if (title != null) {
-            entry.addChild("title").setContent(title);
-        }
-        entry.addChild("published").setContent(getTimestamp(System.currentTimeMillis()));
 
+        // atom:id is a mandatory element for the entry, must be a unique and permanent URI
+        entry.addChild("id").setContent("urn:uuid:"+UUID.randomUUID().toString());
+
+        // atom:title is mandatory
+        String effectiveTitle = title;
+        if (Strings.isNullOrEmpty(effectiveTitle)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            effectiveTitle = "Story " + sdf.format(new Date());
+        }
+        entry.addChild("title").setContent(effectiveTitle);
+
+        // atom:updated is mandatory
+        final String timestamp = getTimestamp(System.currentTimeMillis());
+        entry.addChild("updated").setContent(timestamp);
+        entry.addChild("published").setContent(timestamp); // Also add published for compatibility
+
+        // The <link> element as specified by the XEP
         final Element link = entry.addChild("link");
         link.setAttribute("rel", "enclosure");
         link.setAttribute("href", url);
         link.setAttribute("type", type);
-        if (title != null) {
-            link.setAttribute("title", title);
-        }
+        link.setAttribute("title", effectiveTitle);
 
         return publish(Namespace.PUBSUB_STORIES, item, options);
     }

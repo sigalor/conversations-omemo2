@@ -7798,6 +7798,54 @@ public class XmppConnectionService extends Service {
         });
     }
 
+    public void uploadFileForUrl(final Account account, final android.net.Uri uri, final String mimeType, final UiCallback<String> callback) {
+        if (account == null) {
+            callback.error(R.string.no_active_account, null);
+            return;
+        }
+        // Create a dummy conversation and message
+        final Conversation conversation = new Conversation(account.getDisplayName(), account, account.getJid().asBareJid(), Conversation.MODE_SINGLE);
+        final Message message = new Message(conversation, "", Message.ENCRYPTION_NONE);
+        if (mimeType != null && mimeType.startsWith("image/")) {
+            message.setType(Message.TYPE_IMAGE);
+        } else {
+            message.setType(Message.TYPE_FILE);
+        }
+
+
+        Runnable runnable = () -> {
+            try {
+                if (mimeType != null && mimeType.startsWith("image/")) {
+                    getFileBackend().copyImageToPrivateStorage(message, uri);
+                } else {
+                    getFileBackend().copyFileToPrivateStorage(message, uri, mimeType);
+                }
+            } catch (eu.siacs.conversations.persistance.FileBackend.ImageCompressionException e) {
+                Log.d(Config.LOGTAG, "unable to compress image for story. falling back to file transfer", e);
+                message.setType(Message.TYPE_FILE);
+                try {
+                    getFileBackend().copyFileToPrivateStorage(message, uri, mimeType);
+                } catch (eu.siacs.conversations.persistance.FileBackend.FileCopyException ex) {
+                    callback.error(ex.getResId(), null);
+                    return;
+                }
+            } catch (final eu.siacs.conversations.persistance.FileBackend.FileCopyException e) {
+                callback.error(e.getResId(), null);
+                return;
+            }
+
+            mHttpConnectionManager.createNewUploadConnection(message, false, () -> {
+                final String url = message.getBody();
+                if (url != null) {
+                    callback.success(url);
+                } else {
+                    callback.error(R.string.upload_failed_server_not_found, null);
+                }
+            });
+        };
+        FILE_ATTACHMENT_EXECUTOR.execute(runnable);
+    }
+
     private final List<eu.siacs.conversations.entities.Story> stories = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final Set<OnStoriesUpdate> mOnStoriesUpdates =
             java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());

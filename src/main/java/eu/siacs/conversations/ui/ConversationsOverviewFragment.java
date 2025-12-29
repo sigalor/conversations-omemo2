@@ -98,9 +98,10 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 	private static final String STATE_SCROLL_POSITION =
 			ConversationsOverviewFragment.class.getName() + ".scroll_state";
 
-	private static final int REQUEST_CHOOSE_STORY_IMAGE = 0x2b01;
+    private static final int REQUEST_CHOOSE_STORY_IMAGE = 0x2b01;
+    private Account mSelectedAccount;
 
-	private final List<Conversation> conversations = new ArrayList<>();
+    private final List<Conversation> conversations = new ArrayList<>();
 	private final List<Story> stories = new ArrayList<>();
 	private final PendingItem<Conversation> swipedConversation = new PendingItem<>();
 	private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
@@ -109,8 +110,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 	private StoryAdapter storyAdapter;
 	private XmppActivity activity;
 	private final PendingActionHelper pendingActionHelper = new PendingActionHelper();
-
-	private Account mSelectedAccount;
 
 	private final ItemTouchHelper.SimpleCallback callback =
 			new ItemTouchHelper.SimpleCallback(0, LEFT | RIGHT) {
@@ -353,8 +352,7 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		this.binding.fab.setOnClickListener(
 				(view) -> StartConversationActivity.launch(getActivity()));
 
-		this.binding.fabStory.setOnClickListener(v -> selectAccountToPublishStory());
-
+        this.binding.fabStory.setOnClickListener(v -> selectAccountToPublishStory());
 		this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
 		this.conversationsAdapter.setConversationClickListener(
 				(view, conversation) -> {
@@ -711,87 +709,94 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		activity.runOnUiThread(this::refresh);
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, final Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == Activity.RESULT_OK) {
-			if (requestCode == REQUEST_CHOOSE_STORY_IMAGE) {
-				if (data != null && mSelectedAccount != null) {
-					final Uri uri = data.getData();
-					if (uri == null) {
-						return;
-					}
-					final String mimeType = activity.getContentResolver().getType(uri);
-					final Conversation selfConversation = activity.xmppConnectionService.findOrCreateConversation(mSelectedAccount, mSelectedAccount.getJid().asBareJid(), false, false);
-					Toast.makeText(activity, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-					activity.xmppConnectionService.attachFileToConversation(selfConversation, uri, mimeType, null, new UiCallback<Message>() {
-						@Override
-						public void success(Message message) {
-							final String url = message.getBody();
-							if (url != null) {
-								activity.xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, null, new UiCallback<Void>() {
-									@Override
-									public void success(Void aVoid) {
-										activity.runOnUiThread(() -> Toast.makeText(activity, R.string.story_published, Toast.LENGTH_SHORT).show());
-										activity.xmppConnectionService.deleteMessage(message);
-									}
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_CHOOSE_STORY_IMAGE) {
+                if (data != null && mSelectedAccount != null) {
+                    final Uri uri = data.getData();
+                    if (uri == null) {
+                        return;
+                    }
+                    final String mimeType = activity.getContentResolver().getType(uri);
+                    Toast.makeText(activity, R.string.uploading_story, Toast.LENGTH_SHORT).show();
 
-									@Override
-									public void error(int errorCode, Void object) {
-										activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
-										activity.xmppConnectionService.deleteMessage(message);
-									}
+                    // Use a dummy conversation with the user's own JID
+                    final Conversation selfConversation = activity.xmppConnectionService.findOrCreateConversation(mSelectedAccount, mSelectedAccount.getJid().asBareJid(), false, false);
 
-									@Override
-									public void userInputRequired(android.app.PendingIntent pi, Void object) {
-										// not used
-									}
-								});
-							} else {
-								error(R.string.upload_failed_server_not_found, message);
-							}
-						}
+                    activity.xmppConnectionService.attachFileToConversation(selfConversation, uri, mimeType, null, new UiCallback<Message>() {
+                        @Override
+                        public void success(Message message) {
+                            // This callback is triggered after the message is sent.
+                            // Now we can get the URL and publish the story.
+                            final String url = message.getFileParams().url.toString();
+                            if (url != null) {
+                                activity.xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, null, new UiCallback<Void>() {
+                                    @Override
+                                    public void success(Void aVoid) {
+                                        activity.runOnUiThread(() -> Toast.makeText(activity, R.string.story_published, Toast.LENGTH_SHORT).show());
+                                        // Clean up the dummy message
+                                        activity.xmppConnectionService.deleteMessage(message);
+                                    }
 
-						@Override
-						public void error(int errorCode, Message object) {
-							activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
-						}
+                                    @Override
+                                    public void error(int errorCode, Void object) {
+                                        activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
+                                        activity.xmppConnectionService.deleteMessage(message);
+                                    }
 
-						@Override
-						public void userInputRequired(android.app.PendingIntent pi, Message object) {
-							// not used
-						}
-					});
-				}
-			}
-		}
-	}
+                                    @Override
+                                    public void userInputRequired(android.app.PendingIntent pi, Void object) {
+                                        // not used
+                                    }
+                                });
+                            } else {
+                                error(R.string.upload_failed_server_not_found, message);
+                            }
+                        }
 
-	private void selectAccountToPublishStory() {
-		final List<Account> accounts = activity.xmppConnectionService.getAccounts().stream().filter(Account::isEnabled).collect(Collectors.toList());
-		if (accounts.isEmpty()) {
-			Toast.makeText(getActivity(), R.string.no_active_account, Toast.LENGTH_SHORT).show();
-		} else if (accounts.size() == 1) {
-			openStoryImagePicker(accounts.get(0));
-		} else {
-			final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
-			final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
-			alertDialogBuilder.setTitle(R.string.choose_account);
-			final String[] asStrings =
-					accounts.stream().map(a -> a.getJid().asBareJid().toString()).toArray(String[]::new);
-			alertDialogBuilder.setSingleChoiceItems(
-					asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
-			alertDialogBuilder.setNegativeButton(R.string.cancel, null);
-			alertDialogBuilder.setPositiveButton(
-					R.string.ok, (dialog, which) -> openStoryImagePicker(selectedAccount.get()));
-			alertDialogBuilder.create().show();
-		}
-	}
+                        @Override
+                        public void error(int errorCode, Message object) {
+                            activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
+                        }
 
-	private void openStoryImagePicker(Account account) {
-		this.mSelectedAccount = account;
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		startActivityForResult(intent, REQUEST_CHOOSE_STORY_IMAGE);
-	}
+                        @Override
+                        public void userInputRequired(android.app.PendingIntent pi, Message object) {
+                            // not used
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private void selectAccountToPublishStory() {
+        final List<Account> accounts = activity.xmppConnectionService.getAccounts().stream().filter(Account::isEnabled).collect(Collectors.toList());
+        if (accounts.isEmpty()) {
+            Toast.makeText(getActivity(), R.string.no_active_account, Toast.LENGTH_SHORT).show();
+        } else if (accounts.size() == 1) {
+            openStoryImagePicker(accounts.get(0));
+        } else {
+            final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
+            final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
+            alertDialogBuilder.setTitle(R.string.choose_account);
+            final String[] asStrings =
+                    accounts.stream().map(a -> a.getJid().asBareJid().toString()).toArray(String[]::new);
+            alertDialogBuilder.setSingleChoiceItems(
+                    asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
+            alertDialogBuilder.setNegativeButton(R.string.cancel, null);
+            alertDialogBuilder.setPositiveButton(
+                    R.string.ok, (dialog, which) -> openStoryImagePicker(selectedAccount.get()));
+            alertDialogBuilder.create().show();
+        }
+    }
+
+    private void openStoryImagePicker(Account account) {
+        this.mSelectedAccount = account;
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_CHOOSE_STORY_IMAGE);
+    }
+
 }
