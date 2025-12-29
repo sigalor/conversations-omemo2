@@ -397,6 +397,9 @@
             android:name=".ui.MucUsersActivity"
             android:label="@string/group_chat_members" />
         <activity
+            android:name=".ui.StoryViewActivity"
+            android:label="@string/story" />
+        <activity
             android:name=".ui.ChannelDiscoveryActivity"
             android:label="@string/discover_channels" />
         <activity

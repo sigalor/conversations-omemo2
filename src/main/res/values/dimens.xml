@@ -25,6 +25,7 @@
     <dimen name="incoming_call_radius">48dp</dimen>
     <dimen name="avatar_on_status_message">32dp</dimen>
     <dimen name="avatar">48dp</dimen>
+    <dimen name="avatar_story_size">64dp</dimen>
     <dimen name="avatar_radius">10dp</dimen>
     <dimen name="bubble_radius">10dp</dimen>
     <dimen name="image_radius">6dp</dimen>

@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import eu.siacs.conversations.crypto.OtrService;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.entities.ServiceDiscoveryResult;
+import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.xmpp.pep.UserTune;
 import io.ipfs.cid.Cid;
 
@@ -464,6 +465,14 @@ public class MessageParser extends AbstractParser
                 && account.getJid().asBareJid().equals(from)) {
             final Element item = items.findChild("item");
             mXmppConnectionService.processMdsItem(account, item);
+        } else if (Namespace.PUBSUB_STORIES.equals(node)) {
+            final Element item = items.findChild("item");
+            if (item != null) {
+                final Story story = Story.fromElement(item, from);
+                if (story != null) {
+                    mXmppConnectionService.onStoryReceived(story);
+                }
+            }
         } else if (Namespace.USER_TUNE.equals(node)) {
             final Conversation conversation =
                     mXmppConnectionService.find(account, from.asBareJid());

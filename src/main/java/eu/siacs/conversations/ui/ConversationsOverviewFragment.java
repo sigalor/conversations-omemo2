@@ -36,6 +36,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -65,9 +66,12 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
+import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.ui.adapter.ConversationAdapter;
+import eu.siacs.conversations.ui.adapter.StoryAdapter;
 import eu.siacs.conversations.ui.interfaces.OnConversationArchived;
 import eu.siacs.conversations.ui.interfaces.OnConversationSelected;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
@@ -84,21 +88,29 @@ import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
-public class ConversationsOverviewFragment extends XmppFragment {
+public class ConversationsOverviewFragment extends XmppFragment implements XmppConnectionService.OnStoriesUpdate {
 
 	private static final String STATE_SCROLL_POSITION =
 			ConversationsOverviewFragment.class.getName() + ".scroll_state";
 
+	private static final int REQUEST_CHOOSE_STORY_IMAGE = 0x2b01;
+
 	private final List<Conversation> conversations = new ArrayList<>();
+	private final List<Story> stories = new ArrayList<>();
 	private final PendingItem<Conversation> swipedConversation = new PendingItem<>();
 	private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
 	private FragmentConversationsOverviewBinding binding;
 	private ConversationAdapter conversationsAdapter;
+	private StoryAdapter storyAdapter;
 	private XmppActivity activity;
 	private final PendingActionHelper pendingActionHelper = new PendingActionHelper();
+
+	private Account mSelectedAccount;
 
 	private final ItemTouchHelper.SimpleCallback callback =
 			new ItemTouchHelper.SimpleCallback(0, LEFT | RIGHT) {
@@ -228,7 +240,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 					pendingActionHelper.push(
 							() -> {
-								if (snackbar.isShownOrQueued()) {
+									if (snackbar.isShownOrQueued()) {
 									snackbar.dismiss();
 								}
 								final Conversation conversation = swipedConversation.pop();
@@ -302,6 +314,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		super.onDestroyView();
 		this.binding = null;
 		this.conversationsAdapter = null;
+		this.storyAdapter = null;
 		this.touchHelper = null;
 	}
 
@@ -315,6 +328,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	public void onPause() {
 		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onPause()");
 		pendingActionHelper.execute();
+		activity.xmppConnectionService.removeOnStoriesUpdateListener(this);
 		super.onPause();
 	}
 
@@ -339,6 +353,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		this.binding.fab.setOnClickListener(
 				(view) -> StartConversationActivity.launch(getActivity()));
 
+		this.binding.fabStory.setOnClickListener(v -> selectAccountToPublishStory());
+
 		this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
 		this.conversationsAdapter.setConversationClickListener(
 				(view, conversation) -> {
@@ -353,6 +369,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		this.binding.list.setAdapter(this.conversationsAdapter);
 		this.binding.list.setLayoutManager(
 				new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		this.storyAdapter = new StoryAdapter(this.activity, this.stories);
+		this.binding.storiesList.setAdapter(this.storyAdapter);
+		this.binding.storiesList.setLayoutManager(
+				new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 		registerForContextMenu(this.binding.list);
 		this.binding.list.addOnScrollListener(ExtendedFabSizeChanger.of(binding.fab));
 		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) this.touchHelper = new ItemTouchHelper(this.callback);
@@ -448,6 +468,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	@Override
 	public void onBackendConnected() {
 		refresh();
+		activity.xmppConnectionService.setOnStoriesUpdateListener(this);
 	}
 
 	private void setupSwipe() {
@@ -578,85 +599,103 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		EasyOnboardingInviteActivity.launch(account, activity);
 	}
 
-	@Override
-	protected void refresh() {
-		if (binding == null || this.activity == null) {
-			Log.d(Config.LOGTAG,"ConversationsOverviewFragment.refresh() skipped updated because view binding or activity was null");
-			return;
-		}
-		this.activity.populateWithOrderedConversations(this.conversations);
-		Conversation removed = this.swipedConversation.peek();
-		if (removed != null) {
-			if (removed.isRead(activity == null ? null : activity.xmppConnectionService)) {
-				this.conversations.remove(removed);
-			} else {
-				pendingActionHelper.execute();
-			}
-		}
-		this.conversationsAdapter.notifyDataSetChanged();
-		ScrollState scrollState = pendingScrollState.pop();
-		if (scrollState != null) {
-			setScrollPosition(scrollState);
-		}
+    protected void refresh() {
+        if (binding == null || this.activity == null) {
+            Log.d(Config.LOGTAG,"ConversationsOverviewFragment.refresh() skipped updated because view binding or activity was null");
+            return;
+        }
 
-		if (activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
-			binding.fab.setVisibility(View.GONE);
+        this.stories.clear();
+        this.stories.addAll(
+                this.activity.xmppConnectionService.getStories().stream()
+                        .collect(Collectors.toMap(
+                                story -> story.getContact().asBareJid(),
+                                story -> story,
+                                (a, b) -> a.getPublished() > b.getPublished() ? a : b
+                        ))
+                        .values()
+        );
+        Collections.sort(this.stories, (a,b) -> Long.compare(b.getPublished(), a.getPublished()));
 
-			if (this.conversations.size() == 1) {
-				if (activity instanceof OnConversationSelected) {
-					((OnConversationSelected) activity).onConversationSelected(this.conversations.get(0));
-				} else {
-					Log.w(ConversationsOverviewFragment.class.getCanonicalName(), "Activity does not implement OnConversationSelected");
-				}
-			}
-		} else {
-			if (activity instanceof ConversationsActivity) {
-				boolean showed = ((ConversationsActivity) activity).showNavigationBar();
+        if (this.stories.isEmpty()) {
+            binding.storiesList.setVisibility(View.GONE);
+        } else {
+            binding.storiesList.setVisibility(View.VISIBLE);
+        }
+        this.storyAdapter.notifyDataSetChanged();
 
-				if (showed) {
-					this.binding.fab.setVisibility(View.GONE);
-				} else {
-					this.binding.fab.setVisibility(View.VISIBLE);
-				}
-			}
-		}
-		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) setupSwipe();
+        this.activity.populateWithOrderedConversations(this.conversations);
+        Conversation removed = this.swipedConversation.peek();
+        if (removed != null) {
+            if (removed.isRead(activity == null ? null : activity.xmppConnectionService)) {
+                this.conversations.remove(removed);
+            } else {
+                pendingActionHelper.execute();
+            }
+        }
+        this.conversationsAdapter.notifyDataSetChanged();
+        ScrollState scrollState = pendingScrollState.pop();
+        if (scrollState != null) {
+            setScrollPosition(scrollState);
+        }
+        if (activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
+            binding.fab.setVisibility(View.GONE);
 
-		if (activity.xmppConnectionService == null || binding == null || binding.overviewSnackbar == null) return;
-		binding.overviewSnackbar.setVisibility(View.GONE);
-		for (final var account : activity.xmppConnectionService.getAccounts()) {
-			if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
-			if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
-				binding.overviewSnackbar.setVisibility(View.VISIBLE);
-				binding.overviewSnackbarMessage.setText(R.string.your_account + " " + account.getJid().asBareJid().toString() + " " + R.string.archiving_not_enabled_text);
-				binding.overviewSnackbarAction.setOnClickListener((v) -> {
-					final var prefs = account.mamPrefs();
-					prefs.setAttribute("default", "always");
-					activity.xmppConnectionService.pushMamPreferences(account, prefs);
-					refresh();
-				});
+            if (this.conversations.size() == 1) {
+                if (activity instanceof OnConversationSelected) {
+                    ((OnConversationSelected) activity).onConversationSelected(this.conversations.get(0));
+                } else {
+                    Log.w(ConversationsOverviewFragment.class.getCanonicalName(), "Activity does not implement OnConversationSelected");
+                }
+            }
+        } else {
+            if (activity instanceof ConversationsActivity) {
+                boolean showed = ((ConversationsActivity) activity).showNavigationBar();
 
-				binding.overviewSnackbarAction.setOnLongClickListener((v) -> {
-					PopupMenu popupMenu = new PopupMenu(getActivity(), v);
-					popupMenu.inflate(R.menu.mam_pref_fix);
-					popupMenu.setOnMenuItemClickListener(menuItem -> {
-						switch (menuItem.getItemId()) {
-							case R.id.ignore:
-								final var editor = activity.getPreferences().edit();
-								editor.putBoolean("no_mam_pref_warn:" + account.getUuid(), true).apply();
-								editor.apply();
-								refresh();
-								return true;
-						}
-						return true;
-					});
-					popupMenu.show();
-					return true;
-				});
-				break;
-			}
-		}
-	}
+                if (showed) {
+                    this.binding.fab.setVisibility(View.GONE);
+                } else {
+                    this.binding.fab.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+        if (activity.getPreferences().getBoolean("swipe_to_archive", true)) setupSwipe();
+
+        if (activity.xmppConnectionService == null || binding == null || binding.overviewSnackbar == null) return;
+        binding.overviewSnackbar.setVisibility(View.GONE);
+        for (final var account : activity.xmppConnectionService.getAccounts()) {
+            if (activity.getPreferences().getBoolean("no_mam_pref_warn:" + account.getUuid(), false)) continue;
+            if (account.mamPrefs() != null && !"always".equals(account.mamPrefs().getAttribute("default"))) {
+                binding.overviewSnackbar.setVisibility(View.VISIBLE);
+                binding.overviewSnackbarMessage.setText(R.string.your_account + " " + account.getJid().asBareJid().toString() + " " + R.string.archiving_not_enabled_text);
+                binding.overviewSnackbarAction.setOnClickListener((v) -> {
+                    final var prefs = account.mamPrefs();
+                    prefs.setAttribute("default", "always");
+                    activity.xmppConnectionService.pushMamPreferences(account, prefs);
+                    refresh();
+                });
+
+                binding.overviewSnackbarAction.setOnLongClickListener((v) -> {
+                    PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+                    popupMenu.inflate(R.menu.mam_pref_fix);
+                    popupMenu.setOnMenuItemClickListener(menuItem -> {
+                        switch (menuItem.getItemId()) {
+                            case R.id.ignore:
+                                final var editor = activity.getPreferences().edit();
+                                editor.putBoolean("no_mam_pref_warn:" + account.getUuid(), true).apply();
+                                editor.apply();
+                                refresh();
+                                return true;
+                        }
+                        return true;
+                    });
+                    popupMenu.show();
+                    return true;
+                });
+                break;
+            }
+        }
+    }
 
 	private void setScrollPosition(ScrollState scrollPosition) {
 		if (scrollPosition != null) {
@@ -665,5 +704,94 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			layoutManager.scrollToPositionWithOffset(
 					scrollPosition.position, scrollPosition.offset);
 		}
+	}
+
+	@Override
+	public void onStoriesUpdate() {
+		activity.runOnUiThread(this::refresh);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == Activity.RESULT_OK) {
+			if (requestCode == REQUEST_CHOOSE_STORY_IMAGE) {
+				if (data != null && mSelectedAccount != null) {
+					final Uri uri = data.getData();
+					if (uri == null) {
+						return;
+					}
+					final String mimeType = activity.getContentResolver().getType(uri);
+					final Conversation selfConversation = activity.xmppConnectionService.findOrCreateConversation(mSelectedAccount, mSelectedAccount.getJid().asBareJid(), false, false);
+					Toast.makeText(activity, R.string.uploading_story, Toast.LENGTH_SHORT).show();
+					activity.xmppConnectionService.attachFileToConversation(selfConversation, uri, mimeType, null, new UiCallback<Message>() {
+						@Override
+						public void success(Message message) {
+							final String url = message.getBody();
+							if (url != null) {
+								activity.xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, null, new UiCallback<Void>() {
+									@Override
+									public void success(Void aVoid) {
+										activity.runOnUiThread(() -> Toast.makeText(activity, R.string.story_published, Toast.LENGTH_SHORT).show());
+										activity.xmppConnectionService.deleteMessage(message);
+									}
+
+									@Override
+									public void error(int errorCode, Void object) {
+										activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
+										activity.xmppConnectionService.deleteMessage(message);
+									}
+
+									@Override
+									public void userInputRequired(android.app.PendingIntent pi, Void object) {
+										// not used
+									}
+								});
+							} else {
+								error(R.string.upload_failed_server_not_found, message);
+							}
+						}
+
+						@Override
+						public void error(int errorCode, Message object) {
+							activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
+						}
+
+						@Override
+						public void userInputRequired(android.app.PendingIntent pi, Message object) {
+							// not used
+						}
+					});
+				}
+			}
+		}
+	}
+
+	private void selectAccountToPublishStory() {
+		final List<Account> accounts = activity.xmppConnectionService.getAccounts().stream().filter(Account::isEnabled).collect(Collectors.toList());
+		if (accounts.isEmpty()) {
+			Toast.makeText(getActivity(), R.string.no_active_account, Toast.LENGTH_SHORT).show();
+		} else if (accounts.size() == 1) {
+			openStoryImagePicker(accounts.get(0));
+		} else {
+			final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
+			final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
+			alertDialogBuilder.setTitle(R.string.choose_account);
+			final String[] asStrings =
+					accounts.stream().map(a -> a.getJid().asBareJid().toString()).toArray(String[]::new);
+			alertDialogBuilder.setSingleChoiceItems(
+					asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
+			alertDialogBuilder.setNegativeButton(R.string.cancel, null);
+			alertDialogBuilder.setPositiveButton(
+					R.string.ok, (dialog, which) -> openStoryImagePicker(selectedAccount.get()));
+			alertDialogBuilder.create().show();
+		}
+	}
+
+	private void openStoryImagePicker(Account account) {
+		this.mSelectedAccount = account;
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		startActivityForResult(intent, REQUEST_CHOOSE_STORY_IMAGE);
 	}
 }

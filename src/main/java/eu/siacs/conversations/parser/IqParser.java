@@ -11,6 +11,7 @@ import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Room;
+import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -438,6 +439,25 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                 account.getRoster().markAllAsNotInRoster();
             }
             this.rosterItems(account, query);
+        } else if (packet.hasChild("pubsub", Namespace.PUBSUB)) {
+            Element pubsub = packet.findChild("pubsub", Namespace.PUBSUB);
+            Element items = pubsub.findChild("items");
+            if (items != null) {
+                String node = items.getAttribute("node");
+                if (Namespace.PUBSUB_STORIES.equals(node)) {
+                    Jid from = packet.getFrom();
+                    if (from != null) {
+                        for (Element item : items.getChildren()) {
+                            if (item.getName().equals("item")) {
+                                Story story = Story.fromElement(item, from);
+                                if (story != null) {
+                                    mXmppConnectionService.onStoryReceived(story);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } else if ((packet.hasChild("block", Namespace.BLOCKING)
                 || packet.hasChild("blocklist", Namespace.BLOCKING))
                 && packet.fromServer(account)) {

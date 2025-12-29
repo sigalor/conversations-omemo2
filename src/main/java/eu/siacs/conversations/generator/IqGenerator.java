@@ -244,6 +244,36 @@ public class IqGenerator extends AbstractGenerator {
         return publish(namespace, item, options);
     }
 
+    public Iq publishStory(final String url, final String type, final String title, Bundle options) {
+        final Element item = new Element("item");
+        item.setAttribute("id", UUID.randomUUID().toString());
+
+        final Element entry = item.addChild("entry", Namespace.ATOM);
+        if (title != null) {
+            entry.addChild("title").setContent(title);
+        }
+        entry.addChild("published").setContent(getTimestamp(System.currentTimeMillis()));
+
+        final Element link = entry.addChild("link");
+        link.setAttribute("rel", "enclosure");
+        link.setAttribute("href", url);
+        link.setAttribute("type", type);
+        if (title != null) {
+            link.setAttribute("title", title);
+        }
+
+        return publish(Namespace.PUBSUB_STORIES, item, options);
+    }
+
+    public Iq retrieveStories(Jid jid) {
+        final Iq iq = new Iq(Iq.Type.GET);
+        iq.setTo(jid);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element items = pubsub.addChild("items");
+        items.setAttribute("node", Namespace.PUBSUB_STORIES);
+        return iq;
+    }
+
     public Iq publishAvatarMetadata(final Avatar avatar, final Bundle options) {
         final Element item = new Element("item");
         item.setAttribute("id", avatar.sha1sum);
@@ -670,6 +700,22 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("mam", "1"); // ejabberd community
         options.putString("muc#roomconfig_mam", "1"); // ejabberd saas
         return options;
+    }
+
+    public static Bundle defaultStoriesConfiguration() {
+        Bundle options = new Bundle();
+        options.putString("pubsub#node_type", "leaf");
+        options.putString("pubsub#type", Namespace.PUBSUB_STORIES);
+        options.putString("pubsub#access_model", "presence");
+        options.putString("pubsub#item_expire", "86400");
+        options.putString("pubsub#persist_items", "1");
+        options.putString("pubsub#notify_retract", "1");
+        return options;
+    }
+
+    public Iq createStoriesNode() {
+        final Data data = Data.create(null, defaultStoriesConfiguration());
+        return publishPubsubConfiguration(null, Namespace.PUBSUB_STORIES, data);
     }
 
     public Iq requestPubsubConfiguration(Jid jid, String node) {

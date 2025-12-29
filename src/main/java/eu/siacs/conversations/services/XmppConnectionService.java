@@ -344,19 +344,20 @@ public class XmppConnectionService extends Service {
                 }
                 if (online) {
                     conversation.endOtrIfNeeded();
-                if (contact.getPresences().size() == 1) {
-                    sendUnsentMessages(conversation);
-                }
-            } else {
-                //check if the resource we are haveing a conversation with is still online
-                if (conversation.hasValidOtrSession()) {
-                    String otrResource = conversation.getOtrSession().getSessionID().getUserID();
-                    if (!(Arrays.asList(contact.getPresences().toResourceArray()).contains(otrResource))) {
-                        conversation.endOtrIfNeeded();
+                    if (contact.getPresences().size() == 1) {
+                        sendUnsentMessages(conversation);
                     }
+                    fetchStories(conversation.getAccount(), conversation.getContact());
+                } else {
+                    //check if the resource we are haveing a conversation with is still online
+                    if (conversation.hasValidOtrSession()) {
+                        String otrResource = conversation.getOtrSession().getSessionID().getUserID();
+                        if (!(Arrays.asList(contact.getPresences().toResourceArray()).contains(otrResource))) {
+                            conversation.endOtrIfNeeded();
+                        }
+                        }
                     }
-                }
-            };
+                };
     private final PresenceGenerator mPresenceGenerator = new PresenceGenerator(this);
     private List<Account> accounts;
     private final JingleConnectionManager mJingleConnectionManager =
@@ -4199,7 +4200,8 @@ public class XmppConnectionService extends Service {
                 && this.mOnUpdateBlocklist.isEmpty()
                 && this.mOnShowErrorToasts.isEmpty()
                 && this.onJingleRtpConnectionUpdate.isEmpty()
-                && this.mOnKeyStatusUpdated.isEmpty());
+                && this.mOnKeyStatusUpdated.isEmpty()
+                && this.mOnStoriesUpdates.isEmpty());
     }
 
     private void switchToForeground() {
@@ -7758,4 +7760,106 @@ public class XmppConnectionService extends Service {
         });
     }
 
+    public void publishStory(final Account account, final String url, final String type, final String title, final UiCallback<Void> callback) {
+        publishStory(account, url, type, title, true, callback);
+    }
+
+    private void publishStory(final Account account, final String url, final String type, final String title, boolean retry, final UiCallback<Void> callback) {
+        if (account.getStatus() != Account.State.ONLINE) {
+            if (callback != null) {
+                callback.error(R.string.not_connected_try_again, null);
+            }
+            return;
+        }
+        final Iq packet = getIqGenerator().publishStory(url, type, title, null);
+        sendIqPacket(account, packet, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                if (callback != null) {
+                    callback.success(null);
+                }
+            } else if (retry && PublishOptions.preconditionNotMet(response)) {
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stories node does not exist. creating it");
+                final Iq createRequest = getIqGenerator().createStoriesNode();
+                createRequest.setTo(account.getJid().asBareJid());
+                sendIqPacket(account, createRequest, createResponse -> {
+                    if (createResponse.getType() == Iq.Type.RESULT) {
+                        publishStory(account, url, type, title, false, callback);
+                    } else {
+                        if (callback != null) {
+                            callback.error(R.string.error_publish_avatar_server_reject, null);
+                        }
+                    }
+                });
+            } else {
+                if (callback != null) {
+                    callback.error(R.string.error_publish_avatar_server_reject, null);
+                }
+            }
+        });
+    }
+
+    private final List<eu.siacs.conversations.entities.Story> stories = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private final Set<OnStoriesUpdate> mOnStoriesUpdates =
+            java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+
+    public List<eu.siacs.conversations.entities.Story> getStories() {
+        return this.stories;
+    }
+
+    public void onStoryReceived(eu.siacs.conversations.entities.Story story) {
+        if (story == null) {
+            return;
+        }
+        for (int i = 0; i < stories.size(); ++i) {
+            if (stories.get(i).getUuid().equals(story.getUuid())) {
+                stories.set(i, story);
+                updateStoriesUi();
+                return;
+            }
+        }
+        this.stories.add(story);
+        java.util.Collections.sort(stories, (a, b) -> Long.compare(b.getPublished(), a.getPublished()));
+        updateStoriesUi();
+    }
+
+    public void setOnStoriesUpdateListener(OnStoriesUpdate listener) {
+        synchronized (LISTENER_LOCK) {
+            this.mOnStoriesUpdates.add(listener);
+        }
+    }
+
+    public void removeOnStoriesUpdateListener(OnStoriesUpdate listener) {
+        synchronized (LISTENER_LOCK) {
+            this.mOnStoriesUpdates.remove(listener);
+        }
+    }
+
+    public void updateStoriesUi() {
+        for (OnStoriesUpdate listener : threadSafeList(this.mOnStoriesUpdates)) {
+            listener.onStoriesUpdate();
+        }
+    }
+
+    public interface OnStoriesUpdate {
+        void onStoriesUpdate();
+    }
+
+    public void fetchStories(Account account, Contact contact) {
+        if (account.getStatus() != Account.State.ONLINE) {
+            return;
+        }
+        Log.d(Config.LOGTAG, "fetching stories for " + contact.getJid());
+        Iq request = getIqGenerator().retrieveStories(contact.getJid());
+        sendIqPacket(account, request, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                final Element pubsub = response.findChild("pubsub", Namespace.PUBSUB);
+                if (pubsub != null) {
+                    final List<eu.siacs.conversations.entities.Story> stories = eu.siacs.conversations.entities.Story.parseFromPubSub(pubsub, contact.getJid());
+                    for (eu.siacs.conversations.entities.Story story : stories) {
+                        onStoryReceived(story);
+                    }
+                }
+            }
+        });
+    }
 }

@@ -1573,4 +1573,9 @@
     <string name="action_open_calendar">Open calendar</string>
     <string name="title_activity_calendar">Calendar</string>
     <string name="total_messages_per_month">Total messages per month: %s</string>
+    <string name="uploading_story">Uploading story…</string>
+    <string name="story_published">Story published</string>
+    <string name="no_active_account">No active account</string>
+    <string name="upload_failed_server_not_found">Upload failed. Server not found</string>
+    <string name="story">Story</string>
 </resources>

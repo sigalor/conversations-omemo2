@@ -111,6 +111,9 @@ public final class Namespace {
     public static final String HASHES = "urn:xmpp:hashes:2";
     public static final String MDS_DISPLAYED = "urn:xmpp:mds:displayed:0";
     public static final String MDS_SERVER_ASSIST = "urn:xmpp:mds:server-assist:0";
+    public static final String PUBSUB_SOCIAL_FEED = "urn:xmpp:pubsub-social-feed:1";
+    public static final String PUBSUB_STORIES = "urn:xmpp:pubsub-social-feed:stories:0";
+    public static final String ATOM = "http://www.w3.org/2005/Atom";
 
     public static final String ENTITY_CAPABILITIES = "http://jabber.org/protocol/caps";
     public static final String ENTITY_CAPABILITIES_2 = "urn:xmpp:caps";
