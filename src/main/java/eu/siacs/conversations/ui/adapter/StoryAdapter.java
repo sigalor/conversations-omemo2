@@ -61,6 +61,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             if (finalStoryAccount != null) {
                 intent.putExtra(StoryViewActivity.EXTRA_ACCOUNT, finalStoryAccount.getUuid());
             }
+            intent.putExtra(StoryViewActivity.EXTRA_TITLE, story.getTitle());
             activity.startActivity(intent);
         });
     }

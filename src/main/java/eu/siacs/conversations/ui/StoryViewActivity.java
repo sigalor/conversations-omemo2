@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -22,14 +23,21 @@ public class StoryViewActivity extends XmppActivity {
 
     public static final String EXTRA_URL = "url";
     public static final String EXTRA_ACCOUNT = "account";
+    public static final String EXTRA_TITLE = "title";
 
     private ImageView imageView;
+    private TextView titleView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story_view);
         imageView = findViewById(R.id.story_image_view);
+        titleView = findViewById(R.id.story_title_view);
+        final String title = getIntent().getStringExtra(EXTRA_TITLE);
+        if (title != null) {
+            titleView.setText(title);
+        }
     }
 
     @Override
@@ -66,11 +74,9 @@ public class StoryViewActivity extends XmppActivity {
         final boolean useTor = xmppConnectionService.useTorToConnect() || account.isOnion();
         final boolean useI2p = xmppConnectionService.useI2PToConnect() || account.isI2P();
 
-        // Use a background thread for networking and file I/O
         new Thread(() -> {
             File tempFile = null;
             try {
-                // Create a temporary file in the cache directory
                 tempFile = File.createTempFile("story", ".tmp", getCacheDir());
                 try (InputStream inputStream = HttpConnectionManager.open(httpUrl, useTor, useI2p);
                      FileOutputStream outputStream = new FileOutputStream(tempFile)) {
