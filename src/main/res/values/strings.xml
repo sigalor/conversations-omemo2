@@ -1589,4 +1589,5 @@
     <string name="hide_stories">Hide stories</string>
     <string name="stories">Stories</string>
     <string name="add_story">Add story</string>
+    <string name="reply_to_story">Reply to story:</string>
 </resources>

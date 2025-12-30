@@ -24,6 +24,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.xmpp.Jid;
 import okhttp3.HttpUrl;
@@ -45,6 +46,7 @@ public class StoryViewActivity extends XmppActivity {
     private int currentIndex = 0;
     private Jid contact;
     private Account mAccount;
+    private Message storyMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +101,11 @@ public class StoryViewActivity extends XmppActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_delete_story) {
+        final int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            finish();
+            return true;
+        } else if (itemId == R.id.action_delete_story) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.delete_story_dialog_title)
                     .setMessage(R.string.delete_story_dialog_message)
@@ -128,9 +134,12 @@ public class StoryViewActivity extends XmppActivity {
                     .create()
                     .show();
             return true;
-        } else if (item.getItemId() == R.id.action_reply_to_story) {
-            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-            switchToConversation(conversation);
+        } else if (itemId == R.id.action_reply_to_story) {
+            if (storyMessage != null) {
+                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+                conversation.setReplyTo(storyMessage);
+                switchToConversation(conversation);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -149,7 +158,8 @@ public class StoryViewActivity extends XmppActivity {
 
     private void loadStory() {
         if (urls == null || currentIndex >= urls.size()) {
-            finish();return;
+            finish();
+            return;
         }
         titleView.setText(titles.get(currentIndex));
         if (getSupportActionBar() != null) {
@@ -164,6 +174,13 @@ public class StoryViewActivity extends XmppActivity {
             finish();
             return;
         }
+
+        // Correctly create a message object representing the story, including its ID
+        Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+        storyMessage = new Message(conversation, titles.get(currentIndex), Message.ENCRYPTION_NONE, Message.STATUS_RECEIVED);
+        // storyMessage.setRemoteMsgId(storyIds.get(currentIndex));
+        // storyMessage.setFileParams(new Message.FileParams(url));     // TODO: Add image support later
+        storyMessage.setBody(getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentIndex) + "\"");
 
         final boolean useTor = mAccount != null && (xmppConnectionService.useTorToConnect() || mAccount.isOnion());
         final boolean useI2p = mAccount != null && (xmppConnectionService.useI2PToConnect() || mAccount.isI2P());
@@ -183,6 +200,8 @@ public class StoryViewActivity extends XmppActivity {
                 }
 
                 final File finalTempFile = tempFile;
+                // Associate the downloaded file with our story message
+                // storyMessage.setRelativeFilePath(finalTempFile.getAbsolutePath());       // TODO: Add image support later
                 runOnUiThread(() -> {
                     if (!isFinishing()) {
                         Glide.with(StoryViewActivity.this).load(finalTempFile).into(imageView);
