@@ -38,15 +38,28 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         final Story story = stories.get(position);
         final Jid jid = story.getContact();
-        Contact contact = null;
-        Account storyAccount = null;
-        for (Account account : activity.xmppConnectionService.getAccounts()) {
-            contact = account.getRoster().getContact(jid);
-            if (contact != null) {
-                storyAccount = account;
-                break;
+        Contact contact;
+        Account storyAccount;
+
+        // Check if the story author is one of our own accounts
+        storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
+
+        if (storyAccount != null) {
+            // It's our own story
+            contact = storyAccount.getSelfContact();
+        } else {
+            // It's from someone else. Find which of our accounts knows them.
+            contact = null;
+            storyAccount = null;
+            for (Account account : activity.xmppConnectionService.getAccounts()) {
+                contact = account.getRoster().getContact(jid);
+                if (contact != null) {
+                    storyAccount = account; // The account that has this contact in its roster
+                    break;
+                }
             }
         }
+
         if (contact != null) {
             holder.storyTitle.setText(contact.getDisplayName());
             holder.storyImage.setImageDrawable(activity.xmppConnectionService.getAvatarService().get(contact, activity.getResources().getDimensionPixelSize(R.dimen.avatar_story_size)));
@@ -62,6 +75,8 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
                 intent.putExtra(StoryViewActivity.EXTRA_ACCOUNT, finalStoryAccount.getUuid());
             }
             intent.putExtra(StoryViewActivity.EXTRA_TITLE, story.getTitle());
+            intent.putExtra(StoryViewActivity.EXTRA_STORY_ID, story.getUuid());
+            intent.putExtra(StoryViewActivity.EXTRA_CONTACT, story.getContact().asBareJid().toString());
             activity.startActivity(intent);
         });
     }

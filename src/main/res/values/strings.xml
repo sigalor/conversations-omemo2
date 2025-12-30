@@ -1580,4 +1580,9 @@
     <string name="story">Story</string>
     <string name="add_story_title">Add a title</string>
     <string name="title_optional">Title (optional)</string>
+    <string name="error_deleting_story">Could not delete story</string>
+    <string name="delete_story">Delete story</string>
+    <string name="delete_story_dialog_title">Delete story</string>
+    <string name="delete_story_dialog_message">Do you really want to delete this story</string>
+    <string name="story_deleted">Story deleted</string>
 </resources>

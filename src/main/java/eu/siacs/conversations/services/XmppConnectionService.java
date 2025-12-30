@@ -7911,4 +7911,19 @@ public class XmppConnectionService extends Service {
             }
         });
     }
+
+    public void retractStory(Account account, String storyId, final UiCallback<Void> callback) {
+        Iq iq = getIqGenerator().deleteItem(Namespace.PUBSUB_STORIES, storyId);
+        this.sendIqPacket(account, iq, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                if (callback != null) {
+                    callback.success(null);
+                }
+            } else {
+                if (callback != null) {
+                    callback.error(R.string.error_deleting_story, null);
+                }
+            }
+        });
+    }
 }
