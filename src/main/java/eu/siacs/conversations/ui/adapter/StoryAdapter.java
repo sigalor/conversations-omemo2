@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
@@ -38,8 +39,8 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         final Story story = stories.get(position);
         final Jid jid = story.getContact();
-        Contact contact;
-        Account storyAccount;
+        Contact contact = null;
+        Account storyAccount = null;
 
         // Check if the story author is one of our own accounts
         storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
@@ -49,8 +50,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             contact = storyAccount.getSelfContact();
         } else {
             // It's from someone else. Find which of our accounts knows them.
-            contact = null;
-            storyAccount = null;
             for (Account account : activity.xmppConnectionService.getAccounts()) {
                 contact = account.getRoster().getContact(jid);
                 if (contact != null) {
@@ -70,13 +69,25 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         final Account finalStoryAccount = storyAccount;
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(activity, StoryViewActivity.class);
-            intent.putExtra(StoryViewActivity.EXTRA_URL, story.getUrl());
+            ArrayList<String> urls = new ArrayList<>();
+            ArrayList<String> titles = new ArrayList<>();
+            ArrayList<String> storyIds = new ArrayList<>();
+
+            // This is the corrected logic: Get the FULL list from the service
+            for (Story s : activity.xmppConnectionService.getStories()) {
+                if (s.getContact().asBareJid().equals(story.getContact().asBareJid())) {
+                    urls.add(s.getUrl());
+                    titles.add(s.getTitle());
+                    storyIds.add(s.getUuid());
+                }
+            }
+            intent.putStringArrayListExtra(StoryViewActivity.EXTRA_URLS, urls);
+            intent.putStringArrayListExtra(StoryViewActivity.EXTRA_TITLES, titles);
+            intent.putStringArrayListExtra(StoryViewActivity.EXTRA_STORY_IDS, storyIds);
+            intent.putExtra(StoryViewActivity.EXTRA_CONTACT, story.getContact().asBareJid().toString());
             if (finalStoryAccount != null) {
                 intent.putExtra(StoryViewActivity.EXTRA_ACCOUNT, finalStoryAccount.getUuid());
             }
-            intent.putExtra(StoryViewActivity.EXTRA_TITLE, story.getTitle());
-            intent.putExtra(StoryViewActivity.EXTRA_STORY_ID, story.getUuid());
-            intent.putExtra(StoryViewActivity.EXTRA_CONTACT, story.getContact().asBareJid().toString());
             activity.startActivity(intent);
         });
     }

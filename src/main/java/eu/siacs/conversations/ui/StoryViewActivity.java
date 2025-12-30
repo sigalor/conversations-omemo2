@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -27,22 +28,26 @@ import okhttp3.HttpUrl;
 
 public class StoryViewActivity extends XmppActivity {
 
-    public static final String EXTRA_URL = "url";
+    public static final String EXTRA_URLS = "urls";
+    public static final String EXTRA_TITLES = "titles";
+    public static final String EXTRA_STORY_IDS = "story_ids";
     public static final String EXTRA_ACCOUNT = "account";
-    public static final String EXTRA_TITLE = "title";
-    public static final String EXTRA_STORY_ID = "story_id";
     public static final String EXTRA_CONTACT = "contact";
 
     private ImageView imageView;
     private TextView titleView;
 
-    private String storyId;
+    private ArrayList<String> urls;
+    private ArrayList<String> titles;
+    private ArrayList<String> storyIds;
+    private int currentIndex = 0;
     private Jid contact;
     private Account mAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_Conversations3);
         setContentView(R.layout.activity_story_view);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -54,19 +59,19 @@ public class StoryViewActivity extends XmppActivity {
         imageView = findViewById(R.id.story_image_view);
         titleView = findViewById(R.id.story_title_view);
 
-        final String title = getIntent().getStringExtra(EXTRA_TITLE);
-        if (title != null) {
-            titleView.setText(title);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(title);
-            }
-        } else {
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(R.string.story);
-            }
-        }
+        urls = getIntent().getStringArrayListExtra(EXTRA_URLS);
+        titles = getIntent().getStringArrayListExtra(EXTRA_TITLES);
+        storyIds = getIntent().getStringArrayListExtra(EXTRA_STORY_IDS);
 
-        storyId = getIntent().getStringExtra(EXTRA_STORY_ID);
+        imageView.setOnClickListener(v -> {
+            currentIndex++;
+            if (currentIndex < urls.size()) {
+                loadStory();
+            } else {
+                finish();
+            }
+        });
+
         try {
             contact = Jid.of(getIntent().getStringExtra(EXTRA_CONTACT));
         } catch (final Exception e) {
@@ -74,7 +79,8 @@ public class StoryViewActivity extends XmppActivity {
         }
     }
 
-    @Override
+
+        @Override
     protected void refreshUiReal() {
 
     }
@@ -91,16 +97,12 @@ public class StoryViewActivity extends XmppActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
         if (item.getItemId() == R.id.action_delete_story) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.delete_story_dialog_title)
                     .setMessage(R.string.delete_story_dialog_message)
                     .setPositiveButton(R.string.delete, (dialog, which) -> {
-                        xmppConnectionService.retractStory(mAccount, storyId, new UiCallback<Void>() {
+                        xmppConnectionService.retractStory(mAccount, storyIds.get(currentIndex), new UiCallback<Void>() {
                             @Override
                             public void success(Void aVoid) {
                                 runOnUiThread(() -> {
@@ -131,23 +133,23 @@ public class StoryViewActivity extends XmppActivity {
 
     @Override
     public void onBackendConnected() {
-        String url = getIntent().getStringExtra(EXTRA_URL);
         String accountUuid = getIntent().getStringExtra(EXTRA_ACCOUNT);
-
-        if (url == null || accountUuid == null) {
-            finish();
-            return;
+        if (accountUuid != null) {
+            mAccount = xmppConnectionService.findAccountByUuid(accountUuid);
         }
-
-        mAccount = xmppConnectionService.findAccountByUuid(accountUuid);
-        if (mAccount == null) {
-            Toast.makeText(this, R.string.no_active_account, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
         invalidateOptionsMenu();
+        loadStory();
+    }
 
+    private void loadStory() {
+        if (urls == null || currentIndex >= urls.size()) {
+            finish();return;
+        }
+        titleView.setText(titles.get(currentIndex));
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(titles.get(currentIndex));
+        }
+        final String url = urls.get(currentIndex);
         final HttpUrl httpUrl;
         try {
             httpUrl = HttpUrl.get(url);
@@ -157,8 +159,8 @@ public class StoryViewActivity extends XmppActivity {
             return;
         }
 
-        final boolean useTor = xmppConnectionService.useTorToConnect() || mAccount.isOnion();
-        final boolean useI2p = xmppConnectionService.useI2PToConnect() || mAccount.isI2P();
+        final boolean useTor = mAccount != null && (xmppConnectionService.useTorToConnect() || mAccount.isOnion());
+        final boolean useI2p = mAccount != null && (xmppConnectionService.useI2PToConnect() || mAccount.isI2P());
 
         new Thread(() -> {
             File tempFile = null;
