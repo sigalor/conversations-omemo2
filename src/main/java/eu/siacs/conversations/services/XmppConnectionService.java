@@ -7835,7 +7835,7 @@ public class XmppConnectionService extends Service {
             }
 
             mHttpConnectionManager.createNewUploadConnection(message, false, () -> {
-                final String url = message.getBody();
+                final String url = message.getFileParams().url.toString();
                 if (url != null) {
                     callback.success(url);
                 } else {
@@ -7844,6 +7844,7 @@ public class XmppConnectionService extends Service {
             });
         };
         FILE_ATTACHMENT_EXECUTOR.execute(runnable);
+        deleteMessage(message);
     }
 
     private final List<eu.siacs.conversations.entities.Story> stories = new java.util.concurrent.CopyOnWriteArrayList<>();

@@ -732,48 +732,34 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
                             .setPositiveButton(R.string.publish, (dialog, which) -> {
                                 final String title = input.getText().toString();
                                 Toast.makeText(activity, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-
-                                // Use a dummy conversation with the user's own JID
-                                final Conversation selfConversation = activity.xmppConnectionService.findOrCreateConversation(mSelectedAccount, mSelectedAccount.getJid().asBareJid(), false, false);
-
-                                activity.xmppConnectionService.attachFileToConversation(selfConversation, uri, mimeType, null, new UiCallback<Message>() {
+                                activity.xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, mimeType, new UiCallback<String>() {
                                     @Override
-                                    public void success(Message message) {
-                                        // This callback is triggered after the message is sent.
-                                        // Now we can get the URL and publish the story.
-                                        final String url = message.getFileParams().url.toString();
-                                        if (url != null) {
-                                            activity.xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
-                                                @Override
-                                                public void success(Void aVoid) {
-                                                    activity.runOnUiThread(() -> Toast.makeText(activity, R.string.story_published, Toast.LENGTH_SHORT).show());
-                                                    // Clean up the dummy message
-                                                    activity.xmppConnectionService.deleteMessage(message);
-                                                }
+                                    public void success(String url) {
+                                        activity.xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
+                                            @Override
+                                            public void success(Void aVoid) {
+                                                activity.runOnUiThread(() -> Toast.makeText(activity, R.string.story_published, Toast.LENGTH_SHORT).show());
+                                            }
 
-                                                @Override
-                                                public void error(int errorCode, Void object) {
-                                                    activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
-                                                    activity.xmppConnectionService.deleteMessage(message);
-                                                }
+                                            @Override
+                                            public void error(int errorCode, Void object) {
+                                                activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
+                                            }
 
-                                                @Override
-                                                public void userInputRequired(android.app.PendingIntent pi, Void object) {
-                                                    // not used
-                                                }
-                                            });
-                                        } else {
-                                            error(R.string.upload_failed_server_not_found, message);
-                                        }
+                                            @Override
+                                            public void userInputRequired(android.app.PendingIntent pi, Void object) {
+                                                // not used
+                                            }
+                                        });
                                     }
 
                                     @Override
-                                    public void error(int errorCode, Message object) {
+                                    public void error(int errorCode, String object) {
                                         activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
                                     }
 
                                     @Override
-                                    public void userInputRequired(android.app.PendingIntent pi, Message object) {
+                                    public void userInputRequired(android.app.PendingIntent pi, String object) {
                                         // not used
                                     }
                                 });
