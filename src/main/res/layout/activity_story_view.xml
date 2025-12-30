@@ -28,6 +28,8 @@
         android:background="#80000000"
         android:padding="16dp"
         android:textColor="@android:color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:autoLink="web"
+        android:linksClickable="true" />
 
 </FrameLayout>
