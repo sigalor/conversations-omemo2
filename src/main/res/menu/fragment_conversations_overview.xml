@@ -10,7 +10,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_add_story"
-        android:icon="@drawable/outline_amp_stories_24"
+        android:icon="@drawable/outline_add_a_photo_24"
         android:orderInCategory="2"
         android:title="@string/add_story"
         android:visible="false"
