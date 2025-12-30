@@ -7916,6 +7916,16 @@ public class XmppConnectionService extends Service {
         Iq iq = getIqGenerator().deleteItem(Namespace.PUBSUB_STORIES, storyId);
         this.sendIqPacket(account, iq, response -> {
             if (response.getType() == Iq.Type.RESULT) {
+                final List<eu.siacs.conversations.entities.Story> newStories = new ArrayList<>(stories);
+                for (Iterator<eu.siacs.conversations.entities.Story> iterator = newStories.iterator(); iterator.hasNext(); ) {
+                    if (iterator.next().getUuid().equals(storyId)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+                this.stories.clear();
+                this.stories.addAll(newStories);
+                updateStoriesUi();
                 if (callback != null) {
                     callback.success(null);
                 }
