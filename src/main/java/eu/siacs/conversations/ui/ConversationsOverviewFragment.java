@@ -35,6 +35,7 @@ import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,6 +53,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -379,24 +381,34 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		return binding.getRoot();
 	}
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-		menuInflater.inflate(R.menu.fragment_conversations_overview, menu);
-		AccountUtils.showHideMenuItems(menu);
-		final MenuItem easyOnboardInvite = menu.findItem(R.id.action_easy_invite);
-		MenuItem noteToSelf = menu.findItem(R.id.action_note_to_self);
-		easyOnboardInvite.setVisible(EasyOnboardingInvite.anyHasSupport(activity == null ? null : activity.xmppConnectionService));
-		if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
-			final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
-			if (manageAccounts != null) manageAccounts.setVisible(false);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        menuInflater.inflate(R.menu.fragment_conversations_overview, menu);
+        AccountUtils.showHideMenuItems(menu);
+        final MenuItem easyOnboardInvite = menu.findItem(R.id.action_easy_invite);
+        MenuItem noteToSelf = menu.findItem(R.id.action_note_to_self);
+        easyOnboardInvite.setVisible(EasyOnboardingInvite.anyHasSupport(activity == null ? null : activity.xmppConnectionService));
+        if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
+            final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+            if (manageAccounts != null) manageAccounts.setVisible(false);
 
-			final MenuItem settings = menu.findItem(R.id.action_settings);
-			if (settings != null) settings.setVisible(false);
-		}
-		if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
-			noteToSelf.setVisible(false);
-		}
-	}
+            final MenuItem settings = menu.findItem(R.id.action_settings);
+            if (settings != null) settings.setVisible(false);
+        }
+        if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
+            noteToSelf.setVisible(false);
+        }
+        final MenuItem stories = menu.findItem(R.id.action_toggle_stories);
+        if (stories != null) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            boolean show = preferences.getBoolean("show_stories", true);
+            if (show) {
+                stories.setTitle(R.string.hide_stories);
+            } else {
+                stories.setTitle(R.string.show_stories);
+            }
+        }
+    }
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
@@ -508,11 +520,22 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		boolean navBarVisible = activity instanceof ConversationsActivity && ((ConversationsActivity) activity).navigationBarVisible();
 		MenuItem manageAccount = menu.findItem(R.id.action_account);
 		MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+        MenuItem addStory = menu.findItem(R.id.action_add_story);
 		if (navBarVisible) {
 			manageAccount.setVisible(false);
 			manageAccounts.setVisible(false);
+            if (stories != null) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                boolean show = preferences.getBoolean("show_stories", true);
+                if (show) {
+                    addStory.setVisible(true);
+                } else {
+                    addStory.setVisible(false);
+                }
+            }
 		} else {
 			AccountUtils.showHideMenuItems(menu);
+            addStory.setVisible(false);
 		}
 	}
 
@@ -528,9 +551,19 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 
 			if (showed) {
 				this.binding.fab.setVisibility(View.GONE);
+                binding.fabStory.setVisibility(View.GONE);
 			} else {
 				this.binding.fab.setVisibility(View.VISIBLE);
-			}
+                if (stories != null) {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    boolean show = preferences.getBoolean("show_stories", true);
+                    if (show) {
+                        this.binding.fabStory.setVisibility(View.VISIBLE);
+                    } else {
+                        this.binding.fabStory.setVisibility(View.GONE);
+                    }
+                }
+            }
 		}
 	}
 
@@ -540,30 +573,46 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onResume()");
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		if (MenuDoubleTabUtil.shouldIgnoreTap()) {
-			return false;
-		}
-		switch (item.getItemId()) {
-			case R.id.action_search:
-				startActivity(new Intent(getActivity(), SearchActivity.class));
-				return true;
-			case R.id.action_easy_invite:
-				selectAccountToStartEasyInvite();
-				return true;
-			case R.id.action_note_to_self:
-				final List<Account> accounts = activity.xmppConnectionService.getAccounts();
-				if (accounts.size() == 1) {
-					final Contact self = new Contact(accounts.get(0).getSelfContact());
-					Conversation conversation = activity.xmppConnectionService.findOrCreateConversation(self.getAccount(), self.getJid(), false, false, null, true, null);
-					SoftKeyboardUtils.hideSoftKeyboard(activity);
-					activity.switchToConversation(conversation);
-				}
-		}
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if (MenuDoubleTabUtil.shouldIgnoreTap()) {
+            return false;
+        }
+        switch (item.getItemId()) {
+            case R.id.action_search:startActivity(new Intent(getActivity(), SearchActivity.class));
+                return true;
+            case R.id.action_easy_invite:
+                selectAccountToStartEasyInvite();
+                return true;
+            case R.id.action_note_to_self:
+                final List<Account> accounts = activity.xmppConnectionService.getAccounts();
+                if (accounts.size() == 1) {
+                    final Contact self = new Contact(accounts.get(0).getSelfContact());
+                    Conversation conversation = activity.xmppConnectionService.findOrCreateConversation(self.getAccount(), self.getJid(), false, false, null, true, null);
+                    SoftKeyboardUtils.hideSoftKeyboard(activity);
+                    activity.switchToConversation(conversation);
+                }
+                return true;
+            case R.id.action_toggle_stories:
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                boolean show = preferences.getBoolean("show_stories", true);
+                preferences.edit().putBoolean("show_stories", !show).apply();
+                refresh();
+                activity.invalidateOptionsMenu();
+                return true;
+            case R.id.action_add_story:
+                selectAccountToPublishStory();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
+    private void setShowStories(boolean show) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences.edit().putBoolean("show_stories", show).apply();
+        refresh();
+        activity.invalidateOptionsMenu();
+    }
 	private void selectAccountToStartEasyInvite() {
 		final List<Account> accounts =
 				EasyOnboardingInvite.getSupportingAccounts(activity.xmppConnectionService);
@@ -616,7 +665,10 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
         );
         Collections.sort(this.stories, (a,b) -> Long.compare(b.getPublished(), a.getPublished()));
 
-        if (this.stories.isEmpty()) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean show = preferences.getBoolean("show_stories", true);
+
+        if (this.stories.isEmpty() || !show) {
             binding.storiesList.setVisibility(View.GONE);
         } else {
             binding.storiesList.setVisibility(View.VISIBLE);
@@ -639,6 +691,7 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
         }
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
             binding.fab.setVisibility(View.GONE);
+            binding.fabStory.setVisibility(View.GONE);
 
             if (this.conversations.size() == 1) {
                 if (activity instanceof OnConversationSelected) {
@@ -653,8 +706,16 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 
                 if (showed) {
                     this.binding.fab.setVisibility(View.GONE);
+                    this.binding.fabStory.setVisibility(View.GONE);
                 } else {
                     this.binding.fab.setVisibility(View.VISIBLE);
+                    if (stories != null) {
+                        if (show) {
+                            this.binding.fabStory.setVisibility(View.VISIBLE);
+                        } else {
+                            this.binding.fabStory.setVisibility(View.GONE);
+                        }
+                    }
                 }
             }
         }

@@ -1585,4 +1585,8 @@
     <string name="delete_story_dialog_title">Delete story</string>
     <string name="delete_story_dialog_message">Do you really want to delete this story</string>
     <string name="story_deleted">Story deleted</string>
+    <string name="show_stories">Show stories</string>
+    <string name="hide_stories">Hide stories</string>
+    <string name="stories">Stories</string>
+    <string name="add_story">Add story</string>
 </resources>
