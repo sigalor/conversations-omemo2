@@ -5,10 +5,10 @@
     android:orientation="vertical"
     android:padding="8dp">
 
-    <ImageView
+    <eu.siacs.conversations.ui.widget.AvatarView
         android:id="@+id/story_image"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:scaleType="centerCrop" />
 
     <TextView
