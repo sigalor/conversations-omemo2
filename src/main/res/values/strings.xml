@@ -1578,4 +1578,6 @@
     <string name="no_active_account">No active account</string>
     <string name="upload_failed_server_not_found">Upload failed. Server not found</string>
     <string name="story">Story</string>
+    <string name="add_story_title">Add a title</string>
+    <string name="title_optional">Title (optional)</string>
 </resources>
