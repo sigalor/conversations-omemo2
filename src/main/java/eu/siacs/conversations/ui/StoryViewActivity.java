@@ -1,6 +1,5 @@
 package eu.siacs.conversations.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -204,7 +204,12 @@ public class StoryViewActivity extends XmppActivity {
                 // storyMessage.setRelativeFilePath(finalTempFile.getAbsolutePath());       // TODO: Add image support later
                 runOnUiThread(() -> {
                     if (!isFinishing()) {
-                        Glide.with(StoryViewActivity.this).load(finalTempFile).into(imageView);
+                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
+                        circularProgressDrawable.setStrokeWidth(10f);
+                        circularProgressDrawable.setCenterRadius(50f);
+                        circularProgressDrawable.setColorSchemeColors(0xFFFFFFFF);
+                        circularProgressDrawable.start();
+                        Glide.with(StoryViewActivity.this).load(finalTempFile).placeholder(circularProgressDrawable).into(imageView);
                     }
                 });
 
