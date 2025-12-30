@@ -39,6 +39,9 @@ public class Story extends AbstractEntity {
             return null;
         }
         Element published = entry.findChild("published");
+        if (published == null) {
+            return null;
+        }
         Element link = null;
         for (Element child : entry.getChildren()) {
             if ("link".equals(child.getName()) && "enclosure".equals(child.getAttribute("rel"))) {
