@@ -32,13 +32,17 @@ package eu.siacs.conversations.ui;
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -102,7 +106,10 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 			ConversationsOverviewFragment.class.getName() + ".scroll_state";
 
     private static final int REQUEST_CHOOSE_STORY_IMAGE = 0x2b01;
+    private static final int REQUEST_CAMERA_PERMISSION = 0x2b03;
     private Account mSelectedAccount;
+    private final PendingItem<Uri> pendingTakePhotoUri = new PendingItem<>();
+
 
     private final List<Conversation> conversations = new ArrayList<>();
 	private final List<Story> stories = new ArrayList<>();
@@ -772,20 +779,21 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 	}
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void onActivityResult(int requestCode, int resultCode, final Intent data) {super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_CHOOSE_STORY_IMAGE) {
-                if (data != null && mSelectedAccount != null) {
-                    final Uri uri = data.getData();
-                    if (uri == null) {
-                        return;
-                    }
+                Uri uri;
+                if (data != null && data.getData() != null) {
+                    uri = data.getData();
+                } else if (pendingTakePhotoUri.peek() != null) {
+                    uri = pendingTakePhotoUri.pop();
+                } else {
+                    uri = null;
+                }
+                if (uri != null && mSelectedAccount != null) {
                     final String mimeType = activity.getContentResolver().getType(uri);
-
                     final EditText input = new EditText(getActivity());
                     input.setHint(R.string.title_optional);
-
                     new MaterialAlertDialogBuilder(activity)
                             .setTitle(R.string.add_story_title)
                             .setView(input)
@@ -829,6 +837,8 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
                             .show();
                 }
             }
+        } else {
+            pendingTakePhotoUri.pop();
         }
     }
 
@@ -855,9 +865,35 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 
     private void openStoryImagePicker(Account account) {
         this.mSelectedAccount = account;
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent, REQUEST_CHOOSE_STORY_IMAGE);
+        if (activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        } else {
+            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            galleryIntent.setType("image/*");
+
+            final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            final Uri takePhotoUri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri();
+            pendingTakePhotoUri.push(takePhotoUri);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, takePhotoUri);
+
+            final Intent chooserIntent = Intent.createChooser(galleryIntent, getString(R.string.perform_action_with));
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
+
+            try {
+                startActivityForResult(chooserIntent, REQUEST_CHOOSE_STORY_IMAGE);
+            } catch (final ActivityNotFoundException e) {
+                Toast.makeText(activity, R.string.no_application_found, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openStoryImagePicker(mSelectedAccount);
+            }
+        }
+    }
 }
