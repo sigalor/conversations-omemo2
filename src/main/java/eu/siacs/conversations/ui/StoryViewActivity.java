@@ -1,5 +1,6 @@
 package eu.siacs.conversations.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.xmpp.Jid;
 import okhttp3.HttpUrl;
@@ -125,6 +127,10 @@ public class StoryViewActivity extends XmppActivity {
                     .setNegativeButton(R.string.cancel, null)
                     .create()
                     .show();
+            return true;
+        } else if (item.getItemId() == R.id.action_reply_to_story) {
+            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+            switchToConversation(conversation);
             return true;
         }
         return super.onOptionsItemSelected(item);
