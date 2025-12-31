@@ -93,8 +93,12 @@ public class StoryViewActivity extends XmppActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_story_view, menu);
         MenuItem deleteButton = menu.findItem(R.id.action_delete_story);
-        if (mAccount != null && contact != null && mAccount.getJid().asBareJid().equals(contact)) {
-            deleteButton.setVisible(true);
+        if (contact != null && xmppConnectionService != null) {
+            final Account storyOwner = xmppConnectionService.findAccountByJid(contact);
+            if (storyOwner != null && storyOwner.isOnlineAndConnected()) {
+                deleteButton.setVisible(true);
+                this.mAccount = storyOwner;
+            }
         }
         return true;
     }
