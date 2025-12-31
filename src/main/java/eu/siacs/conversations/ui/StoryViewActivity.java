@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.HttpConnectionManager;
@@ -39,6 +40,7 @@ public class StoryViewActivity extends XmppActivity {
 
     private ImageView imageView;
     private TextView titleView;
+    private TextView progressView;
 
     private ArrayList<String> urls;
     private ArrayList<String> titles;
@@ -62,6 +64,7 @@ public class StoryViewActivity extends XmppActivity {
 
         imageView = findViewById(R.id.story_image_view);
         titleView = findViewById(R.id.story_title_view);
+        progressView = findViewById(R.id.story_progress_view);
 
         urls = getIntent().getStringArrayListExtra(EXTRA_URLS);
         titles = getIntent().getStringArrayListExtra(EXTRA_TITLES);
@@ -167,8 +170,35 @@ public class StoryViewActivity extends XmppActivity {
         }
         titleView.setText(titles.get(currentIndex));
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(titles.get(currentIndex));
+            String displayName = null;
+            if (contact != null && xmppConnectionService != null) {
+                // Prioritize finding the contact in an online account
+                for (Account account : xmppConnectionService.getAccounts()) {
+                    if (account.getStatus() == Account.State.ONLINE) {
+                        final Contact c = account.getRoster().getContact(contact);
+                        if (c != null) {
+                            displayName = c.getDisplayName();
+                            break;
+                        }
+                    }
+                }
+                // If no online account has the contact, fall back to any account
+                if (displayName == null) {
+                    for (Account account : xmppConnectionService.getAccounts()) {
+                        final Contact c = account.getRoster().getContact(contact);
+                        if (c != null) {
+                            displayName = c.getDisplayName();
+                            break;
+                        }
+                    }
+                }
+            }
+            if (displayName == null && contact != null) {
+                displayName = contact.asBareJid().toString();
+            }
+            getSupportActionBar().setTitle(displayName);
         }
+        progressView.setText((currentIndex + 1) + " " + getString(R.string.of) + " " + urls.size());
         final String url = urls.get(currentIndex);
         final HttpUrl httpUrl;
         try {
