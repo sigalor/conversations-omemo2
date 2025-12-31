@@ -7771,8 +7771,8 @@ public class XmppConnectionService extends Service {
             }
             return;
         }
-        final Bundle options = retry ? IqGenerator.defaultStoriesConfiguration() : null;
-        final Iq packet = getIqGenerator().publishStory(url, type, title, options);
+        // This is the corrected publish request. It sends NO configuration options.
+        final Iq packet = getIqGenerator().publishStory(url, type, title, null);
         sendIqPacket(account, packet, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {
@@ -7780,18 +7780,22 @@ public class XmppConnectionService extends Service {
                 }
             } else if (retry && PublishOptions.preconditionNotMet(response)) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stories node does not exist. creating it");
+                // The node does not exist. Now we create it with the correct configuration.
                 final Iq createRequest = getIqGenerator().createStoriesNode();
+                createRequest.setTo(account.getJid().asBareJid());
                 sendIqPacket(account, createRequest, createResponse -> {
                     if (createResponse.getType() == Iq.Type.RESULT) {
-                        // After successfully creating the node, retry publishing without the config options
+                        // Node created. Now, retry publishing the story ONE more time, without the retry/create logic.
                         publishStory(account, url, type, title, false, callback);
                     } else {
+                        Log.e(Config.LOGTAG, "Failed to create stories node: " + createResponse);
                         if (callback != null) {
                             callback.error(R.string.error_publish_avatar_server_reject, null);
                         }
                     }
                 });
             } else {
+                Log.e(Config.LOGTAG, "Failed to publish story: " + response);
                 if (callback != null) {
                     callback.error(R.string.error_publish_avatar_server_reject, null);
                 }
@@ -7845,7 +7849,6 @@ public class XmppConnectionService extends Service {
             });
         };
         FILE_ATTACHMENT_EXECUTOR.execute(runnable);
-        deleteMessage(message);
     }
 
     private final List<eu.siacs.conversations.entities.Story> stories = new java.util.concurrent.CopyOnWriteArrayList<>();

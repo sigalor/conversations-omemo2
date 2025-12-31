@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
 import android.content.Intent;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import android.os.Handler;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 
@@ -26,9 +29,30 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     private final XmppActivity activity;
     private final List<Story> stories;
 
+    private final Handler handler = new Handler();
+    private final Runnable refreshRunnable;
+    private RecyclerView recyclerView;
+
     public StoryAdapter(XmppActivity activity, List<Story> stories) {
         this.activity = activity;
         this.stories = stories;
+        this.refreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (recyclerView != null) {
+                    // This is a more efficient way to refresh just the visible items
+                    final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        final int first = layoutManager.findFirstVisibleItemPosition();
+                        final int last = layoutManager.findLastVisibleItemPosition();
+                        if (first != RecyclerView.NO_POSITION) {
+                            notifyItemRangeChanged(first, (last - first) + 1, "payload_time");
+                        }
+                    }
+                }
+                handler.postDelayed(this, 60000); // Run again in 1 minute
+            }
+        };
     }
 
     @NonNull
@@ -39,29 +63,34 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     }
 
     @Override
+    public void onBindViewHolder(@NonNull StoryViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.contains("payload_time")) {
+            final Story story = stories.get(position);
+            holder.storyTime.setText(DateUtils.getRelativeTimeSpanString(story.getPublished(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         final Story story = stories.get(position);
         final Jid jid = story.getContact();
         Contact contact = null;
         Account storyAccount = null;
-
-        // Check if the story author is one of our own accounts
-        storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
-
-        if (storyAccount != null) {
-            // It's our own story
-            contact = storyAccount.getSelfContact();
-        } else {
-            // It's from someone else. Find which of our accounts knows them.
-            for (Account account : activity.xmppConnectionService.getAccounts()) {
-                contact = account.getRoster().getContact(jid);
-                if (contact != null) {
-                    storyAccount = account; // The account that has this contact in its roster
-                    break;
-                }
+        for (Account account : activity.xmppConnectionService.getAccounts()) {
+            contact = account.getRoster().getContact(jid);
+            if (contact != null) {
+                storyAccount = account;
+                break;
             }
         }
-
+        if (contact == null) {
+            storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
+            if (storyAccount != null) {
+                contact = storyAccount.getSelfContact();
+            }
+        }
         if (contact != null) {
             holder.storyTitle.setText(contact.getDisplayName());
             holder.storyImage.setImageDrawable(activity.xmppConnectionService.getAvatarService().get(contact, activity.getResources().getDimensionPixelSize(R.dimen.avatar_story_size)));
@@ -69,6 +98,8 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             holder.storyTitle.setText(jid.asBareJid().toString());
             holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
         }
+
+        holder.storyTime.setText(DateUtils.getRelativeTimeSpanString(story.getPublished(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
 
         Glide.with(activity).load(story.getUrl()).into(holder.storyPreview);
 
@@ -78,8 +109,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             ArrayList<String> urls = new ArrayList<>();
             ArrayList<String> titles = new ArrayList<>();
             ArrayList<String> storyIds = new ArrayList<>();
-
-            // This is the corrected logic: Get the FULL list from the service
             for (Story s : activity.xmppConnectionService.getStories()) {
                 if (s.getContact().asBareJid().equals(story.getContact().asBareJid())) {
                     urls.add(s.getUrl());
@@ -107,13 +136,29 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
         final ImageView storyImage;
         final TextView storyTitle;
+        final TextView storyTime;
         final ImageView storyPreview;
 
         StoryViewHolder(@NonNull View itemView) {
             super(itemView);
             storyImage = itemView.findViewById(R.id.story_image);
             storyTitle = itemView.findViewById(R.id.story_title);
+            storyTime = itemView.findViewById(R.id.story_time);
             storyPreview = itemView.findViewById(R.id.story_preview);
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+        handler.post(refreshRunnable);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        handler.removeCallbacks(refreshRunnable);
+        this.recyclerView = null;
     }
 }
