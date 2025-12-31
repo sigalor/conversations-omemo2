@@ -727,8 +727,14 @@ public class IqGenerator extends AbstractGenerator {
     }
 
     public Iq createStoriesNode() {
-        final Data data = Data.create(null, defaultStoriesConfiguration());
-        return publishPubsubConfiguration(null, Namespace.PUBSUB_STORIES, data);
+        final Iq iq = new Iq(Iq.Type.SET);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        pubsub.addChild("create").setAttribute("node", Namespace.PUBSUB_STORIES);
+        final Element configure = pubsub.addChild("configure");
+        // Correctly use the 'pubsub#node_config' namespace
+        final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", defaultStoriesConfiguration());
+        configure.addChild(data);
+        return iq;
     }
 
     public Iq requestPubsubConfiguration(Jid jid, String node) {

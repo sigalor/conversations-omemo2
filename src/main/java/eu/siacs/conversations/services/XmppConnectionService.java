@@ -7771,7 +7771,8 @@ public class XmppConnectionService extends Service {
             }
             return;
         }
-        final Iq packet = getIqGenerator().publishStory(url, type, title, null);
+        final Bundle options = retry ? IqGenerator.defaultStoriesConfiguration() : null;
+        final Iq packet = getIqGenerator().publishStory(url, type, title, options);
         sendIqPacket(account, packet, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {
@@ -7780,9 +7781,9 @@ public class XmppConnectionService extends Service {
             } else if (retry && PublishOptions.preconditionNotMet(response)) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stories node does not exist. creating it");
                 final Iq createRequest = getIqGenerator().createStoriesNode();
-                createRequest.setTo(account.getJid().asBareJid());
                 sendIqPacket(account, createRequest, createResponse -> {
                     if (createResponse.getType() == Iq.Type.RESULT) {
+                        // After successfully creating the node, retry publishing without the config options
                         publishStory(account, url, type, title, false, callback);
                     } else {
                         if (callback != null) {

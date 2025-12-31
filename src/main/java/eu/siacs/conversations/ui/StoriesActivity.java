@@ -306,8 +306,10 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
             return;
         }
         this.stories.clear();
+        long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
         this.stories.addAll(
                 this.xmppConnectionService.getStories().stream()
+                        .filter(s -> s.getPublished() >= twentyFourHoursAgo)
                         .collect(Collectors.toMap(
                                 story -> story.getContact().asBareJid(),
                                 story -> story,
@@ -315,14 +317,14 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                         ))
                         .values()
         );
-        Collections.sort(this.stories, (a,b) -> Long.compare(b.getPublished(), a.getPublished()));
+        Collections.sort(this.stories, (a, b) -> Long.compare(b.getPublished(), a.getPublished()));
 
         if (this.stories.isEmpty()) {
             binding.storiesList.setVisibility(View.GONE);
         } else {
             binding.storiesList.setVisibility(View.VISIBLE);
         }
-        this.storyAdapter.notifyDataSetChanged();
+        storyAdapter.notifyDataSetChanged();
     }
 
     @Override
