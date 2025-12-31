@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui.adapter;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,24 +77,43 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         final Story story = stories.get(position);
         final Jid jid = story.getContact();
-        Contact contact = null;
-        Account storyAccount = null;
+        Contact contact = null;Account storyAccount = null;
+        Drawable avatar = null;
+
+        final int avatarSize = activity.getResources().getDimensionPixelSize(R.dimen.avatar_story_size);
+
         for (Account account : activity.xmppConnectionService.getAccounts()) {
-            contact = account.getRoster().getContact(jid);
-            if (contact != null) {
-                storyAccount = account;
-                break;
+            final Contact c = account.getRoster().getContact(jid);
+            if (c != null) {
+                final Drawable d = activity.xmppConnectionService.getAvatarService().get(c, avatarSize);
+                if (!(d instanceof eu.siacs.conversations.services.AvatarService.TextDrawable)) {
+                    contact = c;
+                    storyAccount = account;
+                    avatar = d;
+                    break;
+                }
+                if (contact == null) {
+                    contact = c;
+                    storyAccount = account;
+                    avatar = d;
+                }
             }
         }
+
         if (contact == null) {
             storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
             if (storyAccount != null) {
                 contact = storyAccount.getSelfContact();
+                avatar = activity.xmppConnectionService.getAvatarService().get(contact, avatarSize);
             }
         }
-        if (contact != null) {
+
+        if (contact != null && avatar != null) {
             holder.storyTitle.setText(contact.getDisplayName());
-            holder.storyImage.setImageDrawable(activity.xmppConnectionService.getAvatarService().get(contact, activity.getResources().getDimensionPixelSize(R.dimen.avatar_story_size)));
+            holder.storyImage.setImageDrawable(avatar);
+        } else if (contact != null) {
+            holder.storyTitle.setText(contact.getDisplayName());
+            holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
         } else {
             holder.storyTitle.setText(jid.asBareJid().toString());
             holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
