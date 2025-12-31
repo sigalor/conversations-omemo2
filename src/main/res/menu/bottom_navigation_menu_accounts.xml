@@ -9,6 +9,10 @@
         android:icon="?attr/ic_group_unselected"
         android:title="@string/contacts"/>
     <item
+        android:id="@+id/stories"
+        android:icon="?attr/ic_stories_unselected"
+        android:title="@string/stories"/>
+    <item
         android:id="@+id/manageaccounts"
         android:icon="?attr/ic_accounts_selected"
         android:title="@string/accounts"/>

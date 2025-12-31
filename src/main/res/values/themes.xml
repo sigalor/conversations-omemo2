@@ -61,6 +61,8 @@
         <item name="ic_accounts_selected" type="reference">@drawable/accounts_selected_black_24</item>
         <item name="ic_group_unselected" type="reference">@drawable/outline_group_black_24dp</item>
         <item name="ic_group_selected" type="reference">@drawable/ic_group_selected_black_24</item>
+        <item name="ic_stories_unselected" type="reference">@drawable/stories_unselected_black_24</item>
+        <item name="ic_stories_selected" type="reference">@drawable/stories_selected_black_24</item>
 
         <item name="chat_bg">@drawable/bg_light_blue</item>
     </style>

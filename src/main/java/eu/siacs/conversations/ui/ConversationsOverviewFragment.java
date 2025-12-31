@@ -32,17 +32,11 @@ package eu.siacs.conversations.ui;
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Canvas;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -52,12 +46,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,7 +57,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
-import eu.siacs.conversations.BuildConfig;
+
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.FragmentConversationsOverviewBinding;
@@ -73,12 +65,8 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
-import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.ui.adapter.ConversationAdapter;
-import eu.siacs.conversations.ui.adapter.StoryAdapter;
 import eu.siacs.conversations.ui.interfaces.OnConversationArchived;
 import eu.siacs.conversations.ui.interfaces.OnConversationSelected;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
@@ -88,36 +76,21 @@ import eu.siacs.conversations.ui.util.ScrollState;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.EasyOnboardingInvite;
-import eu.siacs.conversations.utils.ThemeHelper;
 import eu.siacs.conversations.xmpp.jingle.OngoingRtpSession;
 
-import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
-import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
-public class ConversationsOverviewFragment extends XmppFragment implements XmppConnectionService.OnStoriesUpdate {
+public class ConversationsOverviewFragment extends XmppFragment {
 
 	private static final String STATE_SCROLL_POSITION =
 			ConversationsOverviewFragment.class.getName() + ".scroll_state";
-
-    private static final int REQUEST_CHOOSE_STORY_IMAGE = 0x2b01;
-    private static final int REQUEST_CAMERA_PERMISSION = 0x2b03;
-    private Account mSelectedAccount;
-    private final PendingItem<Uri> pendingTakePhotoUri = new PendingItem<>();
-
-
     private final List<Conversation> conversations = new ArrayList<>();
-	private final List<Story> stories = new ArrayList<>();
 	private final PendingItem<Conversation> swipedConversation = new PendingItem<>();
 	private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
 	private FragmentConversationsOverviewBinding binding;
 	private ConversationAdapter conversationsAdapter;
-	private StoryAdapter storyAdapter;
 	private XmppActivity activity;
 	private final PendingActionHelper pendingActionHelper = new PendingActionHelper();
 
@@ -323,7 +296,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		super.onDestroyView();
 		this.binding = null;
 		this.conversationsAdapter = null;
-		this.storyAdapter = null;
 		this.touchHelper = null;
 	}
 
@@ -337,7 +309,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 	public void onPause() {
 		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onPause()");
 		pendingActionHelper.execute();
-		activity.xmppConnectionService.removeOnStoriesUpdateListener(this);
 		super.onPause();
 	}
 
@@ -362,7 +333,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		this.binding.fab.setOnClickListener(
 				(view) -> StartConversationActivity.launch(getActivity()));
 
-        this.binding.fabStory.setOnClickListener(v -> selectAccountToPublishStory());
 		this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
 		this.conversationsAdapter.setConversationClickListener(
 				(view, conversation) -> {
@@ -377,10 +347,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		this.binding.list.setAdapter(this.conversationsAdapter);
 		this.binding.list.setLayoutManager(
 				new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-		this.storyAdapter = new StoryAdapter(this.activity, this.stories);
-		this.binding.storiesList.setAdapter(this.storyAdapter);
-		this.binding.storiesList.setLayoutManager(
-				new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 		registerForContextMenu(this.binding.list);
 		this.binding.list.addOnScrollListener(ExtendedFabSizeChanger.of(binding.fab));
 		if (activity.getPreferences().getBoolean("swipe_to_archive", true)) this.touchHelper = new ItemTouchHelper(this.callback);
@@ -397,23 +363,14 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
         easyOnboardInvite.setVisible(EasyOnboardingInvite.anyHasSupport(activity == null ? null : activity.xmppConnectionService));
         if (activity != null && activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
             final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
-            if (manageAccounts != null) manageAccounts.setVisible(false);
-
             final MenuItem settings = menu.findItem(R.id.action_settings);
+            final MenuItem stories = menu.findItem(R.id.action_stories);
+            if (manageAccounts != null) manageAccounts.setVisible(false);
             if (settings != null) settings.setVisible(false);
+            if (stories != null) stories.setVisible(false);
         }
         if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
             noteToSelf.setVisible(false);
-        }
-        final MenuItem stories = menu.findItem(R.id.action_toggle_stories);
-        if (stories != null) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            boolean show = preferences.getBoolean("show_stories", true);
-            if (show) {
-                stories.setTitle(R.string.hide_stories);
-            } else {
-                stories.setTitle(R.string.show_stories);
-            }
         }
     }
 
@@ -486,7 +443,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 	@Override
 	public void onBackendConnected() {
 		refresh();
-		activity.xmppConnectionService.setOnStoriesUpdateListener(this);
 	}
 
 	private void setupSwipe() {
@@ -527,22 +483,13 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		boolean navBarVisible = activity instanceof ConversationsActivity && ((ConversationsActivity) activity).navigationBarVisible();
 		MenuItem manageAccount = menu.findItem(R.id.action_account);
 		MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
-        MenuItem addStory = menu.findItem(R.id.action_add_story);
+        MenuItem stories = menu.findItem(R.id.action_stories);
 		if (navBarVisible) {
 			manageAccount.setVisible(false);
 			manageAccounts.setVisible(false);
-            if (stories != null) {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                boolean show = preferences.getBoolean("show_stories", true);
-                if (show) {
-                    addStory.setVisible(true);
-                } else {
-                    addStory.setVisible(false);
-                }
-            }
+            stories.setVisible(false);
 		} else {
 			AccountUtils.showHideMenuItems(menu);
-            addStory.setVisible(false);
 		}
 	}
 
@@ -558,18 +505,8 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 
 			if (showed) {
 				this.binding.fab.setVisibility(View.GONE);
-                binding.fabStory.setVisibility(View.GONE);
 			} else {
 				this.binding.fab.setVisibility(View.VISIBLE);
-                if (stories != null) {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    boolean show = preferences.getBoolean("show_stories", true);
-                    if (show) {
-                        this.binding.fabStory.setVisibility(View.VISIBLE);
-                    } else {
-                        this.binding.fabStory.setVisibility(View.GONE);
-                    }
-                }
             }
 		}
 	}
@@ -586,7 +523,8 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
             return false;
         }
         switch (item.getItemId()) {
-            case R.id.action_search:startActivity(new Intent(getActivity(), SearchActivity.class));
+            case R.id.action_search:
+                startActivity(new Intent(getActivity(), SearchActivity.class));
                 return true;
             case R.id.action_easy_invite:
                 selectAccountToStartEasyInvite();
@@ -600,25 +538,11 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
                     activity.switchToConversation(conversation);
                 }
                 return true;
-            case R.id.action_toggle_stories:
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                boolean show = preferences.getBoolean("show_stories", true);
-                preferences.edit().putBoolean("show_stories", !show).apply();
-                refresh();
-                activity.invalidateOptionsMenu();
-                return true;
-            case R.id.action_add_story:
-                selectAccountToPublishStory();
+            case R.id.action_stories:
+                startActivity(new Intent(getActivity(), StoriesActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setShowStories(boolean show) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        preferences.edit().putBoolean("show_stories", show).apply();
-        refresh();
-        activity.invalidateOptionsMenu();
     }
 	private void selectAccountToStartEasyInvite() {
 		final List<Account> accounts =
@@ -659,29 +583,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
             Log.d(Config.LOGTAG,"ConversationsOverviewFragment.refresh() skipped updated because view binding or activity was null");
             return;
         }
-
-        this.stories.clear();
-        this.stories.addAll(
-                this.activity.xmppConnectionService.getStories().stream()
-                        .collect(Collectors.toMap(
-                                story -> story.getContact().asBareJid(),
-                                story -> story,
-                                (a, b) -> a.getPublished() > b.getPublished() ? a : b
-                        ))
-                        .values()
-        );
-        Collections.sort(this.stories, (a,b) -> Long.compare(b.getPublished(), a.getPublished()));
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        boolean show = preferences.getBoolean("show_stories", true);
-
-        if (this.stories.isEmpty() || !show) {
-            binding.storiesList.setVisibility(View.GONE);
-        } else {
-            binding.storiesList.setVisibility(View.VISIBLE);
-        }
-        this.storyAdapter.notifyDataSetChanged();
-
         this.activity.populateWithOrderedConversations(this.conversations);
         Conversation removed = this.swipedConversation.peek();
         if (removed != null) {
@@ -698,7 +599,6 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
         }
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
             binding.fab.setVisibility(View.GONE);
-            binding.fabStory.setVisibility(View.GONE);
 
             if (this.conversations.size() == 1) {
                 if (activity instanceof OnConversationSelected) {
@@ -713,16 +613,8 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 
                 if (showed) {
                     this.binding.fab.setVisibility(View.GONE);
-                    this.binding.fabStory.setVisibility(View.GONE);
                 } else {
                     this.binding.fab.setVisibility(View.VISIBLE);
-                    if (stories != null) {
-                        if (show) {
-                            this.binding.fabStory.setVisibility(View.VISIBLE);
-                        } else {
-                            this.binding.fabStory.setVisibility(View.GONE);
-                        }
-                    }
                 }
             }
         }
@@ -773,127 +665,4 @@ public class ConversationsOverviewFragment extends XmppFragment implements XmppC
 		}
 	}
 
-	@Override
-	public void onStoriesUpdate() {
-		activity.runOnUiThread(this::refresh);
-	}
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, final Intent data) {super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_CHOOSE_STORY_IMAGE) {
-                Uri uri;
-                if (data != null && data.getData() != null) {
-                    uri = data.getData();
-                } else if (pendingTakePhotoUri.peek() != null) {
-                    uri = pendingTakePhotoUri.pop();
-                } else {
-                    uri = null;
-                }
-                if (uri != null && mSelectedAccount != null) {
-                    final String mimeType = activity.getContentResolver().getType(uri);
-                    final EditText input = new EditText(getActivity());
-                    input.setHint(R.string.title_optional);
-                    new MaterialAlertDialogBuilder(activity)
-                            .setTitle(R.string.add_story_title)
-                            .setView(input)
-                            .setNegativeButton(R.string.cancel, null)
-                            .setPositiveButton(R.string.publish, (dialog, which) -> {
-                                final String title = input.getText().toString();
-                                Toast.makeText(activity, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-                                activity.xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, mimeType, new UiCallback<String>() {
-                                    @Override
-                                    public void success(String url) {
-                                        activity.xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
-                                            @Override
-                                            public void success(Void aVoid) {
-                                                activity.runOnUiThread(() -> Toast.makeText(activity, R.string.story_published, Toast.LENGTH_SHORT).show());
-                                            }
-
-                                            @Override
-                                            public void error(int errorCode, Void object) {
-                                                activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
-                                            }
-
-                                            @Override
-                                            public void userInputRequired(android.app.PendingIntent pi, Void object) {
-                                                // not used
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void error(int errorCode, String object) {
-                                        activity.runOnUiThread(() -> Toast.makeText(activity, errorCode, Toast.LENGTH_SHORT).show());
-                                    }
-
-                                    @Override
-                                    public void userInputRequired(android.app.PendingIntent pi, String object) {
-                                        // not used
-                                    }
-                                });
-                            })
-                            .create()
-                            .show();
-                }
-            }
-        } else {
-            pendingTakePhotoUri.pop();
-        }
-    }
-
-    private void selectAccountToPublishStory() {
-        final List<Account> accounts = activity.xmppConnectionService.getAccounts().stream().filter(Account::isEnabled).collect(Collectors.toList());
-        if (accounts.isEmpty()) {
-            Toast.makeText(getActivity(), R.string.no_active_account, Toast.LENGTH_SHORT).show();
-        } else if (accounts.size() == 1) {
-            openStoryImagePicker(accounts.get(0));
-        } else {
-            final AtomicReference<Account> selectedAccount = new AtomicReference<>(accounts.get(0));
-            final MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
-            alertDialogBuilder.setTitle(R.string.choose_account);
-            final String[] asStrings =
-                    accounts.stream().map(a -> a.getJid().asBareJid().toString()).toArray(String[]::new);
-            alertDialogBuilder.setSingleChoiceItems(
-                    asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
-            alertDialogBuilder.setNegativeButton(R.string.cancel, null);
-            alertDialogBuilder.setPositiveButton(
-                    R.string.ok, (dialog, which) -> openStoryImagePicker(selectedAccount.get()));
-            alertDialogBuilder.create().show();
-        }
-    }
-
-    private void openStoryImagePicker(Account account) {
-        this.mSelectedAccount = account;
-        if (activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        } else {
-            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-            galleryIntent.setType("image/*");
-
-            final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            final Uri takePhotoUri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri();
-            pendingTakePhotoUri.push(takePhotoUri);
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, takePhotoUri);
-
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, getString(R.string.perform_action_with));
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
-
-            try {
-                startActivityForResult(chooserIntent, REQUEST_CHOOSE_STORY_IMAGE);
-            } catch (final ActivityNotFoundException e) {
-                Toast.makeText(activity, R.string.no_application_found, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openStoryImagePicker(mSelectedAccount);
-            }
-        }
-    }
 }

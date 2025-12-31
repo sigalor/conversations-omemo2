@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/chats"
-        android:icon="?attr/ic_chat_selected"
+        android:icon="?attr/ic_chat_unselected"
         android:title="@string/chats"/>
     <item
         android:id="@+id/contactslist"
@@ -10,7 +10,7 @@
         android:title="@string/contacts"/>
     <item
         android:id="@+id/stories"
-        android:icon="?attr/ic_stories_unselected"
+        android:icon="?attr/ic_stories_selected"
         android:title="@string/stories"/>
     <item
         android:id="@+id/manageaccounts"

@@ -232,6 +232,13 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
+                case R.id.stories -> {
+                    Intent i = new Intent(getApplicationContext(), StoriesActivity.class);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
                 case R.id.manageaccounts -> {
                     return true;
                 }

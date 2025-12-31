@@ -8,6 +8,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 import eu.siacs.conversations.R;
@@ -66,6 +69,9 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             holder.storyTitle.setText(jid.asBareJid().toString());
             holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
         }
+
+        Glide.with(activity).load(story.getUrl()).into(holder.storyPreview);
+
         final Account finalStoryAccount = storyAccount;
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(activity, StoryViewActivity.class);
@@ -101,11 +107,13 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
         final ImageView storyImage;
         final TextView storyTitle;
+        final ImageView storyPreview;
 
         StoryViewHolder(@NonNull View itemView) {
             super(itemView);
             storyImage = itemView.findViewById(R.id.story_image);
             storyTitle = itemView.findViewById(R.id.story_title);
+            storyPreview = itemView.findViewById(R.id.story_preview);
         }
     }
 }
