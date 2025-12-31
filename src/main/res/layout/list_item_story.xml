@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
-    android:minHeight="?android:attr/listPreferredItemHeight">
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="12dp">
 
     <eu.siacs.conversations.ui.widget.AvatarView
         android:id="@+id/story_image"
@@ -20,18 +21,26 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_toStartOf="@id/story_preview"
+        android:layout_toStartOf="@id/story_preview_card"
         android:layout_toEndOf="@id/story_image"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
-    <ImageView
-        android:id="@+id/story_preview"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/story_preview_card"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:scaleType="centerCrop" />
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp">
+
+        <ImageView
+            android:id="@+id/story_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+    </com.google.android.material.card.MaterialCardView>
 
 </RelativeLayout>
