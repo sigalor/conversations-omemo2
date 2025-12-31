@@ -122,6 +122,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import eu.siacs.conversations.Conversations;
+import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.xmpp.jid.OtrJidHelper;
 import io.ipfs.cid.Cid;
 
@@ -7939,5 +7940,23 @@ public class XmppConnectionService extends Service {
                 }
             }
         });
+    }
+
+    public void onStoryRetracted(String storyId) {
+        if (storyId == null) {
+            return;
+        }
+        Story storyToRemove = null;
+        for (final Story story : this.stories) {
+            if (story.getUuid().equals(storyId)) {
+                storyToRemove = story;
+                break;
+            }
+        }
+        if (storyToRemove != null) {
+            this.stories.remove(storyToRemove);
+            updateStoriesUi();
+            Log.d(Config.LOGTAG, "Retracted story with id: " + storyId);
+        }
     }
 }

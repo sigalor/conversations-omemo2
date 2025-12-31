@@ -466,12 +466,21 @@ public class MessageParser extends AbstractParser
             final Element item = items.findChild("item");
             mXmppConnectionService.processMdsItem(account, item);
         } else if (Namespace.PUBSUB_STORIES.equals(node)) {
-            if (items != null) {
-                for (Element item : items.getChildren()) {
-                    if ("item".equals(item.getName())) {
-                        final Story story = Story.fromElement(item, from);
-                        if (story != null) {
-                            mXmppConnectionService.onStoryReceived(story);
+            final Element retract = items.findChild("retract");
+            if (retract != null) {
+                final String id = retract.getAttribute("id");
+                if (id != null) {
+                    mXmppConnectionService.onStoryRetracted(id);
+                }
+            } else {
+                final List<Element> children = items.getChildren();
+                if (children != null) {
+                    for (Element item : children) {
+                        if ("item".equals(item.getName())) {
+                            final Story story = Story.fromElement(item, from);
+                            if (story != null) {
+                                mXmppConnectionService.onStoryReceived(story);
+                            }
                         }
                     }
                 }
