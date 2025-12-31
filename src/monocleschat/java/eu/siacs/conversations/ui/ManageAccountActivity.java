@@ -95,6 +95,12 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
         bottomBadge.setVisible(unreadCount > 0);
         bottomBadge.setHorizontalOffset(20);
 
+        // Show badge for new stories in bottom nav
+        long lastRead = getPreferences().getLong("last_read_story_timestamp", 0);
+        boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
+        var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
+        storiesBadge.setVisible(hasNewStories);
+
         boolean showNavBar = bottomnav.getVisibility() == VISIBLE;
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(!this.accountList.isEmpty() && !showNavBar);

@@ -253,6 +253,12 @@ public class ConversationsActivity extends XmppActivity
         bottomBadge.setVisible(unreadCount > 0);
         bottomBadge.setHorizontalOffset(20);
 
+        // Show badge for new stories in bottom nav
+        long lastRead = getPreferences().getLong("last_read_story_timestamp", 0);
+        boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
+        var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
+        storiesBadge.setVisible(hasNewStories);
+
         final var chatRequestsPref = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
         final var accountUnreads = new HashMap<Account, Integer>();
         binding.drawer.apply(dr -> {
