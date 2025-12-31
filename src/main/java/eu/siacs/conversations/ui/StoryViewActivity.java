@@ -171,7 +171,6 @@ public class StoryViewActivity extends XmppActivity {
             httpUrl = HttpUrl.get(url);
         } catch (IllegalArgumentException e) {
             Toast.makeText(this, "Invalid URL", Toast.LENGTH_SHORT).show();
-            finish();
             return;
         }
 
