@@ -227,7 +227,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
     }
 
     private void selectAccountToPublishStory() {
-        final List<Account> accounts = xmppConnectionService.getAccounts().stream().filter(Account::isEnabled).collect(Collectors.toList());
+        final List<Account> accounts = xmppConnectionService.getAccounts().stream().filter(account -> account.getStatus() == Account.State.ONLINE).collect(Collectors.toList());
         if (accounts.isEmpty()) {
             Toast.makeText(this, R.string.no_active_account, Toast.LENGTH_SHORT).show();
         } else if (accounts.size() == 1) {
@@ -305,6 +305,15 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         if (xmppConnectionService == null) {
             return;
         }
+        if (xmppConnectionService.getAccounts().stream().noneMatch(account -> account.getStatus() == Account.State.ONLINE)) {
+            binding.storiesList.setVisibility(View.GONE);
+            binding.fabAddStory.setVisibility(View.GONE);
+            binding.placeholder.setVisibility(View.VISIBLE);
+            binding.placeholder.setText(R.string.no_active_account_to_show_stories);
+            return;
+        }
+        binding.placeholder.setVisibility(View.GONE);
+        binding.fabAddStory.setVisibility(View.VISIBLE);
         this.stories.clear();
         long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
         this.stories.addAll(
