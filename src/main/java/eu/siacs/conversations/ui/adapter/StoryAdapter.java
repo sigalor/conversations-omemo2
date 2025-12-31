@@ -77,30 +77,37 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         final Story story = stories.get(position);
         final Jid jid = story.getContact();
-        Contact contact = null;Account storyAccount = null;
-        Drawable avatar = null;
-
         final int avatarSize = activity.getResources().getDimensionPixelSize(R.dimen.avatar_story_size);
 
-        for (Account account : activity.xmppConnectionService.getAccounts()) {
-            final Contact c = account.getRoster().getContact(jid);
-            if (c != null) {
-                final Drawable d = activity.xmppConnectionService.getAvatarService().get(c, avatarSize);
-                if (!(d instanceof eu.siacs.conversations.services.AvatarService.TextDrawable)) {
-                    contact = c;
-                    storyAccount = account;
-                    avatar = d;
-                    break;
+        Contact contact = null;
+        Account storyAccount = null;
+        Drawable avatar = null;
+
+        List<Contact> contacts = activity.xmppConnectionService.findContacts(jid, null);
+        if (!contacts.isEmpty()) {
+            Contact bestContact = null;
+            int bestScore = -1;
+            for (Contact c : contacts) {
+                int score = 0;
+                if (c.getAccount().getStatus() == Account.State.ONLINE) {
+                    score += 2;
                 }
-                if (contact == null) {
-                    contact = c;
-                    storyAccount = account;
-                    avatar = d;
+                Drawable d = activity.xmppConnectionService.getAvatarService().get(c, avatarSize);
+                if (!(d instanceof eu.siacs.conversations.services.AvatarService.TextDrawable)) {
+                    score += 1;
+                }
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestContact = c;
                 }
             }
+            contact = bestContact;
         }
 
-        if (contact == null) {
+        if (contact != null) {
+            storyAccount = contact.getAccount();
+            avatar = activity.xmppConnectionService.getAvatarService().get(contact, avatarSize);
+        } else if (activity.xmppConnectionService.findAccountByJid(jid) != null) {
             storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
             if (storyAccount != null) {
                 contact = storyAccount.getSelfContact();
@@ -108,12 +115,9 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             }
         }
 
-        if (contact != null && avatar != null) {
+        if (contact != null) {
             holder.storyTitle.setText(contact.getDisplayName());
             holder.storyImage.setImageDrawable(avatar);
-        } else if (contact != null) {
-            holder.storyTitle.setText(contact.getDisplayName());
-            holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
         } else {
             holder.storyTitle.setText(jid.asBareJid().toString());
             holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
