@@ -185,6 +185,14 @@ public class StoryViewActivity extends XmppActivity {
         final boolean useTor = mAccount != null && (xmppConnectionService.useTorToConnect() || mAccount.isOnion());
         final boolean useI2p = mAccount != null && (xmppConnectionService.useI2PToConnect() || mAccount.isI2P());
 
+        // Create and set the placeholder animation immediately on the UI thread
+        final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
+        circularProgressDrawable.setStrokeWidth(10f);
+        circularProgressDrawable.setCenterRadius(50f);
+        circularProgressDrawable.setColorSchemeColors(0xFFFFFFFF);
+        circularProgressDrawable.start();
+        imageView.setImageDrawable(circularProgressDrawable);
+
         new Thread(() -> {
             File tempFile = null;
             try {
@@ -204,12 +212,8 @@ public class StoryViewActivity extends XmppActivity {
                 // storyMessage.setRelativeFilePath(finalTempFile.getAbsolutePath());       // TODO: Add image support later
                 runOnUiThread(() -> {
                     if (!isFinishing()) {
-                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
-                        circularProgressDrawable.setStrokeWidth(10f);
-                        circularProgressDrawable.setCenterRadius(50f);
-                        circularProgressDrawable.setColorSchemeColors(0xFFFFFFFF);
-                        circularProgressDrawable.start();
-                        Glide.with(StoryViewActivity.this).load(finalTempFile).placeholder(circularProgressDrawable).into(imageView);
+                        // Now load the actual image, replacing the spinner
+                        Glide.with(StoryViewActivity.this).load(finalTempFile).into(imageView);
                     }
                 });
 
