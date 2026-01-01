@@ -173,24 +173,27 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                 } else if (pendingTakePhotoUri.peek() != null) {
                     uri = pendingTakePhotoUri.pop();
                 } else {
-                    uri = null;
+                    return; //No image was selected
                 }
-                if (uri != null && mSelectedAccount != null) {
+                if (mSelectedAccount != null) {
                     Intent intent = new Intent(this, EditActivity.class);
                     intent.setData(uri);
                     intent.putExtra(EditActivity.KEY_CHAT_NAME, mSelectedAccount.getDisplayName());
                     startActivityForResult(intent, REQUEST_EDIT_STORY_IMAGE);
                 }
             } else if (requestCode == REQUEST_EDIT_STORY_IMAGE) {
-                Uri uri = data != null ? (Uri) data.getParcelableExtra(EditActivity.KEY_EDITED_URI) : null;
-                if (uri == null && data != null) {
-                    uri = data.getData();
-                }
+                Uri uri = data != null ? data.getData() : null;
                 if (uri != null && mSelectedAccount != null) {
-                    final String mimeType = getContentResolver().getType(uri);
+                    String mimeType = data.getType();
+                    if (mimeType == null) {
+                        mimeType = getContentResolver().getType(uri);
+                    }
+                    if (mimeType == null) {
+                        mimeType = "image/jpeg"; // Fallback for file URIs
+                    }
                     final EditText input = new EditText(this);
                     input.setHint(R.string.title_optional);
-                    Uri finalUri = uri;
+                    String finalMimeType = mimeType;
                     new MaterialAlertDialogBuilder(this)
                             .setTitle(R.string.add_story_title)
                             .setView(input)
@@ -198,10 +201,10 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                             .setPositiveButton(R.string.publish, (dialog, which) -> {
                                 final String title = input.getText().toString();
                                 Toast.makeText(this, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-                                xmppConnectionService.uploadFileForUrl(mSelectedAccount, finalUri, mimeType, new UiCallback<String>() {
+                                xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, finalMimeType, new UiCallback<String>() {
                                     @Override
                                     public void success(String url) {
-                                        xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
+                                        xmppConnectionService.publishStory(mSelectedAccount, url, finalMimeType, title, new UiCallback<Void>() {
                                             @Override
                                             public void success(Void aVoid) {
                                                 runOnUiThread(() -> Toast.makeText(StoriesActivity.this, R.string.story_published, Toast.LENGTH_SHORT).show());
@@ -238,6 +241,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
             pendingTakePhotoUri.pop();
         }
     }
+
 
     private void selectAccountToPublishStory() {
         final List<Account> accounts = xmppConnectionService.getAccounts().stream().filter(account -> account.getStatus() == Account.State.ONLINE).collect(Collectors.toList());
