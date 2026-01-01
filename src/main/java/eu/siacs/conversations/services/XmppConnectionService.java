@@ -291,6 +291,8 @@ public class XmppConnectionService extends Service {
     private final ScheduledExecutorService userTuneUpdateExecutor =
             Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> pendingUserTuneUpdate;
+
+    private final ScheduledExecutorService storyRetractionExecutor = Executors.newSingleThreadScheduledExecutor();//...
     private static final SerialSingleThreadExecutor VIDEO_COMPRESSION_EXECUTOR =
             new SerialSingleThreadExecutor("VideoCompression");
     private final SerialSingleThreadExecutor mDatabaseWriterExecutor =
@@ -1847,8 +1849,10 @@ public class XmppConnectionService extends Service {
         toggleForegroundService();
         rescanStickers();
         cleanupCache();
+
         internalPingExecutor.scheduleWithFixedDelay(
                 this::manageAccountConnectionStatesInternal, 10, 10, TimeUnit.SECONDS);
+        storyRetractionExecutor.scheduleWithFixedDelay(this::retractOldStories, 1, 60, TimeUnit.MINUTES);
         final SharedPreferences sharedPreferences =
                 androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(
@@ -1940,6 +1944,7 @@ public class XmppConnectionService extends Service {
         destroyed = false;
         fileObserver.stopWatching();
         internalPingExecutor.shutdown();
+        storyRetractionExecutor.shutdown();
         super.onDestroy();
     }
 
@@ -7957,6 +7962,28 @@ public class XmppConnectionService extends Service {
             this.stories.remove(storyToRemove);
             updateStoriesUi();
             Log.d(Config.LOGTAG, "Retracted story with id: " + storyId);
+        }
+    }
+
+    public void retractOldStories() {
+        final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
+        final Map<Jid, Account> onlineAccounts = new HashMap<>();
+        for (final Account account : getAccounts()) {
+            if (account.isOnlineAndConnected()) {
+                onlineAccounts.put(account.getJid().asBareJid(), account);
+            }
+        }
+        if (onlineAccounts.isEmpty()) {
+            return;
+        }
+        for (final Story story : this.stories) {
+            if (story.getPublished() < twentyFourHoursAgo) {
+                final Account owner = onlineAccounts.get(story.getContact());
+                if (owner != null) {
+                    Log.d(Config.LOGTAG, "Retracting old story from account: " + owner.getJid().asBareJid());
+                    retractStory(owner, story.getUuid(), null);
+                }
+            }
         }
     }
 }
