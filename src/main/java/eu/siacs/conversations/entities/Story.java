@@ -3,7 +3,9 @@ package eu.siacs.conversations.entities;
 import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,32 +35,79 @@ public class Story extends AbstractEntity {
         this.published = published;
     }
 
+    public static Story fromCursor(Cursor cursor) {
+        return new Story(
+                cursor.getString(cursor.getColumnIndex(UUID)),
+                Jid.of(cursor.getString(cursor.getColumnIndex(CONTACT))),
+                cursor.getString(cursor.getColumnIndex(URL)),
+                cursor.getString(cursor.getColumnIndex(TYPE)),
+                cursor.getString(cursor.getColumnIndex(TITLE)),
+                cursor.getLong(cursor.getColumnIndex(PUBLISHED))
+        );
+    }
+
     public static Story fromElement(Element item, Jid contact) {
-        Element entry = item.findChild("entry", "http://www.w3.org/2005/Atom");
+        return fromElement(item, contact, 0);
+    }
+
+    public static Story fromElement(Element item, Jid contact, long fallbackTimestamp) {
+        final Element entry = item.findChild("entry", "http://www.w3.org/2005/Atom");
         if (entry == null) {
             return null;
         }
-        Element published = entry.findChild("published");
-        if (published == null) {
-            return null;
-        }
+
         Element link = null;
-        for (Element child : entry.getChildren()) {
-            if ("link".equals(child.getName()) && "enclosure".equals(child.getAttribute("rel"))) {
-                link = child;
-                break;
+        final List<Element> children = entry.getChildren();
+        if (children != null) {
+            for (Element child : children) {
+                if ("link".equals(child.getName()) && "enclosure".equals(child.getAttribute("rel"))) {
+                    link = child;
+                    break;
+                }
             }
         }
+
         if (link == null) {
             return null;
         }
+
+        long timestamp = 0;
+
+        if (fallbackTimestamp > 0) {
+            timestamp = fallbackTimestamp;
+        } else {
+            Element published = entry.findChild("published", "http://www.w3.org/2005/Atom");
+            String publishedContent = published == null ? null : published.getContent();
+            if (publishedContent != null) {
+                try {
+                    timestamp = parseTimestamp(publishedContent);
+                } catch (ParseException e) {
+                }
+            }
+        }
+
+        if (timestamp == 0) {
+            Element updated = entry.findChild("updated", "http://www.w3.org/2005/Atom");
+            String updatedContent = updated == null ? null : updated.getContent();
+            if (updatedContent != null) {
+                try {
+                    timestamp = parseTimestamp(updatedContent);
+                } catch (ParseException e) {
+                }
+            }
+        }
+
+        if (timestamp == 0) {
+            timestamp = System.currentTimeMillis();
+        }
+
         return new Story(
                 item.getAttribute("id"),
                 contact,
                 link.getAttribute("href"),
                 link.getAttribute("type"),
-                entry.findChildContent("title"),
-                parseTimestamp(published)
+                entry.findChildContent("title", "http://www.w3.org/2005/Atom"),
+                timestamp
         );
     }
 
@@ -69,11 +118,15 @@ public class Story extends AbstractEntity {
         }
         Element items = pubsub.findChild("items");
         if (items != null) {
-            for (Element item : items.getChildren()) {
-                if (item.getName().equals("item")) {
-                    Story story = fromElement(item, contact);
-                    if (story != null) {
-                        stories.add(story);
+            final List<Element> children = items.getChildren();
+            if (children != null) {
+                for (Element item : children) {
+                    if (item.getName().equals("item")) {
+                        long timestamp = parseTimestamp(item, 0L);
+                        Story story = fromElement(item, contact, timestamp);
+                        if (story != null) {
+                            stories.add(story);
+                        }
                     }
                 }
             }
