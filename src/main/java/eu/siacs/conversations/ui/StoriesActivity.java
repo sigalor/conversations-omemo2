@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +23,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.databinding.DataBindingUtil;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -36,12 +34,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityStoriesBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.adapter.StoryAdapter;
 import eu.siacs.conversations.ui.util.PendingItem;
 
@@ -49,6 +47,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
 
     private static final int REQUEST_CHOOSE_STORY_IMAGE = 0x2b01;
     private static final int REQUEST_CAMERA_PERMISSION = 0x2b03;
+    private static final int REQUEST_EDIT_STORY_IMAGE = 0x2b04;
     private Account mSelectedAccount;
     private final PendingItem<Uri> pendingTakePhotoUri = new PendingItem<>();
 
@@ -164,7 +163,8 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, final Intent data) {super.onActivityResult(requestCode, resultCode, data);
+    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_CHOOSE_STORY_IMAGE) {
                 Uri uri;
@@ -176,9 +176,21 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                     uri = null;
                 }
                 if (uri != null && mSelectedAccount != null) {
+                    Intent intent = new Intent(this, EditActivity.class);
+                    intent.setData(uri);
+                    intent.putExtra(EditActivity.KEY_CHAT_NAME, mSelectedAccount.getDisplayName());
+                    startActivityForResult(intent, REQUEST_EDIT_STORY_IMAGE);
+                }
+            } else if (requestCode == REQUEST_EDIT_STORY_IMAGE) {
+                Uri uri = data != null ? (Uri) data.getParcelableExtra(EditActivity.KEY_EDITED_URI) : null;
+                if (uri == null && data != null) {
+                    uri = data.getData();
+                }
+                if (uri != null && mSelectedAccount != null) {
                     final String mimeType = getContentResolver().getType(uri);
                     final EditText input = new EditText(this);
                     input.setHint(R.string.title_optional);
+                    Uri finalUri = uri;
                     new MaterialAlertDialogBuilder(this)
                             .setTitle(R.string.add_story_title)
                             .setView(input)
@@ -186,18 +198,18 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                             .setPositiveButton(R.string.publish, (dialog, which) -> {
                                 final String title = input.getText().toString();
                                 Toast.makeText(this, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-                                xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, mimeType, new UiCallback<String>() {
+                                xmppConnectionService.uploadFileForUrl(mSelectedAccount, finalUri, mimeType, new UiCallback<String>() {
                                     @Override
                                     public void success(String url) {
                                         xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
                                             @Override
                                             public void success(Void aVoid) {
-                                                runOnUiThread(() -> Toast.makeText(xmppConnectionService, R.string.story_published, Toast.LENGTH_SHORT).show());
+                                                runOnUiThread(() -> Toast.makeText(StoriesActivity.this, R.string.story_published, Toast.LENGTH_SHORT).show());
                                             }
 
                                             @Override
                                             public void error(int errorCode, Void object) {
-                                                runOnUiThread(() -> Toast.makeText(xmppConnectionService, errorCode, Toast.LENGTH_SHORT).show());
+                                                runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
                                             }
 
                                             @Override
@@ -209,7 +221,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
 
                                     @Override
                                     public void error(int errorCode, String object) {
-                                        runOnUiThread(() -> Toast.makeText(xmppConnectionService, errorCode, Toast.LENGTH_SHORT).show());
+                                        runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
                                     }
 
                                     @Override
