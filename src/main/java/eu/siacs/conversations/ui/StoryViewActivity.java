@@ -1,9 +1,13 @@
 package eu.siacs.conversations.ui;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +31,8 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.http.HttpConnectionManager;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.ui.widget.AvatarView;
 import eu.siacs.conversations.xmpp.Jid;
 import okhttp3.HttpUrl;
 
@@ -60,6 +66,7 @@ public class StoryViewActivity extends XmppActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
         imageView = findViewById(R.id.story_image_view);
@@ -170,33 +177,61 @@ public class StoryViewActivity extends XmppActivity {
         }
         titleView.setText(titles.get(currentIndex));
         if (getSupportActionBar() != null) {
-            String displayName = null;
+            Contact storyContact = null;
             if (contact != null && xmppConnectionService != null) {
                 // Prioritize finding the contact in an online account
                 for (Account account : xmppConnectionService.getAccounts()) {
                     if (account.getStatus() == Account.State.ONLINE) {
                         final Contact c = account.getRoster().getContact(contact);
                         if (c != null) {
-                            displayName = c.getDisplayName();
+                            storyContact = c;
                             break;
                         }
                     }
                 }
                 // If no online account has the contact, fall back to any account
-                if (displayName == null) {
+                if (storyContact == null) {
                     for (Account account : xmppConnectionService.getAccounts()) {
                         final Contact c = account.getRoster().getContact(contact);
                         if (c != null) {
-                            displayName = c.getDisplayName();
+                            storyContact = c;
                             break;
                         }
                     }
                 }
             }
-            if (displayName == null && contact != null) {
+
+            String displayName;
+            AvatarView toolbarAvatar = findViewById(R.id.toolbar_avatar);
+            TextView toolbarTitle = findViewById(R.id.toolbar_title);
+            TextView toolbarSubtitle = findViewById(R.id.toolbar_subtitle);
+            if (storyContact != null) {
+                displayName = storyContact.getDisplayName();
+                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+                AvatarWorkerTask.loadAvatar(conversation, toolbarAvatar, R.dimen.muc_avatar_actionbar);
+            } else if (contact != null) {
                 displayName = contact.asBareJid().toString();
+            } else {
+                displayName = "";
             }
-            getSupportActionBar().setTitle(displayName);
+            toolbarTitle.setText(displayName);
+            long publishedTimestamp = 0;
+            if (storyIds != null && currentIndex < storyIds.size()) {
+                final String currentStoryId = storyIds.get(currentIndex);
+                if (xmppConnectionService != null) {
+                    for (eu.siacs.conversations.entities.Story story : xmppConnectionService.getStories()) {
+                        if (story.getUuid().equals(currentStoryId)) {
+                            publishedTimestamp = story.getPublished();
+                            break;
+                        }
+                    }
+                }
+            }
+            if (publishedTimestamp > 0) {
+                toolbarSubtitle.setText(DateUtils.getRelativeTimeSpanString(publishedTimestamp, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+            } else {
+                toolbarSubtitle.setText("");
+            }
         }
         progressView.setText((currentIndex + 1) + " " + getString(R.string.of) + " " + urls.size());
         final String url = urls.get(currentIndex);

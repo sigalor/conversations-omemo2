@@ -20,9 +20,11 @@ import java.util.List;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.ui.StoryViewActivity;
 import eu.siacs.conversations.ui.XmppActivity;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHolder> {
@@ -81,7 +83,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
         Contact contact = null;
         Account storyAccount = null;
-        Drawable avatar = null;
 
         List<Contact> contacts = activity.xmppConnectionService.findContacts(jid, null);
         if (!contacts.isEmpty()) {
@@ -106,18 +107,17 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
         if (contact != null) {
             storyAccount = contact.getAccount();
-            avatar = activity.xmppConnectionService.getAvatarService().get(contact, avatarSize);
         } else if (activity.xmppConnectionService.findAccountByJid(jid) != null) {
             storyAccount = activity.xmppConnectionService.findAccountByJid(jid);
             if (storyAccount != null) {
                 contact = storyAccount.getSelfContact();
-                avatar = activity.xmppConnectionService.getAvatarService().get(contact, avatarSize);
             }
         }
 
         if (contact != null) {
             holder.storyTitle.setText(contact.getDisplayName());
-            holder.storyImage.setImageDrawable(avatar);
+            Conversation conversation = activity.xmppConnectionService.findOrCreateConversation(storyAccount, contact.getJid(), false, false);
+            AvatarWorkerTask.loadAvatar(conversation, holder.storyImage, R.dimen.avatar_on_conversation_overview);
         } else {
             holder.storyTitle.setText(jid.asBareJid().toString());
             holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
