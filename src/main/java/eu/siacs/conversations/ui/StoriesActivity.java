@@ -277,8 +277,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
     }
 
 
-    private void openStoryImagePicker(Account account) {
-        this.mSelectedAccount = account;
+    private void openStoryImagePicker(Account account) {        this.mSelectedAccount = account;
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
@@ -291,8 +290,10 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
             pendingTakePhotoUri.push(takePhotoUri);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, takePhotoUri);
 
+            final Intent videoIntent = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
+
             final Intent chooserIntent = Intent.createChooser(galleryIntent, getString(R.string.perform_action_with));
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent, videoIntent});
 
             try {
                 startActivityForResult(chooserIntent, REQUEST_CHOOSE_STORY_IMAGE);
