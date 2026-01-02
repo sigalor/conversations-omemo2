@@ -246,7 +246,7 @@ public class IqGenerator extends AbstractGenerator {
         return publish(namespace, item, options);
     }
 
-    public Iq publishStory(final String url, final String type, final String title, Bundle options) {
+    public Iq publishStory(final Account account, final String url, final String type, final String title, Bundle options) {
         final Element item = new Element("item");
         // This is the pubsub <item/> ID, which is different from the atom <entry> <id/>
         item.setAttribute("id", UUID.randomUUID().toString());
@@ -266,7 +266,11 @@ public class IqGenerator extends AbstractGenerator {
         // atom:updated is mandatory
         final String timestamp = getTimestamp(System.currentTimeMillis());
         entry.addChild("updated").setContent(timestamp);
-        entry.addChild("published").setContent(timestamp); // Also add published for compatibility
+        entry.addChild("published").setContent(timestamp);
+
+        if (account != null) {
+            entry.addChild("author").addChild("uri").setContent("xmpp:" + account.getJid().asBareJid());
+        }
 
         // The <link> element as specified by the XEP
         final Element link = entry.addChild("link");
@@ -723,6 +727,8 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#item_expire", "86400");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#notify_retract", "1");
+        options.putString("pubsub#send_last_published_item", "on_sub_and_presence");
+        options.putString("pubsub#publisher", "publishers");
         return options;
     }
 

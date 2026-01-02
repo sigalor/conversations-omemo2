@@ -7781,7 +7781,7 @@ public class XmppConnectionService extends Service {
             return;
         }
         // This is the corrected publish request. It sends NO configuration options.
-        final Iq packet = getIqGenerator().publishStory(url, type, title, null);
+        final Iq packet = getIqGenerator().publishStory(account, url, type, title, null);
         sendIqPacket(account, packet, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {
