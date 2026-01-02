@@ -1,27 +1,24 @@
 package eu.siacs.conversations.ui;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import eu.siacs.conversations.R;
@@ -33,7 +30,7 @@ import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.widget.AvatarView;
 import eu.siacs.conversations.xmpp.Jid;
 
-public class StoryViewActivity extends XmppActivity {
+public class StoryViewActivity extends XmppActivity implements StoryFragment.OnStoryTapListener {
 
     public static final String EXTRA_URLS = "urls";
     public static final String EXTRA_TITLES = "titles";
@@ -46,6 +43,10 @@ public class StoryViewActivity extends XmppActivity {
     private TextView titleView;
     private TextView progressView;
     private View bottomPanel;
+    private AppBarLayout appBarLayout;
+    private AvatarView toolbarAvatar;
+    private TextView toolbarTitle;
+    private TextView toolbarSubtitle;
 
     private ArrayList<String> urls;
     private ArrayList<String> titles;
@@ -53,8 +54,6 @@ public class StoryViewActivity extends XmppActivity {
     private ArrayList<String> mimeTypes;
     private Jid contact;
     private Account mAccount;
-
-    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +66,11 @@ public class StoryViewActivity extends XmppActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+
+        appBarLayout = findViewById(R.id.app_bar_layout);
+        toolbarAvatar = findViewById(R.id.toolbar_avatar);
+        toolbarTitle = findViewById(R.id.toolbar_title);
+        toolbarSubtitle = findViewById(R.id.toolbar_subtitle);
 
         viewPager = findViewById(R.id.view_pager);
         titleView = findViewById(R.id.story_title_view);
@@ -84,23 +88,6 @@ public class StoryViewActivity extends XmppActivity {
             //ignore
         }
 
-        class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (isSystemUiVisible()) {
-                    hideSystemUi();
-                } else {
-                    showSystemUi();
-                }
-                return true;
-            }
-        }
-
-        gestureDetector = new GestureDetector(this, new GestureListener());
-
-        viewPager.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
-
         StoryPagerAdapter adapter = new StoryPagerAdapter(this);
         viewPager.setAdapter(adapter);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -112,63 +99,76 @@ public class StoryViewActivity extends XmppActivity {
         });
 
         updateUiForPosition(0);
+        showSystemUi();
     }
 
-    private void updateUiForPosition(int position) {
-        if (getSupportActionBar() != null) {
-            Contact storyContact = null;
-            if (contact != null && xmppConnectionService != null) {
-                for (Account account : xmppConnectionService.getAccounts()) {
-                    if (account.getStatus() == Account.State.ONLINE) {
-                        final Contact c = account.getRoster().getContact(contact);
-                        if (c != null) {
-                            storyContact = c;
-                            break;
-                        }
-                    }
-                }
-                if (storyContact == null) {
-                    for (Account account : xmppConnectionService.getAccounts()) {
-                        final Contact c = account.getRoster().getContact(contact);
-                        if (c != null) {
-                            storyContact = c;
-                            break;
-                        }
-                    }
-                }
-            }
+    public File getStoryCacheFile(String url) {
+        if (xmppConnectionService != null) {
+            return xmppConnectionService.getFileBackend().getStoryCacheFile(url);
+        }
+        return null;
+    }
 
-            String displayName;
-            AvatarView toolbarAvatar = findViewById(R.id.toolbar_avatar);
-            TextView toolbarTitle = findViewById(R.id.toolbar_title);
-            TextView toolbarSubtitle = findViewById(R.id.toolbar_subtitle);
-            if (storyContact != null) {
-                displayName = storyContact.getDisplayName();
-                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-                AvatarWorkerTask.loadAvatar(conversation, toolbarAvatar, R.dimen.muc_avatar_actionbar);
-            } else if (contact != null) {
-                displayName = contact.asBareJid().toString();
-            } else {
-                displayName = "";
-            }
-            toolbarTitle.setText(displayName);
-            long publishedTimestamp = 0;
-            if (storyIds != null && position < storyIds.size()) {
-                final String currentStoryId = storyIds.get(position);
-                if (xmppConnectionService != null) {
-                    for (eu.siacs.conversations.entities.Story story : xmppConnectionService.getStories()) {
-                        if (story.getUuid().equals(currentStoryId)) {
-                            publishedTimestamp = story.getPublished();
-                            break;
-                        }
+    @Override
+    public void onStoryTapped() {
+        if (isSystemUiVisible()) {
+            hideSystemUi();
+        } else {
+            showSystemUi();
+        }
+    }
+
+
+    private void updateUiForPosition(int position) {
+        Contact storyContact = null;
+        if (contact != null && xmppConnectionService != null) {
+            for (Account account : xmppConnectionService.getAccounts()) {
+                if (account.getStatus() == Account.State.ONLINE) {
+                    final Contact c = account.getRoster().getContact(contact);
+                    if (c != null) {
+                        storyContact = c;
+                        break;
                     }
                 }
             }
-            if (publishedTimestamp > 0) {
-                toolbarSubtitle.setText(DateUtils.getRelativeTimeSpanString(publishedTimestamp, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
-            } else {
-                toolbarSubtitle.setText("");
+            if (storyContact == null) {
+                for (Account account : xmppConnectionService.getAccounts()) {
+                    final Contact c = account.getRoster().getContact(contact);
+                    if (c != null) {
+                        storyContact = c;
+                        break;
+                    }
+                }
             }
+        }
+
+        String displayName;
+        if (storyContact != null) {
+            displayName = storyContact.getDisplayName();
+            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+            AvatarWorkerTask.loadAvatar(conversation, toolbarAvatar, R.dimen.muc_avatar_actionbar);
+        } else if (contact != null) {
+            displayName = contact.asBareJid().toString();
+        } else {
+            displayName = "";
+        }
+        toolbarTitle.setText(displayName);
+        long publishedTimestamp = 0;
+        if (storyIds != null && position < storyIds.size()) {
+            final String currentStoryId = storyIds.get(position);
+            if (xmppConnectionService != null) {
+                for (eu.siacs.conversations.entities.Story story : xmppConnectionService.getStories()) {
+                    if (story.getUuid().equals(currentStoryId)) {
+                        publishedTimestamp = story.getPublished();
+                        break;
+                    }
+                }
+            }
+        }
+        if (publishedTimestamp > 0) {
+            toolbarSubtitle.setText(DateUtils.getRelativeTimeSpanString(publishedTimestamp, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+        } else {
+            toolbarSubtitle.setText("");
         }
 
         titleView.setText(titles.get(position));
@@ -176,24 +176,28 @@ public class StoryViewActivity extends XmppActivity {
     }
 
     private void hideSystemUi() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        bottomPanel.setVisibility(View.GONE);
+        appBarLayout.animate().alpha(0f).setDuration(200);
+        bottomPanel.animate().alpha(0f).setDuration(200);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     private void showSystemUi() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.show();
-        }
-        bottomPanel.setVisibility(View.VISIBLE);
+        appBarLayout.animate().alpha(1f).setDuration(200);
+        bottomPanel.animate().alpha(1f).setDuration(200);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
     private boolean isSystemUiVisible() {
-        ActionBar actionBar = getSupportActionBar();
-        return actionBar != null && actionBar.isShowing();
+        return appBarLayout.getAlpha() > 0;
     }
 
     @Override
