@@ -14,6 +14,7 @@ import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.AbstractConnectionManager;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.utils.TLSSocketFactory;
 
 import okhttp3.HttpUrl;
@@ -121,7 +122,15 @@ public class HttpConnectionManager extends AbstractConnectionManager {
                 }
             }
             HttpUploadConnection connection = new HttpUploadConnection(message, Method.determine(message.getConversation().getAccount()), this, cb);
-            connection.init(delay);
+            connection.initForMessage(delay);
+            this.uploadConnections.add(connection);
+        }
+    }
+
+    public void createNewUploadConnection(final DownloadableFile file, final Account account, final boolean delay, final UiCallback<String> callback) {
+        synchronized (this.uploadConnections) {
+            HttpUploadConnection connection = new HttpUploadConnection(account, file, Method.determine(account), this, callback);
+            connection.initForFile();
             this.uploadConnections.add(connection);
         }
     }

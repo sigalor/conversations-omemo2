@@ -18,12 +18,14 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import eu.siacs.conversations.Config;
+import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.DownloadableFile;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Transferable;
 import eu.siacs.conversations.services.AbstractConnectionManager;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.utils.CryptoHelper;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -45,6 +47,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
     private final Method method;
     private boolean delayed = false;
     private DownloadableFile file;
+    @Nullable
     private final Message message;
     private SlotRequester.Slot slot;
     private byte[] key = null;
@@ -52,14 +55,34 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
     private long transmitted = 0;
     private Call mostRecentCall;
     private ListenableFuture<SlotRequester.Slot> slotFuture;
-    private Runnable cb;
+
+    @Nullable
+    private final Runnable cb;
+
+    @Nullable
+    private final UiCallback<String> callback;
+    @NonNull
+    private final Account account;
 
     public HttpUploadConnection(Message message, Method method, HttpConnectionManager httpConnectionManager, Runnable cb) {
         this.message = message;
+        this.account = message.getConversation().getAccount();
         this.method = method;
         this.mHttpConnectionManager = httpConnectionManager;
         this.mXmppConnectionService = httpConnectionManager.getXmppConnectionService();
         this.cb = cb;
+        this.callback = null;
+    }
+
+    public HttpUploadConnection(Account account, DownloadableFile file, Method method, HttpConnectionManager httpConnectionManager, UiCallback<String> callback) {
+        this.message = null;
+        this.account = account;
+        this.file = file;
+        this.method = method;
+        this.mHttpConnectionManager = httpConnectionManager;
+        this.mXmppConnectionService = httpConnectionManager.getXmppConnectionService();
+        this.callback = callback;
+        this.cb = null;
     }
 
     @Override
@@ -90,13 +113,13 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         final ListenableFuture<SlotRequester.Slot> slotFuture = this.slotFuture;
         if (slotFuture != null && !slotFuture.isDone()) {
             if (slotFuture.cancel(true)) {
-                Log.d(Config.LOGTAG,"cancelled slot requester");
+                Log.d(Config.LOGTAG, "cancelled slot requester");
             }
         }
         final Call call = this.mostRecentCall;
         if (call != null && !call.isCanceled()) {
             call.cancel();
-            Log.d(Config.LOGTAG,"cancelled HTTP request");
+            Log.d(Config.LOGTAG, "cancelled HTTP request");
         }
     }
 
@@ -105,17 +128,22 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         final Call call = this.mostRecentCall;
         final Future<SlotRequester.Slot> slotFuture = this.slotFuture;
         final boolean cancelled = (call != null && call.isCanceled()) || (slotFuture != null && slotFuture.isCancelled());
-        mXmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED, cancelled ? Message.ERROR_MESSAGE_CANCELLED : errorMessage);
-        if (cb != null) cb.run();
+        if (this.message != null) {
+            mXmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED, cancelled ? Message.ERROR_MESSAGE_CANCELLED : errorMessage);
+            if (cb != null) cb.run();
+        } else if (this.callback != null) {
+            callback.error(R.string.upload_failed_server_not_found, errorMessage);
+        }
     }
 
     private void finish() {
         mHttpConnectionManager.finishUploadConnection(this);
-        message.setTransferable(null);
+        if (this.message != null) {
+            message.setTransferable(null);
+        }
     }
 
-    public void init(boolean delay) {
-        final Account account = message.getConversation().getAccount();
+    public void initForMessage(boolean delay) {
         this.file = mXmppConnectionService.getFileBackend().getFile(message, false);
         final String mime;
         if (message.getEncryption() == Message.ENCRYPTION_PGP || message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
@@ -147,7 +175,6 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
             @Override
             public void onFailure(@NonNull final Throwable throwable) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to request slot", throwable);
-                // TODO consider fall back to jingle in 1-on-1 chats with exactly one online presence
                 fail(throwable.getMessage());
             }
         }, MoreExecutors.directExecutor());
@@ -155,10 +182,40 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         mXmppConnectionService.markMessage(message, Message.STATUS_UNSEND);
     }
 
+    public void initForFile() {
+        final String mime = this.file.getMimeType();
+        final long originalFileSize = file.getSize();
+        this.delayed = false;
+        if (Config.ENCRYPT_ON_HTTP_UPLOADED) {
+            this.key = new byte[44];
+            SECURE_RANDOM.nextBytes(this.key);
+            this.file.setKeyAndIv(this.key);
+        }
+        this.file.setExpectedSize(originalFileSize + (file.getKey() != null ? 16 : 0));
+        this.slotFuture = new SlotRequester(mXmppConnectionService).request(method, account, file, file.getName(), mime);
+        Futures.addCallback(this.slotFuture, new FutureCallback<SlotRequester.Slot>() {
+            @Override
+            public void onSuccess(@Nullable SlotRequester.Slot result) {
+                HttpUploadConnection.this.slot = result;
+                try {
+                    HttpUploadConnection.this.upload();
+                } catch (final Exception e) {
+                    fail(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull final Throwable throwable) {
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to request slot", throwable);
+                fail(throwable.getMessage());
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
     private void upload() {
         final OkHttpClient client = mHttpConnectionManager.buildHttpClient(
                 slot.put,
-                message.getConversation().getAccount(),
+                account,
                 0,
                 true
         );
@@ -178,7 +235,7 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response)  {
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 final int code = response.code();
                 if (code == 200 || code == 201) {
                     Log.d(Config.LOGTAG, "finished uploading file");
@@ -188,13 +245,19 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
                     } else {
                         get = slot.get.toString();
                     }
-                    mXmppConnectionService.getFileBackend().updateFileParams(message, get);
-                    mXmppConnectionService.getFileBackend().updateMediaScanner(file);
-                    finish();
-                    if (!message.isPrivateMessage()) {
-                        message.setCounterpart(message.getConversation().getJid().asBareJid());
+                    if (message != null) {
+                        mXmppConnectionService.getFileBackend().updateFileParams(message, get);
+                        mXmppConnectionService.getFileBackend().updateMediaScanner(file);
+                        finish();
+                        if (!message.isPrivateMessage()) {
+                            message.setCounterpart(message.getConversation().getJid().asBareJid());
+                        }
+                        mXmppConnectionService.resendMessage(message, delayed, cb);
+                    } else if (callback != null) {
+                        mXmppConnectionService.getFileBackend().updateMediaScanner(file);
+                        finish();
+                        callback.success(get);
                     }
-                    mXmppConnectionService.resendMessage(message, delayed, cb);
                 } else {
                     Log.d(Config.LOGTAG, "http upload failed because response code was " + code);
                     fail("http upload failed because response code was " + code);

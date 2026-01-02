@@ -106,6 +106,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -123,6 +124,7 @@ import java.util.function.Consumer;
 
 import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.entities.Story;
+import eu.siacs.conversations.entities.StubConversation;
 import eu.siacs.conversations.xmpp.jid.OtrJidHelper;
 import io.ipfs.cid.Cid;
 
@@ -7817,28 +7819,21 @@ public class XmppConnectionService extends Service {
             callback.error(R.string.no_active_account, null);
             return;
         }
-        final Conversation conversation = new Conversation(account.getDisplayName(), account, account.getJid().asBareJid(), Conversation.MODE_SINGLE);
-        final Message message = new Message(conversation, "", Message.ENCRYPTION_NONE);
-        message.setStatus(Message.STATUS_DUMMY);
 
-        if (mimeType != null && mimeType.startsWith("image/")) {
-            message.setType(Message.TYPE_IMAGE);
-        } else if (mimeType != null && mimeType.startsWith("video/")) {
-            message.setType(Message.TYPE_FILE);
-        } else {
-            message.setType(Message.TYPE_FILE);
-        }
+        final DownloadableFile file = getFileBackend().getTemporaryFile(mimeType);
 
         Runnable runnable = () -> {
             try {
                 if (mimeType != null && mimeType.startsWith("image/")) {
-                    getFileBackend().copyImageToPrivateStorage(message, uri);
+                    getFileBackend().copyImageToPrivateStorage(file, uri);
                 } else {
-                    getFileBackend().copyFileToPrivateStorage(message, uri, mimeType);
+                    getFileBackend().copyFileToPrivateStorage(file, uri);
                 }
             } catch (FileBackend.ImageCompressionException e) {
+                Log.d(Config.LOGTAG, "unable to compress image for story. falling back to file transfer", e);
                 try {
-                    getFileBackend().copyFileToPrivateStorage(message, uri, mimeType);
+                    // Retry as a generic file if image compression fails
+                    getFileBackend().copyFileToPrivateStorage(file, uri);
                 } catch (FileBackend.FileCopyException ex) {
                     callback.error(ex.getResId(), null);
                     return;
@@ -7848,18 +7843,41 @@ public class XmppConnectionService extends Service {
                 return;
             }
 
-            mHttpConnectionManager.createNewUploadConnection(message, false, () -> {
-                try {
-                    if (message.getFileParams() != null && message.getFileParams().url != null) {
-                        callback.success(message.getFileParams().url.toString());
-                    } else {
-                        callback.error(R.string.upload_failed_server_not_found, null);
+            // Create a wrapper callback to ensure the temporary file is deleted.
+            UiCallback<String> wrapperCallback = new UiCallback<String>() {
+                @Override
+                public void success(String url) {
+                    try {
+                        callback.success(url);
+                    } finally {
+                        getFileBackend().deleteFile(file);
                     }
-                } finally {
-                    getFileBackend().deleteFile(message);
                 }
-            });
+
+                @Override
+                public void error(int errorCode, String object) {
+                    try {
+                        callback.error(errorCode, object);
+                    } finally {
+                        getFileBackend().deleteFile(file);
+                    }
+                }
+
+                @Override
+                public void userInputRequired(android.app.PendingIntent pi, String object) {
+                    // This is not expected for file uploads, but we handle it just in case.
+                    try {
+                        callback.userInputRequired(pi, object);
+                    } finally {
+                        getFileBackend().deleteFile(file);
+                    }
+                }
+            };
+
+            // Use the new, message-less upload method.
+            mHttpConnectionManager.createNewUploadConnection(file, account, false, wrapperCallback);
         };
+
         FILE_ATTACHMENT_EXECUTOR.execute(runnable);
     }
 

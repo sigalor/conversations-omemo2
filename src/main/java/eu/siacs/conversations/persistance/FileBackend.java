@@ -2255,6 +2255,13 @@ public class FileBackend {
         }
     }
 
+    public DownloadableFile getTemporaryFile(String mimeType) {
+        final String extension = MimeUtils.guessExtensionFromMimeType(mimeType);
+        final String filename = UUID.randomUUID().toString() + (extension == null ? "" : "." + extension);
+        final File file = new File(mXmppConnectionService.getCacheDir(), filename);
+        return new DownloadableFile(file.getAbsolutePath());
+    }
+
     private int getMediaRuntime(final File file) {
         try {
             final MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
