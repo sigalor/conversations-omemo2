@@ -7814,15 +7814,17 @@ public class XmppConnectionService extends Service {
             callback.error(R.string.no_active_account, null);
             return;
         }
-        // Create a dummy conversation and message
         final Conversation conversation = new Conversation(account.getDisplayName(), account, account.getJid().asBareJid(), Conversation.MODE_SINGLE);
         final Message message = new Message(conversation, "", Message.ENCRYPTION_NONE);
+        message.setStatus(Message.STATUS_DUMMY);
+
         if (mimeType != null && mimeType.startsWith("image/")) {
             message.setType(Message.TYPE_IMAGE);
+        } else if (mimeType != null && mimeType.startsWith("video/")) {
+            message.setType(Message.TYPE_FILE);
         } else {
             message.setType(Message.TYPE_FILE);
         }
-
 
         Runnable runnable = () -> {
             try {
@@ -7831,26 +7833,27 @@ public class XmppConnectionService extends Service {
                 } else {
                     getFileBackend().copyFileToPrivateStorage(message, uri, mimeType);
                 }
-            } catch (eu.siacs.conversations.persistance.FileBackend.ImageCompressionException e) {
-                Log.d(Config.LOGTAG, "unable to compress image for story. falling back to file transfer", e);
-                message.setType(Message.TYPE_FILE);
+            } catch (FileBackend.ImageCompressionException e) {
                 try {
                     getFileBackend().copyFileToPrivateStorage(message, uri, mimeType);
-                } catch (eu.siacs.conversations.persistance.FileBackend.FileCopyException ex) {
+                } catch (FileBackend.FileCopyException ex) {
                     callback.error(ex.getResId(), null);
                     return;
                 }
-            } catch (final eu.siacs.conversations.persistance.FileBackend.FileCopyException e) {
+            } catch (final FileBackend.FileCopyException e) {
                 callback.error(e.getResId(), null);
                 return;
             }
 
             mHttpConnectionManager.createNewUploadConnection(message, false, () -> {
-                final String url = message.getFileParams().url.toString();
-                if (url != null) {
-                    callback.success(url);
-                } else {
-                    callback.error(R.string.upload_failed_server_not_found, null);
+                try {
+                    if (message.getFileParams() != null && message.getFileParams().url != null) {
+                        callback.success(message.getFileParams().url.toString());
+                    } else {
+                        callback.error(R.string.upload_failed_server_not_found, null);
+                    }
+                } finally {
+                    getFileBackend().deleteFile(message);
                 }
             });
         };

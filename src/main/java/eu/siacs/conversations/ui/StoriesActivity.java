@@ -162,6 +162,55 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         return super.onOptionsItemSelected(item);
     }
 
+    private void publish(Uri uri, String mimeType) {
+        if (uri != null && mSelectedAccount != null) {
+            final EditText input = new EditText(this);
+            input.setHint(R.string.title_optional);
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.add_story_title)
+                    .setView(input)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.publish, (dialog, which) -> {
+                        final String title = input.getText().toString();
+                        Toast.makeText(this, R.string.uploading_story, Toast.LENGTH_SHORT).show();
+                        xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, mimeType, new UiCallback<String>() {
+                            @Override
+                            public void success(String url) {
+                                xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
+                                    @Override
+                                    public void success(Void aVoid) {
+                                        runOnUiThread(() -> Toast.makeText(StoriesActivity.this, R.string.story_published, Toast.LENGTH_SHORT).show());
+                                    }
+
+                                    @Override
+                                    public void error(int errorCode, Void object) {
+                                        runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
+                                    }
+
+                                    @Override
+                                    public void userInputRequired(PendingIntent pi, Void object) {
+                                        // not used
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void error(int errorCode, String object) {
+                                runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
+                            }
+
+                            @Override
+                            public void userInputRequired(PendingIntent pi, String object) {
+                                // not used
+                            }
+                        });
+                    })
+                    .create()
+                    .show();
+        }
+    }
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -173,20 +222,24 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                 } else if (pendingTakePhotoUri.peek() != null) {
                     uri = pendingTakePhotoUri.pop();
                 } else {
-                    uri = null;
+                    return; //No image was selected
                 }
-                if (uri != null && mSelectedAccount != null) {
-                    Intent intent = new Intent(this, EditActivity.class);
-                    intent.setData(uri);
-                    intent.putExtra(EditActivity.KEY_CHAT_NAME, mSelectedAccount.getDisplayName());
-                    startActivityForResult(intent, REQUEST_EDIT_STORY_IMAGE);
+                if (mSelectedAccount != null) {
+                    String mimeType = getContentResolver().getType(uri);
+                    if (mimeType != null && mimeType.startsWith("video/")) {
+                        publish(uri, mimeType);
+                    } else {
+                        Intent intent = new Intent(this, EditActivity.class);
+                        intent.setData(uri);
+                        startActivityForResult(intent, REQUEST_EDIT_STORY_IMAGE);
+                    }
                 }
             } else if (requestCode == REQUEST_EDIT_STORY_IMAGE) {
                 Uri uri = data != null ? (Uri) data.getParcelableExtra(EditActivity.KEY_EDITED_URI) : null;
                 if (uri == null && data != null) {
                     uri = data.getData();
                 }
-                if (uri != null && mSelectedAccount != null) {
+                if (uri != null) {
                     String mimeType = data.getType();
                     if (mimeType == null) {
                         mimeType = getContentResolver().getType(uri);
@@ -194,51 +247,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                     if (mimeType == null) {
                         mimeType = "image/jpeg"; // Fallback for file URIs
                     }
-                    final EditText input = new EditText(this);
-                    input.setHint(R.string.title_optional);
-                    Uri finalUri = uri;
-                    String finalMimeType = mimeType;
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle(R.string.add_story_title)
-                            .setView(input)
-                            .setNegativeButton(R.string.cancel, null)
-                            .setPositiveButton(R.string.publish, (dialog, which) -> {
-                                final String title = input.getText().toString();
-                                Toast.makeText(this, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-                                xmppConnectionService.uploadFileForUrl(mSelectedAccount, finalUri, finalMimeType, new UiCallback<String>() {
-                                    @Override
-                                    public void success(String url) {
-                                        xmppConnectionService.publishStory(mSelectedAccount, url, finalMimeType, title, new UiCallback<Void>() {
-                                            @Override
-                                            public void success(Void aVoid) {
-                                                runOnUiThread(() -> Toast.makeText(StoriesActivity.this, R.string.story_published, Toast.LENGTH_SHORT).show());
-                                            }
-
-                                            @Override
-                                            public void error(int errorCode, Void object) {
-                                                runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
-                                            }
-
-                                            @Override
-                                            public void userInputRequired(PendingIntent pi, Void object) {
-                                                // not used
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void error(int errorCode, String object) {
-                                        runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
-                                    }
-
-                                    @Override
-                                    public void userInputRequired(PendingIntent pi, String object) {
-                                        // not used
-                                    }
-                                });
-                            })
-                            .create()
-                            .show();
+                    publish(uri, mimeType);
                 }
             }
         } else {
@@ -267,13 +276,15 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         }
     }
 
+
     private void openStoryImagePicker(Account account) {
         this.mSelectedAccount = account;
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
             final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-            galleryIntent.setType("image/*");
+            galleryIntent.setType("image/*,video/*");
+            galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
 
             final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             final Uri takePhotoUri = xmppConnectionService.getFileBackend().getTakePhotoUri();

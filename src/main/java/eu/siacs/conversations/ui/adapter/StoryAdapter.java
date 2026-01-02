@@ -133,16 +133,19 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             ArrayList<String> urls = new ArrayList<>();
             ArrayList<String> titles = new ArrayList<>();
             ArrayList<String> storyIds = new ArrayList<>();
+            ArrayList<String> mimeTypes = new ArrayList<>();
             for (Story s : activity.xmppConnectionService.getStories()) {
                 if (s.getContact().asBareJid().equals(story.getContact().asBareJid())) {
                     urls.add(s.getUrl());
                     titles.add(s.getTitle());
                     storyIds.add(s.getUuid());
+                    mimeTypes.add(s.getType());
                 }
             }
             intent.putStringArrayListExtra(StoryViewActivity.EXTRA_URLS, urls);
             intent.putStringArrayListExtra(StoryViewActivity.EXTRA_TITLES, titles);
             intent.putStringArrayListExtra(StoryViewActivity.EXTRA_STORY_IDS, storyIds);
+            intent.putStringArrayListExtra(StoryViewActivity.EXTRA_MIME_TYPES, mimeTypes);
             intent.putExtra(StoryViewActivity.EXTRA_CONTACT, story.getContact().asBareJid().toString());
             if (finalStoryAccount != null) {
                 intent.putExtra(StoryViewActivity.EXTRA_ACCOUNT, finalStoryAccount.getUuid());

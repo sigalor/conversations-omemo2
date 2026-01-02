@@ -6,6 +6,13 @@
     android:fitsSystemWindows="true"
     android:background="@android:color/black">
 
+    <VideoView
+        android:id="@+id/story_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <ImageView
         android:id="@+id/story_image_view"
         android:layout_width="match_parent"
