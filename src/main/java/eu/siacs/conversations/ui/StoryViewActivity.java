@@ -8,12 +8,14 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
@@ -51,6 +53,7 @@ public class StoryViewActivity extends XmppActivity {
     private VideoView videoView;
     private TextView titleView;
     private TextView progressView;
+    private View bottomPanel;
 
     private ArrayList<String> urls;
     private ArrayList<String> titles;
@@ -64,7 +67,6 @@ public class StoryViewActivity extends XmppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_Conversations3);
         setContentView(R.layout.activity_story_view);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -78,22 +80,41 @@ public class StoryViewActivity extends XmppActivity {
         videoView = findViewById(R.id.story_video_view);
         titleView = findViewById(R.id.story_title_view);
         progressView = findViewById(R.id.story_progress_view);
+        bottomPanel = findViewById(R.id.bottom_panel);
 
         urls = getIntent().getStringArrayListExtra(EXTRA_URLS);
         titles = getIntent().getStringArrayListExtra(EXTRA_TITLES);
         storyIds = getIntent().getStringArrayListExtra(EXTRA_STORY_IDS);
         mimeTypes = getIntent().getStringArrayListExtra(EXTRA_MIME_TYPES);
 
-        View.OnClickListener nextListener = v -> {
-            currentIndex++;
-            if (currentIndex < urls.size()) {
-                loadStory();
-            } else {
-                finish();
+        View.OnTouchListener touchListener = (v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (event.getX() < v.getWidth() / 3) {
+                    currentIndex--;
+                    if (currentIndex >= 0) {
+                        loadStory();
+                    } else {
+                        finish();
+                    }
+                } else if (event.getX() > v.getWidth() * 2 / 3) {
+                    currentIndex++;
+                    if (currentIndex < urls.size()) {
+                        loadStory();
+                    } else {
+                        finish();
+                    }
+                } else {
+                    if (isSystemUiVisible()) {
+                        hideSystemUi();
+                    } else {
+                        showSystemUi();
+                    }
+                }
             }
+            return true;
         };
-        imageView.setOnClickListener(nextListener);
-        videoView.setOnClickListener(nextListener);
+        imageView.setOnTouchListener(touchListener);
+        videoView.setOnTouchListener(touchListener);
 
         try {
             contact = Jid.of(getIntent().getStringExtra(EXTRA_CONTACT));
@@ -242,6 +263,8 @@ public class StoryViewActivity extends XmppActivity {
         }
         progressView.setText((currentIndex + 1) + " " + getString(R.string.of) + " " + urls.size());
 
+        showSystemUi();
+
         final String url = urls.get(currentIndex);
         final File cacheFile = xmppConnectionService.getFileBackend().getStoryCacheFile(url);
 
@@ -310,4 +333,36 @@ public class StoryViewActivity extends XmppActivity {
             }
         }).start();
     }
+
+    private void hideSystemUi() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        bottomPanel.setVisibility(View.GONE);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    private void showSystemUi() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.show();
+        }
+        bottomPanel.setVisibility(View.VISIBLE);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private boolean isSystemUiVisible() {
+        return (getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0;
+    }
+
 }
