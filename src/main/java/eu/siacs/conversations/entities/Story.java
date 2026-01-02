@@ -56,6 +56,24 @@ public class Story extends AbstractEntity {
             return null;
         }
 
+        final Element author = entry.findChild("author", "http://www.w3.org/2005/Atom");
+        if (author != null) {
+            final Element uri = author.findChild("uri", "http://www.w3.org/2005/Atom");
+            String authorUri = uri != null ? uri.getContent() : null;
+            if (authorUri != null && authorUri.startsWith("xmpp:")) {
+                try {
+                    Jid authorJid = Jid.of(authorUri.substring(5));
+                    if (!authorJid.asBareJid().equals(contact.asBareJid())) {
+                        android.util.Log.w(eu.siacs.conversations.Config.LOGTAG, "Story author JID (" + authorJid + ") does not match publisher JID (" + contact + "). Ignoring story.");
+                        return null;
+                    }
+                } catch (IllegalArgumentException e) {
+                    android.util.Log.w(eu.siacs.conversations.Config.LOGTAG, "Invalid JID in story author URI: " + authorUri);
+                    return null;
+                }
+            }
+        }
+
         Element link = null;
         final List<Element> children = entry.getChildren();
         if (children != null) {
