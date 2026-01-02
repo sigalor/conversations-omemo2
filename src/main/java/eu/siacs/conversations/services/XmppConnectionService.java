@@ -75,6 +75,8 @@ import com.kedia.ogparser.JsoupProxy;
 import com.kedia.ogparser.OpenGraphCallback;
 import com.kedia.ogparser.OpenGraphParser;
 import com.kedia.ogparser.OpenGraphResult;
+import com.otaliastudios.transcoder.Transcoder;
+import com.otaliastudios.transcoder.TranscoderListener;
 
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionID;
@@ -112,6 +114,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.RejectedExecutionException;
@@ -125,6 +128,7 @@ import java.util.function.Consumer;
 import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.entities.StubConversation;
+import eu.siacs.conversations.utils.TranscoderStrategies;
 import eu.siacs.conversations.xmpp.jid.OtrJidHelper;
 import io.ipfs.cid.Cid;
 
@@ -7816,15 +7820,71 @@ public class XmppConnectionService extends Service {
 
     public void uploadFileForUrl(final Account account, final android.net.Uri uri, final String mimeType, final UiCallback<String> callback) {
         if (account == null) {
-            callback.error(R.string.no_active_account, null);
-            return;
+            callback.error(R.string.no_active_account, null);            return;
         }
 
         final DownloadableFile file = getFileBackend().getTemporaryFile(mimeType);
 
         Runnable runnable = () -> {
             try {
-                if (mimeType != null && mimeType.startsWith("image/")) {
+                if (mimeType != null && mimeType.startsWith("video/")) {
+                    final AtomicBoolean transcodeFailed = new AtomicBoolean(false);
+                    final TranscoderListener listener = new TranscoderListener() {
+                        @Override
+                        public void onTranscodeProgress(double progress) {
+                        }
+
+                        @Override
+                        public void onTranscodeCompleted(int successCode) {
+                            Log.d(Config.LOGTAG, "transcoding successful for story");
+                        }
+
+                        @Override
+                        public void onTranscodeCanceled() {
+                            Log.d(Config.LOGTAG, "transcoding canceled for story");
+                            transcodeFailed.set(true);
+                        }
+
+                        @Override
+                        public void onTranscodeFailed(@NonNull Throwable exception) {
+                            Log.w(Config.LOGTAG, "video transcoding failed for story", exception);
+                            transcodeFailed.set(true);
+                        }
+                    };
+                    try {
+                        Log.d(Config.LOGTAG, "Attempting to transcode video for story");
+                        final boolean highQuality = "720".equals(AttachFileToConversationRunnable.getVideoCompression(this));
+                        Future<Void> future = Transcoder.into(file.getAbsolutePath())
+                                .addDataSource(this, uri)
+                                .setVideoTrackStrategy(highQuality ? TranscoderStrategies.VIDEO_720P : TranscoderStrategies.VIDEO_360P)
+                                .setAudioTrackStrategy(highQuality ? TranscoderStrategies.AUDIO_HQ : TranscoderStrategies.AUDIO_MQ)
+                                .setListener(listener)
+                                .transcode();
+                        future.get();
+                    } catch (Exception e) {
+                        Log.w(Config.LOGTAG, "video transcoding setup failed for story", e);
+                        transcodeFailed.set(true);
+                    }
+
+                    if (transcodeFailed.get() || file.getSize() == 0) {
+                        Log.d(Config.LOGTAG, "transcoding failed. falling back to copying original for story");
+                        if (file.exists() && !file.delete()) {
+                            Log.w(Config.LOGTAG,"could not delete failed transcode file");
+                        }
+                        getFileBackend().copyFileToPrivateStorage(file, uri);
+                    } else {
+                        long originalSize = FileBackend.getFileSize(this, uri);
+                        if (originalSize > 0 && file.getSize() >= originalSize) {
+                            Log.d(Config.LOGTAG, "transcoded file was not smaller. using original for story");
+                            if (file.exists() && !file.delete()) {
+                                Log.w(Config.LOGTAG,"could not delete failed transcode file");
+                            }
+                            getFileBackend().copyFileToPrivateStorage(file, uri);
+                        } else {
+                            Log.d(Config.LOGTAG, "using transcoded video for story upload");
+                        }
+                    }
+                } else if (mimeType != null && mimeType.startsWith("image/")) {
                     getFileBackend().copyImageToPrivateStorage(file, uri);
                 } else {
                     getFileBackend().copyFileToPrivateStorage(file, uri);
@@ -7832,7 +7892,6 @@ public class XmppConnectionService extends Service {
             } catch (FileBackend.ImageCompressionException e) {
                 Log.d(Config.LOGTAG, "unable to compress image for story. falling back to file transfer", e);
                 try {
-                    // Retry as a generic file if image compression fails
                     getFileBackend().copyFileToPrivateStorage(file, uri);
                 } catch (FileBackend.FileCopyException ex) {
                     callback.error(ex.getResId(), null);
@@ -7843,7 +7902,6 @@ public class XmppConnectionService extends Service {
                 return;
             }
 
-            // Create a wrapper callback to ensure the temporary file is deleted.
             UiCallback<String> wrapperCallback = new UiCallback<String>() {
                 @Override
                 public void success(String url) {
@@ -7865,7 +7923,6 @@ public class XmppConnectionService extends Service {
 
                 @Override
                 public void userInputRequired(android.app.PendingIntent pi, String object) {
-                    // This is not expected for file uploads, but we handle it just in case.
                     try {
                         callback.userInputRequired(pi, object);
                     } finally {
@@ -7873,8 +7930,6 @@ public class XmppConnectionService extends Service {
                     }
                 }
             };
-
-            // Use the new, message-less upload method.
             mHttpConnectionManager.createNewUploadConnection(file, account, false, wrapperCallback);
         };
 
