@@ -7820,69 +7820,72 @@ public class XmppConnectionService extends Service {
 
     public void uploadFileForUrl(final Account account, final android.net.Uri uri, final String mimeType, final UiCallback<String> callback) {
         if (account == null) {
-            callback.error(R.string.no_active_account, null);            return;
-        }
+            callback.error(R.string.no_active_account, null);
+            return;}
 
         final DownloadableFile file = getFileBackend().getTemporaryFile(mimeType);
 
         Runnable runnable = () -> {
             try {
                 if (mimeType != null && mimeType.startsWith("video/")) {
-                    final AtomicBoolean transcodeFailed = new AtomicBoolean(false);
-                    final TranscoderListener listener = new TranscoderListener() {
-                        @Override
-                        public void onTranscodeProgress(double progress) {
-                        }
+                    startOngoingVideoTranscodingForegroundNotification();try {
+                        final AtomicBoolean transcodeFailed = new AtomicBoolean(false);
+                        final TranscoderListener listener = new TranscoderListener() {
+                            @Override
+                            public void onTranscodeProgress(double progress) {
+                            }
 
-                        @Override
-                        public void onTranscodeCompleted(int successCode) {
-                            Log.d(Config.LOGTAG, "transcoding successful for story");
-                        }
+                            @Override
+                            public void onTranscodeCompleted(int successCode) {
+                                Log.d(Config.LOGTAG, "transcoding successful for story");
+                            }
 
-                        @Override
-                        public void onTranscodeCanceled() {
-                            Log.d(Config.LOGTAG, "transcoding canceled for story");
+                            @Override
+                            public void onTranscodeCanceled() {
+                                Log.d(Config.LOGTAG, "transcoding canceled for story");
+                                transcodeFailed.set(true);
+                            }
+
+                            @Override
+                            public void onTranscodeFailed(@NonNull Throwable exception) {
+                                Log.w(Config.LOGTAG, "video transcoding failed for story", exception);
+                                transcodeFailed.set(true);
+                            }};
+                        try {
+                            Log.d(Config.LOGTAG, "Attempting to transcode video for story");
+                            final boolean highQuality = "720".equals(AttachFileToConversationRunnable.getVideoCompression(this));
+                            Future<Void> future = Transcoder.into(file.getAbsolutePath())
+                                    .addDataSource(this, uri)
+                                    .setVideoTrackStrategy(highQuality ? TranscoderStrategies.VIDEO_720P : TranscoderStrategies.VIDEO_360P)
+                                    .setAudioTrackStrategy(highQuality ? TranscoderStrategies.AUDIO_HQ : TranscoderStrategies.AUDIO_MQ)
+                                    .setListener(listener)
+                                    .transcode();
+                            future.get();
+                        } catch (Exception e) {
+                            Log.w(Config.LOGTAG, "video transcoding setup failed for story", e);
                             transcodeFailed.set(true);
                         }
 
-                        @Override
-                        public void onTranscodeFailed(@NonNull Throwable exception) {
-                            Log.w(Config.LOGTAG, "video transcoding failed for story", exception);
-                            transcodeFailed.set(true);
-                        }
-                    };
-                    try {
-                        Log.d(Config.LOGTAG, "Attempting to transcode video for story");
-                        final boolean highQuality = "720".equals(AttachFileToConversationRunnable.getVideoCompression(this));
-                        Future<Void> future = Transcoder.into(file.getAbsolutePath())
-                                .addDataSource(this, uri)
-                                .setVideoTrackStrategy(highQuality ? TranscoderStrategies.VIDEO_720P : TranscoderStrategies.VIDEO_360P)
-                                .setAudioTrackStrategy(highQuality ? TranscoderStrategies.AUDIO_HQ : TranscoderStrategies.AUDIO_MQ)
-                                .setListener(listener)
-                                .transcode();
-                        future.get();
-                    } catch (Exception e) {
-                        Log.w(Config.LOGTAG, "video transcoding setup failed for story", e);
-                        transcodeFailed.set(true);
-                    }
-
-                    if (transcodeFailed.get() || file.getSize() == 0) {
-                        Log.d(Config.LOGTAG, "transcoding failed. falling back to copying original for story");
-                        if (file.exists() && !file.delete()) {
-                            Log.w(Config.LOGTAG,"could not delete failed transcode file");
-                        }
-                        getFileBackend().copyFileToPrivateStorage(file, uri);
-                    } else {
-                        long originalSize = FileBackend.getFileSize(this, uri);
-                        if (originalSize > 0 && file.getSize() >= originalSize) {
-                            Log.d(Config.LOGTAG, "transcoded file was not smaller. using original for story");
+                        if (transcodeFailed.get() || file.getSize() == 0) {
+                            Log.d(Config.LOGTAG, "transcoding failed. falling back to copying original for story");
                             if (file.exists() && !file.delete()) {
-                                Log.w(Config.LOGTAG,"could not delete failed transcode file");
+                                Log.w(Config.LOGTAG, "could not delete failed transcode file");
                             }
                             getFileBackend().copyFileToPrivateStorage(file, uri);
                         } else {
-                            Log.d(Config.LOGTAG, "using transcoded video for story upload");
+                            long originalSize = FileBackend.getFileSize(this, uri);
+                            if (originalSize > 0 && file.getSize() >= originalSize) {
+                                Log.d(Config.LOGTAG, "transcoded file was not smaller. using original for story");
+                                if (file.exists() && !file.delete()) {
+                                    Log.w(Config.LOGTAG, "could not delete failed transcode file");
+                                }
+                                getFileBackend().copyFileToPrivateStorage(file, uri);
+                            } else {
+                                Log.d(Config.LOGTAG, "using transcoded video for story upload");
+                            }
                         }
+                    } finally {
+                        stopOngoingVideoTranscodingForegroundNotification();
                     }
                 } else if (mimeType != null && mimeType.startsWith("image/")) {
                     getFileBackend().copyImageToPrivateStorage(file, uri);
