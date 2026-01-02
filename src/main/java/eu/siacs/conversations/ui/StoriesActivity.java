@@ -344,15 +344,6 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         if (xmppConnectionService == null) {
             return;
         }
-        if (xmppConnectionService.getAccounts().stream().noneMatch(account -> account.getStatus() == Account.State.ONLINE)) {
-            binding.storiesList.setVisibility(View.GONE);
-            binding.fabAddStory.setVisibility(View.GONE);
-            binding.placeholder.setVisibility(View.VISIBLE);
-            binding.placeholder.setText(R.string.no_active_account_to_show_stories);
-            return;
-        }
-        binding.placeholder.setVisibility(View.GONE);
-        binding.fabAddStory.setVisibility(View.VISIBLE);
         this.stories.clear();
         long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
         this.stories.addAll(
@@ -366,13 +357,20 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                         .values()
         );
         Collections.sort(this.stories, (a, b) -> Long.compare(b.getPublished(), a.getPublished()));
-
-        if (this.stories.isEmpty()) {
-            binding.storiesList.setVisibility(View.GONE);
-        } else {
-            binding.storiesList.setVisibility(View.VISIBLE);
-        }
         storyAdapter.notifyDataSetChanged();
+
+        final boolean hasOnlineAccounts = xmppConnectionService.getAccounts().stream().anyMatch(account -> account.getStatus() == Account.State.ONLINE);
+
+        if (!hasOnlineAccounts && this.stories.isEmpty()) {
+            binding.storiesList.setVisibility(View.GONE);
+            binding.fabAddStory.setVisibility(View.GONE);
+            binding.placeholder.setVisibility(View.VISIBLE);
+            binding.placeholder.setText(R.string.no_active_account_to_show_stories);
+        } else {
+            binding.placeholder.setVisibility(View.GONE);
+            binding.fabAddStory.setVisibility(hasOnlineAccounts ? View.VISIBLE : View.GONE);
+            binding.storiesList.setVisibility(this.stories.isEmpty() ? View.GONE : View.VISIBLE);
+        }
     }
 
     @Override
