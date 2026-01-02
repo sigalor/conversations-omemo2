@@ -277,7 +277,8 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
     }
 
 
-    private void openStoryImagePicker(Account account) {        this.mSelectedAccount = account;
+    private void openStoryImagePicker(Account account) {
+        this.mSelectedAccount = account;
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {

@@ -188,7 +188,6 @@ public class StoryViewActivity extends XmppActivity {
         if (getSupportActionBar() != null) {
             Contact storyContact = null;
             if (contact != null && xmppConnectionService != null) {
-                // Prioritize finding the contact in an online account
                 for (Account account : xmppConnectionService.getAccounts()) {
                     if (account.getStatus() == Account.State.ONLINE) {
                         final Contact c = account.getRoster().getContact(contact);
@@ -198,7 +197,6 @@ public class StoryViewActivity extends XmppActivity {
                         }
                     }
                 }
-                // If no online account has the contact, fall back to any account
                 if (storyContact == null) {
                     for (Account account : xmppConnectionService.getAccounts()) {
                         final Contact c = account.getRoster().getContact(contact);
@@ -243,79 +241,67 @@ public class StoryViewActivity extends XmppActivity {
             }
         }
         progressView.setText((currentIndex + 1) + " " + getString(R.string.of) + " " + urls.size());
+
         final String url = urls.get(currentIndex);
-        final HttpUrl httpUrl;
-        try {
-            httpUrl = HttpUrl.get(url);
-        } catch (IllegalArgumentException e) {
-            Toast.makeText(this, "Invalid URL", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        final File cacheFile = xmppConnectionService.getFileBackend().getStoryCacheFile(url);
 
-        // Correctly create a message object representing the story, including its ID
-        Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-        storyMessage = new Message(conversation, titles.get(currentIndex), Message.ENCRYPTION_NONE, Message.STATUS_RECEIVED);
-        // storyMessage.setRemoteMsgId(storyIds.get(currentIndex));
-        // storyMessage.setFileParams(new Message.FileParams(url));     // TODO: Add image support later
-        storyMessage.setBody(getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentIndex) + "\"");
-
-        final boolean useTor = mAccount != null && (xmppConnectionService.useTorToConnect() || mAccount.isOnion());
-        final boolean useI2p = mAccount != null && (xmppConnectionService.useI2PToConnect() || mAccount.isI2P());
-
-        // Create and set the placeholder animation immediately on the UI thread
         final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
         circularProgressDrawable.setStrokeWidth(10f);
         circularProgressDrawable.setCenterRadius(50f);
         circularProgressDrawable.setColorSchemeColors(0xFFFFFFFF);
-        circularProgressDrawable.start();
         imageView.setImageDrawable(circularProgressDrawable);
+        videoView.setVisibility(View.GONE);
+        imageView.setVisibility(View.VISIBLE);
 
         new Thread(() -> {
-            File tempFile = null;
             try {
-                tempFile = File.createTempFile("story", ".tmp", getCacheDir());
-                try (InputStream inputStream = HttpConnectionManager.open(httpUrl, useTor, useI2p);
-                     FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                if (!cacheFile.exists() || cacheFile.length() == 0) {
+                    Log.d(Config.LOGTAG, "Story not in cache. Downloading from: " + url);
+                    runOnUiThread(circularProgressDrawable::start);
+                    final HttpUrl httpUrl = HttpUrl.get(url);
+                    final boolean useTor = mAccount != null && (xmppConnectionService.useTorToConnect() || mAccount.isOnion());
+                    final boolean useI2p = mAccount != null && (xmppConnectionService.useI2PToConnect() || mAccount.isI2P());
+                    try (InputStream inputStream = HttpConnectionManager.open(httpUrl, useTor, useI2p);
+                         FileOutputStream outputStream = new FileOutputStream(cacheFile)) {
 
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
                     }
+                } else {
+                    Log.d(Config.LOGTAG, "Loading story from cache: " + cacheFile.getName());
                 }
 
-                final File finalTempFile = tempFile;
-                // Associate the downloaded file with our story message
-                // storyMessage.setRelativeFilePath(finalTempFile.getAbsolutePath());       // TODO: Add image support later
                 runOnUiThread(() -> {
                     circularProgressDrawable.stop();
                     if (!isFinishing()) {
                         String mimeType = (mimeTypes != null && currentIndex < mimeTypes.size()) ? mimeTypes.get(currentIndex) : null;
                         if (mimeType == null) {
-                            mimeType = getContentResolver().getType(Uri.fromFile(finalTempFile));
+                            mimeType = getContentResolver().getType(Uri.fromFile(cacheFile));
                         }
-                        videoView.stopPlayback(); // Stop any previous video
+                        videoView.stopPlayback();
                         if (mimeType != null && mimeType.startsWith("video/")) {
                             imageView.setVisibility(View.GONE);
                             videoView.setVisibility(View.VISIBLE);
-                            videoView.setVideoURI(Uri.fromFile(finalTempFile));
+                            videoView.setVideoURI(Uri.fromFile(cacheFile));
                             videoView.setOnPreparedListener(mp -> {
                                 mp.setLooping(true);
-                                videoView.start(); // Start playback here
+                                videoView.start();
                             });
                         } else {
                             videoView.setVisibility(View.GONE);
                             imageView.setVisibility(View.VISIBLE);
-                            Glide.with(StoryViewActivity.this).load(finalTempFile).into(imageView);
+                            Glide.with(StoryViewActivity.this).load(cacheFile).into(imageView);
                         }
                     }
                 });
 
-
             } catch (IOException e) {
-                Log.e(Config.LOGTAG, "Failed to download story image", e);
-                if (tempFile != null) {
-                    tempFile.delete();
+                Log.e(Config.LOGTAG, "Failed to download or load story", e);
+                if (cacheFile != null && cacheFile.exists()) {
+                    cacheFile.delete();
                 }
                 runOnUiThread(() -> {
                     Toast.makeText(StoryViewActivity.this, R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();

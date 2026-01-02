@@ -2428,6 +2428,28 @@ public class FileBackend {
         return file.delete();
     }
 
+    public File getStoryCacheDirectory() {
+        File cacheDir = mXmppConnectionService.getCacheDir();
+        File storyCache = new File(cacheDir, "stories");
+        if (!storyCache.exists()) {
+            storyCache.mkdirs();
+        }
+        return storyCache;
+    }
+
+    public File getStoryCacheFile(String url) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            digest.update(url.getBytes());
+            byte[] messageDigest = digest.digest();
+            String sha1 = CryptoHelper.bytesToHex(messageDigest);
+            return new File(getStoryCacheDirectory(), sha1);
+        } catch (NoSuchAlgorithmException e) {
+            // This should not happen, but as a fallback, use a random name
+            return new File(getStoryCacheDirectory(), UUID.randomUUID().toString());
+        }
+    }
+
     private static class Dimensions {
         public final int width;
         public final int height;

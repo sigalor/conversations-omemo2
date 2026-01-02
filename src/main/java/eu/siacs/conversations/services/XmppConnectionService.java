@@ -292,7 +292,8 @@ public class XmppConnectionService extends Service {
             Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> pendingUserTuneUpdate;
 
-    private final ScheduledExecutorService storyRetractionExecutor = Executors.newSingleThreadScheduledExecutor();//...
+    private final ScheduledExecutorService storyRetractionExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService storyCacheExecutor = Executors.newSingleThreadScheduledExecutor();
     private static final SerialSingleThreadExecutor VIDEO_COMPRESSION_EXECUTOR =
             new SerialSingleThreadExecutor("VideoCompression");
     private final SerialSingleThreadExecutor mDatabaseWriterExecutor =
@@ -1853,6 +1854,7 @@ public class XmppConnectionService extends Service {
         internalPingExecutor.scheduleWithFixedDelay(
                 this::manageAccountConnectionStatesInternal, 10, 10, TimeUnit.SECONDS);
         storyRetractionExecutor.scheduleWithFixedDelay(this::retractOldStories, 1, 60, TimeUnit.MINUTES);
+        storyCacheExecutor.scheduleWithFixedDelay(this::cleanupStoryCache, 1, 1, TimeUnit.HOURS);
         final SharedPreferences sharedPreferences =
                 androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(
@@ -1945,6 +1947,7 @@ public class XmppConnectionService extends Service {
         fileObserver.stopWatching();
         internalPingExecutor.shutdown();
         storyRetractionExecutor.shutdown();
+        storyCacheExecutor.shutdown();
         super.onDestroy();
     }
 
@@ -7985,6 +7988,24 @@ public class XmppConnectionService extends Service {
                 if (owner != null) {
                     Log.d(Config.LOGTAG, "Retracting old story from account: " + owner.getJid().asBareJid());
                     retractStory(owner, story.getUuid(), null);
+                }
+            }
+        }
+    }
+
+    public void cleanupStoryCache() {
+        Log.d(Config.LOGTAG, "Cleaning up story cache");
+        final File storyCacheDir = getFileBackend().getStoryCacheDirectory();
+        if (storyCacheDir.exists()) {
+            final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
+            final File[] files = storyCacheDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.lastModified() < twentyFourHoursAgo) {
+                        if (file.delete()) {
+                            Log.d(Config.LOGTAG, "Deleted old story cache file: " + file.getName());
+                        }
+                    }
                 }
             }
         }
