@@ -95,18 +95,14 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 updateUiForPosition(position);
+                Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + position);
+                if (currentFragment instanceof StoryFragment) {
+                    ((StoryFragment) currentFragment).loadStory();
+                }
             }
         });
-
         updateUiForPosition(0);
         showSystemUi();
-    }
-
-    public File getStoryCacheFile(String url) {
-        if (xmppConnectionService != null) {
-            return xmppConnectionService.getFileBackend().getStoryCacheFile(url);
-        }
-        return null;
     }
 
     @Override
@@ -202,7 +198,11 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
 
     @Override
     protected void refreshUiReal() {
-
+        updateUiForPosition(viewPager.getCurrentItem());
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+        if (currentFragment instanceof StoryFragment) {
+            ((StoryFragment) currentFragment).loadStory();
+        }
     }
 
     @Override
@@ -290,5 +290,6 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             mAccount = xmppConnectionService.findAccountByUuid(accountUuid);
         }
         invalidateOptionsMenu();
+        refreshUi();
     }
 }

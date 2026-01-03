@@ -22,10 +22,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.http.HttpConnectionManager;
+import eu.siacs.conversations.utils.CryptoHelper;
 import okhttp3.HttpUrl;
 
 public class StoryFragment extends Fragment {
@@ -68,25 +72,46 @@ public class StoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final ImageView imageView = view.findViewById(R.id.story_image_view);
-        final VideoView videoView = view.findViewById(R.id.story_video_view);
-        final ProgressBar progressBar = view.findViewById(R.id.story_progress);
-
         view.setOnClickListener(v -> {
             if (mListener != null) {
                 mListener.onStoryTapped();
             }
         });
 
-        final String url = getArguments().getString(ARG_URL);
-        final String mimeType = getArguments().getString(ARG_MIME_TYPE);
-
         final StoryViewActivity activity = (StoryViewActivity) getActivity();
-        if (activity == null || activity.xmppConnectionService == null) {
+        if (activity != null && activity.xmppConnectionService != null) {
+            loadStory();
+        }
+    }
+
+    public void loadStory() {
+        if (!isAdded()) {
             return;
         }
 
-        final File cacheFile = activity.getStoryCacheFile(url);
+        final View view = getView();
+        if (view == null) {
+            return;
+        }
+
+        final ImageView imageView = view.findViewById(R.id.story_image_view);
+        final VideoView videoView = view.findViewById(R.id.story_video_view);
+        final ProgressBar progressBar = view.findViewById(R.id.story_progress);
+
+        final Bundle args = getArguments();
+        if (args == null) {
+            return;
+        }
+
+        final String url = args.getString(ARG_URL);
+        final String mimeType = args.getString(ARG_MIME_TYPE);
+
+        final StoryViewActivity activity = (StoryViewActivity) getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        final File cacheFile = getStoryCacheFile(getContext(), url);
 
         new Thread(() -> {
             try {
@@ -94,8 +119,13 @@ public class StoryFragment extends Fragment {
                     activity.runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
                     Log.d(Config.LOGTAG, "Story not in cache. Downloading from: " + url);
                     final HttpUrl httpUrl = HttpUrl.get(url);
-                    final boolean useTor = activity.xmppConnectionService.useTorToConnect();
-                    final boolean useI2p = activity.xmppConnectionService.useI2PToConnect();
+                    boolean useTor = false;
+                    boolean useI2p = false;
+                    if (activity.xmppConnectionService != null) {
+                        useTor = activity.xmppConnectionService.useTorToConnect();
+                        useI2p = activity.xmppConnectionService.useI2PToConnect();
+                    }
+
                     try (InputStream inputStream = HttpConnectionManager.open(httpUrl, useTor, useI2p);
                          FileOutputStream outputStream = new FileOutputStream(cacheFile)) {
                         byte[] buffer = new byte[4096];
@@ -110,7 +140,7 @@ public class StoryFragment extends Fragment {
 
                 activity.runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                    if (isAdded() && getActivity() != null && cacheFile != null) {
+                    if (isAdded() && getContext() != null && cacheFile != null) {
                         videoView.stopPlayback();
                         if (mimeType != null && mimeType.startsWith("video/")) {
                             imageView.setVisibility(View.GONE);
@@ -123,7 +153,7 @@ public class StoryFragment extends Fragment {
                         } else {
                             videoView.setVisibility(View.GONE);
                             imageView.setVisibility(View.VISIBLE);
-                            Glide.with(this).load(cacheFile).into(imageView);
+                            Glide.with(getContext()).load(cacheFile).into(imageView);
                         }
                     }
                 });
@@ -134,13 +164,34 @@ public class StoryFragment extends Fragment {
                     cacheFile.delete();
                 }
                 activity.runOnUiThread(() -> {
-                    if(isAdded()) {
+                    if (isAdded() && getContext() != null) {
                         Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         }).start();
     }
+
+    private static File getStoryCacheFile(Context context, String url) {
+        if (context == null || url == null) {
+            return null;
+        }
+
+        File cacheDir = context.getCacheDir();
+        File storyCache = new File(cacheDir, "stories");
+        if (!storyCache.exists()) {
+            storyCache.mkdirs();
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            digest.update(url.getBytes());
+            String sha1 = CryptoHelper.bytesToHex(digest.digest());
+            return new File(storyCache, sha1);
+        } catch (NoSuchAlgorithmException e) {
+            return new File(storyCache, UUID.randomUUID().toString());
+        }
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
