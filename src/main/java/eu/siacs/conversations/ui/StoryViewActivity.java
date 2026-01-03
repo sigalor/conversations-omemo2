@@ -256,8 +256,8 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             return true;
         } else if (itemId == R.id.action_reply_to_story) {
             int currentPos = viewPager.getCurrentItem();
-            Message storyMessage = new Message(null, titles.get(currentPos), Message.ENCRYPTION_NONE, Message.STATUS_RECEIVED);
             Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+            Message storyMessage = new Message(conversation, getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentPos) + "\"", conversation.getNextEncryption(), Message.STATUS_RECEIVED);
             conversation.setReplyTo(storyMessage);
             switchToConversation(conversation);
             return true;
