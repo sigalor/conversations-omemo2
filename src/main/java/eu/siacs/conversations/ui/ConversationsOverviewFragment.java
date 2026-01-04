@@ -365,9 +365,11 @@ public class ConversationsOverviewFragment extends XmppFragment {
             final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
             final MenuItem settings = menu.findItem(R.id.action_settings);
             final MenuItem stories = menu.findItem(R.id.action_stories);
+            final MenuItem calls = menu.findItem(R.id.action_calls);
             if (manageAccounts != null) manageAccounts.setVisible(false);
             if (settings != null) settings.setVisible(false);
             if (stories != null) stories.setVisible(false);
+            if (calls != null) calls.setVisible(false);
         }
         if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
             noteToSelf.setVisible(false);
@@ -484,10 +486,12 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		MenuItem manageAccount = menu.findItem(R.id.action_account);
 		MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
         MenuItem stories = menu.findItem(R.id.action_stories);
+        MenuItem calls = menu.findItem(R.id.action_calls);
 		if (navBarVisible) {
 			manageAccount.setVisible(false);
 			manageAccounts.setVisible(false);
             stories.setVisible(false);
+            calls.setVisible(false);
 		} else {
 			AccountUtils.showHideMenuItems(menu);
 		}
@@ -540,6 +544,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
                 return true;
             case R.id.action_stories:
                 startActivity(new Intent(getActivity(), StoriesActivity.class));
+                return true;
+            case R.id.action_calls:
+                startActivity(new Intent(getActivity(), CallsActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);

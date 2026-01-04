@@ -1,3 +1,4 @@
+
 package eu.siacs.conversations.utils;
 
 import android.content.Context;
@@ -38,6 +39,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Call;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
@@ -60,7 +62,7 @@ import java.util.Locale;
 
 public class UIHelper {
 
-    private static final List<String> LOCATION_QUESTIONS =
+    private static final List<String> LOCATION_QUESTIONS = 
             Arrays.asList(
                     "where are you", // en
                     "where are you now", // en
@@ -81,12 +83,12 @@ public class UIHelper {
                     "donde estas" // es
                     );
 
-    private static final List<Character> PUNCTIONATION =
+    private static final List<Character> PUNCTIONATION = 
             Arrays.asList('.', ',', '?', '!', ';', ':');
 
-    private static final int SHORT_DATE_FLAGS =
+    private static final int SHORT_DATE_FLAGS = 
             DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_ABBREV_ALL;
-    private static final int FULL_DATE_FLAGS =
+    private static final int FULL_DATE_FLAGS = 
             DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE;
 
     public static String readableTimeDifference(Context context, long time, boolean allowRelative) {
@@ -633,6 +635,15 @@ public class UIHelper {
                         MaterialColors.harmonizeWithPrimary(
                                 textView.getContext(),
                                 ContextCompat.getColor(textView.getContext(), color))));
+    }
+
+    public static String getCallInfo(Context context, Call call) {
+        final boolean received = call.getStatus() == Message.STATUS_RECEIVED;
+        if (!call.isSuccessful() && received) {
+            return context.getString(R.string.missed_call);
+        } else {
+            return context.getString(received ? R.string.incoming_call : R.string.outgoing_call);
+        }
     }
 
     public static String filesizeToString(long size) {

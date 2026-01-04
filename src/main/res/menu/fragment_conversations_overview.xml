@@ -35,6 +35,11 @@
         android:title="@string/stories"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_calls"
+        android:orderInCategory="93"
+        android:title="@string/calls"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_privacy_policy"
         android:orderInCategory="98"
         android:title="@string/privacy_policy"

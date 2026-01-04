@@ -468,6 +468,8 @@
                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.ceb" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.CallsActivity"
+            android:label="@string/calls" />
     </application>
-
 </manifest>
