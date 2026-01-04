@@ -1,10 +1,10 @@
-
 package eu.siacs.conversations.ui.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
@@ -24,16 +25,22 @@ import eu.siacs.conversations.utils.UIHelper;
 public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHolder> {
 
     private final List<Message> calls;
-    private final OnCallAgainClickListener listener;
+    private final OnCallAgainClickListener callAgainClickListener;
+    private final OnContactClickListener contactClickListener;
     private final XmppConnectionService xmppConnectionService;
 
     public interface OnCallAgainClickListener {
         void onCallAgainClick(Message call, boolean isVideoCall);
     }
 
-    public CallsAdapter(List<Message> calls, OnCallAgainClickListener listener, XmppConnectionService xmppConnectionService) {
+    public interface OnContactClickListener {
+        void onContactClick(Contact contact);
+    }
+
+    public CallsAdapter(List<Message> calls, OnCallAgainClickListener callAgainClickListener, OnContactClickListener contactClickListener, XmppConnectionService xmppConnectionService) {
         this.calls = calls;
-        this.listener = listener;
+        this.callAgainClickListener = callAgainClickListener;
+        this.contactClickListener = contactClickListener;
         this.xmppConnectionService = xmppConnectionService;
     }
 
@@ -47,7 +54,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
     @Override
     public void onBindViewHolder(@NonNull CallViewHolder holder, int position) {
         Message call = calls.get(position);
-        holder.bind(call, listener, xmppConnectionService);
+        holder.bind(call, callAgainClickListener, contactClickListener, xmppConnectionService);
     }
 
     @Override
@@ -72,9 +79,19 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
             callAgainButton = itemView.findViewById(R.id.call_again);
         }
 
-        public void bind(final Message call, final OnCallAgainClickListener listener, final XmppConnectionService xmppConnectionService) {
+        public void bind(final Message call, final OnCallAgainClickListener callAgainClickListener, final OnContactClickListener contactClickListener, final XmppConnectionService xmppConnectionService) {
             AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.bubble_avatar_size);
             contactName.setText(call.getConversation().getContact().getDisplayName());
+
+            final Contact contact = call.getConversation().getContact();
+            if (contact != null && !contact.isSelf()) {
+                View.OnClickListener clickListener = v -> contactClickListener.onContactClick(contact);
+                avatar.setOnClickListener(clickListener);
+                contactName.setOnClickListener(clickListener);
+            } else {
+                avatar.setOnClickListener(null);
+                contactName.setOnClickListener(null);
+            }
 
             final eu.siacs.conversations.entities.RtpSessionStatus rtpSessionStatus = eu.siacs.conversations.entities.RtpSessionStatus.of(call.getBody());
             final boolean received = call.getStatus() == Message.STATUS_RECEIVED;
@@ -104,10 +121,10 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
                 popup.getMenuInflater().inflate(R.menu.call_again_context, popup.getMenu());
                 popup.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.action_voice_call) {
-                        listener.onCallAgainClick(call, false);
+                        callAgainClickListener.onCallAgainClick(call, false);
                         return true;
                     } else if (item.getItemId() == R.id.action_video_call) {
-                        listener.onCallAgainClick(call, true);
+                        callAgainClickListener.onCallAgainClick(call, true);
                         return true;
                     }
                     return false;

@@ -28,13 +28,14 @@ import java.util.List;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.CallIntegrationConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.CallsAdapter;
 
-public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainClickListener {
+public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainClickListener, CallsAdapter.OnContactClickListener {
 
     private XmppConnectionService xmppConnectionService;
     private RecyclerView recyclerView;
@@ -81,19 +82,21 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
 
         recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CallsAdapter(calls, this, xmppConnectionService);
-        recyclerView.setAdapter(adapter);
 
         return view;
     }
 
     private void loadCalls() {
         if (xmppConnectionService != null) {
-            calls.clear();
-            calls.addAll(getCalls());
-            adapter = new CallsAdapter(calls, this, xmppConnectionService);
-            recyclerView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+            new Thread(() -> {
+                final List<Message> loadedCalls = getCalls();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        adapter = new CallsAdapter(loadedCalls, this, this, xmppConnectionService);
+                        recyclerView.setAdapter(adapter);
+                    });
+                }
+            }).start();
         }
     }
 
@@ -209,5 +212,12 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
                 conversation.getJid(),
                 RtpSessionActivity.actionToMedia(action));
         mPendingCall = null;
+    }
+
+    @Override
+    public void onContactClick(Contact contact) {
+        if (getActivity() instanceof XmppActivity) {
+            ((XmppActivity) getActivity()).switchToContactDetails(contact);
+        }
     }
 }
