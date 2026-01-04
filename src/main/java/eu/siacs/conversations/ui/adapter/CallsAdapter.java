@@ -69,7 +69,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
         }
 
         public void bind(final Message call, final OnCallAgainClickListener listener, final XmppConnectionService xmppConnectionService) {
-            AvatarWorkerTask.loadAvatar(call, avatar, R.dimen.avatar_story_size);
+            AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.avatar_story_size);
             contactName.setText(call.getConversation().getContact().getDisplayName());
             callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
             callAgainButton.setOnClickListener(v -> listener.onCallAgainClick(call));
