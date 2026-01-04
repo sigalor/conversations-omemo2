@@ -109,6 +109,7 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
                 }
             }
         }
+        Collections.sort(calls, (o1, o2) -> Long.compare(o2.getTimeSent(), o1.getTimeSent()));
         return calls;
     }
 
