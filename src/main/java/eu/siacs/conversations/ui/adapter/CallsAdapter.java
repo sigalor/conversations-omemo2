@@ -9,6 +9,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -74,7 +75,29 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
         public void bind(final Message call, final OnCallAgainClickListener listener, final XmppConnectionService xmppConnectionService) {
             AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.bubble_avatar_size);
             contactName.setText(call.getConversation().getContact().getDisplayName());
+
+            final eu.siacs.conversations.entities.RtpSessionStatus rtpSessionStatus = eu.siacs.conversations.entities.RtpSessionStatus.of(call.getBody());
+            final boolean received = call.getStatus() == Message.STATUS_RECEIVED;
+            final boolean missed = received && !rtpSessionStatus.successful;
+
+            int color;
+            if (missed) {
+                color = ContextCompat.getColor(itemView.getContext(), R.color.red_700);
+            } else {
+                color = contactName.getCurrentTextColor();
+            }
+            callInfo.setTextColor(color);
+            android.graphics.drawable.Drawable drawable = ContextCompat.getDrawable(itemView.getContext(), eu.siacs.conversations.entities.RtpSessionStatus.getDrawable(received, rtpSessionStatus.successful));
+            if (drawable != null) {
+                drawable.setTint(color);
+                final int size = (int) (18 * itemView.getContext().getResources().getDisplayMetrics().density);
+                drawable.setBounds(0, 0, size, size);
+            }
+
             callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
+            callInfo.setCompoundDrawables(drawable, null, null, null);
+            callInfo.setCompoundDrawablePadding((int) (6 * itemView.getContext().getResources().getDisplayMetrics().density));
+
             callDate.setText(UIHelper.readableTimeDifference(itemView.getContext(), call.getTimeSent(), false));
             callAgainButton.setOnClickListener(v -> {
                 PopupMenu popup = new PopupMenu(v.getContext(), v);
