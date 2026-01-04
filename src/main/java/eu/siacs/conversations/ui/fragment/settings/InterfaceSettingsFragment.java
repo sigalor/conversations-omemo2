@@ -1,9 +1,11 @@
 package eu.siacs.conversations.ui.fragment.settings;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.Preference;
 import android.widget.Toast;
 
@@ -15,14 +17,16 @@ import com.google.android.material.color.DynamicColors;
 import java.io.File;
 
 import eu.siacs.conversations.AppSettings;
-import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
 import eu.siacs.conversations.ui.util.SettingsUtils;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import eu.siacs.conversations.utils.ThemeHelper;
 
 public class InterfaceSettingsFragment extends XmppPreferenceFragment {
+
+    private static final int REQUEST_EDIT_BACKGROUND = 9124;
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
@@ -145,12 +149,33 @@ public class InterfaceSettingsFragment extends XmppPreferenceFragment {
                         activity.getClass().getName(), SettingsActivity.class.getName()));
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND) {
+                final Uri imageUri = data == null ? null : data.getData();
+                if (imageUri != null) {
+                    final Intent editIntent = new Intent(getActivity(), EditActivity.class);
+                    editIntent.setData(imageUri);
+                    editIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivityForResult(editIntent, REQUEST_EDIT_BACKGROUND);
+                    return;
+                }
+            } else if (requestCode == REQUEST_EDIT_BACKGROUND) {
+                Uri uri = data != null ? (Uri) data.getParcelableExtra(EditActivity.KEY_EDITED_URI) : null;
+                if (uri == null && data != null) {
+                    uri = data.getData();
+                }
 
-        ChatBackgroundHelper.onActivityResult(requireSettingsActivity(), requestCode, resultCode, data, null);
+                if (uri != null) {
+                    Intent resultIntent = new Intent();
+                    resultIntent.setData(uri);
+                    ChatBackgroundHelper.onActivityResult(requireSettingsActivity(), ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND, resultCode, resultIntent, null);
+                }
+                return;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
