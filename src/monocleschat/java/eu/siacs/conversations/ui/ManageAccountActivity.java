@@ -49,8 +49,6 @@ import eu.siacs.conversations.xmpp.XmppConnection;
 import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 public class ManageAccountActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnAccountUpdate, KeyChainAliasCallback, XmppConnectionService.OnAccountCreated, AccountAdapter.OnTglAccountState {
 
     private final String STATE_SELECTED_ACCOUNT = "selected_account";
@@ -87,24 +85,9 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
         }
         ActionBar actionBar = getSupportActionBar();
 
-        // Show badge for unread message in bottom nav
-        int unreadCount = xmppConnectionService.unreadCount();
-        BottomNavigationView bottomnav = findViewById(R.id.bottom_navigation);
-        var bottomBadge = bottomnav.getOrCreateBadge(R.id.chats);
-        bottomBadge.setNumber(unreadCount);
-        bottomBadge.setVisible(unreadCount > 0);
-        bottomBadge.setHorizontalOffset(20);
-
-        // Show badge for new stories in bottom nav
-        long lastRead = getPreferences().getLong("last_read_story_timestamp", 0);
-        boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
-        var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
-        storiesBadge.setVisible(hasNewStories);
-
-        boolean showNavBar = bottomnav.getVisibility() == VISIBLE;
         if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(!this.accountList.isEmpty() && !showNavBar);
-            actionBar.setDisplayHomeAsUpEnabled(!this.accountList.isEmpty() && !showNavBar);
+            actionBar.setHomeButtonEnabled(!this.accountList.isEmpty());
+            actionBar.setDisplayHomeAsUpEnabled(!this.accountList.isEmpty());
         }
         invalidateOptionsMenu();
         mAccountAdapter.notifyDataSetChanged();
@@ -218,69 +201,7 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
         });
 
         accountListView.setAdapter(this.mAccountAdapter);
-
-        // Bottom Navigation Setup (unchanged) ...
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        // ... (rest of bottom nav logic)
-        bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            // ... existing switch case ...
-            switch (item.getItemId()) {
-                case R.id.chats -> {
-                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                case R.id.contactslist -> {
-                    Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                case R.id.stories -> {
-                    Intent i = new Intent(getApplicationContext(), StoriesActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                case R.id.manageaccounts -> {
-                    return true;
-                }
-                default ->
-                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
-            }
-        });
     }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.manageaccounts);
-
-        if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
-            bottomNavigationView.setVisibility(VISIBLE);
-        } else {
-            bottomNavigationView.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (findViewById(R.id.bottom_navigation).getVisibility() == VISIBLE) {
-            Intent intent = new Intent(this, ConversationsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
-            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-        }
-
-        super.onBackPressed();
-    }
-
 
     @Override
     public void onSaveInstanceState(final Bundle savedInstanceState) {

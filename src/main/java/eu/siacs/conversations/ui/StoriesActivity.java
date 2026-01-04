@@ -87,8 +87,8 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                 case R.id.stories -> {
                     return true;
                 }
-                case R.id.manageaccounts -> {
-                    Intent i = new Intent(getApplicationContext(), MANAGE_ACCOUNT_ACTIVITY);
+                case R.id.calls -> {
+                    Intent i = new Intent(getApplicationContext(), CallsActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);

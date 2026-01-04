@@ -483,13 +483,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		super.onPrepareOptionsMenu(menu);
 
 		boolean navBarVisible = activity instanceof ConversationsActivity && ((ConversationsActivity) activity).navigationBarVisible();
-		MenuItem manageAccount = menu.findItem(R.id.action_account);
-		MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
         MenuItem stories = menu.findItem(R.id.action_stories);
         MenuItem calls = menu.findItem(R.id.action_calls);
 		if (navBarVisible) {
-			manageAccount.setVisible(false);
-			manageAccounts.setVisible(false);
             stories.setVisible(false);
             calls.setVisible(false);
 		} else {

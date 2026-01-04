@@ -13,7 +13,7 @@
         android:icon="?attr/ic_stories_unselected"
         android:title="@string/stories"/>
     <item
-        android:id="@+id/manageaccounts"
-        android:icon="?attr/ic_account"
-        android:title="@string/accounts"/>
+        android:id="@+id/calls"
+        android:icon="?attr/ic_calls_unselected"
+        android:title="@string/calls"/>
 </menu>
