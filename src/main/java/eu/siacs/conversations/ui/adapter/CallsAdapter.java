@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,7 +27,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
     private final XmppConnectionService xmppConnectionService;
 
     public interface OnCallAgainClickListener {
-        void onCallAgainClick(Message call);
+        void onCallAgainClick(Message call, boolean isVideoCall);
     }
 
     public CallsAdapter(List<Message> calls, OnCallAgainClickListener listener, XmppConnectionService xmppConnectionService) {
@@ -71,11 +72,25 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
         }
 
         public void bind(final Message call, final OnCallAgainClickListener listener, final XmppConnectionService xmppConnectionService) {
-            AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.avatar_story_size);
+            AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.bubble_avatar_size);
             contactName.setText(call.getConversation().getContact().getDisplayName());
             callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
             callDate.setText(UIHelper.readableTimeDifference(itemView.getContext(), call.getTimeSent(), false));
-            callAgainButton.setOnClickListener(v -> listener.onCallAgainClick(call));
+            callAgainButton.setOnClickListener(v -> {
+                PopupMenu popup = new PopupMenu(v.getContext(), v);
+                popup.getMenuInflater().inflate(R.menu.call_again_context, popup.getMenu());
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.action_voice_call) {
+                        listener.onCallAgainClick(call, false);
+                        return true;
+                    } else if (item.getItemId() == R.id.action_video_call) {
+                        listener.onCallAgainClick(call, true);
+                        return true;
+                    }
+                    return false;
+                });
+                popup.show();
+            });
         }
     }
 }

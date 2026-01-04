@@ -41,6 +41,7 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
     private CallsAdapter adapter;
     private List<Message> calls = new ArrayList<>();
     private Message mPendingCall;
+    private boolean mPendingVideoCall;
 
     private static final int REQUEST_START_AUDIO_CALL = 0x213;
     private static final int REQUEST_START_VIDEO_CALL = 0x214;
@@ -112,9 +113,10 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
     }
 
     @Override
-    public void onCallAgainClick(Message call) {
+    public void onCallAgainClick(Message call, boolean isVideoCall) {
         mPendingCall = call;
-        if (call.getBody().contains("video")) {
+        mPendingVideoCall = isVideoCall;
+        if (isVideoCall) {
             checkPermissionAndTriggerVideoCall();
         } else {
             checkPermissionAndTriggerAudioCall();
