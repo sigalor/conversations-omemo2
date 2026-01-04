@@ -10,28 +10,29 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-
 import java.util.List;
 
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.entities.Call;
+import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.widget.AvatarView;
 import eu.siacs.conversations.utils.UIHelper;
 
 public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHolder> {
 
-    private final List<Call> calls;
+    private final List<Message> calls;
     private final OnCallAgainClickListener listener;
+    private final XmppConnectionService xmppConnectionService;
 
     public interface OnCallAgainClickListener {
-        void onCallAgainClick(Call call);
+        void onCallAgainClick(Message call);
     }
 
-    public CallsAdapter(List<Call> calls, OnCallAgainClickListener listener) {
+    public CallsAdapter(List<Message> calls, OnCallAgainClickListener listener, XmppConnectionService xmppConnectionService) {
         this.calls = calls;
         this.listener = listener;
+        this.xmppConnectionService = xmppConnectionService;
     }
 
     @NonNull
@@ -43,8 +44,8 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
 
     @Override
     public void onBindViewHolder(@NonNull CallViewHolder holder, int position) {
-        Call call = calls.get(position);
-        holder.bind(call, listener);
+        Message call = calls.get(position);
+        holder.bind(call, listener, xmppConnectionService);
     }
 
     @Override
@@ -67,11 +68,10 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
             callAgainButton = itemView.findViewById(R.id.call_again);
         }
 
-        public void bind(final Call call, final OnCallAgainClickListener listener) {
-            Glide.with(itemView.getContext()).load(call).into(avatar);
-            //AvatarWorkerTask.loadAvatar(call, avatar, R.dimen.avatar_story_size); //TODO add correct avatar loading
-            contactName.setText(call.getContact());
-            callInfo.setText(UIHelper.getCallInfo(itemView.getContext(), call));
+        public void bind(final Message call, final OnCallAgainClickListener listener, final XmppConnectionService xmppConnectionService) {
+            AvatarWorkerTask.loadAvatar(call, avatar, R.dimen.avatar_story_size);
+            contactName.setText(call.getConversation().getContact().getDisplayName());
+            callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
             callAgainButton.setOnClickListener(v -> listener.onCallAgainClick(call));
         }
     }

@@ -1,9 +1,11 @@
 
 package eu.siacs.conversations.entities;
 
+import eu.siacs.conversations.services.AvatarService;
+import eu.siacs.conversations.utils.UIHelper;
 import eu.siacs.conversations.xmpp.Jid;
 
-public class Call {
+public class Call implements AvatarService.Avatarable {
 
     private final String contact;
     private final Jid jid;
@@ -43,5 +45,15 @@ public class Call {
 
     public boolean isSuccessful() {
         return successful;
+    }
+
+    @Override
+    public int getAvatarBackgroundColor() {
+        return UIHelper.getColorForName(getContact());
+    }
+
+    @Override
+    public String getAvatarName() {
+        return getContact();
     }
 }
