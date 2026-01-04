@@ -58,6 +58,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
         private final AvatarView avatar;
         private final TextView contactName;
         private final TextView callInfo;
+        private final TextView callDate;
         private final ImageButton callAgainButton;
 
         public CallViewHolder(@NonNull View itemView) {
@@ -65,6 +66,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
             avatar = itemView.findViewById(R.id.avatar);
             contactName = itemView.findViewById(R.id.contact_name);
             callInfo = itemView.findViewById(R.id.call_info);
+            callDate = itemView.findViewById(R.id.call_date);
             callAgainButton = itemView.findViewById(R.id.call_again);
         }
 
@@ -72,6 +74,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
             AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.avatar_story_size);
             contactName.setText(call.getConversation().getContact().getDisplayName());
             callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
+            callDate.setText(UIHelper.readableTimeDifference(itemView.getContext(), call.getTimeSent(), false));
             callAgainButton.setOnClickListener(v -> listener.onCallAgainClick(call));
         }
     }
