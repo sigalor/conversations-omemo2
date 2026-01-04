@@ -298,6 +298,7 @@ public class ConversationFragment extends XmppFragment
     public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
     public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
     public static final int ATTACHMENT_CHOICE_EDIT_PHOTO = 0x0308;
+    private static final int REQUEST_EDIT_BACKGROUND = 9124;
 
     public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
     public static final String STATE_CONVERSATION_UUID =
@@ -1707,7 +1708,29 @@ public class ConversationFragment extends XmppFragment
         } else {
             this.postponedActivityResult.push(activityResult);
         }
-        if (conversation != null && conversation.getUuid() != null) ChatBackgroundHelper.onActivityResult(activity, requestCode, resultCode, data, conversation.getUuid());
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND) {
+                final Uri imageUri = data == null ? null : data.getData();
+                if (imageUri != null) {
+                    final Intent editIntent = new Intent(getActivity(), EditActivity.class);
+                    editIntent.setData(imageUri);
+                    editIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivityForResult(editIntent, REQUEST_EDIT_BACKGROUND);
+                    return;
+                }
+            } else if (requestCode == REQUEST_EDIT_BACKGROUND) {
+                Uri uri = data != null ? (Uri) data.getParcelableExtra(EditActivity.KEY_EDITED_URI) : null;
+                if (uri == null && data != null) {
+                    uri = data.getData();
+                }
+                if (uri != null) {
+                    Intent resultIntent = new Intent();
+                    resultIntent.setData(uri);
+                    if (conversation != null && conversation.getUuid() != null) ChatBackgroundHelper.onActivityResult(activity, ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND, resultCode, resultIntent, conversation.getUuid());
+                }
+                return;
+            }
+        }
 
         if (requestCode == ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND) {
             refresh();
