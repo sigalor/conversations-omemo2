@@ -1,10 +1,10 @@
 package eu.siacs.conversations.ui.adapter;
 
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -118,6 +118,9 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
             callDate.setText(UIHelper.readableTimeDifference(itemView.getContext(), call.getTimeSent(), false));
             callAgainButton.setOnClickListener(v -> {
                 PopupMenu popup = new PopupMenu(v.getContext(), v);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    popup.setForceShowIcon(true);
+                }
                 popup.getMenuInflater().inflate(R.menu.call_again_context, popup.getMenu());
                 popup.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.action_voice_call) {
