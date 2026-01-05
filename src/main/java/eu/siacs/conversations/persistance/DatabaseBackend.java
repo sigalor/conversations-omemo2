@@ -3354,4 +3354,53 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             }
         };
     }
+
+    // New helper method that accepts an existing database connection
+    public Conversation findConversationByUuid(final String uuid, final SQLiteDatabase db) {
+        final String[] selectionArgs = {uuid};
+        try (final Cursor cursor =
+                     db.query(
+                             Conversation.TABLENAME,
+                             null,
+                             Conversation.UUID + "=?",
+                             selectionArgs,
+                             null,
+                             null,
+                             null)) {
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
+            final Conversation conversation = Conversation.fromCursor(cursor);
+            if (conversation.getJid() instanceof Jid.Invalid) {
+                return null;
+            }
+            return conversation;
+        }
+    }
+
+    public ArrayList<Message> getMessages(Conversation conversation, int type, int limit) {
+        ArrayList<Message> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(Message.TABLENAME,
+                null,
+                Message.CONVERSATION + "=? AND " + Message.TYPE + "=?",
+                new String[]{conversation.getUuid(), String.valueOf(type)},
+                null,
+                null,
+                Message.TIME_SENT + " DESC",
+                String.valueOf(limit));
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                try {
+                    list.add(Message.fromCursor(cursor, conversation));
+                } catch (final Exception e) {
+                    Log.d(Config.LOGTAG,"unable to load message from database",e);
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
 }

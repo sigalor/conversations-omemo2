@@ -1,4 +1,3 @@
-
 package eu.siacs.conversations.ui;
 
 import android.Manifest;
@@ -25,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
@@ -40,19 +41,23 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
     private XmppConnectionService xmppConnectionService;
     private RecyclerView recyclerView;
     private CallsAdapter adapter;
-    private List<Message> calls = new ArrayList<>();
+    private final List<Message> calls = new ArrayList<>();
     private Message mPendingCall;
     private boolean mPendingVideoCall;
+    private boolean mCallsLoaded = false;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private static final int REQUEST_START_AUDIO_CALL = 0x213;
     private static final int REQUEST_START_VIDEO_CALL = 0x214;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             XmppConnectionService.XmppConnectionBinder binder = (XmppConnectionService.XmppConnectionBinder) service;
             xmppConnectionService = binder.getService();
-            loadCalls();
+            if (!mCallsLoaded) {
+                loadCalls();
+            }
         }
 
         @Override
@@ -74,30 +79,35 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
         getActivity().unbindService(mConnection);
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calls, container, false);
-
         recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         return view;
     }
 
     private void loadCalls() {
-        if (xmppConnectionService != null) {
-            new Thread(() -> {
-                final List<Message> loadedCalls = getCalls();
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        adapter = new CallsAdapter(loadedCalls, this, this, xmppConnectionService);
-                        recyclerView.setAdapter(adapter);
-                    });
-                }
-            }).start();
+        if (xmppConnectionService == null) {
+            return;
         }
+        executor.execute(() -> {
+            final List<Message> loadedCalls = getCalls();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    calls.clear();
+                    calls.addAll(loadedCalls);
+                    if (recyclerView.getAdapter() == null) {
+                        adapter = new CallsAdapter(calls, this, this, xmppConnectionService);
+                        recyclerView.setAdapter(adapter);
+                    } else {
+                        adapter.notifyDataSetChanged();
+                    }
+                    mCallsLoaded = true;
+                });
+            }
+        });
     }
 
     private List<Message> getCalls() {
@@ -106,11 +116,8 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
             return calls;
         }
         for (Conversation conversation : xmppConnectionService.getConversations()) {
-            for (Message message : xmppConnectionService.databaseBackend.getMessages(conversation, 100)) { // Limiting to last 100 messages per conversation for performance
-                if (message.getType() == Message.TYPE_RTP_SESSION) {
-                    calls.add(message);
-                }
-            }
+            // Limiting to last 100 messages per conversation for performance
+            calls.addAll(xmppConnectionService.databaseBackend.getMessages(conversation, Message.TYPE_RTP_SESSION, 100));
         }
         Collections.sort(calls, (o1, o2) -> Long.compare(o2.getTimeSent(), o1.getTimeSent()));
         return calls;
@@ -119,7 +126,6 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
     @Override
     public void onCallAgainClick(Message call, boolean isVideoCall) {
         mPendingCall = call;
-        mPendingVideoCall = isVideoCall;
         if (isVideoCall) {
             checkPermissionAndTriggerVideoCall();
         } else {
