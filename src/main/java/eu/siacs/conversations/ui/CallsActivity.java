@@ -1,4 +1,3 @@
-
 package eu.siacs.conversations.ui;
 
 import static android.view.View.VISIBLE;
@@ -12,7 +11,6 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -22,50 +20,54 @@ import eu.siacs.conversations.databinding.ActivityCallsBinding;
 
 public class CallsActivity extends XmppActivity {
 
+    private ActivityCallsBinding binding;
+    private CallsFragment callsFragment;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityCallsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_calls);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_calls);
         Activities.setStatusAndNavigationBarColors(this, findViewById(android.R.id.content));
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
 
         if (savedInstanceState == null) {
+            callsFragment = new CallsFragment();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new CallsFragment())
+                    .replace(R.id.fragment_container, callsFragment)
                     .commit();
+        } else {
+            callsFragment = (CallsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         }
 
-
-        // Bottom Navigation Setup
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
-                case R.id.chats -> {
+                case R.id.chats: {
                     startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
-                case R.id.contactslist -> {
+                case R.id.contactslist: {
                     Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
-                case R.id.stories -> {
+                case R.id.stories: {
                     Intent i = new Intent(getApplicationContext(), StoriesActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
-                case R.id.calls -> {
+                case R.id.calls: {
                     return true;
                 }
-                default ->
-                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+                default:
+                    throw new IllegalStateException("Unexpected value: " + item.getItemId());
             }
         });
     }
@@ -93,6 +95,10 @@ public class CallsActivity extends XmppActivity {
     @Override
     protected void onBackendConnected() {
         refreshUiReal();
+        // Clear missed call notifications and badge when the activity is displayed.
+        if (xmppConnectionService != null) {
+            xmppConnectionService.getNotificationService().clearMissedCalls();
+        }
     }
 
     @Override
@@ -108,6 +114,9 @@ public class CallsActivity extends XmppActivity {
     }
 
     protected void refreshUiReal() {
+        if (xmppConnectionService == null) {
+            return;
+        }
         ActionBar actionBar = getSupportActionBar();
 
         // Show badge for unread message in bottom nav
@@ -123,6 +132,11 @@ public class CallsActivity extends XmppActivity {
         boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
+
+        // Show badge for missed calls in bottom nav
+        boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();
+        var callsBadge = bottomnav.getOrCreateBadge(R.id.calls);
+        callsBadge.setVisible(hasNewMissedCalls);
 
         boolean showNavBar = bottomnav.getVisibility() == VISIBLE;
         if (actionBar != null) {

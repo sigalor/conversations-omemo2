@@ -2468,4 +2468,10 @@ public class NotificationService {
             return lastTime;
         }
     }
+
+    public boolean hasNewMissedCalls() {
+        synchronized (mMissedCalls) {
+            return !mMissedCalls.isEmpty();
+        }
+    }
 }

@@ -259,6 +259,11 @@ public class ConversationsActivity extends XmppActivity
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
 
+        // Show badge for missed calls in bottom nav
+        boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();
+        var callsBadge = bottomnav.getOrCreateBadge(R.id.calls);
+        callsBadge.setVisible(hasNewMissedCalls);
+
         final var chatRequestsPref = xmppConnectionService.getStringPreference("chat_requests", R.string.default_chat_requests);
         final var accountUnreads = new HashMap<Account, Integer>();
         binding.drawer.apply(dr -> {

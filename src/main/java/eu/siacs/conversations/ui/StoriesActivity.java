@@ -332,6 +332,11 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
 
+        // Show badge for missed calls in bottom nav
+        boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();
+        var callsBadge = bottomnav.getOrCreateBadge(R.id.calls);
+        callsBadge.setVisible(hasNewMissedCalls);
+
         boolean showNavBar = bottomnav.getVisibility() == VISIBLE;
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(!showNavBar);

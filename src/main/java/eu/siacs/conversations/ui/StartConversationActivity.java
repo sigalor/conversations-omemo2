@@ -1223,6 +1223,11 @@ public class StartConversationActivity extends XmppActivity
         boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
+
+        // Show badge for missed calls in bottom nav
+        boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();
+        var callsBadge = bottomnav.getOrCreateBadge(R.id.calls);
+        callsBadge.setVisible(hasNewMissedCalls);
     }
 
     @Override
