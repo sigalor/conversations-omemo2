@@ -2,8 +2,6 @@ package eu.siacs.conversations.ui;
 
 import static android.view.View.VISIBLE;
 
-import static eu.siacs.conversations.utils.AccountUtils.MANAGE_ACCOUNT_ACTIVITY;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -11,9 +9,11 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityStoriesBinding;
 import eu.siacs.conversations.entities.Account;
@@ -210,7 +211,6 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         }
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -222,12 +222,29 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                 } else if (pendingTakePhotoUri.peek() != null) {
                     uri = pendingTakePhotoUri.pop();
                 } else {
-                    return; //No image was selected
+                    return;
                 }
                 if (mSelectedAccount != null) {
                     String mimeType = getContentResolver().getType(uri);
                     if (mimeType != null && mimeType.startsWith("video/")) {
-                        publish(uri, mimeType);
+                        try {
+                            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                            retriever.setDataSource(this, uri);
+                            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                            long durationMs = 0;
+                            if (time != null) {
+                                durationMs = Long.parseLong(time);
+                            }
+                            retriever.release();
+                            if (durationMs > 60000) {
+                                Toast.makeText(this, R.string.video_too_long_for_story, Toast.LENGTH_SHORT).show();
+                            } else {
+                                publish(uri, mimeType);
+                            }
+                        } catch (Exception e) {
+                            Log.d(Config.LOGTAG, "Could not determine video duration", e);
+                            Toast.makeText(this, R.string.error_retrieving_video_duration, Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         Intent intent = new Intent(this, EditActivity.class);
                         intent.setData(uri);
@@ -245,7 +262,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
                         mimeType = getContentResolver().getType(uri);
                     }
                     if (mimeType == null) {
-                        mimeType = "image/jpeg"; // Fallback for file URIs
+                        mimeType = "image/jpeg";
                     }
                     publish(uri, mimeType);
                 }

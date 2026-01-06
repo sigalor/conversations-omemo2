@@ -1596,4 +1596,6 @@
     <string name="calls">Calls</string>
     <string name="disable_voice_and_video_calls">Disable voice and video calls</string>
     <string name="no_calls_yet">No calls yet</string>
+    <string name="video_too_long_for_story">Too long. Maximum video length is one minute.</string>
+    <string name="error_retrieving_video_duration">Could not retrieve video duration</string>
 </resources>
