@@ -104,6 +104,14 @@ public class JingleConnectionManager extends AbstractConnectionManager {
                 connection = new JingleFileTransferConnection(this, id, from);
             } else if (Namespace.JINGLE_APPS_RTP.equals(descriptionNamespace)
                     && isUsingClearNet(account)) {
+                // START of the fix for session-initiate
+                final Contact contact = account.getRoster().getContact(packet.getFrom());
+                if (contact != null && contact.areCallsDisabled()) {
+                    Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": rejecting session-initiate with disabled contact " + id.with);
+                    sendDecline(account, packet, id);
+                    return;
+                }
+                // END of the fix for session-initiate
                 final boolean sessionEnded =
                         this.terminatedSessions.asMap().containsKey(PersistableSessionId.of(id));
                 final boolean stranger =
@@ -292,6 +300,21 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         if (sessionId == null) {
             return;
         }
+
+        if ("propose".equals(message.getName())) {
+            final Contact contact = account.getRoster().getContact(from);
+            if (contact != null && contact.areCallsDisabled()) {
+                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring incoming call (propose) from disabled contact " + from);
+                final var rejection = new im.conversations.android.xmpp.model.stanza.Message();
+                rejection.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
+                rejection.setTo(from);
+                rejection.addChild("reject", Namespace.JINGLE_MESSAGE).setAttribute("id", sessionId);
+                rejection.addChild("store", "urn:xmpp:hints");
+                mXmppConnectionService.sendMessagePacket(account, rejection);
+                return;
+            }
+        }
+
         if ("accept".equals(message.getName()) || "reject".equals(message.getName())) {
             for (AbstractJingleConnection connection : connections.values()) {
                 if (connection instanceof JingleRtpConnection rtpConnection) {
@@ -1289,5 +1312,17 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         public boolean applyDtmfTone(final String dtmf) {
             return false;
         }
+    }
+
+    private void sendDecline(
+            final Account account, final Iq request, final AbstractJingleConnection.Id id) {
+        mXmppConnectionService.sendIqPacket(
+                account, request.generateResponse(Iq.Type.RESULT), null);
+        final var iq = new Iq(Iq.Type.SET);
+        iq.setTo(id.with);
+        final var sessionTermination =
+                iq.addExtension(new Jingle(Jingle.Action.SESSION_TERMINATE, id.sessionId));
+        sessionTermination.setReason(Reason.DECLINE, null);
+        mXmppConnectionService.sendIqPacket(account, iq, null);
     }
 }

@@ -42,6 +42,7 @@ import de.monocles.chat.Util;
 
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
@@ -118,6 +119,7 @@ public class ContactDetailsActivity extends OmemoActivity
     protected MenuItem save = null;
 
     private Contact contact;
+    private MaterialSwitch mDisableCallsSwitch;
     private final DialogInterface.OnClickListener removeFromRoster =
             new DialogInterface.OnClickListener() {
 
@@ -309,7 +311,7 @@ public class ContactDetailsActivity extends OmemoActivity
                     populateView();
                 });
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
-
+        mDisableCallsSwitch = binding.disableCalls;
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
@@ -602,6 +604,13 @@ public class ContactDetailsActivity extends OmemoActivity
 
             binding.detailsSendPresence.setOnCheckedChangeListener(null);
             binding.detailsReceivePresence.setOnCheckedChangeListener(null);
+
+            mDisableCallsSwitch.setChecked(contact.areCallsDisabled());
+            mDisableCallsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                contact.setCallsDisabled(isChecked);
+                xmppConnectionService.updateContact(contact);
+            });
+
 
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.isEmpty()) {

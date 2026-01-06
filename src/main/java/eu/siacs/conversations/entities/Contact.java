@@ -63,6 +63,7 @@ public class Contact implements ListItem, Blockable {
     public static final String LAST_TIME = "last_time";
     public static final String GROUPS = "groups";
     public static final String RTP_CAPABILITY = "rtpCapability";
+    public static final String CALLS_DISABLED = "callsDisabled";
     private String accountUuid;
     private String systemName;
     private String serverName;
@@ -84,9 +85,10 @@ public class Contact implements ListItem, Blockable {
     private String mLastPresence = null;
     private UserTune mUserTune = null;
     private RtpCapability.Capability rtpCapability;
+    private boolean callsDisabled;
 
     public Contact(Contact other) {
-        this(null, other.systemName, other.serverName, other.presenceName, other.jid, other.subscription, other.photoUri, other.systemAccount, other.keys == null ? null : other.keys.toString(), other.getAvatar() == null ? null : other.getAvatar().sha1sum, other.mLastseen, other.mLastPresence, other.groups == null ? null : other.groups.toString(), other.rtpCapability);
+        this(null, other.systemName, other.serverName, other.presenceName, other.jid, other.subscription, other.photoUri, other.systemAccount, other.keys == null ? null : other.keys.toString(), other.getAvatar() == null ? null : other.getAvatar().sha1sum, other.mLastseen, other.mLastPresence, other.groups == null ? null : other.groups.toString(), other.rtpCapability, other.callsDisabled);
         setAccount(other.getAccount());
     }
 
@@ -104,7 +106,8 @@ public class Contact implements ListItem, Blockable {
             final long lastseen,
             final String presence,
             final String groups,
-            final RtpCapability.Capability rtpCapability) {
+            final RtpCapability.Capability rtpCapability,
+            final boolean callsDisabled) {
         this.accountUuid = account;
         this.systemName = systemName;
         this.serverName = serverName;
@@ -133,6 +136,7 @@ public class Contact implements ListItem, Blockable {
         this.mLastseen = lastseen;
         this.mLastPresence = presence;
         this.rtpCapability = rtpCapability;
+        this.callsDisabled = callsDisabled;
     }
 
     public Contact(final Jid jid) {
@@ -169,7 +173,8 @@ public class Contact implements ListItem, Blockable {
                 cursor.getString(cursor.getColumnIndex(LAST_PRESENCE)),
                 cursor.getString(cursor.getColumnIndex(GROUPS)),
                 RtpCapability.Capability.of(
-                        cursor.getString(cursor.getColumnIndex(RTP_CAPABILITY))));
+                        cursor.getString(cursor.getColumnIndex(RTP_CAPABILITY))),
+                cursor.getInt(cursor.getColumnIndex(CALLS_DISABLED)) > 0);
     }
 
     public String getDisplayName() {
@@ -295,6 +300,7 @@ public class Contact implements ListItem, Blockable {
             values.put(LAST_TIME, mLastseen);
             values.put(GROUPS, groups.toString());
             values.put(RTP_CAPABILITY, rtpCapability == null ? null : rtpCapability.toString());
+            values.put(CALLS_DISABLED, callsDisabled ? 1 : 0);
             return values;
         }
     }
@@ -815,7 +821,18 @@ public class Contact implements ListItem, Blockable {
     }
 
     public RtpCapability.Capability getRtpCapability() {
+        if (this.callsDisabled) {
+            return null;
+        }
         return this.rtpCapability == null ? RtpCapability.Capability.NONE : this.rtpCapability;
+    }
+
+    public void setCallsDisabled(boolean callsDisabled) {
+        this.callsDisabled = callsDisabled;
+    }
+
+    public boolean areCallsDisabled() {
+        return callsDisabled;
     }
 
     public static final class Options {

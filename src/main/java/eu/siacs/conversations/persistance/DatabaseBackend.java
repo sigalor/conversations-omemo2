@@ -109,7 +109,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 64;
+    private static final int DATABASE_VERSION = 65;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -139,6 +139,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + " TEXT, "
                     + Contact.LAST_PRESENCE
                     + " TEXT, "
+                    + Contact.CALLS_DISABLED +
+                    " boolean DEFAULT 0,"
                     + Contact.LAST_TIME
                     + " NUMBER, "
                     + Contact.RTP_CAPABILITY
@@ -1303,6 +1305,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 Log.e(Config.LOGTAG, "Failed to add ordering column to account table", e);
             }
         }
+        if (oldVersion < 65 && newVersion >= 65) {
+            db.execSQL("ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.CALLS_DISABLED + " boolean DEFAULT 0");
+        }
     }
 
     /**
@@ -2198,6 +2203,19 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         } catch (final IOException e) { }
         cursor.close();
         return message;
+    }
+
+    public boolean updateContact(final Contact contact) {
+        final SQLiteDatabase db = this.getWritableDatabase();final ContentValues values = contact.getContentValues();
+        final String[] args = {contact.getAccount().getUuid(), contact.getJid().asBareJid().toString()};
+        try {
+            final int count = db.update(Contact.TABLENAME, values,
+                    Contact.ACCOUNT + "=? AND " + Contact.JID + "=?",
+                    args);
+            return count > 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static class FilePath {

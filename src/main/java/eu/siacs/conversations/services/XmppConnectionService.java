@@ -8086,4 +8086,24 @@ public class XmppConnectionService extends Service {
             }
         }
     }
+
+    public void updateContact(final Contact contact) {
+        // First, persist the change in the database
+        if (databaseBackend.updateContact(contact)) {
+            // Then, find the live account and contact objects
+            final Account account = findAccountByUuid(contact.getAccount().getUuid());
+            if (account != null) {
+                final Contact rosterContact = account.getRoster().getContact(contact.getJid());
+                // Update the live contact object with the new setting
+                if (rosterContact != null) {
+                    rosterContact.setCallsDisabled(contact.areCallsDisabled());
+                    // Now, notify the UI about the change.
+                    // This will cause activities like ConversationActivity to redraw their menus
+                    // and hide/show the call button as appropriate.
+                    updateConversationUi();
+                    updateConversationUi(true);
+                }
+            }
+        }
+    }
 }
