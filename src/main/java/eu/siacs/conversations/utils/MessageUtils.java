@@ -31,6 +31,7 @@ package eu.siacs.conversations.utils;
 
 import com.google.common.base.Strings;
 
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
@@ -49,6 +50,10 @@ public class MessageUtils {
     public static final String EMPTY_STRING = "";
 
     public static String prepareQuote(final Message message) {
+        return prepareQuote(message, Config.QUOTING_MAX_DEPTH, -1);
+    }
+
+    public static String prepareQuote(final Message message, int maxDepth, int maxLines) {
         final StringBuilder builder = new StringBuilder();
         final String body;
         if (message.hasMeCommand()) {
@@ -66,14 +71,17 @@ public class MessageUtils {
         } else {
             body = message.getQuoteableBody();
         }
+        int lines = 0;
         for (String line : body.split("\n")) {
             if (!(line.length() <= 0) && QuoteHelper.isNestedTooDeeply(line)) {
                 continue;
             }
+            if (maxLines > 0 && maxLines <= lines) break;
             if (builder.length() != 0) {
                 builder.append('\n');
             }
             builder.append(line.trim());
+            lines++;
         }
         return builder.toString();
     }

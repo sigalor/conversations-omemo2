@@ -98,6 +98,10 @@ public class QuoteHelper {
     }
 
     public static boolean isNestedTooDeeply(CharSequence line) {
+        return isNestedTooDeeply(line, Config.QUOTING_MAX_DEPTH);
+    }
+
+    public static boolean isNestedTooDeeply(CharSequence line, int maxDepth) {
         if (isPositionQuoteStart(line, 0)) {
             int nestingDepth = 1;
             for (int i = 1; i < line.length(); i++) {
@@ -107,7 +111,7 @@ public class QuoteHelper {
                     break;
                 }
             }
-            return nestingDepth >= (Config.QUOTING_MAX_DEPTH);
+            return nestingDepth >= maxDepth;
         }
         return false;
     }

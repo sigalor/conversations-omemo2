@@ -6831,7 +6831,7 @@ public class XmppConnectionService extends Service {
                 final var packet =
                         mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
 
-                final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message)) + "\n";
+                final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message, 1, 2)) + "\n\n";
                 final var body = quote + String.join(" ", newReactions);
                 if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
                     FILE_ATTACHMENT_EXECUTOR.execute(() -> {
