@@ -255,6 +255,8 @@ public class Resolver {
         final AbstractDnsClient dnssecclient = DnssecResolverApi.INSTANCE.getClient();
         if (dnssecclient instanceof ReliableDnsClient) {
             ((ReliableDnsClient) dnssecclient).setUseHardcodedDnsServers(false);
+            // If your DNS server sucks, just don't do DNSSEC
+            ((ReliableDnsClient) dnssecclient).setMode(ReliableDnsClient.Mode.recursiveOnly);
         }
     }
 
