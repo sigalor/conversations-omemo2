@@ -2,6 +2,7 @@ package eu.siacs.conversations.ui.widget
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.graphics.Outline
 import androidx.preference.PreferenceManager
 import android.util.AttributeSet
@@ -35,14 +36,19 @@ class AvatarView : AppCompatImageView {
     }
 
     private fun invalidateShape() {
-        val shape = PreferenceManager.getDefaultSharedPreferences(context).getString("avatar_shape", context.getString(R.string.avatar_shape))
+        val defaultShape = try {
+            context.getString(R.string.avatar_shape)
+        } catch (e: Resources.NotFoundException) {
+            "oval"
+        }
+        val shape = PreferenceManager.getDefaultSharedPreferences(context).getString("avatar_shape", defaultShape)
 
         if (shape == currentShape) {
             return
         }
 
-        when {
-            shape == "oval" -> {
+        when (shape) {
+            "oval" -> {
                 clipToOutline = true
                 outlineProvider = object : ViewOutlineProvider() {
                     override fun getOutline(view: View, outline: Outline) {
@@ -50,7 +56,7 @@ class AvatarView : AppCompatImageView {
                     }
                 }
             }
-            shape == "rounded_square" -> {
+            "rounded_square" -> {
                 clipToOutline = true
                 outlineProvider = object : ViewOutlineProvider() {
                     override fun getOutline(view: View, outline: Outline) {
@@ -60,12 +66,12 @@ class AvatarView : AppCompatImageView {
                     }
                 }
             }
-            shape == "square" -> {
+            "square" -> {
                 clipToOutline = false
                 outlineProvider = ViewOutlineProvider.BACKGROUND
             }
         }
 
-        currentShape = shape!!
+        currentShape = shape ?: defaultShape
     }
 }

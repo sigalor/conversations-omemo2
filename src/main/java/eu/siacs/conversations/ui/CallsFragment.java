@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,7 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
 
     private XmppConnectionService xmppConnectionService;
     private RecyclerView recyclerView;
+    private TextView emptyView;
     private CallsAdapter adapter;
     private final List<Message> calls = new ArrayList<>();
     private Message mPendingCall;
@@ -85,6 +87,7 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
         View view = inflater.inflate(R.layout.fragment_calls, container, false);
         recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        emptyView = view.findViewById(R.id.empty_view);
         return view;
     }
 
@@ -104,10 +107,21 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
                     } else {
                         adapter.notifyDataSetChanged();
                     }
+                    updateViewStates();
                     mCallsLoaded = true;
                 });
             }
         });
+    }
+
+    private void updateViewStates() {
+        if (calls.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+        }
     }
 
     private List<Message> getCalls() {
