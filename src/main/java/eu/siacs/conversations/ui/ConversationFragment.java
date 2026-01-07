@@ -6719,7 +6719,6 @@ public class ConversationFragment extends XmppFragment
         if (cid == null) {
             return false;
         }
-        // Add null checks for activity and the service to prevent crashes.
         if (activity == null || activity.xmppConnectionService == null) {
             return false;
         }
@@ -6735,6 +6734,9 @@ public class ConversationFragment extends XmppFragment
 
     private boolean isAudioCid(Cid cid) {
         if (cid == null) return false;
+        if (activity == null || activity.xmppConnectionService == null) {
+            return false;
+        }
         File file = activity.xmppConnectionService.getFileForCid(cid);
         if (file == null) return false;
         String lowerFilePath = file.getAbsolutePath();
