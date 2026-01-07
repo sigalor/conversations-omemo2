@@ -723,7 +723,7 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", Namespace.PUBSUB_STORIES);
-        options.putString("pubsub#access_model", "presence");
+        options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#item_expire", "86400");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#notify_retract", "1");
