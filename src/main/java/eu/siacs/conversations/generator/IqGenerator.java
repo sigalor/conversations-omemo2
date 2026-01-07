@@ -727,7 +727,7 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#item_expire", "86400");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#notify_retract", "1");
-        options.putString("pubsub#send_last_published_item", "on_sub_and_presence");
+        options.putString("pubsub#send_last_published_item", "on_sub");
         options.putString("pubsub#publisher", "publishers");
         return options;
     }
