@@ -111,7 +111,7 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
                 drawable.setBounds(0, 0, size, size);
             }
 
-            callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
+            if (xmppConnectionService != null) callInfo.setText(UIHelper.getMessagePreview(xmppConnectionService, call).first);
             callInfo.setCompoundDrawables(drawable, null, null, null);
             callInfo.setCompoundDrawablePadding((int) (6 * itemView.getContext().getResources().getDisplayMetrics().density));
 
@@ -134,6 +134,14 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
                 });
                 popup.show();
             });
+            TextView accountInfo = itemView.findViewById(R.id.account_info);
+            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("show_own_accounts", R.bool.show_own_accounts)) {
+                accountInfo.setText(call.getConversation().getAccount().getJid().asBareJid().toString());
+                accountInfo.setVisibility(View.VISIBLE);
+            } else {
+                accountInfo.setVisibility(View.GONE);
+            }
+
         }
     }
 }
