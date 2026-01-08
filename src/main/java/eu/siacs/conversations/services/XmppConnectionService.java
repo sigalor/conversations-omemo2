@@ -6364,6 +6364,31 @@ public class XmppConnectionService extends Service {
         }
     }
 
+    private final Set<OnCallLogUpdated> mOnCallLogUpdated =
+            Collections.newSetFromMap(new WeakHashMap<OnCallLogUpdated, Boolean>());
+
+    public void setOnCallLogUpdatedListener(OnCallLogUpdated listener) {
+        synchronized (LISTENER_LOCK) {
+            this.mOnCallLogUpdated.add(listener);
+        }
+    }
+
+    public void removeOnCallLogUpdatedListener(OnCallLogUpdated listener) {
+        synchronized (LISTENER_LOCK) {
+            this.mOnCallLogUpdated.remove(listener);
+        }
+    }
+
+    public void updateCallLogUi() {
+        for (OnCallLogUpdated listener : threadSafeList(this.mOnCallLogUpdated)) {
+            listener.onCallLogUpdated();
+        }
+    }
+
+    public interface OnCallLogUpdated {
+        void onCallLogUpdated();
+    }
+
     public void notifyJingleRtpConnectionUpdate(
             final Account account,
             final Jid with,

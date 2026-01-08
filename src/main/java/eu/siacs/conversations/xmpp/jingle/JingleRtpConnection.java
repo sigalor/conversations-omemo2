@@ -2921,6 +2921,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             ((Conversation) conversational).add(this.message);
             xmppConnectionService.createMessageAsync(message);
             xmppConnectionService.updateConversationUi();
+            xmppConnectionService.updateCallLogUi();
         } else {
             throw new IllegalStateException("Somehow the conversation in a message was a stub");
         }

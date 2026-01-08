@@ -31,13 +31,12 @@ public class CallsActivity extends XmppActivity {
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
 
-        if (savedInstanceState == null) {
+        callsFragment = (CallsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (callsFragment == null) {
             callsFragment = new CallsFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, callsFragment)
                     .commit();
-        } else {
-            callsFragment = (CallsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         }
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -94,11 +93,11 @@ public class CallsActivity extends XmppActivity {
 
     @Override
     protected void onBackendConnected() {
-        refreshUiReal();
         // Clear missed call notifications and badge when the activity is displayed.
         if (xmppConnectionService != null) {
             xmppConnectionService.getNotificationService().clearMissedCalls();
         }
+        refreshUiReal();
     }
 
     @Override

@@ -37,7 +37,7 @@ import eu.siacs.conversations.services.CallIntegrationConnectionService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.CallsAdapter;
 
-public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainClickListener, CallsAdapter.OnContactClickListener {
+public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainClickListener, CallsAdapter.OnContactClickListener, XmppConnectionService.OnCallLogUpdated {
 
     private XmppConnectionService xmppConnectionService;
     private RecyclerView recyclerView;
@@ -45,7 +45,6 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
     private CallsAdapter adapter;
     private final List<Message> calls = new ArrayList<>();
     private Message mPendingCall;
-    private boolean mPendingVideoCall;
     private boolean mCallsLoaded = false;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -57,13 +56,19 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
         public void onServiceConnected(ComponentName className, IBinder service) {
             XmppConnectionService.XmppConnectionBinder binder = (XmppConnectionService.XmppConnectionBinder) service;
             xmppConnectionService = binder.getService();
-            if (!mCallsLoaded) {
-                loadCalls();
+            if (xmppConnectionService != null) {
+                xmppConnectionService.setOnCallLogUpdatedListener(CallsFragment.this);
+                if (!mCallsLoaded) {
+                    loadCalls();
+                }
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            if (xmppConnectionService != null) {
+                xmppConnectionService.removeOnCallLogUpdatedListener(CallsFragment.this);
+            }
             xmppConnectionService = null;
         }
     };
@@ -78,6 +83,9 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
     @Override
     public void onStop() {
         super.onStop();
+        if (xmppConnectionService != null) {
+            xmppConnectionService.removeOnCallLogUpdatedListener(this);
+        }
         getActivity().unbindService(mConnection);
     }
 
@@ -239,5 +247,10 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
         if (getActivity() instanceof XmppActivity) {
             ((XmppActivity) getActivity()).switchToContactDetails(contact);
         }
+    }
+
+    @Override
+    public void onCallLogUpdated() {
+        loadCalls();
     }
 }
