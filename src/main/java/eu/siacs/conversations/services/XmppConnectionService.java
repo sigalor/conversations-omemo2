@@ -802,7 +802,7 @@ public class XmppConnectionService extends Service {
             message.setEncryption(conversation.getNextEncryption());
         }
         if (conversation.getCaption() != null) {
-            message.appendBody(conversation.getCaption().getBody() + " ");
+            message.appendBody(conversation.getCaption() + " ");
             message.setEncryption(conversation.getNextEncryption());
         }
         if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
@@ -853,7 +853,7 @@ public class XmppConnectionService extends Service {
             message.setEncryption(conversation.getNextEncryption());
         }
         if (conversation.getCaption() != null) {
-            message.appendBody(conversation.getCaption().getBody() + " ");
+            message.appendBody(conversation.getCaption() + " ");
             message.setEncryption(conversation.getNextEncryption());
         }
         if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {

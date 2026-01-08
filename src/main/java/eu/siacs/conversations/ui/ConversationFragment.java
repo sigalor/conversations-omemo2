@@ -1271,20 +1271,22 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void sendMessage(Long sendAt) {
-        if (sendAt != null && sendAt < System.currentTimeMillis()) sendAt = null; // No sending in past plz
-        Editable body = this.binding.textinput.getText();
-        if (mediaPreviewAdapter.getItemCount() > 1 || (mediaPreviewAdapter.getItemCount() == 1 && body == null)) {
-            commitAttachments();
-            return;
+        if (sendAt != null && sendAt < System.currentTimeMillis()) {
+            sendAt = null; // No sending in past plz
         }
-        if (body == null) body = new SpannableStringBuilder("");
+        Editable body = this.binding.textinput.getText();
+        if (body == null) {
+            body = new SpannableStringBuilder("");
+        }
+        final Conversation conversation = this.conversation;
+        final boolean hasAttachments = mediaPreviewAdapter.getItemCount() > 0;
+        final boolean hasSubject = binding.textinputSubject.getText().length() > 0;
+
         if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
             Toast.makeText(activity, activity.getString(R.string.message_is_too_long), Toast.LENGTH_SHORT).show();
             return;
         }
-        final Conversation conversation = this.conversation;
-        final boolean hasSubject = binding.textinputSubject.getText().length() > 0;
-        if (conversation == null || (body.length() == 0 && mediaPreviewAdapter.getItemCount() == 0 && (conversation.getThread() == null || !hasSubject))) {
+        if (conversation == null || (body.length() == 0 && !hasAttachments && (conversation.getThread() == null || !hasSubject))) {
             if (Build.VERSION.SDK_INT >= 24) {
                 binding.textSendButton.showContextMenu(0, 0);
             } else {
@@ -1295,16 +1297,29 @@ public class ConversationFragment extends XmppFragment
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_TEXT)) {
             return;
         }
+
+        if (hasAttachments) {
+            conversation.setCaption(body.toString());
+            commitAttachments();
+            messageSent();
+            return;
+        }
+
         final Message message;
         if (conversation.getCorrectingMessage() == null) {
             boolean attention = false;
             if (Pattern.compile("\\A@here\\s.*").matcher(body).find()) {
                 attention = true;
                 body.delete(0, 6);
-                while (body.length() > 0 && Character.isWhitespace(body.charAt(0))) body.delete(0, 1);
+                while (body.length() > 0 && Character.isWhitespace(body.charAt(0))) {
+                    body.delete(0, 1);
+                }
             }
+
             if (conversation.getReplyTo() != null) {
-                if (Emoticons.isEmoji(body.toString().replaceAll("\\s", "")) && conversation.getNextCounterpart() == null && !conversation.getReplyTo().isPrivateMessage()) {
+                if (((activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions) && conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) || conversation.getNextEncryption() == Message.ENCRYPTION_NONE)
+                        && Emoticons.isEmoji(body.toString().replaceAll("\\s", ""))
+                        && conversation.getNextCounterpart() == null && !conversation.getReplyTo().isPrivateMessage()) {
                     final var aggregated = conversation.getReplyTo().getAggregatedReactions();
                     final ImmutableSet.Builder<String> reactionBuilder = new ImmutableSet.Builder<>();
                     reactionBuilder.addAll(aggregated.ourReactions);
@@ -1345,14 +1360,11 @@ public class ConversationFragment extends XmppFragment
                         }
                     }
                 }
-                // Set caption when only one attachment
-                if (mediaPreviewAdapter.getItemCount() == 1) {
-                    conversation.setCaption(message);
-                    commitAttachments();
-                    return;
-                }
             }
-            if (hasSubject) message.setSubject(binding.textinputSubject.getText().toString());
+
+            if (hasSubject) {
+                message.setSubject(binding.textinputSubject.getText().toString());
+            }
             if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 message.setThread(conversation.getThread());
             }
@@ -1360,9 +1372,12 @@ public class ConversationFragment extends XmppFragment
                 message.addPayload(new Element("attention", "urn:xmpp:attention:0"));
             }
             Message.configurePrivateMessage(message);
+
         } else {
             message = conversation.getCorrectingMessage();
-            if (hasSubject) message.setSubject(binding.textinputSubject.getText().toString());
+            if (hasSubject) {
+                message.setSubject(binding.textinputSubject.getText().toString());
+            }
             if (activity.xmppConnectionService != null && activity.xmppConnectionService.getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
                 message.setThread(conversation.getThread());
             }

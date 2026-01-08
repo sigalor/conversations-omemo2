@@ -243,7 +243,7 @@ public class Conversation extends AbstractEntity
     protected boolean lockThread = false;
     protected boolean userSelectedThread = false;
     protected Message replyTo = null;
-    protected Message caption = null;
+    protected String caption = null;
     protected HashMap<String, Thread> threads = new HashMap<>();
     protected Multimap<String, Reaction> reactions = HashMultimap.create();
     private String displayState = null;
@@ -1060,11 +1060,11 @@ public class Conversation extends AbstractEntity
         return this.replyTo;
     }
 
-    public void setCaption(Message m) {
-        this.caption = m;
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
 
-    public Message getCaption() {
+    public String getCaption() {
         return this.caption;
     }
 
