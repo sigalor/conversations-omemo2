@@ -185,10 +185,6 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
         }
         notifyItemMoved(fromPosition, toPosition);
 
-        // Notify that data has changed so we can persist
-        if (mOnAccountMovedListener != null) {
-            mOnAccountMovedListener.onAccountMoved();
-        }
         return true;
     }
 

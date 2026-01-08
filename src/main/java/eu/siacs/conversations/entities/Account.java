@@ -74,6 +74,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
     public static final String PINNED_CHANNEL_BINDING = "pinned_channel_binding";
     public static final String FAST_MECHANISM = "fast_mechanism";
     public static final String FAST_TOKEN = "fast_token";
+    public static final String ORDERING = "ordering";
 
     private int ordering = 0;
     public static final int OPTION_DISABLED = 1;
@@ -146,7 +147,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                 null,
                 null,
                 null,
-                null);
+                null,
+                0);
     }
 
     private Account(
@@ -165,7 +167,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
             final String pinnedMechanism,
             final String pinnedChannelBinding,
             final String fastMechanism,
-            final String fastToken) {
+            final String fastToken,
+            final int ordering) {
         this.uuid = uuid;
         this.jid = jid;
         this.password = password;
@@ -182,6 +185,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         this.pinnedChannelBinding = pinnedChannelBinding;
         this.fastMechanism = fastMechanism;
         this.fastToken = fastToken;
+        this.ordering = ordering;
     }
 
     public static JSONObject parseKeys(final String keys) {
@@ -229,7 +233,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
                 cursor.getString(cursor.getColumnIndexOrThrow(PINNED_MECHANISM)),
                 cursor.getString(cursor.getColumnIndexOrThrow(PINNED_CHANNEL_BINDING)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FAST_MECHANISM)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FAST_TOKEN)));
+                cursor.getString(cursor.getColumnIndexOrThrow(FAST_TOKEN)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(ORDERING)));
     }
 
     public void setMamPrefs(Element prefs) {
@@ -590,6 +595,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         values.put(PINNED_CHANNEL_BINDING, pinnedChannelBinding);
         values.put(FAST_MECHANISM, this.fastMechanism);
         values.put(FAST_TOKEN, this.fastToken);
+        values.put(ORDERING, ordering);
         return values;
     }
 
@@ -746,7 +752,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     public boolean areBookmarksLoaded() {
         // No way to tell if old PEP bookmarks are all loaded yet if they are empty
-        // because we don't manually fetch them...
+        // because we don\'t manually fetch them...
         if (getXmppConnection().getFeatures().bookmarksConversion()) return true;
 
         return bookmarksLoaded;

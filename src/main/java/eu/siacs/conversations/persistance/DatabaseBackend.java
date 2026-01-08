@@ -456,7 +456,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + " TEXT,"
                         + Account.FAST_TOKEN
                         + " TEXT,"
-                        + "ordering INTEGER DEFAULT 0,"
+                        + Account.ORDERING
+                        + " INTEGER DEFAULT 0,"
                         + Account.PORT
                         + " NUMBER DEFAULT 5222)");
         db.execSQL(
@@ -1300,7 +1301,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
         if (oldVersion < 64 && newVersion >= 64) {
             try {
-                db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN ordering INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN " + Account.ORDERING + " INTEGER DEFAULT 0");
             } catch (Exception e) {
                 Log.e(Config.LOGTAG, "Failed to add ordering column to account table", e);
             }
@@ -1612,7 +1613,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public void createAccount(Account account) {
         final var db = this.getWritableDatabase();
         final ContentValues values = account.getContentValues();
-        values.put("ordering", account.getOrdering());
         db.insert(Account.TABLENAME, null, values);
     }
 
@@ -2357,13 +2357,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private List<Account> getAccounts(SQLiteDatabase db) {
         final List<Account> list = new ArrayList<>();
         try (final Cursor cursor =
-                     db.query(Account.TABLENAME, null, null, null, null, null, "ordering ASC")) {
+                     db.query(Account.TABLENAME, null, null, null, null, null, Account.ORDERING + " ASC")) { // Use constant here
             while (cursor != null && cursor.moveToNext()) {
                 list.add(Account.fromCursor(cursor));
             }
         }
-        // Ensure you read the value if needed, though typically we just rely on the sort order
-        // account.setOrder(cursor.getInt(cursor.getColumnIndex("ordering")));
         return list;
     }
 
@@ -2371,7 +2369,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         final var db = this.getWritableDatabase();
         final String[] args = {account.getUuid()};
         final ContentValues values = account.getContentValues();
-        values.put("ordering", account.getOrdering());
         final int rows =
                 db.update(Account.TABLENAME, values, Account.UUID + "=?", args);
         return rows == 1;

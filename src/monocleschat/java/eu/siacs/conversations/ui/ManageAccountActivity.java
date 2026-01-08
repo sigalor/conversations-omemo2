@@ -139,7 +139,6 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
         accountListView = findViewById(R.id.account_list);
         accountListView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Setup ItemTouchHelper for drag and drop
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
@@ -156,6 +155,19 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
             }
 
             @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+                if (xmppConnectionService != null) {
+                    List<Account> serviceAccounts = xmppConnectionService.getAccounts();
+                    synchronized (serviceAccounts) {
+                        serviceAccounts.clear();
+                        serviceAccounts.addAll(accountList);
+                    }
+                    xmppConnectionService.updateAccountOrder();
+                }
+            }
+
+            @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) { }
 
             @Override
@@ -167,35 +179,12 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
         itemTouchHelper.attachToRecyclerView(accountListView);
 
         this.mAccountAdapter = new AccountAdapter(this, accountList, this::switchToAccount, itemTouchHelper::startDrag,
-                // Context Menu Listener
                 account -> {
                     this.selectedAccount = account;
                 },
-                // On Move Listener (Persistence Logic)
-                () -> {
-                    // 1. Update the order in the service to match the adapter's list
-                    if (xmppConnectionService != null) {
-                        // We need to push the current 'accountList' order to the service
-                        // This depends on how XmppConnectionService stores accounts.
-                        // Usually, we just need to verify the service list matches,
-                        // or force the service to update its internal list order if it's just in-memory for the session.
-
-                        // If the service loads from DB sorted by ID/Keys, we might need to add an 'order' column to the DB.
-                        // However, for a quick fix if the service list is mutable:
-                        List<Account> serviceAccounts = xmppConnectionService.getAccounts();
-                        synchronized (serviceAccounts) {
-                            serviceAccounts.clear();
-                            serviceAccounts.addAll(accountList);
-                        }
-
-                        // Ideally, trigger a database update here to save 'order' if supported.
-                        // For now, updating the in-memory list prevents the reset on toggle.
-                        xmppConnectionService.updateAccountOrder(); // You might need to implement this in Service if it doesn't exist
-                    }
-                }
+                null
         );
 
-        // --- Fix: Set the context listener to update selectedAccount ---
         this.mAccountAdapter.setContextAccountListener(account -> {
             this.selectedAccount = account;
         });
