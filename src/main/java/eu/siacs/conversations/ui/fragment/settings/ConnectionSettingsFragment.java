@@ -59,14 +59,14 @@ public class ConnectionSettingsFragment extends XmppPreferenceFragment {
 
                 final var dnsv4Server = (EditTextPreference) findPreference("dns_server_ipv4");
                 if (dnsv4Server != null) {
-                    dnsv4Server.setText("194.242.2.2");
+                    dnsv4Server.setText(null);
                 }
 
                 final var dnsv6Server = (EditTextPreference) findPreference("dns_server_ipv6");
                 if (dnsv6Server != null) {
-                    dnsv6Server.setText("[2a07:e340::2]");
+                    dnsv6Server.setText(null);
                 }
-
+                reconnectAccounts();
                 Toast.makeText(requireSettingsActivity(),R.string.dns_server_reset,Toast.LENGTH_LONG).show();
                 return true;
             });
@@ -105,7 +105,7 @@ public class ConnectionSettingsFragment extends XmppPreferenceFragment {
                 reconnectAccounts();
                 requireService().reinitializeMuclumbusService();
             }
-            case AppSettings.SHOW_CONNECTION_OPTIONS, AppSettings.PREFER_IPV6 -> {
+            case AppSettings.SHOW_CONNECTION_OPTIONS, AppSettings.PREFER_IPV6, "dns_server_ipv4", "dns_server_ipv6" -> {
                 reconnectAccounts();
             }
         }

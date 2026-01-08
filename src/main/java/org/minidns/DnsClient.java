@@ -12,6 +12,11 @@ package org.minidns;
 
 import static org.webrtc.ApplicationContextProvider.getApplicationContext;
 
+import android.content.SharedPreferences;
+import android.text.TextUtils;
+
+import androidx.preference.PreferenceManager;
+
 import org.minidns.MiniDnsException.ErrorResponseException;
 import org.minidns.MiniDnsException.NoQueryPossibleException;
 import org.minidns.dnsmessage.DnsMessage;
@@ -23,7 +28,6 @@ import org.minidns.dnsserverlookup.AndroidUsingReflection;
 import org.minidns.dnsserverlookup.DnsServerLookupMechanism;
 import org.minidns.dnsserverlookup.UnixUsingEtcResolvConf;
 import org.minidns.record.Record.TYPE;
-import org.minidns.util.CollectionsUtil;
 import org.minidns.util.InetAddressUtil;
 import org.minidns.util.MultipleIoException;
 
@@ -39,10 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
-
-import eu.siacs.conversations.R;
 
 /**
  * A minimal DNS client for SRV/A/AAAA/NS and CNAME lookups, with IDN support.
@@ -52,37 +53,20 @@ public class DnsClient extends AbstractDnsClient {
 
     static final List<DnsServerLookupMechanism> LOOKUP_MECHANISMS = new CopyOnWriteArrayList<>();
 
-    static final Set<Inet4Address> STATIC_IPV4_DNS_SERVERS = new CopyOnWriteArraySet<>();
-    static final Set<Inet6Address> STATIC_IPV6_DNS_SERVERS = new CopyOnWriteArraySet<>();
-
     static {
         addDnsServerLookupMechanism(AndroidUsingExec.INSTANCE);
         addDnsServerLookupMechanism(AndroidUsingReflection.INSTANCE);
         addDnsServerLookupMechanism(UnixUsingEtcResolvConf.INSTANCE);
-
-        try {
-            Inet4Address dnsforgeV4Dns = InetAddressUtil.ipv4From(eu.siacs.conversations.Conversations.getContext().getString(R.string.default_dns_server_ipv4));
-            STATIC_IPV4_DNS_SERVERS.add(dnsforgeV4Dns);
-        } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Could not add static IPv4 DNS Server", e);
-        }
-
-        try {
-            Inet6Address dnsforgeV6Dns = InetAddressUtil.ipv6From(eu.siacs.conversations.Conversations.getContext().getString(R.string.default_dns_server_ipv6));
-            STATIC_IPV6_DNS_SERVERS.add(dnsforgeV6Dns);
-        } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Could not add static IPv6 DNS Server", e);
-        }
     }
 
     private static final Set<String> blacklistedDnsServers = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(4));
 
     private final Set<InetAddress> nonRaServers = Collections.newSetFromMap(new ConcurrentHashMap<InetAddress, Boolean>(4));
 
-    private boolean askForDnssec = false;
+    private boolean askForDnssec = true;
     private boolean disableResultFilter = false;
 
-    private boolean useHardcodedDnsServers = true;
+    private boolean useHardcodedDnsServers = false;
 
     /**
      * Create a new DNS client using the global default cache.
@@ -103,36 +87,25 @@ public class DnsClient extends AbstractDnsClient {
     }
 
     private List<InetAddress> getServerAddresses() {
-        List<InetAddress> dnsServerAddresses = findDnsAddresses();
-
+        List<InetAddress> hardcodedDnsServers = new ArrayList<>();
         if (useHardcodedDnsServers) {
-            InetAddress primaryHardcodedDnsServer, secondaryHardcodedDnsServer = null;
-            switch (ipVersionSetting) {
-            case v4v6:
-                primaryHardcodedDnsServer = getRandomHardcodedIpv4DnsServer();
-                secondaryHardcodedDnsServer = getRandomHarcodedIpv6DnsServer();
-                break;
-            case v6v4:
-                primaryHardcodedDnsServer = getRandomHarcodedIpv6DnsServer();
-                secondaryHardcodedDnsServer = getRandomHardcodedIpv4DnsServer();
-                break;
-            case v4only:
-                primaryHardcodedDnsServer = getRandomHardcodedIpv4DnsServer();
-                break;
-            case v6only:
-                primaryHardcodedDnsServer = getRandomHarcodedIpv6DnsServer();
-                break;
-            default:
-                throw new AssertionError("Unknown ipVersionSetting: " + ipVersionSetting);
+            InetAddress primaryHardcodedDnsServer = getRandomHardcodedIpv4DnsServer();
+            if (primaryHardcodedDnsServer != null) {
+                hardcodedDnsServers.add(primaryHardcodedDnsServer);
             }
-
-            dnsServerAddresses.add(primaryHardcodedDnsServer);
+            InetAddress secondaryHardcodedDnsServer = getRandomHarcodedIpv6DnsServer();
             if (secondaryHardcodedDnsServer != null) {
-                dnsServerAddresses.add(secondaryHardcodedDnsServer);
+                hardcodedDnsServers.add(secondaryHardcodedDnsServer);
             }
         }
 
-        return dnsServerAddresses;
+        if (!hardcodedDnsServers.isEmpty()) {
+            // If custom servers are defined, use them exclusively.
+            return hardcodedDnsServers;
+        } else {
+            // Otherwise, fall back to the system's DNS servers.
+            return findDnsAddresses();
+        }
     }
 
     @Override
@@ -149,6 +122,10 @@ public class DnsClient extends AbstractDnsClient {
         }
 
         List<InetAddress> dnsServerAddresses = getServerAddresses();
+
+        if (dnsServerAddresses.isEmpty()) {
+            throw new NoQueryPossibleException(q);
+        }
 
         List<IOException> ioExceptions = new ArrayList<>(dnsServerAddresses.size());
         for (InetAddress dns : dnsServerAddresses) {
@@ -179,22 +156,22 @@ public class DnsClient extends AbstractDnsClient {
             }
 
             switch (responseMessage.responseCode) {
-            case NO_ERROR:
-            case NX_DOMAIN:
-                break;
-            default:
-                String warning = "Response from " + dns + " asked for " + q.getQuestion() + " with error code: "
-                        + responseMessage.responseCode + '.';
-                if (!LOGGER.isLoggable(Level.FINE)) {
-                    // Only append the responseMessage is log level is not fine. If it is fine or higher, the
-                    // response has already been logged.
-                    warning += "\n" + responseMessage;
-                }
-                LOGGER.warning(warning);
+                case NO_ERROR:
+                case NX_DOMAIN:
+                    break;
+                default:
+                    String warning = "Response from " + dns + " asked for " + q.getQuestion() + " with error code: "
+                            + responseMessage.responseCode + '.';
+                    if (!LOGGER.isLoggable(Level.FINE)) {
+                        // Only append the responseMessage is log level is not fine. If it is fine or higher, the
+                        // response has already been logged.
+                        warning += "\n" + responseMessage;
+                    }
+                    LOGGER.warning(warning);
 
-                ErrorResponseException exception = new ErrorResponseException(q, dnsQueryResult);
-                ioExceptions.add(exception);
-                continue;
+                    ErrorResponseException exception = new ErrorResponseException(q, dnsQueryResult);
+                    ioExceptions.add(exception);
+                    continue;
             }
 
             return dnsQueryResult;
@@ -259,7 +236,7 @@ public class DnsClient extends AbstractDnsClient {
             } catch (SecurityException exception) {
                 LOGGER.log(Level.WARNING, "Could not lookup DNS server", exception);
             }
-            if (res == null) {
+            if (res == null || res.isEmpty()) {
                 LOGGER.log(TRACE_LOG_LEVEL, "DnsServerLookupMechanism '" + mechanism.getName() + "' did not return any DNS server");
                 continue;
             }
@@ -279,15 +256,7 @@ public class DnsClient extends AbstractDnsClient {
                         new Object[] { mechanism.getName(), dnsServers });
             }
 
-            assert !res.isEmpty();
-
-            // We could cache if res only contains IP addresses and avoid the verification in case. Not sure if its really that beneficial
-            // though, because the list returned by the server mechanism is rather short.
-
-            // Verify the returned DNS servers: Ensure that only valid IP addresses are returned. We want to avoid that something else,
-            // especially a valid DNS name is returned, as this would cause the following String to InetAddress conversation using
-            // getByName(String) to cause a DNS lookup, which would be performed outside of the realm of MiniDNS and therefore also outside
-            // of its DNSSEC guarantees.
+            // Verify the returned DNS servers: Ensure that only valid IP addresses are returned.
             Iterator<String> it = res.iterator();
             while (it.hasNext()) {
                 String potentialDnsServer = it.next();
@@ -297,7 +266,7 @@ public class DnsClient extends AbstractDnsClient {
                     it.remove();
                 } else if (blacklistedDnsServers.contains(potentialDnsServer)) {
                     LOGGER.fine("The DNS server lookup mechanism '" + mechanism.getName()
-                    + "' returned a blacklisted result: '" + potentialDnsServer + "'");
+                            + "' returned a blacklisted result: '" + potentialDnsServer + "'");
                     it.remove();
                 }
             }
@@ -307,7 +276,7 @@ public class DnsClient extends AbstractDnsClient {
             }
 
             LOGGER.warning("The DNS server lookup mechanism '" + mechanism.getName()
-                        + "' returned not a single valid IP address after sanitazion");
+                    + "' returned not a single valid IP address after sanitazion");
             res = null;
         }
 
@@ -346,9 +315,7 @@ public class DnsClient extends AbstractDnsClient {
 
         int validServerAddresses = 0;
         for (String dnsServerString : res) {
-            // The following invariant must hold: "dnsServerString is a IP address". Therefore findDNS() must only return a List of Strings
-            // representing IP addresses. Otherwise the following call of getByName(String) may perform a DNS lookup without MiniDNS being
-            // involved. Something we want to avoid.
+            // The following invariant must hold: "dnsServerString is a IP address".
             assert InetAddressUtil.isIpAddress(dnsServerString);
 
             InetAddress dnsServerAddress;
@@ -380,20 +347,20 @@ public class DnsClient extends AbstractDnsClient {
         List<InetAddress> dnsServers = new ArrayList<>(validServerAddresses);
 
         switch (setting) {
-        case v4v6:
-            dnsServers.addAll(ipv4DnsServer);
-            dnsServers.addAll(ipv6DnsServer);
-            break;
-        case v6v4:
-            dnsServers.addAll(ipv6DnsServer);
-            dnsServers.addAll(ipv4DnsServer);
-            break;
-        case v4only:
-            dnsServers.addAll(ipv4DnsServer);
-            break;
-        case v6only:
-            dnsServers.addAll(ipv6DnsServer);
-            break;
+            case v4v6:
+                dnsServers.addAll(ipv4DnsServer);
+                dnsServers.addAll(ipv6DnsServer);
+                break;
+            case v6v4:
+                dnsServers.addAll(ipv6DnsServer);
+                dnsServers.addAll(ipv4DnsServer);
+                break;
+            case v4only:
+                dnsServers.addAll(ipv4DnsServer);
+                break;
+            case v6only:
+                dnsServers.addAll(ipv6DnsServer);
+                break;
         }
         return dnsServers;
     }
@@ -404,15 +371,10 @@ public class DnsClient extends AbstractDnsClient {
             return;
         }
         synchronized (LOOKUP_MECHANISMS) {
-            // We can't use Collections.sort(CopyOnWriteArrayList) with Java 7. So we first create a temp array, sort it, and replace
-            // LOOKUP_MECHANISMS with the result. For more information about the Java 7 Collections.sort(CopyOnWriteArarayList) issue see
-            // http://stackoverflow.com/a/34827492/194894
-            // TODO: Remove that workaround once MiniDNS is Java 8 only.
             ArrayList<DnsServerLookupMechanism> tempList = new ArrayList<>(LOOKUP_MECHANISMS.size() + 1);
             tempList.addAll(LOOKUP_MECHANISMS);
             tempList.add(dnsServerLookup);
 
-            // Sadly, this Collections.sort() does not with the CopyOnWriteArrayList on Java 7.
             Collections.sort(tempList);
 
             LOOKUP_MECHANISMS.clear();
@@ -459,11 +421,29 @@ public class DnsClient extends AbstractDnsClient {
     }
 
     public InetAddress getRandomHardcodedIpv4DnsServer() {
-        return CollectionsUtil.getRandomFrom(STATIC_IPV4_DNS_SERVERS, insecureRandom);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String dnsServer = preferences.getString("dns_server_ipv4", null);
+        if (TextUtils.isEmpty(dnsServer)) {
+            return null;
+        }
+        try {
+            return InetAddressUtil.ipv4From(dnsServer);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public InetAddress getRandomHarcodedIpv6DnsServer() {
-        return CollectionsUtil.getRandomFrom(STATIC_IPV6_DNS_SERVERS, insecureRandom);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String dnsServer = preferences.getString("dns_server_ipv6", null);
+        if (TextUtils.isEmpty(dnsServer)) {
+            return null;
+        }
+        try {
+            return InetAddressUtil.ipv6From(dnsServer);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private static Question getReverseIpLookupQuestionFor(DnsName dnsName) {
@@ -491,6 +471,6 @@ public class DnsClient extends AbstractDnsClient {
             throw new IllegalArgumentException("The provided inetAddress '" + inetAddress
                     + "' is neither of type Inet4Address nor Inet6Address");
         }
-     }
+    }
 
 }
