@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui;
 
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -74,6 +75,11 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
 
         viewPager = findViewById(R.id.view_pager);
         titleView = findViewById(R.id.story_title_view);
+        titleView.setMovementMethod(new ScrollingMovementMethod());
+        titleView.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
         progressView = findViewById(R.id.story_progress_view);
         bottomPanel = findViewById(R.id.bottom_panel);
 
