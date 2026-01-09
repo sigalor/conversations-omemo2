@@ -48,8 +48,8 @@ public class CallsActivity extends XmppActivity {
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
                 }
-                case R.id.contactslist: {
-                    Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
+                case R.id.feeds: {
+                    Intent i = new Intent(getApplicationContext(), PostsActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);

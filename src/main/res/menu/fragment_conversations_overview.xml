@@ -20,9 +20,9 @@
         android:title="@string/invite_to_app"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_posts"
+        android:id="@+id/action_feeds"
         android:orderInCategory="90"
-        android:title="@string/posts"
+        android:title="@string/feeds"
         android:icon="@drawable/outline_newspaper_24"
         app:showAsAction="ifRoom" />
 

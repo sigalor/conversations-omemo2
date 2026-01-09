@@ -7,11 +7,6 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@id/bottom_navigation">
-
             <com.google.android.material.appbar.AppBarLayout
                 android:id="@+id/app_bar_layout"
                 android:layout_width="match_parent"
@@ -65,16 +60,6 @@
                 app:sdMainFabOpenedIconColor="?colorOnPrimaryContainer"
                 app:sdOverlayLayout="@id/overlay"
                 app:sdUseReverseAnimationOnClose="true" />
-        </RelativeLayout>
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/nav_bar_height"
-            android:layout_alignParentBottom="true"
-            android:background="?colorSurfaceContainerLowest"
-            app:labelVisibilityMode="labeled"
-            app:menu="@menu/bottom_navigation_menu_contacts" />
 
     </RelativeLayout>
     </layout>

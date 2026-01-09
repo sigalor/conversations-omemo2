@@ -8,8 +8,8 @@
     <attr name="ic_chat_selected" format="reference" />
     <attr name="ic_calls_unselected" format="reference" />
     <attr name="ic_calls_selected" format="reference" />
-    <attr name="ic_group_unselected" format="reference" />
-    <attr name="ic_group_selected" format="reference" />
+    <attr name="feed_unselected" format="reference" />
+    <attr name="feed_selected" format="reference" />
     <attr name="ic_stories_unselected" format="reference" />
     <attr name="ic_stories_selected" format="reference" />
     <attr name="chat_bg" format="reference|color" />

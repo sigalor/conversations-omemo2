@@ -1139,8 +1139,8 @@ public class ConversationsActivity extends XmppActivity
                 case R.id.chats -> {
                     return true;
                 }
-                case R.id.contactslist -> {
-                    Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
+                case R.id.feeds -> {
+                    Intent i = new Intent(getApplicationContext(), PostsActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
 

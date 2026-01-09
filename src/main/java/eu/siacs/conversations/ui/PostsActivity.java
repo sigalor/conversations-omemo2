@@ -1,14 +1,21 @@
 package eu.siacs.conversations.ui;
 
+import static android.view.View.VISIBLE;
+
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -43,9 +50,6 @@ public class PostsActivity extends XmppActivity {
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
 
         binding.postsList.setLayoutManager(new LinearLayoutManager(this));
         postsAdapter = new PostsAdapter(this, postList);
@@ -55,22 +59,88 @@ public class PostsActivity extends XmppActivity {
             Intent intent = new Intent(this, CreatePostActivity.class);
             startActivity(intent);
         });
+
+
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            switch (item.getItemId()) {
+                case R.id.chats -> {
+                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                case R.id.feeds -> {
+                    return true;
+                }
+                case R.id.stories -> {
+                    Intent i = new Intent(getApplicationContext(), StoriesActivity.class);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                case R.id.calls -> {
+                    Intent i = new Intent(getApplicationContext(), CallsActivity.class);
+                    i.putExtra("show_nav_bar", true);
+                    startActivity(i);
+                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                    return true;
+                }
+                default ->
+                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+            }
+        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
         loadPosts();
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.feeds);
+
+        if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
+            bottomNavigationView.setVisibility(VISIBLE);
+        } else {
+            bottomNavigationView.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onBackendConnected() {
-        loadPosts();
+        refreshUiReal();
     }
 
     @Override
     protected void refreshUiReal() {
         loadPosts();
+
+        // Show badge for unread message in bottom nav
+        int unreadCount = xmppConnectionService.unreadCount();
+        BottomNavigationView bottomnav = findViewById(R.id.bottom_navigation);
+        var bottomBadge = bottomnav.getOrCreateBadge(R.id.chats);
+        bottomBadge.setNumber(unreadCount);
+        bottomBadge.setVisible(unreadCount > 0);
+        bottomBadge.setHorizontalOffset(20);
+
+        // Show badge for new stories in bottom nav
+        long lastRead = getPreferences().getLong("last_read_story_timestamp", 0);
+        boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
+        var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
+        storiesBadge.setVisible(hasNewStories);
+
+        // Show badge for missed calls in bottom nav
+        boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();
+        var callsBadge = bottomnav.getOrCreateBadge(R.id.calls);
+        callsBadge.setVisible(hasNewMissedCalls);
+        ActionBar actionBar = getSupportActionBar();
+        boolean showNavBar = binding.bottomNavigation.getVisibility() == VISIBLE;
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(!showNavBar);
+            actionBar.setDisplayHomeAsUpEnabled(!showNavBar);
+        }
     }
 
     private void loadPosts() {
@@ -177,5 +247,17 @@ public class PostsActivity extends XmppActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.bottom_navigation).getVisibility() == VISIBLE) {
+            Intent intent = new Intent(this, ConversationsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+        }
+
+        super.onBackPressed();
     }
 }

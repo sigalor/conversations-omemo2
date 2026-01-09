@@ -332,7 +332,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 						inflater, R.layout.fragment_conversations_overview, container, false);
 		this.binding.fab.setOnClickListener(
 				(view) -> StartConversationActivity.launch(getActivity()));
-
+        this.binding.fabStartConversation.setOnClickListener(
+                (view) -> StartConversationActivity.launch(getActivity()));
 		this.conversationsAdapter = new ConversationAdapter(this.activity, this.conversations);
 		this.conversationsAdapter.setConversationClickListener(
 				(view, conversation) -> {
@@ -366,10 +367,12 @@ public class ConversationsOverviewFragment extends XmppFragment {
             final MenuItem settings = menu.findItem(R.id.action_settings);
             final MenuItem stories = menu.findItem(R.id.action_stories);
             final MenuItem calls = menu.findItem(R.id.action_calls);
+            final MenuItem feeds = menu.findItem(R.id.action_feeds);
             if (manageAccounts != null) manageAccounts.setVisible(false);
             if (settings != null) settings.setVisible(false);
             if (stories != null) stories.setVisible(false);
             if (calls != null) calls.setVisible(false);
+            if (feeds != null) feeds.setVisible(false);
         }
         if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
             noteToSelf.setVisible(false);
@@ -485,9 +488,11 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		boolean navBarVisible = activity instanceof ConversationsActivity && ((ConversationsActivity) activity).navigationBarVisible();
         MenuItem stories = menu.findItem(R.id.action_stories);
         MenuItem calls = menu.findItem(R.id.action_calls);
+        MenuItem feeds = menu.findItem(R.id.action_feeds);
 		if (navBarVisible) {
             stories.setVisible(false);
             calls.setVisible(false);
+            feeds.setVisible(false);
 		} else {
 			AccountUtils.showHideMenuItems(menu);
 		}
@@ -505,8 +510,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 			if (showed) {
 				this.binding.fab.setVisibility(View.GONE);
+                this.binding.fabStartConversation.setVisibility(View.VISIBLE);
 			} else {
 				this.binding.fab.setVisibility(View.VISIBLE);
+                this.binding.fabStartConversation.setVisibility(View.GONE);
             }
 		}
 	}
@@ -538,7 +545,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
                     activity.switchToConversation(conversation);
                 }
                 return true;
-            case R.id.action_posts:
+            case R.id.action_feeds:
                 startActivity(new Intent(getActivity(), PostsActivity.class));
                 return true;
             case R.id.action_stories:
@@ -605,6 +612,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
         }
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.isOnboarding()) {
             binding.fab.setVisibility(View.GONE);
+            binding.fabStartConversation.setVisibility(View.GONE);
 
             if (this.conversations.size() == 1) {
                 if (activity instanceof OnConversationSelected) {
@@ -619,8 +627,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
                 if (showed) {
                     this.binding.fab.setVisibility(View.GONE);
+                    binding.fabStartConversation.setVisibility(View.VISIBLE);
                 } else {
                     this.binding.fab.setVisibility(View.VISIBLE);
+                    binding.fabStartConversation.setVisibility(View.GONE);
                 }
             }
         }
