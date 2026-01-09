@@ -538,6 +538,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
                     activity.switchToConversation(conversation);
                 }
                 return true;
+            case R.id.action_posts:
+                startActivity(new Intent(getActivity(), PostsActivity.class));
+                return true;
             case R.id.action_stories:
                 startActivity(new Intent(getActivity(), StoriesActivity.class));
                 return true;

@@ -8131,4 +8131,79 @@ public class XmppConnectionService extends Service {
             }
         }
     }
+
+    public void fetchPubsubItems(final Jid server, final String node, final OnPubsubItemsFetched callback) {
+        Account account = null;
+        if (server != null) {
+            account = findAccountByJid(server);
+        }
+        if (account == null) {
+            for (Account acc : getAccounts()) {
+                if (acc.isOnlineAndConnected()) {
+                    account = acc;
+                    break;
+                }
+            }
+        }
+        if (account == null) {
+            if (callback != null) {
+                callback.onPubsubItemsFetchFailed();
+            }
+            return;
+        }
+        final Iq request = getIqGenerator().retrievePubsubItems(server, node);
+        sendIqPacket(account, request, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                Element pubsub = response.findChild("pubsub", Namespace.PUBSUB);
+                if (pubsub != null && callback != null) {
+                    callback.onPubsubItemsFetched(pubsub.toString());
+                } else if (callback != null) {
+                    callback.onPubsubItemsFetchFailed();
+                }
+            } else {
+                if (callback != null) {
+                    callback.onPubsubItemsFetchFailed();
+                }
+            }
+        });
+    }
+
+    public interface OnPubsubItemsFetched {
+        void onPubsubItemsFetched(String feed);
+
+        void onPubsubItemsFetchFailed();
+    }
+
+    public interface OnPostPublished {
+        void onPostPublished();
+        void onPostPublishFailed();
+    }
+
+    public void publishPost(final String node, final String title, final String content, final OnPostPublished callback) {
+        Account account = null;
+        for (Account acc : getAccounts()) {
+            if (acc.isOnlineAndConnected()) {
+                account = acc;
+                break;
+            }
+        }
+        if (account == null) {
+            if (callback != null) {
+                callback.onPostPublishFailed();
+            }
+            return;
+        }
+        final Iq request = getIqGenerator().publishPost(account, node, title, content);
+        sendIqPacket(account, request, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                if (callback != null) {
+                    callback.onPostPublished();
+                }
+            } else {
+                if (callback != null) {
+                    callback.onPostPublishFailed();
+                }
+            }
+        });
+    }
 }

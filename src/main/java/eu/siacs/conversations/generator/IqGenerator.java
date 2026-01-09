@@ -818,4 +818,33 @@ public class IqGenerator extends AbstractGenerator {
             return response;
         }
     }
+
+    public Iq retrievePubsubItems(final Jid server, final String node) {
+        final Iq iq = new Iq(Iq.Type.GET);
+        if (server != null) {
+            iq.setTo(server);
+        }
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element items = pubsub.addChild("items");
+        items.setAttribute("node", node);
+        return iq;
+    }
+
+    public Iq publishPost(final Account account, final String node, final String title, final String content) {
+        final Iq iq = new Iq(Iq.Type.SET);
+        iq.setTo(account.getJid().asBareJid());
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element publish = pubsub.addChild("publish");
+        publish.setAttribute("node", node);
+        final Element item = publish.addChild("item");
+        final Element entry = item.addChild("entry", Namespace.ATOM);
+        entry.addChild("title").setContent(title);
+        entry.addChild("content").setContent(content);
+        final String id = "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
+        entry.addChild("id").setContent(id);
+        final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
+        entry.addChild("published").setContent(now);
+        entry.addChild("updated").setContent(now);
+        return iq;
+    }
 }

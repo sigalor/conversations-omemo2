@@ -132,4 +132,18 @@ public class AccountUtils {
             manageAccounts.setVisible(MANAGE_ACCOUNT_ACTIVITY != null);
         }
     }
+
+    public static Account getFirstEnabled(List<Account> accounts) {
+        for (Account account : accounts) {
+            if (account.isOnlineAndConnected()) {
+                return account;
+            }
+        }
+        for (Account account : accounts) {
+            if (account.isEnabled()) {
+                return account;
+            }
+        }
+        return null;
+    }
 }

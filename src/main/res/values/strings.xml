@@ -1598,6 +1598,14 @@
     <string name="no_calls_yet">No calls yet</string>
     <string name="video_too_long_for_story">Too long. Maximum video length is one minute.</string>
     <string name="error_retrieving_video_duration">Could not retrieve video duration</string>
+    <string name="posts">Posts</string>
+    <string name="create_post">Create Post</string>
+    <string name="refresh">Refresh</string>
+    <string name="post_title">Title</string>
+    <string name="post_content">Content</string>
+    <string name="title_and_content_are_required">Title and content are required</string>
+    <string name="post_published">Post published</string>
+    <string name="error_publish_post">Could not publish post</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

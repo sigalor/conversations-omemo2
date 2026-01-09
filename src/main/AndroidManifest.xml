@@ -471,5 +471,11 @@
         <activity
             android:name=".ui.CallsActivity"
             android:label="@string/calls" />
+        <activity
+            android:name=".ui.PostsActivity"
+            android:label="@string/posts" />
+        <activity
+            android:name=".ui.CreatePostActivity"
+            android:label="@string/create_post" />
     </application>
 </manifest>
