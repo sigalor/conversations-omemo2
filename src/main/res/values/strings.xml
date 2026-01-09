@@ -1616,6 +1616,8 @@
     <string name="title_or_content_or_attachment_required">Title, content or attachment required</string>
     <string name="download_file">Download file</string>
     <string name="download_started">Download started</string>
+    <string name="comment_published">Comment published</string>
+    <string name="error_publish_comment">Failed to publish comment</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

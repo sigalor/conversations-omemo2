@@ -8174,7 +8174,7 @@ public class XmppConnectionService extends Service {
         void onPubsubItemsFetchFailed();
     }
 
-    public void publishPost(final String node, final String title, final String content, final String inReplyToId, final String postId, final String attachmentUrl, final String attachmentType, final OnPostPublished callback) {
+    public void publishPost(final String node, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId, final OnPostPublished callback) {
         Account account = AccountUtils.getFirstEnabled(getAccounts());
         if (account == null) {
             if (callback != null) {
@@ -8182,7 +8182,29 @@ public class XmppConnectionService extends Service {
             }
             return;
         }
-        final Iq request = getIqGenerator().publishPost(account, node, title, content, inReplyToId, postId, attachmentUrl, attachmentType);
+        final Iq request = getIqGenerator().publishPost(account, node, title, content, attachmentUrl, attachmentType, postId);
+        sendIqPacket(account, request, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                if (callback != null) {
+                    callback.onPostPublished();
+                }
+            } else {
+                if (callback != null) {
+                    callback.onPostPublishFailed();
+                }
+            }
+        });
+    }
+
+    public void publishComment(final String node, final String title, final String inReplyToId, final OnPostPublished callback) {
+        Account account = AccountUtils.getFirstEnabled(getAccounts());
+        if (account == null) {
+            if (callback != null) {
+                callback.onPostPublishFailed();
+            }
+            return;
+        }
+        final Iq request = getIqGenerator().publishComment(account, node, title, inReplyToId);
         sendIqPacket(account, request, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {

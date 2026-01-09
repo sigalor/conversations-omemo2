@@ -20,7 +20,6 @@ import androidx.databinding.DataBindingUtil;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityCreatePostBinding;
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.utils.FileUtils;
 
 public class CreatePostActivity extends XmppActivity {
 
@@ -122,7 +121,24 @@ public class CreatePostActivity extends XmppActivity {
         }
 
         if (xmppConnectionService != null) {
-            if (attachmentUri != null) {
+            if (inReplyToNode != null) {
+                xmppConnectionService.publishComment(inReplyToNode, title, inReplyToId, new XmppConnectionService.OnPostPublished() {
+                    @Override
+                    public void onPostPublished() {
+                        runOnUiThread(() -> {
+                            Toast.makeText(CreatePostActivity.this, R.string.comment_published, Toast.LENGTH_SHORT).show();
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onPostPublishFailed() {
+                        runOnUiThread(() -> {
+                            Toast.makeText(CreatePostActivity.this, R.string.error_publish_comment, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
+            } else if (attachmentUri != null) {
                 final String mimeType = getContentResolver().getType(attachmentUri);
                 xmppConnectionService.uploadFileForUrl(xmppConnectionService.getAccounts().get(0), attachmentUri, mimeType, new UiCallback<String>() {
                     @Override
@@ -147,7 +163,7 @@ public class CreatePostActivity extends XmppActivity {
     }
 
     private void publish(String title, String content, String attachmentUrl, String attachmentType) {
-        xmppConnectionService.publishPost("urn:xmpp:microblog:0", title, content, inReplyToId, postId, attachmentUrl, attachmentType, new XmppConnectionService.OnPostPublished() {
+        xmppConnectionService.publishPost("urn:xmpp:microblog:0", title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
             @Override
             public void onPostPublished() {
                 runOnUiThread(() -> {

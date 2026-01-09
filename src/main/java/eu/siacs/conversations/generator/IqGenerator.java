@@ -830,45 +830,53 @@ public class IqGenerator extends AbstractGenerator {
         return iq;
     }
 
-    public Iq publishPost(final Account account, final String node, final String title, final String content, final String inReplyToId, final String postId, final String attachmentUrl, final String attachmentType) {
+    public Iq publishPost(final Account account, final String node, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId) {
         final Iq iq = new Iq(Iq.Type.SET);
-        final boolean isComment = inReplyToId != null;
-        final String fullNode = isComment ? "urn:xmpp:microblog:0:comments/" + inReplyToId : node;
         iq.setTo(account.getJid().asBareJid());
         final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
         final Element publish = pubsub.addChild("publish");
-        publish.setAttribute("node", fullNode);
+        publish.setAttribute("node", node);
         final Element item = publish.addChild("item");
         final String id = postId != null ? postId : "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
-        if (!isComment) {
-            item.setAttribute("id", id);
-        }
+        item.setAttribute("id", id);
         final Element entry = item.addChild("entry", Namespace.ATOM);
-
-        if (!isComment) {
-            entry.addChild("link")
-                    .setAttribute("rel", "replies")
-                    .setAttribute("type", "application/atom+xml")
-                    .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + id);
-        }
-
-        if (inReplyToId != null) {
-            entry.setAttribute("xmlns:thr", "http://purl.org/syndication/thread/1.0");
-            entry.addChild("thr:in-reply-to").setAttribute("ref", inReplyToId);
-        }
-
+        entry.addChild("link")
+                .setAttribute("rel", "replies")
+                .setAttribute("type", "application/atom+xml")
+                .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + id);
+        entry.addChild("title").setContent(title);
+        entry.addChild("content").setContent(content);
         if (attachmentUrl != null && attachmentType != null) {
             entry.addChild("link")
                     .setAttribute("rel", "enclosure")
                     .setAttribute("href", attachmentUrl)
                     .setAttribute("type", attachmentType);
         }
-
-        entry.addChild("title").setContent(title);
-        entry.addChild("content").setContent(content);
         final Element author = entry.addChild("author");
         author.addChild("name").setContent(account.getDisplayName());
         author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
+        entry.addChild("id").setContent(id);
+        final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
+        entry.addChild("published").setContent(now);
+        entry.addChild("updated").setContent(now);
+        return iq;
+    }
+
+    public Iq publishComment(final Account account, final String node, final String title, final String inReplyToId) {
+        final Iq iq = new Iq(Iq.Type.SET);
+        iq.setTo(account.getJid().asBareJid());
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element publish = pubsub.addChild("publish");
+        publish.setAttribute("node", node);
+        final Element item = publish.addChild("item");
+        final Element entry = item.addChild("entry", Namespace.ATOM);
+        entry.setAttribute("xmlns:thr", "http://purl.org/syndication/thread/1.0");
+        entry.addChild("thr:in-reply-to").setAttribute("ref", inReplyToId);
+        entry.addChild("title").setContent(title);
+        final Element author = entry.addChild("author");
+        author.addChild("name").setContent(account.getDisplayName());
+        author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
+        final String id = "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
         entry.addChild("id").setContent(id);
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
