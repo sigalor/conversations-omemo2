@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.List;
@@ -120,7 +122,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                         intent.putExtra("content", post.getContent());
                         mActivity.startActivity(intent);
                     });
-                    binding.deleteButton.setOnClickListener(v -> {                        new AlertDialog.Builder(mActivity)
+                    binding.deleteButton.setOnClickListener(v -> {
+                        new MaterialAlertDialogBuilder(mActivity)
                             .setTitle(R.string.retract_post)
                             .setMessage(R.string.retract_post_confirm)
                             .setPositiveButton(R.string.retract, (dialog, which) -> {

@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
@@ -28,6 +29,7 @@ public class CreatePostActivity extends XmppActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         inReplyToId = getIntent().getStringExtra("in_reply_to_id");
         inReplyToNode = getIntent().getStringExtra("in_reply_to_node");
         postId = getIntent().getStringExtra("post_id");
@@ -58,7 +60,8 @@ public class CreatePostActivity extends XmppActivity {
             return;
         }if (xmppConnectionService != null) {
             xmppConnectionService.publishPost("urn:xmpp:microblog:0", title, content, inReplyToId, postId, new XmppConnectionService.OnPostPublished() {
-                @Override                public void onPostPublished() {
+                @Override
+                public void onPostPublished() {
                     runOnUiThread(() -> {
                         Toast.makeText(CreatePostActivity.this, R.string.post_published, Toast.LENGTH_SHORT).show();
                         finish();
