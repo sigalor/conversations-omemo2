@@ -45,6 +45,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityStoriesBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -205,8 +206,9 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         };
         titleEditText.addTextChangedListener(textWatcher);
 
-        int rosterSize = mSelectedAccount.getRoster().getContacts().size();
-        publishInfoText.setText(getResources().getQuantityString(R.plurals.publishing_to_x_contacts, rosterSize, rosterSize));
+        long subscriberCount = mSelectedAccount.getRoster().getContacts().stream()
+                .filter(c -> c.getOption(Contact.Options.FROM))
+                .count();publishInfoText.setText(getResources().getQuantityString(R.plurals.publishing_to_x_contacts, (int) subscriberCount, (int) subscriberCount));
 
         if (mimeType.startsWith("video/")) {
             storyPreviewVideo.setVisibility(View.VISIBLE);
