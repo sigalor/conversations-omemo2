@@ -1606,6 +1606,8 @@
     <string name="title_and_content_are_required">Title and content are required</string>
     <string name="post_published">Post published</string>
     <string name="error_publish_post">Could not publish post</string>
+    <string name="comment">Comment</string>
+    <string name="share_post_with">Share post with…</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>
