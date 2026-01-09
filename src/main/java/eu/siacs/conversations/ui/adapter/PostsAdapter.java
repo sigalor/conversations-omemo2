@@ -12,13 +12,20 @@ import java.util.List;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemPostBinding;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Post;
+import eu.siacs.conversations.ui.XmppActivity;
+import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.utils.AccountUtils;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHolder> {
 
     private final List<Post> posts;
+    private final XmppActivity mActivity;
 
-    public PostsAdapter(List<Post> posts) {
+    public PostsAdapter(XmppActivity activity, List<Post> posts) {
+        this.mActivity = activity;
         this.posts = posts;
     }
 
@@ -38,7 +45,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         return posts.size();
     }
 
-    static class PostViewHolder extends RecyclerView.ViewHolder {
+    class PostViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemPostBinding binding;
 
@@ -50,11 +57,33 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         void bind(Post post) {
             if (post.getAuthor() != null) {
                 binding.postAuthorName.setText(post.getAuthor().asBareJid().toString());
+                if (mActivity.xmppConnectionService != null) {
+                    Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                    if (account != null) {
+                        if (post.getAuthor().equals(account.getJid().asBareJid())) {
+                            AvatarWorkerTask.loadAvatar(account, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
+                        } else {
+                            Contact contact = account.getRoster().getContact(post.getAuthor());
+                            if (contact != null) {
+                                AvatarWorkerTask.loadAvatar(contact, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
+                            } else {
+                                binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
+                            }
+                        }
+                    } else {
+                        binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
+                    }
+                }
+            } else {
+                binding.postAuthorName.setText(null);
+                binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
             }
             binding.postTitle.setText(post.getTitle());
             binding.postContent.setText(post.getContent());
             if (post.getPublished() != null) {
                 binding.postTimestamp.setText(DateFormat.getDateTimeInstance().format(post.getPublished()));
+            } else {
+                binding.postTimestamp.setText(null);
             }
         }
     }

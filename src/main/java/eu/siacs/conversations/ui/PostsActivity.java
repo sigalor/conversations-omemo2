@@ -46,7 +46,7 @@ public class PostsActivity extends XmppActivity {
         }
 
         binding.postsList.setLayoutManager(new LinearLayoutManager(this));
-        postsAdapter = new PostsAdapter(postList);
+        postsAdapter = new PostsAdapter(this, postList);
         binding.postsList.setAdapter(postsAdapter);
 
         binding.fabCreatePost.setOnClickListener(v -> {
