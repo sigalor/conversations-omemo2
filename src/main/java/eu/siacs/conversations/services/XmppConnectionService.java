@@ -8174,30 +8174,25 @@ public class XmppConnectionService extends Service {
         void onPubsubItemsFetchFailed();
     }
 
-    public void publishPost(final String node, final String title, final String content, final String inReplyToId, final String postId, final OnPostPublished callback) {
-        Account account = null;
-        for (Account acc : getAccounts()) {
-            if (acc.isOnlineAndConnected()) {
-                account = acc;
-                break;
-            }
-        }
+    public void publishPost(final String node, final String title, final String content, final String inReplyToId, final String postId, final String attachmentUrl, final String attachmentType, final OnPostPublished callback) {
+        Account account = AccountUtils.getFirstEnabled(getAccounts());
         if (account == null) {
             if (callback != null) {
                 callback.onPostPublishFailed();
             }
             return;
         }
-        final Iq request = getIqGenerator().publishPost(account, node, title, content, inReplyToId, postId);
-        sendIqPacket(account, request, response -> {        if (response.getType() == Iq.Type.RESULT) {
-            if (callback != null) {
-                callback.onPostPublished();
+        final Iq request = getIqGenerator().publishPost(account, node, title, content, inReplyToId, postId, attachmentUrl, attachmentType);
+        sendIqPacket(account, request, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                if (callback != null) {
+                    callback.onPostPublished();
+                }
+            } else {
+                if (callback != null) {
+                    callback.onPostPublishFailed();
+                }
             }
-        } else {
-            if (callback != null) {
-                callback.onPostPublishFailed();
-            }
-        }
         });
     }
 

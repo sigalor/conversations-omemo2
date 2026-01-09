@@ -16,14 +16,16 @@ public class Post {
     private final Jid author;
     private final Date published;
     private final String commentsNode;
+    private final String attachmentUrl;
 
-    public Post(String id, String title, String content, Jid author, Date published, String commentsNode) {
+    public Post(String id, String title, String content, Jid author, Date published, String commentsNode, String attachmentUrl) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.author = author;
         this.published = published;
         this.commentsNode = commentsNode;
+        this.attachmentUrl = attachmentUrl;
     }
 
     public static Post fromElement(Element entry) {
@@ -51,12 +53,21 @@ public class Post {
                 // ignore
             }
         }
-        Element link = entry.findChild("link", Namespace.ATOM);
+
         String commentsNode = null;
-        if (link != null && "replies".equals(link.getAttribute("rel"))) {
-            commentsNode = link.getAttribute("href");
+        String attachmentUrl = null;
+        for (Element link : entry.getChildren()) {
+            if ("link".equals(link.getName()) && Namespace.ATOM.equals(link.getNamespace())) {
+                String rel = link.getAttribute("rel");
+                if ("replies".equals(rel)) {
+                    commentsNode = link.getAttribute("href");
+                } else if ("enclosure".equals(rel)) {
+                    attachmentUrl = link.getAttribute("href");
+                }
+            }
         }
-        return new Post(id, title, content, author, published, commentsNode);
+
+        return new Post(id, title, content, author, published, commentsNode, attachmentUrl);
     }
 
     public String getId() {
@@ -81,5 +92,9 @@ public class Post {
 
     public String getCommentsNode() {
         return commentsNode;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
     }
 }

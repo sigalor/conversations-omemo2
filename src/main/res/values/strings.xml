@@ -1613,6 +1613,7 @@
     <string name="retract_post_confirm">Do you really want to retract this post?</string>
     <string name="retract">Retract</string>
     <string name="error_retract_post">Could not retract post</string>
+    <string name="title_or_content_or_attachment_required">Title, content or attachment required</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

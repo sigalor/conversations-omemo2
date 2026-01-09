@@ -830,7 +830,7 @@ public class IqGenerator extends AbstractGenerator {
         return iq;
     }
 
-    public Iq publishPost(final Account account, final String node, final String title, final String content, final String inReplyToId, final String postId) {
+    public Iq publishPost(final Account account, final String node, final String title, final String content, final String inReplyToId, final String postId, final String attachmentUrl, final String attachmentType) {
         final Iq iq = new Iq(Iq.Type.SET);
         final boolean isComment = inReplyToId != null;
         final String fullNode = isComment ? "urn:xmpp:microblog:0:comments/" + inReplyToId : node;
@@ -839,18 +839,31 @@ public class IqGenerator extends AbstractGenerator {
         final Element publish = pubsub.addChild("publish");
         publish.setAttribute("node", fullNode);
         final Element item = publish.addChild("item");
-        final String id = postId != null ? postId : "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();    item.setAttribute("id", id);
+        final String id = postId != null ? postId : "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
+        if (!isComment) {
+            item.setAttribute("id", id);
+        }
         final Element entry = item.addChild("entry", Namespace.ATOM);
+
         if (!isComment) {
             entry.addChild("link")
                     .setAttribute("rel", "replies")
                     .setAttribute("type", "application/atom+xml")
                     .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + id);
         }
+
         if (inReplyToId != null) {
             entry.setAttribute("xmlns:thr", "http://purl.org/syndication/thread/1.0");
             entry.addChild("thr:in-reply-to").setAttribute("ref", inReplyToId);
         }
+
+        if (attachmentUrl != null && attachmentType != null) {
+            entry.addChild("link")
+                    .setAttribute("rel", "enclosure")
+                    .setAttribute("href", attachmentUrl)
+                    .setAttribute("type", attachmentType);
+        }
+
         entry.addChild("title").setContent(title);
         entry.addChild("content").setContent(content);
         final Element author = entry.addChild("author");

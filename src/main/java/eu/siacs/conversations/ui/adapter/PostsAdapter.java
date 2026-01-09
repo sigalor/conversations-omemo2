@@ -1,19 +1,27 @@
 package eu.siacs.conversations.ui.adapter;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemPostBinding;
 import eu.siacs.conversations.entities.Account;
@@ -64,10 +72,17 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
 
         void bind(Post post) {
-            final boolean isExpanded = expandedPosts.contains(post);
+            final boolean isExpanded = expandedPosts.contains(post);final boolean hasAttachment = post.getAttachmentUrl() != null;
+
             binding.postContentSummary.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
             binding.postContentFull.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+            binding.attachmentHint.setVisibility(hasAttachment && !isExpanded ? View.VISIBLE : View.GONE);
+            binding.postImage.setVisibility(hasAttachment && isExpanded ? View.VISIBLE : View.GONE);
+
+            if (hasAttachment && isExpanded) {
+                Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
+            }
 
             binding.postContentSummary.setText(post.getContent());
             binding.postContentFull.setText(post.getContent());
@@ -110,6 +125,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
             });
 
+
             if (post.getAuthor() != null && mActivity.xmppConnectionService != null) {
                 Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
                 if (account != null && post.getAuthor().asBareJid().equals(account.getJid().asBareJid())) {
@@ -123,31 +139,32 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                         mActivity.startActivity(intent);
                     });
                     binding.deleteButton.setOnClickListener(v -> {
-                        new MaterialAlertDialogBuilder(mActivity)
-                            .setTitle(R.string.retract_post)
-                            .setMessage(R.string.retract_post_confirm)
-                            .setPositiveButton(R.string.retract, (dialog, which) -> {
-                                mActivity.xmppConnectionService.retractPost("urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
-                                    @Override
-                                    public void onPostRetracted() {
-                                        mActivity.runOnUiThread(() -> {
-                                            int pos = getAdapterPosition();
-                                            if (pos != RecyclerView.NO_POSITION) {
-                                                posts.remove(pos);
-                                                notifyItemRemoved(pos);
-                                            }
-                                        });
-                                    }
+                        new AlertDialog.Builder(mActivity)
+                                .setTitle(R.string.retract_post)
+                                .setMessage(R.string.retract_post_confirm)
+                                .setPositiveButton(R.string.retract, (dialog, which) -> {
+                                    mActivity.xmppConnectionService.retractPost("urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
+                                        @Override
+                                        public void onPostRetracted() {
+                                            mActivity.runOnUiThread(() -> {
+                                                int pos = getAdapterPosition();
+                                                if(pos != RecyclerView.NO_POSITION) {
+                                                    posts.remove(pos);
+                                                    notifyItemRemoved(pos);
+                                                }
+                                            });
+                                        }
 
-                                    @Override
-                                    public void onPostRetractionFailed() {
-                                        mActivity.runOnUiThread(() -> {
-                                            Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show();
-                                        });
-                                    }
-                                }); })
-                            .setNegativeButton(R.string.cancel, null)
-                            .show();
+                                        @Override
+                                        public void onPostRetractionFailed() {
+                                            mActivity.runOnUiThread(() -> {
+                                                Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show();
+                                            });
+                                        }
+                                    });
+                                })
+                                .setNegativeButton(R.string.cancel, null)
+                                .show();
                     });
                 } else {
                     binding.editButton.setVisibility(View.GONE);
