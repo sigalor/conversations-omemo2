@@ -840,6 +840,9 @@ public class IqGenerator extends AbstractGenerator {
         final Element entry = item.addChild("entry", Namespace.ATOM);
         entry.addChild("title").setContent(title);
         entry.addChild("content").setContent(content);
+        final Element author = entry.addChild("author");
+        author.addChild("name").setContent(account.getDisplayName());
+        author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
         final String id = "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
         entry.addChild("id").setContent(id);
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
