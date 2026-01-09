@@ -830,24 +830,45 @@ public class IqGenerator extends AbstractGenerator {
         return iq;
     }
 
-    public Iq publishPost(final Account account, final String node, final String title, final String content) {
+    public Iq publishPost(final Account account, final String node, final String title, final String content, final String inReplyToId, final String postId) {
         final Iq iq = new Iq(Iq.Type.SET);
+        final boolean isComment = inReplyToId != null;
+        final String fullNode = isComment ? "urn:xmpp:microblog:0:comments/" + inReplyToId : node;
         iq.setTo(account.getJid().asBareJid());
         final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
         final Element publish = pubsub.addChild("publish");
-        publish.setAttribute("node", node);
+        publish.setAttribute("node", fullNode);
         final Element item = publish.addChild("item");
+        final String id = postId != null ? postId : "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();    item.setAttribute("id", id);
         final Element entry = item.addChild("entry", Namespace.ATOM);
+        if (!isComment) {
+            entry.addChild("link")
+                    .setAttribute("rel", "replies")
+                    .setAttribute("type", "application/atom+xml")
+                    .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + id);
+        }
+        if (inReplyToId != null) {
+            entry.setAttribute("xmlns:thr", "http://purl.org/syndication/thread/1.0");
+            entry.addChild("thr:in-reply-to").setAttribute("ref", inReplyToId);
+        }
         entry.addChild("title").setContent(title);
         entry.addChild("content").setContent(content);
         final Element author = entry.addChild("author");
         author.addChild("name").setContent(account.getDisplayName());
         author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
-        final String id = "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
         entry.addChild("id").setContent(id);
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
+        return iq;
+    }
+
+    public Iq retractPost(final String node, final String id) {
+        final Iq iq = new Iq(Iq.Type.SET);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element retract = pubsub.addChild("retract");
+        retract.setAttribute("node", node);
+        retract.addChild("item").setAttribute("id", id);
         return iq;
     }
 }

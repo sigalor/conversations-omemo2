@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import java.text.DateFormat;
 import java.util.HashSet;
@@ -16,6 +18,7 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Post;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.CreatePostActivity;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
@@ -94,6 +97,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             binding.commentButton.setOnClickListener(v -> {
                 Intent intent = new Intent(mActivity, CreatePostActivity.class);
                 intent.putExtra("in_reply_to_id", post.getId());
+                intent.putExtra("in_reply_to_node", post.getCommentsNode());
                 mActivity.startActivity(intent);
             });
 
@@ -104,6 +108,52 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
             });
 
+            if (post.getAuthor() != null && mActivity.xmppConnectionService != null) {
+                Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                if (account != null && post.getAuthor().asBareJid().equals(account.getJid().asBareJid())) {
+                    binding.editButton.setVisibility(View.VISIBLE);
+                    binding.deleteButton.setVisibility(View.VISIBLE);
+                    binding.editButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(mActivity, CreatePostActivity.class);
+                        intent.putExtra("post_id", post.getId());
+                        intent.putExtra("title", post.getTitle());
+                        intent.putExtra("content", post.getContent());
+                        mActivity.startActivity(intent);
+                    });
+                    binding.deleteButton.setOnClickListener(v -> {                        new AlertDialog.Builder(mActivity)
+                            .setTitle(R.string.retract_post)
+                            .setMessage(R.string.retract_post_confirm)
+                            .setPositiveButton(R.string.retract, (dialog, which) -> {
+                                mActivity.xmppConnectionService.retractPost("urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
+                                    @Override
+                                    public void onPostRetracted() {
+                                        mActivity.runOnUiThread(() -> {
+                                            int pos = getAdapterPosition();
+                                            if (pos != RecyclerView.NO_POSITION) {
+                                                posts.remove(pos);
+                                                notifyItemRemoved(pos);
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onPostRetractionFailed() {
+                                        mActivity.runOnUiThread(() -> {
+                                            Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show();
+                                        });
+                                    }
+                                }); })
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                    });
+                } else {
+                    binding.editButton.setVisibility(View.GONE);
+                    binding.deleteButton.setVisibility(View.GONE);
+                }
+            } else {
+                binding.editButton.setVisibility(View.GONE);
+                binding.deleteButton.setVisibility(View.GONE);
+            }
 
             if (post.getAuthor() != null) {
                 final Jid authorJid = post.getAuthor();

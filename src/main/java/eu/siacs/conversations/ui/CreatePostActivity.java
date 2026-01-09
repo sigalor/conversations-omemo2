@@ -14,6 +14,9 @@ import eu.siacs.conversations.services.XmppConnectionService;
 public class CreatePostActivity extends XmppActivity {
 
     private ActivityCreatePostBinding binding;
+    private String inReplyToId;
+    private String inReplyToNode;
+    private String postId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +27,13 @@ public class CreatePostActivity extends XmppActivity {
         configureActionBar(getSupportActionBar());
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        inReplyToId = getIntent().getStringExtra("in_reply_to_id");
+        inReplyToNode = getIntent().getStringExtra("in_reply_to_node");
+        postId = getIntent().getStringExtra("post_id");
+        if (postId != null) {
+            binding.postTitleEditText.setText(getIntent().getStringExtra("title"));
+            binding.postContentEditText.setText(getIntent().getStringExtra("content"));
         }
 
         binding.publishButton.setOnClickListener(v -> publishPost());
@@ -43,15 +53,12 @@ public class CreatePostActivity extends XmppActivity {
         String title = binding.postTitleEditText.getText().toString();
         String content = binding.postContentEditText.getText().toString();
 
-        if (title.isEmpty() || content.isEmpty()) {
-            Toast.makeText(this, R.string.title_and_content_are_required, Toast.LENGTH_SHORT).show();
+        if (title.isEmpty() && content.isEmpty()) {
+            Toast.makeText(this, R.string.title_or_content_are_required, Toast.LENGTH_SHORT).show();
             return;
-        }
-
-        if (xmppConnectionService != null) {
-            xmppConnectionService.publishPost("urn:xmpp:microblog:0", title, content, new XmppConnectionService.OnPostPublished() {
-                @Override
-                public void onPostPublished() {
+        }if (xmppConnectionService != null) {
+            xmppConnectionService.publishPost("urn:xmpp:microblog:0", title, content, inReplyToId, postId, new XmppConnectionService.OnPostPublished() {
+                @Override                public void onPostPublished() {
                     runOnUiThread(() -> {
                         Toast.makeText(CreatePostActivity.this, R.string.post_published, Toast.LENGTH_SHORT).show();
                         finish();

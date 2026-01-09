@@ -1608,6 +1608,11 @@
     <string name="error_publish_post">Could not publish post</string>
     <string name="comment">Comment</string>
     <string name="share_post_with">Share post with…</string>
+    <string name="title_or_content_are_required">Title or content are required</string>
+    <string name="retract_post">Retract post</string>
+    <string name="retract_post_confirm">Do you really want to retract this post?</string>
+    <string name="retract">Retract</string>
+    <string name="error_retract_post">Could not retract post</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

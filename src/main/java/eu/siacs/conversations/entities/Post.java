@@ -15,13 +15,15 @@ public class Post {
     private final String content;
     private final Jid author;
     private final Date published;
+    private final String commentsNode;
 
-    public Post(String id, String title, String content, Jid author, Date published) {
+    public Post(String id, String title, String content, Jid author, Date published, String commentsNode) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.author = author;
         this.published = published;
+        this.commentsNode = commentsNode;
     }
 
     public static Post fromElement(Element entry) {
@@ -49,7 +51,12 @@ public class Post {
                 // ignore
             }
         }
-        return new Post(id, title, content, author, published);
+        Element link = entry.findChild("link", Namespace.ATOM);
+        String commentsNode = null;
+        if (link != null && "replies".equals(link.getAttribute("rel"))) {
+            commentsNode = link.getAttribute("href");
+        }
+        return new Post(id, title, content, author, published, commentsNode);
     }
 
     public String getId() {
@@ -70,5 +77,9 @@ public class Post {
 
     public Date getPublished() {
         return published;
+    }
+
+    public String getCommentsNode() {
+        return commentsNode;
     }
 }

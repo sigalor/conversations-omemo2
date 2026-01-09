@@ -8174,12 +8174,7 @@ public class XmppConnectionService extends Service {
         void onPubsubItemsFetchFailed();
     }
 
-    public interface OnPostPublished {
-        void onPostPublished();
-        void onPostPublishFailed();
-    }
-
-    public void publishPost(final String node, final String title, final String content, final OnPostPublished callback) {
+    public void publishPost(final String node, final String title, final String content, final String inReplyToId, final String postId, final OnPostPublished callback) {
         Account account = null;
         for (Account acc : getAccounts()) {
             if (acc.isOnlineAndConnected()) {
@@ -8193,17 +8188,53 @@ public class XmppConnectionService extends Service {
             }
             return;
         }
-        final Iq request = getIqGenerator().publishPost(account, node, title, content);
-        sendIqPacket(account, request, response -> {
+        final Iq request = getIqGenerator().publishPost(account, node, title, content, inReplyToId, postId);
+        sendIqPacket(account, request, response -> {        if (response.getType() == Iq.Type.RESULT) {
+            if (callback != null) {
+                callback.onPostPublished();
+            }
+        } else {
+            if (callback != null) {
+                callback.onPostPublishFailed();
+            }
+        }
+        });
+    }
+
+    public void retractPost(final String node, final String id, final OnPostRetracted callback) {
+        Account account = null;
+        for (Account acc : getAccounts()) {
+            if (acc.isOnlineAndConnected()) {
+                account = acc;
+                break;
+            }
+        }
+        if (account == null) {
+            if (callback != null) {
+                callback.onPostRetractionFailed();
+            }
+            return;
+        }
+        final Iq request = getIqGenerator().retractPost(node, id);sendIqPacket(account, request, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {
-                    callback.onPostPublished();
+                    callback.onPostRetracted();
                 }
             } else {
                 if (callback != null) {
-                    callback.onPostPublishFailed();
+                    callback.onPostRetractionFailed();
                 }
             }
         });
+    }
+
+    public interface OnPostPublished {
+        void onPostPublished();
+        void onPostPublishFailed();
+    }
+
+    public interface OnPostRetracted {
+        void onPostRetracted();
+        void onPostRetractionFailed();
     }
 }
