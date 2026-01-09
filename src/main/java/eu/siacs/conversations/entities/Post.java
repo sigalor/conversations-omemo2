@@ -1,6 +1,4 @@
-package eu.siacs.conversations.entities;
-
-import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
+package eu.siacs.conversations.entities;import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
 
 import java.util.Date;
 
@@ -17,8 +15,9 @@ public class Post {
     private final Date published;
     private final String commentsNode;
     private final String attachmentUrl;
+    private final String attachmentType;
 
-    public Post(String id, String title, String content, Jid author, Date published, String commentsNode, String attachmentUrl) {
+    public Post(String id, String title, String content, Jid author, Date published, String commentsNode, String attachmentUrl, String attachmentType) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -26,6 +25,7 @@ public class Post {
         this.published = published;
         this.commentsNode = commentsNode;
         this.attachmentUrl = attachmentUrl;
+        this.attachmentType = attachmentType;
     }
 
     public static Post fromElement(Element entry) {
@@ -56,6 +56,7 @@ public class Post {
 
         String commentsNode = null;
         String attachmentUrl = null;
+        String attachmentType = null;
         for (Element link : entry.getChildren()) {
             if ("link".equals(link.getName()) && Namespace.ATOM.equals(link.getNamespace())) {
                 String rel = link.getAttribute("rel");
@@ -63,11 +64,12 @@ public class Post {
                     commentsNode = link.getAttribute("href");
                 } else if ("enclosure".equals(rel)) {
                     attachmentUrl = link.getAttribute("href");
+                    attachmentType = link.getAttribute("type");
                 }
             }
         }
 
-        return new Post(id, title, content, author, published, commentsNode, attachmentUrl);
+        return new Post(id, title, content, author, published, commentsNode, attachmentUrl, attachmentType);
     }
 
     public String getId() {
@@ -96,5 +98,9 @@ public class Post {
 
     public String getAttachmentUrl() {
         return attachmentUrl;
+    }
+
+    public String getAttachmentType() {
+        return attachmentType;
     }
 }

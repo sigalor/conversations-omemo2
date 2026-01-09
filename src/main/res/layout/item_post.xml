@@ -98,14 +98,27 @@
             android:id="@+id/post_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxHeight="400dp"
             android:layout_marginTop="8dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/post_title"
             tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/download_button"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/download_file"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/post_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible"
+            />
 
         <TextView
             android:id="@+id/post_content_summary"
@@ -144,21 +157,21 @@
 
             <Button
                 android:id="@+id/reply_button"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/reply" />
 
             <Button
                 android:id="@+id/comment_button"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/comment" />
 
             <Button
                 android:id="@+id/share_button"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/share" />

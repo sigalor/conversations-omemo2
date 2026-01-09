@@ -2,13 +2,9 @@ package eu.siacs.conversations.ui.adapter;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,20 +12,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemPostBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Post;
+import eu.siacs.conversations.entities.StubConversation;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.CreatePostActivity;
+import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.AccountUtils;
@@ -72,17 +71,57 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
 
         void bind(Post post) {
-            final boolean isExpanded = expandedPosts.contains(post);final boolean hasAttachment = post.getAttachmentUrl() != null;
+            final boolean isExpanded = expandedPosts.contains(post);
+            final boolean hasAttachment = post.getAttachmentUrl() != null;
+            final boolean isImage = hasAttachment && post.getAttachmentType() != null && post.getAttachmentType().startsWith("image/");
+            final boolean isVideo = hasAttachment && post.getAttachmentType() != null && post.getAttachmentType().startsWith("video/");
 
             binding.postContentSummary.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
             binding.postContentFull.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.attachmentHint.setVisibility(hasAttachment && !isExpanded ? View.VISIBLE : View.GONE);
-            binding.postImage.setVisibility(hasAttachment && isExpanded ? View.VISIBLE : View.GONE);
+            binding.postImage.setVisibility(isExpanded && (isImage || isVideo) ? View.VISIBLE : View.GONE);
+            binding.downloadButton.setVisibility(isExpanded && hasAttachment && !isImage && !isVideo ? View.VISIBLE : View.GONE);
 
-            if (hasAttachment && isExpanded) {
+            if (isExpanded && (isImage || isVideo)) {
                 Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
             }
+
+            binding.downloadButton.setOnClickListener(v -> {
+                if (mActivity.xmppConnectionService != null) {
+                    final Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                    if (account == null) {
+                        Toast.makeText(mActivity, R.string.no_active_account, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    final var message = new Message(new StubConversation(account, "", null, 0), null, Message.ENCRYPTION_NONE);
+                    message.setType(Message.TYPE_FILE);
+                    Message.FileParams params = new Message.FileParams();
+                    params.url = post.getAttachmentUrl();
+                    message.setFileParams(params);
+
+                    mActivity.xmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
+                        mActivity.xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<Integer>() {
+                            @Override
+                            public void success(Integer object) {
+                                mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.save_to_downloads_success, Toast.LENGTH_SHORT).show());
+                            }
+
+                            @Override
+                            public void error(int errorCode, Integer object) {
+                                mActivity.runOnUiThread(() -> Toast.makeText(mActivity, errorCode, Toast.LENGTH_SHORT).show());
+                            }
+
+                            @Override
+                            public void userInputRequired(android.app.PendingIntent pi, Integer object) {
+
+                            }
+                        });
+                    });
+                    Toast.makeText(mActivity, R.string.download_started, Toast.LENGTH_SHORT).show();
+                }
+            });
 
             binding.postContentSummary.setText(post.getContent());
             binding.postContentFull.setText(post.getContent());
