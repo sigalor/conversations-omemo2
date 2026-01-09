@@ -20,6 +20,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityPostsBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.PostsAdapter;
@@ -27,6 +28,7 @@ import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
+import eu.siacs.conversations.xmpp.Jid;
 
 public class PostsActivity extends XmppActivity {
 
@@ -54,11 +56,6 @@ public class PostsActivity extends XmppActivity {
     }
 
     @Override
-    protected void refreshUiReal() {
-
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         loadPosts();
@@ -69,59 +66,97 @@ public class PostsActivity extends XmppActivity {
         loadPosts();
     }
 
+    @Override
+    protected void refreshUiReal() {
+        loadPosts();
+    }
+
     private void loadPosts() {
         if (xmppConnectionService == null) {
             return;
         }
-        Account account = AccountUtils.getFirstEnabled(xmppConnectionService.getAccounts());
+        final Account account = AccountUtils.getFirstEnabled(xmppConnectionService.getAccounts());
         if (account == null) {
             Toast.makeText(this, R.string.no_active_account, Toast.LENGTH_SHORT).show();
             return;
         }
-        xmppConnectionService.fetchPubsubItems(account.getJid().asBareJid(), "urn:xmpp:microblog:0", new XmppConnectionService.OnPubsubItemsFetched() {
-            @Override
-            public void onPubsubItemsFetched(String feedXml) {
-                try {
-                    final XmlReader reader = new XmlReader();
-                    reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
-                    final Element pubsub = reader.readElement(reader.readTag());
-                    final List<Post> posts = new ArrayList<>();
-                    if (pubsub != null && pubsub.getName().equals("pubsub")) {
-                        final Element items = pubsub.findChild("items");
-                        if (items != null) {
-                            for (Element item : items.getChildren()) {
-                                if ("item".equals(item.getName())) {
-                                    Element entry = item.findChild("entry", Namespace.ATOM);
-                                    if (entry != null) {
-                                        posts.add(Post.fromElement(entry));
+
+        postList.clear();
+        postsAdapter.notifyDataSetChanged();
+
+        final List<Jid> sourcesToFetch = new ArrayList<>();
+        sourcesToFetch.add(account.getJid().asBareJid());
+        for (eu.siacs.conversations.entities.Contact contact : account.getRoster().getContacts()) {
+            if (contact.getOption(Contact.Options.FROM)) {
+                sourcesToFetch.add(contact.getJid().asBareJid());
+            }
+        }
+
+        for (Jid source : sourcesToFetch) {
+            xmppConnectionService.fetchPubsubItems(source, "urn:xmpp:microblog:0", new XmppConnectionService.OnPubsubItemsFetched() {
+                @Override
+                public void onPubsubItemsFetched(String feedXml) {
+                    try {
+                        final XmlReader reader = new XmlReader();
+                        reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
+                        final Element pubsub = reader.readElement(reader.readTag());
+                        final List<Post> newPosts = new ArrayList<>();
+                        if (pubsub != null && pubsub.getName().equals("pubsub")) {
+                            final Element items = pubsub.findChild("items");
+                            if (items != null) {
+                                for (Element item : items.getChildren()) {
+                                    if ("item".equals(item.getName())) {
+                                        Element entry = item.findChild("entry", Namespace.ATOM);
+                                        if (entry != null) {
+                                            newPosts.add(Post.fromElement(entry));
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    runOnUiThread(() -> {
-                        postList.clear();
-                        postList.addAll(posts);
-                        postsAdapter.notifyDataSetChanged();
-                        if (posts.isEmpty()) {
-                            Toast.makeText(PostsActivity.this, "No posts found.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } catch (IOException e) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(PostsActivity.this, "Error parsing posts.", Toast.LENGTH_SHORT).show();
-                        Log.e(Config.LOGTAG,"error parsing posts",e);
-                    });
-                }
-            }
+                        runOnUiThread(() -> {
+                            boolean added = false;
+                            for(Post newPost : newPosts) {
+                                boolean found = false;
+                                for(Post existingPost : postList) {
+                                    if (existingPost.getId() != null && existingPost.getId().equals(newPost.getId())) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    postList.add(newPost);
+                                    added = true;
+                                }
+                            }
+                            if (added) {
+                                java.util.Collections.sort(postList, (p1, p2) -> {
+                                    if (p1.getPublished() == null && p2.getPublished() == null) return 0;
+                                    if (p1.getPublished() == null) return 1;
+                                    if (p2.getPublished() == null) return -1;
+                                    return p2.getPublished().compareTo(p1.getPublished());
+                                });
+                                postsAdapter.notifyDataSetChanged();
+                            }
 
-            @Override
-            public void onPubsubItemsFetchFailed() {
-                runOnUiThread(() -> {
-                    Toast.makeText(PostsActivity.this, "Failed to fetch posts.", Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
+                            if (postList.isEmpty()) {
+                                Toast.makeText(PostsActivity.this, "No posts found.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(PostsActivity.this, "Error parsing posts.", Toast.LENGTH_SHORT).show();
+                            Log.e(Config.LOGTAG,"error parsing posts",e);
+                        });
+                    }
+                }
+
+                @Override
+                public void onPubsubItemsFetchFailed() {
+                    // Silently ignore for now
+                }
+            });
+        }
     }
 
     @Override
