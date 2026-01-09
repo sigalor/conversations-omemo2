@@ -13,20 +13,27 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +46,8 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityStoriesBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Story;
-import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.medialib.activities.EditActivity;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.StoryAdapter;
 import eu.siacs.conversations.ui.util.PendingItem;
 
@@ -73,30 +80,26 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
-                case R.id.chats -> {
+                case R.id.chats:
                     startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
-                }
-                case R.id.contactslist -> {
+                case R.id.contactslist:
                     Intent i = new Intent(getApplicationContext(), StartConversationActivity.class);
                     i.putExtra("show_nav_bar", true);
                     startActivity(i);
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
-                }
-                case R.id.stories -> {
+                case R.id.stories:
                     return true;
-                }
-                case R.id.calls -> {
-                    Intent i = new Intent(getApplicationContext(), CallsActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
+                case R.id.calls:
+                    Intent callsIntent = new Intent(getApplicationContext(), CallsActivity.class);
+                    callsIntent.putExtra("show_nav_bar", true);
+                    startActivity(callsIntent);
                     overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                     return true;
-                }
-                default ->
-                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+                default:
+                    throw new IllegalStateException("Unexpected value: " + item.getItemId());
             }
         });
     }
@@ -104,7 +107,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
     @Override
     public void onStart() {
         super.onStart();
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.stories);
 
         if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
@@ -164,51 +167,100 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
     }
 
     private void publish(Uri uri, String mimeType) {
-        if (uri != null && mSelectedAccount != null) {
-            final EditText input = new EditText(this);
-            input.setHint(R.string.title_optional);
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.add_story_title)
-                    .setView(input)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.publish, (dialog, which) -> {
-                        final String title = input.getText().toString();
-                        Toast.makeText(this, R.string.uploading_story, Toast.LENGTH_SHORT).show();
-                        xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, mimeType, new UiCallback<String>() {
-                            @Override
-                            public void success(String url) {
-                                xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
-                                    @Override
-                                    public void success(Void aVoid) {
-                                        runOnUiThread(() -> Toast.makeText(StoriesActivity.this, R.string.story_published, Toast.LENGTH_SHORT).show());
-                                    }
-
-                                    @Override
-                                    public void error(int errorCode, Void object) {
-                                        runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
-                                    }
-
-                                    @Override
-                                    public void userInputRequired(PendingIntent pi, Void object) {
-                                        // not used
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void error(int errorCode, String object) {
-                                runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
-                            }
-
-                            @Override
-                            public void userInputRequired(PendingIntent pi, String object) {
-                                // not used
-                            }
-                        });
-                    })
-                    .create()
-                    .show();
+        if (uri == null || mSelectedAccount == null) {
+            return;
         }
+        showCreateStoryDialog(uri, mimeType);
+    }
+
+    private void showCreateStoryDialog(Uri uri, String mimeType) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_create_story, null);
+        ImageView storyPreviewImage = dialogView.findViewById(R.id.story_preview_image);
+        VideoView storyPreviewVideo = dialogView.findViewById(R.id.story_preview_video);
+        TextView publishInfoText = dialogView.findViewById(R.id.publish_info_text);
+        TextInputEditText titleEditText = dialogView.findViewById(R.id.title_edit_text);
+
+        final TextWatcher textWatcher = new TextWatcher() {
+            private String before;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                before = s.toString();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // No action needed here
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (titleEditText.getLineCount() > 20) {
+                    titleEditText.removeTextChangedListener(this);
+                    titleEditText.setText(before);
+                    titleEditText.setSelection(before.length());
+                    titleEditText.addTextChangedListener(this);
+                }
+            }
+        };
+        titleEditText.addTextChangedListener(textWatcher);
+
+        int rosterSize = mSelectedAccount.getRoster().getContacts().size();
+        publishInfoText.setText(getResources().getQuantityString(R.plurals.publishing_to_x_contacts, rosterSize, rosterSize));
+
+        if (mimeType.startsWith("video/")) {
+            storyPreviewVideo.setVisibility(View.VISIBLE);
+            storyPreviewVideo.setVideoURI(uri);
+            storyPreviewVideo.setOnPreparedListener(mp -> {
+                mp.setLooping(true);
+                storyPreviewVideo.start();
+            });
+        } else {
+            storyPreviewImage.setVisibility(View.VISIBLE);
+            Glide.with(this).load(uri).into(storyPreviewImage);
+        }
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.add_story_title)
+                .setView(dialogView)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.publish, (dialog2, which2) -> {
+                    final String title = titleEditText.getText().toString();
+                    Toast.makeText(this, R.string.uploading_story, Toast.LENGTH_SHORT).show();
+                    xmppConnectionService.uploadFileForUrl(mSelectedAccount, uri, mimeType, new UiCallback<String>() {
+                        @Override
+                        public void success(String url) {
+                            xmppConnectionService.publishStory(mSelectedAccount, url, mimeType, title, new UiCallback<Void>() {
+                                @Override
+                                public void success(Void aVoid) {
+                                    runOnUiThread(() -> Toast.makeText(StoriesActivity.this, R.string.story_published, Toast.LENGTH_SHORT).show());
+                                }
+
+                                @Override
+                                public void error(int errorCode, Void object) {
+                                    runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
+                                }
+
+                                @Override
+                                public void userInputRequired(PendingIntent pi, Void object) {
+                                    // not used
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void error(int errorCode, String object) {
+                            runOnUiThread(() -> Toast.makeText(StoriesActivity.this, errorCode, Toast.LENGTH_SHORT).show());
+                        }
+
+                        @Override
+                        public void userInputRequired(PendingIntent pi, String object) {
+                            // not used
+                        }
+                    });
+                })
+                .create()
+                .show();
     }
 
     @Override
