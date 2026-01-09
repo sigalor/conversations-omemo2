@@ -106,4 +106,5 @@
     <dimen name="presence_indicator_size">12dp</dimen>
     <dimen name="presence_indicator_offset">2dp</dimen>
     <dimen name="thumbnail_size">80dp</dimen>
+    <dimen name="posts_comments_avatar_size">24dp</dimen>
 </resources>

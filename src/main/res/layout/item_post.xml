@@ -2,182 +2,195 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-<com.google.android.material.card.MaterialCardView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:layout_margin="8dp">
 
-        <eu.siacs.conversations.ui.widget.AvatarView
-            android:id="@+id/post_author_avatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@tools:sample/avatars" />
-
-        <TextView
-            android:id="@+id/post_author_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/post_author_avatar"
-            app:layout_constraintTop_toTopOf="@+id/post_author_avatar"
-            tools:text="John Doe" />
-
-        <TextView
-            android:id="@+id/post_timestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/post_author_avatar"
-            app:layout_constraintTop_toBottomOf="@+id/post_author_name"
-            tools:text="2 hours ago" />
-
-        <ImageButton
-            android:id="@+id/delete_button"
-            style="?android:attr/actionButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_delete_24dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
-
-        <ImageButton
-            android:id="@+id/edit_button"
-            style="?android:attr/actionButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_edit_24dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/delete_button"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
-
-        <TextView
-            android:id="@+id/post_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textIsSelectable="true"
-            app:layout_constraintEnd_toStartOf="@+id/attachment_hint"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/post_author_avatar"
-            tools:text="This is a post title" />
-
-        <ImageView
-            android:id="@+id/attachment_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:src="@drawable/ic_attach_file_white_24dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/post_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/post_title"
-            app:layout_constraintTop_toTopOf="@+id/post_title"
-            app:tint="?android:attr/textColorSecondary"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/post_image"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/post_title"
-            tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible" />
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/download_button"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/download_file"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/post_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible"
-            />
+            <eu.siacs.conversations.ui.widget.AvatarView
+                android:id="@+id/post_author_avatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@tools:sample/avatars" />
 
-        <TextView
-            android:id="@+id/post_content_summary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:maxLines="3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/post_image"
-            tools:text="This is the content of the post. It can be a long text spanning multiple lines." />
+            <TextView
+                android:id="@+id/post_author_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/post_author_avatar"
+                app:layout_constraintTop_toTopOf="@+id/post_author_avatar"
+                tools:text="John Doe" />
 
-        <TextView
-            android:id="@+id/post_content_full"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:autoLink="web"
-            android:textIsSelectable="true"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/post_image"
-            tools:text="This is the content of the post. It can be a long text spanning multiple lines." />
+            <TextView
+                android:id="@+id/post_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/post_author_avatar"
+                app:layout_constraintTop_toBottomOf="@+id/post_author_name"
+                tools:text="2 hours ago" />
 
-        <LinearLayout
-            android:id="@+id/post_actions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/post_content_full"
-            tools:visibility="visible">
+            <ImageButton
+                android:id="@+id/delete_button"
+                style="?android:attr/actionButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_delete_24dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/edit_button"
+                style="?android:attr/actionButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_edit_24dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/delete_button"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/post_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textIsSelectable="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_author_avatar"
+                tools:text="This is a post title" />
+
+            <ImageView
+                android:id="@+id/attachment_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_attach_file_white_24dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/post_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/post_title"
+                app:layout_constraintTop_toTopOf="@+id/post_title"
+                app:layout_constraintVertical_bias="1.0"
+                app:tint="?android:attr/textColorSecondary"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/post_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/post_title"
+                tools:src="@tools:sample/backgrounds/scenic"
+                tools:visibility="visible" />
 
             <Button
-                android:id="@+id/reply_button"
+                android:id="@+id/download_button"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/reply" />
+                android:layout_marginTop="8dp"
+                android:text="@string/download_file"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/post_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:visibility="visible" />
 
-            <Button
-                android:id="@+id/comment_button"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/post_content_summary"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/comment" />
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:maxLines="3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_image"
+                tools:text="This is the content of the post. It can be a long text spanning multiple lines." />
 
-            <Button
-                android:id="@+id/share_button"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/post_content_full"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/share" />
-        </LinearLayout>
+                android:layout_marginTop="8dp"
+                android:autoLink="web"
+                android:textIsSelectable="true"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_image"
+                tools:text="This is the content of the post. It can be a long text spanning multiple lines." />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:id="@+id/post_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/post_content_full"
+                tools:visibility="visible">
 
-</com.google.android.material.card.MaterialCardView>
+                <Button
+                    android:id="@+id/reply_button"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reply" />
+
+                <Button
+                    android:id="@+id/comment_button"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/comment" />
+
+                <Button
+                    android:id="@+id/share_button"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/comments_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/post_actions"
+                tools:listitem="@layout/item_comment"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 </layout>

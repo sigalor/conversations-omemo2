@@ -2,25 +2,30 @@ package eu.siacs.conversations.ui.adapter;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemPostBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Comment;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
@@ -32,6 +37,10 @@ import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.AccountUtils;
+import eu.siacs.conversations.utils.XmppUri;
+import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
+import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHolder> {
@@ -72,6 +81,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
         void bind(Post post) {
             final boolean isExpanded = expandedPosts.contains(post);
+            binding.postActions.setVisibility(isExpanded ?View.VISIBLE :View.GONE);
+            if (isExpanded && post.getCommentsNode() != null) {
+                loadComments(post, binding.commentsList);
+            } else {
+                binding.commentsList.setVisibility(View.GONE);
+                binding.commentsList.setAdapter(null);
+            }
             final boolean hasAttachment = post.getAttachmentUrl() != null;
             final boolean isImage = hasAttachment && post.getAttachmentType() != null && post.getAttachmentType().startsWith("image/");
             final boolean isVideo = hasAttachment && post.getAttachmentType() != null && post.getAttachmentType().startsWith("video/");
@@ -263,5 +279,55 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 binding.postTimestamp.setText(null);
             }
         }
+
+
+
+    private void loadComments(final Post post, final RecyclerView recyclerView) {
+        if (mActivity.xmppConnectionService == null) {
+            return;
+        }
+        try {
+            final XmppUri uri = new XmppUri(post.getCommentsNode());
+            final Jid jid = uri.getJid();
+            final String node = uri.getParameter("node");
+            if (jid != null && node != null) {
+                mActivity.xmppConnectionService.fetchPubsubItems(jid, node, new XmppConnectionService.OnPubsubItemsFetched() {
+                    @Override
+                    public void onPubsubItemsFetched(String feedXml) {
+                        try {
+                            final XmlReader reader = new XmlReader();
+                            reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
+                            final Element feed = reader.readElement(reader.readTag());
+                            final List<Comment> comments = new ArrayList<>();
+                            if (feed != null && "feed".equals(feed.getName()) && Namespace.ATOM.equals(feed.getNamespace())) {
+                                for (Element child : feed.getChildren()) {
+                                    if ("entry".equals(child.getName()) && Namespace.ATOM.equals(child.getNamespace())) {
+                                        comments.add(Comment.fromElement(child));
+                                    }
+                                }
+                            }
+                            mActivity.runOnUiThread(() -> {
+                                if (!comments.isEmpty()) {
+                                    CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, comments);
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+                                    recyclerView.setAdapter(commentsAdapter);
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(Config.LOGTAG, "error parsing comments", e);
+                        }
+                    }
+
+                    @Override
+                    public void onPubsubItemsFetchFailed() {
+                        Log.e(Config.LOGTAG, "failed to fetch comments for post "+post.getId());
+                    }
+                });
+            }
+        } catch (final Exception e) {
+            Log.e(Config.LOGTAG, "error parsing comments node uri", e);
+        }
+    }
     }
 }

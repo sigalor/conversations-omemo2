@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <eu.siacs.conversations.ui.widget.AvatarView
+            android:id="@+id/comment_author_avatar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/comment_author_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/comment_author_avatar"
+            app:layout_constraintTop_toTopOf="@+id/comment_author_avatar"
+            tools:text="Jane Doe" />
+
+        <TextView
+            android:id="@+id/comment_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="10sp"
+            app:layout_constraintStart_toEndOf="@+id/comment_author_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/comment_author_name"
+            tools:text="1 hour ago" />
+
+        <TextView
+            android:id="@+id/comment_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:autoLink="web"
+            android:textIsSelectable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/comment_author_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/comment_timestamp"
+            tools:text="This is a comment." />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
