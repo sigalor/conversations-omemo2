@@ -142,14 +142,17 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             binding.postContentSummary.setText(post.getContent());
             binding.postContentFull.setText(post.getContent());
 
-            itemView.setOnClickListener(v -> {
+            final View.OnClickListener expandClickListener = v -> {
                 if (expandedPosts.contains(post)) {
                     expandedPosts.remove(post);
                 } else {
                     expandedPosts.add(post);
                 }
                 notifyItemChanged(getAdapterPosition());
-            });
+            };
+
+            itemView.setOnClickListener(expandClickListener);
+            binding.postTitle.setOnClickListener(expandClickListener);
 
             binding.replyButton.setOnClickListener(v -> {
                 if (post.getAuthor() != null) {
