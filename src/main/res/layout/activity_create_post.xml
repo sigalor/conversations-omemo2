@@ -17,8 +17,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize" />
+            android:layout_height="?attr/actionBarSize" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -34,6 +33,17 @@
         tools:src="@tools:sample/avatars"
         tools:visibility="visible"/>
 
+    <Spinner
+        android:id="@+id/account_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/attachment_preview" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/post_title_layout"
         android:layout_width="0dp"
@@ -41,7 +51,7 @@
         android:layout_margin="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/attachment_preview">
+        app:layout_constraintTop_toBottomOf="@+id/account_spinner">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/post_title_edit_text"
@@ -74,8 +84,8 @@
         android:id="@+id/attachment_options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         app:layout_constraintBottom_toTopOf="@+id/publish_button">

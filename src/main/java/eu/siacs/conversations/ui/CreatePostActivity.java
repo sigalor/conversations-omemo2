@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,8 +18,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityCreatePostBinding;
+import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.XmppConnectionService;
 
 public class CreatePostActivity extends XmppActivity {
@@ -108,7 +114,15 @@ public class CreatePostActivity extends XmppActivity {
 
     @Override
     public void onBackendConnected() {
-        // do nothing
+        if (xmppConnectionService != null) {
+            List<String> accounts = new ArrayList<>();
+            for(Account account : xmppConnectionService.getAccounts()) {
+                accounts.add(account.getJid().asBareJid().toString());
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, accounts);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            binding.accountSpinner.setAdapter(adapter);
+        }
     }
 
     private void publishPost() {
@@ -121,29 +135,13 @@ public class CreatePostActivity extends XmppActivity {
         }
 
         if (xmppConnectionService != null) {
-            if (inReplyToNode != null) {
-                xmppConnectionService.publishComment(inReplyToNode, title, inReplyToId, new XmppConnectionService.OnPostPublished() {
-                    @Override
-                    public void onPostPublished() {
-                        runOnUiThread(() -> {
-                            Toast.makeText(CreatePostActivity.this, R.string.comment_published, Toast.LENGTH_SHORT).show();
-                            finish();
-                        });
-                    }
-
-                    @Override
-                    public void onPostPublishFailed() {
-                        runOnUiThread(() -> {
-                            Toast.makeText(CreatePostActivity.this, R.string.error_publish_comment, Toast.LENGTH_SHORT).show();
-                        });
-                    }
-                });
-            } else if (attachmentUri != null) {
+            final Account selectedAccount = xmppConnectionService.getAccounts().get(binding.accountSpinner.getSelectedItemPosition());
+            if (attachmentUri != null) {
                 final String mimeType = getContentResolver().getType(attachmentUri);
-                xmppConnectionService.uploadFileForUrl(xmppConnectionService.getAccounts().get(0), attachmentUri, mimeType, new UiCallback<String>() {
+                xmppConnectionService.uploadFileForUrl(selectedAccount, attachmentUri, mimeType, new UiCallback<String>() {
                     @Override
                     public void success(String url) {
-                        publish(title, content, url, mimeType);
+                        publish(selectedAccount, title, content, url, mimeType);
                     }
 
                     @Override
@@ -153,17 +151,17 @@ public class CreatePostActivity extends XmppActivity {
 
                     @Override
                     public void userInputRequired(android.app.PendingIntent pi, String object) {
-                        // Not handled
+
                     }
                 });
             } else {
-                publish(title, content, null, null);
+                publish(selectedAccount, title, content, null, null);
             }
         }
     }
 
-    private void publish(String title, String content, String attachmentUrl, String attachmentType) {
-        xmppConnectionService.publishPost("urn:xmpp:microblog:0", title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
+    private void publish(Account account, String title, String content, String attachmentUrl, String attachmentType) {
+        xmppConnectionService.publishPost(account, "urn:xmpp:microblog:0", title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
             @Override
             public void onPostPublished() {
                 runOnUiThread(() -> {
