@@ -136,7 +136,24 @@ public class CreatePostActivity extends XmppActivity {
 
         if (xmppConnectionService != null) {
             final Account selectedAccount = xmppConnectionService.getAccounts().get(binding.accountSpinner.getSelectedItemPosition());
-            if (attachmentUri != null) {
+            if (inReplyToNode != null) {
+                xmppConnectionService.publishComment(selectedAccount, inReplyToNode, title, inReplyToId, new XmppConnectionService.OnPostPublished() {
+                    @Override
+                    public void onPostPublished() {
+                        runOnUiThread(() -> {
+                            Toast.makeText(CreatePostActivity.this, R.string.comment_published, Toast.LENGTH_SHORT).show();
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onPostPublishFailed() {
+                        runOnUiThread(() -> {
+                            Toast.makeText(CreatePostActivity.this, R.string.error_publish_comment, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
+            } else if (attachmentUri != null) {
                 final String mimeType = getContentResolver().getType(attachmentUri);
                 xmppConnectionService.uploadFileForUrl(selectedAccount, attachmentUri, mimeType, new UiCallback<String>() {
                     @Override
