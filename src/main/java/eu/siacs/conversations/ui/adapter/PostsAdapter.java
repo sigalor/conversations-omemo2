@@ -1,11 +1,15 @@
 package eu.siacs.conversations.ui.adapter;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,6 +75,21 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         return posts.size();
     }
 
+    private void showImagePreviewDialog(String url) {
+        if (mActivity == null || url == null) {
+            return;
+        }
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.setContentView(R.layout.dialog_image_preview);
+        ImageView imageView = dialog.findViewById(R.id.image_view);
+        Glide.with(mActivity).load(url).into(imageView);
+        imageView.setOnClickListener(v -> dialog.dismiss());
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.show();
+    }
+
     class PostViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemPostBinding binding;
@@ -101,6 +121,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             if (isExpanded && (isImage || isVideo)) {
                 Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
+                binding.postImage.setOnClickListener(v -> showImagePreviewDialog(post.getAttachmentUrl()));
             }
 
             binding.downloadButton.setOnClickListener(v -> {
