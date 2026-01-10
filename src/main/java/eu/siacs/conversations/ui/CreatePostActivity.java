@@ -36,6 +36,8 @@ public class CreatePostActivity extends XmppActivity {
     private Uri attachmentUri;
     private Uri mCameraUri;
 
+    private List<Account> onlineAccounts = new ArrayList<>();
+
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -115,11 +117,15 @@ public class CreatePostActivity extends XmppActivity {
     @Override
     public void onBackendConnected() {
         if (xmppConnectionService != null) {
-            List<String> accounts = new ArrayList<>();
-            for(Account account : xmppConnectionService.getAccounts()) {
-                accounts.add(account.getJid().asBareJid().toString());
+            onlineAccounts.clear();
+            List<String> accountJids = new ArrayList<>();
+            for (Account account : xmppConnectionService.getAccounts()) {
+                if (account.isOnlineAndConnected()) {
+                    onlineAccounts.add(account);
+                    accountJids.add(account.getJid().asBareJid().toString());
+                }
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, accounts);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, accountJids);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             binding.accountSpinner.setAdapter(adapter);
         }
@@ -135,7 +141,11 @@ public class CreatePostActivity extends XmppActivity {
         }
 
         if (xmppConnectionService != null) {
-            final Account selectedAccount = xmppConnectionService.getAccounts().get(binding.accountSpinner.getSelectedItemPosition());
+            if (binding.accountSpinner.getSelectedItemPosition() < 0 || binding.accountSpinner.getSelectedItemPosition() >= onlineAccounts.size()) {
+                Toast.makeText(this, R.string.no_active_account, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            final Account selectedAccount = onlineAccounts.get(binding.accountSpinner.getSelectedItemPosition());
             if (inReplyToNode != null) {
                 xmppConnectionService.publishComment(selectedAccount, inReplyToNode, title, inReplyToId, new XmppConnectionService.OnPostPublished() {
                     @Override
