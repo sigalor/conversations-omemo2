@@ -5,18 +5,24 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -24,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -32,7 +37,6 @@ import eu.siacs.conversations.databinding.ItemPostBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Comment;
 import eu.siacs.conversations.entities.Contact;
-import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.StubConversation;
@@ -90,6 +94,44 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         dialog.show();
     }
 
+    private void showVideoPreviewDialog (String url) {
+        if (mActivity == null || url == null) {
+            return;
+        }
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.setContentView(R.layout.dialog_video_preview);
+        VideoView videoView = dialog.findViewById(R.id.video_view);
+        Glide.with(mActivity)
+                .asFile()
+                .load(url)
+                .into(new CustomTarget<File>() {
+                    @Override
+                    public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
+                        videoView.setVideoURI(Uri.fromFile(resource));
+                        videoView.setOnPreparedListener(mp -> {
+                            mp.setLooping(true);
+                            videoView.start();
+                        });
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        // Do nothing
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        Toast.makeText(mActivity, R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
+                    }
+                });
+        videoView.canPause();
+        // videoView.setOnClickListener(v -> dialog.dismiss());
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.show();
+    }
+
     class PostViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemPostBinding binding;
@@ -120,8 +162,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             binding.downloadButton.setVisibility(isExpanded && hasAttachment && !isImage && !isVideo ? View.VISIBLE : View.GONE);
 
             if (isExpanded && (isImage || isVideo)) {
-                Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
-                binding.postImage.setOnClickListener(v -> showImagePreviewDialog(post.getAttachmentUrl()));
+                if (isImage) {
+                    Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
+                    binding.postImage.setOnClickListener(v -> showImagePreviewDialog(post.getAttachmentUrl()));
+                } else {
+                    Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
+                    binding.postImage.setOnClickListener(v -> showVideoPreviewDialog(post.getAttachmentUrl()));
+
+                }
             }
 
             binding.downloadButton.setOnClickListener(v -> {
