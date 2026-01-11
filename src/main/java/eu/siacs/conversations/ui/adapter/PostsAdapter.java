@@ -1,6 +1,5 @@
 package eu.siacs.conversations.ui.adapter;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -173,40 +174,24 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 }
             }
 
-            final Account postAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor()) : null;
+            final List<Account> postAccounts = new ArrayList<>();
+            if (post.getAuthor() != null && mActivity.xmppConnectionService != null) {
+                for (Account account : mActivity.xmppConnectionService.getAccounts()) {
+                    if (account.isOnlineAndConnected()) {
+                        if (account.getJid().asBareJid().equals(post.getAuthor().asBareJid()) || (account.getRoster() != null && account.getRoster().getContact(post.getAuthor().asBareJid()) != null)) {
+                            postAccounts.add(account);
+                        }
+                    }
+                }
+            }
+            final Account ownAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor().asBareJid()) : null;
+
 
             binding.downloadButton.setOnClickListener(v -> {
-                if (mActivity.xmppConnectionService != null) {
-                    if (postAccount == null) {
-                        Toast.makeText(mActivity, R.string.no_active_account, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    final var message = new Message(new StubConversation(postAccount, "", null, 0), null, Message.ENCRYPTION_NONE);
-                    message.setType(Message.TYPE_FILE);
-                    Message.FileParams params = new Message.FileParams();
-                    params.url = post.getAttachmentUrl();
-                    message.setFileParams(params);
-
-                    mActivity.xmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
-                        mActivity.xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<Integer>() {
-                            @Override
-                            public void success(Integer object) {
-                                mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.save_to_downloads_success, Toast.LENGTH_SHORT).show());
-                            }
-
-                            @Override
-                            public void error(int errorCode, Integer object) {
-                                mActivity.runOnUiThread(() -> Toast.makeText(mActivity, errorCode, Toast.LENGTH_SHORT).show());
-                            }
-
-                            @Override
-                            public void userInputRequired(android.app.PendingIntent pi, Integer object) {
-
-                            }
-                        });
-                    });
-                    Toast.makeText(mActivity, R.string.download_started, Toast.LENGTH_SHORT).show();
+                if (postAccounts.size() == 1) {
+                    downloadAttachment(postAccounts.get(0), post);
+                } else {
+                    showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
                 }
             });
 
@@ -227,79 +212,63 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             binding.replyButton.setOnClickListener(v -> {
                 if (post.getAuthor() != null) {
-                    if (postAccount != null) {
-                        final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(postAccount, post.getAuthor(), false, true);
-                        if (conversation != null) {
-                            final Message messageToReply = new Message(conversation, post.getTitle(), conversation.getNextEncryption());
-                            messageToReply.setServerMsgId(post.getId());
-                            conversation.setReplyTo(messageToReply);
-                            mActivity.switchToConversation(conversation);
-                        }
+                    if (postAccounts.size() == 1) {
+                        replyToPost(postAccounts.get(0), post);
+                    } else {
+                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_reply), postAccounts, account -> replyToPost(account, post));
                     }
                 }
             });
 
             binding.commentButton.setOnClickListener(v -> {
-                Intent intent = new Intent(mActivity, CreatePostActivity.class);
-                intent.putExtra("in_reply_to_id", post.getId());
-                intent.putExtra("in_reply_to_node", post.getCommentsNode());
-                if (postAccount != null) {
-                    intent.putExtra("account", postAccount.getUuid());
+                if (postAccounts.size() == 1) {
+                    commentOnPost(postAccounts.get(0), post);
+                } else {
+                    showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_comment), postAccounts, account -> commentOnPost(account, post));
                 }
-                mActivity.startActivity(intent);
             });
 
             binding.shareButton.setOnClickListener(v -> {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, post.getTitle() + "\n" + post.getContent());
+                intent.putExtra(Intent.EXTRA_TEXT, post.getTitle() + "\\n" + post.getContent());
                 mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
             });
 
-            if (post.getAuthor() != null && postAccount != null) {
-                if (postAccount.isOnlineAndConnected() && post.getAuthor().asBareJid().equals(postAccount.getJid().asBareJid())) {
-                    binding.editButton.setVisibility(View.VISIBLE);
-                    binding.deleteButton.setVisibility(View.VISIBLE);
-                    binding.editButton.setOnClickListener(v -> {
-                        Intent intent = new Intent(mActivity, CreatePostActivity.class);
-                        intent.putExtra("post_id", post.getId());
-                        intent.putExtra("title", post.getTitle());
-                        intent.putExtra("content", post.getContent());
-                        intent.putExtra("account", postAccount.getUuid());
-                        mActivity.startActivity(intent);
-                    });
-                    binding.deleteButton.setOnClickListener(v -> {
-                        new AlertDialog.Builder(mActivity)
-                                .setTitle(R.string.retract_post)
-                                .setMessage(R.string.retract_post_confirm)
-                                .setPositiveButton(R.string.retract, (dialog, which) -> {
-                                    mActivity.xmppConnectionService.retractPost(postAccount, "urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
-                                        @Override
-                                        public void onPostRetracted() {
-                                            mActivity.runOnUiThread(() -> {
-                                                int pos = getAdapterPosition();
-                                                if(pos != RecyclerView.NO_POSITION) {
-                                                    posts.remove(pos);
-                                                    notifyItemRemoved(pos);
-                                                }
-                                            });
-                                        }
+            if (ownAccount != null && ownAccount.isOnlineAndConnected()) {
+                binding.editButton.setVisibility(View.VISIBLE);
+                binding.deleteButton.setVisibility(View.VISIBLE);
+                binding.editButton.setOnClickListener(v -> {
+                    editPost(ownAccount, post);
+                });
+                binding.deleteButton.setOnClickListener(v -> {
+                    new MaterialAlertDialogBuilder(mActivity)
+                            .setTitle(R.string.retract_post)
+                            .setMessage(R.string.retract_post_confirm)
+                            .setPositiveButton(R.string.retract, (dialog, which) -> {
+                                mActivity.xmppConnectionService.retractPost(ownAccount, "urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
+                                    @Override
+                                    public void onPostRetracted() {
+                                        mActivity.runOnUiThread(() -> {
+                                            int pos = getAdapterPosition();
+                                            if (pos != RecyclerView.NO_POSITION) {
+                                                posts.remove(pos);
+                                                notifyItemRemoved(pos);
+                                            }
+                                        });
+                                    }
 
-                                        @Override
-                                        public void onPostRetractionFailed() {
-                                            mActivity.runOnUiThread(() -> {
-                                                Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show();
-                                            });
-                                        }
-                                    });
-                                })
-                                .setNegativeButton(R.string.cancel, null)
-                                .show();
-                    });
-                } else {
-                    binding.editButton.setVisibility(View.GONE);
-                    binding.deleteButton.setVisibility(View.GONE);
-                }
+                                    @Override
+                                    public void onPostRetractionFailed() {
+                                        mActivity.runOnUiThread(() -> {
+                                            Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show();
+                                        });
+                                    }
+                                });
+                            })
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                });
             } else {
                 binding.editButton.setVisibility(View.GONE);
                 binding.deleteButton.setVisibility(View.GONE);
@@ -307,7 +276,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             if (post.getAuthor() != null) {
                 final Jid authorJid = post.getAuthor();
-                Account displayAccount = postAccount != null ? postAccount : AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                Account displayAccount = ownAccount;
+                if (displayAccount == null && postAccounts.size() > 0) {
+                    displayAccount = postAccounts.get(0);
+                }
+                if (displayAccount == null) {
+                    displayAccount = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                }
+
                 if (displayAccount != null) {
                     if (authorJid.asBareJid().equals(displayAccount.getJid().asBareJid())) {
                         final String displayName = displayAccount.getDisplayName();
@@ -414,5 +390,89 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
     }
 }
+    private void downloadAttachment(Account account, Post post) {
+        if (mActivity.xmppConnectionService == null) {
+            return;
+        }
+        final var message = new Message(new StubConversation(account, "", null, 0), null, Message.ENCRYPTION_NONE);
+        message.setType(Message.TYPE_FILE);
+        Message.FileParams params = new Message.FileParams();
+        params.url = post.getAttachmentUrl();
+        message.setFileParams(params);
 
+        mActivity.xmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
+            mActivity.xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<Integer>() {
+                @Override
+                public void success(Integer object) {
+                    mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.save_to_downloads_success, Toast.LENGTH_SHORT).show());
+                }
+
+                @Override
+                public void error(int errorCode, Integer object) {
+                    mActivity.runOnUiThread(() -> Toast.makeText(mActivity, errorCode, Toast.LENGTH_SHORT).show());
+                }
+
+                @Override
+                public void userInputRequired(android.app.PendingIntent pi, Integer object) {
+
+                }
+            });
+        });
+        Toast.makeText(mActivity, R.string.download_started, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showAccountSelectionDialog(String title, List<Account> accounts, java.util.function.Consumer<Account> onAccountSelected) {
+        if (accounts.size() == 0) {
+            Toast.makeText(mActivity, R.string.no_active_account, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (accounts.size() == 1) {
+            onAccountSelected.accept(accounts.get(0));
+            return;
+        }    final ArrayAdapter<String> adapter = new ArrayAdapter<>(mActivity, android.R.layout.simple_list_item_1);
+        final java.util.Map<String, Account> accountMap = new java.util.HashMap<>();
+        for (Account account : accounts) {
+            String jid = account.getJid().asBareJid().toString();
+            adapter.add(jid);
+            accountMap.put(jid, account);
+        }
+
+        new MaterialAlertDialogBuilder(mActivity)
+                .setTitle(title)
+                .setAdapter(adapter, (dialog, which) -> {
+                    String jid = adapter.getItem(which);
+                    onAccountSelected.accept(accountMap.get(jid));
+                })
+                .create()
+                .show();
+    }
+
+    private void replyToPost(Account account, Post post) {
+        if (post.getAuthor() != null) {
+            final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(account, post.getAuthor(), false, true);
+            if (conversation != null) {
+                final Message messageToReply = new Message(conversation, post.getTitle(), conversation.getNextEncryption());
+                messageToReply.setServerMsgId(post.getId());
+                conversation.setReplyTo(messageToReply);
+                mActivity.switchToConversation(conversation);
+            }
+        }
+    }
+
+    private void commentOnPost(Account account, Post post) {
+        Intent intent = new Intent(mActivity, CreatePostActivity.class);
+        intent.putExtra("in_reply_to_id", post.getId());
+        intent.putExtra("in_reply_to_node", post.getCommentsNode());
+        intent.putExtra("account", account.getUuid());
+        mActivity.startActivity(intent);
+    }
+
+    private void editPost(Account account, Post post) {
+        Intent intent = new Intent(mActivity, CreatePostActivity.class);
+        intent.putExtra("post_id", post.getId());
+        intent.putExtra("title", post.getTitle());
+        intent.putExtra("content", post.getContent());
+        intent.putExtra("account", account.getUuid());
+        mActivity.startActivity(intent);
+    }
 }
