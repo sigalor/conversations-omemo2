@@ -8216,21 +8216,15 @@ public class XmppConnectionService extends Service {
         });
     }
 
-    public void retractPost(final String node, final String id, final OnPostRetracted callback) {
-        Account account = null;
-        for (Account acc : getAccounts()) {
-            if (acc.isOnlineAndConnected()) {
-                account = acc;
-                break;
-            }
-        }
+    public void retractPost(final Account account, final String node, final String id, final OnPostRetracted callback) {
         if (account == null) {
             if (callback != null) {
                 callback.onPostRetractionFailed();
             }
             return;
         }
-        final Iq request = getIqGenerator().retractPost(node, id);sendIqPacket(account, request, response -> {
+        final Iq request = getIqGenerator().retractPost(node, id);
+        sendIqPacket(account, request, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {
                     callback.onPostRetracted();

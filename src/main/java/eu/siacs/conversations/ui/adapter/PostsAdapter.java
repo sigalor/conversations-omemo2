@@ -172,16 +172,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                 }
             }
+            final Account postAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor().asBareJid()) : null;
 
             binding.downloadButton.setOnClickListener(v -> {
                 if (mActivity.xmppConnectionService != null) {
-                    final Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
-                    if (account == null) {
+                    if (postAccount == null) {
                         Toast.makeText(mActivity, R.string.no_active_account, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    final var message = new Message(new StubConversation(account, "", null, 0), null, Message.ENCRYPTION_NONE);
+                    final var message = new Message(new StubConversation(postAccount, "", null, 0), null, Message.ENCRYPTION_NONE);
                     message.setType(Message.TYPE_FILE);
                     Message.FileParams params = new Message.FileParams();
                     params.url = post.getAttachmentUrl();
@@ -226,9 +226,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             binding.replyButton.setOnClickListener(v -> {
                 if (post.getAuthor() != null) {
-                    Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
-                    if (account != null) {
-                        final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(account, post.getAuthor(), false, true);
+                    if (postAccount != null) {
+                        final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(postAccount, post.getAuthor(), false, true);
                         if (conversation != null) {
                             final Message messageToReply = new Message(conversation, post.getTitle(), conversation.getNextEncryption());
                             messageToReply.setServerMsgId(post.getId());
@@ -243,6 +242,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 Intent intent = new Intent(mActivity, CreatePostActivity.class);
                 intent.putExtra("in_reply_to_id", post.getId());
                 intent.putExtra("in_reply_to_node", post.getCommentsNode());
+                if (postAccount != null) {
+                    intent.putExtra("account", postAccount.getUuid());
+                }
                 mActivity.startActivity(intent);
             });
 
@@ -253,9 +255,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
             });
 
-            if (post.getAuthor() != null && mActivity.xmppConnectionService != null) {
-                Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
-                if (account != null && post.getAuthor().asBareJid().equals(account.getJid().asBareJid())) {
+            if (post.getAuthor() != null && postAccount != null) {
+                if (postAccount.isOnlineAndConnected() && post.getAuthor().asBareJid().equals(postAccount.getJid().asBareJid())) {
                     binding.editButton.setVisibility(View.VISIBLE);
                     binding.deleteButton.setVisibility(View.VISIBLE);
                     binding.editButton.setOnClickListener(v -> {
@@ -263,6 +264,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                         intent.putExtra("post_id", post.getId());
                         intent.putExtra("title", post.getTitle());
                         intent.putExtra("content", post.getContent());
+                        intent.putExtra("account", postAccount.getUuid());
                         mActivity.startActivity(intent);
                     });
                     binding.deleteButton.setOnClickListener(v -> {
@@ -270,7 +272,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 .setTitle(R.string.retract_post)
                                 .setMessage(R.string.retract_post_confirm)
                                 .setPositiveButton(R.string.retract, (dialog, which) -> {
-                                    mActivity.xmppConnectionService.retractPost("urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
+                                    mActivity.xmppConnectionService.retractPost(postAccount, "urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
                                         @Override
                                         public void onPostRetracted() {
                                             mActivity.runOnUiThread(() -> {
@@ -304,37 +306,31 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             if (post.getAuthor() != null) {
                 final Jid authorJid = post.getAuthor();
-                if (mActivity.xmppConnectionService != null) {
-                    Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
-                    if (account != null) {
-                        if (authorJid.asBareJid().equals(account.getJid().asBareJid())) {
-                            binding.postAuthorName.setText(account.getDisplayName());
-                            AvatarWorkerTask.loadAvatar(account, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
-                            final Contact self = account.getSelfContact();
-                            binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(self));
-                            binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(self));
-                        } else {
-                            Contact contact = account.getRoster().getContact(authorJid);
-                            if (contact != null) {
-                                binding.postAuthorName.setText(contact.getDisplayName());
-                                AvatarWorkerTask.loadAvatar(contact, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
-                                binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
-                                binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
-                            } else {
-                                binding.postAuthorName.setText(authorJid.asBareJid().toString());
-                                binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
-                                binding.postAuthorAvatar.setOnClickListener(null);
-                                binding.postAuthorName.setOnClickListener(null);
-                            }
-                        }
+                Account displayAccount = postAccount != null ? postAccount : AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                if (displayAccount != null) {
+                    if (authorJid.asBareJid().equals(displayAccount.getJid().asBareJid())) {
+                        binding.postAuthorName.setText(displayAccount.getDisplayName());
+                        AvatarWorkerTask.loadAvatar(displayAccount, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
+                        final Contact self = displayAccount.getSelfContact();
+                        binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(self));
+                        binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(self));
                     } else {
-                        binding.postAuthorName.setText(authorJid.asBareJid().toString());
-                        binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
-                        binding.postAuthorAvatar.setOnClickListener(null);
-                        binding.postAuthorName.setOnClickListener(null);
+                        Contact contact = displayAccount.getRoster().getContact(authorJid);
+                        if (contact != null) {
+                            binding.postAuthorName.setText(contact.getDisplayName());
+                            AvatarWorkerTask.loadAvatar(contact, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
+                            binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
+                            binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
+                        } else {
+                            binding.postAuthorName.setText(authorJid.asBareJid().toString());
+                            binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
+                            binding.postAuthorAvatar.setOnClickListener(null);
+                            binding.postAuthorName.setOnClickListener(null);
+                        }
                     }
                 } else {
                     binding.postAuthorName.setText(authorJid.asBareJid().toString());
+                    binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
                     binding.postAuthorAvatar.setOnClickListener(null);
                     binding.postAuthorName.setOnClickListener(null);
                 }
