@@ -27,6 +27,7 @@ import com.bumptech.glide.request.transition.Transition;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -143,7 +144,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
         void bind(Post post) {
             final boolean isExpanded = expandedPosts.contains(post);
-            binding.postActions.setVisibility(isExpanded ?View.VISIBLE :View.GONE);
+            binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             if (isExpanded && post.getCommentsNode() != null) {
                 loadComments(post, binding.commentsList);
             } else {
@@ -252,7 +253,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
             });
 
-
             if (post.getAuthor() != null && mActivity.xmppConnectionService != null) {
                 Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
                 if (account != null && post.getAuthor().asBareJid().equals(account.getJid().asBareJid())) {
@@ -352,8 +352,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             }
         }
 
-
-
     private void loadComments(final Post post, final RecyclerView recyclerView) {
         if (mActivity.xmppConnectionService == null) {
             return;
@@ -380,10 +378,25 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                             }
                             mActivity.runOnUiThread(() -> {
                                 if (!comments.isEmpty()) {
+                                    java.util.Collections.sort(comments, (c1, c2) -> {
+                                        Date d1 = c1.getPublished();
+                                        Date d2 = c2.getPublished();
+                                        if (d1 == null && d2 == null) {
+                                            return 0;
+                                        } else if (d1 == null) {
+                                            return -1;
+                                        } else if (d2 == null) {
+                                            return 1;
+                                        } else {
+                                            return d1.compareTo(d2);
+                                        }
+                                    });
                                     CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, comments);
                                     recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
                                     recyclerView.setAdapter(commentsAdapter);
                                     recyclerView.setVisibility(View.VISIBLE);
+                                } else {
+                                    recyclerView.setVisibility(View.GONE);
                                 }
                             });
                         } catch (Exception e) {
@@ -393,7 +406,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                     @Override
                     public void onPubsubItemsFetchFailed() {
-                        Log.e(Config.LOGTAG, "failed to fetch comments for post "+post.getId());
+                        Log.e(Config.LOGTAG, "failed to fetch comments for post " + post.getId());
                     }
                 });
             }
@@ -401,5 +414,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             Log.e(Config.LOGTAG, "error parsing comments node uri", e);
         }
     }
-    }
+}
+
 }
