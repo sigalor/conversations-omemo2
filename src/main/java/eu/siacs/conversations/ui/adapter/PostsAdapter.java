@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -126,8 +127,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                         Toast.makeText(mActivity, R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
                     }
                 });
-        videoView.canPause();
-        // videoView.setOnClickListener(v -> dialog.dismiss());
+        MediaController controller = new MediaController(mActivity);
+        controller.setMediaPlayer(videoView);
+        videoView.setMediaController(controller);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
