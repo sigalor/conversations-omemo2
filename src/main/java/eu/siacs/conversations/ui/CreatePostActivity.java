@@ -35,6 +35,7 @@ public class CreatePostActivity extends XmppActivity {
     private String postId;
     private Uri attachmentUri;
     private Uri mCameraUri;
+    private String accountUuid;
 
     private List<Account> onlineAccounts = new ArrayList<>();
 
@@ -82,9 +83,13 @@ public class CreatePostActivity extends XmppActivity {
         inReplyToId = getIntent().getStringExtra("in_reply_to_id");
         inReplyToNode = getIntent().getStringExtra("in_reply_to_node");
         postId = getIntent().getStringExtra("post_id");
+        accountUuid = getIntent().getStringExtra("account");
         if (postId != null) {
             binding.postTitleEditText.setText(getIntent().getStringExtra("title"));
             binding.postContentEditText.setText(getIntent().getStringExtra("content"));
+            if (accountUuid != null) {
+                binding.accountSpinner.setVisibility(View.GONE);
+            }
         }
 
         binding.publishButton.setOnClickListener(v -> publishPost());
@@ -115,8 +120,8 @@ public class CreatePostActivity extends XmppActivity {
     }
 
     @Override
-    public void onBackendConnected() {
-        if (xmppConnectionService != null) {
+    public void onBackendConnected()  {
+        if (xmppConnectionService != null && accountUuid == null) {
             onlineAccounts.clear();
             List<String> accountJids = new ArrayList<>();
             for (Account account : xmppConnectionService.getAccounts()) {
@@ -141,11 +146,21 @@ public class CreatePostActivity extends XmppActivity {
         }
 
         if (xmppConnectionService != null) {
-            if (binding.accountSpinner.getSelectedItemPosition() < 0 || binding.accountSpinner.getSelectedItemPosition() >= onlineAccounts.size()) {
-                Toast.makeText(this, R.string.no_active_account, Toast.LENGTH_SHORT).show();
-                return;
+            Account selectedAccount;
+            if (accountUuid != null) {
+                selectedAccount = xmppConnectionService.findAccountByUuid(accountUuid);
+                if (selectedAccount == null) {
+                    Toast.makeText(this, getString(R.string.account_not_found), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                if (binding.accountSpinner.getSelectedItemPosition() < 0 || binding.accountSpinner.getSelectedItemPosition() >= onlineAccounts.size()) {
+                    Toast.makeText(this, R.string.no_active_account, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                selectedAccount = onlineAccounts.get(binding.accountSpinner.getSelectedItemPosition());
             }
-            final Account selectedAccount = onlineAccounts.get(binding.accountSpinner.getSelectedItemPosition());
+
             if (inReplyToNode != null) {
                 xmppConnectionService.publishComment(selectedAccount, inReplyToNode, title, inReplyToId, new XmppConnectionService.OnPostPublished() {
                     @Override
