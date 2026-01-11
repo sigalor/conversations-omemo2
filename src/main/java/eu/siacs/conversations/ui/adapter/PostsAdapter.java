@@ -172,7 +172,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                 }
             }
-            final Account postAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor().asBareJid()) : null;
+
+            final Account postAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor()) : null;
 
             binding.downloadButton.setOnClickListener(v -> {
                 if (mActivity.xmppConnectionService != null) {
@@ -309,7 +310,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 Account displayAccount = postAccount != null ? postAccount : AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
                 if (displayAccount != null) {
                     if (authorJid.asBareJid().equals(displayAccount.getJid().asBareJid())) {
-                        binding.postAuthorName.setText(displayAccount.getDisplayName());
+                        final String displayName = displayAccount.getDisplayName();
+                        binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : displayAccount.getJid().asBareJid().toString());
                         AvatarWorkerTask.loadAvatar(displayAccount, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
                         final Contact self = displayAccount.getSelfContact();
                         binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(self));
@@ -317,7 +319,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     } else {
                         Contact contact = displayAccount.getRoster().getContact(authorJid);
                         if (contact != null) {
-                            binding.postAuthorName.setText(contact.getDisplayName());
+                            final String displayName = contact.getDisplayName();
+                            binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : contact.getJid().asBareJid().toString());
                             AvatarWorkerTask.loadAvatar(contact, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
                             binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
                             binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
