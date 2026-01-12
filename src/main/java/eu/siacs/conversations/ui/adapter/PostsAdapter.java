@@ -451,10 +451,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
     private void replyToPost(Account account, Post post) {
         if (post.getAuthor() != null) {
-            final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(account, post.getAuthor(), false, true);
+            final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(account, post.getAuthor(), false, false);
             if (conversation != null) {
-                final Message messageToReply = new Message(conversation, post.getTitle(), conversation.getNextEncryption());
-                messageToReply.setServerMsgId(post.getId());
+                final Message messageToReply = new Message(conversation, post.getTitle(), conversation.getNextEncryption(), Message.STATUS_RECEIVED);
                 conversation.setReplyTo(messageToReply);
                 mActivity.switchToConversation(conversation);
             }
