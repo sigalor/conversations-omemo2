@@ -2457,6 +2457,24 @@ public class FileBackend {
         }
     }
 
+    public Uri getTakeVideoUri() {
+        final String filename =
+                String.format("IMG_%s.%s", IMAGE_DATE_FORMAT.format(new Date()), "mp4");
+        final File directory;
+        if (Config.ONLY_INTERNAL_STORAGE) {
+            directory = new File(mXmppConnectionService.getCacheDir(), "Camera");
+        } else {
+            directory =
+                    new File(
+                            Environment.getExternalStoragePublicDirectory(
+                                    Environment.DIRECTORY_DCIM),
+                            "Camera");
+        }
+        final File file = new File(directory, filename);
+        file.getParentFile().mkdirs();
+        return getUriForFile(mXmppConnectionService, file, filename);
+    }
+
     private static class Dimensions {
         public final int width;
         public final int height;

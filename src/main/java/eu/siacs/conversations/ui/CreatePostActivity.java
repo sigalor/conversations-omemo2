@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,9 +16,16 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +62,21 @@ public class CreatePostActivity extends XmppActivity {
                     attachmentUri = mCameraUri;
                     binding.attachmentPreview.setImageURI(attachmentUri);
                     binding.attachmentPreview.setVisibility(View.VISIBLE);
+                    binding.attachmentVideoView.setVisibility(View.GONE);
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> takeVideoLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    attachmentUri = mCameraUri;
+                    binding.attachmentVideoView.setVideoURI(attachmentUri);
+                    binding.attachmentVideoView.setOnPreparedListener(mp -> {
+                        mp.setLooping(true);
+                        binding.attachmentVideoView.start();
+                    });
+                    binding.attachmentVideoView.setVisibility(View.VISIBLE);
+                    binding.attachmentPreview.setVisibility(View.GONE);
                 }
             });
 
@@ -62,8 +85,20 @@ public class CreatePostActivity extends XmppActivity {
             uri -> {
                 if (uri != null) {
                     this.attachmentUri = uri;
-                    binding.attachmentPreview.setImageURI(attachmentUri);
-                    binding.attachmentPreview.setVisibility(View.VISIBLE);
+                    final String mimeType = getContentResolver().getType(attachmentUri);
+                    if (mimeType != null && mimeType.startsWith("image/")) {
+                        binding.attachmentPreview.setImageURI(attachmentUri);
+                        binding.attachmentPreview.setVisibility(View.VISIBLE);
+                        binding.attachmentVideoView.setVisibility(View.GONE);
+                    } else if (mimeType != null && mimeType.startsWith("video/")) {
+                        binding.attachmentVideoView.setVideoURI(attachmentUri);
+                        binding.attachmentVideoView.setOnPreparedListener(mp -> {
+                            mp.setLooping(true);
+                            binding.attachmentVideoView.start();
+                        });
+                        binding.attachmentVideoView.setVisibility(View.VISIBLE);
+                        binding.attachmentPreview.setVisibility(View.GONE);
+                    }
                 }
             }
     );
@@ -101,6 +136,13 @@ public class CreatePostActivity extends XmppActivity {
                 requestPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
         });
+        binding.attachVideoButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                openVideoCamera();
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        });
     }
 
     private void openCamera() {
@@ -114,13 +156,24 @@ public class CreatePostActivity extends XmppActivity {
         takePictureLauncher.launch(takePictureIntent);
     }
 
+    private void openVideoCamera() {
+        if (xmppConnectionService == null) {
+            Toast.makeText(this, R.string.not_connected_try_again, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mCameraUri = xmppConnectionService.getFileBackend().getTakeVideoUri();
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraUri);
+        takeVideoLauncher.launch(takeVideoIntent);
+    }
+
     @Override
     protected void refreshUiReal() {
 
     }
 
     @Override
-    public void onBackendConnected()  {
+    public void onBackendConnected() {
         if (xmppConnectionService != null && accountUuid == null) {
             onlineAccounts.clear();
             List<String> accountJids = new ArrayList<>();
