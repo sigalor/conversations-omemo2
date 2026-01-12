@@ -28,13 +28,11 @@ import com.bumptech.glide.request.transition.Transition;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityCreatePostBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.XmppConnectionService;
-import eu.siacs.conversations.xml.Namespace;
 
 public class CreatePostActivity extends XmppActivity {
 
@@ -43,6 +41,7 @@ public class CreatePostActivity extends XmppActivity {
     private String inReplyToNode;
     private String postId;
     private Uri attachmentUri;
+    private String attachmentType;
     private Uri mCameraUri;
     private String accountUuid;
 
@@ -61,6 +60,7 @@ public class CreatePostActivity extends XmppActivity {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     attachmentUri = mCameraUri;
+                    attachmentType = "image/jpeg";
                     binding.attachmentPreview.setImageURI(attachmentUri);
                     binding.attachmentPreview.setVisibility(View.VISIBLE);
                     binding.attachmentVideoView.setVisibility(View.GONE);
@@ -71,6 +71,7 @@ public class CreatePostActivity extends XmppActivity {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     attachmentUri = mCameraUri;
+                    attachmentType = "video/mp4";
                     binding.attachmentVideoView.setVideoURI(attachmentUri);
                     binding.attachmentVideoView.setOnPreparedListener(mp -> {
                         mp.setLooping(true);
@@ -86,12 +87,12 @@ public class CreatePostActivity extends XmppActivity {
             uri -> {
                 if (uri != null) {
                     this.attachmentUri = uri;
-                    final String mimeType = getContentResolver().getType(attachmentUri);
-                    if (mimeType != null && mimeType.startsWith("image/")) {
+                    this.attachmentType = getContentResolver().getType(attachmentUri);
+                    if (this.attachmentType != null && this.attachmentType.startsWith("image/")) {
                         binding.attachmentPreview.setImageURI(attachmentUri);
                         binding.attachmentPreview.setVisibility(View.VISIBLE);
                         binding.attachmentVideoView.setVisibility(View.GONE);
-                    } else if (mimeType != null && mimeType.startsWith("video/")) {
+                    } else if (this.attachmentType != null && this.attachmentType.startsWith("video/")) {
                         binding.attachmentVideoView.setVideoURI(attachmentUri);
                         binding.attachmentVideoView.setOnPreparedListener(mp -> {
                             mp.setLooping(true);
@@ -125,6 +126,22 @@ public class CreatePostActivity extends XmppActivity {
             binding.postContentEditText.setText(getIntent().getStringExtra("content"));
             if (accountUuid != null) {
                 binding.accountSpinner.setVisibility(View.GONE);
+            }
+            final String attachmentUrl = getIntent().getStringExtra("attachment_url");
+            this.attachmentType = getIntent().getStringExtra("attachment_type");
+            if (attachmentUrl != null && this.attachmentType != null) {
+                this.attachmentUri = Uri.parse(attachmentUrl);
+                if (this.attachmentType.startsWith("image/")) {
+                    binding.attachmentPreview.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(attachmentUrl).into(binding.attachmentPreview);
+                } else if (this.attachmentType.startsWith("video/")) {
+                    binding.attachmentVideoView.setVisibility(View.VISIBLE);
+                    binding.attachmentVideoView.setVideoURI(Uri.parse(attachmentUrl));
+                    binding.attachmentVideoView.setOnPreparedListener(mp -> {
+                        mp.setLooping(true);
+                        binding.attachmentVideoView.start();
+                    });
+                }
             }
         }
 
@@ -233,23 +250,28 @@ public class CreatePostActivity extends XmppActivity {
                     }
                 });
             } else if (attachmentUri != null) {
-                final String mimeType = getContentResolver().getType(attachmentUri);
-                xmppConnectionService.uploadFileForUrl(selectedAccount, attachmentUri, mimeType, new UiCallback<String>() {
-                    @Override
-                    public void success(String url) {
-                        publish(selectedAccount, title, content, url, mimeType);
-                    }
+                final String mimeType = this.attachmentType != null ? this.attachmentType : getContentResolver().getType(attachmentUri);
+                final String scheme = attachmentUri.getScheme();
+                if (scheme != null && (scheme.equals("http") || scheme.equals("https"))) {
+                    publish(selectedAccount, title, content, attachmentUri.toString(), mimeType);
+                } else {
+                    xmppConnectionService.uploadFileForUrl(selectedAccount, attachmentUri, mimeType, new UiCallback<String>() {
+                        @Override
+                        public void success(String url) {
+                            publish(selectedAccount, title, content, url, mimeType);
+                        }
 
-                    @Override
-                    public void error(int errorCode, String object) {
-                        runOnUiThread(() -> Toast.makeText(CreatePostActivity.this, errorCode, Toast.LENGTH_SHORT).show());
-                    }
+                        @Override
+                        public void error(int errorCode, String object) {
+                            runOnUiThread(() -> Toast.makeText(CreatePostActivity.this, errorCode, Toast.LENGTH_SHORT).show());
+                        }
 
-                    @Override
-                    public void userInputRequired(android.app.PendingIntent pi, String object) {
+                        @Override
+                        public void userInputRequired(android.app.PendingIntent pi, String object) {
 
-                    }
-                });
+                        }
+                    });
+                }
             } else {
                 publish(selectedAccount, title, content, null, null);
             }

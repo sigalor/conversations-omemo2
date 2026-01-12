@@ -484,6 +484,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         intent.putExtra("title", post.getTitle());
         intent.putExtra("content", post.getContent());
         intent.putExtra("account", account.getUuid());
+        if (post.getAttachmentUrl() != null) {
+            intent.putExtra("attachment_url", post.getAttachmentUrl());
+            intent.putExtra("attachment_type", post.getAttachmentType());
+        }
         mActivity.startActivity(intent);
     }
 }
