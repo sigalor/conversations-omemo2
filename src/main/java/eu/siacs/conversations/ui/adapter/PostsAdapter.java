@@ -18,6 +18,7 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -186,212 +187,220 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 }
             }
-            final Account ownAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor().asBareJid()) : null;
-
-
-            binding.downloadButton.setOnClickListener(v -> {
-                if (postAccounts.size() == 1) {
-                    downloadAttachment(postAccounts.get(0), post);
-                } else {
-                    showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
-                }
-            });
-
-            binding.postContentSummary.setText(post.getContent());
-            binding.postContentFull.setText(post.getContent());
-
-            final View.OnClickListener expandClickListener = v -> {
-                if (expandedPosts.contains(post)) {
-                    expandedPosts.remove(post);
-                } else {
-                    expandedPosts.add(post);
-                }
-                notifyItemChanged(getAdapterPosition());
-            };
-
-            itemView.setOnClickListener(expandClickListener);
-            binding.postTitle.setOnClickListener(expandClickListener);
-
-            binding.replyButton.setOnClickListener(v -> {
-                if (post.getAuthor() != null) {
-                    if (postAccounts.size() == 1) {
-                        replyToPost(postAccounts.get(0), post);
-                    } else {
-                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_reply), postAccounts, account -> replyToPost(account, post));
-                    }
-                }
-            });
-
-            binding.commentButton.setOnClickListener(v -> {
-                if (postAccounts.size() == 1) {
-                    commentOnPost(postAccounts.get(0), post);
-                } else {
-                    showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_comment), postAccounts, account -> commentOnPost(account, post));
-                }
-            });
-
-            binding.shareButton.setOnClickListener(v -> {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, post.getTitle() + "\\n" + post.getContent());
-                mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
-            });
-
-            if (ownAccount != null && ownAccount.isOnlineAndConnected()) {
-                binding.editButton.setVisibility(View.VISIBLE);
-                binding.deleteButton.setVisibility(View.VISIBLE);
-                binding.editButton.setOnClickListener(v -> {
-                    editPost(ownAccount, post);
-                });
-                binding.deleteButton.setOnClickListener(v -> {
-                    new MaterialAlertDialogBuilder(mActivity)
-                            .setTitle(R.string.retract_post)
-                            .setMessage(R.string.retract_post_confirm)
-                            .setPositiveButton(R.string.retract, (dialog, which) -> {
-                                mActivity.xmppConnectionService.retractPost(ownAccount, "urn:xmpp:microblog:0", post.getId(), new XmppConnectionService.OnPostRetracted() {
-                                    @Override
-                                    public void onPostRetracted() {
-                                        mActivity.runOnUiThread(() -> {
-                                            int pos = getAdapterPosition();
-                                            if (pos != RecyclerView.NO_POSITION) {
-                                                posts.remove(pos);
-                                                notifyItemRemoved(pos);
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onPostRetractionFailed() {
-                                        mActivity.runOnUiThread(() -> {
-                                            Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show();
-                                        });
-                                    }
-                                });
-                            })
-                            .setNegativeButton(R.string.cancel, null)
-                            .show();
-                });
-            } else {
+            if (mActivity.xmppConnectionService == null) {
                 binding.editButton.setVisibility(View.GONE);
                 binding.deleteButton.setVisibility(View.GONE);
-            }
+                binding.replyButton.setVisibility(View.GONE);
+                binding.commentButton.setVisibility(View.GONE);
+                binding.downloadButton.setVisibility(View.GONE);
+            } else {
+                final Account ownAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor().asBareJid()) : null;
 
-            if (post.getAuthor() != null) {
-                final Jid authorJid = post.getAuthor();
-                Account displayAccount = ownAccount;
-                if (displayAccount == null && postAccounts.size() > 0) {
-                    displayAccount = postAccounts.get(0);
-                }
-                if (displayAccount == null) {
-                    displayAccount = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
-                }
 
-                if (displayAccount != null) {
-                    if (authorJid.asBareJid().equals(displayAccount.getJid().asBareJid())) {
-                        final String displayName = displayAccount.getDisplayName();
-                        binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : displayAccount.getJid().asBareJid().toString());
-                        AvatarWorkerTask.loadAvatar(displayAccount, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
-                        final Contact self = displayAccount.getSelfContact();
-                        binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(self));
-                        binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(self));
+                binding.downloadButton.setOnClickListener(v -> {
+                    if (postAccounts.size() == 1) {
+                        downloadAttachment(postAccounts.get(0), post);
                     } else {
-                        Contact contact = displayAccount.getRoster().getContact(authorJid);
-                        if (contact != null) {
-                            final String displayName = contact.getDisplayName();
-                            binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : contact.getJid().asBareJid().toString());
-                            AvatarWorkerTask.loadAvatar(contact, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
-                            binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
-                            binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
+                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
+                    }
+                });
+
+                binding.postContentSummary.setText(post.getContent());
+                binding.postContentFull.setText(post.getContent());
+
+                final View.OnClickListener expandClickListener = v -> {
+                    if (expandedPosts.contains(post)) {
+                        expandedPosts.remove(post);
+                    } else {
+                        expandedPosts.add(post);
+                    }
+                    notifyItemChanged(getAdapterPosition());
+                };
+
+                itemView.setOnClickListener(expandClickListener);
+                binding.postTitle.setOnClickListener(expandClickListener);
+
+                binding.replyButton.setOnClickListener(v -> {
+                    if (post.getAuthor() != null) {
+                        if (postAccounts.size() == 1) {
+                            replyToPost(postAccounts.get(0), post);
                         } else {
-                            binding.postAuthorName.setText(authorJid.asBareJid().toString());
-                            binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
-                            binding.postAuthorAvatar.setOnClickListener(null);
-                            binding.postAuthorName.setOnClickListener(null);
+                            showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_reply), postAccounts, account -> replyToPost(account, post));
                         }
                     }
+                });
+
+                binding.commentButton.setOnClickListener(v -> {
+                    if (postAccounts.size() == 1) {
+                        commentOnPost(postAccounts.get(0), post);
+                    } else {
+                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_comment), postAccounts, account -> commentOnPost(account, post));
+                    }
+                });
+
+                binding.shareButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_TEXT, post.getTitle() + "\\n" + post.getContent());
+                    mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
+                });
+
+                if (ownAccount != null && ownAccount.isOnlineAndConnected()) {
+                    binding.editButton.setVisibility(View.VISIBLE);
+                    binding.deleteButton.setVisibility(View.VISIBLE);
+                    binding.editButton.setOnClickListener(v -> {
+                        editPost(ownAccount, post);
+                    });
+                    binding.deleteButton.setOnClickListener(v -> {
+                        new MaterialAlertDialogBuilder(mActivity)
+                                .setTitle(R.string.retract_post)
+                                .setMessage(R.string.retract_post_confirm)
+                                .setPositiveButton(R.string.retract, (dialog, which) -> {
+                                    mActivity.xmppConnectionService.retractPost(ownAccount, "urn:xmpp:microblog:0", post.getId(),
+                                            new XmppConnectionService.OnPostRetracted() {
+                                                @Override
+                                                public void onPostRetracted() {
+                                                    mActivity.runOnUiThread(() -> {
+                                                        mActivity.xmppConnectionService.databaseBackend.deletePost(post.getId());
+                                                        int pos = getAdapterPosition();
+                                                        if (pos != RecyclerView.NO_POSITION) {
+                                                            posts.remove(pos);
+                                                            notifyItemRemoved(pos);
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onPostRetractionFailed() {
+                                                    mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.error_retract_post, Toast.LENGTH_SHORT).show());
+                                                }
+                                            });
+                                })
+                                .setNegativeButton(R.string.cancel, null)
+                                .show();
+                    });
                 } else {
-                    binding.postAuthorName.setText(authorJid.asBareJid().toString());
+                    binding.editButton.setVisibility(View.GONE);
+                    binding.deleteButton.setVisibility(View.GONE);
+                }
+
+                if (post.getAuthor() != null) {
+                    final Jid authorJid = post.getAuthor();
+                    Account displayAccount = ownAccount;
+                    if (displayAccount == null && postAccounts.size() > 0) {
+                        displayAccount = postAccounts.get(0);
+                    }
+                    if (displayAccount == null) {
+                        displayAccount = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
+                    }
+
+                    if (displayAccount != null) {
+                        if (authorJid.asBareJid().equals(displayAccount.getJid().asBareJid())) {
+                            final String displayName = displayAccount.getDisplayName();
+                            binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : displayAccount.getJid().asBareJid().toString());
+                            AvatarWorkerTask.loadAvatar(displayAccount, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
+                            final Contact self = displayAccount.getSelfContact();
+                            binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(self));
+                            binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(self));
+                        } else {
+                            Contact contact = displayAccount.getRoster().getContact(authorJid);
+                            if (contact != null) {
+                                final String displayName = contact.getDisplayName();
+                                binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : contact.getJid().asBareJid().toString());
+                                AvatarWorkerTask.loadAvatar(contact, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
+                                binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
+                                binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
+                            } else {
+                                binding.postAuthorName.setText(authorJid.asBareJid().toString());
+                                binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
+                                binding.postAuthorAvatar.setOnClickListener(null);
+                                binding.postAuthorName.setOnClickListener(null);
+                            }
+                        }
+                    } else {
+                        binding.postAuthorName.setText(authorJid.asBareJid().toString());
+                        binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
+                        binding.postAuthorAvatar.setOnClickListener(null);
+                        binding.postAuthorName.setOnClickListener(null);
+                    }
+                } else {
+                    binding.postAuthorName.setText(null);
                     binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
                     binding.postAuthorAvatar.setOnClickListener(null);
                     binding.postAuthorName.setOnClickListener(null);
                 }
-            } else {
-                binding.postAuthorName.setText(null);
-                binding.postAuthorAvatar.setImageResource(R.drawable.ic_person_24dp);
-                binding.postAuthorAvatar.setOnClickListener(null);
-                binding.postAuthorName.setOnClickListener(null);
-            }
-            binding.postTitle.setText(post.getTitle());
-            if (post.getPublished() != null) {
-                binding.postTimestamp.setText(DateFormat.getDateTimeInstance().format(post.getPublished()));
-            } else {
-                binding.postTimestamp.setText(null);
+                binding.postTitle.setText(post.getTitle());
+                if (post.getPublished() != null) {
+                    binding.postTimestamp.setText(DateFormat.getDateTimeInstance().format(post.getPublished()));
+                } else {
+                    binding.postTimestamp.setText(null);
+                }
             }
         }
 
-    private void loadComments(final Post post, final RecyclerView recyclerView) {
-        if (mActivity.xmppConnectionService == null) {
-            return;
-        }
-        try {
-            final XmppUri uri = new XmppUri(post.getCommentsNode());
-            final Jid jid = uri.getJid();
-            final String node = uri.getParameter("node");
-            if (jid != null && node != null) {
-                mActivity.xmppConnectionService.fetchPubsubItems(jid, node, new XmppConnectionService.OnPubsubItemsFetched() {
-                    @Override
-                    public void onPubsubItemsFetched(String feedXml) {
-                        try {
-                            final XmlReader reader = new XmlReader();
-                            reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
-                            final Element feed = reader.readElement(reader.readTag());
-                            final List<Comment> comments = new ArrayList<>();
-                            if (feed != null && "feed".equals(feed.getName()) && Namespace.ATOM.equals(feed.getNamespace())) {
-                                for (Element child : feed.getChildren()) {
-                                    if ("entry".equals(child.getName()) && Namespace.ATOM.equals(child.getNamespace())) {
-                                        comments.add(Comment.fromElement(child));
+        private void loadComments(final Post post, final RecyclerView recyclerView) {
+            if (mActivity.xmppConnectionService == null) {
+                return;
+            }
+            try {
+                final XmppUri uri = new XmppUri(post.getCommentsNode());
+                final Jid jid = uri.getJid();
+                final String node = uri.getParameter("node");
+                if (jid != null && node != null) {
+                    mActivity.xmppConnectionService.fetchPubsubItems(jid, node, new XmppConnectionService.OnPubsubItemsFetched() {
+                        @Override
+                        public void onPubsubItemsFetched(String feedXml) {
+                            try {
+                                final XmlReader reader = new XmlReader();
+                                reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
+                                final Element feed = reader.readElement(reader.readTag());
+                                final List<Comment> comments = new ArrayList<>();
+                                if (feed != null && "feed".equals(feed.getName()) && Namespace.ATOM.equals(feed.getNamespace())) {
+                                    for (Element child : feed.getChildren()) {
+                                        if ("entry".equals(child.getName()) && Namespace.ATOM.equals(child.getNamespace())) {
+                                            comments.add(Comment.fromElement(child));
+                                        }
                                     }
                                 }
+                                mActivity.runOnUiThread(() -> {
+                                    if (!comments.isEmpty()) {
+                                        java.util.Collections.sort(comments, (c1, c2) -> {
+                                            Date d1 = c1.getPublished();
+                                            Date d2 = c2.getPublished();
+                                            if (d1 == null && d2 == null) {
+                                                return 0;
+                                            } else if (d1 == null) {
+                                                return -1;
+                                            } else if (d2 == null) {
+                                                return 1;
+                                            } else {
+                                                return d1.compareTo(d2);
+                                            }
+                                        });
+                                        CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, comments);
+                                        recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+                                        recyclerView.setAdapter(commentsAdapter);
+                                        recyclerView.setVisibility(View.VISIBLE);
+                                    } else {
+                                        recyclerView.setVisibility(View.GONE);
+                                    }
+                                });
+                            } catch (Exception e) {
+                                Log.e(Config.LOGTAG, "error parsing comments", e);
                             }
-                            mActivity.runOnUiThread(() -> {
-                                if (!comments.isEmpty()) {
-                                    java.util.Collections.sort(comments, (c1, c2) -> {
-                                        Date d1 = c1.getPublished();
-                                        Date d2 = c2.getPublished();
-                                        if (d1 == null && d2 == null) {
-                                            return 0;
-                                        } else if (d1 == null) {
-                                            return -1;
-                                        } else if (d2 == null) {
-                                            return 1;
-                                        } else {
-                                            return d1.compareTo(d2);
-                                        }
-                                    });
-                                    CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, comments);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-                                    recyclerView.setAdapter(commentsAdapter);
-                                    recyclerView.setVisibility(View.VISIBLE);
-                                } else {
-                                    recyclerView.setVisibility(View.GONE);
-                                }
-                            });
-                        } catch (Exception e) {
-                            Log.e(Config.LOGTAG, "error parsing comments", e);
                         }
-                    }
 
-                    @Override
-                    public void onPubsubItemsFetchFailed() {
-                        Log.e(Config.LOGTAG, "failed to fetch comments for post " + post.getId());
-                    }
-                });
+                        @Override
+                        public void onPubsubItemsFetchFailed() {
+                            Log.e(Config.LOGTAG, "failed to fetch comments for post " + post.getId());
+                        }
+                    });
+                }
+            } catch (final Exception e) {
+                Log.e(Config.LOGTAG, "error parsing comments node uri", e);
             }
-        } catch (final Exception e) {
-            Log.e(Config.LOGTAG, "error parsing comments node uri", e);
         }
     }
-}
     private void downloadAttachment(Account account, Post post) {
         if (mActivity.xmppConnectionService == null) {
             return;

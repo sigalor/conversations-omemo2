@@ -109,7 +109,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 65;
+    private static final int DATABASE_VERSION = 66;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -376,6 +376,21 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private static final String COPY_PREEXISTING_ENTRIES =
             "INSERT INTO messages_index(messages_index) VALUES('rebuild');";
 
+    private static final String CREATE_POSTS_TABLE =
+            "CREATE TABLE " + eu.siacs.conversations.entities.Post.TABLENAME + " ("
+                    + eu.siacs.conversations.entities.Post.UUID + " TEXT PRIMARY KEY,"
+                    + eu.siacs.conversations.entities.Post.ACCOUNT_UUID + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.AUTHOR_JID + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.TITLE + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.CONTENT + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.ATTACHMENT_URL + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.ATTACHMENT_TYPE + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.PUBLISHED + " NUMBER,"
+                    + eu.siacs.conversations.entities.Post.COMMENTS_NODE + " TEXT,"
+                    + "FOREIGN KEY(" + eu.siacs.conversations.entities.Post.ACCOUNT_UUID + ") REFERENCES "
+                    + eu.siacs.conversations.entities.Account.TABLENAME
+                    + "(" + eu.siacs.conversations.entities.Account.UUID + ") ON DELETE CASCADE);";
+
     protected Context context;
 
     private DatabaseBackend(Context context) {
@@ -568,6 +583,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_INSERT_TRIGGER);
         db.execSQL(CREATE_MESSAGE_UPDATE_TRIGGER);
         db.execSQL(CREATE_MESSAGE_DELETE_TRIGGER);
+        db.execSQL(CREATE_POSTS_TABLE);
         monoclesDatabase(db);
     }
 
@@ -1308,6 +1324,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
         if (oldVersion < 65 && newVersion >= 65) {
             db.execSQL("ALTER TABLE " + Contact.TABLENAME + " ADD COLUMN " + Contact.CALLS_DISABLED + " boolean DEFAULT 0");
+        }
+        if (oldVersion < 66 && newVersion >= 66) {
+            db.execSQL(CREATE_POSTS_TABLE);
         }
     }
 
@@ -3418,4 +3437,29 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return list;
     }
 
+    public void createPost(eu.siacs.conversations.entities.Post post, eu.siacs.conversations.entities.Account account) {
+        final android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+        db.insertWithOnConflict(eu.siacs.conversations.entities.Post.TABLENAME, null, post.getContentValues(account), android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public java.util.List<eu.siacs.conversations.entities.Post> getPosts() {
+        final java.util.List<eu.siacs.conversations.entities.Post> list = new java.util.ArrayList<>();
+        final android.database.sqlite.SQLiteDatabase db = this.getReadableDatabase();
+        android.database.Cursor cursor = db.query(eu.siacs.conversations.entities.Post.TABLENAME, null, null, null, null, null, eu.siacs.conversations.entities.Post.PUBLISHED + " DESC");
+        while (cursor.moveToNext()) {
+            list.add(eu.siacs.conversations.entities.Post.fromCursor(cursor));
+        }
+        cursor.close();
+        return list;
+    }
+
+    public void deletePost(String uuid) {
+        final android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(eu.siacs.conversations.entities.Post.TABLENAME, eu.siacs.conversations.entities.Post.UUID + "=?", new String[]{uuid});
+    }
+
+    public void clearPosts() {
+        final android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(eu.siacs.conversations.entities.Post.TABLENAME, null, null);
+    }
 }
