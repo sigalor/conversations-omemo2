@@ -877,7 +877,7 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "120");
         options.putString("pubsub#notify_retract", "1");
-        options.putString("pubsub#send_last_published_item", "on_sub");
+        options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "publishers");
         return options;
     }
@@ -905,11 +905,12 @@ public class IqGenerator extends AbstractGenerator {
     }
 
     public Iq retractPost(final String node, final String id) {
-        final Iq iq = new Iq(Iq.Type.SET);
-        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final var packet = new Iq(Iq.Type.SET);
+        final Element pubsub = packet.addChild("pubsub", Namespace.PUBSUB);
         final Element retract = pubsub.addChild("retract");
         retract.setAttribute("node", node);
+        retract.setAttribute("notify", "true");
         retract.addChild("item").setAttribute("id", id);
-        return iq;
+        return packet;
     }
 }

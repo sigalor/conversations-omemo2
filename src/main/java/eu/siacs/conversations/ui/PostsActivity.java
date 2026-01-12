@@ -136,14 +136,23 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     public void onPostReceived(final Post post) {
         runOnUiThread(() -> {
             if (post != null) {
-                postList.add(0, post);
-                java.util.Collections.sort(postList, (p1, p2) -> {
-                    if (p1.getPublished() == null && p2.getPublished() == null) return 0;
-                    if (p1.getPublished() == null) return 1;
-                    if (p2.getPublished() == null) return -1;
-                    return p2.getPublished().compareTo(p1.getPublished());
-                });
-                postsAdapter.notifyDataSetChanged();
+                boolean found = false;
+                for (Post existingPost : postList) {
+                    if (existingPost.getId() != null && existingPost.getId().equals(post.getId())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    postList.add(0, post);
+                    java.util.Collections.sort(postList, (p1, p2) -> {
+                        if (p1.getPublished() == null && p2.getPublished() == null) return 0;
+                        if (p1.getPublished() == null) return 1;
+                        if (p2.getPublished() == null) return -1;
+                        return p2.getPublished().compareTo(p1.getPublished());
+                    });
+                    postsAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
@@ -300,10 +309,14 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         super.onBackPressed();
     }
     @Override
-    public void onPostRetracted(String postId) {
+    public void onPostRetracted(final String postId) {
         runOnUiThread(() -> {
+            if (postId == null) {
+                return;
+            }
             for (int i = 0; i < postList.size(); ++i) {
-                if (postList.get(i).getId().equals(postId)) {
+                final Post post = postList.get(i);
+                if (post != null && postId.equals(post.getId())) {
                     postList.remove(i);
                     postsAdapter.notifyItemRemoved(i);
                     break;
