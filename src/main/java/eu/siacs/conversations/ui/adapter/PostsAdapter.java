@@ -258,10 +258,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 .setPositiveButton(R.string.retract, (dialog, which) -> {
                                     mActivity.xmppConnectionService.retractPost(ownAccount, "urn:xmpp:microblog:0", post.getId(),
                                             new XmppConnectionService.OnPostRetracted() {
+
                                                 @Override
-                                                public void onPostRetracted() {
+                                                public void onPostRetracted(String postId) {
                                                     mActivity.runOnUiThread(() -> {
-                                                        mActivity.xmppConnectionService.databaseBackend.deletePost(post.getId());
+                                                        mActivity.xmppConnectionService.databaseBackend.deletePost(postId);
                                                         int pos = getAdapterPosition();
                                                         if (pos != RecyclerView.NO_POSITION) {
                                                             posts.remove(pos);

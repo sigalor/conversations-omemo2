@@ -126,6 +126,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import eu.siacs.conversations.Conversations;
+import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.entities.StubConversation;
 import eu.siacs.conversations.utils.TranscoderStrategies;
@@ -8227,7 +8228,7 @@ public class XmppConnectionService extends Service {
         sendIqPacket(account, request, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 if (callback != null) {
-                    callback.onPostRetracted();
+                    callback.onPostRetracted(id);
                 }
             } else {
                 if (callback != null) {
@@ -8242,8 +8243,52 @@ public class XmppConnectionService extends Service {
         void onPostPublishFailed();
     }
 
+    public interface OnPostReceived {
+        void onPostReceived(Post post);
+    }
+
+    private OnPostReceived mOnPostReceivedListener;
+
+    public void setOnPostReceivedListener(OnPostReceived listener) {
+        this.mOnPostReceivedListener = listener;
+    }
+
+    public OnPostReceived getOnPostReceivedListener() {
+        return this.mOnPostReceivedListener;
+    }
+
+    public void onPostReceived(Post post, Account account) {
+        if (post == null || account == null) {
+            return;
+        }
+        databaseBackend.createPost(post, account);
+        if (mOnPostReceivedListener != null) {
+            mOnPostReceivedListener.onPostReceived(post);
+        }
+    }
+
     public interface OnPostRetracted {
-        void onPostRetracted();
+        void onPostRetracted(String postId);
         void onPostRetractionFailed();
+    }
+
+    private OnPostRetracted mOnPostRetractedListener;
+
+    public void setOnPostRetractedListener(OnPostRetracted listener) {
+        this.mOnPostRetractedListener = listener;
+    }
+
+    public OnPostRetracted getOnPostRetractedListener() {
+        return this.mOnPostRetractedListener;
+    }
+
+    public void onPostRetracted(String postId) {
+        if (postId == null) {
+            return;
+        }
+        databaseBackend.deletePost(postId);
+        if (mOnPostRetractedListener != null) {
+            mOnPostRetractedListener.onPostRetracted(postId);
+        }
     }
 }

@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import eu.siacs.conversations.crypto.OtrService;
+import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.entities.ServiceDiscoveryResult;
 import eu.siacs.conversations.entities.Story;
@@ -1756,8 +1757,29 @@ public class MessageParser extends AbstractParser
         final Element event =
                 original.findChild("event", "http://jabber.org/protocol/pubsub#event");
         if (event != null && Jid.Invalid.hasValidFrom(original) && original.getFrom().isBareJid()) {
-            if (event.hasChild("items")) {
-                parseEvent(event, original.getFrom(), account);
+            final Element items = event.findChild("items");
+            if (items != null) {
+                final String node = items.getAttribute("node");
+                if ("urn:xmpp:microblog:0".equals(node)) {
+                    for (Element item : items.getChildren()) {
+                        if ("item".equals(item.getName())) {
+                            Element entry = item.findChild("entry", Namespace.ATOM);
+                            if (entry != null) {
+                                try {
+                                    Post post = Post.fromElement(entry);
+                                    mXmppConnectionService.databaseBackend.createPost(post, account);
+                                    if (mXmppConnectionService.getOnPostReceivedListener() != null) {
+                                        mXmppConnectionService.getOnPostReceivedListener().onPostReceived(post);
+                                    }
+                                } catch (Exception e) {
+                                    Log.d(Config.LOGTAG, "error creating post from pubsub item", e);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    parseEvent(event, original.getFrom(), account);
+                }
             } else if (event.hasChild("delete")) {
                 parseDeleteEvent(event, original.getFrom(), account);
             } else if (event.hasChild("purge")) {

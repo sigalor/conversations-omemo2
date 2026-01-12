@@ -859,7 +859,27 @@ public class IqGenerator extends AbstractGenerator {
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
+        // create a child node for the node
+        pubsub.addChild("create").setAttribute("node", "urn:xmpp:microblog:0");
+        final Element configure = pubsub.addChild("configure");
+        // Correctly use the 'pubsub#node_config' namespace
+        final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", defaultPostConfiguration());
+        configure.addChild(data);
         return iq;
+    }
+
+    public static Bundle defaultPostConfiguration() {
+        Bundle options = new Bundle();
+        options.putString("pubsub#node_type", "leaf");
+        options.putString("pubsub#type", "urn:xmpp:microblog:0");
+        options.putString("pubsub#access_model", "roster");
+        options.putString("pubsub#item_expire", "86400");
+        options.putString("pubsub#persist_items", "1");
+        options.putString("pubsub#max_items", "120");
+        options.putString("pubsub#notify_retract", "1");
+        options.putString("pubsub#send_last_published_item", "on_sub");
+        options.putString("pubsub#publish_model", "publishers");
+        return options;
     }
 
     public Iq publishComment(final Account account, final String node, final String title, final String inReplyToId) {

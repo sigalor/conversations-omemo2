@@ -17,6 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +37,7 @@ import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.Jid;
 
-public class PostsActivity extends XmppActivity {
+public class PostsActivity extends XmppActivity implements XmppConnectionService.OnPostReceived, XmppConnectionService.OnPostRetracted {
 
     private ActivityPostsBinding binding;
     private PostsAdapter postsAdapter;
@@ -44,6 +47,7 @@ public class PostsActivity extends XmppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_posts);
+        Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
 
@@ -93,6 +97,10 @@ public class PostsActivity extends XmppActivity {
     @Override
     public void onStart() {
         super.onStart();
+        if (xmppConnectionService != null) {
+            xmppConnectionService.setOnPostReceivedListener(this);
+            xmppConnectionService.setOnPostRetractedListener(this);
+        }
         if (postList.isEmpty()) {
             loadPosts();
         }
@@ -107,8 +115,37 @@ public class PostsActivity extends XmppActivity {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (xmppConnectionService != null) {
+            xmppConnectionService.setOnPostReceivedListener(null);
+            xmppConnectionService.setOnPostRetractedListener(null);
+        }
+    }
+
+    @Override
     public void onBackendConnected() {
+        if (xmppConnectionService != null) {
+            xmppConnectionService.setOnPostReceivedListener(this);
+            xmppConnectionService.setOnPostRetractedListener(this);
+        }
         refreshUiReal();
+    }
+
+    @Override
+    public void onPostReceived(final Post post) {
+        runOnUiThread(() -> {
+            if (post != null) {
+                postList.add(0, post);
+                java.util.Collections.sort(postList, (p1, p2) -> {
+                    if (p1.getPublished() == null && p2.getPublished() == null) return 0;
+                    if (p1.getPublished() == null) return 1;
+                    if (p2.getPublished() == null) return -1;
+                    return p2.getPublished().compareTo(p1.getPublished());
+                });
+                postsAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -261,5 +298,22 @@ public class PostsActivity extends XmppActivity {
         }
 
         super.onBackPressed();
+    }
+    @Override
+    public void onPostRetracted(String postId) {
+        runOnUiThread(() -> {
+            for (int i = 0; i < postList.size(); ++i) {
+                if (postList.get(i).getId().equals(postId)) {
+                    postList.remove(i);
+                    postsAdapter.notifyItemRemoved(i);
+                    break;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onPostRetractionFailed() {
+        runOnUiThread(() -> Toast.makeText(this, R.string.error_retract_post, Toast.LENGTH_SHORT).show());
     }
 }

@@ -116,7 +116,8 @@ public abstract class AbstractGenerator {
         final ArrayList<String> features = new ArrayList<>(Arrays.asList(STATIC_FEATURES));
         features.add("http://jabber.org/protocol/xhtml-im");
         features.add("urn:xmpp:bob");
-        features.add(Namespace.PUBSUB_SOCIAL_FEED);
+        features.add("urn:xmpp:microblog:0");
+        features.add("urn:xmpp:microblog:0+notify");
         features.add(Namespace.PUBSUB_STORIES);
         features.add(Namespace.PUBSUB_STORIES + "+notify");
         if (Config.MESSAGE_DISPLAYED_SYNCHRONIZATION) {

@@ -10,6 +10,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.Room;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -454,6 +455,29 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                                     mXmppConnectionService.onStoryReceived(story);
                                 }
                             }
+                        }
+                    }
+                } else if ("urn:xmpp:microblog:0".equals(node)) {
+                    for (Element item : items.getChildren()) {
+                        if ("item".equals(item.getName())) {
+                            Element entry = item.findChild("entry", Namespace.ATOM);
+                            if (entry != null) {
+                                try {
+                                    Post post = Post.fromElement(entry);
+                                    mXmppConnectionService.onPostReceived(post, account);
+                                    if (mXmppConnectionService.getOnPostReceivedListener() != null) {
+                                        mXmppConnectionService.getOnPostReceivedListener().onPostReceived(post);
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(
+                                            Config.LOGTAG,
+                                            "error creating post from pubsub item in iq",
+                                            e);
+                                }
+                            }
+                        } else if (item.getName().equals("retract")) {
+                            final String postId = item.getAttribute("id");
+                            mXmppConnectionService.onPostRetracted(postId);
                         }
                     }
                 }

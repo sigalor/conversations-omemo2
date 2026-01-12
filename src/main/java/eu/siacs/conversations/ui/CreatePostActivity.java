@@ -34,6 +34,7 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityCreatePostBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.xml.Namespace;
 
 public class CreatePostActivity extends XmppActivity {
 
