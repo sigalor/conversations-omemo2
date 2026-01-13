@@ -2,7 +2,11 @@ package eu.siacs.conversations.ui;
 
 import static android.view.View.VISIBLE;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,6 +49,14 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     private PostsAdapter postsAdapter;
     private List<Post> postList = new ArrayList<>();
 
+    private final ActivityResultLauncher<Intent> postResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    loadPosts();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +66,12 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         configureActionBar(getSupportActionBar());
 
         binding.postsList.setLayoutManager(new LinearLayoutManager(this));
-        postsAdapter = new PostsAdapter(this, postList);
+        postsAdapter = new PostsAdapter(this, postList, postResultLauncher);
         binding.postsList.setAdapter(postsAdapter);
 
         binding.fabCreatePost.setOnClickListener(v -> {
             Intent intent = new Intent(this, CreatePostActivity.class);
-            startActivity(intent);
+            postResultLauncher.launch(intent);
         });
 
         binding.swipeContainer.setOnRefreshListener(() -> {
@@ -221,7 +235,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                                 reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
                                 final Element pubsub = reader.readElement(reader.readTag());
                                 final List<Post> newPosts = new ArrayList<>();
-                                if (pubsub != null && pubsub.getName().equals("pubsub")) {
+                                if (pubsub != null) {
                                     final Element items = pubsub.findChild("items");
                                     if (items != null) {
                                         for (Element item : items.getChildren()) {

@@ -8182,18 +8182,47 @@ public class XmppConnectionService extends Service {
             }
             return;
         }
-        final Iq request = getIqGenerator().publishPost(account, node, title, content, attachmentUrl, attachmentType, postId);
-        sendIqPacket(account, request, response -> {
-            if (response.getType() == Iq.Type.RESULT) {
-                if (callback != null) {
-                    callback.onPostPublished();
+
+        final boolean isEdit = postId != null;
+        final String idToPublish = isEdit ? postId : UUID.randomUUID().toString();
+
+        final Runnable publicationRunnable = () -> {
+            final Iq request = getIqGenerator().publishPost(account, node, title, content, attachmentUrl, attachmentType, idToPublish);
+            sendIqPacket(account, request, response2 -> {
+                if (response2.getType() == Iq.Type.RESULT) {
+                    if (!isEdit) {
+                        sendIqPacket(account, getIqGenerator().createCommentsNode(idToPublish), response3 -> {
+                            if (response3.getType() != Iq.Type.RESULT) {
+                                Log.d(Config.LOGTAG, "could not create comments node for post " + idToPublish + ". " + response3);
+                            }
+                        });
+                    }
+                    if (callback != null) {
+                        callback.onPostPublished();
+                    }
+                } else {
+                    Log.e(Config.LOGTAG, "Could not publish post. Server responded with: " + response2);
+                    if (callback != null) {
+                        callback.onPostPublishFailed();
+                    }
                 }
-            } else {
-                if (callback != null) {
-                    callback.onPostPublishFailed();
+            });
+        };
+
+        if (!isEdit) {
+            final Iq createRequest = getIqGenerator().createSocialFeedNode();
+            sendIqPacket(account, createRequest, response -> {
+                if (response.getType() != Iq.Type.RESULT) {
+                    Element error = response.findChild("error");
+                    if (error == null || !error.hasChild("conflict")) {
+                        Log.d(Config.LOGTAG, "could not create social feed node " + response);
+                    }
                 }
-            }
-        });
+                publicationRunnable.run();
+            });
+        } else {
+            publicationRunnable.run();
+        }
     }
 
     public void publishComment(final Account account, final String node, final String title, final String inReplyToId, final OnPostPublished callback) {

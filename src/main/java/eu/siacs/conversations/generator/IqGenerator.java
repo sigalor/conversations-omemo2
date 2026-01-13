@@ -837,15 +837,23 @@ public class IqGenerator extends AbstractGenerator {
         final Element publish = pubsub.addChild("publish");
         publish.setAttribute("node", node);
         final Element item = publish.addChild("item");
-        final String id = postId != null ? postId : "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
-        item.setAttribute("id", id);
+        item.setAttribute("id", postId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
+
+        // Use the same ID for atom:id to make retraction possible
+        entry.addChild("id").setContent(postId);
+
+        // The replies link should also use this same simple ID
         entry.addChild("link")
                 .setAttribute("rel", "replies")
                 .setAttribute("type", "application/atom+xml")
-                .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + id);
-        entry.addChild("title").setContent(title);
-        entry.addChild("content").setContent(content);
+                .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + postId);
+        if (title != null) {
+            entry.addChild("title").setContent(title);
+        }
+        if (content != null) {
+            entry.addChild("content").setContent(content);
+        }
         if (attachmentUrl != null && attachmentType != null) {
             entry.addChild("link")
                     .setAttribute("rel", "enclosure")
@@ -855,31 +863,56 @@ public class IqGenerator extends AbstractGenerator {
         final Element author = entry.addChild("author");
         author.addChild("name").setContent(account.getDisplayName());
         author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
-        entry.addChild("id").setContent(id);
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
-        // create a child node for the node
-        pubsub.addChild("create").setAttribute("node", "urn:xmpp:microblog:0");
-        final Element configure = pubsub.addChild("configure");
-        // Correctly use the 'pubsub#node_config' namespace
-        final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", defaultPostConfiguration());
-        configure.addChild(data);
         return iq;
     }
 
     public static Bundle defaultPostConfiguration() {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
-        options.putString("pubsub#type", "urn:xmpp:microblog:0");
+        options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
         options.putString("pubsub#access_model", "roster");
-        options.putString("pubsub#item_expire", "86400");
         options.putString("pubsub#persist_items", "1");
-        options.putString("pubsub#max_items", "120");
+        options.putString("pubsub#max_items", "1000");
         options.putString("pubsub#notify_retract", "1");
         options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "publishers");
         return options;
+    }
+
+    public static Bundle defaultCommentsConfiguration() {
+        Bundle options = new Bundle();
+        options.putString("pubsub#node_type", "leaf");
+        options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
+        options.putString("pubsub#access_model", "open");
+        options.putString("pubsub#persist_items", "1");
+        options.putString("pubsub#max_items", "1000");
+        options.putString("pubsub#notify_retract", "1");
+        options.putString("pubsub#send_last_published_item", "never");
+        options.putString("pubsub#publish_model", "open");
+        return options;
+    }
+
+    private Iq createNode(String node, Bundle options) {
+        final Iq iq = new Iq(Iq.Type.SET);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        pubsub.addChild("create").setAttribute("node", node);
+        final Element configure = pubsub.addChild("configure");
+        final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", options);
+        configure.addChild(data);
+        return iq;
+    }
+
+    public Iq createSocialFeedNode() {
+        final Iq iq = new Iq(Iq.Type.SET);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        pubsub.addChild("create").setAttribute("node", "urn:xmpp:microblog:0");
+        final Element configure = pubsub.addChild("configure");
+        final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", defaultPostConfiguration());
+        configure.addChild(data);
+        return iq;
     }
 
     public Iq publishComment(final Account account, final String node, final String title, final String inReplyToId) {
@@ -902,6 +935,10 @@ public class IqGenerator extends AbstractGenerator {
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
         return iq;
+    }
+
+    public Iq createCommentsNode(String postId) {
+        return createNode("urn:xmpp:microblog:0:comments/" + postId, defaultCommentsConfiguration());
     }
 
     public Iq retractPost(final String node, final String id) {

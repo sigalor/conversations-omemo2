@@ -457,7 +457,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                             }
                         }
                     }
-                } else if ("urn:xmpp:microblog:0".equals(node)) {
+                } else if (node != null && node.startsWith("urn:xmpp:microblog:0")) {
                     for (Element item : items.getChildren()) {
                         if (item.getName().equals("item")) {
                             final String postId = item.getAttribute("id");

@@ -1760,7 +1760,7 @@ public class MessageParser extends AbstractParser
             final Element items = event.findChild("items");
             if (items != null) {
                 final String node = items.getAttribute("node");
-                if ("urn:xmpp:microblog:0".equals(node)) {
+                if (node != null && node.startsWith("urn:xmpp:microblog:0")) {
                     for (Element item : items.getChildren()) {
                         if (item.getName().equals("item")) {
                             final String postId = item.getAttribute("id");

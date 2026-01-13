@@ -284,6 +284,7 @@ public class CreatePostActivity extends XmppActivity {
             public void onPostPublished() {
                 runOnUiThread(() -> {
                     Toast.makeText(CreatePostActivity.this, R.string.post_published, Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
                     finish();
                 });
             }

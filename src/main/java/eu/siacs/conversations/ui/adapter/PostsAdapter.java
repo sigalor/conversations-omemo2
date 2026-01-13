@@ -16,6 +16,7 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -61,10 +62,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     private final List<Post> posts;
     private final XmppActivity mActivity;
     private final Set<Post> expandedPosts = new HashSet<>();
+    private final ActivityResultLauncher<Intent> postResultLauncher;
 
-    public PostsAdapter(XmppActivity activity, List<Post> posts) {
+    public PostsAdapter(XmppActivity activity, List<Post> posts, ActivityResultLauncher<Intent> launcher) {
         this.mActivity = activity;
         this.posts = posts;
+        this.postResultLauncher = launcher;
     }
 
     @NonNull
@@ -475,7 +478,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         intent.putExtra("in_reply_to_id", post.getId());
         intent.putExtra("in_reply_to_node", post.getCommentsNode());
         intent.putExtra("account", account.getUuid());
-        mActivity.startActivity(intent);
+        postResultLauncher.launch(intent);
     }
 
     private void editPost(Account account, Post post) {
@@ -488,6 +491,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             intent.putExtra("attachment_url", post.getAttachmentUrl());
             intent.putExtra("attachment_type", post.getAttachmentType());
         }
-        mActivity.startActivity(intent);
+        postResultLauncher.launch(intent);
     }
 }
