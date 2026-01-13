@@ -109,5 +109,5 @@
 
     <!-- feeds -->
     <dimen name="posts_comments_avatar_size">24dp</dimen>
-    <dimen name="feed_suggestions_avatar_size">40dp</dimen>
+    <dimen name="feed_suggestions_avatar_size">42dp</dimen>
 </resources>

@@ -3,10 +3,7 @@ package eu.siacs.conversations.ui;
 import static android.view.View.VISIBLE;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,9 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +32,6 @@ import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.FollowSuggestionAdapter;
 import eu.siacs.conversations.ui.adapter.PostsAdapter;
-import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
@@ -66,11 +59,13 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         mSuggestionsVisible = !mSuggestionsVisible;
         binding.followSuggestionsList.setVisibility(mSuggestionsVisible ? View.VISIBLE : View.GONE);
         binding.toggleSuggestionsButton.animate().rotation(mSuggestionsVisible ? 0 : -180).setDuration(300).start();
+        getPreferences(MODE_PRIVATE).edit().putBoolean("suggestions_visible", mSuggestionsVisible).apply();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSuggestionsVisible = getPreferences(MODE_PRIVATE).getBoolean("suggestions_visible", true);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_posts);
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
         setSupportActionBar(binding.toolbar);
@@ -254,7 +249,9 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                     binding.followSuggestionsList.setVisibility(mSuggestionsVisible ? View.VISIBLE : View.GONE);
                     binding.toggleSuggestionsButton.setRotation(mSuggestionsVisible ? 0 : -180);
                 }
-                mFollowSuggestionAdapter.notifyDataSetChanged();
+                if (mFollowSuggestionAdapter != null) {
+                    mFollowSuggestionAdapter.notifyDataSetChanged();
+                }
 
                 for (Jid source : sourcesToFetch) {
                     xmppConnectionService.fetchPubsubItems(source, "urn:xmpp:microblog:0", new XmppConnectionService.OnPubsubItemsFetched() {

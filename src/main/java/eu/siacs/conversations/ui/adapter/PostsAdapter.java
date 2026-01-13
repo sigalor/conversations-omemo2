@@ -303,9 +303,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                             final String displayName = displayAccount.getDisplayName();
                             binding.postAuthorName.setText(displayName != null && !displayName.isEmpty() ? displayName : displayAccount.getJid().asBareJid().toString());
                             AvatarWorkerTask.loadAvatar(displayAccount, binding.postAuthorAvatar, R.dimen.bubble_avatar_size);
-                            final Contact self = displayAccount.getSelfContact();
-                            binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(self));
-                            binding.postAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(self));
+                            final Account self = displayAccount;
+                            binding.postAuthorAvatar.setOnClickListener(v -> mActivity.switchToAccount(self));
+                            binding.postAuthorName.setOnClickListener(v -> mActivity.switchToAccount(self));
                         } else {
                             Contact contact = displayAccount.getRoster().getContact(authorJid);
                             if (contact != null) {

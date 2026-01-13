@@ -86,6 +86,7 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    </LinearLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_create_post"
         android:layout_width="wrap_content"
@@ -95,7 +96,7 @@
         android:src="@drawable/ic_edit_24dp"
         app:layout_anchor="@id/posts_list"
         app:layout_anchorGravity="bottom|end" />
-    </LinearLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </RelativeLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView

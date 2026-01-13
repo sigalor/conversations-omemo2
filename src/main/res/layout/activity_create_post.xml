@@ -75,6 +75,10 @@
             android:id="@+id/post_title_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColorHighlight="?attr/colorControlHighlight"
+            android:textColorLink="?attr/colorAccent"
+            android:textColorHint="?android:attr/textColorHint"
+            android:textColor="?android:attr/textColorPrimary"
             android:hint="@string/post_title" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -93,6 +97,10 @@
             android:id="@+id/post_content_edit_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:textColorHighlight="?attr/colorControlHighlight"
+            android:textColorLink="?attr/colorAccent"
+            android:textColorHint="?android:attr/textColorHint"
+            android:textColor="?android:attr/textColorPrimary"
             android:gravity="top"
             android:hint="@string/post_content" />
 
