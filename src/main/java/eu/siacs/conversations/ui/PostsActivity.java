@@ -60,6 +60,10 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             startActivity(intent);
         });
 
+        binding.swipeContainer.setOnRefreshListener(() -> {
+            loadPosts();
+            binding.swipeContainer.setRefreshing(false);
+        });
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
         bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
