@@ -17,6 +17,11 @@
     android:layout_height="match_parent"
     tools:context=".ui.PostsActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/action_bar"
         android:layout_width="match_parent"
@@ -30,11 +35,48 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <LinearLayout
+        android:id="@+id/follow_suggestions_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:visibility="visible"
+        android:animateLayoutChanges="true">
+
+        <TextView
+            android:id="@+id/follow_suggestions_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/follow_suggestions" />
+
+        <ImageButton
+            android:id="@+id/toggle_suggestions_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/toggle_suggestions"
+            android:src="@drawable/outline_keyboard_arrow_down_24" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/follow_suggestions_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+        android:layout_height="match_parent" >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/posts_list"
@@ -53,7 +95,7 @@
         android:src="@drawable/ic_edit_24dp"
         app:layout_anchor="@id/posts_list"
         app:layout_anchorGravity="bottom|end" />
-
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </RelativeLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView

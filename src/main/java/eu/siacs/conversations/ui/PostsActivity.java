@@ -36,6 +36,7 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.ui.adapter.FollowSuggestionAdapter;
 import eu.siacs.conversations.ui.adapter.PostsAdapter;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.xml.Element;
@@ -49,6 +50,10 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     private PostsAdapter postsAdapter;
     private List<Post> postList = new ArrayList<>();
 
+    private FollowSuggestionAdapter mFollowSuggestionAdapter;
+    private List<Contact> mFollowSuggestions = new ArrayList<>();
+    private boolean mSuggestionsVisible = true;
+
     private final ActivityResultLauncher<Intent> postResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -56,6 +61,12 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                     loadPosts();
                 }
             });
+
+    private void toggleSuggestionsVisibility() {
+        mSuggestionsVisible = !mSuggestionsVisible;
+        binding.followSuggestionsList.setVisibility(mSuggestionsVisible ? View.VISIBLE : View.GONE);
+        binding.toggleSuggestionsButton.animate().rotation(mSuggestionsVisible ? 0 : -180).setDuration(300).start();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +89,9 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             loadPosts();
             binding.swipeContainer.setRefreshing(false);
         });
+
+        binding.followSuggestionsHeader.setOnClickListener(v -> toggleSuggestionsVisibility());
+        binding.toggleSuggestionsButton.setOnClickListener(v -> toggleSuggestionsVisibility());
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
         bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
@@ -146,6 +160,10 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         if (xmppConnectionService != null) {
             xmppConnectionService.setOnPostReceivedListener(this);
             xmppConnectionService.setOnPostRetractedListener(this);
+            if (mFollowSuggestionAdapter == null) {
+                mFollowSuggestionAdapter = new FollowSuggestionAdapter(this, xmppConnectionService, mFollowSuggestions);
+                binding.followSuggestionsList.setAdapter(mFollowSuggestionAdapter);
+            }
         }
         refreshUiReal();
     }
@@ -207,15 +225,15 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         }
     }
 
-    private void loadPosts() {
+    public void loadPosts() {
         if (xmppConnectionService == null) {
             return;
         }
         postList.clear();
-        postList.addAll(xmppConnectionService.databaseBackend.getPosts());
-        java.util.Collections.sort(postList, (p1, p2) -> Long.compare(p2.getPublished().getTime(), p1.getPublished().getTime()));
+        postList.addAll(xmppConnectionService.databaseBackend.getPosts());java.util.Collections.sort(postList, (p1, p2) -> Long.compare(p2.getPublished().getTime(), p1.getPublished().getTime()));
         postsAdapter.notifyDataSetChanged();
 
+        mFollowSuggestions.clear();
         for(final Account account : xmppConnectionService.getAccounts()) {
             if(account.isOnlineAndConnected()) {
                 final List<Jid> sourcesToFetch = new ArrayList<>();
@@ -223,8 +241,20 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                 for (eu.siacs.conversations.entities.Contact contact : account.getRoster().getContacts()) {
                     if (contact.isFollowed()) {
                         sourcesToFetch.add(contact.getJid().asBareJid());
+                    } else if(contact.showInRoster()) {
+                        mFollowSuggestions.add(contact);
                     }
                 }
+
+                if (mFollowSuggestions.isEmpty()) {
+                    binding.followSuggestionsHeader.setVisibility(View.GONE);
+                    binding.followSuggestionsList.setVisibility(View.GONE);
+                } else {
+                    binding.followSuggestionsHeader.setVisibility(View.VISIBLE);
+                    binding.followSuggestionsList.setVisibility(mSuggestionsVisible ? View.VISIBLE : View.GONE);
+                    binding.toggleSuggestionsButton.setRotation(mSuggestionsVisible ? 0 : -180);
+                }
+                mFollowSuggestionAdapter.notifyDataSetChanged();
 
                 for (Jid source : sourcesToFetch) {
                     xmppConnectionService.fetchPubsubItems(source, "urn:xmpp:microblog:0", new XmppConnectionService.OnPubsubItemsFetched() {
