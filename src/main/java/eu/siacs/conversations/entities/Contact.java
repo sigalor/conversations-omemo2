@@ -846,10 +846,23 @@ public class Contact implements ListItem, Blockable {
         public static final int DIRTY_DELETE = 7;
         private static final int SYNCED_VIA_ADDRESS_BOOK = 8;
         public static final int SYNCED_VIA_OTHER = 9;
+        public static final int FOLLOWED = 10;
     }
 
     // Method to update this Contact's presences/status messages
     public void updatePresences(List<String> newStatusMessages) {
         this.presences.updateStatusMessages(newStatusMessages);
+    }
+
+    public boolean isFollowed() {
+        return getOption(Options.FOLLOWED);
+    }
+
+    public void setFollowed(boolean followed) {
+        if (followed) {
+            setOption(Options.FOLLOWED);
+        } else {
+            resetOption(Options.FOLLOWED);
+        }
     }
 }

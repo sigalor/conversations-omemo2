@@ -164,6 +164,12 @@
                                 android:text="@string/add_contact" />
 
                             <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/follow_feed_switch"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/follow_feed" />
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/details_send_presence"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -180,7 +186,9 @@
                                 android:id="@+id/disable_calls"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
                                 android:text="@string/disable_voice_and_video_calls" />
+
                         </LinearLayout>
 
                         <TextView

@@ -120,6 +120,7 @@ public class ContactDetailsActivity extends OmemoActivity
 
     private Contact contact;
     private MaterialSwitch mDisableCallsSwitch;
+    private MaterialSwitch mFollowFeedSwitch;
     private final DialogInterface.OnClickListener removeFromRoster =
             new DialogInterface.OnClickListener() {
 
@@ -180,6 +181,15 @@ public class ContactDetailsActivity extends OmemoActivity
                     }
                 }
             };
+
+    private final OnCheckedChangeListener mOnFollowFeedCheckedChange =
+            (buttonView, isChecked) -> {
+                if (contact != null) {
+                    contact.setFollowed(isChecked);
+                    xmppConnectionService.updateContact(contact);
+                }
+            };
+
     private Jid accountJid;
     private Jid contactJid;
     private boolean showDynamicTags = false;
@@ -312,6 +322,8 @@ public class ContactDetailsActivity extends OmemoActivity
                 });
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
         mDisableCallsSwitch = binding.disableCalls;
+        mFollowFeedSwitch = binding.followFeedSwitch;
+        mFollowFeedSwitch.setOnCheckedChangeListener(mOnFollowFeedCheckedChange);
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
@@ -611,7 +623,6 @@ public class ContactDetailsActivity extends OmemoActivity
                 xmppConnectionService.updateContact(contact);
             });
 
-
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.isEmpty()) {
                 binding.statusMessage.setVisibility(View.GONE);
@@ -888,6 +899,9 @@ public class ContactDetailsActivity extends OmemoActivity
             this.binding.recentThreads.setAdapter(threads);
             this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
             Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
+        }
+        if (contact != null) {
+            mFollowFeedSwitch.setChecked(contact.isFollowed());
         }
     }
 

@@ -216,12 +216,12 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         java.util.Collections.sort(postList, (p1, p2) -> Long.compare(p2.getPublished().getTime(), p1.getPublished().getTime()));
         postsAdapter.notifyDataSetChanged();
 
-        for(Account account : xmppConnectionService.getAccounts()) {
+        for(final Account account : xmppConnectionService.getAccounts()) {
             if(account.isOnlineAndConnected()) {
                 final List<Jid> sourcesToFetch = new ArrayList<>();
                 sourcesToFetch.add(account.getJid().asBareJid());
                 for (eu.siacs.conversations.entities.Contact contact : account.getRoster().getContacts()) {
-                    if (contact.getOption(Contact.Options.FROM)) {
+                    if (contact.isFollowed()) {
                         sourcesToFetch.add(contact.getJid().asBareJid());
                     }
                 }

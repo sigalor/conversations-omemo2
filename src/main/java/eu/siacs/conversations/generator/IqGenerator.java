@@ -875,7 +875,7 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
         options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#persist_items", "1");
-        options.putString("pubsub#max_items", "1000");
+        options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
         options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "publishers");
@@ -886,7 +886,7 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
-        options.putString("pubsub#access_model", "open");
+        options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "1000");
         options.putString("pubsub#notify_retract", "1");
