@@ -877,6 +877,8 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
+        options.putString("pubsub#deliver_notifications", "1");
+        options.putString("pubsub#deliver_payloads", "1");
         options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "publishers");
         return options;
@@ -890,6 +892,8 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "1000");
         options.putString("pubsub#notify_retract", "1");
+        options.putString("pubsub#deliver_notifications", "1");
+        options.putString("pubsub#deliver_payloads", "1");
         options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "open");
         return options;
