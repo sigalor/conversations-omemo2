@@ -45,7 +45,7 @@ Jeżeli jesteś zainteresowany/-a pomocą w rozwijaniu aplikacji, możesz dołą
 Istnieje również pokój typu MUC (multi user chat), gdzie można zadawać pytania i uzyskać pomoc w przypadku napotkanych problemów. Sprawdź szczegóły poniżej.
 
 ## Jak mogę pomóc w tłumaczeniu?
-Możesz stworzyć tzw. "merge request" i za jego pomocą dodawać kolejne pliki tłumaczeń, czy też publikować modyfikacje istniejących plików.
+Możesz poprawiać lub tworzyć tłumaczenia na stronie <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>. Bardzo dziękujemy.
 
 ## Pomocy! Napotkałem/-am błędy!
 Najłatwiejszym sposobem jest dołączenie na nasz pokój typu MUC (preferujemy język angielski lub niemiecki).
