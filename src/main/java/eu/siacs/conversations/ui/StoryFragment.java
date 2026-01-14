@@ -51,6 +51,10 @@ public class StoryFragment extends Fragment {
 
     public interface OnStoryInteractionListener {
         void onNextStory();
+
+        void pauseStory();
+
+        void resumeStory();
     }
 
     public static StoryFragment newInstance(String url, String mimeType, ArrayList<String> urls) {
@@ -241,6 +245,7 @@ public class StoryFragment extends Fragment {
         if (currentAnimator != null && currentAnimator.isRunning()) {
             currentAnimator.pause();
         }
+        mListener.pauseStory();
         pauseVideo();
     }
 
@@ -248,6 +253,7 @@ public class StoryFragment extends Fragment {
         if (currentAnimator != null && currentAnimator.isPaused()) {
             currentAnimator.resume();
         }
+        mListener.resumeStory();
         resumeVideo();
     }
 

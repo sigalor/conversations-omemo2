@@ -122,6 +122,7 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
 
     @Override
     public void onNextStory() {
+        showSystemUi();
         if (viewPager.getCurrentItem() < urls.size() - 1) {
             viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
         } else {
@@ -304,5 +305,15 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         }
         invalidateOptionsMenu();
         refreshUi();
+    }
+
+    @Override
+    public void pauseStory() {
+        hideSystemUi();
+    }
+
+    @Override
+    public void resumeStory() {
+        showSystemUi();
     }
 }
