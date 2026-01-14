@@ -58,7 +58,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     private void toggleSuggestionsVisibility() {
         mSuggestionsVisible = !mSuggestionsVisible;
         binding.followSuggestionsList.setVisibility(mSuggestionsVisible ? View.VISIBLE : View.GONE);
-        binding.toggleSuggestionsButton.animate().rotation(mSuggestionsVisible ? 0 : -180).setDuration(300).start();
+        binding.toggleSuggestionsButton.animate().rotation(mSuggestionsVisible ? -180 : 0).setDuration(300).start();
         getPreferences(MODE_PRIVATE).edit().putBoolean("suggestions_visible", mSuggestionsVisible).apply();
     }
 
@@ -247,7 +247,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                 } else {
                     binding.followSuggestionsHeader.setVisibility(View.VISIBLE);
                     binding.followSuggestionsList.setVisibility(mSuggestionsVisible ? View.VISIBLE : View.GONE);
-                    binding.toggleSuggestionsButton.setRotation(mSuggestionsVisible ? 0 : -180);
+                    binding.toggleSuggestionsButton.setRotation(mSuggestionsVisible ? -180 : 0);
                 }
                 if (mFollowSuggestionAdapter != null) {
                     mFollowSuggestionAdapter.notifyDataSetChanged();
