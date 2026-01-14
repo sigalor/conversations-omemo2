@@ -49,8 +49,7 @@ Ayrıca soru sorabileceğiniz ve karşılaşabileceğiniz sorunlarla ilgili yard
 
 
 ## Çevirileri nasıl destekleyebilirim?
-Kod birleştirme talebi oluşturabilir, yeni diller ekleyebilir ve mevcut çevirileri düzenleyebilirsiniz.
-
+<a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>'de çevirileri iyileştirebilir veya yeni çeviriler oluşturabilirsiniz. Teşekkür ederiz.
 
 
 ## Yardım edin! Sorunlarla karşılaştım!
