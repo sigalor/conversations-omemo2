@@ -32,7 +32,7 @@ Il existe également un Support-MUC où vous pouvez poser des questions et obten
 
 
 ## Comment puis-je aider à la traduction ?
-Vous pouvez créer une demande de fusion et ajouter de nouvelles langues en tant que locales et ajouter et modifier des traductions déjà existantes.
+Tu peux améliorer ou créer des traductions sur <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>. Merci beaucoup.
 
 
 
