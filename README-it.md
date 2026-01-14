@@ -50,7 +50,7 @@ C'è anche una MUC di supporto dove puoi fare domande e ottenere aiuto con i pro
 
 
 ## Come posso aiutare con le traduzioni?
-Puoi creare una merge request e aggiungere nuove lingue come locale e aggiungere e modificare traduzioni già esistenti.
+Puoi migliorare o creare traduzioni su <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>. Grazie mille.
 
 
 
