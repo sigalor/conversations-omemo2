@@ -1,11 +1,14 @@
 package eu.siacs.conversations.ui;
 
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.text.format.DateUtils;
+import android.text.method.ScrollingMovementMethod;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +22,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import eu.siacs.conversations.R;
@@ -27,11 +29,12 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.widget.AvatarView;
 import eu.siacs.conversations.xmpp.Jid;
 
-public class StoryViewActivity extends XmppActivity implements StoryFragment.OnStoryTapListener {
+public class StoryViewActivity extends XmppActivity implements StoryFragment.OnStoryInteractionListener {
 
     public static final String EXTRA_URLS = "urls";
     public static final String EXTRA_TITLES = "titles";
@@ -42,12 +45,12 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
 
     private ViewPager2 viewPager;
     private TextView titleView;
-    private TextView progressView;
     private View bottomPanel;
     private AppBarLayout appBarLayout;
     private AvatarView toolbarAvatar;
     private TextView toolbarTitle;
     private TextView toolbarSubtitle;
+    private LinearLayout progressBarContainer;
 
     private ArrayList<String> urls;
     private ArrayList<String> titles;
@@ -72,15 +75,12 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         toolbarAvatar = findViewById(R.id.toolbar_avatar);
         toolbarTitle = findViewById(R.id.toolbar_title);
         toolbarSubtitle = findViewById(R.id.toolbar_subtitle);
+        progressBarContainer = findViewById(R.id.progress_bar_container);
 
         viewPager = findViewById(R.id.view_pager);
         titleView = findViewById(R.id.story_title_view);
         titleView.setMovementMethod(new ScrollingMovementMethod());
-        titleView.setOnTouchListener((v, event) -> {
-            v.getParent().requestDisallowInterceptTouchEvent(true);
-            return false;
-        });
-        progressView = findViewById(R.id.story_progress_view);
+
         bottomPanel = findViewById(R.id.bottom_panel);
 
         urls = getIntent().getStringArrayListExtra(EXTRA_URLS);
@@ -94,6 +94,8 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             //ignore
         }
 
+        setupProgressBars();
+
         StoryPagerAdapter adapter = new StoryPagerAdapter(this);
         viewPager.setAdapter(adapter);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -101,25 +103,31 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 updateUiForPosition(position);
-                Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + position);
-                if (currentFragment instanceof StoryFragment) {
-                    ((StoryFragment) currentFragment).loadStory();
-                }
             }
         });
         updateUiForPosition(0);
         showSystemUi();
     }
 
-    @Override
-    public void onStoryTapped() {
-        if (isSystemUiVisible()) {
-            hideSystemUi();
-        } else {
-            showSystemUi();
+    private void setupProgressBars() {
+        progressBarContainer.removeAllViews();
+        for (int i = 0; i < urls.size(); i++) {
+            ProgressBar progressBar = (ProgressBar) LayoutInflater.from(this).inflate(R.layout.story_progress_bar, progressBarContainer, false);
+            progressBar.setMax(1000);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) progressBar.getLayoutParams();
+            params.weight = 1;
+            progressBarContainer.addView(progressBar);
         }
     }
 
+    @Override
+    public void onNextStory() {
+        if (viewPager.getCurrentItem() < urls.size() - 1) {
+            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+        } else {
+            finish();
+        }
+    }
 
     private void updateUiForPosition(int position) {
         Contact storyContact = null;
@@ -147,8 +155,10 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         String displayName;
         if (storyContact != null) {
             displayName = storyContact.getDisplayName();
-            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-            AvatarWorkerTask.loadAvatar(conversation, toolbarAvatar, R.dimen.muc_avatar_actionbar);
+            if (mAccount != null) {
+                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+                AvatarWorkerTask.loadAvatar(conversation, toolbarAvatar, R.dimen.muc_avatar_actionbar);
+            }
         } else if (contact != null) {
             displayName = contact.asBareJid().toString();
         } else {
@@ -159,7 +169,7 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         if (storyIds != null && position < storyIds.size()) {
             final String currentStoryId = storyIds.get(position);
             if (xmppConnectionService != null) {
-                for (eu.siacs.conversations.entities.Story story : xmppConnectionService.getStories()) {
+                for (Story story : xmppConnectionService.getStories()) {
                     if (story.getUuid().equals(currentStoryId)) {
                         publishedTimestamp = story.getPublished();
                         break;
@@ -174,7 +184,6 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         }
 
         titleView.setText(titles.get(position));
-        progressView.setText((position + 1) + " " + getString(R.string.of) + " " + urls.size());
     }
 
     private void hideSystemUi() {
@@ -205,10 +214,6 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
     @Override
     protected void refreshUiReal() {
         updateUiForPosition(viewPager.getCurrentItem());
-        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
-        if (currentFragment instanceof StoryFragment) {
-            ((StoryFragment) currentFragment).loadStory();
-        }
     }
 
     @Override
@@ -262,10 +267,12 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             return true;
         } else if (itemId == R.id.action_reply_to_story) {
             int currentPos = viewPager.getCurrentItem();
-            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-            Message storyMessage = new Message(conversation, getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentPos) + "\"", conversation.getNextEncryption(), Message.STATUS_RECEIVED);
-            conversation.setReplyTo(storyMessage);
-            switchToConversation(conversation);
+            if (mAccount != null) {
+                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+                Message storyMessage = new Message(conversation, getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentPos) + "\"", conversation.getNextEncryption(), Message.STATUS_RECEIVED);
+                conversation.setReplyTo(storyMessage);
+                switchToConversation(conversation);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -280,7 +287,7 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            return StoryFragment.newInstance(urls.get(position), mimeTypes.get(position));
+            return StoryFragment.newInstance(urls.get(position), mimeTypes.get(position), urls);
         }
 
         @Override

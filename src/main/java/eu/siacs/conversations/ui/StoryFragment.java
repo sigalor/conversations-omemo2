@@ -1,13 +1,21 @@
 package eu.siacs.conversations.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -25,6 +33,7 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import eu.siacs.conversations.R;
 
@@ -32,18 +41,24 @@ public class StoryFragment extends Fragment {
 
     private static final String ARG_URL = "url";
     private static final String ARG_MIME_TYPE = "mime_type";
+    private static final long STORY_DURATION_MS = 6000;
 
-    private OnStoryTapListener mListener;
+    private OnStoryInteractionListener mListener;
+    private VideoView videoView;
+    private ObjectAnimator currentAnimator;
+    private LinearLayout progressBarContainer;
+    private ArrayList<String> urls;
 
-    public interface OnStoryTapListener {
-        void onStoryTapped();
+    public interface OnStoryInteractionListener {
+        void onNextStory();
     }
 
-    public static StoryFragment newInstance(String url, String mimeType) {
+    public static StoryFragment newInstance(String url, String mimeType, ArrayList<String> urls) {
         StoryFragment fragment = new StoryFragment();
         Bundle args = new Bundle();
         args.putString(ARG_URL, url);
         args.putString(ARG_MIME_TYPE, mimeType);
+        args.putStringArrayList("urls", urls);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,10 +66,10 @@ public class StoryFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnStoryTapListener) {
-            mListener = (OnStoryTapListener) context;
+        if (context instanceof OnStoryInteractionListener) {
+            mListener = (OnStoryInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement OnStoryTapListener");
+            throw new RuntimeException(context.toString() + " must implement OnStoryInteractionListener");
         }
     }
 
@@ -68,13 +83,36 @@ public class StoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.setOnClickListener(v -> {
-            if (mListener != null) {
-                mListener.onStoryTapped();
+        view.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    pauseStory();
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    resumeStory();
+                    return true;
             }
+            return false;
         });
 
+        progressBarContainer = view.findViewById(R.id.progress_bar_container);
+        urls = getArguments().getStringArrayList("urls");
+        setupProgressBars();
         loadStory();
+    }
+
+    private void setupProgressBars() {
+        if (urls == null) {
+            return;
+        }
+        progressBarContainer.removeAllViews();
+        for (int i = 0; i < urls.size(); i++) {
+            ProgressBar progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(R.layout.story_progress_bar, progressBarContainer, false);
+            progressBar.setMax(1000);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) progressBar.getLayoutParams();
+            params.weight = 1;
+            progressBarContainer.addView(progressBar);
+        }
     }
 
     public void loadStory() {
@@ -88,7 +126,7 @@ public class StoryFragment extends Fragment {
         }
 
         final ImageView imageView = view.findViewById(R.id.story_image_view);
-        final VideoView videoView = view.findViewById(R.id.story_video_view);
+        videoView = view.findViewById(R.id.story_video_view);
         final ProgressBar progressBar = view.findViewById(R.id.story_progress);
 
         final Bundle args = getArguments();
@@ -101,61 +139,116 @@ public class StoryFragment extends Fragment {
 
         progressBar.setVisibility(View.VISIBLE);
 
+        final int currentPosition = urls.indexOf(url);
+
+        for (int i = 0; i < currentPosition; i++) {
+            ((ProgressBar) progressBarContainer.getChildAt(i)).setProgress(1000);
+        }
+        for (int i = currentPosition; i < urls.size(); i++) {
+            ((ProgressBar) progressBarContainer.getChildAt(i)).setProgress(0);
+        }
+
+
         if (mimeType != null && mimeType.startsWith("video/")) {
             imageView.setVisibility(View.GONE);
             videoView.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .asFile()
-                    .load(url)
-                    .into(new CustomTarget<File>() {
-                        @Override
-                        public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
-                            if (!isAdded()) return;
-                            progressBar.setVisibility(View.GONE);
-                            videoView.setVideoURI(Uri.fromFile(resource));
-                            videoView.setOnPreparedListener(mp -> {
-                                mp.setLooping(true);
-                                videoView.start();
-                            });
-                        }
+            videoView.setOnCompletionListener(mp -> {
+                if (mListener != null) {
+                    mListener.onNextStory();
+                }
+            });
+                Glide.with(this)
+                        .asFile()
+                        .load(url)
+                        .into(new CustomTarget<File>() {
+                            @Override
+                            public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
+                                if (!isAdded()) return;
+                                progressBar.setVisibility(View.GONE);
+                                videoView.setVideoURI(Uri.fromFile(resource));
+                                videoView.setOnPreparedListener(mp -> {
+                                    mp.setLooping(false);
+                                    videoView.start();
+                                });
+                            }
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                            // Do nothing
-                        }
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                                // Do nothing
+                            }
 
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            if (!isAdded()) return;
-                            progressBar.setVisibility(View.GONE);
-                            Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                            @Override
+                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                if (!isAdded()) return;
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
+                            }
+                        });
         } else {
             videoView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             Glide.with(this)
                     .load(url)
                     .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            if (isAdded()) {
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
-                            }
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            if (isAdded()) {
-                                progressBar.setVisibility(View.GONE);
-                            }
-                            return false;
-                        }
-                    })
-                    .into(imageView);
+    @Override
+    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+        if (isAdded()) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
         }
+        return false;
+    }
+
+    @Override
+    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource
+    dataSource, boolean isFirstResource) {
+        if (isAdded()) {
+            progressBar.setVisibility(View.GONE);
+        }
+        return false;
+    }
+})
+        .into(imageView);
+            final ProgressBar currentProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
+            currentAnimator = ObjectAnimator.ofInt(currentProgressBar, "progress", 0, 1000);
+            currentAnimator.setDuration(STORY_DURATION_MS);
+            currentAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    if (mListener != null) {
+                        mListener.onNextStory();
+                    }
+                }
+            });
+            currentAnimator.start();
+        }
+    }
+
+    public void pauseVideo() {
+        if (videoView != null && videoView.isPlaying()) {
+            videoView.pause();
+        }
+    }
+
+    public void resumeVideo() {
+        if (videoView != null && !videoView.isPlaying()) {
+            videoView.start();
+        }
+    }
+
+    private void pauseStory() {
+        if (currentAnimator != null && currentAnimator.isRunning()) {
+            currentAnimator.pause();
+        }
+        pauseVideo();
+    }
+
+    private void resumeStory() {
+        if (currentAnimator != null && currentAnimator.isPaused()) {
+            currentAnimator.resume();
+        }
+        resumeVideo();
     }
 
 
