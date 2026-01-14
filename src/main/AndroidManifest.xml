@@ -473,7 +473,7 @@
             android:label="@string/calls" />
         <activity
             android:name=".ui.PostsActivity"
-            android:label="@string/posts" />
+            android:label="@string/feeds" />
         <activity
             android:name=".ui.CreatePostActivity"
             android:label="@string/create_post" />

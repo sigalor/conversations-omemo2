@@ -1599,7 +1599,7 @@
     <string name="video_too_long_for_story">Too long. Maximum video length is one minute.</string>
     <string name="error_retrieving_video_duration">Could not retrieve video duration</string>
     <string name="posts">Posts</string>
-    <string name="create_post">Create Post</string>
+    <string name="create_post">Create a Post</string>
     <string name="refresh">Refresh</string>
     <string name="post_title">Title</string>
     <string name="post_content">Content</string>

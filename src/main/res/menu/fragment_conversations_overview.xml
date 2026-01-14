@@ -24,7 +24,7 @@
         android:orderInCategory="90"
         android:title="@string/feeds"
         android:icon="@drawable/outline_newspaper_24"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_accounts"
@@ -40,7 +40,8 @@
         android:id="@+id/action_stories"
         android:orderInCategory="92"
         android:title="@string/stories"
-        app:showAsAction="never" />
+        android:icon="@drawable/outline_stories_24"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_calls"
         android:orderInCategory="93"

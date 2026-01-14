@@ -323,7 +323,6 @@ public class ContactDetailsActivity extends OmemoActivity
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
         mDisableCallsSwitch = binding.disableCalls;
         mFollowFeedSwitch = binding.followFeedSwitch;
-        mFollowFeedSwitch.setOnCheckedChangeListener(mOnFollowFeedCheckedChange);
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
@@ -622,6 +621,9 @@ public class ContactDetailsActivity extends OmemoActivity
                 contact.setCallsDisabled(isChecked);
                 xmppConnectionService.updateContact(contact);
             });
+            mFollowFeedSwitch.setVisibility(View.VISIBLE);
+            mFollowFeedSwitch.setOnCheckedChangeListener(mOnFollowFeedCheckedChange);
+            mFollowFeedSwitch.setChecked(contact.isFollowed());
 
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.isEmpty()) {
@@ -705,6 +707,7 @@ public class ContactDetailsActivity extends OmemoActivity
             binding.detailsSendPresence.setVisibility(View.GONE);
             binding.detailsReceivePresence.setVisibility(View.GONE);
             binding.statusMessage.setVisibility(View.GONE);
+            mFollowFeedSwitch.setVisibility(View.GONE);
         }
 
         if (contact.isBlocked() && !this.showDynamicTags) {

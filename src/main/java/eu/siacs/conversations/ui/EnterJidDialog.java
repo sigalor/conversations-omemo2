@@ -294,6 +294,7 @@ public class EnterJidDialog extends DialogFragment implements OnBackendConnected
                 if (mListener != null) {
                     try {
                         if (mListener.onEnterJidDialogPositive(accountJid, contactJid, secondary, binding.bookmark.isChecked())) {
+                            context.setResult(Activity.RESULT_OK);
                             dialog.dismiss();
                         }
                     } catch (JidError error) {
