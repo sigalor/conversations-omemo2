@@ -56,6 +56,7 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.Jid;
+import io.noties.markwon.Markwon;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHolder> {
 
@@ -63,11 +64,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     private final XmppActivity mActivity;
     private final Set<Post> expandedPosts = new HashSet<>();
     private final ActivityResultLauncher<Intent> postResultLauncher;
+    private final Markwon markwon;
 
     public PostsAdapter(XmppActivity activity, List<Post> posts, ActivityResultLauncher<Intent> launcher) {
         this.mActivity = activity;
         this.posts = posts;
         this.postResultLauncher = launcher;
+        this.markwon = Markwon.create(activity);
     }
 
     @NonNull
@@ -208,8 +211,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 });
 
-                binding.postContentSummary.setText(post.getContent());
-                binding.postContentFull.setText(post.getContent());
+                if (post.getContent() != null) {
+                    final CharSequence markdown = markwon.toMarkdown(post.getContent());
+                    binding.postContentSummary.setText(markdown);
+                    binding.postContentFull.setText(markdown);
+                } else {binding.postContentSummary.setText("");
+                    binding.postContentFull.setText("");
+                }
 
                 final View.OnClickListener expandClickListener = v -> {
                     if (expandedPosts.contains(post)) {
