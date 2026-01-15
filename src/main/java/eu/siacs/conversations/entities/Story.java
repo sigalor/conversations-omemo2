@@ -1,9 +1,11 @@
 package eu.siacs.conversations.entities;
 
 import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
+import static eu.siacs.conversations.parser.AbstractParser.parseTimestampAtom;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -100,6 +102,14 @@ public class Story extends AbstractEntity {
                 try {
                     timestamp = parseTimestamp(publishedContent);
                 } catch (ParseException e) {
+                    Log.e("Story", "Couldn't parse timestamp " + publishedContent);
+                }
+            }
+            if (timestamp == 0) {
+                try {
+                    timestamp = parseTimestampAtom(publishedContent);
+                } catch (ParseException e) {
+                    Log.e("Story", "Couldn't parse timestamp " + publishedContent);
                 }
             }
         }
@@ -110,6 +120,12 @@ public class Story extends AbstractEntity {
             if (updatedContent != null) {
                 try {
                     timestamp = parseTimestamp(updatedContent);
+                } catch (ParseException e) {
+                }
+            }
+            if (timestamp == 0) {
+                try {
+                    timestamp = parseTimestampAtom(updatedContent);
                 } catch (ParseException e) {
                 }
             }

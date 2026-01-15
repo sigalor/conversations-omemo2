@@ -125,8 +125,8 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     public void onStart() {
         super.onStart();
         if (xmppConnectionService != null) {
-            xmppConnectionService.setOnPostReceivedListener(this);
-            xmppConnectionService.setOnPostRetractedListener(this);
+            xmppConnectionService.addOnPostReceivedListener(this);
+            xmppConnectionService.addOnPostRetractedListener(this);
         }
         if (postList.isEmpty()) {
             loadPosts();
@@ -145,16 +145,16 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     public void onStop() {
         super.onStop();
         if (xmppConnectionService != null) {
-            xmppConnectionService.setOnPostReceivedListener(null);
-            xmppConnectionService.setOnPostRetractedListener(null);
+            xmppConnectionService.removeOnPostReceivedListener(this);
+            xmppConnectionService.removeOnPostRetractedListener(this);
         }
     }
 
     @Override
     public void onBackendConnected() {
         if (xmppConnectionService != null) {
-            xmppConnectionService.setOnPostReceivedListener(this);
-            xmppConnectionService.setOnPostRetractedListener(this);
+            xmppConnectionService.addOnPostReceivedListener(this);
+            xmppConnectionService.addOnPostRetractedListener(this);
             if (mFollowSuggestionAdapter == null) {
                 mFollowSuggestionAdapter = new FollowSuggestionAdapter(this, xmppConnectionService, mFollowSuggestions);
                 binding.followSuggestionsList.setAdapter(mFollowSuggestionAdapter);
@@ -166,24 +166,28 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     @Override
     public void onPostReceived(final Post post) {
         runOnUiThread(() -> {
-            if (post != null) {
-                boolean found = false;
-                for (Post existingPost : postList) {
-                    if (existingPost.getId() != null && existingPost.getId().equals(post.getId())) {
-                        found = true;
-                        break;
-                    }
+            if (post == null || post.getId() == null) {
+                return;
+            }
+
+            int existingPostIndex = -1;
+            for (int i = 0; i < postList.size(); i++) {
+                Post existingPost = postList.get(i);
+                if (post.getId().equals(existingPost.getId())) {
+                    existingPostIndex = i;
+                    break;
                 }
-                if (!found) {
-                    postList.add(0, post);
-                    java.util.Collections.sort(postList, (p1, p2) -> {
-                        if (p1.getPublished() == null && p2.getPublished() == null) return 0;
-                        if (p1.getPublished() == null) return 1;
-                        if (p2.getPublished() == null) return -1;
-                        return p2.getPublished().compareTo(p1.getPublished());
-                    });
-                    postsAdapter.notifyDataSetChanged();
-                }
+            }
+
+            if (existingPostIndex != -1) {
+                // This is an update to an existing post.
+                // Replace the old post and notify the adapter of the change at that specific position.
+                postList.set(existingPostIndex, post);
+                postsAdapter.notifyItemChanged(existingPostIndex);
+            } else {
+                // This is a new post. Add it to the top of the list.
+                postList.add(0, post);
+                postsAdapter.notifyItemInserted(0);
             }
         });
     }
@@ -225,7 +229,13 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             return;
         }
         postList.clear();
-        postList.addAll(xmppConnectionService.databaseBackend.getPosts());java.util.Collections.sort(postList, (p1, p2) -> Long.compare(p2.getPublished().getTime(), p1.getPublished().getTime()));
+        postList.addAll(xmppConnectionService.databaseBackend.getPosts());
+        java.util.Collections.sort(postList, (p1, p2) -> {
+            if (p1.getPublished() == null && p2.getPublished() == null) return 0;
+            if (p1.getPublished() == null) return 1;
+            if (p2.getPublished() == null) return -1;
+            return p2.getPublished().compareTo(p1.getPublished());
+        });
         postsAdapter.notifyDataSetChanged();
 
         mFollowSuggestions.clear();
@@ -233,10 +243,10 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             if(account.isOnlineAndConnected()) {
                 final List<Jid> sourcesToFetch = new ArrayList<>();
                 sourcesToFetch.add(account.getJid().asBareJid());
-                for (eu.siacs.conversations.entities.Contact contact : account.getRoster().getContacts()) {
+                for (Contact contact : account.getRoster().getContacts()) {
                     if (contact.isFollowed()) {
                         sourcesToFetch.add(contact.getJid().asBareJid());
-                    } else if(contact.showInRoster()) {
+                    } else if (contact.showInRoster() && (contact.resourceWhichSupport(Namespace.PUBSUB_SOCIAL_FEED) != null || contact.resourceWhichSupport("urn:xmpp:microblog:0") != null)) {
                         mFollowSuggestions.add(contact);
                     }
                 }

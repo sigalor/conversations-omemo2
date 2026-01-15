@@ -8276,14 +8276,39 @@ public class XmppConnectionService extends Service {
         void onPostReceived(Post post);
     }
 
-    private OnPostReceived mOnPostReceivedListener;
-
-    public void setOnPostReceivedListener(OnPostReceived listener) {
-        this.mOnPostReceivedListener = listener;
+    public interface OnPostRetracted {
+        void onPostRetracted(String postId);
+        void onPostRetractionFailed();
     }
 
-    public OnPostReceived getOnPostReceivedListener() {
-        return this.mOnPostReceivedListener;
+    private final Set<OnPostReceived> mOnPostReceivedListeners =
+            java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+    private final Set<OnPostRetracted> mOnPostRetractedListeners =
+            java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+
+
+    public void addOnPostReceivedListener(OnPostReceived listener) {
+        synchronized (LISTENER_LOCK) {
+            mOnPostReceivedListeners.add(listener);
+        }
+    }
+
+    public void removeOnPostReceivedListener(OnPostReceived listener) {
+        synchronized (LISTENER_LOCK) {
+            mOnPostReceivedListeners.remove(listener);
+        }
+    }
+
+    public void addOnPostRetractedListener(OnPostRetracted listener) {
+        synchronized (LISTENER_LOCK) {
+            mOnPostRetractedListeners.add(listener);
+        }
+    }
+
+    public void removeOnPostRetractedListener(OnPostRetracted listener) {
+        synchronized (LISTENER_LOCK) {
+            mOnPostRetractedListeners.remove(listener);
+        }
     }
 
     public void onPostReceived(Post post, Account account) {
@@ -8291,24 +8316,9 @@ public class XmppConnectionService extends Service {
             return;
         }
         databaseBackend.createPost(post, account);
-        if (mOnPostReceivedListener != null) {
-            mOnPostReceivedListener.onPostReceived(post);
+        for (OnPostReceived listener : threadSafeList(mOnPostReceivedListeners)) {
+            listener.onPostReceived(post);
         }
-    }
-
-    public interface OnPostRetracted {
-        void onPostRetracted(String postId);
-        void onPostRetractionFailed();
-    }
-
-    private OnPostRetracted mOnPostRetractedListener;
-
-    public void setOnPostRetractedListener(OnPostRetracted listener) {
-        this.mOnPostRetractedListener = listener;
-    }
-
-    public OnPostRetracted getOnPostRetractedListener() {
-        return this.mOnPostRetractedListener;
     }
 
     public void onPostRetracted(String postId) {
@@ -8316,8 +8326,8 @@ public class XmppConnectionService extends Service {
             return;
         }
         databaseBackend.deletePost(postId);
-        if (mOnPostRetractedListener != null) {
-            mOnPostRetractedListener.onPostRetracted(postId);
+        for (OnPostRetracted listener : threadSafeList(mOnPostRetractedListeners)) {
+            listener.onPostRetracted(postId);
         }
     }
 }

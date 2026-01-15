@@ -92,6 +92,26 @@ public abstract class AbstractParser {
 		return Math.min(dateFormat.parse(timestamp).getTime() + ms, System.currentTimeMillis());
 	}
 
+    public static long parseTimestampAtom(String timestamp) throws ParseException {
+        timestamp = timestamp.replace("+00:00", "+0000");
+        SimpleDateFormat dateFormat;
+        long ms;
+        if (timestamp.length() >= 25 && timestamp.charAt(19) == '.') {
+            String millis = timestamp.substring(19, timestamp.length() - 5);
+            try {
+                double fractions = Double.parseDouble("0" + millis);
+                ms = Math.round(1000 * fractions);
+            } catch (NumberFormatException e) {
+                ms = 0;
+            }
+        } else {
+            ms = 0;
+        }
+        timestamp = timestamp.substring(0, 19) + timestamp.substring(timestamp.length() - 5);
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
+        return Math.min(dateFormat.parse(timestamp).getTime() + ms, System.currentTimeMillis());
+    }
+
 	public static long getTimestamp(final String input) throws ParseException {
 		if (input == null) {
 			throw new IllegalArgumentException("timestamp should not be null");

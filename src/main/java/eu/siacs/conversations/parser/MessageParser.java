@@ -1754,43 +1754,30 @@ public class MessageParser extends AbstractParser
                     packet);
         }
 
-        final Element event =
-                original.findChild("event", "http://jabber.org/protocol/pubsub#event");
-        if (event != null && Jid.Invalid.hasValidFrom(original) && original.getFrom().isBareJid()) {
+        final Element event = original.findChild("event", "http://jabber.org/protocol/pubsub#event");
+        if (event != null) {
             final Element items = event.findChild("items");
             if (items != null) {
                 final String node = items.getAttribute("node");
                 if (node != null && node.startsWith("urn:xmpp:microblog:0")) {
-                    for (Element item : items.getChildren()) {
-                        if (item.getName().equals("item")) {
-                            final String postId = item.getAttribute("id");
-                            if (item.hasChild("entry", Namespace.ATOM)) {
-                                Element entry = item.findChild("entry", Namespace.ATOM);
-                                if (entry != null) {
-                                    try {
-                                        Post post = Post.fromElement(entry);
-                                        mXmppConnectionService.onPostReceived(post, account);
-                                        if (mXmppConnectionService.getOnPostReceivedListener() != null) {
-                                            mXmppConnectionService.getOnPostReceivedListener().onPostReceived(post);
-                                        }
-                                    } catch (Exception e) {
-                                        Log.e(
-                                                Config.LOGTAG,
-                                                "error creating post from pubsub item in iq",
-                                                e);
-                                    }
+                    for (Element child : items.getChildren()) {
+                        if ("item".equals(child.getName())) {
+                            final String postId = child.getAttribute("id");
+                            Element entry = child.findChild("entry", Namespace.ATOM);
+                            if (entry != null) {
+                                try {
+                                    Post post = Post.fromElement(entry);
+                                    mXmppConnectionService.onPostReceived(post, account);
+                                } catch (Exception e) {
+                                    Log.d(Config.LOGTAG, "error creating post from pubsub item in message", e);
                                 }
-                            } else if (item.hasChild("retract")) {
+                            } else if (postId != null) {
                                 mXmppConnectionService.onPostRetracted(postId);
-                                if (mXmppConnectionService.getOnPostRetractedListener() != null) {
-                                    mXmppConnectionService.getOnPostRetractedListener().onPostRetracted(postId);
-                                }
                             }
-                        } else if (item.getName().equals("retract")) {
-                            final String postId = item.getAttribute("id");
-                            mXmppConnectionService.onPostRetracted(postId);
-                            if (mXmppConnectionService.getOnPostRetractedListener() != null) {
-                                mXmppConnectionService.getOnPostRetractedListener().onPostRetracted(postId);
+                        } else if ("retract".equals(child.getName())) {
+                            final String postId = child.getAttribute("id");
+                            if (postId != null) {
+                                mXmppConnectionService.onPostRetracted(postId);
                             }
                         }
                     }
