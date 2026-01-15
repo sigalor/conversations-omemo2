@@ -8330,4 +8330,14 @@ public class XmppConnectionService extends Service {
             listener.onPostRetracted(postId);
         }
     }
+
+    public void subscribeTo(final Account account, final Jid to, final String node, final Consumer<Iq> callback) {
+        final Iq iq = getIqGenerator().generateSubscriptionIq(to, node, account.getJid());
+        sendIqPacket(account, iq, callback);
+    }
+
+    public void unsubscribeFrom(final Account account, final Jid to, final String node, final Consumer<Iq> callback) {
+        final Iq iq = getIqGenerator().generateUnsubscriptionIq(to, node, account.getJid());
+        sendIqPacket(account, iq, callback);
+    }
 }

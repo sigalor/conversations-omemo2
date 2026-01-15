@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,10 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.PostsActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import im.conversations.android.xmpp.model.stanza.Iq;
 
 public class FollowSuggestionAdapter extends RecyclerView.Adapter<FollowSuggestionAdapter.ViewHolder> {
 
@@ -45,11 +48,20 @@ public class FollowSuggestionAdapter extends RecyclerView.Adapter<FollowSuggesti
         AvatarWorkerTask.loadAvatar(contact, holder.mAvatar, R.dimen.feed_suggestions_avatar_size);
         holder.mAvatar.setOnClickListener(v -> mPostsActivity.switchToContactDetails(contact));
         holder.mFollowButton.setOnClickListener(v -> {
-            contact.setFollowed(true);
-            mXmppConnectionService.updateContact(contact);
-            mContacts.remove(contact);
-            notifyDataSetChanged();
-            mPostsActivity.loadPosts(); // Refresh posts to show new content
+            final Account account = contact.getAccount();
+            mXmppConnectionService.subscribeTo(account, contact.getJid(), "urn:xmpp:microblog:0", packet -> {
+                mPostsActivity.runOnUiThread(() -> {
+                    if (packet.getType() == Iq.Type.RESULT) {
+                        contact.setFollowed(true);
+                        mXmppConnectionService.updateContact(contact);
+                        mContacts.remove(contact);
+                        notifyDataSetChanged();
+                        mPostsActivity.loadPosts();
+                    } else {
+                        Toast.makeText(mPostsActivity, R.string.error_subscribing_to_feed, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
         });
     }
 

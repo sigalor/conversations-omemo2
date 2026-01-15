@@ -954,4 +954,24 @@ public class IqGenerator extends AbstractGenerator {
         retract.addChild("item").setAttribute("id", id);
         return packet;
     }
+
+    public Iq generateSubscriptionIq(final Jid to, final String node, final Jid from) {
+        final Iq iq = new Iq(Iq.Type.SET);
+        iq.setTo(to);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element subscribe = pubsub.addChild("subscribe");
+        subscribe.setAttribute("node", node);
+        subscribe.setAttribute("jid", from.asBareJid().toString());
+        return iq;
+    }
+
+    public Iq generateUnsubscriptionIq(final Jid to, final String node, final Jid from) {
+        final Iq iq = new Iq(Iq.Type.SET);
+        iq.setTo(to);
+        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
+        final Element unsubscribe = pubsub.addChild("unsubscribe");
+        unsubscribe.setAttribute("node", node);
+        unsubscribe.setAttribute("jid", from.asBareJid().toString());
+        return iq;
+    }
 }

@@ -100,6 +100,8 @@ import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import eu.siacs.conversations.xmpp.XmppConnection;
+import im.conversations.android.xmpp.model.stanza.Iq;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -185,8 +187,31 @@ public class ContactDetailsActivity extends OmemoActivity
     private final OnCheckedChangeListener mOnFollowFeedCheckedChange =
             (buttonView, isChecked) -> {
                 if (contact != null) {
-                    contact.setFollowed(isChecked);
-                    xmppConnectionService.updateContact(contact);
+                    if (isChecked) {
+                        xmppConnectionService.subscribeTo(contact.getAccount(), contact.getJid(), "urn:xmpp:microblog:0", packet -> {
+                            runOnUiThread(() -> {
+                                if (packet.getType() == Iq.Type.RESULT) {
+                                    contact.setFollowed(true);
+                                    xmppConnectionService.updateContact(contact);
+                                } else {
+                                    mFollowFeedSwitch.setChecked(false);
+                                    Toast.makeText(ContactDetailsActivity.this, R.string.error_subscribing_to_feed, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        });
+                    } else {
+                        xmppConnectionService.unsubscribeFrom(contact.getAccount(), contact.getJid(), "urn:xmpp:microblog:0", packet -> {
+                            runOnUiThread(() -> {
+                                if (packet.getType() == Iq.Type.RESULT) {
+                                    contact.setFollowed(false);
+                                    xmppConnectionService.updateContact(contact);
+                                } else {
+                                    mFollowFeedSwitch.setChecked(true);
+                                    Toast.makeText(ContactDetailsActivity.this, R.string.error_unsubscribing_from_feed, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        });
+                    }
                 }
             };
 

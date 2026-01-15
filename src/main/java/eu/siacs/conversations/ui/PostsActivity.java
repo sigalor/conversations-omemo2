@@ -246,7 +246,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                 for (Contact contact : account.getRoster().getContacts()) {
                     if (contact.isFollowed()) {
                         sourcesToFetch.add(contact.getJid().asBareJid());
-                    } else if (contact.showInRoster() && (contact.resourceWhichSupport(Namespace.PUBSUB_SOCIAL_FEED) != null || contact.resourceWhichSupport("urn:xmpp:microblog:0") != null)) {
+                    } else if (contact.showInRoster()) {
                         mFollowSuggestions.add(contact);
                     }
                 }
