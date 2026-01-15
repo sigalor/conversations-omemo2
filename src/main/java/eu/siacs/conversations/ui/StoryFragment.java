@@ -48,6 +48,8 @@ public class StoryFragment extends Fragment {
     private ObjectAnimator currentAnimator;
     private LinearLayout progressBarContainer;
     private ArrayList<String> urls;
+    private final Handler videoProgressHandler = new Handler(Looper.getMainLooper());
+    private Runnable videoProgressRunnable;
 
     public interface OnStoryInteractionListener {
         void onNextStory();
@@ -100,7 +102,9 @@ public class StoryFragment extends Fragment {
         });
 
         progressBarContainer = view.findViewById(R.id.progress_bar_container);
-        urls = getArguments().getStringArrayList("urls");
+        if (getArguments() != null) {
+            urls = getArguments().getStringArrayList("urls");
+        }
         setupProgressBars();
         loadStory();
     }
@@ -168,11 +172,27 @@ public class StoryFragment extends Fragment {
                             @Override
                             public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
                                 if (!isAdded()) return;
-                                progressBar.setVisibility(View.GONE);
                                 videoView.setVideoURI(Uri.fromFile(resource));
                                 videoView.setOnPreparedListener(mp -> {
+                                    progressBar.setVisibility(View.GONE);
                                     mp.setLooping(false);
                                     videoView.start();
+                                    final int duration = mp.getDuration();
+                                    final ProgressBar currentStoryProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
+                                    if (currentStoryProgressBar != null) {
+                                        videoProgressRunnable = new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (videoView != null && videoView.isPlaying()) {
+                                                    int currentPosition = videoView.getCurrentPosition();
+                                                    int progress = (int) (((float) currentPosition / duration) * 1000);
+                                                    currentStoryProgressBar.setProgress(progress);
+                                                    videoProgressHandler.postDelayed(this, 50);
+                                                }
+                                            }
+                                        };
+                                        videoProgressHandler.post(videoProgressRunnable);
+                                    }
                                 });
                             }
 
@@ -183,6 +203,7 @@ public class StoryFragment extends Fragment {
 
                             @Override
                             public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                super.onLoadFailed(errorDrawable);
                                 if (!isAdded()) return;
                                 progressBar.setVisibility(View.GONE);
                                 Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
@@ -232,12 +253,18 @@ public class StoryFragment extends Fragment {
     public void pauseVideo() {
         if (videoView != null && videoView.isPlaying()) {
             videoView.pause();
+            if (videoProgressRunnable != null) {
+                videoProgressHandler.removeCallbacks(videoProgressRunnable);
+            }
         }
     }
 
     public void resumeVideo() {
         if (videoView != null && !videoView.isPlaying()) {
             videoView.start();
+            if (videoProgressRunnable != null) {
+                videoProgressHandler.post(videoProgressRunnable);
+            }
         }
     }
 
@@ -261,6 +288,9 @@ public class StoryFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        if (videoProgressRunnable != null) {
+            videoProgressHandler.removeCallbacks(videoProgressRunnable);
+        }
         mListener = null;
     }
 }
