@@ -111,6 +111,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         final Dialog dialog = new Dialog(mActivity);
         dialog.setContentView(R.layout.dialog_video_preview);
         VideoView videoView = dialog.findViewById(R.id.video_view);
+        android.widget.FrameLayout frameLayout = dialog.findViewById(R.id.video_frame);
         Glide.with(mActivity)
                 .asFile()
                 .load(url)
@@ -135,10 +136,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 });
         MediaController controller = new MediaController(mActivity);
-        controller.setMediaPlayer(videoView);
+        controller.setAnchorView(frameLayout);
         videoView.setMediaController(controller);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
         dialog.show();
     }
