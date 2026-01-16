@@ -184,36 +184,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 }
             };
 
-    private final OnCheckedChangeListener mOnFollowFeedCheckedChange =
-            (buttonView, isChecked) -> {
-                if (contact != null) {
-                    if (isChecked) {
-                        xmppConnectionService.subscribeTo(contact.getAccount(), contact.getJid(), "urn:xmpp:microblog:0", packet -> {
-                            runOnUiThread(() -> {
-                                if (packet.getType() == Iq.Type.RESULT) {
-                                    contact.setFollowed(true);
-                                    xmppConnectionService.updateContact(contact);
-                                } else {
-                                    mFollowFeedSwitch.setChecked(false);
-                                    Toast.makeText(ContactDetailsActivity.this, R.string.error_subscribing_to_feed, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        });
-                    } else {
-                        xmppConnectionService.unsubscribeFrom(contact.getAccount(), contact.getJid(), "urn:xmpp:microblog:0", packet -> {
-                            runOnUiThread(() -> {
-                                if (packet.getType() == Iq.Type.RESULT) {
-                                    contact.setFollowed(false);
-                                    xmppConnectionService.updateContact(contact);
-                                } else {
-                                    mFollowFeedSwitch.setChecked(true);
-                                    Toast.makeText(ContactDetailsActivity.this, R.string.error_unsubscribing_from_feed, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        });
-                    }
-                }
-            };
+    private OnCheckedChangeListener mOnFollowFeedCheckedChange;
 
     private Jid accountJid;
     private Jid contactJid;
@@ -348,6 +319,73 @@ public class ContactDetailsActivity extends OmemoActivity
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
         mDisableCallsSwitch = binding.disableCalls;
         mFollowFeedSwitch = binding.followFeedSwitch;
+
+        this.mOnFollowFeedCheckedChange =
+                (buttonView, isChecked) -> {
+                    if (contact != null) {
+                        // Disable the switch to show an operation is in progress
+                        mFollowFeedSwitch.setEnabled(false);
+                        if (isChecked) {
+                            xmppConnectionService.subscribeTo(
+                                    contact.getAccount(),
+                                    contact.getJid(),
+                                    "urn:xmpp:microblog:0",
+                                    packet -> {
+                                        runOnUiThread(
+                                                () -> {
+                                                    // Always re-enable the switch
+                                                    mFollowFeedSwitch.setEnabled(true);
+                                                    if (packet.getType() == Iq.Type.RESULT) {
+                                                        contact.setFollowed(true);
+                                                        xmppConnectionService.updateContact(contact);
+                                                    } else {
+                                                        // Revert switch on failure, detaching listener to prevent loop
+                                                        mFollowFeedSwitch.setOnCheckedChangeListener(null);
+                                                        mFollowFeedSwitch.setChecked(false);
+                                                        mFollowFeedSwitch.setOnCheckedChangeListener(
+                                                                this.mOnFollowFeedCheckedChange);
+                                                        Toast.makeText(
+                                                                        ContactDetailsActivity.this,
+                                                                        R.string
+                                                                                .error_subscribing_to_feed,
+                                                                        Toast.LENGTH_SHORT)
+                                                                .show();
+                                                    }
+                                                });
+                                    });
+                        } else {
+                            xmppConnectionService.unsubscribeFrom(
+                                    contact.getAccount(),
+                                    contact.getJid(),
+                                    "urn:xmpp:microblog:0",
+                                    packet -> {
+                                        runOnUiThread(
+                                                () -> {
+                                                    // Always re-enable the switch
+                                                    mFollowFeedSwitch.setEnabled(true);
+                                                    if (packet.getType() == Iq.Type.RESULT) {
+                                                        contact.setFollowed(false);
+                                                        xmppConnectionService.updateContact(contact);
+                                                    } else {
+                                                        // Revert switch on failure, detaching listener to prevent loop
+                                                        mFollowFeedSwitch.setOnCheckedChangeListener(null);
+                                                        mFollowFeedSwitch.setChecked(true);
+                                                        mFollowFeedSwitch.setOnCheckedChangeListener(
+                                                                this.mOnFollowFeedCheckedChange);
+                                                        Toast.makeText(
+                                                                        ContactDetailsActivity.this,
+                                                                        R.string
+                                                                                .error_unsubscribing_from_feed,
+                                                                        Toast.LENGTH_SHORT)
+                                                                .show();
+                                                    }
+                                                });
+                                    });
+                        }
+                    }
+                };
+        mFollowFeedSwitch.setOnCheckedChangeListener(mOnFollowFeedCheckedChange);
+
         mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
