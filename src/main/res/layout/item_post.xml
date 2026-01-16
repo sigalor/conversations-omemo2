@@ -119,6 +119,17 @@
                 tools:src="@tools:sample/backgrounds/scenic"
                 tools:visibility="visible" />
 
+            <ImageView
+                android:id="@+id/video_overlay_icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_play_circle_24dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/post_image"
+                app:layout_constraintEnd_toEndOf="@id/post_image"
+                app:layout_constraintStart_toStartOf="@id/post_image"
+                app:layout_constraintTop_toTopOf="@id/post_image" />
+
             <Button
                 android:id="@+id/download_button"
                 style="@style/Widget.Material3.Button.TextButton"

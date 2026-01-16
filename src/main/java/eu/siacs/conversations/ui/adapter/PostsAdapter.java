@@ -172,6 +172,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.attachmentHint.setVisibility(hasAttachment && !isExpanded ? View.VISIBLE : View.GONE);
             binding.postImage.setVisibility(isExpanded && (isImage || isVideo) ? View.VISIBLE : View.GONE);
+            binding.videoOverlayIcon.setVisibility(isExpanded && isVideo ? View.VISIBLE : View.GONE);
             binding.downloadButton.setVisibility(isExpanded && hasAttachment && !isImage && !isVideo ? View.VISIBLE : View.GONE);
 
             if (isExpanded && (isImage || isVideo)) {
