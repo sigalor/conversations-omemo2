@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -338,6 +339,7 @@ public class ContactDetailsActivity extends OmemoActivity
                                                     if (packet.getType() == Iq.Type.RESULT) {
                                                         contact.setFollowed(true);
                                                         xmppConnectionService.updateContact(contact);
+                                                        setResult(Activity.RESULT_OK);
                                                     } else {
                                                         // Revert switch on failure, detaching listener to prevent loop
                                                         mFollowFeedSwitch.setOnCheckedChangeListener(null);
@@ -366,6 +368,7 @@ public class ContactDetailsActivity extends OmemoActivity
                                                     if (packet.getType() == Iq.Type.RESULT) {
                                                         contact.setFollowed(false);
                                                         xmppConnectionService.updateContact(contact);
+                                                        setResult(Activity.RESULT_OK);
                                                     } else {
                                                         // Revert switch on failure, detaching listener to prevent loop
                                                         mFollowFeedSwitch.setOnCheckedChangeListener(null);
