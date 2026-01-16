@@ -1630,6 +1630,7 @@
     <string name="forward">Forward</string>
     <string name="error_subscribing_to_feed">Could not subscribe to feed</string>
     <string name="error_unsubscribing_from_feed">Could not unsubscribe from feed</string>
+    <string name="uploading_attachment">Uploading attachment…</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

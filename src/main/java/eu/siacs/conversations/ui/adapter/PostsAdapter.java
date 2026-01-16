@@ -173,13 +173,43 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             binding.downloadButton.setVisibility(isExpanded && hasAttachment && !isImage && !isVideo ? View.VISIBLE : View.GONE);
 
             if (isExpanded && (isImage || isVideo)) {
+                binding.attachmentProgress.setVisibility(View.VISIBLE);
                 if (isImage) {
-                    Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
+                    Glide.with(mActivity)
+                            .load(post.getAttachmentUrl())
+                            .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, @Nullable Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, boolean isFirstResource) {
+                                    binding.attachmentProgress.setVisibility(View.GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, @NonNull com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                                    binding.attachmentProgress.setVisibility(View.GONE);
+                                    return false;
+                                }
+                            })
+                            .into(binding.postImage);
                     binding.postImage.setOnClickListener(v -> showImagePreviewDialog(post.getAttachmentUrl()));
                 } else {
-                    Glide.with(mActivity).load(post.getAttachmentUrl()).into(binding.postImage);
-                    binding.postImage.setOnClickListener(v -> showVideoPreviewDialog(post.getAttachmentUrl()));
+                    Glide.with(mActivity)
+                            .load(post.getAttachmentUrl())
+                            .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, @Nullable Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, boolean isFirstResource) {
+                                    binding.attachmentProgress.setVisibility(View.GONE);
+                                    return false;
+                                }
 
+                                @Override
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, @NonNull com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                                    binding.attachmentProgress.setVisibility(View.GONE);
+                                    return false;
+                                }
+                            })
+                            .into(binding.postImage);
+                    binding.postImage.setOnClickListener(v -> showVideoPreviewDialog(post.getAttachmentUrl()));
                 }
             }
 

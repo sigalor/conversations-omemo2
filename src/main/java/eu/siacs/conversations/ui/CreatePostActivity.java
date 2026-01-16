@@ -1,9 +1,9 @@
 package eu.siacs.conversations.ui;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,16 +16,11 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -238,6 +233,7 @@ public class CreatePostActivity extends XmppActivity {
                     public void onPostPublished() {
                         runOnUiThread(() -> {
                             Toast.makeText(CreatePostActivity.this, R.string.comment_published, Toast.LENGTH_SHORT).show();
+                            setResult(RESULT_OK);
                             finish();
                         });
                     }
@@ -255,6 +251,9 @@ public class CreatePostActivity extends XmppActivity {
                 if (scheme != null && (scheme.equals("http") || scheme.equals("https"))) {
                     publish(selectedAccount, title, content, attachmentUri.toString(), mimeType);
                 } else {
+                    Toast.makeText(this, R.string.uploading_attachment, Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
                     xmppConnectionService.uploadFileForUrl(selectedAccount, attachmentUri, mimeType, new UiCallback<String>() {
                         @Override
                         public void success(String url) {
@@ -267,7 +266,7 @@ public class CreatePostActivity extends XmppActivity {
                         }
 
                         @Override
-                        public void userInputRequired(android.app.PendingIntent pi, String object) {
+                        public void userInputRequired(PendingIntent pi, String object) {
 
                         }
                     });
