@@ -170,8 +170,9 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         if (storyIds != null && position < storyIds.size()) {
             final String currentStoryId = storyIds.get(position);
             if (xmppConnectionService != null) {
+                long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
                 for (Story story : xmppConnectionService.getStories()) {
-                    if (story.getUuid().equals(currentStoryId)) {
+                    if (story.getUuid().equals(currentStoryId) && story.getPublished() >= twentyFourHoursAgo) {
                         publishedTimestamp = story.getPublished();
                         break;
                     }
