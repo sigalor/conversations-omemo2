@@ -349,10 +349,6 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
             binding.messageImageView.setVisibility(View.VISIBLE);
             Glide.with(this)
                     .load(uri)
-                    .apply(new RequestOptions()
-                            .optionalFitCenter()
-                            .format(DecodeFormat.PREFER_ARGB_8888)
-                            .override(Target.SIZE_ORIGINAL))
                     .into(binding.messageImageView);
             binding.messageImageView.setOnPhotoTapListener((view, motionEvent, listener) -> {
                 if (isImage) {
