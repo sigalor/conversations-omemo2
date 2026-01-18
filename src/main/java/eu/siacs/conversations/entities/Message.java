@@ -107,6 +107,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final int TYPE_PRIVATE = 4;
     public static final int TYPE_PRIVATE_FILE = 5;
     public static final int TYPE_RTP_SESSION = 6;
+    public static final int TYPE_STORY = 7;
 
     public static final String CONVERSATION = "conversationUuid";
     public static final String COUNTERPART = "counterpart";
@@ -188,6 +189,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private List<MucOptions.User> counterparts;
     private WeakReference<MucOptions.User> user;
     private String retractId = null;
+    private androidx.core.util.Pair<Jid, String> storyReference = null;
 
     protected Message(Conversational conversation) {
         this.conversation = conversation;
@@ -275,7 +277,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             final long timeSent,
             final int encryption,
             final int status,
-            final int type,
+            int type,
             final boolean carbon,
             final String remoteMsgId,
             final String relativeFilePath,
@@ -322,6 +324,31 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (payloads != null) this.payloads = payloads;
         if (fileParams != null && getSims().isEmpty()) this.fileParams = new FileParams(fileParams);
         this.retractId = retractId;
+
+        if (type == TYPE_TEXT || type == TYPE_PRIVATE) {
+            final FileParams fp = getFileParams();
+            if (fp != null && fp.url != null && fp.url.startsWith("xmpp:")) {
+                try {
+                    final android.net.Uri uri = android.net.Uri.parse(fp.url);
+                    String schemeSpecificPart = uri.getSchemeSpecificPart();
+                    int queryStart = schemeSpecificPart.indexOf('?');
+                    if (queryStart != -1) {
+                        String queryString = schemeSpecificPart.substring(queryStart + 1);
+                        String[] params = queryString.split(";");
+                        for (String param : params) {
+                            String[] keyValue = param.split("=", 2);
+                            if (keyValue.length == 2 && "node".equals(keyValue[0]) && "urn:xmpp:pubsub-social-feed:stories:0".equals(keyValue[1])) {
+                                type = TYPE_STORY;
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // not a story URI
+                }
+            }
+        }
+        this.type = type;
     }
 
     public static Message fromCursor(Cursor cursor, Conversation conversation) throws IOException {
@@ -375,6 +402,44 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (legacyOccupant != null) m.setOccupantId(legacyOccupant);
         if (cursor.getInt(cursor.getColumnIndexOrThrow(NOTIFICATION_DISMISSED)) > 0) m.markNotificationDismissed();
         return m;
+    }
+
+    public androidx.core.util.Pair<Jid, String> getStoryReference() {
+        if (this.storyReference != null) {
+            return this.storyReference;
+        }
+        final FileParams fp = getFileParams();
+        if (fp == null || fp.url == null || !fp.url.startsWith("xmpp:")) {
+            return null;
+        }
+        try {
+            final String uriString = fp.url;
+            final android.net.Uri uri = android.net.Uri.parse(uriString);
+            String schemeSpecificPart = uri.getSchemeSpecificPart();
+            int queryStart = schemeSpecificPart.indexOf('?');
+            if (queryStart == -1) {
+                return null;
+            }
+            String jidString = schemeSpecificPart.substring(0, queryStart);
+            final Jid jid = Jid.of(jidString);
+            String queryString = schemeSpecificPart.substring(queryStart + 1);
+            String item = null;
+            String[] params = queryString.split(";");
+            for (String param : params) {
+                String[] keyValue = param.split("=", 2);
+                if (keyValue.length == 2 && "item".equals(keyValue[0])) {
+                    item = keyValue[1];
+                    break;
+                }
+            }
+            if (item != null) {
+                this.storyReference = new androidx.core.util.Pair<>(jid, item);
+                return this.storyReference;
+            }
+        } catch (Exception e) {
+            // Not a valid story URI
+        }
+        return null;
     }
 
     private static Jid fromString(String value) {

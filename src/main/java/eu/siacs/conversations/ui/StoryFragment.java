@@ -268,7 +268,7 @@ public class StoryFragment extends Fragment {
         }
     }
 
-    private void pauseStory() {
+    public void pauseStory() {
         if (currentAnimator != null && currentAnimator.isRunning()) {
             currentAnimator.pause();
         }
@@ -276,7 +276,7 @@ public class StoryFragment extends Fragment {
         pauseVideo();
     }
 
-    private void resumeStory() {
+    public void resumeStory() {
         if (currentAnimator != null && currentAnimator.isPaused()) {
             currentAnimator.resume();
         }

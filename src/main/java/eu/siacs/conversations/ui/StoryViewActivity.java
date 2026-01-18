@@ -7,12 +7,14 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -21,8 +23,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Account;
@@ -30,8 +34,11 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Story;
+import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.widget.AvatarView;
+import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class StoryViewActivity extends XmppActivity implements StoryFragment.OnStoryInteractionListener {
@@ -209,10 +216,6 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
-    private boolean isSystemUiVisible() {
-        return appBarLayout.getAlpha() > 0;
-    }
-
     @Override
     protected void refreshUiReal() {
         updateUiForPosition(viewPager.getCurrentItem());
@@ -268,12 +271,67 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                     .show();
             return true;
         } else if (itemId == R.id.action_reply_to_story) {
+            // Pause the story progress before showing the dialog
+            Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (currentFragment instanceof StoryFragment) {
+                ((StoryFragment) currentFragment).pauseStory();
+            }
+
             int currentPos = viewPager.getCurrentItem();
             if (mAccount != null) {
-                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-                Message storyMessage = new Message(conversation, getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentPos) + "\"", conversation.getNextEncryption(), Message.STATUS_RECEIVED);
-                conversation.setReplyTo(storyMessage);
-                switchToConversation(conversation);
+                final LinearLayout container = new LinearLayout(this);
+                container.setOrientation(LinearLayout.VERTICAL);
+                final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                int margin = (int) (16 * getResources().getDisplayMetrics().density);
+                params.setMargins(margin, 0, margin, 0);
+                final TextInputEditText input = new TextInputEditText(this);
+                input.setLayoutParams(params);
+                input.setHint(R.string.compose_message_hint);
+                container.addView(input);
+
+                final AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.reply_to_story)
+                        .setView(container)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.send, (d, which) -> {
+                            final String text = input.getText() != null ? input.getText().toString() : "";
+                            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+                            String storyId = storyIds.get(currentPos);
+                            if (storyId == null) {
+                                return;
+                            }
+                            String storyUri = "xmpp:" + contact.asBareJid().toString() + "?;node=urn:xmpp:pubsub-social-feed:stories:0;item=" + storyId;
+                            final String messageBody = text.isEmpty() ? getString(R.string.reply_to_story) : text;
+
+                            Message storyMessage = new Message(
+                                    conversation,
+                                    messageBody,
+                                    conversation.getNextEncryption(),
+                                    Message.STATUS_SEND
+                            );
+                            Element reference = new Element("reference", "urn:xmpp:reference:0");
+                            reference.setAttribute("type", "data");
+                            reference.setAttribute("uri", storyUri);
+                            storyMessage.addPayload(reference);
+                            storyMessage.setType(Message.TYPE_STORY);
+
+                            Message.FileParams storyParams = new Message.FileParams();
+                            storyParams.url = storyUri;
+                            storyMessage.setFileParams(storyParams);
+
+                            xmppConnectionService.sendMessage(storyMessage);
+                            switchToConversation(conversation);
+                        })
+                        .create();
+
+                dialog.setOnDismissListener(d -> {
+                    // Resume story progress when the dialog is dismissed
+                    Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+                    if (fragment instanceof StoryFragment) {
+                        ((StoryFragment) fragment).resumeStory();
+                    }
+                });
+                dialog.show();
             }
             return true;
         }

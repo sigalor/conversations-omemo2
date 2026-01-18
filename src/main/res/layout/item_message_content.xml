@@ -57,6 +57,42 @@
                 app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/story_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="@drawable/story_reply_background"
+            android:padding="8dp"
+            android:layout_marginTop="4dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/story_thumbnail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="200dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage" />
+
+            <TextView
+                android:id="@+id/story_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/view_story"
+                android:textAppearance="?attr/textAppearanceCaption"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/message_body"
             android:layout_width="wrap_content"

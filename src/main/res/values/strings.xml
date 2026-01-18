@@ -1589,7 +1589,7 @@
     <string name="hide_stories">Hide stories</string>
     <string name="stories">Stories</string>
     <string name="add_story">Add story</string>
-    <string name="reply_to_story">Reply to story:</string>
+    <string name="reply_to_story">Reply to story</string>
     <string name="no_active_account_to_show_stories">No active account to show or publish stories</string>
     <string name="of">of</string>
     <string name="error_creating_story">Could not create story</string>
@@ -1631,6 +1631,10 @@
     <string name="error_subscribing_to_feed">Could not subscribe to feed</string>
     <string name="error_unsubscribing_from_feed">Could not unsubscribe from feed</string>
     <string name="uploading_attachment">Uploading attachment…</string>
+    <string name="send">Send</string>
+    <string name="compose_message_hint">Write a message</string>
+    <string name="view_story">View story</string>
+    <string name="story_not_found">Story not found</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>
