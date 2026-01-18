@@ -248,12 +248,13 @@ public class IqGenerator extends AbstractGenerator {
 
     public Iq publishStory(final Account account, final String url, final String type, final String title, Bundle options) {
         final Element item = new Element("item");
-        // This is the pubsub <item/> ID, which is different from the atom <entry> <id/>
-        item.setAttribute("id", UUID.randomUUID().toString());
+        // This is the fix: Generate a single ID for both the pubsub item and the atom entry.
+        final String storyId = UUID.randomUUID().toString();
+        item.setAttribute("id", storyId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
         // atom:id is a mandatory element for the entry, must be a unique and permanent URI
-        entry.addChild("id").setContent("urn:uuid:"+UUID.randomUUID().toString());
+        entry.addChild("id").setContent("urn:uuid:" + storyId);
 
         // atom:title is mandatory
         String effectiveTitle = title;
