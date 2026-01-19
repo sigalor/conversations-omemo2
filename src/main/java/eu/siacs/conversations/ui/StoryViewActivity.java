@@ -127,11 +127,12 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         }
     }
 
-    @Override
     public void onNextStory() {
         showSystemUi();
-        if (viewPager.getCurrentItem() < urls.size() - 1) {
-            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+        final int currentItem = viewPager.getCurrentItem();
+        final int nextItem = currentItem + 1;
+        if (nextItem < urls.size()) {
+            viewPager.setCurrentItem(nextItem, false);
         } else {
             finish();
         }
