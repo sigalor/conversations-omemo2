@@ -32,8 +32,7 @@ Il existe également un Support-MUC où vous pouvez poser des questions et obten
 
 
 ## Comment puis-je aider à la traduction ?
-Tu peux améliorer ou créer des traductions sur <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>. Merci beaucoup.
-
+Vous pouvez améliorer ou créer des traductions sur <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>. Merci beaucoup.
 
 
 ## Aidez-moi ! J'ai rencontré des problèmes !
