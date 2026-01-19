@@ -93,7 +93,7 @@
     <string name="send_unencrypted_message">Send clear text message</string>
     <string name="send_message">Send message</string>
     <string name="send_message_to_x">Send message to %s</string>
-    <string name="send_encrypted_message">Send encrypted message</string>
+    <string name="send_encrypted_message">Encrypted message</string>
     <string name="send_omemo_x509_message">Send v\\OMEMO encrypted message</string>
     <string name="your_nick_has_been_changed">New nickname in use</string>
     <string name="send_unencrypted">Send clear text</string>
