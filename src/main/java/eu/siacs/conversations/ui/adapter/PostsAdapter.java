@@ -281,6 +281,36 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     notifyItemChanged(getAdapterPosition());
                 };
 
+                if (post.getContent() != null) {
+                    final CharSequence markdown = markwon.toMarkdown(post.getContent());
+
+                    // For the summary view, just set the text and an expand listener. No clickable spans.
+                    binding.postContentSummary.setText(markdown);
+                    binding.postContentSummary.setMovementMethod(null);
+                    binding.postContentSummary.setOnClickListener(expandClickListener);
+
+
+                    // For the full view, make hashtags clickable.
+                    final SpannableString spannable = new SpannableString(markdown);
+                    final Matcher matcher = Pattern.compile("#[\\p{L}\\p{N}]+").matcher(spannable);
+                    while (matcher.find()) {
+                        final String hashtag = matcher.group(0);
+                        spannable.setSpan(new ClickableSpan() {
+                            @Override
+                            public void onClick(@NonNull View widget) {
+                                mOnSearchPerformed.onSearchPerformed(hashtag);
+                            }
+                        }, matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    binding.postContentFull.setText(spannable);
+                    binding.postContentFull.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+                    binding.postContentFull.setOnClickListener(null); // Clicks handled by spans, not the view itself
+
+                } else {
+                    binding.postContentSummary.setText("");
+                    binding.postContentFull.setText("");
+                }
+
                 itemView.setOnClickListener(expandClickListener);
                 binding.postTitle.setOnClickListener(expandClickListener);
                 binding.postContentSummary.setOnClickListener(expandClickListener);
