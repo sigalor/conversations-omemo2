@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -22,6 +23,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -37,11 +39,12 @@ import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.Jid;
 
-public class PostsActivity extends XmppActivity implements XmppConnectionService.OnPostReceived, XmppConnectionService.OnPostRetracted {
+public class PostsActivity extends XmppActivity implements XmppConnectionService.OnPostReceived, XmppConnectionService.OnPostRetracted, OnSearchPerformed {
 
     private ActivityPostsBinding binding;
     private PostsAdapter postsAdapter;
     private List<Post> postList = new ArrayList<>();
+    private List<Post> allPosts = new ArrayList<>();
 
     private FollowSuggestionAdapter mFollowSuggestionAdapter;
     private List<Contact> mFollowSuggestions = new ArrayList<>();
@@ -72,7 +75,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         configureActionBar(getSupportActionBar());
 
         binding.postsList.setLayoutManager(new LinearLayoutManager(this));
-        postsAdapter = new PostsAdapter(this, postList, postResultLauncher);
+        postsAdapter = new PostsAdapter(this, postList, postResultLauncher, this);
         binding.postsList.setAdapter(postsAdapter);
 
         binding.fabCreatePost.setOnClickListener(v -> {
@@ -119,6 +122,8 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                     throw new IllegalStateException("Unexpected value: " + item.getItemId());
             }
         });
+
+        handleIntent(getIntent());
     }
 
     @Override
@@ -171,8 +176,8 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             }
 
             int existingPostIndex = -1;
-            for (int i = 0; i < postList.size(); i++) {
-                Post existingPost = postList.get(i);
+            for (int i = 0; i < allPosts.size(); i++) {
+                Post existingPost = allPosts.get(i);
                 if (post.getId().equals(existingPost.getId())) {
                     existingPostIndex = i;
                     break;
@@ -180,15 +185,11 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             }
 
             if (existingPostIndex != -1) {
-                // This is an update to an existing post.
-                // Replace the old post and notify the adapter of the change at that specific position.
-                postList.set(existingPostIndex, post);
-                postsAdapter.notifyItemChanged(existingPostIndex);
+                allPosts.set(existingPostIndex, post);
             } else {
-                // This is a new post. Add it to the top of the list.
-                postList.add(0, post);
-                postsAdapter.notifyItemInserted(0);
+                allPosts.add(0, post);
             }
+            filterAndDisplayPosts("");
         });
     }
 
@@ -228,15 +229,9 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         if (xmppConnectionService == null) {
             return;
         }
-        postList.clear();
-        postList.addAll(xmppConnectionService.databaseBackend.getPosts());
-        java.util.Collections.sort(postList, (p1, p2) -> {
-            if (p1.getPublished() == null && p2.getPublished() == null) return 0;
-            if (p1.getPublished() == null) return 1;
-            if (p2.getPublished() == null) return -1;
-            return p2.getPublished().compareTo(p1.getPublished());
-        });
-        postsAdapter.notifyDataSetChanged();
+        allPosts.clear();
+        allPosts.addAll(xmppConnectionService.databaseBackend.getPosts());
+        filterAndDisplayPosts("");
 
         mFollowSuggestions.clear();
         for(final Account account : xmppConnectionService.getAccounts()) {
@@ -286,30 +281,19 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                                             }
                                         }
                                         runOnUiThread(() -> {
-                                            boolean added = false;
                                             for(Post newPost : newPosts) {
                                                 boolean found = false;
-                                                for(Post existingPost : postList) {
+                                                for(Post existingPost : allPosts) {
                                                     if (existingPost.getId() != null && existingPost.getId().equals(newPost.getId())) {
                                                         found = true;
                                                         break;
                                                     }
                                                 }
                                                 if (!found) {
-                                                    postList.add(newPost);
-                                                    added = true;
+                                                    allPosts.add(newPost);
                                                 }
                                             }
-                                            if (added) {
-                                                java.util.Collections.sort(postList, (p1, p2) -> {
-                                                    if (p1.getPublished() == null && p2.getPublished() == null)
-                                                        return 0;
-                                                    if (p1.getPublished() == null) return 1;
-                                                    if (p2.getPublished() == null) return -1;
-                                                    return p2.getPublished().compareTo(p1.getPublished());
-                                                });
-                                                postsAdapter.notifyDataSetChanged();
-                                            }
+                                            filterAndDisplayPosts("");
                                         });
                                     }
                                 }
@@ -334,6 +318,20 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_posts, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterAndDisplayPosts(newText);
+                return true;
+            }
+        });
         return true;
     }
 
@@ -369,11 +367,11 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
             if (postId == null) {
                 return;
             }
-            for (int i = 0; i < postList.size(); ++i) {
-                final Post post = postList.get(i);
+            for (int i = 0; i < allPosts.size(); ++i) {
+                final Post post = allPosts.get(i);
                 if (post != null && postId.equals(post.getId())) {
-                    postList.remove(i);
-                    postsAdapter.notifyItemRemoved(i);
+                    allPosts.remove(i);
+                    filterAndDisplayPosts("");
                     break;
                 }
             }
@@ -383,5 +381,45 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
     @Override
     public void onPostRetractionFailed() {
         runOnUiThread(() -> Toast.makeText(this, R.string.error_retract_post, Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onSearchPerformed(String query) {
+        filterAndDisplayPosts(query);
+    }
+
+    private void filterAndDisplayPosts(String query) {
+        postList.clear();
+        if (query.isEmpty()) {
+            postList.addAll(allPosts);
+        } else {
+            postList.addAll(allPosts.stream().filter(p -> p.getContent() != null && p.getContent().contains(query)).collect(Collectors.toList()));
+        }
+        java.util.Collections.sort(postList, (p1, p2) -> {
+            if (p1.getPublished() == null && p2.getPublished() == null) return 0;
+            if (p1.getPublished() == null) return 1;
+            if (p2.getPublished() == null) return -1;
+            return p2.getPublished().compareTo(p1.getPublished());
+        });
+        postsAdapter.notifyDataSetChanged();
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null) {
+            final String postUuid = intent.getStringExtra("post_uuid");
+            if (postUuid != null) {
+                filterAndDisplayPosts(postUuid);
+            }
+            final String hashtag = intent.getStringExtra("hashtag");
+            if (hashtag != null) {
+                filterAndDisplayPosts(hashtag);
+            }
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
     }
 }

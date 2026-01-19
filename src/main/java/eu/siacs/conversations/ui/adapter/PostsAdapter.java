@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +37,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -46,6 +51,7 @@ import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.StubConversation;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.CreatePostActivity;
+import eu.siacs.conversations.ui.OnSearchPerformed;
 import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
@@ -64,12 +70,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     private final Set<Post> expandedPosts = new HashSet<>();
     private final ActivityResultLauncher<Intent> postResultLauncher;
     private final Markwon markwon;
+    private final OnSearchPerformed mOnSearchPerformed;
 
-    public PostsAdapter(XmppActivity activity, List<Post> posts, ActivityResultLauncher<Intent> launcher) {
+    public PostsAdapter(XmppActivity activity, List<Post> posts, ActivityResultLauncher<Intent> launcher, OnSearchPerformed onSearchPerformed) {
         this.mActivity = activity;
         this.posts = posts;
         this.postResultLauncher = launcher;
         this.markwon = Markwon.create(activity);
+        this.mOnSearchPerformed = onSearchPerformed;
     }
 
     @NonNull
@@ -245,8 +253,21 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                 if (post.getContent() != null) {
                     final CharSequence markdown = markwon.toMarkdown(post.getContent());
-                    binding.postContentSummary.setText(markdown);
-                    binding.postContentFull.setText(markdown);
+                    final SpannableString spannable = new SpannableString(markdown);
+                    final Matcher matcher = Pattern.compile("#[\\p{L}\\p{N}]+").matcher(spannable);
+                    while (matcher.find()) {
+                        final String hashtag = matcher.group(0);
+                        spannable.setSpan(new ClickableSpan() {
+                            @Override
+                            public void onClick(@NonNull View widget) {
+                                mOnSearchPerformed.onSearchPerformed(hashtag);
+                            }
+                        }, matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    binding.postContentSummary.setText(spannable);
+                    binding.postContentFull.setText(spannable);
+                    binding.postContentSummary.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+                    binding.postContentFull.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
                 } else {binding.postContentSummary.setText("");
                     binding.postContentFull.setText("");
                 }
@@ -273,13 +294,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 });
 
-                binding.commentButton.setOnClickListener(v -> {
-                    if (postAccounts.size() == 1) {
-                        commentOnPost(postAccounts.get(0), post);
-                    } else {
-                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_comment), postAccounts, account -> commentOnPost(account, post));
-                    }
-                });
+                binding.commentButton.setVisibility(View.GONE);
 
                 binding.shareButton.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_SEND);
@@ -503,17 +518,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     }
 
     private void replyToPost(Account account, Post post) {
-        if (post.getAuthor() != null) {
-            final eu.siacs.conversations.entities.Conversation conversation = mActivity.xmppConnectionService.findOrCreateConversation(account, post.getAuthor(), false, false);
-            if (conversation != null) {
-                final Message messageToReply = new Message(conversation, post.getTitle(), conversation.getNextEncryption(), Message.STATUS_RECEIVED);
-                conversation.setReplyTo(messageToReply);
-                mActivity.switchToConversation(conversation);
-            }
-        }
-    }
-
-    private void commentOnPost(Account account, Post post) {
         Intent intent = new Intent(mActivity, CreatePostActivity.class);
         intent.putExtra("in_reply_to_id", post.getId());
         intent.putExtra("in_reply_to_node", post.getCommentsNode());
