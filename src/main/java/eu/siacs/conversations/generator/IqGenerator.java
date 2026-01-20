@@ -927,7 +927,7 @@ public class IqGenerator extends AbstractGenerator {
         return iq;
     }
 
-    public Iq publishComment(final Account account, final String node, final String title, final String inReplyToId) {
+    public Iq publishComment(final Account account, final String node, final String title) {
         final Iq iq = new Iq(Iq.Type.SET);
         iq.setTo(account.getJid().asBareJid());
         final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);

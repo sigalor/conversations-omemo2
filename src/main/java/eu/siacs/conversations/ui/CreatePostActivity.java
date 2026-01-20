@@ -238,7 +238,7 @@ public class CreatePostActivity extends XmppActivity {
             }
 
             if (inReplyToNode != null) {
-                xmppConnectionService.publishComment(selectedAccount, inReplyToNode, content, inReplyToId, new XmppConnectionService.OnPostPublished() {
+                xmppConnectionService.publishComment(selectedAccount, inReplyToNode, content, new XmppConnectionService.OnPostPublished() {
                     @Override
                     public void onPostPublished() {
                         runOnUiThread(() -> {

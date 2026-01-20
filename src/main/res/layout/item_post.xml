@@ -38,7 +38,7 @@
                 android:id="@+id/post_timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android.layout_marginStart="8dp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -138,7 +138,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/download_file"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/post_title"
+                app:layout_constraintTop_toBottomOf="@+id/post_title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:visibility="visible" />
@@ -181,6 +181,22 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/post_content_full"
                 tools:visibility="visible">
+
+                <Button
+                    android:id="@+id/like_button"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="42dp"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/outline_favorite_border_24" />
+
+                <TextView
+                    android:id="@+id/like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="-8dp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="5" />
 
                 <Button
                     android:id="@+id/reply_button"

@@ -8225,7 +8225,7 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public void publishComment(final Account account, final String nodeUri, final String title, final String inReplyToId, final OnPostPublished callback) {
+    public void publishComment(final Account account, final String nodeUri, final String title, final OnPostPublished callback) {
         if (account == null) {
             if (callback != null) {
                 callback.onPostPublishFailed();
@@ -8263,7 +8263,7 @@ public class XmppConnectionService extends Service {
                     Log.d(Config.LOGTAG, "could not create comments node " + response);
                 }
             }
-            final Iq publishRequest = getIqGenerator().publishComment(account, targetNode, title, inReplyToId);
+            final Iq publishRequest = getIqGenerator().publishComment(account, targetNode, title);
             publishRequest.setTo(to);
             sendIqPacket(account, publishRequest, publishResponse -> {
                 if (publishResponse.getType() == Iq.Type.RESULT) {

@@ -1638,6 +1638,12 @@
     <string name="retract_comment">Retract comment</string>
     <string name="retract_comment_confirm">Do you really want to retract this comment?</string>
     <string name="error_retracting_comment">Could not retract comment</string>
+    <string name="like">Like</string>
+    <string name="like_added">Like added</string>
+    <string name="error_liking_post">Could not like post</string>
+    <string name="like_removed">Like removed</string>
+    <string name="error_removing_like">Could not remove like</string>
+    <string name="choose_account_for_like">Like post with</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

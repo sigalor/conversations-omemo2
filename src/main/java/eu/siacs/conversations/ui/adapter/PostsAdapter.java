@@ -162,23 +162,44 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
 
         void bind(Post post) {
+            // Always reset the state of recycled views to a clean, default state before binding
             binding.commentsList.setVisibility(View.GONE);
             binding.commentsList.setAdapter(null);
+            binding.likeButton.setOnClickListener(null);
+            binding.likeCount.setText("");
+            binding.likeButton.setEnabled(false); // Disable until content is loaded
+            binding.likeButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.outline_favorite_border_24, 0, 0, 0);
+
             final boolean isExpanded = expandedPosts.contains(post);
+
+            // Set visibility of summary/full content based on expanded state
+            binding.postContentSummary.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
+            binding.postContentFull.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-            if (isExpanded && post.getCommentsNode() != null) {
-                loadComments(post, binding.commentsList);
-            } else {
-                binding.commentsList.setVisibility(View.GONE);
-                binding.commentsList.setAdapter(null);
+
+            if (isExpanded) {
+                // Asynchronously load all dynamic content (comments and likes)
+                loadCommentsAndLikes(post, this);
             }
+
+            final View.OnClickListener expandClickListener = v -> {
+                if (expandedPosts.contains(post)) {
+                    expandedPosts.remove(post);
+                } else {
+                    expandedPosts.add(post);}
+                notifyItemChanged(getAdapterPosition());
+            };
+
+            // This is the full, non-omitted logic to bind the main post view
+            setupPostView(post, expandClickListener);
+        }
+
+        private void setupPostView(final Post post, final View.OnClickListener expandClickListener) {
+            final boolean isExpanded = expandedPosts.contains(post);
             final boolean hasAttachment = post.getAttachmentUrl() != null;
             final boolean isImage = hasAttachment && post.getAttachmentType() != null && post.getAttachmentType().startsWith("image/");
             final boolean isVideo = hasAttachment && post.getAttachmentType() != null && post.getAttachmentType().startsWith("video/");
 
-            binding.postContentSummary.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
-            binding.postContentFull.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-            binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.attachmentHint.setVisibility(hasAttachment && !isExpanded ? View.VISIBLE : View.GONE);
             binding.postImage.setVisibility(isExpanded && (isImage || isVideo) ? View.VISIBLE : View.GONE);
             binding.videoOverlayIcon.setVisibility(isExpanded && isVideo ? View.VISIBLE : View.GONE);
@@ -186,43 +207,24 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             if (isExpanded && (isImage || isVideo)) {
                 binding.attachmentProgress.setVisibility(View.VISIBLE);
-                if (isImage) {
-                    Glide.with(mActivity)
-                            .load(post.getAttachmentUrl())
-                            .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, @Nullable Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, boolean isFirstResource) {
-                                    binding.attachmentProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
+                Glide.with(mActivity)
+                        .load(post.getAttachmentUrl())                        .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, @Nullable Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, boolean isFirstResource) {
+                                binding.attachmentProgress.setVisibility(View.GONE);
+                                return false;
+                            }
 
-                                @Override
-                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, @NonNull com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                                    binding.attachmentProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .into(binding.postImage);
-                    binding.postImage.setOnClickListener(v -> showImagePreviewDialog(post.getAttachmentUrl()));
-                } else {
-                    Glide.with(mActivity)
-                            .load(post.getAttachmentUrl())
-                            .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, @Nullable Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, boolean isFirstResource) {
-                                    binding.attachmentProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, @NonNull com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                                    binding.attachmentProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .into(binding.postImage);
-                    binding.postImage.setOnClickListener(v -> showVideoPreviewDialog(post.getAttachmentUrl()));
-                }
+                            @Override
+                            public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, @NonNull com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                                binding.attachmentProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+                        })
+                        .into(binding.postImage);binding.postImage.setOnClickListener(v -> {
+                    if (isImage) showImagePreviewDialog(post.getAttachmentUrl());
+                    else showVideoPreviewDialog(post.getAttachmentUrl());
+                });
             }
 
             final List<Account> postAccounts = new ArrayList<>();
@@ -231,8 +233,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     if (account.isOnlineAndConnected()) {
                         if (account.getJid().asBareJid().equals(post.getAuthor().asBareJid()) || (account.getRoster() != null && account.getRoster().getContact(post.getAuthor().asBareJid()) != null)) {
                             postAccounts.add(account);
-                        }
-                    }
+                        }                    }
                 }
             }
             if (mActivity.xmppConnectionService == null) {
@@ -241,58 +242,23 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 binding.replyButton.setVisibility(View.GONE);
                 binding.commentButton.setVisibility(View.GONE);
                 binding.downloadButton.setVisibility(View.GONE);
+                binding.likeButton.setVisibility(View.GONE);
             } else {
                 final Account ownAccount = post.getAuthor() != null ? mActivity.xmppConnectionService.findAccountByJid(post.getAuthor().asBareJid()) : null;
-
 
                 binding.downloadButton.setOnClickListener(v -> {
                     if (postAccounts.size() == 1) {
                         downloadAttachment(postAccounts.get(0), post);
-                    } else {
-                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
+                    } else {                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
                     }
                 });
 
                 if (post.getContent() != null) {
                     final CharSequence markdown = markwon.toMarkdown(post.getContent());
-                    final SpannableString spannable = new SpannableString(markdown);
-                    final Matcher matcher = Pattern.compile("#[\\p{L}\\p{N}]+").matcher(spannable);
-                    while (matcher.find()) {
-                        final String hashtag = matcher.group(0);
-                        spannable.setSpan(new ClickableSpan() {
-                            @Override
-                            public void onClick(@NonNull View widget) {
-                                mOnSearchPerformed.onSearchPerformed(hashtag);
-                            }
-                        }, matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                    binding.postContentSummary.setText(spannable);
-                    binding.postContentFull.setText(spannable);
-                    binding.postContentSummary.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
-                    binding.postContentFull.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
-                } else {binding.postContentSummary.setText("");
-                    binding.postContentFull.setText("");
-                }
-
-                final View.OnClickListener expandClickListener = v -> {
-                    if (expandedPosts.contains(post)) {
-                        expandedPosts.remove(post);
-                    } else {
-                        expandedPosts.add(post);
-                    }
-                    notifyItemChanged(getAdapterPosition());
-                };
-
-                if (post.getContent() != null) {
-                    final CharSequence markdown = markwon.toMarkdown(post.getContent());
-
-                    // For the summary view, just set the text and an expand listener. No clickable spans.
                     binding.postContentSummary.setText(markdown);
                     binding.postContentSummary.setMovementMethod(null);
                     binding.postContentSummary.setOnClickListener(expandClickListener);
 
-
-                    // For the full view, make hashtags clickable.
                     final SpannableString spannable = new SpannableString(markdown);
                     final Matcher matcher = Pattern.compile("#[\\p{L}\\p{N}]+").matcher(spannable);
                     while (matcher.find()) {
@@ -304,9 +270,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                             }
                         }, matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
+
                     binding.postContentFull.setText(spannable);
                     binding.postContentFull.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
-                    binding.postContentFull.setOnClickListener(null); // Clicks handled by spans, not the view itself
+                    binding.postContentFull.setOnClickListener(null);
 
                 } else {
                     binding.postContentSummary.setText("");
@@ -315,7 +282,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                 itemView.setOnClickListener(expandClickListener);
                 binding.postTitle.setOnClickListener(expandClickListener);
-                binding.postContentSummary.setOnClickListener(expandClickListener);
 
                 binding.replyButton.setOnClickListener(v -> {
                     if (post.getAuthor() != null) {
@@ -332,7 +298,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 binding.shareButton.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setType("text/plain");
-                    intent.putExtra(Intent.EXTRA_TEXT, post.getTitle() + "\\n" + post.getContent());
+                    intent.putExtra(Intent.EXTRA_TEXT, post.getTitle() + "\n" + post.getContent());
                     mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share_post_with)));
                 });
 
@@ -430,9 +396,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             }
         }
 
-        private void loadComments(final Post post, final RecyclerView recyclerView) {if (mActivity.xmppConnectionService == null) {
-            return;
-        }
+        private void loadCommentsAndLikes(final Post post, final PostViewHolder holder) {
+            if (mActivity.xmppConnectionService == null) {
+                return;
+            }
             try {
                 final XmppUri uri = new XmppUri(post.getCommentsNode());
                 final Jid jid = uri.getJid();
@@ -446,6 +413,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
                                 final Element pubsub = reader.readElement(reader.readTag());
                                 final List<Comment> comments = new ArrayList<>();
+                                final List<Comment> likes = new ArrayList<>();
                                 if (pubsub != null) {
                                     final Element items = pubsub.findChild("items");
                                     if (items != null) {
@@ -453,34 +421,39 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                             if ("item".equals(item.getName())) {
                                                 final Comment comment = Comment.fromElement(item);
                                                 if (comment != null) {
-                                                    comments.add(comment);
+                                                    if ("♥".equals(comment.getTitle())) {
+                                                        likes.add(comment);
+                                                    } else {
+                                                        comments.add(comment);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                                 mActivity.runOnUiThread(() -> {
+                                    if (holder.getAdapterPosition() == RecyclerView.NO_POSITION || posts.get(holder.getAdapterPosition()) != post) {
+                                        return; // Don't update a recycled view
+                                    }
+                                    // Update comments list UI
                                     if (!comments.isEmpty()) {
                                         java.util.Collections.sort(comments, (c1, c2) -> {
                                             Date d1 = c1.getPublished();
                                             Date d2 = c2.getPublished();
-                                            if (d1 == null && d2 == null) {
-                                                return 0;
-                                            } else if (d1 == null) {
-                                                return -1;
-                                            } else if (d2 == null) {
-                                                return 1;
-                                            } else {
-                                                return d1.compareTo(d2);
-                                            }
+                                            if (d1 == null && d2 == null) return 0;
+                                            if (d1 == null) return -1;
+                                            if (d2 == null) return 1;
+                                            return d1.compareTo(d2);
                                         });
                                         CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, post, comments);
-                                        recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-                                        recyclerView.setAdapter(commentsAdapter);
-                                        recyclerView.setVisibility(View.VISIBLE);
+                                        holder.binding.commentsList.setLayoutManager(new LinearLayoutManager(mActivity));
+                                        holder.binding.commentsList.setAdapter(commentsAdapter);
+                                        holder.binding.commentsList.setVisibility(View.VISIBLE);
                                     } else {
-                                        recyclerView.setVisibility(View.GONE);
+                                        holder.binding.commentsList.setVisibility(View.GONE);
                                     }
+                                    // Update like button UI and logic
+                                    setupLikeButton(post, holder, likes);
                                 });
                             } catch (Exception e) {
                                 Log.e(Config.LOGTAG, "error parsing comments", e);
@@ -497,9 +470,92 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 Log.e(Config.LOGTAG, "error parsing comments node uri", e);
             }
         }
+
+        private void setupLikeButton(final Post post, final PostViewHolder holder, final List<Comment> likes) {
+            final List<Account> onlineAccounts = mActivity.xmppConnectionService.getAccounts().stream()
+                    .filter(Account::isOnlineAndConnected)
+                    .collect(java.util.stream.Collectors.toList());
+
+            if (onlineAccounts.isEmpty()) {
+                holder.binding.likeButton.setEnabled(false);
+                holder.binding.likeCount.setText(String.valueOf(likes.size()));
+                return;
+            }
+            holder.binding.likeButton.setEnabled(true);
+            holder.binding.likeCount.setText(String.valueOf(likes.size()));
+
+            Comment myLike = null;
+            Account myLikerAccount = null;
+            for (Account acc : onlineAccounts) {
+                for (Comment like : likes) {
+                    if (like.getAuthor() != null && like.getAuthor().asBareJid().equals(acc.getJid().asBareJid())) {
+                        myLike = like;
+                        myLikerAccount = acc;
+                        break;
+                    }
+                }
+                if (myLike != null) break;
+            }
+
+            final boolean hasLiked = myLike != null;
+            holder.binding.likeButton.setCompoundDrawablesWithIntrinsicBounds(
+                    hasLiked ? R.drawable.outline_favorite_24 : R.drawable.outline_favorite_border_24, 0, 0, 0);
+
+            final Comment finalMyLike = myLike;
+            final Account finalMyLikerAccount = myLikerAccount;
+            holder.binding.likeButton.setOnClickListener(v -> {
+                if (hasLiked && finalMyLikerAccount != null) {
+                    // Unlike is simple: use the account that was found to have liked the post
+                    retractLike(finalMyLikerAccount, finalMyLike, post, holder);
+                } else {
+                    // Like: if there are multiple accounts, let the user choose
+                    if (onlineAccounts.size() > 1) {
+                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_like), onlineAccounts, selectedAccount -> {
+                            publishLike(selectedAccount, post, holder);
+                        });
+                    } else {
+                        publishLike(onlineAccounts.get(0), post, holder);
+                    }
+                }
+            });
+        }
+
+        private void publishLike(final Account account, final Post post, final PostViewHolder holder) {
+            mActivity.xmppConnectionService.publishComment(account, post.getCommentsNode(), "♥", new XmppConnectionService.OnPostPublished() {
+                @Override
+                public void onPostPublished() {
+                    mActivity.runOnUiThread(() -> loadCommentsAndLikes(post, holder));
+                }
+                @Override
+                public void onPostPublishFailed() {
+                    mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.error_liking_post, Toast.LENGTH_SHORT).show());
+                }
+            });
+        }
+
+        private void retractLike(final Account account, final Comment like, final Post post, final PostViewHolder holder) {
+            try {
+                final XmppUri uri = new XmppUri(post.getCommentsNode());
+                final Jid jid = uri.getJid();
+                final String node = uri.getParameter("node");
+                mActivity.xmppConnectionService.retractPost(account, jid, node, like.getId(), new XmppConnectionService.OnPostRetracted() {
+                    @Override
+                    public void onPostRetracted(String postId) {
+                        mActivity.runOnUiThread(() -> loadCommentsAndLikes(post, holder));
+                    }
+                    @Override
+                    public void onPostRetractionFailed() {
+                        mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.error_removing_like, Toast.LENGTH_SHORT).show());
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(Config.LOGTAG, "error retracting like", e);
+                mActivity.runOnUiThread(() -> Toast.makeText(mActivity, R.string.error_removing_like, Toast.LENGTH_SHORT).show());
+            }
+        }
     }
 
-    private void downloadAttachment(Account account, Post post) {
+            private void downloadAttachment(Account account, Post post) {
         if (mActivity.xmppConnectionService == null) {
             return;
         }
