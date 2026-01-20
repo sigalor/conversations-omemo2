@@ -101,8 +101,7 @@
             android:textColorLink="?attr/colorAccent"
             android:textColorHint="?android:attr/textColorHint"
             android:textColor="?android:attr/textColorPrimary"
-            android:gravity="top"
-            android:hint="@string/post_content" />
+            android:gravity="top" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

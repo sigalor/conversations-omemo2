@@ -59,12 +59,25 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                     Account account = AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
                     if (account != null) {
                         if (authorJid.asBareJid().equals(account.getJid().asBareJid())) {
-                            binding.commentAuthorName.setText(account.getDisplayName());
+                            if (account.getDisplayName() == null) {
+                                binding.commentAuthorName.setText(authorJid.asBareJid().toString());
+                            } else {
+                                binding.commentAuthorName.setText(account.getDisplayName());
+                            }
+                            final Account self = account;
+                            binding.commentAuthorAvatar.setOnClickListener(v -> mActivity.switchToAccount(self));
+                            binding.commentAuthorName.setOnClickListener(v -> mActivity.switchToAccount(self));
                             AvatarWorkerTask.loadAvatar(account, binding.commentAuthorAvatar, R.dimen.posts_comments_avatar_size);
                         } else {
                             Contact contact = account.getRoster().getContact(authorJid);
                             if (contact != null) {
-                                binding.commentAuthorName.setText(contact.getDisplayName());
+                                if (contact.getDisplayName() == null) {
+                                    binding.commentAuthorName.setText(contact.getJid().asBareJid().toString());
+                                } else {
+                                    binding.commentAuthorName.setText(contact.getDisplayName());
+                                }
+                                binding.commentAuthorAvatar.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
+                                binding.commentAuthorName.setOnClickListener(v -> mActivity.switchToContactDetails(contact));
                                 AvatarWorkerTask.loadAvatar(contact, binding.commentAuthorAvatar, R.dimen.posts_comments_avatar_size);
                             } else {
                                 binding.commentAuthorName.setText(authorJid.asBareJid().toString());

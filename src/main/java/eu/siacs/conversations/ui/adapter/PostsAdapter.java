@@ -164,7 +164,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         void bind(Post post) {
             final boolean isExpanded = expandedPosts.contains(post);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-            if (isExpanded && post.getCommentsNode() != null) {
+            if (isExpanded) {
                 loadComments(post, binding.commentsList);
             } else {
                 binding.commentsList.setVisibility(View.GONE);
@@ -428,10 +428,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             }
         }
 
-        private void loadComments(final Post post, final RecyclerView recyclerView) {
-            if (mActivity.xmppConnectionService == null) {
-                return;
-            }
+        private void loadComments(final Post post, final RecyclerView recyclerView) {if (mActivity.xmppConnectionService == null) {
+            return;
+        }
             try {
                 final XmppUri uri = new XmppUri(post.getCommentsNode());
                 final Jid jid = uri.getJid();
@@ -443,12 +442,18 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                             try {
                                 final XmlReader reader = new XmlReader();
                                 reader.setInputStream(new java.io.ByteArrayInputStream(feedXml.getBytes()));
-                                final Element feed = reader.readElement(reader.readTag());
+                                final Element pubsub = reader.readElement(reader.readTag());
                                 final List<Comment> comments = new ArrayList<>();
-                                if (feed != null && "feed".equals(feed.getName()) && Namespace.ATOM.equals(feed.getNamespace())) {
-                                    for (Element child : feed.getChildren()) {
-                                        if ("entry".equals(child.getName()) && Namespace.ATOM.equals(child.getNamespace())) {
-                                            comments.add(Comment.fromElement(child));
+                                if (pubsub != null) {
+                                    final Element items = pubsub.findChild("items");
+                                    if (items != null) {
+                                        for (Element item : items.getChildren()) {
+                                            if ("item".equals(item.getName())) {
+                                                final Element entry = item.findChild("entry", Namespace.ATOM);
+                                                if (entry != null) {
+                                                    comments.add(Comment.fromElement(entry));
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -552,6 +557,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         Intent intent = new Intent(mActivity, CreatePostActivity.class);
         intent.putExtra("in_reply_to_id", post.getId());
         intent.putExtra("in_reply_to_node", post.getCommentsNode());
+        intent.putExtra("post_id", post.getId());
         intent.putExtra("account", account.getUuid());
         postResultLauncher.launch(intent);
     }

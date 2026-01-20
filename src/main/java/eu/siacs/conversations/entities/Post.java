@@ -44,14 +44,18 @@ public class Post {
         this.attachmentType = attachmentType;
     }
 
-    public static Post fromElement(Element entry) {
-        String id = entry.findChildContent("id", Namespace.ATOM);
-        String title = entry.findChildContent("title", Namespace.ATOM);
-        String content = entry.findChildContent("content", Namespace.ATOM);
-        Element authorElement = entry.findChild("author", Namespace.ATOM);
+    public static Post fromElement(Element item) {
+        final Element entry = item.findChild("entry", Namespace.ATOM);
+        if (entry == null) {
+            return null;
+        }
+        String id = item.getAttribute("id");
+        String title = entry.findChildContent("title");
+        String content = entry.findChildContent("content");
+        Element authorElement = entry.findChild("author");
         Jid author = null;
         if (authorElement != null) {
-            String uri = authorElement.findChildContent("uri", Namespace.ATOM);
+            String uri = authorElement.findChildContent("uri");
             if (uri != null && uri.startsWith("xmpp:")) {
                 try {
                     author = Jid.of(uri.substring(5));
@@ -61,7 +65,7 @@ public class Post {
             }
         }
         Date published = null;
-        final String publishedString = entry.findChildContent("published", Namespace.ATOM);
+        final String publishedString = entry.findChildContent("published");
         if (publishedString != null) {
             try {
                 published = new Date(parseTimestamp(publishedString));
@@ -77,14 +81,14 @@ public class Post {
         String commentsNode = null;
         String attachmentUrl = null;
         String attachmentType = null;
-        for (Element link : entry.getChildren()) {
-            if ("link".equals(link.getName()) && Namespace.ATOM.equals(link.getNamespace())) {
-                String rel = link.getAttribute("rel");
+        for (Element child : entry.getChildren()) {
+            if ("link".equals(child.getName()) && Namespace.ATOM.equals(child.getNamespace())) {
+                String rel = child.getAttribute("rel");
                 if ("replies".equals(rel)) {
-                    commentsNode = link.getAttribute("href");
+                    commentsNode = child.getAttribute("href");
                 } else if ("enclosure".equals(rel)) {
-                    attachmentUrl = link.getAttribute("href");
-                    attachmentType = link.getAttribute("type");
+                    attachmentUrl = child.getAttribute("href");
+                    attachmentType = child.getAttribute("type");
                 }
             }
         }

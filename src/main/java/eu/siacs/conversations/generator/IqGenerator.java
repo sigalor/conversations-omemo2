@@ -841,14 +841,15 @@ public class IqGenerator extends AbstractGenerator {
         item.setAttribute("id", postId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
-        // Use the same ID for atom:id to make retraction possible
-        entry.addChild("id").setContent(postId);
+        final String now_for_tag = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        final String atomId = "tag:" + account.getDomain() + "," + now_for_tag + ":" + UUID.randomUUID().toString();
+        entry.addChild("id").setContent(atomId);
 
-        // The replies link should also use this same simple ID
         entry.addChild("link")
                 .setAttribute("rel", "replies")
-                .setAttribute("type", "application/atom+xml")
+                .setAttribute("title", "comments")
                 .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + postId);
+
         if (title != null) {
             entry.addChild("title").setContent(title);
         }
@@ -862,13 +863,18 @@ public class IqGenerator extends AbstractGenerator {
                     .setAttribute("type", attachmentType);
         }
         final Element author = entry.addChild("author");
-        author.addChild("name").setContent(account.getDisplayName());
+        String name = account.getDisplayName();
+        if (name == null || name.trim().isEmpty()) {
+            name = account.getJid().asBareJid().toString();
+        }
+        author.addChild("name").setContent(name);
         author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
         return iq;
     }
+
 
     public static Bundle defaultPostConfiguration() {
         Bundle options = new Bundle();
@@ -888,7 +894,7 @@ public class IqGenerator extends AbstractGenerator {
     public static Bundle defaultCommentsConfiguration() {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
-        options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
+        options.putString("pubsub#type", "urn:xmpp:microblog:0:comments");
         options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "1000");
@@ -897,6 +903,7 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#deliver_payloads", "1");
         options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "open");
+        options.putString("pubsub#itemreply", "publisher");
         return options;
     }
 
@@ -928,11 +935,13 @@ public class IqGenerator extends AbstractGenerator {
         publish.setAttribute("node", node);
         final Element item = publish.addChild("item");
         final Element entry = item.addChild("entry", Namespace.ATOM);
-        entry.setAttribute("xmlns:thr", "http://purl.org/syndication/thread/1.0");
-        entry.addChild("thr:in-reply-to").setAttribute("ref", inReplyToId);
         entry.addChild("title").setContent(title);
         final Element author = entry.addChild("author");
-        author.addChild("name").setContent(account.getDisplayName());
+        String name = account.getDisplayName();
+        if (name == null || name.trim().isEmpty()) {
+            name = account.getJid().asBareJid().toString();
+        }
+        author.addChild("name").setContent(name);
         author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
         final String id = "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
         entry.addChild("id").setContent(id);
@@ -941,6 +950,7 @@ public class IqGenerator extends AbstractGenerator {
         entry.addChild("updated").setContent(now);
         return iq;
     }
+
 
     public Iq createCommentsNode(String postId) {
         return createNode("urn:xmpp:microblog:0:comments/" + postId, defaultCommentsConfiguration());

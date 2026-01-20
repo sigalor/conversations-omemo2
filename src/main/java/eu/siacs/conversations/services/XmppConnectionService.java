@@ -8225,24 +8225,58 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public void publishComment(final Account account, final String node, final String title, final String inReplyToId, final OnPostPublished callback) {
+    public void publishComment(final Account account, final String nodeUri, final String title, final String inReplyToId, final OnPostPublished callback) {
         if (account == null) {
             if (callback != null) {
                 callback.onPostPublishFailed();
             }
             return;
         }
-        final Iq request = getIqGenerator().publishComment(account, node, title, inReplyToId);
-        sendIqPacket(account, request, response -> {
-            if (response.getType() == Iq.Type.RESULT) {
-                if (callback != null) {
-                    callback.onPostPublished();
-                }
-            } else {
-                if (callback != null) {
-                    callback.onPostPublishFailed();
+        final Jid to;
+        final String targetNode;
+        try {
+            final eu.siacs.conversations.utils.XmppUri uri = new eu.siacs.conversations.utils.XmppUri(nodeUri);
+            to = uri.getJid();
+            targetNode = uri.getParameter("node");
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "Invalid URI in publishComment: " + nodeUri, e);
+            if (callback != null) {
+                callback.onPostPublishFailed();
+            }
+            return;
+        }
+
+        if (to == null || targetNode == null) {
+            Log.e(Config.LOGTAG, "Could not determine target for publishing comment");
+            if (callback != null) {
+                callback.onPostPublishFailed();
+            }
+            return;
+        }
+
+        final Iq createRequest = getIqGenerator().createCommentsNode(targetNode);
+        createRequest.setTo(to); // Comments node might be on a different server
+        sendIqPacket(account, createRequest, response -> {
+            if (response.getType() != Iq.Type.RESULT) {
+                Element error = response.findChild("error");
+                if (error == null || !error.hasChild("conflict")) {
+                    Log.d(Config.LOGTAG, "could not create comments node " + response);
                 }
             }
+            final Iq publishRequest = getIqGenerator().publishComment(account, targetNode, title, inReplyToId);
+            publishRequest.setTo(to);
+            sendIqPacket(account, publishRequest, publishResponse -> {
+                if (publishResponse.getType() == Iq.Type.RESULT) {
+                    if (callback != null) {
+                        callback.onPostPublished();
+                    }
+                } else {
+                    Log.e(Config.LOGTAG, "Could not publish comment. Server responded with: " + publishResponse);
+                    if (callback != null) {
+                        callback.onPostPublishFailed();
+                    }
+                }
+            });
         });
     }
 

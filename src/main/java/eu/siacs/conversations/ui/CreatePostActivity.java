@@ -116,6 +116,16 @@ public class CreatePostActivity extends XmppActivity {
         inReplyToNode = getIntent().getStringExtra("in_reply_to_node");
         postId = getIntent().getStringExtra("post_id");
         accountUuid = getIntent().getStringExtra("account");
+        if (inReplyToNode != null) {
+            binding.postTitleEditText.setVisibility(View.GONE);
+            binding.postContentEditText.setHint(R.string.comment);
+            binding.attachFileButton.setVisibility(View.GONE);
+            binding.attachImageButton.setVisibility(View.GONE);
+            binding.attachVideoButton.setVisibility(View.GONE);
+        } else {
+            binding.postTitleEditText.setVisibility(View.VISIBLE);
+            binding.postContentEditText.setHint(R.string.post_content);
+        }
         if (postId != null) {
             binding.postTitleEditText.setText(getIntent().getStringExtra("title"));
             binding.postContentEditText.setText(getIntent().getStringExtra("content"));
@@ -228,7 +238,7 @@ public class CreatePostActivity extends XmppActivity {
             }
 
             if (inReplyToNode != null) {
-                xmppConnectionService.publishComment(selectedAccount, inReplyToNode, title, inReplyToId, new XmppConnectionService.OnPostPublished() {
+                xmppConnectionService.publishComment(selectedAccount, inReplyToNode, content, inReplyToId, new XmppConnectionService.OnPostPublished() {
                     @Override
                     public void onPostPublished() {
                         runOnUiThread(() -> {

@@ -276,7 +276,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                                             if ("item".equals(item.getName())) {
                                                 Element entry = item.findChild("entry", Namespace.ATOM);
                                                 if (entry != null) {
-                                                    Post p = Post.fromElement(entry);
+                                                    Post p = Post.fromElement(item);
                                                     newPosts.add(p);
                                                     xmppConnectionService.databaseBackend.createPost(p, account);
                                                 }
