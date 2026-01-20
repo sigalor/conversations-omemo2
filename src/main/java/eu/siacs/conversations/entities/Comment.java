@@ -1,7 +1,11 @@
 package eu.siacs.conversations.entities;
 
 import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
+import static eu.siacs.conversations.parser.AbstractParser.parseTimestampAtom;
 
+import android.util.Log;
+
+import java.text.ParseException;
 import java.util.Date;
 
 import eu.siacs.conversations.xml.Element;
@@ -38,12 +42,16 @@ public class Comment {
             }
         }
         Date published = null;
-        final String publishedString = entry.findChildContent("published", Namespace.ATOM);
+        final String publishedString = entry.findChildContent("published");
         if (publishedString != null) {
             try {
                 published = new Date(parseTimestamp(publishedString));
             } catch (Exception e) {
-                // ignore
+                try {
+                    published =  new Date(parseTimestampAtom(publishedString));
+                } catch (ParseException error) {
+                    Log.e("Feeds", "Couldn't parse timestamp " + publishedString);
+                }
             }
         }
         return new Comment(id, title, author, published);

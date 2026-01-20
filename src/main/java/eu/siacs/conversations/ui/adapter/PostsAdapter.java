@@ -166,7 +166,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             binding.commentsList.setAdapter(null);
             final boolean isExpanded = expandedPosts.contains(post);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-            if (isExpanded) {
+            if (isExpanded && post.getCommentsNode() != null) {
                 loadComments(post, binding.commentsList);
             } else {
                 binding.commentsList.setVisibility(View.GONE);
