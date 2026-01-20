@@ -118,6 +118,8 @@ public abstract class AbstractGenerator {
         features.add("urn:xmpp:bob");
         features.add(Namespace.PUBSUB_SOCIAL_FEED);
         features.add(Namespace.PUBSUB_SOCIAL_FEED + "+notify");
+        features.add(Namespace.PUBSUB_MICROBLOG);
+        features.add(Namespace.PUBSUB_MICROBLOG + "+notify");
         features.add(Namespace.PUBSUB_STORIES);
         features.add(Namespace.PUBSUB_STORIES + "+notify");
         if (Config.MESSAGE_DISPLAYED_SYNCHRONIZATION) {
