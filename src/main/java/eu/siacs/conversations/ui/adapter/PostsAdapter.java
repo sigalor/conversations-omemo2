@@ -451,9 +451,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                     if (items != null) {
                                         for (Element item : items.getChildren()) {
                                             if ("item".equals(item.getName())) {
-                                                final Element entry = item.findChild("entry", Namespace.ATOM);
-                                                if (entry != null) {
-                                                    comments.add(Comment.fromElement(entry));
+                                                final Comment comment = Comment.fromElement(item);
+                                                if (comment != null) {
+                                                    comments.add(comment);
                                                 }
                                             }
                                         }
@@ -474,7 +474,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                                 return d1.compareTo(d2);
                                             }
                                         });
-                                        CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, comments);
+                                        CommentsAdapter commentsAdapter = new CommentsAdapter(mActivity, post, comments);
                                         recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
                                         recyclerView.setAdapter(commentsAdapter);
                                         recyclerView.setVisibility(View.VISIBLE);

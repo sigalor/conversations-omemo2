@@ -8301,6 +8301,23 @@ public class XmppConnectionService extends Service {
         });
     }
 
+
+    public void retractPost(final Account account, final Jid to, final String node, final String id, final OnPostRetracted callback) {
+        final Iq packet = getIqGenerator().retractPost(node, id);
+        packet.setTo(to);
+        this.sendIqPacket(account, packet, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                if (callback != null) {
+                    callback.onPostRetracted(id);
+                }
+            } else {
+                if (callback != null) {
+                    callback.onPostRetractionFailed();
+                }
+            }
+        });
+    }
+
     public interface OnPostPublished {
         void onPostPublished();
         void onPostPublishFailed();

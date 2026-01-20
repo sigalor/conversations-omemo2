@@ -1635,6 +1635,9 @@
     <string name="compose_message_hint">Write a message</string>
     <string name="view_story">View story</string>
     <string name="story_not_found">Story not found</string>
+    <string name="retract_comment">Retract comment</string>
+    <string name="retract_comment_confirm">Do you really want to retract this comment?</string>
+    <string name="error_retracting_comment">Could not retract comment</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>

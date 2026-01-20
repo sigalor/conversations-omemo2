@@ -8,8 +8,8 @@ import android.util.Log;
 import java.text.ParseException;
 import java.util.Date;
 
+import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.xml.Element;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class Comment {
@@ -26,23 +26,27 @@ public class Comment {
         this.published = published;
     }
 
-    public static Comment fromElement(Element entry) {
-        String id = entry.findChildContent("id", Namespace.ATOM);
-        String title = entry.findChildContent("title", Namespace.ATOM);
-        Element authorElement = entry.findChild("author", Namespace.ATOM);
+    public static Comment fromElement(Element item) {
+        Element entry = item.findChild("entry", "http://www.w3.org/2005/Atom");
+        if (entry == null) {
+            return null;
+        }
+        String id = item.getAttribute("id");
+        String title = entry.findChildContent("title");
+        Element authorElement = entry.findChild("author");
         Jid author = null;
         if (authorElement != null) {
-            String uri = authorElement.findChildContent("uri", Namespace.ATOM);
+            String uri = authorElement.findChildContent("uri");
             if (uri != null && uri.startsWith("xmpp:")) {
                 try {
                     author = Jid.of(uri.substring(5));
                 } catch (IllegalArgumentException e) {
-                    // ignore
+                    //ignore
                 }
             }
         }
         Date published = null;
-        final String publishedString = entry.findChildContent("published");
+        String publishedString = entry.findChildContent("published");
         if (publishedString != null) {
             try {
                 published = new Date(parseTimestamp(publishedString));
