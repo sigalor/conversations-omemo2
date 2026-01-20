@@ -920,7 +920,7 @@ public class IqGenerator extends AbstractGenerator {
     public Iq createSocialFeedNode() {
         final Iq iq = new Iq(Iq.Type.SET);
         final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
-        pubsub.addChild("create").setAttribute("node", "urn:xmpp:microblog:0");
+        pubsub.addChild("create").setAttribute("node", Namespace.PUBSUB_SOCIAL_FEED);
         final Element configure = pubsub.addChild("configure");
         final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", defaultPostConfiguration());
         configure.addChild(data);
@@ -962,6 +962,7 @@ public class IqGenerator extends AbstractGenerator {
         final Element retract = pubsub.addChild("retract");
         retract.setAttribute("node", node);
         retract.setAttribute("notify", "true");
+        retract.setAttribute("notify_retract", "true");
         retract.addChild("item").setAttribute("id", id);
         return packet;
     }
