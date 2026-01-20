@@ -162,6 +162,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
 
         void bind(Post post) {
+            binding.commentsList.setVisibility(View.GONE);
+            binding.commentsList.setAdapter(null);
             final boolean isExpanded = expandedPosts.contains(post);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             if (isExpanded) {
@@ -496,6 +498,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             }
         }
     }
+
     private void downloadAttachment(Account account, Post post) {
         if (mActivity.xmppConnectionService == null) {
             return;
