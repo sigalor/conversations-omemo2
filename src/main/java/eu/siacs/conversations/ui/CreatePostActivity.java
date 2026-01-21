@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -217,6 +219,22 @@ public class CreatePostActivity extends XmppActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, accountJids);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             binding.accountSpinner.setAdapter(adapter);
+
+            int persistedPosition = getPersistedItem();
+            if (!onlineAccounts.isEmpty() && persistedPosition < onlineAccounts.size()) {
+                binding.accountSpinner.setSelection(persistedPosition);
+            }
+
+            binding.accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parentView, View view, int position, long itemId) {
+                    setPersistedItem(position);
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    // Do nothing
+                }
+            });
         }
     }
 
@@ -243,6 +261,11 @@ public class CreatePostActivity extends XmppActivity {
                     return;
                 }
                 selectedAccount = onlineAccounts.get(binding.accountSpinner.getSelectedItemPosition());
+            }
+
+            if (!selectedAccount.isOnlineAndConnected()) {
+                Toast.makeText(this, R.string.account_not_connected, Toast.LENGTH_SHORT).show();
+                return;
             }
 
             if (inReplyToNode != null) {
@@ -314,6 +337,19 @@ public class CreatePostActivity extends XmppActivity {
             }
         });
     }
+
+    private int getPersistedItem() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getInt(makePersistedItemKeyName(), 0);
+    }
+
+    protected void setPersistedItem(int position) {
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(makePersistedItemKeyName(), position).apply();
+    }
+
+    private String makePersistedItemKeyName() {
+        return "create_post_selected_account_position";
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

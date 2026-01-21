@@ -1647,6 +1647,7 @@
     <string name="unlike_with_account">Unlike post with</string>
     <string name="account_that_liked_post_is_offline">The account that was used to like this post is currently offline.</string>
     <string name="add_a_comment">Add a comment</string>
+    <string name="account_not_connected">Selected account is not online</string>
     <plurals name="publishing_to_x_contacts">
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>
