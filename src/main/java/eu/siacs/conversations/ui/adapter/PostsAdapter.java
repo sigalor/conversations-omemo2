@@ -479,6 +479,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             holder.binding.likeButton.setEnabled(true);
             holder.binding.likeCount.setText(String.valueOf(likes.size()));
 
+            holder.binding.likeButton.setOnLongClickListener(v -> {
+                showLikesDialog(likes);
+                return true;
+            });
+
             Comment myLike = null;
             Account myLikerAccount = null;
             for (Account acc : onlineAccounts) {
@@ -511,6 +516,42 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 }
             });
+        }
+
+        private void showLikesDialog(List<Comment> likes) {
+            if (likes.isEmpty()) {
+                return;
+            }
+            final ArrayList<String> likerDisplayNames = new ArrayList<>();
+            final List<Account> accounts = mActivity.xmppConnectionService.getAccounts();
+            for (Comment like : likes) {
+                if (like.getAuthor() != null) {
+                    final Jid authorJid = like.getAuthor().asBareJid();
+                    String displayName = null;
+                    for (Account account : accounts) {
+                        if (account.getRoster() != null) {
+                            final Contact contact = account.getRoster().getContact(authorJid);
+                            if (contact != null && contact.getDisplayName() != null && !contact.getDisplayName().isEmpty()) {
+                                displayName = contact.getDisplayName();
+                                break;
+                            }
+                        }
+                    }
+                    if (displayName != null) {
+                        likerDisplayNames.add(displayName);
+                    } else {
+                        likerDisplayNames.add(authorJid.toString());
+                    }
+                }
+            }
+            final ArrayAdapter<String> adapter = new ArrayAdapter<>(mActivity, android.R.layout.simple_list_item_1, likerDisplayNames);
+
+            new MaterialAlertDialogBuilder(mActivity)
+                    .setTitle(mActivity.getResources().getQuantityString(R.plurals.liked_by_title, likes.size(), likes.size()))
+                    .setAdapter(adapter, null)
+                    .setPositiveButton(R.string.action_close, null)
+                    .create()
+                    .show();
         }
 
         private void publishLike(final Account account, final Post post, final PostViewHolder holder) {

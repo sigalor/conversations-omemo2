@@ -1652,4 +1652,8 @@
         <item quantity="one">Publishing to %d contact</item>
         <item quantity="other">Publishing to %d contacts</item>
     </plurals>
+    <plurals name="liked_by_title">
+        <item quantity="one">Liked by %d person</item>
+        <item quantity="other">Liked by %d people</item>
+    </plurals>
 </resources>
