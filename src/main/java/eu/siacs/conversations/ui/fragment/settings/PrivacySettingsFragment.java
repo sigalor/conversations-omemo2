@@ -79,9 +79,6 @@ public class PrivacySettingsFragment extends XmppPreferenceFragment {
                 requireService().toggleScreenEventReceiver();
                 requireService().refreshAllPresences();
             }
-            case AppSettings.CUSTOM_RESOURCE_NAME -> {
-                reconnectAccounts();
-            }
             case AppSettings.CONFIRM_MESSAGES,
                     AppSettings.BROADCAST_LAST_ACTIVITY,
                     AppSettings.ALLOW_MESSAGE_CORRECTION,
