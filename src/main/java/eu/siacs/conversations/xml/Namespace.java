@@ -112,6 +112,7 @@ public final class Namespace {
     public static final String MDS_DISPLAYED = "urn:xmpp:mds:displayed:0";
     public static final String MDS_SERVER_ASSIST = "urn:xmpp:mds:server-assist:0";
     public static final String PUBSUB_SOCIAL_FEED = "urn:xmpp:pubsub-social-feed:1";
+    public static final String PUBSUB_MICROBLOG = "urn:xmpp:microblog:0";
     public static final String PUBSUB_STORIES = "urn:xmpp:pubsub-social-feed:stories:0";
     public static final String ATOM = "http://www.w3.org/2005/Atom";
 

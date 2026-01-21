@@ -58,7 +58,6 @@ import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
-import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.Jid;
 import io.noties.markwon.Markwon;
@@ -162,23 +161,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
 
         void bind(Post post) {
-            // Always reset the state of recycled views to a clean, default state before binding
             binding.commentsList.setVisibility(View.GONE);
             binding.commentsList.setAdapter(null);
             binding.likeButton.setOnClickListener(null);
             binding.likeCount.setText("");
-            binding.likeButton.setEnabled(false); // Disable until content is loaded
-            binding.likeButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.outline_favorite_border_24, 0, 0, 0);
+            binding.likeButton.setEnabled(false);
+            binding.likeButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.favorite_border_24, 0, 0, 0);
 
             final boolean isExpanded = expandedPosts.contains(post);
 
-            // Set visibility of summary/full content based on expanded state
             binding.postContentSummary.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
             binding.postContentFull.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             binding.postActions.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
 
             if (isExpanded) {
-                // Asynchronously load all dynamic content (comments and likes)
                 loadCommentsAndLikes(post, this);
             }
 
@@ -190,7 +186,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 notifyItemChanged(getAdapterPosition());
             };
 
-            // This is the full, non-omitted logic to bind the main post view
             setupPostView(post, expandClickListener);
         }
 
@@ -433,9 +428,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 }
                                 mActivity.runOnUiThread(() -> {
                                     if (holder.getAdapterPosition() == RecyclerView.NO_POSITION || posts.get(holder.getAdapterPosition()) != post) {
-                                        return; // Don't update a recycled view
+                                        return;
                                     }
-                                    // Update comments list UI
                                     if (!comments.isEmpty()) {
                                         java.util.Collections.sort(comments, (c1, c2) -> {
                                             Date d1 = c1.getPublished();
@@ -499,16 +493,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
             final boolean hasLiked = myLike != null;
             holder.binding.likeButton.setCompoundDrawablesWithIntrinsicBounds(
-                    hasLiked ? R.drawable.outline_favorite_24 : R.drawable.outline_favorite_border_24, 0, 0, 0);
+                    hasLiked ? R.drawable.favorite_filled_24 : R.drawable.favorite_border_24, 0, 0, 0);
 
             final Comment finalMyLike = myLike;
             final Account finalMyLikerAccount = myLikerAccount;
             holder.binding.likeButton.setOnClickListener(v -> {
                 if (hasLiked && finalMyLikerAccount != null) {
-                    // Unlike is simple: use the account that was found to have liked the post
                     retractLike(finalMyLikerAccount, finalMyLike, post, holder);
                 } else {
-                    // Like: if there are multiple accounts, let the user choose
                     if (onlineAccounts.size() > 1) {
                         showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_like), onlineAccounts, selectedAccount -> {
                             publishLike(selectedAccount, post, holder);
