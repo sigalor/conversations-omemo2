@@ -39,6 +39,8 @@ public class CreatePostActivity extends XmppActivity {
     private String attachmentType;
     private Uri mCameraUri;
     private String accountUuid;
+    private String postTitle;
+    private String postContent;
 
     private List<Account> onlineAccounts = new ArrayList<>();
 
@@ -115,13 +117,19 @@ public class CreatePostActivity extends XmppActivity {
         inReplyToId = getIntent().getStringExtra("in_reply_to_id");
         inReplyToNode = getIntent().getStringExtra("in_reply_to_node");
         postId = getIntent().getStringExtra("post_id");
+        postTitle = getIntent().getStringExtra("post_title");
+        postContent = getIntent().getStringExtra("post_content");
         accountUuid = getIntent().getStringExtra("account");
         if (inReplyToNode != null) {
+            setTitle(R.string.add_a_comment);
             binding.postTitleEditText.setVisibility(View.GONE);
             binding.postContentEditText.setHint(R.string.comment);
             binding.attachFileButton.setVisibility(View.GONE);
             binding.attachImageButton.setVisibility(View.GONE);
             binding.attachVideoButton.setVisibility(View.GONE);
+            binding.postPreview.setVisibility(View.VISIBLE);
+            binding.postPreviewTitle.setText(postTitle);
+            binding.postPreviewContent.setText(postContent);
         } else {
             binding.postTitleEditText.setVisibility(View.VISIBLE);
             binding.postContentEditText.setHint(R.string.post_content);

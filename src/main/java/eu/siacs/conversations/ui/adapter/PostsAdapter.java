@@ -610,6 +610,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         intent.putExtra("in_reply_to_node", post.getCommentsNode());
         intent.putExtra("post_id", post.getId());
         intent.putExtra("account", account.getUuid());
+        intent.putExtra("post_title", post.getTitle());
+        intent.putExtra("post_content", post.getContent());
         postResultLauncher.launch(intent);
     }
 
