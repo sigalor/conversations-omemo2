@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.DateFormat;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import eu.siacs.conversations.Config;
@@ -34,11 +36,55 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private final List<Comment> comments;
     private final XmppActivity mActivity;
 
+    private XmppConnectionService.OnCommentReceived mOnCommentReceived;
+
     public CommentsAdapter(XmppActivity activity, Post post, List<Comment> comments) {
         this.mActivity = activity;
         this.mPost = post;
         this.comments = comments;
     }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        if (mActivity.xmppConnectionService != null) {
+            this.mOnCommentReceived = (postUuid, comment) -> {
+                if (mPost.getId().equals(postUuid)) {
+                    mActivity.runOnUiThread(() -> {
+                        boolean found = false;
+                        for (Comment c : comments) {
+                            if (c.getId().equals(comment.getId())) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            comments.add(comment);
+                            Collections.sort(comments, (c1, c2) -> {
+                                Date d1 = c1.getPublished();
+                                Date d2 = c2.getPublished();
+                                if (d1 == null && d2 == null) return 0;
+                                if (d1 == null) return -1;
+                                if (d2 == null) return 1;
+                                return d1.compareTo(d2);
+                            });
+                            notifyDataSetChanged();
+                        }
+                    });
+                }
+            };
+            mActivity.xmppConnectionService.addOnCommentReceivedListener(this.mOnCommentReceived);
+        }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        if (mActivity.xmppConnectionService != null && this.mOnCommentReceived != null) {
+            mActivity.xmppConnectionService.removeOnCommentReceivedListener(this.mOnCommentReceived);
+        }
+    }
+
 
     @NonNull
     @Override

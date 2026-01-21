@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import eu.siacs.conversations.crypto.OtrService;
+import eu.siacs.conversations.entities.Comment;
 import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.entities.ServiceDiscoveryResult;
@@ -1759,24 +1760,29 @@ public class MessageParser extends AbstractParser
             final Element items = event.findChild("items");
             if (items != null) {
                 final String node = items.getAttribute("node");
-                if (node != null && node.startsWith("urn:xmpp:microblog:0") || node != null && node.startsWith(Namespace.PUBSUB_SOCIAL_FEED)) {
+                if (node != null && node.equals(Namespace.ATOM) || node != null && node.startsWith("urn:xmpp:microblog:0") || node != null && node.startsWith(Namespace.PUBSUB_SOCIAL_FEED)) {
                     for (Element child : items.getChildren()) {
                         if ("item".equals(child.getName())) {
                             final String postId = child.getAttribute("id");
                             Element entry = child.findChild("entry", Namespace.ATOM);
                             if (entry != null) {
                                 try {
-                                    Post post = Post.fromElement(entry);
-                                    mXmppConnectionService.onPostReceived(post, account);
+                                    Element inReplyTo = entry.findChild("in-reply-to", "http://purl.org/syndication/thread/1.0");
+                                    if (inReplyTo != null) {
+                                        Comment comment = Comment.fromElement(entry);
+                                        String originalPostUuid = inReplyTo.getAttribute("ref");
+                                        if (originalPostUuid != null && originalPostUuid.startsWith("urn:uuid:")) {
+                                            originalPostUuid = originalPostUuid.substring(9);
+                                        }
+                                        mXmppConnectionService.notifyOnCommentReceived(originalPostUuid, comment);
+                                    } else {
+                                        Post post = Post.fromElement(entry);
+                                        mXmppConnectionService.onPostReceived(post, account);
+                                    }
                                 } catch (Exception e) {
-                                    Log.d(Config.LOGTAG, "error creating post from pubsub item in message", e);
+                                    Log.d(Config.LOGTAG, "error creating post/comment from pubsub item in message", e);
                                 }
                             } else if (postId != null) {
-                                mXmppConnectionService.onPostRetracted(postId);
-                            }
-                        } else if ("retract".equals(child.getName())) {
-                            final String postId = child.getAttribute("id");
-                            if (postId != null) {
                                 mXmppConnectionService.onPostRetracted(postId);
                             }
                         }

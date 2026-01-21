@@ -30,6 +30,7 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityCreatePostBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.xml.Namespace;
 
 public class CreatePostActivity extends XmppActivity {
 
@@ -319,7 +320,7 @@ public class CreatePostActivity extends XmppActivity {
     }
 
     private void publish(Account account, String title, String content, String attachmentUrl, String attachmentType) {
-        xmppConnectionService.publishPost(account, "urn:xmpp:microblog:0", title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
+        xmppConnectionService.publishPost(account, Namespace.MICROBLOG, title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
             @Override
             public void onPostPublished() {
                 runOnUiThread(() -> {

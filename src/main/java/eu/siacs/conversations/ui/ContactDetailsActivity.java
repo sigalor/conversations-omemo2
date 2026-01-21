@@ -330,7 +330,7 @@ public class ContactDetailsActivity extends OmemoActivity
                             xmppConnectionService.subscribeTo(
                                     contact.getAccount(),
                                     contact.getJid(),
-                                    "urn:xmpp:microblog:0",
+                                    Namespace.MICROBLOG,
                                     packet -> {
                                         runOnUiThread(
                                                 () -> {
@@ -359,7 +359,7 @@ public class ContactDetailsActivity extends OmemoActivity
                             xmppConnectionService.unsubscribeFrom(
                                     contact.getAccount(),
                                     contact.getJid(),
-                                    "urn:xmpp:microblog:0",
+                                    Namespace.MICROBLOG,
                                     packet -> {
                                         runOnUiThread(
                                                 () -> {

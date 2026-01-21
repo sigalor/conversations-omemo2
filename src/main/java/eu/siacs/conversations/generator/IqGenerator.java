@@ -248,15 +248,12 @@ public class IqGenerator extends AbstractGenerator {
 
     public Iq publishStory(final Account account, final String url, final String type, final String title, Bundle options) {
         final Element item = new Element("item");
-        // This is the fix: Generate a single ID for both the pubsub item and the atom entry.
         final String storyId = UUID.randomUUID().toString();
         item.setAttribute("id", storyId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
-        // atom:id is a mandatory element for the entry, must be a unique and permanent URI
         entry.addChild("id").setContent("urn:uuid:" + storyId);
 
-        // atom:title is mandatory
         String effectiveTitle = title;
         if (Strings.isNullOrEmpty(effectiveTitle)) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
@@ -264,7 +261,6 @@ public class IqGenerator extends AbstractGenerator {
         }
         entry.addChild("title").setContent(effectiveTitle);
 
-        // atom:updated is mandatory
         final String timestamp = getTimestamp(System.currentTimeMillis());
         entry.addChild("updated").setContent(timestamp);
         entry.addChild("published").setContent(timestamp);
@@ -273,7 +269,6 @@ public class IqGenerator extends AbstractGenerator {
             entry.addChild("author").addChild("uri").setContent("xmpp:" + account.getJid().asBareJid());
         }
 
-        // The <link> element as specified by the XEP
         final Element link = entry.addChild("link");
         link.setAttribute("rel", "enclosure");
         link.setAttribute("href", url);
@@ -841,7 +836,7 @@ public class IqGenerator extends AbstractGenerator {
         item.setAttribute("id", postId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
-        entry.addChild("id").setContent(postId);
+        entry.addChild("id").setContent("urn:uuid:" + postId);
 
         entry.addChild("link")
                 .setAttribute("rel", "replies")
@@ -880,11 +875,11 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
         options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#persist_items", "1");
+        options.putString("pubsub#deliver_payloads", "0");
+        options.putString("pubsub#send_last_published_item", "on_sub");
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
         options.putString("pubsub#deliver_notifications", "1");
-        options.putString("pubsub#deliver_payloads", "1");
-        options.putString("pubsub#send_last_published_item", "never");
         options.putString("pubsub#publish_model", "publishers");
         return options;
     }
@@ -895,11 +890,11 @@ public class IqGenerator extends AbstractGenerator {
         options.putString("pubsub#type", "urn:xmpp:microblog:0:comments");
         options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#persist_items", "1");
-        options.putString("pubsub#max_items", "1000");
+        options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
         options.putString("pubsub#deliver_notifications", "1");
-        options.putString("pubsub#deliver_payloads", "1");
-        options.putString("pubsub#send_last_published_item", "never");
+        options.putString("pubsub#deliver_payloads", "0");
+        options.putString("pubsub#send_last_published_item", "on_sub");
         options.putString("pubsub#publish_model", "open");
         options.putString("pubsub#itemreply", "publisher");
         return options;

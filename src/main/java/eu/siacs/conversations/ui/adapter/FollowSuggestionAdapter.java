@@ -20,6 +20,7 @@ import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.PostsActivity;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
+import eu.siacs.conversations.xml.Namespace;
 import im.conversations.android.xmpp.model.stanza.Iq;
 
 public class FollowSuggestionAdapter extends RecyclerView.Adapter<FollowSuggestionAdapter.ViewHolder> {
@@ -49,7 +50,7 @@ public class FollowSuggestionAdapter extends RecyclerView.Adapter<FollowSuggesti
         holder.mAvatar.setOnClickListener(v -> mPostsActivity.switchToContactDetails(contact));
         holder.mFollowButton.setOnClickListener(v -> {
             final Account account = contact.getAccount();
-            mXmppConnectionService.subscribeTo(account, contact.getJid(), "urn:xmpp:microblog:0", packet -> {
+            mXmppConnectionService.subscribeTo(account, contact.getJid(), Namespace.MICROBLOG, packet -> {
                 mPostsActivity.runOnUiThread(() -> {
                     if (packet.getType() == Iq.Type.RESULT) {
                         contact.setFollowed(true);

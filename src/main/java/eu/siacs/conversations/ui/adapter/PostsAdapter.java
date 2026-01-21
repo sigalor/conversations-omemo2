@@ -58,6 +58,7 @@ import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.XmlReader;
 import eu.siacs.conversations.xmpp.Jid;
 import io.noties.markwon.Markwon;
@@ -309,7 +310,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 .setTitle(R.string.retract_post)
                                 .setMessage(R.string.retract_post_confirm)
                                 .setPositiveButton(R.string.retract, (dialog, which) -> {
-                                    mActivity.xmppConnectionService.retractPost(ownAccount, "urn:xmpp:microblog:0", post.getId(),
+                                    mActivity.xmppConnectionService.retractPost(ownAccount, Namespace.MICROBLOG, post.getId(),
                                             new XmppConnectionService.OnPostRetracted() {
 
                                                 @Override

@@ -261,7 +261,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                 }
 
                 for (Jid source : sourcesToFetch) {
-                    xmppConnectionService.fetchPubsubItems(source, "urn:xmpp:microblog:0", new XmppConnectionService.OnPubsubItemsFetched() {
+                    xmppConnectionService.fetchPubsubItems(source, Namespace.MICROBLOG, new XmppConnectionService.OnPubsubItemsFetched() {
                         @Override
                         public void onPubsubItemsFetched(String feedXml) {
                             try {

@@ -126,6 +126,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import eu.siacs.conversations.Conversations;
+import eu.siacs.conversations.entities.Comment;
 import eu.siacs.conversations.entities.Post;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.entities.StubConversation;
@@ -8383,12 +8384,44 @@ public class XmppConnectionService extends Service {
     }
 
     public void subscribeTo(final Account account, final Jid to, final String node, final Consumer<Iq> callback) {
-        final Iq iq = getIqGenerator().generateSubscriptionIq(to, node, account.getJid());
+        final Iq iq = getIqGenerator().generateSubscriptionIq(to.asBareJid(), node, account.getJid().asBareJid());
         sendIqPacket(account, iq, callback);
     }
 
     public void unsubscribeFrom(final Account account, final Jid to, final String node, final Consumer<Iq> callback) {
-        final Iq iq = getIqGenerator().generateUnsubscriptionIq(to, node, account.getJid());
+        final Iq iq = getIqGenerator().generateUnsubscriptionIq(to.asBareJid(), node, account.getJid().asBareJid());
         sendIqPacket(account, iq, callback);
+    }
+
+    public interface OnCommentReceived {
+        void onCommentReceived(String originalPostUuid, Comment comment);
+    }
+
+    private final List<OnCommentReceived> mOnCommentReceivedListeners = new ArrayList<>();
+
+    public void addOnCommentReceivedListener(OnCommentReceived listener) {
+        synchronized (mOnCommentReceivedListeners) {
+            if (!mOnCommentReceivedListeners.contains(listener)) {
+                mOnCommentReceivedListeners.add(listener);
+            }
+        }
+    }
+
+    public void removeOnCommentReceivedListener(OnCommentReceived listener) {
+        synchronized (mOnCommentReceivedListeners) {
+            mOnCommentReceivedListeners.remove(listener);
+        }
+    }
+
+    public void notifyOnCommentReceived(String originalPostUuid, Comment comment) {
+        synchronized (mOnCommentReceivedListeners) {
+            for (OnCommentReceived listener : mOnCommentReceivedListeners) {
+                try {
+                    listener.onCommentReceived(originalPostUuid, comment);
+                } catch (Exception e) {
+                    Log.d(Config.LOGTAG, "safe to ignore, listener has been removed");
+                }
+            }
+        }
     }
 }
