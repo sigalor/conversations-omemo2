@@ -21,89 +21,104 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
-        android:id="@+id/posts_attachment_preview_layout"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/app_bar"
+        app:layout_constraintBottom_toTopOf="@+id/attachment_options">
 
-        <ImageView
-            android:id="@+id/attachment_preview"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone"
-            android:scaleType="fitCenter"
-            tools:src="@tools:sample/avatars"
-            tools:visibility="visible" />
-
-        <VideoView
-            android:id="@+id/attachment_video_view"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone"
-            tools:src="@tools:sample/avatars"
-            tools:visibility="visible" />
-    </LinearLayout>
-
-    <Spinner
-        android:id="@+id/account_spinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/posts_attachment_preview_layout" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/post_title_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/account_spinner">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/post_title_edit_text"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHighlight="?attr/colorControlHighlight"
-            android:textColorLink="?attr/colorAccent"
-            android:textColorHint="?android:attr/textColorHint"
-            android:textColor="?android:attr/textColorPrimary"
-            android:hint="@string/post_title" />
+            android:paddingBottom="16dp">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                android:id="@+id/posts_attachment_preview_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/post_content_layout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/attachment_options"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/post_title_layout">
+                <ImageView
+                    android:id="@+id/attachment_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone"
+                    android:scaleType="fitCenter"
+                    tools:src="@tools:sample/avatars"
+                    tools:visibility="visible" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/post_content_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColorHighlight="?attr/colorControlHighlight"
-            android:textColorLink="?attr/colorAccent"
-            android:textColorHint="?android:attr/textColorHint"
-            android:textColor="?android:attr/textColorPrimary"
-            android:gravity="top" />
+                <VideoView
+                    android:id="@+id/attachment_video_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone"
+                    tools:src="@tools:sample/avatars"
+                    tools:visibility="visible" />
+            </LinearLayout>
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <Spinner
+                android:id="@+id/account_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/posts_attachment_preview_layout" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/post_title_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/account_spinner">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/post_title_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/post_title"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textColorHint="?android:attr/textColorHint"
+                    android:textColorHighlight="?attr/colorControlHighlight"
+                    android:textColorLink="?attr/colorAccent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/post_content_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_title_layout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/post_content_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:minLines="5"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textColorHint="?android:attr/textColorHint"
+                    android:textColorHighlight="?attr/colorControlHighlight"
+                    android:textColorLink="?attr/colorAccent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/attachment_options"
