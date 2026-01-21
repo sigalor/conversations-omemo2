@@ -228,7 +228,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     if (account.isOnlineAndConnected()) {
                         if (account.getJid().asBareJid().equals(post.getAuthor().asBareJid()) || (account.getRoster() != null && account.getRoster().getContact(post.getAuthor().asBareJid()) != null)) {
                             postAccounts.add(account);
-                        }                    }
+                        }
+                    }
                 }
             }
             if (mActivity.xmppConnectionService == null) {
@@ -278,7 +279,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 itemView.setOnClickListener(expandClickListener);
                 binding.postTitle.setOnClickListener(expandClickListener);
 
-                binding.replyButton.setOnClickListener(v -> {
+                binding.commentButton.setOnClickListener(v -> {
                     if (post.getAuthor() != null) {
                         if (postAccounts.size() == 1) {
                             replyToPost(postAccounts.get(0), post);
@@ -288,7 +289,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 });
 
-                binding.commentButton.setVisibility(View.GONE);
+                binding.replyButton.setVisibility(View.GONE);
 
                 binding.shareButton.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_SEND);
