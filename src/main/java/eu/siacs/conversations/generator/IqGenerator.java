@@ -841,9 +841,7 @@ public class IqGenerator extends AbstractGenerator {
         item.setAttribute("id", postId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
-        final String now_for_tag = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-        final String atomId = "tag:" + account.getDomain() + "," + now_for_tag + ":" + UUID.randomUUID().toString();
-        entry.addChild("id").setContent(atomId);
+        entry.addChild("id").setContent(postId);
 
         entry.addChild("link")
                 .setAttribute("rel", "replies")
