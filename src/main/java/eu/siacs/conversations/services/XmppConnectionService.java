@@ -8188,7 +8188,7 @@ public class XmppConnectionService extends Service {
         final String idToPublish = isEdit ? postId : UUID.randomUUID().toString();
 
         final Runnable publicationRunnable = () -> {
-            final Iq request = getIqGenerator().publishPost(account, node, title, content, attachmentUrl, attachmentType, idToPublish);
+            final Iq request = getIqGenerator().publishPost(account, title, content, attachmentUrl, attachmentType, idToPublish);
             sendIqPacket(account, request, response2 -> {
                 if (response2.getType() == Iq.Type.RESULT) {
                     if (!isEdit) {

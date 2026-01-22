@@ -826,13 +826,8 @@ public class IqGenerator extends AbstractGenerator {
         return iq;
     }
 
-    public Iq publishPost(final Account account, final String node, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId) {
-        final Iq iq = new Iq(Iq.Type.SET);
-        iq.setTo(account.getJid().asBareJid());
-        final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
-        final Element publish = pubsub.addChild("publish");
-        publish.setAttribute("node", node);
-        final Element item = publish.addChild("item");
+    public Iq publishPost(final Account account, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId) {
+        final Element item = new Element("item");
         item.setAttribute("id", postId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
@@ -865,7 +860,8 @@ public class IqGenerator extends AbstractGenerator {
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
-        return iq;
+
+        return publish(Namespace.MICROBLOG, item, null);
     }
 
 
@@ -873,9 +869,9 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
-        options.putString("pubsub#access_model", "roster");
+        options.putString("pubsub#access_model", "presence");
         options.putString("pubsub#persist_items", "1");
-        options.putString("pubsub#deliver_payloads", "0");
+        options.putString("pubsub#deliver_payloads", "1");
         options.putString("pubsub#send_last_published_item", "on_sub");
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
@@ -888,12 +884,12 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", "urn:xmpp:microblog:0:comments");
-        options.putString("pubsub#access_model", "roster");
+        options.putString("pubsub#access_model", "presence");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
         options.putString("pubsub#deliver_notifications", "1");
-        options.putString("pubsub#deliver_payloads", "0");
+        options.putString("pubsub#deliver_payloads", "1");
         options.putString("pubsub#send_last_published_item", "on_sub");
         options.putString("pubsub#publish_model", "open");
         options.putString("pubsub#itemreply", "publisher");
@@ -913,7 +909,7 @@ public class IqGenerator extends AbstractGenerator {
     public Iq createSocialFeedNode() {
         final Iq iq = new Iq(Iq.Type.SET);
         final Element pubsub = iq.addChild("pubsub", Namespace.PUBSUB);
-        pubsub.addChild("create").setAttribute("node", Namespace.PUBSUB_SOCIAL_FEED);
+        pubsub.addChild("create").setAttribute("node", Namespace.MICROBLOG);
         final Element configure = pubsub.addChild("configure");
         final Data data = Data.create("http://jabber.org/protocol/pubsub#node_config", defaultPostConfiguration());
         configure.addChild(data);
