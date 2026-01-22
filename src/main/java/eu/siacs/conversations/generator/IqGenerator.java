@@ -869,7 +869,7 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
-        options.putString("pubsub#access_model", "presence");
+        options.putString("pubsub#access_model", "roster");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#deliver_payloads", "1");
         options.putString("pubsub#send_last_published_item", "on_sub");
@@ -884,7 +884,7 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", "urn:xmpp:microblog:0:comments");
-        options.putString("pubsub#access_model", "presence");
+        options.putString("pubsub#access_model", "open");
         options.putString("pubsub#persist_items", "1");
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
@@ -951,7 +951,6 @@ public class IqGenerator extends AbstractGenerator {
         final Element retract = pubsub.addChild("retract");
         retract.setAttribute("node", node);
         retract.setAttribute("notify", "true");
-        retract.setAttribute("notify_retract", "true");
         retract.addChild("item").setAttribute("id", id);
         return packet;
     }

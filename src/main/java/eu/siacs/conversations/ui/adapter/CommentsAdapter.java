@@ -117,7 +117,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 if (mActivity.xmppConnectionService != null) {
 
                     final Account postAuthorAccount = mActivity.xmppConnectionService.findAccountByJid(mPost.getAuthor());
-
                     Account contextAccount = postAuthorAccount != null ? postAuthorAccount : AccountUtils.getFirstEnabled(mActivity.xmppConnectionService.getAccounts());
 
                     if (contextAccount != null) {
@@ -148,23 +147,19 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             }
                         }
 
-                        final Account commentAuthorUserAccount = mActivity.xmppConnectionService.findAccountByJid(comment.getAuthor());
+                        final Account commentAuthorAccount = mActivity.xmppConnectionService.findAccountByJid(comment.getAuthor());
+                        boolean iAmPostAuthor = postAuthorAccount != null && postAuthorAccount.isOnlineAndConnected();
+                        boolean iAmCommentAuthor = commentAuthorAccount != null && commentAuthorAccount.isOnlineAndConnected();
 
-                        Account accountWithPermission = null;
-                        if (postAuthorAccount != null && postAuthorAccount.isOnlineAndConnected()) {
-                            accountWithPermission = postAuthorAccount;
-                        } else if (commentAuthorUserAccount != null && commentAuthorUserAccount.isOnlineAndConnected()) {
-                            accountWithPermission = commentAuthorUserAccount;
-                        }
-
-                        if (accountWithPermission != null) {
+                        if (iAmPostAuthor || iAmCommentAuthor) {
                             binding.retractButton.setVisibility(View.VISIBLE);
-                            final Account finalAccountWithPermission = accountWithPermission;
+
+                            final Account accountToSendFrom = iAmCommentAuthor ? commentAuthorAccount : postAuthorAccount;
                             binding.retractButton.setOnClickListener(v -> {
                                 new MaterialAlertDialogBuilder(mActivity)
                                         .setTitle(R.string.retract_comment)
                                         .setMessage(R.string.retract_comment_confirm)
-                                        .setPositiveButton(R.string.retract, (dialog, which) -> retractComment(finalAccountWithPermission, comment))
+                                        .setPositiveButton(R.string.retract, (dialog, which) -> retractComment(accountToSendFrom, comment))
                                         .setNegativeButton(R.string.cancel, null)
                                         .show();
                             });
