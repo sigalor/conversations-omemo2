@@ -67,7 +67,7 @@
     <string name="crash_report_message">En utilisant votre compte XMPP pour envoyer des rapports de crash, vous aidez le développement de %1$s.</string>
     <string name="send_now">Envoyer</string>
     <string name="send_never">Ne plus me demander</string>
-    <string name="problem_connecting_to_account">Impossible de se connecter au compte.</string>
+    <string name="problem_connecting_to_account">Impossible de se connecter au compte</string>
     <string name="problem_connecting_to_accounts">Impossible de se connecter à plusieurs comptes</string>
     <string name="touch_to_fix">Appuyez pour gérer vos comptes</string>
     <string name="attach_file">Joindre un fichier</string>
@@ -95,7 +95,7 @@
     <string name="send_unencrypted">Envoyer non-chiffré</string>
     <string name="decryption_failed">Échec du déchiffrement. Vous n\'avez peut-être pas la bonne clé privée.</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long"><![CDATA[%1$s utilise <b>OpenKeychain</b> pour chiffrer et déchiffrer les messages et pour gérer vos clés publiques.<br><br>OpenKeychain est sous licence GPLv3 et est disponible sur F-Droid et Google Play.<br><br><small>(Veuillez redémarrer %1$s après l\'installation de l\'application.)</small>]]></string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s utilise <b>OpenKeychain</b> pour chiffrer et déchiffrer les messages et pour gérer vos clés publiques.<br><br>OpenKeychain est sous licence GPLv3+ et est disponible sur F-Droid et Google Play.<br><br><small>(Veuillez redémarrer %1$s après l\'installation de l\'application.)</small>]]></string>
     <string name="restart">Redémarrer</string>
     <string name="install">Installer</string>
     <string name="openkeychain_not_installed">Veuillez installer OpenKeychain</string>
@@ -342,7 +342,7 @@
     <string name="no_application_found_to_open_link">Aucune application trouvée pour ouvrir le lien</string>
     <string name="no_application_found_to_view_contact">Aucune application disponible pour afficher le contact</string>
     <string name="pref_show_dynamic_tags">Tags dynamiques</string>
-    <string name="pref_show_dynamic_tags_summary">Afficher des tags en lecture seule en dessous des contacts.</string>
+    <string name="pref_show_dynamic_tags_summary">Permettre l’organisation avec des tags</string>
     <string name="enable_notifications">Activer les notifications</string>
     <string name="no_conference_server_found">Serveur de groupe non trouvé</string>
     <string name="conference_creation_failed">Impossible de créer le groupe</string>
@@ -1464,7 +1464,7 @@
     <string name="custom_notifications_enable">Activer les paramètres de notification personnalisées (importance, son ,vibration) pour cette discussion ?</string>
     <string name="pref_disable_reactions_fallback_summary">Désactive le recours aux réactions pour les clients qui ne les prennent pas encore en charge</string>
     <string name="pref_disable_reactions_fallback_title">Désactiver les réactions de secours</string>
-    <string name="pin_to_top">Épingler an haut</string>
+    <string name="pin_to_top">Épingler en haut</string>
     <string name="switch_to_new_thread">Basculer vers le nouveau fil</string>
     <string name="cleared_thread">Fil nettoyé</string>
     <string name="pref_plain_text_links_title">Liens d\'adresse de discussion complet</string>
@@ -1593,4 +1593,7 @@
     <string name="simple_commons">Communs simples</string>
     <string name="value_copied_to_clipboard_show">Montrer la valeur copiée dans le presse-papier</string>
     <string name="error_saving_file">Impossible d\'enregistrer le fichier</string>
+    <string name="action_open_calendar">Ouvrir le calendrier</string>
+    <string name="title_activity_calendar">Calendrier</string>
+    <string name="total_messages_per_month">Total de messages par mois : %s</string>
 </resources>

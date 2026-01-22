@@ -1551,10 +1551,10 @@
     <string name="mars">Kızıl Gezegen</string>
     <string name="clarendon">Clarendon</string>
     <string name="oldman">YaşlıAdam</string>
-    <string name="haan">Haan</string>
+    <string name="haan">Han</string>
     <string name="april">Nisan</string>
     <string name="rise">Yükseliş</string>
-    <string name="audrey">Audrey</string>
+    <string name="audrey">Odri</string>
     <string name="metropolis">Büyükşehir</string>
     <string name="cruz">Cruz</string>
     <string name="adele">Adele</string>
@@ -1562,4 +1562,16 @@
     <string name="starlit">Yıldız ışığı</string>
     <string name="bluemess">MaviKargaşa</string>
     <string name="struck">Vurulmuş</string>
+    <string name="vcard_details">Profil detayları</string>
+    <string name="add_profile_field">Profil alanı ekle</string>
+    <string name="value">Değer</string>
+    <string name="drag_handle">Sürükleme kolu</string>
+    <string name="remove_entry">Girişi kaldır</string>
+    <string name="vcard_qr_code">QR kodunu göster</string>
+    <string name="strong_transport_security">Güçlü ulaşım güvenliği</string>
+    <string name="require_tls_v1_3">Tüm bağlantılar için TLS (Transport Layer Security) Protokolü Sürüm 1.3 gerektirir</string>
+    <string name="error_saving_file">Dosya kaydedilemedi</string>
+    <string name="action_open_calendar">Takvimi aç</string>
+    <string name="title_activity_calendar">Takvim</string>
+    <string name="total_messages_per_month">Aylık toplam mesaj sayısı: %s</string>
 </resources>
