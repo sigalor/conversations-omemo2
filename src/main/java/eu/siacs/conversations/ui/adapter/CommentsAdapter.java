@@ -148,17 +148,28 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             }
                         }
 
-                        binding.retractButton.setVisibility(View.GONE);
+                        final Account commentAuthorUserAccount = mActivity.xmppConnectionService.findAccountByJid(comment.getAuthor());
+
+                        Account accountWithPermission = null;
                         if (postAuthorAccount != null && postAuthorAccount.isOnlineAndConnected()) {
+                            accountWithPermission = postAuthorAccount;
+                        } else if (commentAuthorUserAccount != null && commentAuthorUserAccount.isOnlineAndConnected()) {
+                            accountWithPermission = commentAuthorUserAccount;
+                        }
+
+                        if (accountWithPermission != null) {
                             binding.retractButton.setVisibility(View.VISIBLE);
+                            final Account finalAccountWithPermission = accountWithPermission;
                             binding.retractButton.setOnClickListener(v -> {
                                 new MaterialAlertDialogBuilder(mActivity)
                                         .setTitle(R.string.retract_comment)
                                         .setMessage(R.string.retract_comment_confirm)
-                                        .setPositiveButton(R.string.retract, (dialog, which) -> retractComment(postAuthorAccount, comment))
+                                        .setPositiveButton(R.string.retract, (dialog, which) -> retractComment(finalAccountWithPermission, comment))
                                         .setNegativeButton(R.string.cancel, null)
                                         .show();
                             });
+                        } else {
+                            binding.retractButton.setVisibility(View.GONE);
                         }
                     } else {
                         binding.commentAuthorName.setText(authorJid.asBareJid().toString());

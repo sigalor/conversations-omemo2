@@ -8176,7 +8176,7 @@ public class XmppConnectionService extends Service {
         void onPubsubItemsFetchFailed();
     }
 
-    public void publishPost(final Account account, final String node, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId, final OnPostPublished callback) {
+    public void publishPost(final Account account, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId, final OnPostPublished callback) {
         if (account == null) {
             if (callback != null) {
                 callback.onPostPublishFailed();

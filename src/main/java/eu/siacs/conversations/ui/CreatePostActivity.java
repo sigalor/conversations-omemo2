@@ -320,7 +320,7 @@ public class CreatePostActivity extends XmppActivity {
     }
 
     private void publish(Account account, String title, String content, String attachmentUrl, String attachmentType) {
-        xmppConnectionService.publishPost(account, Namespace.MICROBLOG, title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
+        xmppConnectionService.publishPost(account, title, content, attachmentUrl, attachmentType, postId, new XmppConnectionService.OnPostPublished() {
             @Override
             public void onPostPublished() {
                 runOnUiThread(() -> {
