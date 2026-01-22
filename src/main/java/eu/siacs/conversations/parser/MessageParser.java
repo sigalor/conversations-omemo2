@@ -1763,7 +1763,6 @@ public class MessageParser extends AbstractParser
                 if (node != null && node.equals(Namespace.ATOM) || node != null && node.startsWith("urn:xmpp:microblog:0") || node != null && node.startsWith(Namespace.PUBSUB_SOCIAL_FEED)) {
                     for (Element child : items.getChildren()) {
                         if ("item".equals(child.getName())) {
-                            final String postId = child.getAttribute("id");
                             Element entry = child.findChild("entry", Namespace.ATOM);
                             if (entry != null) {
                                 try {
@@ -1782,9 +1781,10 @@ public class MessageParser extends AbstractParser
                                 } catch (Exception e) {
                                     Log.d(Config.LOGTAG, "error creating post/comment from pubsub item in message", e);
                                 }
-                            } else if (postId != null) {
-                                mXmppConnectionService.onPostRetracted(postId);
                             }
+                        } else if ("retract".equals(child.getName())) {
+                            final String postId = child.getAttribute("id");
+                            mXmppConnectionService.onPostRetracted(postId);
                         }
                     }
                 } else {
