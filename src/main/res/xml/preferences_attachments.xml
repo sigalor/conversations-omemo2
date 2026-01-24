@@ -48,6 +48,7 @@
     <PreferenceCategory android:title="@string/pref_advanced_options">
         <ListPreference
             android:defaultValue="30"
+            android:icon="@drawable/ic_auto_delete_24dp"
             android:entries="@array/cache_deletion_entries"
             android:entryValues="@array/cache_deletion_values"
             android:key="cache_deletion_time"
