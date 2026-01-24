@@ -1656,4 +1656,11 @@
         <item quantity="one">Liked by %d person</item>
         <item quantity="other">Liked by %d people</item>
     </plurals>
+    <string name="pref_cache_deletion_time">Delete files from cache after</string>
+    <string name="one_day">1 day</string>
+    <string name="three_days">3 days</string>
+    <string name="one_week">1 week</string>
+    <string name="two_weeks">2 weeks</string>
+    <string name="one_month">1 month</string>
+    <string name="three_months">3 months</string>
 </resources>

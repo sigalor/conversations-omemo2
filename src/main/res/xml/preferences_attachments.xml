@@ -46,6 +46,13 @@
             android:title="@string/store_media_only_in_cache" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_advanced_options">
+        <ListPreference
+            android:defaultValue="30"
+            android:entries="@array/cache_deletion_entries"
+            android:entryValues="@array/cache_deletion_values"
+            android:key="cache_deletion_time"
+            android:title="@string/pref_cache_deletion_time"
+            app:useSimpleSummaryProvider="true" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/internal_meda_viewer"
             android:icon="@drawable/outline_perm_media_24"

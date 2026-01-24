@@ -63,6 +63,26 @@
 		<item>@string/always</item>
 	</string-array>
 
+    <string-array name="cache_deletion_values">
+        <item>1</item>
+        <item>3</item>
+        <item>7</item>
+        <item>14</item>
+        <item>30</item>
+        <item>90</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array name="cache_deletion_entries">
+        <item>@string/one_day</item>
+        <item>@string/three_days</item>
+        <item>@string/one_week</item>
+        <item>@string/two_weeks</item>
+        <item>@string/one_month</item>
+        <item>@string/three_months</item>
+        <item>@string/never</item>
+    </string-array>
+
 	<string-array name="mam_prefs">
 		<item>@string/never</item>
 		<item>@string/contacts</item>

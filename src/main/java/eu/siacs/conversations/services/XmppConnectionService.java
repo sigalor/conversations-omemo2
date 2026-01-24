@@ -943,15 +943,28 @@ public class XmppConnectionService extends Service {
     }
 
     protected void cleanupCache() {
-        if (Build.VERSION.SDK_INT < 26) return; // Doesn't support file.toPath
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final int deletionTimeDays;
+        try {
+            deletionTimeDays = Integer.parseInt(preferences.getString("cache_deletion_time", "30"));
+        } catch (NumberFormatException e) {
+            return;
+        }
+        if (deletionTimeDays == 0) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT < 26) {
+            return; // Doesn't support file.toPath
+        }
         mStickerScanExecutor.execute(() -> {
             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
             final var now = System.currentTimeMillis();
+            final long maxAge = 1000L * 60 * 60 * 24 * deletionTimeDays;
             try {
                 for (File file : Files.fileTraverser().breadthFirst(getCacheDir())) {
                     if (file.isFile() && file.canRead() && file.canWrite()) {
                         final var attrs = java.nio.file.Files.readAttributes(file.toPath(), java.nio.file.attribute.BasicFileAttributes.class);
-                        if ((now - attrs.lastAccessTime().toMillis()) > 1000L * 60 * 60 * 24 * 10) {
+                        if ((now - attrs.lastAccessTime().toMillis()) > maxAge) {
                             Log.d(Config.LOGTAG, "cleanupCache removing file not used recently: " + file);
                             file.delete();
                         }
