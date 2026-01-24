@@ -461,7 +461,6 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                 } else if (node != null && node.equals(Namespace.ATOM) || node != null && node.startsWith("urn:xmpp:microblog:0") || node != null && node.startsWith(Namespace.PUBSUB_SOCIAL_FEED)) {
                     for (Element child : items.getChildren()) {
                         if ("item".equals(child.getName())) {
-                            final String postId = child.getAttribute("id");
                             Element entry = child.findChild("entry", Namespace.ATOM);
                             if (entry != null) {
                                 try {
@@ -474,14 +473,15 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                                         }
                                         mXmppConnectionService.notifyOnCommentReceived(originalPostUuid, comment);
                                     } else {
-                                        Post post = Post.fromElement(entry);
-                                        mXmppConnectionService.onPostReceived(post, account);
+                                        // Handle items that are not comments as new posts.
+                                        Post post = Post.fromElement(child);
+                                        if (post != null) {
+                                            mXmppConnectionService.onPostReceived(post, account);
+                                        }
                                     }
                                 } catch (Exception e) {
-                                    Log.d(Config.LOGTAG, "error creating post/comment from pubsub item in iq", e);
+                                    Log.d(Config.LOGTAG, "error creating post/comment from pubsub item in message", e);
                                 }
-                            } else if (postId != null) {
-                                mXmppConnectionService.onPostRetracted(postId);
                             }
                         } else if ("retract".equals(child.getName())) {
                             final String postId = child.getAttribute("id");

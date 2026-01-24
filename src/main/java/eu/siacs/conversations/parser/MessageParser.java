@@ -1775,8 +1775,11 @@ public class MessageParser extends AbstractParser
                                         }
                                         mXmppConnectionService.notifyOnCommentReceived(originalPostUuid, comment);
                                     } else {
-                                        Post post = Post.fromElement(entry);
-                                        mXmppConnectionService.onPostReceived(post, account);
+                                        // Handle items that are not comments as new posts.
+                                        Post post = Post.fromElement(child);
+                                        if (post != null) {
+                                            mXmppConnectionService.onPostReceived(post, account);
+                                        }
                                     }
                                 } catch (Exception e) {
                                     Log.d(Config.LOGTAG, "error creating post/comment from pubsub item in message", e);
@@ -1784,7 +1787,9 @@ public class MessageParser extends AbstractParser
                             }
                         } else if ("retract".equals(child.getName())) {
                             final String postId = child.getAttribute("id");
-                            mXmppConnectionService.onPostRetracted(postId);
+                            if (postId != null) {
+                                mXmppConnectionService.onPostRetracted(postId);
+                            }
                         }
                     }
                 } else {
