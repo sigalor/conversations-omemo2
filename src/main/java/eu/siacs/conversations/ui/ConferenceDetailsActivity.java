@@ -638,19 +638,12 @@ public class ConferenceDetailsActivity extends XmppActivity
                 this.binding.destroy.setText(groupChat ? R.string.destroy_room : R.string.destroy_channel);
                 this.binding.leaveMuc.setText(groupChat ? R.string.action_end_conversation_muc : R.string.action_end_conversation_channel);
 
-                if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
-                    binding.storeInCache.setChecked(true);
-                    binding.storeInCache.setEnabled(false);
-                    mConversation.setStoreInCache(true);
+                binding.storeInCache.setEnabled(true);
+                binding.storeInCache.setChecked(mConversation.storeInCache(xmppConnectionService));
+                binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
+                    mConversation.setStoreInCache(checked);
                     xmppConnectionService.updateConversation(mConversation);
-                } else {
-                    binding.storeInCache.setEnabled(true);
-                    binding.storeInCache.setChecked(mConversation.storeInCache(xmppConnectionService));
-                    binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
-                        mConversation.setStoreInCache(checked);
-                        xmppConnectionService.updateConversation(mConversation);
-                    });
-                }
+                });
 
                 updateView();
             }

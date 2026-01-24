@@ -1541,18 +1541,23 @@ public class Conversation extends AbstractEntity
     }
 
     public void setStoreInCache(final boolean cache) {
-        setAttribute("storeMedia", cache ? "cache" : "shared");
-    }
+        setAttribute("storeMedia", cache ? "explicit_on" : "explicit_off");}
 
-    public boolean storeInCache(XmppConnectionService xmppConnectionService) {
-        if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
-            return true;
-        } else {
-            if ("cache".equals(getAttribute("storeMedia"))) return true;
-            if ("shared".equals(getAttribute("storeMedia"))) return false;
-            if (mode == Conversation.MODE_MULTI && !mucOptions.isPrivateAndNonAnonymous()) return true;
+    public boolean storeInCache(final XmppConnectionService xmppConnectionService) {
+        final String preference = getAttribute("storeMedia");
+
+        if ("explicit_on".equals(preference)) {
             return true;
         }
+        if ("explicit_off".equals(preference) || "shared".equals(preference)) {
+            return false;
+        }
+
+        if (xmppConnectionService != null) {
+            return xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache);
+        }
+
+        return true;
     }
 
     public boolean setAttribute(String key, boolean value) {

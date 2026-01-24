@@ -1056,19 +1056,12 @@ public class ContactDetailsActivity extends OmemoActivity
             });
 
             final var conversation = xmppConnectionService.findOrCreateConversation(account, contact.getJid(), false, true);
-            if (xmppConnectionService != null && xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache)) {
-                binding.storeInCache.setChecked(true);
-                binding.storeInCache.setEnabled(false);
-                conversation.setStoreInCache(true);
+            binding.storeInCache.setEnabled(true);
+            binding.storeInCache.setChecked(conversation.storeInCache(xmppConnectionService));
+            binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
+                conversation.setStoreInCache(checked);
                 xmppConnectionService.updateConversation(conversation);
-            } else {
-                binding.storeInCache.setEnabled(true);
-                binding.storeInCache.setChecked(conversation.storeInCache(xmppConnectionService));
-                binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
-                    conversation.setStoreInCache(checked);
-                    xmppConnectionService.updateConversation(conversation);
-                });
-            }
+            });
 
 
 
