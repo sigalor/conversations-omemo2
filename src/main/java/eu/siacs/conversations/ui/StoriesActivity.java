@@ -118,7 +118,7 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         }
         if (xmppConnectionService != null) {
             xmppConnectionService.setOnStoriesUpdateListener(this);
-            getPreferences().edit().putLong("last_read_story_timestamp", System.currentTimeMillis()).apply();
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).edit().putLong("last_read_story_timestamp", System.currentTimeMillis()).apply();
             refresh();
         }
     }
@@ -387,6 +387,10 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
 
     @Override
     protected void refreshUiReal() {
+        if (xmppConnectionService == null) {
+            return;
+        }
+
         ActionBar actionBar = getSupportActionBar();
 
         // Show badge for unread message in bottom nav
@@ -402,6 +406,12 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
+
+        // Show badge for new posts in bottom nav
+        long lastReadPosts = getPreferences().getLong("last_read_post_timestamp", 0);
+        boolean hasNewPosts = xmppConnectionService.databaseBackend.getPosts().stream().anyMatch(p -> p.getPublished() != null && p.getPublished().getTime() > lastReadPosts);
+        var postsBadge = bottomnav.getOrCreateBadge(R.id.feeds);
+        postsBadge.setVisible(hasNewPosts);
 
         // Show badge for missed calls in bottom nav
         boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();

@@ -231,6 +231,10 @@ public class ConversationsActivity extends XmppActivity
 
     @Override
     protected void refreshUiReal() {
+        if (xmppConnectionService == null) {
+            return;
+        }
+
         invalidateOptionsMenu();
         for (@IdRes int id : FRAGMENT_ID_NOTIFICATION_ORDER) {
             refreshFragment(id);
@@ -258,6 +262,12 @@ public class ConversationsActivity extends XmppActivity
         boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
+
+        // Show badge for new posts in bottom nav
+        long lastReadPosts = getPreferences().getLong("last_read_post_timestamp", 0);
+        boolean hasNewPosts = xmppConnectionService.databaseBackend.getPosts().stream().anyMatch(p -> p.getPublished() != null && p.getPublished().getTime() > lastReadPosts);
+        var postsBadge = bottomnav.getOrCreateBadge(R.id.feeds);
+        postsBadge.setVisible(hasNewPosts);
 
         // Show badge for missed calls in bottom nav
         boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();

@@ -141,6 +141,9 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.feeds);
 
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).edit().putLong("last_read_post_timestamp", System.currentTimeMillis()).apply();
+        refreshUi();
+
         if (getBooleanPreference("show_nav_bar", R.bool.show_nav_bar) && getIntent().getBooleanExtra("show_nav_bar", false)) {
             bottomNavigationView.setVisibility(VISIBLE);
         } else {
@@ -197,6 +200,10 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
 
     @Override
     protected void refreshUiReal() {
+        if (xmppConnectionService == null) {
+            return;
+        }
+
         if (postList.isEmpty()) {
             loadPosts();
         }
@@ -214,6 +221,12 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
         boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
+
+        // Show badge for new posts in bottom nav
+        long lastReadPosts = getPreferences().getLong("last_read_post_timestamp", 0);
+        boolean hasNewPosts = xmppConnectionService.databaseBackend.getPosts().stream().anyMatch(p -> p.getPublished() != null && p.getPublished().getTime() > lastReadPosts);
+        var postsBadge = bottomnav.getOrCreateBadge(R.id.feeds);
+        postsBadge.setVisible(hasNewPosts);
 
         // Show badge for missed calls in bottom nav
         boolean hasNewMissedCalls = xmppConnectionService.getNotificationService().hasNewMissedCalls();
@@ -243,7 +256,7 @@ public class PostsActivity extends XmppActivity implements XmppConnectionService
                 for (Contact contact : account.getRoster().getContacts()) {
                     if (contact.isFollowed()) {
                         sourcesToFetch.add(contact.getJid().asBareJid());
-                    } else if (contact.showInRoster()) {
+                    } else if (contact.showInRoster() && contact.getOption(Contact.Options.TO) && contact.getOption(Contact.Options.FROM)) {
                         mFollowSuggestions.add(contact);
                     }
                 }
