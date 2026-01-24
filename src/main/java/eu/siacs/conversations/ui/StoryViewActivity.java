@@ -272,67 +272,74 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                     .show();
             return true;
         } else if (itemId == R.id.action_reply_to_story) {
-            // Pause the story progress before showing the dialog
-            Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
-            if (currentFragment instanceof StoryFragment) {
-                ((StoryFragment) currentFragment).pauseStory();
-            }
-
             int currentPos = viewPager.getCurrentItem();
             if (mAccount != null) {
-                final LinearLayout container = new LinearLayout(this);
-                container.setOrientation(LinearLayout.VERTICAL);
-                final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                int margin = (int) (16 * getResources().getDisplayMetrics().density);
-                params.setMargins(margin, 0, margin, 0);
-                final TextInputEditText input = new TextInputEditText(this);
-                input.setLayoutParams(params);
-                input.setHint(R.string.compose_message_hint);
-                container.addView(input);
-
-                final AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.reply_to_story)
-                        .setView(container)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.send, (d, which) -> {
-                            final String text = input.getText() != null ? input.getText().toString() : "";
-                            Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
-                            String storyId = storyIds.get(currentPos);
-                            if (storyId == null) {
-                                return;
-                            }
-                            String storyUri = "xmpp:" + contact.asBareJid().toString() + "?;node=urn:xmpp:pubsub-social-feed:stories:0;item=" + storyId;
-                            final String messageBody = text.isEmpty() ? getString(R.string.reply_to_story) : text;
-
-                            Message storyMessage = new Message(
-                                    conversation,
-                                    messageBody,
-                                    conversation.getNextEncryption(),
-                                    Message.STATUS_SEND
-                            );
-                            Element reference = new Element("reference", "urn:xmpp:reference:0");
-                            reference.setAttribute("type", "data");
-                            reference.setAttribute("uri", storyUri);
-                            storyMessage.addPayload(reference);
-                            storyMessage.setType(Message.TYPE_STORY);
-
-                            Message.FileParams storyParams = new Message.FileParams();
-                            storyParams.url = storyUri;
-                            storyMessage.setFileParams(storyParams);
-
-                            xmppConnectionService.sendMessage(storyMessage);
-                            switchToConversation(conversation);
-                        })
-                        .create();
-
-                dialog.setOnDismissListener(d -> {
-                    // Resume story progress when the dialog is dismissed
-                    Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
-                    if (fragment instanceof StoryFragment) {
-                        ((StoryFragment) fragment).resumeStory();
+                Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
+                String storyTitle = titles.get(currentPos);
+                if (conversation.getNextEncryption() != Message.ENCRYPTION_NONE) {
+                    Message storyMessage = new Message(conversation, getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentPos) + "\"", conversation.getNextEncryption(), Message.STATUS_RECEIVED);
+                    conversation.setReplyTo(storyMessage);
+                    switchToConversation(conversation);
+                } else {
+                    // Pause the story progress before showing the dialog
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+                    if (currentFragment instanceof StoryFragment) {
+                        ((StoryFragment) currentFragment).pauseStory();
                     }
-                });
-                dialog.show();
+
+                    final LinearLayout container = new LinearLayout(this);
+                    container.setOrientation(LinearLayout.VERTICAL);
+                    final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    int margin = (int) (16 * getResources().getDisplayMetrics().density);
+                    params.setMargins(margin, 0, margin, 0);
+                    final TextInputEditText input = new TextInputEditText(this);
+                    input.setLayoutParams(params);
+                    input.setHint(R.string.compose_message_hint);
+                    container.addView(input);
+
+                    final AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.reply_to_story)
+                            .setView(container)
+                            .setNegativeButton(R.string.cancel, null)
+                            .setPositiveButton(R.string.send, (d, which) -> {
+                                final String text = input.getText() != null ? input.getText().toString() : "";
+                                String storyId = storyIds.get(currentPos);
+                                if (storyId == null) {
+                                    return;
+                                }
+                                String storyUri = "xmpp:" + contact.asBareJid().toString() + "?;node=urn:xmpp:pubsub-social-feed:stories:0;item=" + storyId;
+                                final String messageBody = text.isEmpty() ? (storyTitle != null ? storyTitle : getString(R.string.reply_to_story)) : text;
+
+                                Message storyMessage = new Message(
+                                        conversation,
+                                        messageBody,
+                                        conversation.getNextEncryption(),
+                                        Message.STATUS_SEND
+                                );
+                                Element reference = new Element("reference", "urn:xmpp:reference:0");
+                                reference.setAttribute("type", "data");
+                                reference.setAttribute("uri", storyUri);
+                                storyMessage.addPayload(reference);
+                                storyMessage.setType(Message.TYPE_STORY);
+
+                                Message.FileParams storyParams = new Message.FileParams();
+                                storyParams.url = storyUri;
+                                storyMessage.setFileParams(storyParams);
+
+                                xmppConnectionService.sendMessage(storyMessage);
+                                switchToConversation(conversation);
+                            })
+                            .create();
+
+                    dialog.setOnDismissListener(d -> {
+                        // Resume story progress when the dialog is dismissed
+                        Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+                        if (fragment instanceof StoryFragment) {
+                            ((StoryFragment) fragment).resumeStory();
+                        }
+                    });
+                    dialog.show();
+                }
             }
             return true;
         }
