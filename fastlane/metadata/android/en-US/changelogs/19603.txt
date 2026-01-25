@@ -1,0 +1,28 @@
+* Initial Stories feature
+* Always show quote in reply to previous message
+* Allow editing chat background images
+* Allow editing chat background images for single chats too
+* Initial call log screen
+* Add blank line after quote fallback and reduce quote length 
+* Add option to disable calls per contact
+* Never fall back to iterative DNS for DNSSEC
+* Potentially fix double send files
+* Fix setting allow unencrypted reactions
+* Fix allow reply with file
+* Allow change account order after drag-and-drop 
+* Remove hardcoded DNS servers completely and improve DNS server setting
+* Initial social feed/micro blog support
+* Suggestions to follow contacts feeds
+* View markdown in posts
+* Real replies to stories (when unencrypted)
+* Add like button to posts
+* Clickable Hastags and search in feeds
+* Shorten "send_encrypted_message" string
+* Temporary revert "Add preference for custom client resource name" to avoid conflicts
+* Show list of people who liked a post on long press
+* Refactor and update message retraction logic
+* Allow overriding the 'default_store_media_in_cache' setting
+* Make cache deletion time configurable
+* Set story title as quote in encrypted reply
+* Show notification badge for new posts
+* Update translations

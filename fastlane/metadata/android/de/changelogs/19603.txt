@@ -1,0 +1,28 @@
+* NEU: Stories Seite
+* Zitat in Antwort auf vorherige Nachricht immer anzeigen
+* Bearbeiten von Chat-Hintergrundbildern zulassen
+* Bearbeiten von Chat-Hintergrundbildern auch für einzelne Chats zulassen
+* NEU: Anrufprotokoll Seite
+* Leere Zeile nach Zitat-Fallback hinzufügen und Zitatlänge reduzieren 
+* NEU: Option zum Deaktivieren von Anrufen pro Kontakt hinzufügen
+* Niemals auf iteratives DNS für DNSSEC zurückgreifen
+* Möglicherweise doppelt gesendete Dateien beheben
+* Einstellung „Unverschlüsselte Reaktionen zulassen“ beheben
+* „Antwort mit Datei zulassen“ beheben
+* NEU: Ändern der Kontenreihenfolge nach Drag-and-Drop zulassen
+* Vollständiges Entfernen fest codierter DNS-Server und Verbessern der DNS-Server-Einstellung
+* NEU: Social Feeds/Microblog
+* Vorschläge zum Folgen von Kontakt-Feeds
+* Markdown in Beiträgen anzeigen
+* Echte Antworten auf Stories (wenn unverschlüsselt)
+* Like-Button zu Beiträgen hinzufügen
+* Anklickbare Hashtags und Suche in Feeds
+* Verkürzen der Zeichenfolge „send_encrypted_message”
+* Vorübergehende Rücknahme der Option „Einstellung für benutzerdefinierten Client-Ressourcennamen hinzufügen”, um Konflikte zu vermeiden
+* Anzeige einer Liste der Personen, denen ein Beitrag gefallen hat, bei langem Drücken
+* Überarbeitung und Aktualisierung der Logik zum Zurückziehen von Nachrichten
+* Überschreiben der Einstellung „default_store_media_in_cache” zulassen
+* Cache-Löschzeit konfigurierbar machen
+* Story-Titel als Zitat in verschlüsselter Antwort festlegen
+* Benachrichtigungsbadge für neue Beiträge anzeigen
+* Übersetzungen aktualisieren
