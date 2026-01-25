@@ -562,9 +562,8 @@
         	<implements>
         		<xmpp:SupportedXep>
         			<xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0424.html"/>
-        			<xmpp:status>partial</xmpp:status>
+        			<xmpp:status>complete</xmpp:status>
         			<xmpp:version>0.4.2</xmpp:version>
-        			<xmpp:note xml:lang='en'>Receiving retractions</xmpp:note>
         		</xmpp:SupportedXep>
         	</implements>
             <implements>
