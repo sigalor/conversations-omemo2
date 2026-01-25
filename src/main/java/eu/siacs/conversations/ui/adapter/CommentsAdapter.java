@@ -37,6 +37,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private final XmppActivity mActivity;
 
     private XmppConnectionService.OnCommentReceived mOnCommentReceived;
+    private XmppConnectionService.OnPostRetracted mOnPostRetracted;
+
 
     public CommentsAdapter(XmppActivity activity, Post post, List<Comment> comments) {
         this.mActivity = activity;
@@ -74,14 +76,43 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 }
             };
             mActivity.xmppConnectionService.addOnCommentReceivedListener(this.mOnCommentReceived);
+
+            this.mOnPostRetracted = new XmppConnectionService.OnPostRetracted() {
+                @Override
+                public void onPostRetracted(String postId) {
+                    mActivity.runOnUiThread(() -> {
+                        int position = -1;
+                        for (int i = 0; i < comments.size(); ++i) {
+                            if (comments.get(i).getId().equals(postId)) {
+                                position = i;
+                                break;
+                            }
+                        }
+                        if (position != -1) {
+                            comments.remove(position);
+                            notifyItemRemoved(position);
+                        }
+                    });
+                }
+
+                @Override
+                public void onPostRetractionFailed() {
+                }
+            };
+            mActivity.xmppConnectionService.addOnPostRetractedListener(this.mOnPostRetracted);
         }
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        if (mActivity.xmppConnectionService != null && this.mOnCommentReceived != null) {
-            mActivity.xmppConnectionService.removeOnCommentReceivedListener(this.mOnCommentReceived);
+        if (mActivity.xmppConnectionService != null) {
+            if (this.mOnCommentReceived != null) {
+                mActivity.xmppConnectionService.removeOnCommentReceivedListener(this.mOnCommentReceived);
+            }
+            if (this.mOnPostRetracted != null) {
+                mActivity.xmppConnectionService.removeOnPostRetractedListener(this.mOnPostRetracted);
+            }
         }
     }
 
