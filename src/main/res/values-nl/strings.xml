@@ -452,7 +452,7 @@
     <string name="large_images_only">Enkel grote afbeeldingen</string>
     <string name="battery_optimizations_enabled">Batterij-optimalisaties ingeschakeld</string>
     <string name="disable">Uitschakelen</string>
-    <string name="selection_too_large">Het gekozen vlak is te groot</string>
+    <string name="selection_too_large">Het geselecteerde vlak is te groot</string>
     <string name="no_accounts">(Geen actieve accounts)</string>
     <string name="this_field_is_required">Dit veld is vereist</string>
     <string name="correct_message">Corrigeren</string>
@@ -754,7 +754,7 @@
     <string name="conversations_backup">Back-up</string>
     <string name="event">Activiteit</string>
     <string name="open_backup">Back-up openen</string>
-    <string name="not_a_backup_file">Het geselecteerde bestand is geen monocles chat back-up</string>
+    <string name="not_a_backup_file">Het gekozen bestand is geen monocles chat back-up</string>
     <string name="account_already_setup">Dit account is al toegevoegd</string>
     <string name="please_enter_password">Voer het wachtwoord van dit account in</string>
     <string name="open_join_dialog">Deelnemen aan openbaar kanaal…</string>
@@ -1141,7 +1141,7 @@
     <string name="privacy_policy">Privacybeleid</string>
     <string name="contact_list_integration_not_available">Integratie met je adresboek is niet beschikbaar</string>
     <string name="delete_and_close">Gesprek afsluiten &amp; archiveren</string>
-    <string name="no_certificate_selected">Geen cliëntcertificaat geselecteerd!</string>
+    <string name="no_certificate_selected">Geen cliëntcertificaat gekozen!</string>
     <string name="pref_title_security">Beveiliging</string>
     <string name="pref_summary_security">E2E-versleuteling, blind vertrouwen vóór verificatie, MITM-detectie</string>
     <string name="unified_push_summary">Dien als relay voor UnifiedPush-meldingen naar andere compatible apps</string>
@@ -1645,4 +1645,19 @@
     <string name="like_removed">Waardering verwijderd</string>
     <string name="error_removing_like">Waardering kon niet worden verwijderd</string>
     <string name="choose_account_for_like">Bericht waarderen met</string>
+    <plurals name="liked_by_title">
+        <item quantity="one">Gewaardeerd door %d persoon</item>
+        <item quantity="other">Gewaardeerd door %d personen</item>
+    </plurals>
+    <string name="account_not_connected">Gekozen account is niet online</string>
+    <string name="add_a_comment">Reageren</string>
+    <string name="unlike_with_account">Waardering wissen met</string>
+    <string name="account_that_liked_post_is_offline">Het account dat gebruikt werd voor deze waardering is offline.</string>
+    <string name="three_months">3 maanden</string>
+    <string name="one_month">1 maand</string>
+    <string name="two_weeks">2 weken</string>
+    <string name="one_week">1 week</string>
+    <string name="three_days">3 dagen</string>
+    <string name="one_day">1 dag</string>
+    <string name="pref_cache_deletion_time">Bestanden uit cache verwijderen na</string>
 </resources>

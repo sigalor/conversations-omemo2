@@ -1716,4 +1716,11 @@
         <item quantity="many">%d людей уподобало</item>
         <item quantity="other">%d людей уподобало</item>
     </plurals>
+    <string name="one_day">1 день</string>
+    <string name="three_days">3 дні</string>
+    <string name="one_week">1 тиждень</string>
+    <string name="two_weeks">2 тижні</string>
+    <string name="one_month">1 місяць</string>
+    <string name="three_months">3 місяці</string>
+    <string name="pref_cache_deletion_time">Видаляти файли з кешу через</string>
 </resources>

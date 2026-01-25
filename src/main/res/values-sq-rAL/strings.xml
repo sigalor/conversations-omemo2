@@ -1663,4 +1663,7 @@
         <item quantity="one">Pëlqyer nga %d person</item>
         <item quantity="other">Pëlqyer nga %d vetë</item>
     </plurals>
+    <string name="three_days">3 ditë</string>
+    <string name="pref_cache_deletion_time">Fshiji kartelat te fshehtina pas</string>
+    <string name="one_day">1 ditë</string>
 </resources>

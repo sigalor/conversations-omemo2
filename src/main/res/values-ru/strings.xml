@@ -1697,4 +1697,11 @@
         <item quantity="many">Понравилось %d человек</item>
         <item quantity="other">Понравилось %d человек</item>
     </plurals>
+    <string name="pref_cache_deletion_time">Удалите файлы из кэша после</string>
+    <string name="one_day">1 день</string>
+    <string name="three_days">3 дня</string>
+    <string name="one_week">1 неделя</string>
+    <string name="two_weeks">2 недели</string>
+    <string name="one_month">1 месяй</string>
+    <string name="three_months">3 месяца</string>
 </resources>
