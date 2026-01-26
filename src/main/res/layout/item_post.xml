@@ -86,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/ic_attach_file_white_24dp"
+                android:src="@drawable/ic_attach_file_24dp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/post_title"
                 app:layout_constraintEnd_toEndOf="parent"
