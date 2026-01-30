@@ -120,7 +120,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             AvatarWorkerTask.loadAvatar(conversation, holder.storyImage, R.dimen.avatar_on_conversation_overview);
         } else {
             holder.storyTitle.setText(jid.asBareJid().toString());
-            holder.storyImage.setImageResource(R.drawable.ic_person_black_48dp);
+            holder.storyImage.setImageResource(R.drawable.ic_person_48dp);
         }
 
         holder.storyTime.setText(DateUtils.getRelativeTimeSpanString(story.getPublished(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
