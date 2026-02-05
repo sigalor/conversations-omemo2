@@ -1209,8 +1209,10 @@ public class MessageParser extends AbstractParser
                                 replacementId,
                                 counterpart);
                 if (replacedMessage != null) {
+                    final boolean isRetraction = replaceElement != null && !replaceElement.getName().equals("replace");
                     final boolean fingerprintsMatch =
-                            replacedMessage.getFingerprint() == null
+                            isRetraction
+                                    || replacedMessage.getFingerprint() == null
                                     || replacedMessage
                                     .getFingerprint()
                                     .equals(message.getFingerprint());
