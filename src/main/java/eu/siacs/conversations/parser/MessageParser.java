@@ -1202,12 +1202,8 @@ public class MessageParser extends AbstractParser
                 updateLastseen(account, from);
             }
 
-            // Old but working message retraction and moderation
             if (replacementId != null && mXmppConnectionService.allowMessageCorrection()) {
-                final Message replacedMessage =
-                        conversation.findMessageWithRemoteIdAndCounterpart(
-                                replacementId,
-                                counterpart);
+                final Message replacedMessage = conversation.findSentMessageWithUuidOrRemoteId(replacementId, true, true);
                 if (replacedMessage != null) {
                     final boolean isRetraction = replaceElement != null && !replaceElement.getName().equals("replace");
                     final boolean fingerprintsMatch =
