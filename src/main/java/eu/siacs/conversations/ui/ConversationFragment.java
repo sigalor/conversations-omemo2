@@ -1299,7 +1299,7 @@ public class ConversationFragment extends XmppFragment
         }
 
         if (hasAttachments) {
-            conversation.setCaption(body.toString());
+            conversation.setCaption(body.length() > 0 ? body.toString() : null);
             commitAttachments();
             messageSent();
             return;
