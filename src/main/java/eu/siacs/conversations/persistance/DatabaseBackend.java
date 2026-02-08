@@ -109,7 +109,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 66;
+    private static final int DATABASE_VERSION = 67;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -385,6 +385,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + eu.siacs.conversations.entities.Post.CONTENT + " TEXT,"
                     + eu.siacs.conversations.entities.Post.ATTACHMENT_URL + " TEXT,"
                     + eu.siacs.conversations.entities.Post.ATTACHMENT_TYPE + " TEXT,"
+                    + eu.siacs.conversations.entities.Post.LINK_URL + " TEXT,"
                     + eu.siacs.conversations.entities.Post.PUBLISHED + " NUMBER,"
                     + eu.siacs.conversations.entities.Post.COMMENTS_NODE + " TEXT,"
                     + "FOREIGN KEY(" + eu.siacs.conversations.entities.Post.ACCOUNT_UUID + ") REFERENCES "
@@ -1327,6 +1328,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
         if (oldVersion < 66 && newVersion >= 66) {
             db.execSQL(CREATE_POSTS_TABLE);
+        }
+        if (oldVersion < 67 && newVersion >= 67) {
+            try {
+                db.execSQL("ALTER TABLE " + eu.siacs.conversations.entities.Post.TABLENAME + " ADD COLUMN " + eu.siacs.conversations.entities.Post.LINK_URL + " TEXT;");
+            } catch (final SQLiteException e) {
+                Log.e(Config.LOGTAG, "unable to add link_url column to posts table", e);
+            }
         }
     }
 

@@ -23,6 +23,7 @@ public class Post {
     public static final String ATTACHMENT_TYPE = "attachment_type";
     public static final String PUBLISHED = "published";
     public static final String COMMENTS_NODE = "comments_node";
+    public static final String LINK_URL = "link_url";
 
     private final String id;
     private final String title;
@@ -32,8 +33,9 @@ public class Post {
     private final String commentsNode;
     private final String attachmentUrl;
     private final String attachmentType;
+    private String linkUrl;
 
-    public Post(String id, String title, String content, Jid author, Date published, String commentsNode, String attachmentUrl, String attachmentType) {
+    public Post(String id, String title, String content, Jid author, Date published, String commentsNode, String attachmentUrl, String attachmentType, String linkUrl) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -42,6 +44,7 @@ public class Post {
         this.commentsNode = commentsNode;
         this.attachmentUrl = attachmentUrl;
         this.attachmentType = attachmentType;
+        this.linkUrl = linkUrl;
     }
 
     public static Post fromElement(Element item) {
@@ -81,6 +84,8 @@ public class Post {
         String commentsNode = null;
         String attachmentUrl = null;
         String attachmentType = null;
+        String linkUrl = null;
+
         for (Element child : entry.getChildren()) {
             if ("link".equals(child.getName()) && Namespace.ATOM.equals(child.getNamespace())) {
                 String rel = child.getAttribute("rel");
@@ -89,11 +94,13 @@ public class Post {
                 } else if ("enclosure".equals(rel)) {
                     attachmentUrl = child.getAttribute("href");
                     attachmentType = child.getAttribute("type");
+                } else if ("related".equals(rel)) {
+                    linkUrl = child.getAttribute("href");
                 }
             }
         }
 
-        return new Post(id, title, content, author, published, commentsNode, attachmentUrl, attachmentType);
+        return new Post(id, title, content, author, published, commentsNode, attachmentUrl, attachmentType, linkUrl);
     }
 
     public String getId() {
@@ -128,6 +135,10 @@ public class Post {
         return attachmentType;
     }
 
+    public String getLinkUrl() {
+        return linkUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -143,8 +154,7 @@ public class Post {
 
 
     public static Post fromCursor(android.database.Cursor cursor) {
-        final String uuid = cursor.getString(cursor.getColumnIndex(UUID));
-        final String authorJidStr = cursor.getString(cursor.getColumnIndex(AUTHOR_JID));
+        final String uuid = cursor.getString(cursor.getColumnIndex(UUID));final String authorJidStr = cursor.getString(cursor.getColumnIndex(AUTHOR_JID));
         eu.siacs.conversations.xmpp.Jid authorJid = null;
         try {
             if(authorJidStr != null) {
@@ -157,9 +167,10 @@ public class Post {
         final String content = cursor.getString(cursor.getColumnIndex(CONTENT));
         final String attachmentUrl = cursor.getString(cursor.getColumnIndex(ATTACHMENT_URL));
         final String attachmentType = cursor.getString(cursor.getColumnIndex(ATTACHMENT_TYPE));
+        final String linkUrl = cursor.getString(cursor.getColumnIndex(LINK_URL));
         final long published = cursor.getLong(cursor.getColumnIndex(PUBLISHED));
         final String commentsNode = cursor.getString(cursor.getColumnIndex(COMMENTS_NODE));
-        return new Post(uuid, title, content, authorJid, new java.util.Date(published), commentsNode, attachmentUrl, attachmentType);
+        return new Post(uuid, title, content, authorJid, new java.util.Date(published), commentsNode, attachmentUrl, attachmentType, linkUrl);
     }
 
     public android.content.ContentValues getContentValues(eu.siacs.conversations.entities.Account account) {
@@ -171,6 +182,7 @@ public class Post {
         values.put(CONTENT, getContent());
         values.put(ATTACHMENT_URL, getAttachmentUrl());
         values.put(ATTACHMENT_TYPE, getAttachmentType());
+        values.put(LINK_URL, getLinkUrl());
         values.put(PUBLISHED, getPublished() != null ? getPublished().getTime() : 0);
         values.put(COMMENTS_NODE, getCommentsNode());
         return values;

@@ -826,12 +826,15 @@ public class IqGenerator extends AbstractGenerator {
         return iq;
     }
 
-    public Iq publishPost(final Account account, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId) {
+    public Iq publishPost(final Account account, final String title, final String content,
+                          final String attachmentUrl, final String attachmentType, final String postId, final String linkUrl) {
         final Element item = new Element("item");
         item.setAttribute("id", postId);
         final Element entry = item.addChild("entry", Namespace.ATOM);
 
-        entry.addChild("id").setContent("urn:uuid:" + postId);
+        final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
+        final String date = now.substring(0, 10);
+        entry.addChild("id").setContent("tag:" + account.getServer() + "," + date + ":" + postId);
 
         entry.addChild("link")
                 .setAttribute("rel", "replies")
@@ -839,16 +842,21 @@ public class IqGenerator extends AbstractGenerator {
                 .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + postId);
 
         if (title != null) {
-            entry.addChild("title").setContent(title);
+            entry.addChild("title").setAttribute("type", "text").setContent(title);
         }
         if (content != null) {
-            entry.addChild("content").setContent(content);
+            entry.addChild("content").setAttribute("type", "text").setContent(content);
         }
         if (attachmentUrl != null && attachmentType != null) {
             entry.addChild("link")
                     .setAttribute("rel", "enclosure")
                     .setAttribute("href", attachmentUrl)
                     .setAttribute("type", attachmentType);
+        }
+        if (linkUrl != null && !linkUrl.isEmpty()) {
+            entry.addChild("link")
+                    .setAttribute("rel", "related")
+                    .setAttribute("href", linkUrl);
         }
         final Element author = entry.addChild("author");
         String name = account.getDisplayName();
@@ -857,9 +865,13 @@ public class IqGenerator extends AbstractGenerator {
         }
         author.addChild("name").setContent(name);
         author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
-        final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
+
+        entry.addChild("generator")
+                .setAttribute("uri", "https://monocles.chat")
+                .setAttribute("version", eu.siacs.conversations.BuildConfig.VERSION_NAME)
+                .setContent("monocles chat");
 
         return publish(Namespace.MICROBLOG, item, null);
     }

@@ -204,7 +204,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
             if (isExpanded && (isImage || isVideo)) {
                 binding.attachmentProgress.setVisibility(View.VISIBLE);
                 Glide.with(mActivity)
-                        .load(post.getAttachmentUrl())                        .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
+                        .load(post.getAttachmentUrl())
+                        .listener(new com.bumptech.glide.request.RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, @Nullable Object model, @NonNull com.bumptech.glide.request.target.Target<Drawable> target, boolean isFirstResource) {
                                 binding.attachmentProgress.setVisibility(View.GONE);
@@ -217,7 +218,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 return false;
                             }
                         })
-                        .into(binding.postImage);binding.postImage.setOnClickListener(v -> {
+                        .into(binding.postImage);
+                binding.postImage.setOnClickListener(v -> {
                     if (isImage) showImagePreviewDialog(post.getAttachmentUrl());
                     else showVideoPreviewDialog(post.getAttachmentUrl());
                 });
@@ -233,6 +235,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                     }
                 }
             }
+
+            if (isExpanded && post.getLinkUrl() != null) {
+                binding.postLink.setVisibility(View.VISIBLE);
+                binding.postLink.setText(post.getLinkUrl());
+            } else {
+                binding.postLink.setVisibility(View.GONE);
+            }
+
             if (mActivity.xmppConnectionService == null) {
                 binding.editButton.setVisibility(View.GONE);
                 binding.deleteButton.setVisibility(View.GONE);
@@ -246,7 +256,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                 binding.downloadButton.setOnClickListener(v -> {
                     if (postAccounts.size() == 1) {
                         downloadAttachment(postAccounts.get(0), post);
-                    } else {                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
+                    } else {
+                        showAccountSelectionDialog(mActivity.getString(R.string.choose_account_for_download), postAccounts, account -> downloadAttachment(account, post));
                     }
                 });
 

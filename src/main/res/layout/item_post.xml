@@ -100,10 +100,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/post_image"
-                app:layout_constraintEnd_toEndOf="@+id/post_image"
-                app:layout_constraintStart_toStartOf="@+id/post_image"
-                app:layout_constraintTop_toTopOf="@+id/post_image" />
+                app:layout_constraintBottom_toBottomOf="@id/post_image"
+                app:layout_constraintEnd_toEndOf="@id/post_image"
+                app:layout_constraintStart_toStartOf="@id/post_image"
+                app:layout_constraintTop_toTopOf="@id/post_image" />
 
             <ImageView
                 android:id="@+id/post_image"
@@ -152,7 +152,7 @@
                 android:maxLines="3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/post_image"
+                app:layout_constraintTop_toBottomOf="@id/post_image"
                 tools:text="This is the content of the post. It can be a long text spanning multiple lines." />
 
             <TextView
@@ -169,8 +169,20 @@
                 android:textColor="?android:attr/textColorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/post_image"
+                app:layout_constraintTop_toBottomOf="@id/post_image"
                 tools:text="This is the content of the post. It can be a long text spanning multiple lines." />
+
+            <TextView
+                android:id="@+id/post_link"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:autoLink="web"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_content_full"
+                tools:text="https://example.com" />
 
             <LinearLayout
                 android:id="@+id/post_actions"
@@ -179,7 +191,7 @@
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/post_content_full"
+                app:layout_constraintTop_toBottomOf="@id/post_link"
                 tools:visibility="visible">
 
                 <Button

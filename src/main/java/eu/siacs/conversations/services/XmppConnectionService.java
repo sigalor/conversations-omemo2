@@ -8189,7 +8189,9 @@ public class XmppConnectionService extends Service {
         void onPubsubItemsFetchFailed();
     }
 
-    public void publishPost(final Account account, final String title, final String content, final String attachmentUrl, final String attachmentType, final String postId, final OnPostPublished callback) {
+    public void publishPost(final Account account, final String title, final String content,
+                            final String attachmentUrl, final String attachmentType, final String postId, final String linkUrl,
+                            final OnPostPublished callback) {
         if (account == null) {
             if (callback != null) {
                 callback.onPostPublishFailed();
@@ -8201,7 +8203,7 @@ public class XmppConnectionService extends Service {
         final String idToPublish = isEdit ? postId : UUID.randomUUID().toString();
 
         final Runnable publicationRunnable = () -> {
-            final Iq request = getIqGenerator().publishPost(account, title, content, attachmentUrl, attachmentType, idToPublish);
+            final Iq request = getIqGenerator().publishPost(account, title, content, attachmentUrl, attachmentType, idToPublish, linkUrl);
             sendIqPacket(account, request, response2 -> {
                 if (response2.getType() == Iq.Type.RESULT) {
                     if (!isEdit) {
