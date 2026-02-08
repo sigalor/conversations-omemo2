@@ -132,6 +132,7 @@ public class CreatePostActivity extends XmppActivity {
             binding.attachFileButton.setVisibility(View.GONE);
             binding.attachImageButton.setVisibility(View.GONE);
             binding.attachVideoButton.setVisibility(View.GONE);
+            binding.postLinkEditText.setVisibility(View.GONE);
             binding.postPreview.setVisibility(View.VISIBLE);
             binding.postPreviewTitle.setText(postTitle);
             binding.postPreviewContent.setText(postContent);
@@ -142,9 +143,7 @@ public class CreatePostActivity extends XmppActivity {
         if (postId != null) {
             binding.postTitleEditText.setText(getIntent().getStringExtra("title"));
             binding.postContentEditText.setText(getIntent().getStringExtra("content"));
-            if (this.linkUrl != null) {
-                binding.postLinkEditText.setText(this.linkUrl);
-            }
+            binding.postLinkEditText.setText(getIntent().getStringExtra("link_url"));
             if (accountUuid != null) {
                 binding.accountSpinner.setVisibility(View.GONE);
             }
@@ -246,7 +245,8 @@ public class CreatePostActivity extends XmppActivity {
 
     private void publishPost() {
         String title = binding.postTitleEditText.getText().toString();
-        String content = binding.postContentEditText.getText().toString();    String linkUrl = binding.postLinkEditText.getText().toString();
+        String content = binding.postContentEditText.getText().toString();
+        String linkUrl = binding.postLinkEditText.getText().toString();
 
         if (title.isEmpty() && content.isEmpty() && attachmentUri == null && linkUrl.isEmpty()) {
             Toast.makeText(this, R.string.title_or_content_or_attachment_required, Toast.LENGTH_SHORT).show();
