@@ -274,6 +274,8 @@ public class CreatePostActivity extends XmppActivity {
                 return;
             }
 
+            binding.publishButton.setEnabled(false);
+
             if (inReplyToNode != null) {
                 xmppConnectionService.publishComment(selectedAccount, inReplyToNode, content, new XmppConnectionService.OnPostPublished() {
                     @Override
@@ -289,6 +291,7 @@ public class CreatePostActivity extends XmppActivity {
                     public void onPostPublishFailed() {
                         runOnUiThread(() -> {
                             Toast.makeText(CreatePostActivity.this, R.string.error_publish_comment, Toast.LENGTH_SHORT).show();
+                            binding.publishButton.setEnabled(true);
                         });
                     }
                 });
@@ -309,12 +312,15 @@ public class CreatePostActivity extends XmppActivity {
 
                         @Override
                         public void error(int errorCode, String object) {
-                            runOnUiThread(() -> Toast.makeText(CreatePostActivity.this, errorCode, Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Toast.makeText(CreatePostActivity.this, errorCode, Toast.LENGTH_SHORT).show();
+                                binding.publishButton.setEnabled(true);
+                            });
                         }
 
                         @Override
                         public void userInputRequired(PendingIntent pi, String object) {
-
+                            runOnUiThread(() -> binding.publishButton.setEnabled(true));
                         }
                     });
                 }
@@ -339,6 +345,7 @@ public class CreatePostActivity extends XmppActivity {
             public void onPostPublishFailed() {
                 runOnUiThread(() -> {
                     Toast.makeText(CreatePostActivity.this, R.string.error_publish_post, Toast.LENGTH_SHORT).show();
+                    binding.publishButton.setEnabled(true);
                 });
             }
         });
