@@ -293,7 +293,7 @@
                             android:textStyle="italic"
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_margin="8dp"
@@ -304,16 +304,29 @@
                                 android:layout_height="28dp"
                                 android:layout_alignParentLeft="true"
                                 android:layout_margin="8dp"
+                                android:layout_gravity="center_vertical"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:src="@drawable/ic_cancel_24dp" />
                             <TextView
                                 android:id="@+id/correction_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_weight="1"
                                 android:layout_margin="8dp"
                                 android:text="Correction"
                                 android:maxLines="1"
+                                android:layout_gravity="center_vertical"
                                 android:ellipsize="end" />
+
+                            <ImageButton
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_marginRight="12dp"
+                                android:contentDescription="@string/edit"
+                                android:layout_gravity="center_vertical"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:src="@drawable/ic_edit_24dp" />
                         </LinearLayout>
                     </RelativeLayout>
 
