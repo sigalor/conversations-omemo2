@@ -881,9 +881,9 @@ public class IqGenerator extends AbstractGenerator {
         Bundle options = new Bundle();
         options.putString("pubsub#node_type", "leaf");
         options.putString("pubsub#type", Namespace.PUBSUB_SOCIAL_FEED);
-        options.putString("pubsub#access_model", "roster");
+        options.putString("pubsub#access_model", "presence");
         options.putString("pubsub#persist_items", "1");
-        options.putString("pubsub#deliver_payloads", "1");
+        options.putString("pubsub#deliver_payloads", "0");
         options.putString("pubsub#send_last_published_item", "on_sub");
         options.putString("pubsub#max_items", "max");
         options.putString("pubsub#notify_retract", "1");
