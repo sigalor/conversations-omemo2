@@ -1,91 +1,124 @@
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
-🇬🇧🇺🇸… [English Readme version available here](README-en.md) / [Francais ici](README-fr.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md) / [Türkçe sürüm burada](README-tr.md)
+🇩🇪… [Deutsche Version der Readme hier verfügbar.](README-de.md) /  [Francais ici](README-fr.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md) / [Türkçe sürüm burada](README-tr.md)
 
-monocles chat ist moderner und sicherer Android XMPP-Client. Basierend auf blabber.im und der offiziellen Android-App [Conversations](https://github.com/siacs/Conversations) mit einigen Änderungen, insbesondere zur Verbesserung der Benutzerfreundlichkeit, um den Umstieg von oftmals vorinstallierten Messengern zu erleichtern. Die folgenden Bilder geben erste Eindrücke der App:
+monocles chat is a modern and secure Android XMPP client. Based on blabber.im and [Conversations](https://github.com/siacs/Conversations) but with a lot of changes and additional features.
+The changes aim to improve usability and ease transition from pre-installed and other widespread chats. Here are some screenshots:
 
 <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/00.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/01.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/02.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/03.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/04.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/05.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/06.png" width="200" /> <img src="https://codeberg.org/Arne/monocles_chat/raw/branch/master/fastlane/metadata/android/en-US/phoneScreenshots/07.png" width="200" />
 
-Vorschaubilder erstellt von Pigeonalley (https://pigeonalley.com)
+Screens designed by Pigeonalley (https://pigeonalley.com)
 
 ### Download
 
-Download ist hier möglich:
-<a href="https://f-droid.org/app/de.monocles.chat"><img src="https://f-droid.org/badge/get-it-on-de.png" alt="Jetzt bei F-Droid" height="100"></a>
-<a href="https://play.google.com/store/apps/details?id=eu.monocles.chat"><img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/art/GetItOnGooglePlay_Badge_Web_color_German.png" alt="Jetzt bei Google Play" height="100"></a>
+<a href="https://f-droid.org/app/de.monocles.chat"><img src="https://f-droid.org/badge/get-it-on-en.png" alt="Now on F-Droid" height="100"></a>
+<a href="https://play.google.com/store/apps/details?id=eu.monocles.chat"><img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/art/GetItOnGooglePlay_Badge_Web_color_English.png" alt="Now on Google Play" height="100"></a>
 
-### Social Media
+### Presettings
 
-Folge uns auf <a rel="me" href="https://monocles.social/@monocles">monocles social</a> 
+monocles chat has different presettings compared to blabber.im:
 
-#### monocles chat nightly bzw. beta
+* don't show previews of weblinks in chat
+* don't show previews of locations in chat
+* don't automatically download all attachments
 
-nightly oder beta Versionen kann man direkt hier von Codeberg unter [Releases](https://codeberg.org/Arne/monocles_chat/releases) herunterladen.
+### OTR
 
-#### Wie kann ich bei der Übersetzung helfen?
-Du kannst auf <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a> übersetzungen verbessern oder erstellen. Vielen Dank.
+monocles chat supports OTR encryption! Though it's not easy to use OTR does have some advantages:
+<a href="https://en.wikipedia.org/wiki/Off-the-Record_Messaging#Implementation">https://en.wikipedia.org/wiki/Off-the-Record_Messaging#Implementation</a>
 
-#### Ich habe Probleme, was soll ich tun?
-Am einfachsten ist es, wenn du unserer Support-Gruppe beitrittst, dort werden deine Probleme mit Sicherheit schnell gelöst. 
+## Download
+monocles chat is available for install in the F-Droid
+Alternatively beta-release APKs are available via codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases)
 
-Support-Chat: [support@conference.monocles.eu](https://monocles.chat)     
+#### monocles chat nightly and beta
 
-Development-Chat:  [development@conference.monocles.de](https://monocles.chat)     
+nightly or beta-release APKs are available via codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases)
+
+## Social Media
+Follow us on <a rel="me" href="https://monocles.social/@monocles">monocles social</a>
+
+There are also English and German speaking XMPP-room focusing on support and development of the monocles chat.
+
+If you are interested in the development of the chat, here is a MUC for you (English and German speaking):
+
+Development-Chat:  [development@conference.monocles.de](https://monocles.chat/)
 
 
-Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/monocles_chat/issues) ein Issue erstellen, in welchem du dein Problem genau beschreibst und welche Schritte erforderlich sind, um zu dem Problem zu gelangen. 
+There also is an Support-MUC where you can ask questions and get help with issues you may encounter, see further below for details.
 
-#### Wie erstelle ich Debug- bzw. ADB-Logs?
 
-##### Linux:
+## How can I support translations ?
+You can improve or create translations on <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a>. Thank you very much.
 
-1. Installation von ADB
-    ###### Debian und Derivate wie Ubuntu / Linux Mint
+
+
+## Help! I've encountered issues!
+The easiest way to get some help is to join our support-MUC (both English and German).
+
+Support-Chat invite link: [support@conference.monocles.de](https://monocles.chat/)
+
+If we can't fix your problem there, you can open an issue [here](https://codeberg.org/Arne/monocles_chat/issues), detailing your problem, how to reproduce it and provide logs. See instructions below on how to create log files.
+
+
+
+### How to create debug logs? (adb)
+
+#### GNU/Linux, OSX and other Unix-like systems:
+
+1. First install The **A**ndroid **D**ebugging **B**ridge, if not already present.
+    ###### Debian and derivates like Ubuntu / Linux Mint
     ```
     sudo apt-get update
-    sudo apt-get install adb
-    # For Debian Jessie and older
+    sudo apt-get update adb
+    # Debian Jessie or older:
     # sudo apt-get install android-tools-adb
     ```
-    ###### openSUSE 42.2 und 42.3
+    ###### openSUSE 42.2 and 42.3
     ```
     sudo zypper ref
     sudo zypper install android-tools
     ```
     ###### openSUSE Tumbleweed
-    hier muss für das benötigte Packet folgende Repo eingebunden werden (z.B. bequem über Yast):
+    here you need to add the following repo (e.g. via Yast):
     http://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/
-    
-    alternativ kann auch der `1 Click Installer` benutzt werden:    
+
+    alternatively you have the option to use the `1 Click installer`
     https://software.opensuse.org/package/android-tools
-    
-2. Navigiere im Terminal mit `cd` in das Verzeichnis deines Vertrauens
-3. Folge den Schritten [6] bis [10] unter [Windows]. s.u.
-4. Nun kannst du mit der Ausgabe der Debug-Logs beginnen. Nenne die Log-Datei bspw `logcat.txt`:
-   ```
-   $ adb -d logcat -v time | grep -i "monocles chat" > logcat.txt
-   ```
-5. Fahre nun mit den verbliebenen Schritten unter [Windows] ab Schritt [12] fort.
+    ###### other systems
+    install adb using a method appropriate for your system
 
-##### Windows:
+2. Now open a terminal in a directory of you're choice, or navigate to the directory using `cd`.
 
-1. Lade dir die SDK-Plattform-Tools für dein Betriebssystem von Google herunter:
-    
-    https://developer.android.com/studio/releases/platform-tools.html    
-2. Falls noch nicht getan, lade dir die ADB Treiber für dein Betriebssystem von Google herunter, für Windows hier:
-    
+3. Follow steps [6] to [10] of the Windows instructions.
+
+4. Start outputting your log to a file on your computer. We will be using `logcat.txt`. Enter:
+    ```
+    $ adb -d logcat -v time | grep -i "monocles chat" > logcat.txt
+    ```
+
+5. Follow the remaining steps [12] and [13] of the Windows instructions.
+
+
+#### Windows:
+
+1. Download Google's SDK-platform tools for your operating system:
+
+    https://developer.android.com/studio/releases/platform-tools.html
+2. In case they were not included: You also need the ADB_drivers for your version of Microsoft Windows:
+
     https://developer.android.com/studio/run/win-usb.html
-3. Entpacke die zip (z.B. nach C:\ADB\)
-4. Öffne die Kommandozeile (CMD) mit Start > Ausführen: cmd
-5. Wechsele in der Kommandozeile in das Verzeichnis C:\ADB wie folgt 
+3. Extract the zip-archive (e.g. to `C:\ADB\`)
+4. Open the command line (CMD) using the start menu:  Start > Execute: cmd
+5. Navigate to the directory you extracted the zip to as following. We will be using `C:\ADB\`
     ```
     c:
     cd ADB
-    ``` 
-6. Auf deinem Telefon gehst du in die Einstellungen und suchst nach dem Punkt `Entwickleroptionen`. Sollte dieser bei dir nicht vorhanden sein, musst du diese Optionen erst noch freischalten. Dazu wechselst du in den Einstellungen in den Punkt `über das Telefon` und suchst dort nach `Buildnummer` oder Ähnlichem. Diese Zeile musst Du mindestens 7 mal hintereinander antippen, es sollte dann ein Hinweis eingeblendet werden, der dir bestätigt, dass du nun Entwickler bist.
-7. In den `Entwickleroptionen` suchst du nach dem Eintrag `USB-Debugging` und aktivierst ihn.
-8. Schließe dein Handy mit dem USB-Kabel an deinen PC an. Die erforderlichen Treiber sollten zumindest in Windows automatisch installiert werden.
-9. Wenn alles ohne Fehler geklappt hat, kannst du wieder in die Kommandozeile gehen und testen, ob alles funktioniert. Gib dazu in CMD `adb devices -l` ein, es sollte in etwa sowas bei dir stehen:
+    ```
+6. On your smartphone open the settings and search for the item `Developer Options`. If this option is not already present on your phone you will need to unlock it beforehand. To do this navigate to `Settings > About phone`, there locate `Build number` (or similar) and tap it 7-times in succession. You should now see a notification, that you are now a developer. Congrats, `Developer Options` are now available in your settings menu.
+7. Inside `Developer Options` search activate the setting `USB-Debugging` (sometimes just called `Android Debugging`).
+8. Connect your phone to your computer via USB cable. The necessary drivers should now be downloaded and installed if not already present. On Windows all necessary drivers should be downloaded automatically if you followed step [2] beforehand. On most GNU/Linux systems no additional action is required.
+9. If everything worked out, you can now return to the command line and test if your device is being recognised. Enter `adb devices -l`; you should see output similar to:
     ```
     > adb devices -l
     List of devices attached
@@ -93,18 +126,16 @@ Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/
     * daemon started successfully *
     042111560169500303f4   unauthorized
     ```
-10. Falls dein Handy als `unauthorized` markiert wird, sollte am Handy eine Meldung `USB-Debugging zulassen?` kommen, diese mit `OK` bestätigen, sodass bei `adb devices` folgendes dort stehen sollte:
+10. If your devices is labelled as `unautorized`, you must first accept a prompt on your phone asking if debugging over USB should be allowed. When rerunning `adb devices` you should now see:
     ```
     > adb devices
-    List of devices attached 
+    List of devices attached
     042111560169500303f4    device
-    ```   
-11. Nun kannst du mit der Ausgabe der Debug-Logs beginnen. Dazu gibst du im CMD folgendes ein und die Ausgabe beginnt in die Datei `logcat.txt` im Verzeichnis `C:\ADB`:
+    ```
+11. Start outputting your log to a file on your computer. We will be using `logcat.txt` in `C:\ADB\`. Just enter the following (without `> ` into the command line):
     ```
     > adb -d logcat -v time | FINDSTR monocles_chat > logcat.txt
-    ``` 
-12. Führe nun die Schritte aus, die zum Fehler führen.
+    ```
+12. Now reproduce the issue encountered.
 
-13. Nachdem der Fehler reproduziert wurde, kann das Loggen im Terminal mit `Strg+C` beendet werden.
-
-14. Zum Schluss schaue dir die `logcat.txt` an, lösche ggf. persönliche Angaben und sende diese Datei zur Problemlösung mit einer Beschreibung des Fehlers und was man tun muss, um diesen Fehler zu erhalten, an mich. Nutz dafür den Menüpunkt [Issues](https://codeberg.org/Arne/monocles_chat/issues)
+13. Stop logging (`Ctrl+C`). Now take a close look at your log file and remove any personal and private information you may find before sending it together with a detailed description of your issue, instructions on how to reproduce to me. You can use GitHub's issue tracker: [Issues](https://github.com/kriztan/Monocles-Messenger/issues)
