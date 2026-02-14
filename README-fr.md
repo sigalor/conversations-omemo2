@@ -1,6 +1,6 @@
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
-🇩🇪… [Deutsche Version der Readme hier verfügbar.](README.md) / 🇬🇧🇺🇸… [English Readme version available here](README-en.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md) / [Türkçe sürüm burada](README-tr.md)
+🇩🇪… [Deutsche Version der Readme hier verfügbar.](README-de.md) / 🇬🇧🇺🇸… [English Readme version available here](README.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md) / [Türkçe sürüm burada](README-tr.md)
 
 monocles chat est un fork de blabber.im et [Conversations] (https://github.com/siacs/Conversations).
 Les changements visent à améliorer la convivialité et à faciliter la transition depuis les chats préinstallés et d'autres chats répandus. Voici quelques captures d'écran :

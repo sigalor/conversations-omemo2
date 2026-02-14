@@ -1,6 +1,6 @@
 # <img src="https://codeberg.org/monocles/monocles_chat/raw/branch/master/src/monocleschat/ic_launcher-playstore.png" width="30"> monocles chat
 
-🇩🇪… [Deutsche Version der Readme hier verfügbar.](README.md) /  [Francais ici](README-fr.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md) / [Türkçe sürüm burada](README-tr.md)
+🇩🇪… [Deutsche Version der Readme hier verfügbar.](README-de.md) /  [Francais ici](README-fr.md) / [Italiano qui](README-it.md) / [Przeczytaj po polsku](README-pl.md) / [Türkçe sürüm burada](README-tr.md)
 
 monocles chat modern ve güvenli bir Android XMPP istemcisidir. blabber.im ve [Conversations](https://github.com/siacs/Conversations) tabanlıdır ancak birçok değişiklik ve ek özellik içerir.
 Değişiklikler kullanılabilirliği iyileştirmeyi ve önceden yüklenmiş ve yaygın diğer sohbet uygulamalarından geçişi kolaylaştırmayı amaçlar. İşte bazı ekran görüntüleri:
