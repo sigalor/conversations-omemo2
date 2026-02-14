@@ -29,11 +29,11 @@ monocles chat wspiera także szyfrowanie metodą OTR! Mimo tego, że OTR może n
 
 ## Download
 Aplikację monocles chat możesz pobrać z F-Droida.
-Wersje beta możesz także pobrać z Codeberga: [Releases](https://codeberg.org/Arne/monocles_chat/releases) 
+Wersje beta możesz także pobrać z Codeberga: [Releases](https://codeberg.org/Arne/monocles_chat/releases)
 
 #### monocles chat nightly and beta
 
-Wersje testowe aplikacji możesz pobrać z Codeberga: [Releases](https://codeberg.org/Arne/monocles_chat/releases) 
+Wersje testowe aplikacji możesz pobrać z Codeberga: [Releases](https://codeberg.org/Arne/monocles_chat/releases)
 
 ## Social Media
 Obserwuj nas w serwisie <a rel="me" href="https://monocles.social/@monocles">monocles social</a>.
@@ -73,7 +73,7 @@ Jeżeli nie będziemy w stanie pomóc, możesz otworzyć zgłoszenie związane z
 Tutaj musisz dodać następujące repo (np. przez Yast):
 http://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/
 
-    alternatywnie można użyć `1 Click installer` 
+    alternatywnie można użyć `1 Click installer`
 https://software.opensuse.org/package/android-tools
 ###### inne systemy
 zainstaluj adb używając metody odpowiedniej dla twojego systemu
@@ -84,7 +84,7 @@ zainstaluj adb używając metody odpowiedniej dla twojego systemu
 
 4. Rozpocznij wypisywanie dziennika do pliku na komputerze. Będziemy używać pliku `logcat.txt`. Wpisz:
     `$ adb -d logcat -v time | grep -i "monocles chat" > logcat.txt`
- 
+
 5. Wykonaj pozostałe kroki [12] i [13] z instrukcji dla systemu Windows.
 
 
@@ -116,15 +116,15 @@ zainstaluj adb używając metody odpowiedniej dla twojego systemu
     ```
 
 10. Jeżeli twoje urządzenia są oznaczone jako `unauthorized`, musisz najpierw zaakceptować monit w telefonie z pytaniem, czy debugowanie przez USB powinno być dozwolone. Po ponownym uruchomieniu `adb devices` powinieneś/powinnaś zobaczyć:
-    
+
    ```
     > adb devices
-    List of devices attached 
+    List of devices attached
     042111560169500303f4    device
-    ```   
+    ```
 
 11. Rozpocznij rejestrację dzienników zdarzeń do pliku na komputerze. Na potrzeby poradnika będzie to plik `logcat.txt` w `C:\ADB\`. Wystarczy wpisać następujące polecenie (bez `> ` w wierszu poleceń):
-    
+
 ```
 > adb -d logcat -v time | FINDSTR monocles_chat > logcat.txt
  ```

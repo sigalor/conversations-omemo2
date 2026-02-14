@@ -29,11 +29,11 @@ monocles chat supports OTR encryption! Though it's not easy to use OTR does have
 
 ## Download
 monocles chat is available for install in the F-Droid
-Alternatively beta-release APKs are available via codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases) 
+Alternatively beta-release APKs are available via codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases)
 
 #### monocles chat nightly and beta
 
-nightly or beta-release APKs are available via codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases) 
+nightly or beta-release APKs are available via codeberg: [Releases](https://codeberg.org/Arne/monocles_chat/releases)
 
 ## Social Media
 Follow us on <a rel="me" href="https://monocles.social/@monocles">monocles social</a>
@@ -42,7 +42,7 @@ There are also English and German speaking XMPP-room focusing on support and dev
 
 If you are interested in the development of the chat, here is a MUC for you (English and German speaking):
 
-Development-Chat:  [development@conference.monocles.de](https://monocles.chat/)     
+Development-Chat:  [development@conference.monocles.de](https://monocles.chat/)
 
 
 There also is an Support-MUC where you can ask questions and get help with issues you may encounter, see further below for details.
@@ -54,9 +54,9 @@ You can improve or create translations on <a href="https://translate.codeberg.or
 
 
 ## Help! I've encountered issues!
-The easiest way to get some help is to join our support-MUC (both English and German).  
+The easiest way to get some help is to join our support-MUC (both English and German).
 
-Support-Chat invite link: [support@conference.monocles.de](https://monocles.chat/)     
+Support-Chat invite link: [support@conference.monocles.de](https://monocles.chat/)
 
 If we can't fix your problem there, you can open an issue [here](https://codeberg.org/Arne/monocles_chat/issues), detailing your problem, how to reproduce it and provide logs. See instructions below on how to create log files.
 
@@ -82,12 +82,12 @@ If we can't fix your problem there, you can open an issue [here](https://codeber
     ###### openSUSE Tumbleweed
     here you need to add the following repo (e.g. via Yast):
     http://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/
-    
-    alternatively you have the option to use the `1 Click installer` 
+
+    alternatively you have the option to use the `1 Click installer`
     https://software.opensuse.org/package/android-tools
     ###### other systems
-    install adb using a method appropriate for your system 
-    
+    install adb using a method appropriate for your system
+
 2. Now open a terminal in a directory of you're choice, or navigate to the directory using `cd`.
 
 3. Follow steps [6] to [10] of the Windows instructions.
@@ -103,10 +103,10 @@ If we can't fix your problem there, you can open an issue [here](https://codeber
 #### Windows:
 
 1. Download Google's SDK-platform tools for your operating system:
-    
-    https://developer.android.com/studio/releases/platform-tools.html    
+
+    https://developer.android.com/studio/releases/platform-tools.html
 2. In case they were not included: You also need the ADB_drivers for your version of Microsoft Windows:
-    
+
     https://developer.android.com/studio/run/win-usb.html
 3. Extract the zip-archive (e.g. to `C:\ADB\`)
 4. Open the command line (CMD) using the start menu:  Start > Execute: cmd
@@ -114,10 +114,10 @@ If we can't fix your problem there, you can open an issue [here](https://codeber
     ```
     c:
     cd ADB
-    ``` 
+    ```
 6. On your smartphone open the settings and search for the item `Developer Options`. If this option is not already present on your phone you will need to unlock it beforehand. To do this navigate to `Settings > About phone`, there locate `Build number` (or similar) and tap it 7-times in succession. You should now see a notification, that you are now a developer. Congrats, `Developer Options` are now available in your settings menu.
 7. Inside `Developer Options` search activate the setting `USB-Debugging` (sometimes just called `Android Debugging`).
-8. Connect your phone to your computer via USB cable. The necessary drivers should now be downloaded and installed if not already present. On Windows all necessary drivers should be downloaded automatically if you followed step [2] beforehand. On most GNU/Linux systems no additional action is required. 
+8. Connect your phone to your computer via USB cable. The necessary drivers should now be downloaded and installed if not already present. On Windows all necessary drivers should be downloaded automatically if you followed step [2] beforehand. On most GNU/Linux systems no additional action is required.
 9. If everything worked out, you can now return to the command line and test if your device is being recognised. Enter `adb devices -l`; you should see output similar to:
     ```
     > adb devices -l
@@ -129,13 +129,13 @@ If we can't fix your problem there, you can open an issue [here](https://codeber
 10. If your devices is labelled as `unautorized`, you must first accept a prompt on your phone asking if debugging over USB should be allowed. When rerunning `adb devices` you should now see:
     ```
     > adb devices
-    List of devices attached 
+    List of devices attached
     042111560169500303f4    device
-    ```   
+    ```
 11. Start outputting your log to a file on your computer. We will be using `logcat.txt` in `C:\ADB\`. Just enter the following (without `> ` into the command line):
     ```
     > adb -d logcat -v time | FINDSTR monocles_chat > logcat.txt
-    ``` 
+    ```
 12. Now reproduce the issue encountered.
 
 13. Stop logging (`Ctrl+C`). Now take a close look at your log file and remove any personal and private information you may find before sending it together with a detailed description of your issue, instructions on how to reproduce to me. You can use GitHub's issue tracker: [Issues](https://github.com/kriztan/Monocles-Messenger/issues)

@@ -16,7 +16,7 @@ Download ist hier möglich:
 
 ### Social Media
 
-Folge uns auf <a rel="me" href="https://monocles.social/@monocles">monocles social</a> 
+Folge uns auf <a rel="me" href="https://monocles.social/@monocles">monocles social</a>
 
 #### monocles chat nightly bzw. beta
 
@@ -26,14 +26,14 @@ nightly oder beta Versionen kann man direkt hier von Codeberg unter [Releases](h
 Du kannst auf <a href="https://translate.codeberg.org/projects/monocles_chat/">Codeberg Translate</a> übersetzungen verbessern oder erstellen. Vielen Dank.
 
 #### Ich habe Probleme, was soll ich tun?
-Am einfachsten ist es, wenn du unserer Support-Gruppe beitrittst, dort werden deine Probleme mit Sicherheit schnell gelöst. 
+Am einfachsten ist es, wenn du unserer Support-Gruppe beitrittst, dort werden deine Probleme mit Sicherheit schnell gelöst.
 
-Support-Chat: [support@conference.monocles.eu](https://monocles.chat)     
+Support-Chat: [support@conference.monocles.eu](https://monocles.chat)
 
-Development-Chat:  [development@conference.monocles.de](https://monocles.chat)     
+Development-Chat:  [development@conference.monocles.de](https://monocles.chat)
 
 
-Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/monocles_chat/issues) ein Issue erstellen, in welchem du dein Problem genau beschreibst und welche Schritte erforderlich sind, um zu dem Problem zu gelangen. 
+Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/monocles_chat/issues) ein Issue erstellen, in welchem du dein Problem genau beschreibst und welche Schritte erforderlich sind, um zu dem Problem zu gelangen.
 
 #### Wie erstelle ich Debug- bzw. ADB-Logs?
 
@@ -55,10 +55,10 @@ Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/
     ###### openSUSE Tumbleweed
     hier muss für das benötigte Packet folgende Repo eingebunden werden (z.B. bequem über Yast):
     http://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/
-    
-    alternativ kann auch der `1 Click Installer` benutzt werden:    
+
+    alternativ kann auch der `1 Click Installer` benutzt werden:
     https://software.opensuse.org/package/android-tools
-    
+
 2. Navigiere im Terminal mit `cd` in das Verzeichnis deines Vertrauens
 3. Folge den Schritten [6] bis [10] unter [Windows]. s.u.
 4. Nun kannst du mit der Ausgabe der Debug-Logs beginnen. Nenne die Log-Datei bspw `logcat.txt`:
@@ -70,18 +70,18 @@ Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/
 ##### Windows:
 
 1. Lade dir die SDK-Plattform-Tools für dein Betriebssystem von Google herunter:
-    
-    https://developer.android.com/studio/releases/platform-tools.html    
+
+    https://developer.android.com/studio/releases/platform-tools.html
 2. Falls noch nicht getan, lade dir die ADB Treiber für dein Betriebssystem von Google herunter, für Windows hier:
-    
+
     https://developer.android.com/studio/run/win-usb.html
 3. Entpacke die zip (z.B. nach C:\ADB\)
 4. Öffne die Kommandozeile (CMD) mit Start > Ausführen: cmd
-5. Wechsele in der Kommandozeile in das Verzeichnis C:\ADB wie folgt 
+5. Wechsele in der Kommandozeile in das Verzeichnis C:\ADB wie folgt
     ```
     c:
     cd ADB
-    ``` 
+    ```
 6. Auf deinem Telefon gehst du in die Einstellungen und suchst nach dem Punkt `Entwickleroptionen`. Sollte dieser bei dir nicht vorhanden sein, musst du diese Optionen erst noch freischalten. Dazu wechselst du in den Einstellungen in den Punkt `über das Telefon` und suchst dort nach `Buildnummer` oder Ähnlichem. Diese Zeile musst Du mindestens 7 mal hintereinander antippen, es sollte dann ein Hinweis eingeblendet werden, der dir bestätigt, dass du nun Entwickler bist.
 7. In den `Entwickleroptionen` suchst du nach dem Eintrag `USB-Debugging` und aktivierst ihn.
 8. Schließe dein Handy mit dem USB-Kabel an deinen PC an. Die erforderlichen Treiber sollten zumindest in Windows automatisch installiert werden.
@@ -96,13 +96,13 @@ Solltest du dort nicht weiter kommen kannst du [hier](https://codeberg.org/Arne/
 10. Falls dein Handy als `unauthorized` markiert wird, sollte am Handy eine Meldung `USB-Debugging zulassen?` kommen, diese mit `OK` bestätigen, sodass bei `adb devices` folgendes dort stehen sollte:
     ```
     > adb devices
-    List of devices attached 
+    List of devices attached
     042111560169500303f4    device
-    ```   
+    ```
 11. Nun kannst du mit der Ausgabe der Debug-Logs beginnen. Dazu gibst du im CMD folgendes ein und die Ausgabe beginnt in die Datei `logcat.txt` im Verzeichnis `C:\ADB`:
     ```
     > adb -d logcat -v time | FINDSTR monocles_chat > logcat.txt
-    ``` 
+    ```
 12. Führe nun die Schritte aus, die zum Fehler führen.
 
 13. Nachdem der Fehler reproduziert wurde, kann das Loggen im Terminal mit `Strg+C` beendet werden.

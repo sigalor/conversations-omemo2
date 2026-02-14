@@ -29,11 +29,11 @@ monocles chat OTR şifrelemesini destekler! Kullanımı kolay olmasa da OTR'nin 
 
 ## İndirme
 monocles chat F-Droid'den yükleme için mevcuttur
-Alternatif olarak beta sürüm APK'ları codeberg üzerinden edinilebilir: [Sürümler](https://codeberg.org/Arne/monocles_chat/releases) 
+Alternatif olarak beta sürüm APK'ları codeberg üzerinden edinilebilir: [Sürümler](https://codeberg.org/Arne/monocles_chat/releases)
 
 #### monocles chat gecelik sürüm ve beta
 
-Gecelik veya beta sürüm APK'ları codeberg üzerinden edinilebilir: [Sürümler](https://codeberg.org/Arne/monocles_chat/releases) 
+Gecelik veya beta sürüm APK'ları codeberg üzerinden edinilebilir: [Sürümler](https://codeberg.org/Arne/monocles_chat/releases)
 
 ## Sosyal Medya
 Bizi <a rel="me" href="https://monocles.social/@monocles">monocles social</a>'da takip edin
@@ -42,7 +42,7 @@ Ayrıca monocles chat'in desteği ve geliştirilmesine odaklanan İngilizce ve A
 
 Sohbet uygulamasının geliştirilmesiyle ilgileniyorsanız, işte sizin için bir MUC (İngilizce ve Almanca konuşulur):
 
-Geliştirme Sohbeti: [development@conference.monocles.de](https://monocles.chat/)     
+Geliştirme Sohbeti: [development@conference.monocles.de](https://monocles.chat/)
 
 
 Ayrıca soru sorabileceğiniz ve karşılaşabileceğiniz sorunlarla ilgili yardım alabileceğiniz bir Destek MUC'u da bulunmaktadır, ayrıntılar için aşağıya bakınız.
@@ -53,9 +53,9 @@ Ayrıca soru sorabileceğiniz ve karşılaşabileceğiniz sorunlarla ilgili yard
 
 
 ## Yardım edin! Sorunlarla karşılaştım!
-Yardım almanın en kolay yolu destek MUC'umuza katılmaktır (hem İngilizce hem de Almanca).  
+Yardım almanın en kolay yolu destek MUC'umuza katılmaktır (hem İngilizce hem de Almanca).
 
-Destek Sohbeti davet bağlantısı: [support@conference.monocles.de](https://monocles.chat/)     
+Destek Sohbeti davet bağlantısı: [support@conference.monocles.de](https://monocles.chat/)
 
 Sorununuzu orada çözemiyorsak, [buradan](https://codeberg.org/Arne/monocles_chat/issues) bir sorun açabilir, sorununuzu, nasıl yeniden uygulanabileceğini detaylandırabilir ve kayıt dosyaları sağlayabilirsiniz. Kayıt dosyalarının nasıl oluşturulacağına dair talimatlar için aşağıya bakınız.
 
@@ -81,12 +81,12 @@ Sorununuzu orada çözemiyorsak, [buradan](https://codeberg.org/Arne/monocles_ch
     ###### openSUSE Tumbleweed
     burada aşağıdaki depoyu eklemeniz gerekir (örn. Yast üzerinden):
     http://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/
-    
+
     alternatif olarak `1 Tıklamalı yükleyici` kullanma seçeneğiniz var
     https://software.opensuse.org/package/android-tools
     ###### diğer sistemler
     adb'yi sisteminiz için uygun bir yöntem kullanarak kurun
-    
+
 2. Şimdi seçtiğiniz bir dizinde bir terminal açın veya `cd` kullanarak dizine gidin.
 
 3. Windows talimatlarının [6] ile [10] adımlarını izleyin.
@@ -102,10 +102,10 @@ Sorununuzu orada çözemiyorsak, [buradan](https://codeberg.org/Arne/monocles_ch
 #### Windows:
 
 1. İşletim sisteminiz için Google'ın SDK platform araçlarını indirin:
-    
-    https://developer.android.com/studio/releases/platform-tools.html    
+
+    https://developer.android.com/studio/releases/platform-tools.html
 2. Dahil edilmemişlerse: Microsoft Windows sürümünüz için ADB sürücülerine de ihtiyacınız vardır:
-    
+
     https://developer.android.com/studio/run/win-usb.html
 3. Zip arşivini çıkarın (örn. `C:\ADB\` klasörüne)
 4. Başlat menüsünü kullanarak komut satırını (CMD) açın: Başlat > Çalıştır: cmd
@@ -113,7 +113,7 @@ Sorununuzu orada çözemiyorsak, [buradan](https://codeberg.org/Arne/monocles_ch
     ```
     c:
     cd ADB
-    ``` 
+    ```
 6. Akıllı telefonunuzda ayarları açın ve `Geliştirici Seçenekleri` öğesini arayın. Bu seçenek telefonunuzda henüz mevcut değilse, önce kilidi açmanız gerekecektir. Bunu yapmak için `Ayarlar > Telefon hakkında` bölümüne gidin, orada `Yapı numarası`nı (veya benzerini) bulun ve art arda 7 kez dokunun. Artık geliştirici olduğunuza dair bir bildirim görmelisiniz. Tebrikler, `Geliştirici Seçenekleri` artık ayarlar menünüzde mevcut.
 7. `Geliştirici Seçenekleri` içinde `USB Hata Ayıklama` ayarını arayın ve etkinleştirin (bazen sadece `Android Hata Ayıklama` olarak adlandırılır).
 8. Telefonunuzu USB kablosu ile bilgisayarınıza bağlayın. Gerekli sürücüler henüz mevcut değilse şimdi indirilmeli ve kurulmalıdır. Windows'ta önceden [2] adımını izlediyseniz gerekli tüm sürücüler otomatik olarak indirilmelidir. Çoğu GNU/Linux sisteminde ek işlem gerekmez.
@@ -128,13 +128,13 @@ Sorununuzu orada çözemiyorsak, [buradan](https://codeberg.org/Arne/monocles_ch
 10. Cihazınız `unauthorized` olarak etiketlenmişse, önce telefonunuzda USB üzerinden hata ayıklamaya izin verilip verilmeyeceğini soran bir istemi kabul etmelisiniz. `adb devices` komutunu tekrar çalıştırdığınızda şunu görmelisiniz:
     ```
     > adb devices
-    List of devices attached 
+    List of devices attached
     042111560169500303f4    device
-    ```   
+    ```
 11. Kayıt çıktınızı bilgisayarınızdaki bir dosyaya kaydetmeye başlayın. `C:\ADB\` içinde `logcat.txt` kullanacağız. Komut satırına aşağıdakini girin (`> ` olmadan):
     ```
     > adb -d logcat -v time | FINDSTR monocles_chat > logcat.txt
-    ``` 
+    ```
 12. Şimdi karşılaşılan sorunu yeniden uygulayın.
 
 13. Kaydetmeyi durdurun (`Ctrl+C`). Şimdi kayıt dosyanıza yakından bakın ve göndermeden önce bulabileceğiniz kişisel ve özel bilgileri kaldırın. Bunu, sorununuzun ayrıntılı açıklaması ve nasıl yeniden üretileceğine dair talimatlarla birlikte bana gönderin. GitHub'ın sorun izleyicisini kullanabilirsiniz: [Sorunlar](https://github.com/kriztan/Monocles-Messenger/issues)
