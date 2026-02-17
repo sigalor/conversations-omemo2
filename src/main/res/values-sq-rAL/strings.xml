@@ -1666,4 +1666,9 @@
     <string name="three_days">3 ditë</string>
     <string name="pref_cache_deletion_time">Fshiji kartelat te fshehtina pas</string>
     <string name="one_day">1 ditë</string>
+    <string name="post_link">Shtoni një lidhje</string>
+    <string name="one_week">1 javë</string>
+    <string name="two_weeks">2 javë</string>
+    <string name="one_month">1 muaj</string>
+    <string name="three_months">3 muaj</string>
 </resources>

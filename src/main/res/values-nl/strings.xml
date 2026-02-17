@@ -806,7 +806,7 @@
     <string name="copy_GIFs_to_GIFs_folder">Importeer eigen GIF\'s via de app-instellingen</string>
     <string name="gif_deleted">GIF verwijderd</string>
     <string name="failed_to_delete_gif">GIF kon niet worden verwijderd</string>
-    <string name="update_default_stickers">Standaardstickers wijzigen</string>
+    <string name="update_default_stickers">Standaardstickers vernieuwen</string>
     <string name="add_to_home_screen">Toevoegen aan beginscherm</string>
     <string name="show_keyboard">Toetsenbord tonen</string>
     <string name="i_am_snikket_user">Ik gebruik Snikket</string>
@@ -1371,7 +1371,7 @@
     <string name="pref_chat_bubbles">Bubbels</string>
     <string name="pref_chat_bubbles_summary">Achtergrondkleur, avatars</string>
     <string name="pref_title_bubbles">Bubbels</string>
-    <string name="download_stickers_text">Wil je een aantal standaard stickerpakketten downloaden?</string>
+    <string name="download_stickers_text">Wil je een aantal stickerpakketten downloaden?</string>
     <string name="spam">Spam</string>
     <string name="archiving_not_enabled_text">heeft archivering niet volledig ingeschakeld. Dit kan resulteren in gemiste berichten als je meerdere apparaten of apps gebruikt.</string>
     <string name="moderate_recent_question">Wil je alle recente berichten van deze gebruiker modereren?</string>
@@ -1537,7 +1537,7 @@
     <string name="pref_always_show_full_timestamps_summary">Toon altijd de volledige datum en tijd in plaats van \"nu\", \"1 minuut geleden\", etc.</string>
     <string name="pref_skip_image_editor_screen">Afbeeldingen niet bewerken</string>
     <string name="pref_skip_image_editor_screen_summary">Voeg een afbeelding direct toe als bijlage, zonder deze eerst te openen voor aanpassingen</string>
-    <string name="update_default_stickers_summary">Standaardset stickers downloaden</string>
+    <string name="update_default_stickers_summary">Download de standaardset stickers</string>
     <string name="pref_clear_blocked_media_summary">Alle geblokkeerde media (inclusief avatars) weer toestaan</string>
     <string name="adele">Adele</string>
     <string name="amazon">Amazone</string>
