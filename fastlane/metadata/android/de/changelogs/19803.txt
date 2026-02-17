@@ -1,0 +1,8 @@
+* Zurückziehen von Nachrichten korrigiert
+* Als Link gesendete Bilder korrigiert
+* Unterstützung für Links in Posts hinzugefügt
+* Veröffentlichungsbutton nach dem Klicken deaktivieren, um doppelte Posts zu verhindern
+* Benutzeroberfläche zur Korrektur von Nachrichten überarbeitet
+* Crash in TagEditorView korrigiert
+* Zugriffsmodell für Social-Feed-Pubsub geändert
+* Übersetzungen aktualisiert

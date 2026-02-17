@@ -1,0 +1,8 @@
+* Fix message retraction
+* Fix images send as link
+* Add support for links in posts
+* Disable the publish button after clicked to prevent double posts
+* Refactor message correction UI
+* Fix infinite recursion in TagEditorView
+* Change social feed pubsub access model
+* Update translations
