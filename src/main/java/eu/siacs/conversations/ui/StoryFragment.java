@@ -101,26 +101,11 @@ public class StoryFragment extends Fragment {
             return false;
         });
 
-        progressBarContainer = view.findViewById(R.id.progress_bar_container);
+        progressBarContainer = requireActivity().findViewById(R.id.progress_bar_container);
         if (getArguments() != null) {
             urls = getArguments().getStringArrayList("urls");
         }
-        setupProgressBars();
         loadStory();
-    }
-
-    private void setupProgressBars() {
-        if (urls == null) {
-            return;
-        }
-        progressBarContainer.removeAllViews();
-        for (int i = 0; i < urls.size(); i++) {
-            ProgressBar progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(R.layout.story_progress_bar, progressBarContainer, false);
-            progressBar.setMax(1000);
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) progressBar.getLayoutParams();
-            params.weight = 1;
-            progressBarContainer.addView(progressBar);
-        }
     }
 
     public void loadStory() {
@@ -147,15 +132,11 @@ public class StoryFragment extends Fragment {
 
         progressBar.setVisibility(View.VISIBLE);
 
+        if (urls == null) {
+            return;
+        }
+
         final int currentPosition = urls.indexOf(url);
-
-        for (int i = 0; i < currentPosition; i++) {
-            ((ProgressBar) progressBarContainer.getChildAt(i)).setProgress(1000);
-        }
-        for (int i = currentPosition; i < urls.size(); i++) {
-            ((ProgressBar) progressBarContainer.getChildAt(i)).setProgress(0);
-        }
-
 
         if (mimeType != null && mimeType.startsWith("video/")) {
             imageView.setVisibility(View.GONE);
@@ -165,19 +146,20 @@ public class StoryFragment extends Fragment {
                     mListener.onNextStory();
                 }
             });
-                Glide.with(this)
-                        .asFile()
-                        .load(url)
-                        .into(new CustomTarget<File>() {
-                            @Override
-                            public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
-                                if (!isAdded()) return;
-                                videoView.setVideoURI(Uri.fromFile(resource));
-                                videoView.setOnPreparedListener(mp -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    mp.setLooping(false);
-                                    videoView.start();
-                                    final int duration = mp.getDuration();
+            Glide.with(this)
+                    .asFile()
+                    .load(url)
+                    .into(new CustomTarget<File>() {
+                        @Override
+                        public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
+                            if (!isAdded()) return;
+                            videoView.setVideoURI(Uri.fromFile(resource));
+                            videoView.setOnPreparedListener(mp -> {
+                                progressBar.setVisibility(View.GONE);
+                                mp.setLooping(false);
+                                videoView.start();
+                                final int duration = mp.getDuration();
+                                if (progressBarContainer.getChildCount() > currentPosition) {
                                     final ProgressBar currentStoryProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
                                     if (currentStoryProgressBar != null) {
                                         videoProgressRunnable = new Runnable() {
@@ -193,60 +175,62 @@ public class StoryFragment extends Fragment {
                                         };
                                         videoProgressHandler.post(videoProgressRunnable);
                                     }
-                                });
-                            }
+                                }
+                            });
+                        }
 
-                            @Override
-                            public void onLoadCleared(@Nullable Drawable placeholder) {
-                                // Do nothing
-                            }
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            // Do nothing
+                        }
 
-                            @Override
-                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                super.onLoadFailed(errorDrawable);
-                                if (!isAdded()) return;
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+                            if (!isAdded()) return;
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
+                        }
+                    });
         } else {
             videoView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             Glide.with(this)
                     .load(url)
                     .listener(new RequestListener<Drawable>() {
-    @Override
-    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-        if (isAdded()) {
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
-        }
-        return false;
-    }
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            if (isAdded()) {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), R.string.download_failed_file_not_found, Toast.LENGTH_SHORT).show();
+                            }
+                            return false;
+                        }
 
-    @Override
-    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource
-    dataSource, boolean isFirstResource) {
-        if (isAdded()) {
-            progressBar.setVisibility(View.GONE);
-        }
-        return false;
-    }
-})
-        .into(imageView);
-            final ProgressBar currentProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
-            currentAnimator = ObjectAnimator.ofInt(currentProgressBar, "progress", 0, 1000);
-            currentAnimator.setDuration(STORY_DURATION_MS);
-            currentAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    if (mListener != null) {
-                        mListener.onNextStory();
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            if (isAdded()) {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                            return false;
+                        }
+                    })
+                    .into(imageView);
+            if (progressBarContainer.getChildCount() > currentPosition) {
+                final ProgressBar currentProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
+                currentAnimator = ObjectAnimator.ofInt(currentProgressBar, "progress", 0, 1000);
+                currentAnimator.setDuration(STORY_DURATION_MS);
+                currentAnimator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        if (mListener != null) {
+                            mListener.onNextStory();
+                        }
                     }
-                }
-            });
-            currentAnimator.start();
+                });
+                currentAnimator.start();
+            }
         }
     }
 

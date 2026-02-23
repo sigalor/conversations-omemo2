@@ -110,6 +110,16 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 updateUiForPosition(position);
+                for (int i = 0; i < progressBarContainer.getChildCount(); ++i) {
+                    ProgressBar pb = (ProgressBar) progressBarContainer.getChildAt(i);
+                    if (pb != null) {
+                        if (i < position) {
+                            pb.setProgress(pb.getMax());
+                        } else {
+                            pb.setProgress(0);
+                        }
+                    }
+                }
             }
         });
         updateUiForPosition(0);
@@ -142,19 +152,10 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         Contact storyContact = null;
         if (contact != null && xmppConnectionService != null) {
             for (Account account : xmppConnectionService.getAccounts()) {
-                if (account.getStatus() == Account.State.ONLINE) {
-                    final Contact c = account.getRoster().getContact(contact);
-                    if (c != null) {
-                        storyContact = c;
-                        break;
-                    }
-                }
-            }
-            if (storyContact == null) {
-                for (Account account : xmppConnectionService.getAccounts()) {
-                    final Contact c = account.getRoster().getContact(contact);
-                    if (c != null) {
-                        storyContact = c;
+                final Contact c = account.getRoster().getContact(contact);
+                if (c != null) {
+                    storyContact = c;
+                    if (account.getStatus() == Account.State.ONLINE) {
                         break;
                     }
                 }
@@ -243,15 +244,20 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             finish();
             return true;
         } else if (itemId == R.id.action_delete_story) {
-            new MaterialAlertDialogBuilder(this)
+            Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (currentFragment instanceof StoryFragment) {
+                ((StoryFragment) currentFragment).pauseStory();
+            }
+            final AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.delete_story_dialog_title)
                     .setMessage(R.string.delete_story_dialog_message)
-                    .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    .setPositiveButton(R.string.delete, (d, which) -> {
                         xmppConnectionService.retractStory(mAccount, storyIds.get(viewPager.getCurrentItem()), new UiCallback<Void>() {
                             @Override
                             public void success(Void aVoid) {
                                 runOnUiThread(() -> {
                                     Toast.makeText(StoryViewActivity.this, R.string.story_deleted, Toast.LENGTH_SHORT).show();
+                                    setResult(RESULT_OK);
                                     finish();
                                 });
                             }
@@ -268,8 +274,14 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                         });
                     })
                     .setNegativeButton(R.string.cancel, null)
-                    .create()
-                    .show();
+                    .create();
+            dialog.setOnDismissListener(d -> {
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+                if (fragment instanceof StoryFragment) {
+                    ((StoryFragment) fragment).resumeStory();
+                }
+            });
+            dialog.show();
             return true;
         } else if (itemId == R.id.action_reply_to_story) {
             int currentPos = viewPager.getCurrentItem();
