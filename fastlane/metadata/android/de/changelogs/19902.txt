@@ -1,0 +1,4 @@
+* Pause und Fortsetzen der Story im Löschdialog
+* Korrekturen für die Handhabung des Fortschrittsbalkens und die Kontaktsuche für Stories
+* Korrekturen von Conversations
+* Aktualisierung der Übersetzungen

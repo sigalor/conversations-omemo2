@@ -1486,8 +1486,8 @@
     <string name="message_unpinned">Mesazhit iu hoq fiksimi</string>
     <string name="error_unpinning_message">S’u arrit të hiqej fiksim i mesazhit</string>
     <string name="error_pinning_message">S’u arrit të fiksohet mesazh</string>
-    <string name="failed_to_delete_gif_not_exist">S’u arrit të fshihej: S’u gjet GIF.</string>
-    <string name="failed_to_delete_sticker_not_exist">S’u arrit të fshihej: S’u gjet ngjitës.</string>
+    <string name="failed_to_delete_gif_not_exist">S’u arrit të fshihet: s’u gjet GIF.</string>
+    <string name="failed_to_delete_sticker_not_exist">S’u arrit të fshihet: S’u gjet ngjitës.</string>
     <string name="note_to_self_conversation_title">Shënim vetes (%1$s)</string>
     <string name="leave_group">Braktiseni grupin</string>
     <string name="sticker_preview_content_description">Paraparje e zmadhuar ngjitësi</string>

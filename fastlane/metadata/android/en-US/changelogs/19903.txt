@@ -1,0 +1,4 @@
+* Pause and resume story on delete dialog
+* Fixes for progress bar handling and contact lookup for stories
+* Fixes from Conversations
+* Update translations
