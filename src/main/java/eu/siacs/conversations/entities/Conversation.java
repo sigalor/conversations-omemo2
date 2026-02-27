@@ -621,8 +621,9 @@ public class Conversation extends AbstractEntity
     public Message findSentMessageWithUuidOrRemoteId(String id, boolean ignorestatus, boolean withedits) {
         synchronized (this.messages) {
             for (Message message : this.messages) {
-
-                if (id.equals(message.getUuid()) || ((message.getStatus() >= Message.STATUS_SEND || ignorestatus) && id.equals(message.getRemoteMsgId()))) {
+                if (id.equals(message.getUuid())
+                        || ((message.getStatus() >= Message.STATUS_SEND || ignorestatus)
+                        && (id.equals(message.getRemoteMsgId()) || (getMode() == MODE_MULTI && id.equals(message.getServerMsgId()))))) {
                     return message;
                 }
 
