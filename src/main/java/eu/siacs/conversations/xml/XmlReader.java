@@ -2,20 +2,15 @@ package eu.siacs.conversations.xml;
 
 import android.util.Log;
 import android.util.Xml;
-
 import eu.siacs.conversations.Config;
-
 import im.conversations.android.xmpp.ExtensionFactory;
-import im.conversations.android.xmpp.model.Extension;
 import im.conversations.android.xmpp.model.StreamElement;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class XmlReader implements Closeable {
 
@@ -92,7 +87,13 @@ public class XmlReader implements Closeable {
 			}
 
 		} catch (Throwable throwable) {
-			throw new IOException("xml parser mishandled "+throwable.getClass().getSimpleName()+"("+throwable.getMessage()+")", throwable);
+			throw new IOException(
+					"xml parser mishandled "
+							+ throwable.getClass().getSimpleName()
+							+ "("
+							+ throwable.getMessage()
+							+ ")",
+					throwable);
 		}
 		return null;
 	}
@@ -115,18 +116,18 @@ public class XmlReader implements Closeable {
 		if (depth >= XML_ELEMENT_MAX_DEPTH) {
 			throw new XmlMaxDepthReachedException();
 		}
-		final var attributes = currentTag.getAttributes();
-		final var namespace = attributes.get("xmlns");
+		final var namespace = currentTag.getAttributes().get("xmlns");
 		final var name = currentTag.getName();
 		final Element element = ExtensionFactory.create(name, namespace);
 		element.setAttributes(currentTag.getAttributes());
 		Tag nextTag = this.readTag();
-		if (nextTag.isNo()) {
-			element.setContent(nextTag.getName());
-			nextTag = this.readTag();
+		if (nextTag == null) {
+			throw new IOException("interrupted mid tag");
 		}
 		while (!nextTag.isEnd(element.getName())) {
-			if (!nextTag.isNo()) {
+			if (nextTag.isNo()) {
+				if (nextTag.getName() != null) element.addChild(new TextNode(nextTag.getName()));
+			} else {
 				final var child = this.readElement(nextTag, depth + 1);
 				element.addChild(child);
 			}
