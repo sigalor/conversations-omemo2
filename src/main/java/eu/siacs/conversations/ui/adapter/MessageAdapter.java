@@ -16,11 +16,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.Spanned;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
 import android.text.style.ImageSpan;
 import android.text.style.ClickableSpan;
 import android.text.format.DateUtils;
@@ -73,7 +73,6 @@ import com.google.android.material.shape.ShapeAppearanceModel;
 
 import de.monocles.chat.BobTransfer;
 import de.monocles.chat.InlineImageSpan;
-import de.monocles.chat.LinkClickDetector;
 import de.monocles.chat.MessageTextActionModeCallback;
 import de.monocles.chat.Util;
 import de.monocles.chat.WebxdcPage;
@@ -990,35 +989,35 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         viewHolder.messageBody().setMovementMethod(method);
     }
 
-    @NonNull
-    private BetterLinkMovementMethod getBetterLinkMovementMethod() {
-        BetterLinkMovementMethod method = new BetterLinkMovementMethod() {
-            @Override
-            protected void dispatchUrlLongClick(TextView tv, ClickableSpan span) {
-                if (span instanceof URLSpan || mOnInlineImageLongClickedListener == null) {
-                    tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
-                    super.dispatchUrlLongClick(tv, span);
-                    return;
-                }
+    private final BetterLinkMovementMethod mBetterLinkMovementMethod = new BetterLinkMovementMethod() {
+        @Override
+        protected void dispatchUrlLongClick(TextView tv, ClickableSpan span) {
+            if (span instanceof URLSpan || mOnInlineImageLongClickedListener == null) {
+                tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
+                super.dispatchUrlLongClick(tv, span);
+                return;
+            }
 
-                Spannable body = (Spannable) tv.getText();
-                ImageSpan[] imageSpans = body.getSpans(body.getSpanStart(span), body.getSpanEnd(span), ImageSpan.class);
-                if (imageSpans.length > 0) {
-                    Uri uri = Uri.parse(imageSpans[0].getSource());
-                    Cid cid = BobTransfer.cid(uri);
-                    if (cid == null) return;
-                    if (mOnInlineImageLongClickedListener.onInlineImageLongClicked(cid)) {
-                        tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
-                    }
+            Spannable body = (Spannable) tv.getText();
+            ImageSpan[] imageSpans = body.getSpans(body.getSpanStart(span), body.getSpanEnd(span), ImageSpan.class);
+            if (imageSpans.length > 0) {
+                Uri uri = Uri.parse(imageSpans[0].getSource());
+                Cid cid = BobTransfer.cid(uri);
+                if (cid == null) return;
+                if (mOnInlineImageLongClickedListener.onInlineImageLongClicked(cid)) {
+                    tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
                 }
             }
-        };
-        method.setOnLinkLongClickListener((tv, url) -> {
+        }
+    };
+
+    private BetterLinkMovementMethod getBetterLinkMovementMethod() {
+        mBetterLinkMovementMethod.setOnLinkLongClickListener((tv, url) -> {
             tv.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
             ShareUtil.copyLinkToClipboard(activity, url);
             return true;
         });
-        return  method;
+        return mBetterLinkMovementMethod;
     }
 
     private void displayDownloadableMessage(
@@ -2074,8 +2073,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             return true; // true is closing popup, false is requesting a new selection
         });
 
-        // Single click to show reaction. Don't show reactions popup When it is a link
-        LinkClickDetector.setupLinkClickDetector(viewHolder.messageBody());
         final boolean showError =
                 message.getStatus() == Message.STATUS_SEND_FAILED
                         && message.getErrorMessage() != null
@@ -2104,16 +2101,45 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                     return false;
                 });
 
+                final boolean[] isLinkGesture = {
+                        false
+                };
                 viewHolder.messageBody().setOnTouchListener((v, event) -> {
-                    boolean isLink = LinkClickDetector.isLinkClicked(viewHolder.messageBody(), event);
-                    if (event.getAction() == MotionEvent.ACTION_UP && !isLink) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        Layout layout = viewHolder.messageBody().getLayout();
+                        isLinkGesture[0] = false;
+                        if (layout != null) {
+                            int x = (int) event.getX() - viewHolder.messageBody().getTotalPaddingLeft() + viewHolder.messageBody().getScrollX();
+                            int y = (int) event.getY() - viewHolder.messageBody().getTotalPaddingTop() + viewHolder.messageBody().getScrollY();
+                            if (y >= 0 && y <= layout.getHeight()) {
+                                int line = layout.getLineForVertical(y);
+                                if (x >= layout.getLineLeft(line) && x <= layout.getLineRight(line)) {
+                                    int off = layout.getOffsetForHorizontal(line, x);
+                                    ClickableSpan[] links = ((Spannable) viewHolder.messageBody().getText()).getSpans(off, off, ClickableSpan.class);
+                                    isLinkGesture[0] = links.length > 0;
+                                }
+                            }
+                        }
+                    }
+
+                    if (isLinkGesture[0]) {
+                        return false;
+                    }
+
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
                         if (MessageAdapter.this.mOnMessageBoxClickedListener != null) {
                             popup.setFocusable(false);
                             popup.onTouch(v, event);
                             if (mConversationFragment != null) {
-                                // Store it in fragment to be able to cancel it.
                                 mConversationFragment.reactionPopup = popup;
                             }
+
+                            MotionEvent cancelEvent = MotionEvent.obtain(event.getDownTime(),
+                                    event.getEventTime(), MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
+                            v.onTouchEvent(cancelEvent);
+                            cancelEvent.recycle();
+
+                            return true;
                         }
                     }
                     return false;
