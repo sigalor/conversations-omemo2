@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -113,7 +114,11 @@ public class ConferenceDetailsActivity extends XmppActivity
             DestroyMucDialog.setTitle(groupChat ? R.string.destroy_room : R.string.destroy_channel);
             DestroyMucDialog.setMessage(getString(groupChat ? R.string.destroy_room_dialog : R.string.destroy_channel_dialog, mConversation.getName()));
             DestroyMucDialog.setPositiveButton(getString(R.string.delete), (dialogInterface, i) -> {
-                destroyRoom();
+                Intent intent = new Intent(xmppConnectionService, ConversationsActivity.class);
+                intent.setAction(ConversationsActivity.ACTION_DESTROY_MUC);
+                intent.putExtra("MUC_UUID", mConversation.getUuid());
+                Log.d(Config.LOGTAG, "Sending DESTROY intent for " + mConversation.getName());
+                startActivity(intent);
                 overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
                 deleteBookmark();
                 finish();

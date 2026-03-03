@@ -1664,4 +1664,8 @@
     <string name="one_month">1 month</string>
     <string name="three_months">3 months</string>
     <string name="post_link">Add a link</string>
+    <string name="destroy_room_succeed">Group chat successfully destroyed</string>
+    <string name="destroy_channel_succeed">Channel successfully destroyed</string>
+    <string name="destroy_room_failed">Group chat could not be destroyed</string>
+    <string name="destroy_channel_failed">Channel could not be destroyed</string>
 </resources>

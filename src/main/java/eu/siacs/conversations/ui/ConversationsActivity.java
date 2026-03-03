@@ -152,7 +152,7 @@ public class ConversationsActivity extends XmppActivity
         XmppConnectionService.OnRosterUpdate,
         OnUpdateBlocklist,
         XmppConnectionService.OnShowErrorToast,
-        XmppConnectionService.OnAffiliationChanged {
+        XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnRoomDestroy {
 
     public static final String ACTION_VIEW_CONVERSATION = "eu.siacs.conversations.action.VIEW";
     public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -168,6 +168,7 @@ public class ConversationsActivity extends XmppActivity
     public static final String EXTRA_NODE = "node";
     public static final String EXTRA_JID = "jid";
     public static final String EXTRA_MESSAGE_UUID = "messageUuid";
+    public static final String ACTION_DESTROY_MUC = "eu.siacs.conversations.DESTROY_MUC";
 
     private static final List<String> VIEW_AND_SHARE_ACTIONS =
             Arrays.asList(
@@ -1449,8 +1450,26 @@ public class ConversationsActivity extends XmppActivity
             } else {
                 pendingViewIntent.push(intent);
             }
+        } else if (intent != null && ACTION_DESTROY_MUC.equals(intent.getAction())) {
+            try {
+                final Bundle extras = intent.getExtras();
+                if (extras != null && extras.containsKey("MUC_UUID")) {
+                    Log.d(Config.LOGTAG, "Get " + intent.getAction() + " intent for " + extras.getString("MUC_UUID"));
+                    Conversation conversation = xmppConnectionService.findConversationByUuid(extras.getString("MUC_UUID"));
+                    ConversationsActivity.this.xmppConnectionService.clearConversationHistory(conversation);
+                    xmppConnectionService.destroyRoom(conversation, ConversationsActivity.this);
+                    endConversation(conversation);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         setIntent(createLauncherIntent(this));
+    }
+
+    public void endConversation(Conversation conversation) {
+        xmppConnectionService.archiveConversation(conversation);
+        onConversationArchived(conversation);
     }
 
     @Override
@@ -1839,5 +1858,19 @@ public class ConversationsActivity extends XmppActivity
 
     public PinnedMessageRepository getPinnedMessageRepository() {
         return new PinnedMessageRepository(this);
+    }
+
+    @Override
+    public void onRoomDestroySucceeded() {
+        Conversation conversation = ConversationFragment.getConversationReliable(this);
+        final boolean groupChat = conversation != null && conversation.isPrivateAndNonAnonymous();
+        displayToast(getString(groupChat ? R.string.destroy_room_succeed : R.string.destroy_channel_succeed));
+    }
+
+    @Override
+    public void onRoomDestroyFailed() {
+        Conversation conversation = ConversationFragment.getConversationReliable(this);
+        final boolean groupChat = conversation != null && conversation.isPrivateAndNonAnonymous();
+        displayToast(getString(groupChat ? R.string.destroy_room_failed : R.string.destroy_channel_failed));
     }
 }
