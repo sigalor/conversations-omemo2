@@ -1,0 +1,9 @@
+* pick channel binding fallback when server has no 0440
+* Allow camera/mic in command UI webview
+* Fix message moderation
+* Fix truncated text
+* Try to fix link click handling
+* Fix disappearing reactions popup
+* Fix MUC destruction
+* Fix crash when message body not spannable
+* Update translations

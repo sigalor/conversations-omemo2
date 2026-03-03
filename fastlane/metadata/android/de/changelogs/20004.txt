@@ -1,0 +1,9 @@
+* Kanalbindung-Fallback auswählen, wenn Server kein 0440 hat
+* Kamera/Mikrofon in Befehls-UI-Webansicht zulassen
+* Nachrichtenmoderation korrigieren
+* Abgeschnittenen Text korrigieren
+* Behandlung von Link-Klicks korrigieren
+* Verschwindendes Reaktions-Popup korrigieren
+* MUC-Zerstörung korrigieren
+* Absturz korrigieren, wenn Nachrichtentext nicht erweiterbar ist
+* Übersetzungen aktualisieren
