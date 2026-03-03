@@ -1671,4 +1671,7 @@
     <string name="two_weeks">2 javë</string>
     <string name="one_month">1 muaj</string>
     <string name="three_months">3 muaj</string>
+    <string name="destroy_room_succeed">U asgjësua me sukses fjalosje grupi</string>
+    <string name="destroy_room_failed">S’u asgjësua dot fjalosje grupi</string>
+    <string name="destroy_channel_succeed">Kanali u asgjësua me sukses</string>
 </resources>

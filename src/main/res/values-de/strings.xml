@@ -1672,4 +1672,8 @@
     <string name="one_month">1 Monat</string>
     <string name="three_months">3 Monate</string>
     <string name="post_link">Füge Link hinzu</string>
+    <string name="destroy_room_succeed">Gruppenchat erfolgreich gelöscht</string>
+    <string name="destroy_channel_succeed">Channel erfolgreich gelöscht</string>
+    <string name="destroy_room_failed">Der Gruppenchat konnte nicht gelöscht werden</string>
+    <string name="destroy_channel_failed">Channel konnte nicht gelöscht werden</string>
 </resources>

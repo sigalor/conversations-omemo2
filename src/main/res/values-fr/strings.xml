@@ -639,7 +639,7 @@
     </plurals>
     <plurals name="months">
         <item quantity="one">%d mois</item>
-        <item quantity="many">%d mois</item>
+        <item quantity="many">%d de mois</item>
         <item quantity="other">%d mois</item>
     </plurals>
     <string name="pref_automatically_delete_messages">Suppression messages auto</string>
@@ -771,7 +771,7 @@
     <string name="phone_number">Numéro de téléphone</string>
     <string name="verify_your_phone_number">Vérifier votre numéro de téléphone</string>
     <string name="enter_country_code_and_phone_number">Quicksy va envoyer un message SMS (des frais opérateurs sont possibles) pour vérifier votre numéro de téléphone. Saisissez votre code de pays et votre numéro de téléphone :</string>
-    <string name="we_will_be_verifying"><![CDATA[Nous vérifierons le numéro de téléphone<br/><br/><b>%s</b><br/><br/>. Est-ce correct ou souhaitez-vous modifier le numéro ?]]></string>
+    <string name="we_will_be_verifying"><![CDATA[Nous allons vérifier le numéro de téléphone<br/><br/><b>%s</b><br/><br/>Est-ce correct ou souhaitez-vous modifier le numéro ?]]></string>
     <string name="not_a_valid_phone_number">%s n\'est pas un numéro de téléphone valide.</string>
     <string name="please_enter_your_phone_number">Veuillez saisir votre numéro de téléphone.</string>
     <string name="search_countries">Recherche de pays</string>
@@ -1217,9 +1217,9 @@
     <string name="more_reactions">Plus de réactions</string>
     <string name="choose_emoji">Choisir des emojis</string>
     <string name="show_keyboard">Montrer le clavier</string>
-    <string name="emojis">Emojis</string>
+    <string name="emojis">Émojis</string>
     <string name="stickers">Autocollant</string>
-    <string name="gifs">GIFs</string>
+    <string name="gifs">GIF</string>
     <string name="update_default_stickers">Mettre à jour les autocollants par défaut</string>
     <string name="copy_GIFs_to_GIFs_folder">Copier les GIFs dans le dossier des GIFs</string>
     <string name="gif_deleted">GIF supprimé</string>

@@ -1722,4 +1722,8 @@
     <string name="three_months">3 місяці</string>
     <string name="pref_cache_deletion_time">Видаляти файли з кешу через</string>
     <string name="post_link">Додати посилання</string>
+    <string name="destroy_room_failed">Не вдалося вилучити груповий чат</string>
+    <string name="destroy_channel_failed">Не вдалося закрити канал</string>
+    <string name="destroy_room_succeed">Груповий чат успішно видалено</string>
+    <string name="destroy_channel_succeed">Канал успішно видалено</string>
 </resources>

@@ -1664,4 +1664,9 @@
     <string name="two_weeks">2 hafta</string>
     <string name="one_month">1 ay</string>
     <string name="three_months">3 ay</string>
+    <string name="post_link">Bağlantı ekle</string>
+    <string name="destroy_room_succeed">Grup sohbeti başarıyla yok edildi</string>
+    <string name="destroy_channel_succeed">Kanal başarıyla yok edildi</string>
+    <string name="destroy_room_failed">Grup sohbeti silinemedi</string>
+    <string name="destroy_channel_failed">Kanal silinemedi</string>
 </resources>

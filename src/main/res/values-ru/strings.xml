@@ -200,13 +200,13 @@
     <string name="server_info_available">доступно</string>
     <string name="server_info_unavailable">недоступно</string>
     <string name="missing_public_keys">Отсутствие анонсирования открытых ключей</string>
-    <string name="last_seen_now">Был в сети: только что</string>
-    <string name="last_seen_min">Был в сети: одну минуту назад</string>
-    <string name="last_seen_mins">Был в сети: %d мин. назад</string>
-    <string name="last_seen_hour">Был в сети: один час назад</string>
-    <string name="last_seen_hours">Был в сети: %d час. назад</string>
-    <string name="last_seen_day">Был в сети: один день назад</string>
-    <string name="last_seen_days">Был в сети: %d дн. назад</string>
+    <string name="last_seen_now">Был(а) в сети: только что</string>
+    <string name="last_seen_min">Был(а) в сети: 1 мин. назад</string>
+    <string name="last_seen_mins">Был(а) в сети: %d мин. назад</string>
+    <string name="last_seen_hour">Был(а) в сети: 1 час назад</string>
+    <string name="last_seen_hours">Был(а) в сети: %d час. назад</string>
+    <string name="last_seen_day">Был(а) в сети: 1 дн. назад</string>
+    <string name="last_seen_days">Был(а) в сети: %d дн. назад</string>
     <string name="install_openkeychain">Зашифрованное сообщение. Установите OpenKeychain, чтобы расшифровать его.</string>
     <string name="openpgp_messages_found">Найдены новые сообщения зашифрованные в OpenPGP</string>
     <string name="openpgp_key_id">ID OpenPGP ключа</string>
@@ -394,9 +394,9 @@
     <string name="could_not_modify_conference_options">Не удалось изменить настройки конференции</string>
     <string name="never">Никогда</string>
     <string name="until_further_notice">До дальнейшего уведомления</string>
-    <string name="snooze">Повтор</string>
+    <string name="snooze">Отложить</string>
     <string name="reply">Ответить</string>
-    <string name="mark_as_read">Отметить как прочитанное</string>
+    <string name="mark_as_read">Прочитано</string>
     <string name="pref_input_options">Ввод</string>
     <string name="pref_enter_is_send">Отправка по \"Enter\"</string>
     <string name="pref_enter_is_send_summary">Отправлять сообщения клавишей Enter. Даже если эта опция отключена, сообщение можно отправить, нажав Ctrl+Enter.</string>
@@ -412,7 +412,7 @@
     <string name="avatar_has_been_published">Аватар загружен!</string>
     <string name="sending_x_file">Отправляется %s</string>
     <string name="offering_x_file">Предложен %s</string>
-    <string name="hide_offline">Скрыть офлайн‑пользователей</string>
+    <string name="hide_offline">Скрыть офлайн</string>
     <string name="contact_is_typing">%s печатает…</string>
     <string name="contact_has_stopped_typing">%s прекратил набор</string>
     <string name="contacts_are_typing">%s печатают…</string>
@@ -514,8 +514,8 @@
     <string name="always">Всегда</string>
     <string name="large_images_only">Только большие изображения</string>
     <string name="battery_optimizations_enabled">Оптимизация батареи включена</string>
-    <string name="battery_optimizations_enabled_explained">Ваше устройство использует агрессивную оптимизацию энергопотребления %1$s, что может привести к задержке уведомлений и даже потере сообщений.\nРекомендуем её отключить.</string>
-    <string name="battery_optimizations_enabled_dialog">Ваше устройство использует агрессивную оптимизацию энергопотребления %1$s, что может привести к задержке уведомлений и даже потере сообщений. \n \nСейчас вам будет предложено отключить их.</string>
+    <string name="battery_optimizations_enabled_explained">Ваше устройство использует агрессивную оптимизацию энергопотребления для %1$s, что может привести к задержке уведомлений и даже потере сообщений.\nРекомендуем её отключить.</string>
+    <string name="battery_optimizations_enabled_dialog">Ваше устройство использует агрессивную оптимизацию энергопотребления для %1$s, что может привести к задержке уведомлений и даже потере сообщений. \n \nСейчас вам будет предложено отключить её.</string>
     <string name="disable">Отключить</string>
     <string name="selection_too_large">Выбранная область слишком большая</string>
     <string name="no_accounts">(Нет активированных аккаунтов)</string>
@@ -528,10 +528,10 @@
     <string name="no_application_to_share_uri">Не найдено приложения для передачи URI</string>
     <string name="share_uri_with">Поделиться URI-адресом через…</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
-    <string name="magic_create_text">Мы поможем вам создать учетную запись со случайным паролем, который вы сможете изменить на следующей странице. \nПосле этого вы сможете общаться с пользователями этого и других провайдеров, поделившись своим полным XMPP-адресом.</string>
+    <string name="magic_create_text">Мы поможем вам создать учетную запись со случайным паролем, который вы сможете изменить на следующей странице. \nПосле этого вы сможете общаться с пользователями этого и других серверов, поделившись своим полным XMPP-адресом.</string>
     <string name="your_full_jid_will_be">Ваш полный XMPP-адрес будет: %s</string>
     <string name="create_account">Создать аккаунт</string>
-    <string name="use_own_provider">Использовать своего провайдера</string>
+    <string name="use_own_provider">Использовать свой сервер</string>
     <string name="pick_your_username">Выбрать имя пользователя</string>
     <string name="pref_manually_change_presence">Управление доступностью</string>
     <string name="pref_manually_change_presence_summary">Устанавливайте свою доступность при редактировании статусного сообщения.</string>
@@ -686,7 +686,7 @@
     <string name="mtm_trust_anchor">Этот сертификат сервера не подписан ни одним из известных центров сертификации.</string>
     <string name="mtm_accept_servername">Принять несовпадающее имя сервера?</string>
     <string name="mtm_hostname_mismatch">Серверу не удалось аутентифицироваться в качестве \"%s\". Сертификат подходит только для:</string>
-    <string name="mtm_connect_anyway">Вы все равно хотите подключиться?</string>
+    <string name="mtm_connect_anyway">Вы всё равно хотите подключиться?</string>
     <string name="mtm_cert_details">Детали сертификата:</string>
     <string name="once">Один раз</string>
     <string name="qr_code_scanner_needs_access_to_camera">Сканеру QR-кода необходим доступ к камере</string>
@@ -830,7 +830,7 @@
     <string name="restore_backup">Восстановить резервную копию</string>
     <string name="restore">Восстановить</string>
     <string name="enter_password_to_restore">Введите пароль аккаунта %s для восстановления резервной копии.</string>
-    <string name="restore_warning">Не восстанавливайте ключи Omemo в попытке клонировать (запустить одновременно) установку. Восстановление ключей Omemo предназначено только для миграций или в случае, если вы потеряли исходное устройство.</string>
+    <string name="restore_warning">Не используйте восстановление ключей OMEMO для дублирования установленного приложения (одновременного использования). Восстановление ключей OMEMO нужно только для переноса данных на другое устройство или на случай потери своего устройства.</string>
     <string name="unable_to_restore_backup">Не удалось восстановить резервную копию.</string>
     <string name="unable_to_decrypt_backup">Не удалось расшифровать резервную копию. Вы ввели верный пароль?</string>
     <string name="backup_channel_name">Резервное копирование и восстановление</string>
@@ -894,7 +894,7 @@
     <string name="rtp_state_incoming_call">Входящий вызов</string>
     <string name="rtp_state_incoming_video_call">Входящий видеовызов</string>
     <string name="rtp_state_connecting">Соединение</string>
-    <string name="rtp_state_connected">В сети</string>
+    <string name="rtp_state_connected">Соединение установлено</string>
     <string name="rtp_state_accepting_call">Принятие вызова</string>
     <string name="rtp_state_ending_call">Завершение вызова</string>
     <string name="answer_call">Ответить</string>
@@ -921,7 +921,7 @@
     <string name="only_one_call_at_a_time">Нельзя одновременно совершать больше одного вызова.</string>
     <string name="return_to_ongoing_call">Вернуться к текущему вызову</string>
     <string name="could_not_switch_camera">Не удалось переключить камеру</string>
-    <string name="add_to_favorites">Прикрепить</string>
+    <string name="add_to_favorites">Закрепить</string>
     <string name="remove_from_favorites">Открепить</string>
     <string name="gpx_track">GPX-трек</string>
     <string name="could_not_correct_message">Не удалось исправить сообщение</string>
@@ -1000,7 +1000,7 @@
     <string name="pref_up_push_account_summary">Аккаунт для получения push-уведомлений.</string>
     <string name="no_account_deactivated">Нет (неактивно)</string>
     <string name="verifying_omemo_keys_trusted_source_account">Вы собираетесь проверить ключи OMEMO своего аккаунта. Это безопасно только если Вы перешли по этой ссылке из источника, к которому есть доступ только у Вас.</string>
-    <string name="restore_warning_continued">Восстановите только резервные копии, которые вы лично создали.</string>
+    <string name="restore_warning_continued">Восстанавливайте только те резервные копии, которые вы создали лично.</string>
     <plurals name="n_missed_calls_from_x">
         <item quantity="one">%1$d пропущенный вызов от %2$s</item>
         <item quantity="few">%1$d пропущенных вызова от %2$s</item>
@@ -1132,7 +1132,7 @@
     <string name="show_less">... показать меньше</string>
     <string name="show_more">... показать больше</string>
     <string name="show_keyboard">Показать клавиатуру</string>
-    <string name="pref_set_text_collapsable_summary">Сворачивает текст длиннее 8 строк</string>
+    <string name="pref_set_text_collapsable_summary">Сворачивать текст длиннее 8 строк</string>
     <string name="remote_fingerprint">Удалённый отпечаток</string>
     <string name="shared_secret_hint">Подсказка или вопрос</string>
     <string name="verified">Проверено!</string>
@@ -1181,7 +1181,7 @@
     <string name="add_reaction">Добавить реакцию…</string>
     <string name="add_reaction_title">Добавить реакцию</string>
     <string name="more_reactions">Больше реакций</string>
-    <string name="monocles_chat_intro_description">Monocles chat — это приложение, которое подключает вас к глобальной сети XMPP. Эта сеть включает в себя службы, называемые шлюзами, для общения с другими сетями, такими как SMS, IRC, Matrix и т. д.</string>
+    <string name="monocles_chat_intro_description">Monocles chat - это приложение, которое подключает вас к глобальной сети XMPP. Эта сеть включает в себя службы, называемые шлюзами, для общения с другими сетями, такими как SMS, IRC, Matrix и т. д.</string>
     <string name="pref_show_own_accounts">Показать имя аккаунта</string>
     <string name="smp_explain_question">Если у вас и вашего контакта есть общий секрет, который никто другой не знает (например, шутка изнутри или просто то, что вы ели на обед в последний раз, когда встречались), вы можете использовать этот секрет, чтобы проверить отпечатки пальцев друг друга.
 \n
@@ -1436,8 +1436,8 @@
     <string name="show_media_summary">Хотели бы вы отображать полученные и отправленные медиафайлы в галерее вашей системы?</string>
     <string name="pref_hide_media_title">Скрыть медиа в галерее</string>
     <string name="pref_hide_media_summary">Скрыть полученные и отправленные медиа файлы в системной галерее</string>
-    <string name="pref_secure_tls">Используйте только самые безопасные шифры TLS</string>
-    <string name="pref_secure_tls_summary">Используйте только самые надёжные шифры TLS, если они доступны на сервере</string>
+    <string name="pref_secure_tls">Использовать только самые безопасные шифры TLS</string>
+    <string name="pref_secure_tls_summary">Использовать только самые надёжные шифры TLS, если они доступны на сервере</string>
     <string name="pref_prefer_ipv6">Предпочитаю IPv6</string>
     <string name="pref_use_colored_muc_names_summary">Использовать цветные имена пользователей в конференциях</string>
     <string name="show_to_contacts_only">Показать только контактам</string>
@@ -1477,20 +1477,20 @@
     <string name="pref_plain_text_links_title">Полные адреса чатов</string>
     <string name="pref_plain_text_links_summary">Показать полные ссылки на адреса чатов</string>
     <string name="remove_bookmark_text">Хотите удалить %s из закладок? Беседа, связанная с этой закладкой, не будет удалена.</string>
-    <string name="your_server">Ваш провайдер</string>
+    <string name="your_server">Ваш сервер</string>
     <string name="change_password_in_next_step">Вы можете изменить сгенерированный пароль на следующем шаге по своему усмотрению.</string>
-    <string name="choose_your_server">Выбрать своего XMPP‑провайдера</string>
-    <string name="server_hint">Выбрать провайдера</string>
+    <string name="choose_your_server">Выберать XMPP‑сервер</string>
+    <string name="server_hint">Выбрать сервер</string>
     <string name="enter_domain">Введите домен</string>
     <string name="add_to_contact_list">Добавить в список контактов</string>
     <string name="action_end_conversation_muc">Покинуть комнату</string>
     <string name="action_end_conversation_channel">Покинуть канал</string>
     <string name="leave_conference_warning">Вы действительно хотите покинуть эту комнату? Вы больше не будете получать уведомления о новых сообщениях, пока не присоединитесь к комнате снова.</string>
-    <string name="pref_load_providers_list_external">Загрузить внешних провайдеров чатов</string>
-    <string name="pref_load_providers_list_external_summary">Загрузить список провайдеров чатов с сервера XMPP.net для альтернативной регистрации в приложении</string>
-    <string name="external_providers_list">Список загруженных поставщиков чата с сервера</string>
-    <string name="local_providers_list">Использует локальный список провайдеров</string>
-    <string name="error_loading_chat_providers">Ошибка скачивание провайдеров чата</string>
+    <string name="pref_load_providers_list_external">Загрузить список внешних серверов</string>
+    <string name="pref_load_providers_list_external_summary">Загрузить список серверов с xmpp.net для альтернативной регистрации в приложении</string>
+    <string name="external_providers_list">Список загруженных серверов</string>
+    <string name="local_providers_list">Список серверов загружен</string>
+    <string name="error_loading_chat_providers">Ошибка при загрузке списка серверов</string>
     <string name="no_i2p_calls">Звонки через I2P невозможны</string>
     <string name="pref_use_i2p">Подключиться через I2P</string>
     <string name="account_status_i2p_unavailable">Сеть I2P недоступна</string>
@@ -1503,8 +1503,8 @@
     <string name="pref_load_image_from_any_link_summary">Автоматически загружать изображения по любой ссылке на картинку</string>
     <string name="retry_with_p2p">Повторите с P2P</string>
     <string name="word_document">Word‑документ</string>
-    <string name="restore_omemo_key">Восстановите ключи Omemo</string>
-    <string name="pref_backup_location">Место резервного копирования</string>
+    <string name="restore_omemo_key">Восстановить ключи Omemo</string>
+    <string name="pref_backup_location">Расположение резервной копии</string>
     <string name="non_quicksy_backup">Quicksy может восстановить только резервные копии аккаунтов quicksy.im</string>
     <string name="account_status_channel_binding">Привязка канала недоступна</string>
     <string name="failed_to_delete_gif_not_exist">Не удалось удалить: GIF-файл не найден.</string>
@@ -1552,7 +1552,7 @@
     <string name="edit_sytemaccount_or_xmppaccount">Редактировать контакт чата или телефонный контакт?</string>
     <string name="edit_sytemaccount">Телефонный контакт</string>
     <string name="edit_chat_contact">Контакт чата</string>
-    <string name="restart_onboarding">Перезапустить адаптацию</string>
+    <string name="restart_onboarding">Повторить настройку</string>
     <string name="cannot_pin_empty_content">Нельзя закрепить пустой элемент</string>
     <string name="image_attachment">Прикрепление изображения</string>
     <string name="pinned_image_preview">Закрепленное изображение</string>
@@ -1571,7 +1571,7 @@
     <string name="pref_skip_image_editor_screen">Редактор изображений</string>
     <string name="pref_skip_image_editor_screen_summary">Не открывать редактор изображений при отправке одного изображения</string>
     <string name="update_default_stickers_summary">Скачать стандартный набор стикеров</string>
-    <string name="pref_clear_blocked_media_summary">Разблокировать все заблокированные медиафайлы, включая аватары</string>
+    <string name="pref_clear_blocked_media_summary">Разблокировать все заблокированные медиа файлы, включая аватары</string>
     <string name="delete_extension_title">Удалить расширение</string>
     <string name="delete_extension_message">Вы уверены, что хотите удалить расширение \"%1$s\"?</string>
     <string name="extension_deleted">Расширение удалено</string>
@@ -1694,7 +1694,7 @@
         <item quantity="many">Понравилось %d человек</item>
         <item quantity="other">Понравилось %d человек</item>
     </plurals>
-    <string name="pref_cache_deletion_time">Удалить файлы из кэша после</string>
+    <string name="pref_cache_deletion_time">Удалять файлы из кэша через</string>
     <string name="one_day">1 день</string>
     <string name="three_days">3 дня</string>
     <string name="one_week">1 неделя</string>
@@ -1702,4 +1702,8 @@
     <string name="one_month">1 месяц</string>
     <string name="three_months">3 месяца</string>
     <string name="post_link">Добавить ссылку</string>
+    <string name="destroy_room_succeed">Групповой чат успешно удален</string>
+    <string name="destroy_channel_succeed">Канал успешно удален</string>
+    <string name="destroy_room_failed">Групповой чат не удалось удалить</string>
+    <string name="destroy_channel_failed">Канал не удалось удалить</string>
 </resources>
