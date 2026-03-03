@@ -2115,8 +2115,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                                 int line = layout.getLineForVertical(y);
                                 if (x >= layout.getLineLeft(line) && x <= layout.getLineRight(line)) {
                                     int off = layout.getOffsetForHorizontal(line, x);
-                                    ClickableSpan[] links = ((Spannable) viewHolder.messageBody().getText()).getSpans(off, off, ClickableSpan.class);
-                                    isLinkGesture[0] = links.length > 0;
+                                    CharSequence text = viewHolder.messageBody().getText();
+                                    if (text instanceof Spannable spannable) {
+                                        ClickableSpan[] links = spannable.getSpans(off, off, ClickableSpan.class);
+                                        isLinkGesture[0] = links.length > 0;
+                                    }
                                 }
                             }
                         }
