@@ -48,6 +48,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
@@ -297,9 +298,8 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
 
     private void importSettings(Uri uri, SettingsActivity settingsActivity) {
         boolean success = false;
-        try {
-            File file = new File(FileUtils.getPath(requireSettingsActivity(), uri));
-            try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(file))) {
+        try (InputStream is = settingsActivity.getContentResolver().openInputStream(uri);
+             ObjectInputStream input = new ObjectInputStream(is)) {
                 SharedPreferences.Editor prefEdit = PreferenceManager.getDefaultSharedPreferences(settingsActivity).edit();
                 prefEdit.clear();
                 Map<String, ?> entries = (Map<String, ?>) input.readObject();
@@ -321,7 +321,6 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
                 }
                 prefEdit.commit();
                 success = true;
-            }
         } catch (Exception e) {
             success = false;
             Log.e("SettingsImport", "Error importing settings", e);
