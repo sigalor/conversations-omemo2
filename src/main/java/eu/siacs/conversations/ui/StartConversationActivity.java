@@ -956,6 +956,7 @@ public class StartConversationActivity extends XmppActivity
                     filter(mSearchEditText.getText().toString());
                 }
                 invalidateOptionsMenu();
+                return true;
             case R.id.action_note_to_self:
                 final List<Account> accounts = xmppConnectionService.getAccounts();
                 if (accounts.size() == 1) {
