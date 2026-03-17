@@ -725,7 +725,9 @@ public class MessageParser extends AbstractParser
         final boolean isTypeGroupChat =
                 packet.getType()
                         == im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT;
-        final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
+        final var encrypted =
+                packet.getOnlyExtension(im.conversations.android.xmpp.model.pgp.Encrypted.class);
+        final String pgpEncrypted = encrypted == null ? null : encrypted.getContent();
 
         Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
         Set<Message.FileParams> attachments = new LinkedHashSet<>();
