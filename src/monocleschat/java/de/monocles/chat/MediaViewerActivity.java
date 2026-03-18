@@ -3,32 +3,27 @@ package de.monocles.chat;
 import android.app.PendingIntent;
 import android.app.PictureInPictureParams;
 import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
-// import android.support.v4.media.session.MediaSessionCompat; // Keep if needed for other reasons, but Media3 has its own session
-import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Rational;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -40,55 +35,45 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-
-import com.bumptech.glide.Glide;
-// ExoPlayer v2 imports (to be removed or replaced)
-// import com.google.android.exoplayer2.ExoPlayer;
-// import com.google.android.exoplayer2.MediaItem;
-// import com.google.android.exoplayer2.PlaybackException;
-// import com.google.android.exoplayer2.Player;
-// import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
-
-// Media3 imports
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.session.MediaSession; // Media3 MediaSession
-// If you still need MediaSessionCompat for other reasons, you might need a connector or to manage both.
-// For a pure Media3 setup, MediaSessionCompat is not directly used with the Media3 player in the same way.
-import androidx.media3.ui.PlayerView; // If your binding uses PlayerView, ensure it's the Media3 one
+import androidx.media3.session.MediaSession;
+import androidx.media3.ui.PlayerView;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.Glide;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMediaViewerBinding;
-import eu.siacs.conversations.entities.Message;
+import eu.siacs.conversations.databinding.ItemMediaViewerBinding;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.XmppActivity;
+import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
+import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.Rationals;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.MimeUtils;
 import me.drakeet.support.toast.ToastCompat;
 
-public class MediaViewerActivity extends XmppActivity implements AudioManager.OnAudioFocusChangeListener {
+public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, AudioManager.OnAudioFocusChangeListener {
 
     Integer oldOrientation;
     ExoPlayer player;
-    Uri mFileUri;
     File mFile;
     int height = 0;
     int width = 0;
@@ -98,7 +83,11 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     boolean isVideo = false;
     private ActivityMediaViewerBinding binding;
     private GestureDetector gestureDetector;
-    MediaSession mediaSession; // Media3 MediaSession
+    MediaSession mediaSession;
+
+    private MediaPagerAdapter pagerAdapter;
+    private final List<Attachment> attachments = new ArrayList<>();
+    private String initialMessageUuid;
 
     public static String getMimeType(String path) {
         try {
@@ -118,8 +107,42 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_media_viewer);
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
 
+        binding.viewPager.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+
+        player = new ExoPlayer.Builder(this).build();
+        player.setRepeatMode(Player.REPEAT_MODE_OFF);
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                if (isPlaying) {
+                    hideFAB();
+                } else {
+                    if (Compatibility.runsTwentyFour() && isInPictureInPictureMode()) {
+                        hideFAB();
+                    } else {
+                        showFAB();
+                    }
+                }
+            }
+
+            @Override
+            public void onPlayerError(@NonNull PlaybackException error) {
+                Log.e(Config.LOGTAG, "PlayerError: ", error);
+            }
+        });
+
+        pagerAdapter = new MediaPagerAdapter();
+        binding.viewPager.setAdapter(pagerAdapter);
+        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                onMediaItemSelected(attachments.get(position));
+            }
+        });
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 if (isImage) {
@@ -147,7 +170,6 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         getWindow().setAttributes(layout);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //binding.speedDial.inflate(R.menu.media_viewer);
     }
 
     private void share() {
@@ -157,7 +179,6 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         try {
             startActivity(Intent.createChooser(share, getText(R.string.share_with)));
         } catch (ActivityNotFoundException e) {
-            //This should happen only on faulty androids because normally chooser is always available
             ToastCompat.makeText(this, R.string.no_application_found_to_open_file, ToastCompat.LENGTH_SHORT).show();
         }
     }
@@ -188,11 +209,6 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(uri, mime);
         openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        PackageManager manager = this.getPackageManager();
-        List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
-        if (info.size() == 0) {
-            openIntent.setDataAndType(uri, "*/*");
-        }
         if (player != null && isVideo) {
             openIntent.putExtra("position", player.getCurrentPosition());
         }
@@ -203,115 +219,14 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         }
     }
 
-
-
     @Override
     protected void refreshUiReal() {
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra("image")) {
-                mFileUri = intent.getParcelableExtra("image");
-                mFile = new File(mFileUri.getPath());
-                if (mFileUri != null && mFile.exists() && mFile.length() > 0) {
-                    try {
-                        isImage = true;
-                        DisplayImage(mFile, mFileUri);
-                    } catch (Exception e) {
-                        isImage = false;
-                        Log.d(Config.LOGTAG, "Illegal exeption :" + e);
-                        ToastCompat.makeText(MediaViewerActivity.this, getString(R.string.error_file_not_found), ToastCompat.LENGTH_SHORT).show();
-                        finish();
-                    }
-                } else {
-                    ToastCompat.makeText(MediaViewerActivity.this, getString(R.string.file_deleted), ToastCompat.LENGTH_SHORT).show();
-                }
-            } else if (intent.hasExtra("video")) {
-                mFileUri = intent.getParcelableExtra("video");
-                mFile = new File(mFileUri.getPath());
-                if (mFileUri != null && mFile.exists() && mFile.length() > 0) {
-                    try {
-                        isVideo = true;
-                        DisplayVideo(mFileUri);
-                    } catch (Exception e) {
-                        isVideo = false;
-                        Log.d(Config.LOGTAG, "Illegal exeption :" + e);
-                        ToastCompat.makeText(MediaViewerActivity.this, getString(R.string.error_file_not_found), ToastCompat.LENGTH_SHORT).show();
-                        finish();
-                    }
-                } else {
-                    ToastCompat.makeText(MediaViewerActivity.this, getString(R.string.file_deleted), ToastCompat.LENGTH_SHORT).show();
-                }
-            }
-        }
-        if (isDeletableFile(mFile)) {
-            binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_delete, R.drawable.ic_delete_24dp)
-                    .setLabel(R.string.delete)
-                    .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
-                    .create()
-            );
-        }
-        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_open, R.drawable.ic_open_in_new_white_24dp)
-                .setLabel(R.string.open_with)
-                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
-                .create()
-        );
-        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_share, R.drawable.ic_share_24dp)
-                .setLabel(R.string.share)
-                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
-                .create()
-        );
-        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_save, R.drawable.ic_save_24dp)
-                .setLabel(R.string.save_to_downloads)
-                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
-                .create()
-        );
-
-
-        if (isDeletableFile(mFile)) {
-            binding.speedDial.setOnActionSelectedListener(actionItem -> {
-                switch (actionItem.getId()) {
-                    case R.id.action_share:
-                        share();
-                        break;
-                    case R.id.action_open:
-                        open();
-                        break;
-                    case R.id.action_save:
-                        saveToDownloads(mFile);
-                        break;
-                    case R.id.action_delete:
-                        deleteFile();
-                        break;
-                    default:
-                        return false;
-                }
-                return false;
-            });
-        } else {
-            binding.speedDial.setOnActionSelectedListener(actionItem -> {
-                switch (actionItem.getId()) {
-                    case R.id.action_share:
-                        share();
-                        break;
-                    case R.id.action_open:
-                        open();
-                        break;
-                    case R.id.action_save:
-                        saveToDownloads(mFile);
-                        break;
-                    default:
-                        return false;
-                }
-                return false;
-            });
-        }
-        binding.speedDial.getMainFab().setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        updateSpeedDialActions();
     }
 
     private void saveToDownloads(File file) {
@@ -332,138 +247,15 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         });
     }
 
-
-    private void DisplayImage(final File file, final Uri uri) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
-        height = options.outHeight;
-        width = options.outWidth;
-        aspect = new Rational(width, height);
-        rotation = getRotation(Uri.parse("file://" + file.getAbsolutePath()));
-        Log.d(Config.LOGTAG, "Image height: " + height + ", width: " + width + ", rotation: " + rotation + " aspect: " + aspect);
-        if (useAutoRotateScreen()) {
-            rotateScreen(width, height, rotation);
-        }
-        try {
-            binding.messageImageView.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .load(uri)
-                    .into(binding.messageImageView);
-            binding.messageImageView.setOnPhotoTapListener((view, motionEvent, listener) -> {
-                if (isImage) {
-                    if (binding.speedDial.isShown()) {
-                        hideFAB();
-                    } else {
-                        showFAB();
-                    }
-                }
-            });
-        } catch (Exception e) {
-            ToastCompat.makeText(this, getString(R.string.error_file_not_found), ToastCompat.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-    }
-
-
-    private void DisplayVideo(final Uri uri) {
-        try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(uri.getPath());
-            Bitmap bitmap = null;
-            try {
-                bitmap = retriever.getFrameAtTime(0);
-                height = bitmap.getHeight();
-                width = bitmap.getWidth();
-            } catch (Exception e) {
-                height = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-                width = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-            } finally {
-                if (bitmap != null) {
-                    bitmap.recycle();
-                }
-            }
-            try {
-                rotation = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-            } catch (Exception e) {
-                rotation = 0;
-            }
-            aspect = new Rational(width, height);
-            Log.d(Config.LOGTAG, "Video height: " + height + ", width: " + width + ", rotation: " + rotation + ", aspect: " + aspect);
-            if (useAutoRotateScreen()) {
-                rotateScreen(width, height, rotation);
-            }
-            binding.messageVideoView.setVisibility(View.VISIBLE);
-
-            // ExoPlayer instantiation using Media3
-            player = new ExoPlayer.Builder(this).build();
-
-            player.addListener(new Player.Listener() { // androidx.media3.common.Player.Listener
-                @Override
-                public void onIsPlayingChanged(boolean isPlaying) {
-                    // Player.Listener.super.onIsPlayingChanged(isPlaying); // Not needed in Java
-                    if (isPlaying) {
-                        hideFAB();
-                    } else {
-                        if (Compatibility.runsTwentyFour() && isInPictureInPictureMode()) {
-                            hideFAB();
-                        } else {
-                            showFAB();
-                        }
-                    }
-                }
-
-                @Override
-                public void onPlayerError(@NonNull PlaybackException error) { // androidx.media3.common.PlaybackException
-                    // Player.Listener.super.onPlayerError(error); // Not needed in Java
-                    Log.e(Config.LOGTAG, "PlayerError: ", error);
-                    open(); // Your existing error handling
-                }
-            });
-            player.setRepeatMode(Player.REPEAT_MODE_OFF); // androidx.media3.common.Player
-            binding.messageVideoView.setPlayer(player); // PlayerView should be androidx.media3.ui.PlayerView
-
-            // MediaItem creation (same as before, but uses androidx.media3.common.MediaItem)
-            MediaItem mediaItem = MediaItem.fromUri(uri);
-            player.setMediaItem(mediaItem);
-            player.prepare();
-            player.setPlayWhenReady(true);
-
-            // MediaSession setup with Media3
-            // Release previous session if any
-            if (mediaSession != null) {
-                mediaSession.release();
-            }
-            mediaSession = new MediaSession.Builder(this, player)
-                    .setId(getPackageName() + ".MediaSession." + System.currentTimeMillis()) // Unique session ID
-                    // .setSessionActivity(pendingIntentToOpenActivity()) // Optional: PendingIntent to launch your UI
-                    .build();
-
-            // The MediaSessionConnector is not used in the same way with Media3's own MediaSession.
-            // The MediaSession is directly tied to the player.
-
-            requestAudioFocus();
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-//            binding.messageVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
-        } catch (Exception e) {
-            Log.e(Config.LOGTAG, "Error displaying video", e);
-            e.printStackTrace();
-            open(); // Fallback
-        }
-    }
-
     @OptIn(markerClass = UnstableApi.class)
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void PIPVideo() {
         try {
-            if (binding.messageVideoView != null) { // Check if PlayerView is available
-                binding.messageVideoView.hideController();
-            }
             binding.speedDial.setVisibility(View.GONE);
             if (supportsPIP()) {
                 if (Compatibility.runsTwentySix()) {
-                    final Rational rational = new Rational(width, height); // Make sure width and height are valid
-                    if (rational.getDenominator() == 0) { // Avoid division by zero
+                    final Rational rational = new Rational(width, height);
+                    if (rational.getDenominator() == 0) {
                         Log.w(Config.LOGTAG, "Invalid aspect ratio for PIP: width=" + width + ", height=" + height);
                         return;
                     }
@@ -477,10 +269,8 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 }
             }
         } catch (final IllegalStateException e) {
-            // this sometimes happens on Samsung phones (possibly when Knox is enabled)
             Log.w(Config.LOGTAG, "unable to enter picture in picture mode", e);
         } catch (final IllegalArgumentException e) {
-            // Can happen if aspect ratio is invalid
             Log.w(Config.LOGTAG, "Illegal argument for picture in picture mode (aspect ratio?): " + e.getMessage());
         }
     }
@@ -489,35 +279,26 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
         if (isInPictureInPictureMode) {
-            startPlayer();
+            player.play();
             hideFAB();
         } else {
             showFAB();
         }
     }
 
-    private void releaseAudiFocus() {
-        AudioManager am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        if (am != null) {
-            am.abandonAudioFocus(this);
+    private void abandonAudioFocus() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(this);
+            hasAudioFocus = false;
         }
     }
 
-
     private void requestAudioFocus() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // For Android O and above, useAudioFocusRequest is preferred, but for simplicity:
-            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (audioManager != null) {
-                int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-                hasAudioFocus = (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-            }
-        } else {
-            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (audioManager != null) {
-                int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-                hasAudioFocus = (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-            }
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            hasAudioFocus = (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
         }
     }
 
@@ -557,48 +338,7 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
             }
         } else {
-            if (rotation == 90 || rotation == 270) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-            } else {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-            }
-        }
-    }
-
-    private void pausePlayer() {
-        if (player != null && isVideo && isPlaying()) {
-            player.setPlayWhenReady(false);
-            player.getPlaybackState();
-            if (Compatibility.runsTwentyFour() && isInPictureInPictureMode()) {
-                hideFAB();
-            } else {
-                showFAB();
-            }
-        }
-    }
-
-    private void startPlayer() {
-        if (player != null && isVideo && !isPlaying()) {
-            player.setPlayWhenReady(true);
-            player.getPlaybackState();
-            hideFAB();
-        }
-    }
-
-    private void stopPlayer() {
-        if (player != null && isVideo) {
-            if (supportsPIP()) {
-                finishAndRemoveTask();
-            }
-            if (isPlaying()) {
-                player.stop();
-            }
-            player.release();
-            if (Compatibility.runsTwentyFour() && isInPictureInPictureMode()) {
-                hideFAB();
-            } else {
-                showFAB();
-            }
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         }
     }
 
@@ -610,23 +350,14 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (player != null && !isInPictureInPictureMode() && player.getPlaybackState() != Player.STATE_ENDED) {
-                if (hasAudioFocus) { // Only play if we have audio focus
+                if (hasAudioFocus) {
                     player.play();
                 }
             }
-        }
-        // Ensure PlayerView is correctly set up if it was hidden or player was null
-        if (isVideo && player != null && binding.messageVideoView.getPlayer() == null) {
-            binding.messageVideoView.setPlayer(player);
         }
     }
 
@@ -656,18 +387,11 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
 
     private boolean hasAudioFocus = false;
 
-    private void abandonAudioFocus() {
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null) {
-            audioManager.abandonAudioFocus(this);
-            hasAudioFocus = false;
-        }
-    }
-
     @Override
     public void onStop() {
-        stopPlayer();
-        releaseAudiFocus();
+        if (player != null && isVideo) {
+            player.stop();
+        }
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         if (useMaxBrightness()) {
             layout.screenBrightness = -1;
@@ -680,21 +404,35 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
 
     @Override
     protected void onBackendConnected() {
+        Intent intent = getIntent();
+        String convUuid = intent.getStringExtra("conversation_uuid");
+        initialMessageUuid = intent.getStringExtra("message_uuid");
 
+        if (convUuid != null) {
+            Conversation conversation = xmppConnectionService.findConversationByUuid(convUuid);
+            if (conversation != null) {
+                xmppConnectionService.getAttachments(conversation, 0, this);
+                return;
+            }
+        }
+        setupSingleMediaFallback(intent);
+    }
+
+    private void setupSingleMediaFallback(Intent intent) {
+        Uri uri = intent.hasExtra("image") ? intent.getParcelableExtra("image") : intent.getParcelableExtra("video");
+        if (uri != null) {
+            String mime = intent.hasExtra("image") ? "image/*" : "video/*";
+            attachments.add(Attachment.of(UUID.randomUUID(), new File(uri.getPath()), mime));
+            pagerAdapter.notifyDataSetChanged();
+        }
     }
 
     public boolean useMaxBrightness() {
-        // return getPreferences().getBoolean("use_max_brightness", getResources().getBoolean(R.bool.use_max_brightness));
         return false;
     }
 
     public boolean useAutoRotateScreen() {
-        // return getPreferences().getBoolean("use_auto_rotate", getResources().getBoolean(R.bool.auto_rotate));
         return false;
-    }
-
-    public SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
 
     @Override
@@ -704,15 +442,10 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 hasAudioFocus = true;
                 if (player != null && (player.getPlayWhenReady() || player.getPlaybackState() == Player.STATE_READY)) {
                     player.play();
-                    player.setVolume(1.0f); // Restore volume
+                    player.setVolume(1.0f);
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                hasAudioFocus = false;
-                if (player != null) {
-                    player.pause();
-                }
-                break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 hasAudioFocus = false;
                 if (player != null) {
@@ -720,9 +453,9 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                hasAudioFocus = true; // Still have focus, but should lower volume
+                hasAudioFocus = true;
                 if (player != null) {
-                    player.setVolume(0.3f); // Duck volume
+                    player.setVolume(0.3f);
                 }
                 break;
         }
@@ -746,5 +479,179 @@ public class MediaViewerActivity extends XmppActivity implements AudioManager.On
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void onMediaLoaded(List<Attachment> loadedAttachments) {
+        runOnUiThread(() -> {
+            attachments.clear();
+            for (Attachment a : loadedAttachments) {
+                String mime = a.getMime();
+                if (mime != null && (mime.startsWith("image/") || mime.startsWith("video/"))) {
+                    attachments.add(a);
+                }
+            }
+            pagerAdapter.notifyDataSetChanged();
+            if (initialMessageUuid != null) {
+                for (int i = 0; i < attachments.size(); i++) {
+                    if (attachments.get(i).getUuid().toString().equals(initialMessageUuid)) {
+                        binding.viewPager.setCurrentItem(i, false);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    private class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.ViewHolder> {
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ItemMediaViewerBinding b = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_media_viewer, parent, false);
+            return new ViewHolder(b);
+        }
+
+        @OptIn(markerClass = UnstableApi.class)
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            Attachment attachment = attachments.get(position);
+            if (attachment.getMime().startsWith("video/")) {
+                holder.binding.messageImageView.setVisibility(View.GONE);
+                holder.binding.messageVideoView.setVisibility(View.VISIBLE);
+                // Check if PlayerView is available
+                holder.binding.messageVideoView.hideController();
+                if (position == binding.viewPager.getCurrentItem()) {
+                    holder.binding.messageVideoView.setPlayer(player);
+                } else {
+                    holder.binding.messageVideoView.setPlayer(null);
+                }
+            } else {
+                holder.binding.messageVideoView.setPlayer(null);
+                holder.binding.messageVideoView.setVisibility(View.GONE);
+                holder.binding.messageImageView.setVisibility(View.VISIBLE);
+                Glide.with(MediaViewerActivity.this).load(attachment.getUri()).into(holder.binding.messageImageView);
+                holder.binding.messageImageView.setOnPhotoTapListener((view, x, y) -> toggleFAB());
+            }
+        }
+
+        @Override
+        public int getItemCount() { return attachments.size(); }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ItemMediaViewerBinding binding;
+            ViewHolder(ItemMediaViewerBinding b) { super(b.getRoot()); this.binding = b; }
+        }
+    }
+
+    private void updateRotation(Attachment attachment) {
+        Uri uri = attachment.getUri();
+        String mime = attachment.getMime();
+        if (mime.startsWith("image/")) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
+            height = options.outHeight;
+            width = options.outWidth;
+            rotation = getRotation(uri);
+        } else if (mime.startsWith("video/")) {
+            try {
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(uri.getPath());
+                height = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                width = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                rotation = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            } catch (Exception e) {
+                rotation = 0;
+            }
+        }
+        if (useAutoRotateScreen()) {
+            rotateScreen(width, height, rotation);
+        }
+    }
+
+    private void onMediaItemSelected(Attachment attachment) {
+        mFile = new File(attachment.getUri().getPath());
+        if (player == null) return;
+
+        RecyclerView recyclerView = (RecyclerView) binding.viewPager.getChildAt(0);
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            View child = recyclerView.getChildAt(i);
+            MediaPagerAdapter.ViewHolder h = (MediaPagerAdapter.ViewHolder) recyclerView.getChildViewHolder(child);
+            if (h != null) {
+                h.binding.messageVideoView.setPlayer(null);
+            }
+        }
+
+        if (attachment.getMime().startsWith("video/")) {
+            isVideo = true;
+            isImage = false;
+            player.stop();
+            player.setMediaItem(MediaItem.fromUri(attachment.getUri()));
+            player.prepare();
+            player.setPlayWhenReady(true);
+            requestAudioFocus();
+
+            int position = binding.viewPager.getCurrentItem();
+            MediaPagerAdapter.ViewHolder holder = (MediaPagerAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(position);
+            if (holder != null) {
+                holder.binding.messageVideoView.setPlayer(player);
+            }
+        } else {
+            isVideo = false;
+            isImage = true;
+            player.stop();
+        }
+        updateSpeedDialActions();
+        updateRotation(attachment);
+    }
+
+    private void updateSpeedDialActions() {
+        binding.speedDial.clearActionItems();
+        if (isDeletableFile(mFile)) {
+            binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_delete, R.drawable.ic_delete_24dp)
+                    .setLabel(R.string.delete)
+                    .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
+                    .create());
+        }
+        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_open, R.drawable.ic_open_in_new_white_24dp)
+                .setLabel(R.string.open_with)
+                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
+                .create()
+        );
+        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_share, R.drawable.ic_share_24dp)
+                .setLabel(R.string.share)
+                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
+                .create()
+        );
+        binding.speedDial.addActionItem(new SpeedDialActionItem.Builder(R.id.action_save, R.drawable.ic_save_24dp)
+                .setLabel(R.string.save_to_downloads)
+                .setFabImageTintColor(ContextCompat.getColor(this, R.color.white))
+                .create()
+        );
+
+        binding.speedDial.setOnActionSelectedListener(actionItem -> {
+            switch (actionItem.getId()) {
+                case R.id.action_share:
+                    share();
+                    break;
+                case R.id.action_open:
+                    open();
+                    break;
+                case R.id.action_save:
+                    saveToDownloads(mFile);
+                    break;
+                case R.id.action_delete:
+                    deleteFile();
+                    break;
+                default:
+                    return false;
+            }
+            return false;
+        });
+        binding.speedDial.getMainFab().setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+    }
+
+    private void toggleFAB() {
+        if (binding.speedDial.isShown()) hideFAB(); else showFAB();
     }
 }

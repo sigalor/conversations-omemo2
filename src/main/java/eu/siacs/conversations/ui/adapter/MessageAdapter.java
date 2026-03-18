@@ -2508,7 +2508,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         final var fp = message.getFileParams();
         final var name = fp == null ? null : fp.getName();
         final var displayName = name == null ? file.getName() : name;
-        ViewUtil.view(activity, file, displayName);
+        ViewUtil.view(activity, file, message.getMimeType(), displayName, message.getConversation().getUuid(), message.getUuid());
     }
 
     private void showLocation(Message message) {

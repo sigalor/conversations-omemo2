@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.github.chrisbanes.photoview.PhotoView
+            android:id="@+id/messageImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/messageVideoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:use_controller="true"
+            app:animation_enabled="true"
+            app:auto_show="false"
+            app:buffered_color="@color/gray_700"
+            app:played_color="?attr/colorAccent"
+            app:scrubber_color="?attr/colorAccent"
+            app:show_shuffle_button="false"
+            app:show_subtitle_button="false"
+            app:show_vr_button="false"
+            app:unplayed_color="@color/gray_700"/>
+    </FrameLayout>
+</layout>

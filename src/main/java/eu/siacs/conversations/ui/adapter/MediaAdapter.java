@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemMediaBinding;
+import eu.siacs.conversations.ui.MediaBrowserActivity;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.ViewUtil;
@@ -201,7 +202,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
             cancelPotentialWork(attachment, holder.binding.media);
             renderPreview(attachment, holder.binding.media);
         }
-        holder.binding.getRoot().setOnClickListener(v -> ViewUtil.view(activity, attachment));
+        holder.binding.getRoot().setOnClickListener(v -> {
+            String convUuid = activity.getIntent().getStringExtra("conversation_uuid"); // Or get it from the conversation instance
+            ViewUtil.view(activity, attachment, convUuid);
+        });
         holder.binding.getRoot().setOnCreateContextMenuListener((menu, v, menuInfo) -> {
             final var path = activity.xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());
             if (path == null) return;

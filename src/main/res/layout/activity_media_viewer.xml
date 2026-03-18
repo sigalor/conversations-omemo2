@@ -5,33 +5,12 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"
-        android:orientation="vertical">
+        android:background="@android:color/black">
 
-        <com.github.chrisbanes.photoview.PhotoView
-            android:id="@+id/messageImageView"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:visibility="gone" />
-
-        <androidx.media3.ui.PlayerView
-            android:id="@+id/messageVideoView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone"
-            app:use_controller="true"
-            app:animation_enabled="true"
-            app:auto_show="false"
-            app:buffered_color="@color/gray_700"
-            app:played_color="?attr/colorAccent"
-            app:scrubber_color="?attr/colorAccent"
-            app:show_shuffle_button="false"
-            app:show_subtitle_button="false"
-            app:show_vr_button="false"
-            app:unplayed_color="@color/gray_700" />
+            android:layout_height="match_parent" />
 
         <com.leinardi.android.speeddial.SpeedDialOverlayLayout
             android:id="@+id/overlay"
