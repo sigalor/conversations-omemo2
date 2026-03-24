@@ -203,8 +203,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
             renderPreview(attachment, holder.binding.media);
         }
         holder.binding.getRoot().setOnClickListener(v -> {
-            String convUuid = activity.getIntent().getStringExtra("conversation_uuid"); // Or get it from the conversation instance
-            ViewUtil.view(activity, attachment, convUuid);
+            String convUuid = activity.getIntent().getStringExtra("conversation_uuid");
+            String accountUuid = activity.getIntent().getStringExtra("account");
+            String jid = activity.getIntent().getStringExtra("jid");
+            ViewUtil.view(activity, attachment, convUuid, accountUuid, jid);
         });
         holder.binding.getRoot().setOnCreateContextMenuListener((menu, v, menuInfo) -> {
             final var path = activity.xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());

@@ -68,6 +68,7 @@ import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.Rationals;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.MimeUtils;
+import eu.siacs.conversations.xmpp.Jid;
 import me.drakeet.support.toast.ToastCompat;
 
 public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, AudioManager.OnAudioFocusChangeListener {
@@ -138,7 +139,9 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                onMediaItemSelected(attachments.get(position));
+                if (!attachments.isEmpty() && position < attachments.size()) {
+                    onMediaItemSelected(attachments.get(position));
+                }
             }
         });
 
@@ -408,6 +411,13 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         String convUuid = intent.getStringExtra("conversation_uuid");
         initialMessageUuid = intent.getStringExtra("message_uuid");
 
+        if (player != null) {
+            player.stop();
+            player.clearMediaItems();
+        }
+        attachments.clear();
+        pagerAdapter.notifyDataSetChanged();
+
         if (convUuid != null) {
             Conversation conversation = xmppConnectionService.findConversationByUuid(convUuid);
             if (conversation != null) {
@@ -415,6 +425,15 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
                 return;
             }
         }
+
+        // Fallback for Media Browser: Try account and jid
+        String accountUuid = intent.getStringExtra("account");
+        String jidString = intent.getStringExtra("jid");
+        if (accountUuid != null && jidString != null) {
+            xmppConnectionService.getAttachments(accountUuid, Jid.of(jidString), 0, this);
+            return;
+        }
+
         setupSingleMediaFallback(intent);
     }
 
@@ -518,8 +537,8 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
             if (attachment.getMime().startsWith("video/")) {
                 holder.binding.messageImageView.setVisibility(View.GONE);
                 holder.binding.messageVideoView.setVisibility(View.VISIBLE);
-                // Check if PlayerView is available
                 holder.binding.messageVideoView.hideController();
+                // Check if PlayerView is available
                 if (position == binding.viewPager.getCurrentItem()) {
                     holder.binding.messageVideoView.setPlayer(player);
                 } else {
@@ -653,5 +672,20 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
 
     private void toggleFAB() {
         if (binding.speedDial.isShown()) hideFAB(); else showFAB();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (player != null) {
+            player.stop();
+            player.clearMediaItems();
+        }
+        attachments.clear();
+        pagerAdapter.notifyDataSetChanged();
+        if (xmppConnectionService != null) {
+            onBackendConnected();
+        }
     }
 }

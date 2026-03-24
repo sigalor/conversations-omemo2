@@ -46,10 +46,19 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
     @Override
     protected void onBackendConnected() {
         Intent intent = getIntent();
-        String account = intent == null ? null : intent.getStringExtra("account");
-        String jid = intent == null ? null : intent.getStringExtra("jid");
-        if (account != null && jid != null) {
-            xmppConnectionService.getAttachments(account, Jid.of(jid), 0, this);
+        String accountUuid = intent == null ? null : intent.getStringExtra("account");
+        String jidString = intent == null ? null : intent.getStringExtra("jid");
+        if (accountUuid != null && jidString != null) {
+            Jid jid = Jid.of(jidString);
+            xmppConnectionService.getAttachments(accountUuid, jid, 0, this);
+
+            if (intent.getStringExtra("conversation_uuid") == null) {
+                Account account = xmppConnectionService.findAccountByUuid(accountUuid);
+                if (account != null) {
+                    Conversation conversation = xmppConnectionService.findOrCreateConversation(account, jid, false, false);
+                    intent.putExtra("conversation_uuid", conversation.getUuid());
+                }
+            }
         }
     }
 
