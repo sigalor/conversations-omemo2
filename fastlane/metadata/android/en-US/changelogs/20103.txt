@@ -1,0 +1,6 @@
+* Fix Hide offline
+* Fix import settings
+* use getOnlyExtension to parse pgp encrypted content
+* Implement swipe to previous or next media in preview
+* Clear push notification configuration values
+* UnifiedPush: add support for link activity

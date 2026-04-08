@@ -1,0 +1,6 @@
+* Fehlerbehebung: „Offline ausblenden“
+* Fehlerbehebung: Einstellungen importieren
+* Verwendung von „getOnlyExtension“ zum Parsen von PGP-verschlüsseltem Inhalt
+* Implementierung von „Wischen zum vorherigen oder nächsten Medienelement“ in der Vorschau
+* Löschen der Konfigurationswerte für Push-Benachrichtigungen
+* UnifiedPush: Unterstützung für Link-Aktivitäten hinzugefügt
