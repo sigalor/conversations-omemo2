@@ -1425,4 +1425,24 @@
     <string name="restore_omemo_key">Restaurar claves OMEMO</string>
     <string name="non_quicksy_backup">Quicksy solo puede restaurar las copias de seguridad de las cuentas quicksy.im</string>
     <string name="note_to_self_conversation_title">Recordatorios (%1$s)</string>
+    <string name="simple_commons">Licencias simples</string>
+    <string name="value_copied_to_clipboard_show">mostrar_valor_copiado_a_portapapeles</string>
+    <string name="default_color">color_por_defecto</string>
+    <string name="unknown_error_occurred">ocurrio_error_desconocido</string>
+    <string name="change_color">cambiar_color</string>
+    <string name="could_not_create_file">no_se_pudo_crear_archivo</string>
+    <string name="stay_true_to_my_color_inputs">Mantener mis colores personalizados</string>
+    <string name="always_accept_when_unmetered">Aceptar siempre cuando haya acceso ilimitado</string>
+    <string name="pref_auto_accept_unmetered_summary">No usar más allá del límite de red o en redes ilimitadas</string>
+    <string name="pref_show_avatars_summary">Mostrar avatares en tus mensajes y en conversaciones 1:1, además de las conversaciones grupales.</string>
+    <string name="block_media_question">¿De verdad deseas bloquear está media en todos los mensajes?</string>
+    <string name="archiving_not_enabled_text">no se encuentra archivado completamente. Esto puede resultar en mensajes faltantes si empleas múltiples dispositivos o aplicaciones.</string>
+    <string name="not_dnssec_verified">DNSSEC no verificado</string>
+    <string name="is_requesting_to_speak">está solicitando hablar</string>
+    <string name="pref_call_integration">Integración de llamadas</string>
+    <string name="pref_call_integration_summary">Las llamadas de esta aplicación interactúan con llamadas telefónicas regulares, tal como finalizar una llamada cuando se inicie otra.</string>
+    <string name="show_media_summary">¿Te gustaría mostar tus imágenes enviadas y recibidas en la galería del sistema?</string>
+    <string name="reaction_to">a</string>
+    <string name="pref_hide_media_title">Esconder media en galería</string>
+    <string name="pref_hide_media_summary">Esconder la vista de media recibida y enviada de la galería del sistema</string>
 </resources>

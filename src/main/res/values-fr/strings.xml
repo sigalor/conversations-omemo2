@@ -1689,4 +1689,8 @@
     <string name="unlike_with_account">Supprimer le like avec</string>
     <string name="account_that_liked_post_is_offline">Le compte utilisé pour liker cet article est actuellement hors ligne.</string>
     <string name="pref_cache_deletion_time">Supprimer les fichiers du cache après</string>
+    <string name="destroy_room_succeed">Groupe de discussion détruit avec succès</string>
+    <string name="destroy_channel_succeed">Canal détruit avec succès</string>
+    <string name="destroy_room_failed">La discussion de groupe ne peut être détruite</string>
+    <string name="destroy_channel_failed">Le canal ne peut pas être détruit</string>
 </resources>
