@@ -1789,8 +1789,15 @@ public class Conversation extends AbstractEntity
             for (ListIterator<Message> iterator = this.messages.listIterator();
                  iterator.hasNext(); ) {
                 Message message = iterator.next();
-                if (message.getTimeSent() < timestamp || (message.getExpireAt() > 0 && message.getExpireAt() < now)) {
+                if (message.getTimeSent() < timestamp) {
                     iterator.remove();
+                } else if (message.getExpireAt() > 0 && message.getExpireAt() < now) {
+                    message.setBody("");
+                    message.setSubject(null);
+                    message.setDeleted(true);
+                    message.setRelativeFilePath(null);
+                    message.setFileParams(null);
+                    message.setEncryption(Message.ENCRYPTION_NONE);
                 }
             }
             untieMessages();

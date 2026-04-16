@@ -94,6 +94,7 @@ public class MessageGenerator extends AbstractGenerator {
         }
         if (message.getEphemeralTimer() > 0) {
             packet.addChild("ephemeral", Namespace.EPHEMERAL).setAttribute("timer", String.valueOf(message.getEphemeralTimer()));
+            packet.addChild("no-permanent-store", Namespace.HINTS);
         }
         if (message.isEphemeralIWantOut()) {
             packet.addChild("i-want-out", Namespace.EPHEMERAL);

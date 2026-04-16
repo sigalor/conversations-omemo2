@@ -2508,11 +2508,18 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public void expireOldMessages(long timestamp) {
         final String[] args = {String.valueOf(timestamp)};
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
         db.delete(Message.TABLENAME, "timeSent<?", args);
         db.delete("messages", "timeReceived<?", args);
-        db.delete(Message.TABLENAME, Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?", new String[]{String.valueOf(System.currentTimeMillis())});
+        ContentValues values = new ContentValues();
+        values.put(Message.BODY, (String) null);
+        values.put(Message.SUBJECT, (String) null);
+        values.put(Message.DELETED, 1);
+        values.put("file_deleted", 1);
+        values.put(Message.RELATIVE_FILE_PATH, (String) null);
+        values.put(Message.ENCRYPTION, Message.ENCRYPTION_NONE);
+        db.update(Message.TABLENAME, values, Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?", new String[]{String.valueOf(System.currentTimeMillis())});
         db.setTransactionSuccessful();
         db.endTransaction();
     }
