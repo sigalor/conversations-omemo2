@@ -2282,15 +2282,21 @@ public class XmppConnectionService extends Service {
     }
 
     public void sendEphemeralImplicitNegotiation(Conversation conversation, int timer) {
-        final Message message = new Message(conversation, null, Message.ENCRYPTION_NONE);
-        message.setEphemeralTimer(timer);
-        sendMessage(message);
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setTo(conversation.getJid().asBareJid());
+        packet.setType(conversation.getMode() == Conversation.MODE_SINGLE ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
+        packet.addChild("ephemeral", Namespace.EPHEMERAL).setAttribute("timer", String.valueOf(timer));
+        packet.addChild("store", Namespace.HINTS);
+        sendMessagePacket(conversation.getAccount(), packet);
     }
 
     public void sendEphemeralIWantOut(Conversation conversation) {
-        final Message message = new Message(conversation, null, Message.ENCRYPTION_NONE);
-        message.setEphemeralIWantOut(true);
-        sendMessage(message);
+        im.conversations.android.xmpp.model.stanza.Message packet = new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setTo(conversation.getJid().asBareJid());
+        packet.setType(conversation.getMode() == Conversation.MODE_SINGLE ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
+        packet.addChild("i-want-out", Namespace.EPHEMERAL);
+        packet.addChild("store", Namespace.HINTS);
+        sendMessagePacket(conversation.getAccount(), packet);
     }
 
     private void sendMessage(

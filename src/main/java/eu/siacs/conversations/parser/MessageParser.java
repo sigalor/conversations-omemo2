@@ -886,6 +886,26 @@ public class MessageParser extends AbstractParser
         }
 
         final boolean conversationIsProbablyMuc = isTypeGroupChat || mucUserElement != null || account.getXmppConnection().getMucServersWithholdAccount().contains(counterpart.getDomain().toString());
+
+        final Element ephemeralElement = packet.findChild("ephemeral", Namespace.EPHEMERAL);
+        final boolean hasIWantOut = packet.hasChild("i-want-out", Namespace.EPHEMERAL);
+        if (ephemeralElement != null || hasIWantOut) {
+            final Conversation conversation = mXmppConnectionService.findOrCreateConversation(account, counterpart.asBareJid(), conversationIsProbablyMuc, false, query, false);
+            if (ephemeralElement != null) {
+                try {
+                    int timer = Integer.parseInt(ephemeralElement.getAttribute("timer"));
+                    conversation.setEphemeralTimer(timer);
+                    mXmppConnectionService.databaseBackend.updateConversation(conversation);
+                } catch (Exception e) {
+                    // ignore
+                }
+            } else {
+                conversation.setEphemeralTimer(0);
+                mXmppConnectionService.databaseBackend.updateConversation(conversation);
+            }
+            mXmppConnectionService.updateConversationUi();
+        }
+
         final Element webxdc = packet.findChild("x", "urn:xmpp:webxdc:0");
         final Element thread = packet.findChild("thread");
         if (webxdc != null && thread != null) {
@@ -936,9 +956,7 @@ public class MessageParser extends AbstractParser
         if (reactions == null && (body != null
                 || pgpEncrypted != null
                 || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload"))
-                || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread"))
-                || packet.hasChild("ephemeral", Namespace.EPHEMERAL)
-                || packet.hasChild("i-want-out", Namespace.EPHEMERAL))
+                || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread")))
                 && !isMucStatusMessage) {
             final Conversation conversation =
                     mXmppConnectionService.findOrCreateConversation(
@@ -1141,17 +1159,13 @@ public class MessageParser extends AbstractParser
             message.setCarbon(isCarbon);
             message.setTime(timestamp);
 
-            final Element ephemeral = packet.findChild("ephemeral", Namespace.EPHEMERAL);
-            if (ephemeral != null) {
+            if (ephemeralElement != null) {
                 try {
-                    int timer = Integer.parseInt(ephemeral.getAttribute("timer"));
+                    int timer = Integer.parseInt(ephemeralElement.getAttribute("timer"));
                     message.setEphemeralTimer(timer);
-                    conversation.setEphemeralTimer(timer);
                 } catch (Exception e) {
                     // ignore invalid timer
                 }
-            } else if (packet.hasChild("i-want-out", Namespace.EPHEMERAL)) {
-                conversation.setEphemeralTimer(0);
             }
 
             if (isCarbon && status == Message.STATUS_SEND && message.getEphemeralTimer() > 0) {
