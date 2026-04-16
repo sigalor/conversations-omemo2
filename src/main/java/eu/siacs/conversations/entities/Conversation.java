@@ -816,11 +816,12 @@ public class Conversation extends AbstractEntity
             }
         }
         Set<String> extraIds = new HashSet<>();
+        long now = System.currentTimeMillis();
         for (ListIterator<Message> iterator = messages.listIterator(messages.size()); iterator.hasPrevious(); ) {
             Message m = iterator.previous();
 
-            // **New Check: retracted messages**
-            if (m.getRetractId() != null) {
+            // **New Check: retracted or expired ephemeral messages**
+            if (m.getRetractId() != null || m.isDeleted() || (m.getExpireAt() > 0 && m.getExpireAt() < now)) {
                 iterator.remove();
                 continue; // Move to the next message
             }
@@ -1104,10 +1105,11 @@ public class Conversation extends AbstractEntity
 
     public Message getLatestMessage() {
         synchronized (this.messages) {
+            long now = System.currentTimeMillis();
             for (int i = messages.size() - 1; i >= 0; --i) {
                 final Message message = messages.get(i);
-                // **NEW CHECK: Skip retracted messages**
-                if (message.getRetractId() != null) {
+                // **NEW CHECK: Skip retracted and expired messages**
+                if (message.getRetractId() != null || message.isDeleted() || (message.getExpireAt() > 0 && message.getExpireAt() < now)) {
                     message.markRead();
                     continue;
                 }
@@ -1792,7 +1794,7 @@ public class Conversation extends AbstractEntity
                 if (message.getTimeSent() < timestamp) {
                     iterator.remove();
                 } else if (message.getExpireAt() > 0 && message.getExpireAt() < now) {
-                    message.setBody("");
+                    message.setBody((String) null);
                     message.setSubject(null);
                     message.setDeleted(true);
                     message.setRelativeFilePath(null);

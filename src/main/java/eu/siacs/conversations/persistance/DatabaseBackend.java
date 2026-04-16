@@ -2519,6 +2519,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         values.put("file_deleted", 1);
         values.put(Message.RELATIVE_FILE_PATH, (String) null);
         values.put(Message.ENCRYPTION, Message.ENCRYPTION_NONE);
+        values.put(Message.REACTIONS, (String) null);
         db.update(Message.TABLENAME, values, Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?", new String[]{String.valueOf(System.currentTimeMillis())});
         db.setTransactionSuccessful();
         db.endTransaction();
