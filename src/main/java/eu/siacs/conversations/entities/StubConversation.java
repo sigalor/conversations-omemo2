@@ -72,6 +72,11 @@ public class StubConversation implements Conversational {
 	}
 
 	@Override
+	public int getEphemeralTimer() {
+		return 0;
+	}
+
+	@Override
 	public boolean canInferPresence() {
 		final Contact contact = getContact();
 		return contact != null && contact.canInferPresence();

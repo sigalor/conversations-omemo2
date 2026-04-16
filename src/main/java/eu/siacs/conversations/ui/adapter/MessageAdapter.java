@@ -1695,11 +1695,14 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         final Transferable transferable = message.getTransferable();
         final boolean unInitiatedButKnownSize = MessageUtils.unInitiatedButKnownSize(message);
+        final boolean expired = message.getExpireAt() > 0 && message.getExpireAt() < System.currentTimeMillis();
 
         final boolean muted = message.getStatus() == Message.STATUS_RECEIVED && conversation.getMode() == Conversation.MODE_MULTI && activity.xmppConnectionService.isMucUserMuted(new MucOptions.User(null, conversation.getJid(), message.getOccupantId(), null, null));
         if (muted) {
             // Muted MUC participant
             displayInfoMessage(viewHolder, "Muted", bubbleColor);
+        } else if (expired || Message.DELETED_MESSAGE_BODY.equals(message.getBody())) {
+            displayInfoMessage(viewHolder, activity.getString(R.string.message_has_disappeared), bubbleColor);
         } else if (message.getType() == Message.TYPE_STORY || message.getStoryReference() != null) {
             displayPubSubMessage(viewHolder, message, bubbleColor);
         } else if (unInitiatedButKnownSize || message.isDeleted() || (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING)) {

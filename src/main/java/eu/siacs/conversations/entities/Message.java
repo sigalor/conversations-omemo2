@@ -140,6 +140,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final String OCCUPANTID = "occupant_id";
     public static final String NOTIFICATION_DISMISSED = "notificationDismissed";
     public static final String RETRACT_ID = "retractId";
+    public static final String EPHEMERAL_TIMER = "ephemeral_timer";
+    public static final String EXPIRE_AT = "expire_at";
 
 
     public static final String ERROR_MESSAGE_CANCELLED = "eu.siacs.conversations.cancelled";
@@ -189,6 +191,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private List<MucOptions.User> counterparts;
     private WeakReference<MucOptions.User> user;
     private String retractId = null;
+    private int ephemeralTimer = 0;
+    private long expireAt = 0;
+    private boolean ephemeralIWantOut = false;
     private androidx.core.util.Pair<Jid, String> storyReference = null;
 
     protected Message(Conversational conversation) {
@@ -230,7 +235,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 null,
                 null,
                 null,
-                null);
+                null,
+                conversation.getEphemeralTimer(),
+                0L);
     }
 
     public Message(Conversation conversation, int status, int type, final String remoteMsgId) {
@@ -264,7 +271,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 null,
                 null,
                 null,
-                null);
+                null,
+                conversation.getEphemeralTimer(),
+                0L);
     }
 
     protected Message(
@@ -293,7 +302,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             final String bodyLanguage,
             final String occupantId,
             final Collection<Reaction> reactions,
-            final long timeReceived, final String subject, final String fileParams, final List<Element> payloads, final String retractId) {
+            final long timeReceived, final String subject, final String fileParams, final List<Element> payloads, final String retractId, final int ephemeralTimer, final long expireAt) {
         this.conversation = conversation;
         this.uuid = uuid;
         this.conversationUuid = conversationUUid;
@@ -324,6 +333,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (payloads != null) this.payloads = payloads;
         if (fileParams != null && getSims().isEmpty()) this.fileParams = new FileParams(fileParams);
         this.retractId = retractId;
+        this.ephemeralTimer = ephemeralTimer;
+        this.expireAt = expireAt;
 
         if (type == TYPE_TEXT || type == TYPE_PRIVATE) {
             final FileParams fp = getFileParams();
@@ -396,7 +407,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                 cursor.getString(cursor.getColumnIndexOrThrow(SUBJECT)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FILE_PARAMS)),
                 payloads,
-                cursor.getString(cursor.getColumnIndexOrThrow(RETRACT_ID))
+                cursor.getString(cursor.getColumnIndexOrThrow(RETRACT_ID)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(EPHEMERAL_TIMER)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(EXPIRE_AT))
         );
         final var legacyOccupant = cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANTID));
         if (legacyOccupant != null) m.setOccupantId(legacyOccupant);
@@ -498,6 +511,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         values.put(RELATIVE_FILE_PATH, relativeFilePath);
         values.put(SERVER_MSG_ID, serverMsgId);
         values.put(FINGERPRINT, axolotlFingerprint);
+        values.put(EPHEMERAL_TIMER, ephemeralTimer);
+        values.put(EXPIRE_AT, expireAt);
         values.put(READ, read ? 1 : 0);
         try {
             values.put(EDITED, Edit.toJson(edits));
@@ -527,6 +542,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         values.put(TIME_RECEIVED, timeReceived);
         values.put(NOTIFICATION_DISMISSED, notificationDismissed ? 1 : 0);
         values.put(RETRACT_ID, retractId);
+        values.put(EPHEMERAL_TIMER, ephemeralTimer);
+        values.put(EXPIRE_AT, expireAt);
         return values;
     }
 
@@ -993,6 +1010,34 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public void setRetractId(String id) {
         this.retractId = id;
+    }
+
+    public int getEphemeralTimer() {
+        return ephemeralTimer;
+    }
+
+    public void setEphemeralTimer(int ephemeralTimer) {
+        this.ephemeralTimer = ephemeralTimer;
+    }
+
+    public long getExpireAt() {
+        return expireAt;
+    }
+
+    public void setExpireAt(long expireAt) {
+        this.expireAt = expireAt;
+    }
+
+    public boolean isEphemeral() {
+        return ephemeralTimer > 0;
+    }
+
+    public boolean isEphemeralIWantOut() {
+        return ephemeralIWantOut;
+    }
+
+    public void setEphemeralIWantOut(boolean ephemeralIWantOut) {
+        this.ephemeralIWantOut = ephemeralIWantOut;
     }
 
     public boolean addReadByMarker(final ReadByMarker readByMarker) {

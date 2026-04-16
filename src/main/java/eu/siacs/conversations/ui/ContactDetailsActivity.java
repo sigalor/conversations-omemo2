@@ -321,6 +321,11 @@ public class ContactDetailsActivity extends OmemoActivity
         mDisableCallsSwitch = binding.disableCalls;
         mFollowFeedSwitch = binding.followFeedSwitch;
 
+        final var ephemeralDurationEntries = getResources().getStringArray(R.array.ephemeral_durations);
+        final var spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ephemeralDurationEntries);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.ephemeralMessagesDurationSpinner.setAdapter(spinnerAdapter);
+
         this.mOnFollowFeedCheckedChange =
                 (buttonView, isChecked) -> {
                     if (contact != null) {
@@ -972,6 +977,56 @@ public class ContactDetailsActivity extends OmemoActivity
         if (contact != null) {
             mFollowFeedSwitch.setChecked(contact.isFollowed());
         }
+
+        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener(null);
+        int timer = conversation.getEphemeralTimer();
+        final var ephemeralDurationValues = getResources().getIntArray(R.array.ephemeral_duration_values);
+        if (timer > 0) {
+            binding.ephemeralMessagesSwitch.setChecked(true);
+            binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+            int index = 0;
+            for (int i = 0; i < ephemeralDurationValues.length; i++) {
+                if (ephemeralDurationValues[i] == timer) {
+                    index = i;
+                    break;
+                }
+            }
+            binding.ephemeralMessagesDurationSpinner.setSelection(index);
+        } else {
+            binding.ephemeralMessagesSwitch.setChecked(false);
+            binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+        }
+        binding.ephemeralMessagesDurationSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                int seconds = ephemeralDurationValues[position];
+                if (conversation.getEphemeralTimer() != seconds && binding.ephemeralMessagesSwitch.isChecked()) {
+                    if (conversation.setEphemeralTimer(seconds)) {
+                        xmppConnectionService.databaseBackend.updateConversation(conversation);
+                        xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
+        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.ephemeralMessagesDurationLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            if (isChecked) {
+                int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                if (conversation.setEphemeralTimer(seconds)) {
+                    xmppConnectionService.databaseBackend.updateConversation(conversation);
+                    xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
+                }
+            } else {
+                if (conversation.setEphemeralTimer(0)) {
+                    xmppConnectionService.databaseBackend.updateConversation(conversation);
+                    xmppConnectionService.sendEphemeralIWantOut(conversation);
+                }
+            }
+        });
     }
 
     private void onBadgeClick(final View view) {

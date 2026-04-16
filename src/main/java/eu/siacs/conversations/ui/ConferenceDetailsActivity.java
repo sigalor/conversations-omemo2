@@ -374,6 +374,49 @@ public class ConferenceDetailsActivity extends XmppActivity
             intent.putExtra("services", new String[]{ mConversation.getJid().getDomain().toString(), mConversation.getAccount().getJid().toString() });
             startActivity(intent);
         });
+
+        final var ephemeralDurationValues = getResources().getIntArray(R.array.ephemeral_duration_values);
+        final var ephemeralDurationEntries = getResources().getStringArray(R.array.ephemeral_durations);
+        final var spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ephemeralDurationEntries);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.ephemeralMessagesDurationSpinner.setAdapter(spinnerAdapter);
+
+        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.ephemeralMessagesDurationLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            if (mConversation != null) {
+                if (isChecked) {
+                    int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                    if (mConversation.setEphemeralTimer(seconds)) {
+                        xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                        xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
+                    }
+                } else {
+                    if (mConversation.setEphemeralTimer(0)) {
+                        xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                        xmppConnectionService.sendEphemeralIWantOut(mConversation);
+                    }
+                }
+            }
+        });
+
+        binding.ephemeralMessagesDurationSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                if (mConversation != null) {
+                    int seconds = ephemeralDurationValues[position];
+                    if (mConversation.getEphemeralTimer() != seconds && binding.ephemeralMessagesSwitch.isChecked()) {
+                        if (mConversation.setEphemeralTimer(seconds)) {
+                            xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                            xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
     }
 
     @Override
@@ -874,6 +917,40 @@ public class ConferenceDetailsActivity extends XmppActivity
             this.binding.recentThreadsWrapper.setVisibility(View.VISIBLE);
             Util.justifyListViewHeightBasedOnChildren(binding.recentThreads);
         }
+
+        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener(null);
+        int timer = mConversation.getEphemeralTimer();
+        final var ephemeralDurationValues = getResources().getIntArray(R.array.ephemeral_duration_values);
+        if (timer > 0) {
+            binding.ephemeralMessagesSwitch.setChecked(true);
+            binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+            int index = 0;
+            for (int i = 0; i < ephemeralDurationValues.length; i++) {
+                if (ephemeralDurationValues[i] == timer) {
+                    index = i;
+                    break;
+                }
+            }
+            binding.ephemeralMessagesDurationSpinner.setSelection(index);
+        } else {
+            binding.ephemeralMessagesSwitch.setChecked(false);
+            binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+        }
+        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.ephemeralMessagesDurationLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            if (isChecked) {
+                int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                if (mConversation.setEphemeralTimer(seconds)) {
+                    xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                    xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
+                }
+            } else {
+                if (mConversation.setEphemeralTimer(0)) {
+                    xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                    xmppConnectionService.sendEphemeralIWantOut(mConversation);
+                }
+            }
+        });
 
         final List<ListItem.Tag> tagList = bookmark.getTags(this);
         if (tagList.isEmpty() || !this.showDynamicTags) {

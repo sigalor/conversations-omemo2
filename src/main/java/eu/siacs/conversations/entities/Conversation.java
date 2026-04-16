@@ -218,6 +218,7 @@ public class Conversation extends AbstractEntity
     private static final String ATTRIBUTE_CRYPTO_TARGETS = "crypto_targets";
     private static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
     private static final String ATTRIBUTE_CORRECTING_MESSAGE = "correcting_message";
+    public static final String ATTRIBUTE_EPHEMERAL_TIMER = "ephemeral_timer";
     protected final ArrayList<Message> messages = new ArrayList<>();
     protected final ArrayList<Message> historyPartMessages = new ArrayList<>();
     public AtomicBoolean messagesLoaded = new AtomicBoolean(true);
@@ -1784,9 +1785,11 @@ public class Conversation extends AbstractEntity
 
     public void expireOldMessages(long timestamp) {
         synchronized (this.messages) {
+            long now = System.currentTimeMillis();
             for (ListIterator<Message> iterator = this.messages.listIterator();
                  iterator.hasNext(); ) {
-                if (iterator.next().getTimeSent() < timestamp) {
+                Message message = iterator.next();
+                if (message.getTimeSent() < timestamp || (message.getExpireAt() > 0 && message.getExpireAt() < now)) {
                     iterator.remove();
                 }
             }
@@ -1994,6 +1997,14 @@ public class Conversation extends AbstractEntity
 
     public void setDisplayState(final String stanzaId) {
         this.displayState = stanzaId;
+    }
+
+    public int getEphemeralTimer() {
+        return getIntAttribute(ATTRIBUTE_EPHEMERAL_TIMER, 0);
+    }
+
+    public boolean setEphemeralTimer(int timer) {
+        return setAttribute(ATTRIBUTE_EPHEMERAL_TIMER, timer);
     }
 
     public String getDisplayState() {

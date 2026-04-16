@@ -179,4 +179,30 @@
 		<item>180</item>
 		<item>320</item>
 	</integer-array>
+
+	<string-array name="ephemeral_durations">
+		<item>@string/ephemeral_messages_30_seconds</item>
+		<item>@string/ephemeral_messages_1_minute</item>
+		<item>@string/ephemeral_messages_5_minutes</item>
+		<item>@string/ephemeral_messages_30_minutes</item>
+		<item>@string/ephemeral_messages_1_hour</item>
+		<item>@string/ephemeral_messages_6_hours</item>
+		<item>@string/ephemeral_messages_12_hours</item>
+		<item>@string/ephemeral_messages_1_day</item>
+		<item>@string/ephemeral_messages_1_week</item>
+		<item>@string/ephemeral_messages_1_month</item>
+	</string-array>
+
+	<integer-array name="ephemeral_duration_values">
+		<item>30</item>
+		<item>60</item>
+		<item>300</item>
+		<item>1800</item>
+		<item>3600</item>
+		<item>21600</item>
+		<item>43200</item>
+		<item>86400</item>
+		<item>604800</item>
+		<item>2592000</item>
+	</integer-array>
 </resources>

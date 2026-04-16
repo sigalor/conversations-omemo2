@@ -92,6 +92,15 @@ public class MessageGenerator extends AbstractGenerator {
         if (conversation.isSingleOrPrivateAndNonAnonymous() && !message.isPrivateMessage()) {
             packet.addChild("markable", "urn:xmpp:chat-markers:0");
         }
+        if (message.getEphemeralTimer() > 0) {
+            packet.addChild("ephemeral", Namespace.EPHEMERAL).setAttribute("timer", String.valueOf(message.getEphemeralTimer()));
+        }
+        if (message.isEphemeralIWantOut()) {
+            packet.addChild("i-want-out", Namespace.EPHEMERAL);
+        }
+        if (message.getRawBody() == null && (message.getEphemeralTimer() > 0 || message.isEphemeralIWantOut())) {
+            packet.addChild("store", "urn:xmpp:hints");
+        }
         if (conversation.getMode() == Conversational.MODE_MULTI
                 && !message.isPrivateMessage()
                 && !conversation.getMucOptions().stableId()) {

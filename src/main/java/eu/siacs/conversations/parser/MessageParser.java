@@ -936,7 +936,9 @@ public class MessageParser extends AbstractParser
         if (reactions == null && (body != null
                 || pgpEncrypted != null
                 || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload"))
-                || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread")))
+                || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread"))
+                || packet.hasChild("ephemeral", Namespace.EPHEMERAL)
+                || packet.hasChild("i-want-out", Namespace.EPHEMERAL))
                 && !isMucStatusMessage) {
             final Conversation conversation =
                     mXmppConnectionService.findOrCreateConversation(
@@ -1138,6 +1140,24 @@ public class MessageParser extends AbstractParser
             message.setServerMsgId(serverMsgId);
             message.setCarbon(isCarbon);
             message.setTime(timestamp);
+
+            final Element ephemeral = packet.findChild("ephemeral", Namespace.EPHEMERAL);
+            if (ephemeral != null) {
+                try {
+                    int timer = Integer.parseInt(ephemeral.getAttribute("timer"));
+                    message.setEphemeralTimer(timer);
+                    conversation.setEphemeralTimer(timer);
+                } catch (Exception e) {
+                    // ignore invalid timer
+                }
+            } else if (packet.hasChild("i-want-out", Namespace.EPHEMERAL)) {
+                conversation.setEphemeralTimer(0);
+            }
+
+            if (isCarbon && status == Message.STATUS_SEND && message.getEphemeralTimer() > 0) {
+                message.setExpireAt(message.getTimeSent() + message.getEphemeralTimer() * 1000L);
+            }
+
             if (!attachments.isEmpty()) {
                 message.setFileParams(attachments.iterator().next());
                 if (CryptoHelper.isPgpEncryptedUrl(message.getFileParams().url)) {
@@ -1437,6 +1457,9 @@ public class MessageParser extends AbstractParser
             }
 
             mXmppConnectionService.databaseBackend.createMessage(message);
+            if (message.isEphemeral()) {
+                mXmppConnectionService.scheduleNextExpiry();
+            }
             final HttpConnectionManager manager =
                     this.mXmppConnectionService.getHttpConnectionManager();
             if (message.trusted() && message.treatAsDownloadable() && manager.getAutoAcceptFileSize() > 0) {
@@ -1647,6 +1670,9 @@ public class MessageParser extends AbstractParser
                                     mXmppConnectionService.getNotificationService().possiblyMissedCall(c.getUuid() + sessionId, message);
                                     if (query != null) query.incrementActualMessageCount();
                                     mXmppConnectionService.databaseBackend.createMessage(message);
+                                    if (message.isEphemeral()) {
+                                        mXmppConnectionService.scheduleNextExpiry();
+                                    }
                                 }
                             } else if ("proceed".equals(action)) {
                                 // status needs to be flipped to find the original propose
@@ -1712,6 +1738,9 @@ public class MessageParser extends AbstractParser
                                     }
                                     if (query != null) query.incrementActualMessageCount();
                                     mXmppConnectionService.databaseBackend.createMessage(message);
+                                    if (message.isEphemeral()) {
+                                        mXmppConnectionService.scheduleNextExpiry();
+                                    }
                                 }
                             }
                         }

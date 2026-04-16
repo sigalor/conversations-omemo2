@@ -44,7 +44,9 @@ public interface Conversational {
 
 	int getMode();
 
-	String getUuid();
+	    String getUuid();
 
-	boolean canInferPresence();
+    int getEphemeralTimer();
+
+    boolean canInferPresence();
 }

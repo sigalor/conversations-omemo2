@@ -287,6 +287,7 @@ public class XmppConnectionService extends Service {
     public static final String ACTION_RENEW_UNIFIED_PUSH_ENDPOINTS =
             "eu.siacs.conversations.UNIFIED_PUSH_RENEW";
     public static final String ACTION_QUICK_LOG = "eu.siacs.conversations.QUICK_LOG";
+    public static final String ACTION_EXPIRE_MESSAGES = "eu.siacs.conversations.EXPIRE_MESSAGES";
 
     private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
 
@@ -1250,6 +1251,9 @@ public class XmppConnectionService extends Service {
             case ACTION_FCM_MESSAGE_RECEIVED:
                 Log.d(Config.LOGTAG, "push message arrived in service. account");
                 break;
+            case ACTION_EXPIRE_MESSAGES:
+                expireOldMessages();
+                break;
             case ACTION_QUICK_LOG:
                 final String message = intent == null ? null : intent.getStringExtra("message");
                 if (message != null && Config.QUICK_LOG) {
@@ -1689,21 +1693,44 @@ public class XmppConnectionService extends Service {
         mDatabaseWriterExecutor.execute(
                 () -> {
                     long timestamp = getAutomaticMessageDeletionDate();
-                    if (timestamp > 0) {
-                        databaseBackend.expireOldMessages(timestamp);
-                        synchronized (XmppConnectionService.this.conversations) {
-                            for (Conversation conversation :
-                                    XmppConnectionService.this.conversations) {
-                                conversation.expireOldMessages(timestamp);
-                                if (resetHasMessagesLeftOnServer) {
-                                    conversation.messagesLoaded.set(true);
-                                    conversation.setHasMessagesLeftOnServer(true);
-                                }
+                    List<Message> expiringMessages = databaseBackend.getExpiringMessages();
+                    for (Message message : expiringMessages) {
+                        fileBackend.deleteFile(message);
+                    }
+                    databaseBackend.expireOldMessages(timestamp);
+                    synchronized (XmppConnectionService.this.conversations) {
+                        for (Conversation conversation :
+                                XmppConnectionService.this.conversations) {
+                            conversation.expireOldMessages(timestamp);
+                            if (resetHasMessagesLeftOnServer) {
+                                conversation.messagesLoaded.set(true);
+                                conversation.setHasMessagesLeftOnServer(true);
                             }
                         }
-                        updateConversationUi();
                     }
+                    updateConversationUi();
+                    scheduleNextExpiry();
                 });
+    }
+
+    public void scheduleNextExpiry() {
+        mDatabaseWriterExecutor.execute(() -> {
+            final long next = databaseBackend.getNextExpiration();
+            if (next > 0) {
+                final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                if (alarmManager == null) {
+                    return;
+                }
+                final Intent intent = new Intent(this, eu.siacs.conversations.receiver.SystemEventReceiver.class);
+                intent.setAction(ACTION_EXPIRE_MESSAGES);
+                final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next, pendingIntent);
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, next, pendingIntent);
+                }
+            }
+        });
     }
 
     public boolean hasInternetConnection() {
@@ -2254,6 +2281,18 @@ public class XmppConnectionService extends Service {
         sendMessage(message, false, false, false, cb, false);
     }
 
+    public void sendEphemeralImplicitNegotiation(Conversation conversation, int timer) {
+        final Message message = new Message(conversation, null, Message.ENCRYPTION_NONE);
+        message.setEphemeralTimer(timer);
+        sendMessage(message);
+    }
+
+    public void sendEphemeralIWantOut(Conversation conversation) {
+        final Message message = new Message(conversation, null, Message.ENCRYPTION_NONE);
+        message.setEphemeralIWantOut(true);
+        sendMessage(message);
+    }
+
     private void sendMessage(
             final Message message,
             final boolean resend,
@@ -2268,6 +2307,10 @@ public class XmppConnectionService extends Service {
         }
         final Conversation conversation = (Conversation) message.getConversation();
         account.deactivateGracePeriod();
+
+        if (message.getEphemeralTimer() > 0 && message.getExpireAt() == 0) {
+            message.setExpireAt(System.currentTimeMillis() + message.getEphemeralTimer() * 1000L);
+        }
 
         if (QuickConversationsService.isQuicksy()
                 && conversation.getMode() == Conversation.MODE_SINGLE) {
@@ -2579,9 +2622,15 @@ public class XmppConnectionService extends Service {
             }
             if (saveInDb) {
                 databaseBackend.createMessage(message);
+                if (message.isEphemeral()) {
+                    scheduleNextExpiry();
+                }
             } else if (message.edited()) {
                 if (!databaseBackend.updateMessage(message, message.getEditedId())) {
                     Log.e(Config.LOGTAG, "error updated message in DB after edit");
+                }
+                if (message.isEphemeral()) {
+                    scheduleNextExpiry();
                 }
             }
             updateConversationUi();
@@ -6534,8 +6583,12 @@ public class XmppConnectionService extends Service {
             Runnable runnable =
                     () -> {
                         for (Message message : readMessages) {
+                            if (message.getEphemeralTimer() > 0 && message.getExpireAt() == 0) {
+                                message.setExpireAt(System.currentTimeMillis() + message.getEphemeralTimer() * 1000L);
+                            }
                             databaseBackend.updateMessage(message, false);
                         }
+                        scheduleNextExpiry();
                     };
             mDatabaseWriterExecutor.execute(runnable);
             updateConversationUi();

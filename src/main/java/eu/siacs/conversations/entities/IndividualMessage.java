@@ -44,8 +44,8 @@ public class IndividualMessage extends Message {
 		super(conversation);
 	}
 
-	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable, boolean deleted, String bodyLanguage, String occupantId, Collection<Reaction> reactions, String retractId) {
-		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable, deleted, bodyLanguage, occupantId, reactions, timeSent, null, null, null, retractId);
+	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable, boolean deleted, String bodyLanguage, String occupantId, Collection<Reaction> reactions, String retractId, int ephemeralTimer, long expireAt) {
+		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable, deleted, bodyLanguage, occupantId, reactions, timeSent, null, null, null, retractId, ephemeralTimer, expireAt);
 	}
 
 	@Override
@@ -121,7 +121,9 @@ public class IndividualMessage extends Message {
 				cursor.getString(cursor.getColumnIndexOrThrow(BODY_LANGUAGE)),
 				cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANT_ID)),
 				Reaction.fromString(cursor.getString(cursor.getColumnIndexOrThrow(REACTIONS))),
-				cursor.getString(cursor.getColumnIndexOrThrow(RETRACT_ID))
+				cursor.getString(cursor.getColumnIndexOrThrow(RETRACT_ID)),
+				cursor.getInt(cursor.getColumnIndexOrThrow(EPHEMERAL_TIMER)),
+				cursor.getLong(cursor.getColumnIndexOrThrow(EXPIRE_AT))
 		);
 	}
 }

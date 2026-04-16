@@ -109,7 +109,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 67;
+    private static final int DATABASE_VERSION = 68;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -353,6 +353,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ")";
     private static final String CREATE_MESSAGE_TYPE_INDEX =
             "CREATE INDEX message_type_index ON " + Message.TABLENAME + "(" + Message.TYPE + ")";
+    private static final String CREATE_MESSAGE_EXPIRE_AT_INDEX =
+            "CREATE INDEX message_expire_at_index ON "
+                    + Message.TABLENAME
+                    + "("
+                    + Message.EXPIRE_AT
+                    + ")";
 
     private static final String CREATE_MESSAGE_INDEX_TABLE =
             "CREATE VIRTUAL TABLE messages_index USING fts4"
@@ -422,7 +428,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public static synchronized DatabaseBackend getInstance(Context context) {
         if (instance == null) {
             instance = new DatabaseBackend(context);
-        }
+    }
         return instance;
     }
 
@@ -559,7 +565,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + Message.REACTIONS
                         + " TEXT,"
                         + Message.REMOTE_MSG_ID
-                        + " TEXT, FOREIGN KEY("
+                        + " TEXT,"
+                        + Message.EPHEMERAL_TIMER
+                        + " INTEGER DEFAULT 0,"
+                        + Message.EXPIRE_AT
+                        + " NUMBER DEFAULT 0, FOREIGN KEY("
                         + Message.CONVERSATION
                         + ") REFERENCES "
                         + Conversation.TABLENAME
@@ -572,6 +582,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_FILE_DELETED_INDEX);
         db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
         db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
+        db.execSQL(CREATE_MESSAGE_EXPIRE_AT_INDEX);
         db.execSQL(CREATE_CONTATCS_STATEMENT);
         db.execSQL(CREATE_DISCOVERY_RESULTS_STATEMENT);
         db.execSQL(CREATE_SESSIONS_STATEMENT);
@@ -1335,6 +1346,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             } catch (final SQLiteException e) {
                 Log.e(Config.LOGTAG, "unable to add link_url column to posts table", e);
             }
+        }
+        if (oldVersion < 68 && newVersion >= 68) {
+            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.EPHEMERAL_TIMER + " INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.EXPIRE_AT + " NUMBER DEFAULT 0");
+            db.execSQL(CREATE_MESSAGE_EXPIRE_AT_INDEX);
         }
     }
 
@@ -2496,8 +2512,47 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.beginTransaction();
         db.delete(Message.TABLENAME, "timeSent<?", args);
         db.delete("messages", "timeReceived<?", args);
+        db.delete(Message.TABLENAME, Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?", new String[]{String.valueOf(System.currentTimeMillis())});
         db.setTransactionSuccessful();
         db.endTransaction();
+    }
+
+    public long getNextExpiration() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT MIN(" + Message.EXPIRE_AT + ") FROM " + Message.TABLENAME + " WHERE " + Message.EXPIRE_AT + " > 0";
+        try (Cursor cursor = db.rawQuery(query, null)) {
+            if (cursor.moveToFirst()) {
+                return cursor.getLong(0);
+            }
+        }
+        return 0;
+    }
+
+    public List<Message> getExpiringMessages() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + Message.TABLENAME + " WHERE " + Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?";
+        List<Message> messages = new ArrayList<>();
+        Map<String, Conversation> conversationMap = new HashMap<>();
+        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(System.currentTimeMillis())})) {
+            while (cursor.moveToNext()) {
+                String conversationUuid = cursor.getString(cursor.getColumnIndexOrThrow(Message.CONVERSATION));
+                Conversation conversation = conversationMap.get(conversationUuid);
+                if (conversation == null) {
+                    conversation = findConversation(conversationUuid);
+                    if (conversation != null) {
+                        conversationMap.put(conversationUuid, conversation);
+                    }
+                }
+                if (conversation != null) {
+                    try {
+                        messages.add(Message.fromCursor(cursor, conversation));
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+        return messages;
     }
 
     public MamReference getLastMessageReceived(Account account) {
@@ -2541,7 +2596,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             time = cursor.getLong(0);
         } else {
             time = 0;
-        }
+    }
         cursor.close();
         return time;
     }

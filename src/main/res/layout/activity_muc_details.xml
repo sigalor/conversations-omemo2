@@ -428,6 +428,34 @@
                                 android:src="@drawable/ic_notifications_24dp" />
                         </RelativeLayout>
 
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/ephemeral_messages_switch"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/ephemeral_messages" />
+
+                        <LinearLayout
+                            android:id="@+id/ephemeral_messages_duration_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/ephemeral_messages_duration"
+                                android:textAppearance="?textAppearanceLabelMedium" />
+
+                            <Spinner
+                                android:id="@+id/ephemeral_messages_duration_spinner"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
                         <TextView
                             android:id="@+id/details_account"
                             android:layout_width="wrap_content"
