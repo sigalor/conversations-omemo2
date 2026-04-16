@@ -497,11 +497,15 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         } else {
             values.put(TRUE_COUNTERPART, trueCounterpart.toString());
         }
-        values.put(
-                BODY,
-                body.length() > Config.MAX_STORAGE_MESSAGE_CHARS
-                        ? body.substring(0, Config.MAX_STORAGE_MESSAGE_CHARS)
-                        : body);
+        if (body == null) {
+            values.putNull(BODY);
+        } else {
+            values.put(
+                    BODY,
+                    body.length() > Config.MAX_STORAGE_MESSAGE_CHARS
+                            ? body.substring(0, Config.MAX_STORAGE_MESSAGE_CHARS)
+                            : body);
+        }
         values.put(TIME_SENT, timeSent);
         values.put(ENCRYPTION, encryption);
         values.put(STATUS, status);
