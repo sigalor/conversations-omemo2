@@ -508,6 +508,17 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             viewHolder.indicatorEdit().setVisibility(View.GONE);
         }
 
+        if (message.getEphemeralTimer() > 0) {
+            viewHolder.indicatorEphemeral().setVisibility(View.VISIBLE);
+            if (error && sent) {
+                setImageTintError(viewHolder.indicatorEphemeral());
+            } else {
+                setImageTint(viewHolder.indicatorEphemeral(), bubbleColor);
+            }
+        } else {
+            viewHolder.indicatorEphemeral().setVisibility(View.GONE);
+        }
+
         final String formattedTime =
                 UIHelper.readableTimeDifferenceFull(getContext(), message.getTimeSent(), allowRelativeTimestamps);
         final String bodyLanguage = message.getBodyLanguage();
@@ -2729,6 +2740,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         protected abstract TextView subject();
 
+        protected abstract ImageView indicatorEphemeral();
+
         protected abstract TextView username();
 
         protected abstract TextView showMore();
@@ -2754,6 +2767,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         @Override
         protected ImageView indicatorEdit() {
             return this.binding.editIndicator;
+        }
+
+        @Override
+        protected ImageView indicatorEphemeral() {
+            return this.binding.ephemeralIndicator;
         }
 
         @Override
@@ -2922,6 +2940,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         @Override
         protected ImageView indicatorEdit() {
             return this.binding.editIndicator;
+        }
+
+        @Override
+        protected ImageView indicatorEphemeral() {
+            return this.binding.ephemeralIndicator;
         }
 
         @Override

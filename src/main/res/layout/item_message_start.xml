@@ -115,6 +115,17 @@
                         app:tint="?colorOnTertiaryContainer" />
 
                     <ImageView
+                        android:id="@+id/ephemeral_indicator"
+                        android:layout_width="12sp"
+                        android:layout_height="12sp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="4sp"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_auto_delete_24dp"
+                        app:tint="?colorOnTertiaryContainer"
+                        android:visibility="gone" />
+
+                    <ImageView
                         android:id="@+id/indicator_received"
                         android:layout_width="16sp"
                         android:layout_height="16sp"
