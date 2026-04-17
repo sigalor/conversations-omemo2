@@ -4913,6 +4913,19 @@ public class ConversationFragment extends XmppFragment
                     } else {
                         binding.tuneSubject.setVisibility(View.GONE);
                     }
+
+                    int timer = conversation.getEphemeralTimer();
+                    if (timer > 0 && !conversation.ephemeralHintHidden()) {
+                        binding.ephemeralHintText.setText(getString(R.string.ephemeral_messages_active_hint, UIHelper.getReadableEphemeralDuration(activity, timer)));
+                        binding.ephemeralHintHide.setOnClickListener(v -> {
+                            conversation.setEphemeralHintHidden(true);
+                            binding.ephemeralHint.setVisibility(View.GONE);
+                            activity.xmppConnectionService.databaseBackend.updateConversation(conversation);
+                        });
+                        binding.ephemeralHint.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.ephemeralHint.setVisibility(View.GONE);
+                    }
                 });
             }
         }

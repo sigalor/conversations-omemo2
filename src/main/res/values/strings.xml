@@ -1609,6 +1609,7 @@
     <string name="ephemeral_messages_1_week">1 week</string>
     <string name="ephemeral_messages_1_month">1 month</string>
     <string name="message_has_disappeared">This message has disappeared</string>
+    <string name="ephemeral_messages_active_hint">Ephemeral messages are active (%s)</string>
     <string name="no_calls_yet">No calls yet</string>
     <string name="video_too_long_for_story">Too long. Maximum video length is one minute.</string>
     <string name="error_retrieving_video_duration">Could not retrieve video duration</string>
