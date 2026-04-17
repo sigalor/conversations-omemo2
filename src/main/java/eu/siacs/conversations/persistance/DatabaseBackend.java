@@ -2516,7 +2516,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         values.put(Message.BODY, (String) null);
         values.put(Message.SUBJECT, (String) null);
         values.put(Message.DELETED, 1);
-        values.put("file_deleted", 1);
+        if (columnExists(db, Message.TABLENAME, "file_deleted")) {
+            values.put("file_deleted", 1);
+        }
         values.put(Message.RELATIVE_FILE_PATH, (String) null);
         values.put(Message.ENCRYPTION, Message.ENCRYPTION_NONE);
         values.put(Message.REACTIONS, (String) null);
