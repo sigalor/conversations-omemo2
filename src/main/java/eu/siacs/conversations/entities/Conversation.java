@@ -2014,6 +2014,9 @@ public class Conversation extends AbstractEntity
     }
 
     public boolean setEphemeralTimer(int timer) {
+        if (getEphemeralTimer() != timer && timer > 0) {
+            setEphemeralHintHidden(false);
+        }
         return setAttribute(ATTRIBUTE_EPHEMERAL_TIMER, timer);
     }
 
