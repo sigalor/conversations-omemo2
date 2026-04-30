@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class BackupFileHeader {
 
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
 
     private final String app;
     private final Jid jid;
@@ -20,7 +20,9 @@ public class BackupFileHeader {
     @Override
     public String toString() {
         return "BackupFileHeader{"
-                + "app='"
+                + "version="
+                + VERSION
+                + ", app='"
                 + app
                 + '\''
                 + ", jid="
@@ -60,10 +62,10 @@ public class BackupFileHeader {
         inputStream.readFully(iv);
         final byte[] salt = new byte[16];
         inputStream.readFully(salt);
-        if (version < VERSION) {
+        if (version < 2) {
             throw new OutdatedBackupFileVersion();
         }
-        if (version != VERSION) {
+        if (version > VERSION) {
             throw new IllegalArgumentException(
                     "Backup File version was "
                             + version

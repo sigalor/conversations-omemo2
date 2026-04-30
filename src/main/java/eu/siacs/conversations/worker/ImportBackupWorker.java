@@ -12,7 +12,9 @@ import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.OpenableColumns;
+import android.util.Base64;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -43,9 +45,11 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
@@ -86,6 +90,7 @@ public class ImportBackupWorker extends Worker {
                             Conversation.TABLENAME,
                             Message.TABLENAME,
                             "webxdc_updates",
+                            "files",
                             "muted_participants"
                     )
                     .addAll(OMEMO_TABLE_LIST)
@@ -252,6 +257,13 @@ public class ImportBackupWorker extends Worker {
         if (!TABLE_ALLOW_LIST.contains(table)) {
             throw new IOException(String.format("%s is not recognized for import", table));
         }
+
+        if ("files".equals(table)) {
+            importFile(jsonReader);
+            jsonReader.endObject();
+            return;
+        }
+
         final ContentValues contentValues = new ContentValues();
         final String secondParameter = jsonReader.nextName();
         if (!secondParameter.equals("values")) {
@@ -267,7 +279,11 @@ public class ImportBackupWorker extends Worker {
                 } else if (jsonReader.peek() == JsonToken.NUMBER) {
                     contentValues.put(name, jsonReader.nextLong());
                 } else {
-                    contentValues.put(name, jsonReader.nextString());
+                    String value = jsonReader.nextString();
+                    if (Message.TABLENAME.equals(table) && Message.RELATIVE_FILE_PATH.equals(name)) {
+                        value = fromPortablePath(value);
+                    }
+                    contentValues.put(name, value);
                 }
             } else {
                 throw new IOException(String.format("Unexpected column name %s", name));
@@ -316,6 +332,46 @@ public class ImportBackupWorker extends Worker {
                 }
             } else {
                 db.insert(table, null, contentValues);
+            }
+        }
+    }
+
+    private void importFile(JsonReader jsonReader) throws IOException {
+        final String valuesKey = jsonReader.nextName();
+        if (!"values".equals(valuesKey)) {
+            throw new IllegalStateException("Expected key 'values'");
+        }
+        jsonReader.beginObject();
+        String portablePath = null;
+        int sequence = -1;
+        byte[] content = null;
+        while (jsonReader.peek() != JsonToken.END_OBJECT) {
+            final String name = jsonReader.nextName();
+            switch (name) {
+                case "path":
+                    portablePath = jsonReader.nextString();
+                    break;
+                case "sequence":
+                    sequence = jsonReader.nextInt();
+                    break;
+                case "content":
+                    content = Base64.decode(jsonReader.nextString(), Base64.NO_WRAP);
+                    break;
+                default:
+                    jsonReader.skipValue();
+                    break;
+            }
+        }
+        jsonReader.endObject();
+
+        if (portablePath != null && content != null) {
+            final File file = new File(fromPortablePath(portablePath));
+            final File parent = file.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+            try (OutputStream os = new FileOutputStream(file, sequence > 0)) {
+                os.write(content);
             }
         }
     }
@@ -402,5 +458,24 @@ public class ImportBackupWorker extends Worker {
                 return GENERIC;
             }
         }
+    }
+
+    private String fromPortablePath(String path) {
+        if (path == null) return null;
+        final String cacheDir = getApplicationContext().getCacheDir().getAbsolutePath();
+        final String filesDir = getApplicationContext().getFilesDir().getAbsolutePath();
+        final String externalDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final String documentsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+
+        if (path.startsWith("${CACHE}")) {
+            return cacheDir + path.substring("${CACHE}".length());
+        } else if (path.startsWith("${FILES}")) {
+            return filesDir + path.substring("${FILES}".length());
+        } else if (path.startsWith("${EXTERNAL}")) {
+            return externalDir + path.substring("${EXTERNAL}".length());
+        } else if (path.startsWith("${DOCUMENTS}")) {
+            return documentsDir + path.substring("${DOCUMENTS}".length());
+        }
+        return path;
     }
 }

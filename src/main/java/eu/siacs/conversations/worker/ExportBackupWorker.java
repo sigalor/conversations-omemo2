@@ -12,8 +12,10 @@ import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -32,6 +34,7 @@ import eu.siacs.conversations.Conversations;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.SQLiteAxolotlStore;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.persistance.DatabaseBackend;
@@ -43,9 +46,11 @@ import eu.siacs.conversations.xmpp.Jid;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -60,8 +65,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -290,6 +297,7 @@ public class ExportBackupWorker extends Worker {
         final String uuid = account.getUuid();
         accountExport(db, uuid, jsonWriter);
         simpleExport(db, Conversation.TABLENAME, Conversation.ACCOUNT, uuid, jsonWriter);
+        fileExport(db, uuid, jsonWriter, progress);
         messageExport(db, uuid, location, jsonWriter, progress);
         messageExportmonocles(db, uuid, jsonWriter, progress);
         for (final String table :
@@ -379,13 +387,16 @@ public class ExportBackupWorker extends Worker {
         while (cursor != null && cursor.moveToNext()) {
             writer.beginObject();
             writer.name("table");
-            writer.value("" + Message.TABLENAME);
+            writer.value(Message.TABLENAME);
             writer.name("values");
             writer.beginObject();
             for (int j = 0; j < cursor.getColumnCount(); ++j) {
                 final String name = cursor.getColumnName(j);
                 writer.name(name);
-                final String value = cursor.getString(j);
+                String value = cursor.getString(j);
+                if (Message.RELATIVE_FILE_PATH.equals(name)) {
+                    value = toPortablePath(value);
+                }
                 writer.value(value);
             }
             writer.endObject();
@@ -527,7 +538,10 @@ public class ExportBackupWorker extends Worker {
                 for (int j = 0; j < cursor.getColumnCount(); ++j) {
                     final String name = cursor.getColumnName(j);
                     writer.name(name);
-                    final String value = cursor.getString(j);
+                    String value = cursor.getString(j);
+                    if (Message.RELATIVE_FILE_PATH.equals(name)) {
+                        value = toPortablePath(value);
+                    }
                     writer.value(value);
                 }
                 writer.endObject();
@@ -684,6 +698,107 @@ public class ExportBackupWorker extends Worker {
             return trueCounterpart;
         } else {
             return message.getCounterpart().toString();
+        }
+    }
+
+    private String toPortablePath(String path) {
+        if (path == null) return null;
+        final String cacheDir = getApplicationContext().getCacheDir().getAbsolutePath();
+        final String filesDir = getApplicationContext().getFilesDir().getAbsolutePath();
+        final String externalDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final String documentsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+
+        if (path.startsWith(cacheDir)) {
+            return "${CACHE}" + path.substring(cacheDir.length());
+        } else if (path.startsWith(filesDir)) {
+            return "${FILES}" + path.substring(filesDir.length());
+        } else if (path.startsWith(externalDir)) {
+            return "${EXTERNAL}" + path.substring(externalDir.length());
+        } else if (path.startsWith(documentsDir)) {
+            return "${DOCUMENTS}" + path.substring(documentsDir.length());
+        }
+        return path;
+    }
+
+    private Set<File> getFilesForAccount(SQLiteDatabase db, String accountUuid) {
+        Set<File> files = new HashSet<>();
+        // Message attachments
+        try (Cursor cursor = db.rawQuery("select " + Message.RELATIVE_FILE_PATH + " from " + Message.TABLENAME +
+                " join " + Conversation.TABLENAME + " on " + Conversation.TABLENAME + ".uuid=" + Message.TABLENAME + "." + Message.CONVERSATION +
+                " where " + Conversation.TABLENAME + "." + Conversation.ACCOUNT + "=? and " + Message.RELATIVE_FILE_PATH + " is not null",
+                new String[]{accountUuid})) {
+            while (cursor != null && cursor.moveToNext()) {
+                String path = cursor.getString(0);
+                if (path != null) {
+                    files.add(new File(path));
+                }
+            }
+        }
+
+        final File avatarDir = new File(getApplicationContext().getCacheDir(), "avatars");
+        // Avatars
+        // Account avatar
+        try (Cursor cursor = db.query(Account.TABLENAME, new String[]{Account.AVATAR}, Account.AVATAR + " is not null and uuid=?", new String[]{accountUuid}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                files.add(new File(avatarDir, cursor.getString(0)));
+            }
+        }
+        // Contact avatars
+        try (Cursor cursor = db.query(Contact.TABLENAME, new String[]{Contact.AVATAR}, Contact.AVATAR + " is not null and " + Contact.ACCOUNT + "=?", new String[]{accountUuid}, null, null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                files.add(new File(avatarDir, cursor.getString(0)));
+            }
+        }
+
+        return files;
+    }
+
+    private void fileExport(SQLiteDatabase db, String uuid, JsonWriter writer, Progress progress) throws IOException {
+        final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
+        Set<File> files = getFilesForAccount(db, uuid);
+        Log.d(Config.LOGTAG, "exporting " + files.size() + " files for account " + uuid);
+        int i = 0;
+        int p = 0;
+        for (File file : files) {
+            if (file.exists() && file.canRead()) {
+                exportFile(file, writer);
+            }
+            i++;
+            final int percentage = i * 100 / Math.max(1, files.size());
+            if (p < percentage) {
+                p = percentage;
+                notificationManager.notify(NOTIFICATION_ID, progress.build(p));
+            }
+        }
+    }
+
+    private void exportFile(File file, JsonWriter writer) throws IOException {
+        final String portablePath = toPortablePath(file.getAbsolutePath());
+        final byte[] buffer = new byte[1024 * 1024]; // 1MB chunks
+        try (InputStream is = new FileInputStream(file)) {
+            int length;
+            int sequence = 0;
+            while ((length = is.read(buffer)) > 0) {
+                writer.beginObject();
+                writer.name("table");
+                writer.value("files");
+                writer.name("values");
+                writer.beginObject();
+                writer.name("path");
+                writer.value(portablePath);
+                writer.name("sequence");
+                writer.value(sequence++);
+                writer.name("content");
+                if (length == buffer.length) {
+                    writer.value(Base64.encodeToString(buffer, Base64.NO_WRAP));
+                } else {
+                    byte[] smallBuffer = new byte[length];
+                    System.arraycopy(buffer, 0, smallBuffer, 0, length);
+                    writer.value(Base64.encodeToString(smallBuffer, Base64.NO_WRAP));
+                }
+                writer.endObject();
+                writer.endObject();
+            }
         }
     }
 }
