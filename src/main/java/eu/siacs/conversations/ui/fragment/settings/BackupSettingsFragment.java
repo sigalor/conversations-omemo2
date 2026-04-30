@@ -98,7 +98,7 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences_backup, rootKey);
         final var createOneOffBackup = findPreference(CREATE_ONE_OFF_BACKUP);
-        final var export = findPreference("export");
+        // final var export = findPreference("export");
         final ListPreference recurringBackup = findPreference(RECURRING_BACKUP);
         final var backupLocation = findPreference(AppSettings.BACKUP_LOCATION);
         if (createOneOffBackup == null || recurringBackup == null || backupLocation == null) {
@@ -112,7 +112,7 @@ public class BackupSettingsFragment extends XmppPreferenceFragment {
                         appSettings.getBackupLocationAsPath()));
         backupLocation.setOnPreferenceClickListener(this::onBackupLocationPreferenceClicked);
         createOneOffBackup.setOnPreferenceClickListener(this::onBackupPreferenceClicked);
-        export.setOnPreferenceClickListener(this::onExportClicked);
+        // export.setOnPreferenceClickListener(this::onExportClicked);
         setValues(
                 recurringBackup,
                 R.array.recurring_backup_values,
