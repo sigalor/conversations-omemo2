@@ -151,11 +151,11 @@ public class PinnedMessageRepository {
     }
 
     private DecryptedPinnedMessageData fromCursor(Cursor cursor) {
-        String messageUuid = cursor.getString(cursor.getColumnIndexOrThrow("message_uuid"));
-        String conversationUuid = cursor.getString(cursor.getColumnIndexOrThrow("conversation_uuid"));
-        String body = cursor.getString(cursor.getColumnIndexOrThrow("body"));
-        long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"));
-        String cidString = cursor.getString(cursor.getColumnIndexOrThrow("cid"));
+        String messageUuid = cursor.getString(cursor.getColumnIndexOrThrow(PinnedMessage.MESSAGE_UUID));
+        String conversationUuid = cursor.getString(cursor.getColumnIndexOrThrow(PinnedMessage.CONVERSATION_UUID));
+        String body = cursor.getString(cursor.getColumnIndexOrThrow(PinnedMessage.BODY));
+        long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(PinnedMessage.TIMESTAMP));
+        String cidString = cursor.getString(cursor.getColumnIndexOrThrow(PinnedMessage.CID));
         Cid cid = null;
         if (cidString != null) {
             try {

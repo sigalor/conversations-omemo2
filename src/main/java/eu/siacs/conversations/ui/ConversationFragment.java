@@ -6663,8 +6663,7 @@ public class ConversationFragment extends XmppFragment
             return;
         }
 
-        // Using a background thread for repository access
-        new Thread(() -> {
+        backgroundExecutor.execute(() -> {
             final PinnedMessageRepository.DecryptedPinnedMessageData pinnedData =
                     pinnedMessageRepository.getLatestDecryptedPinnedMessageForConversation(conversation.getUuid());
 
@@ -6757,7 +6756,7 @@ public class ConversationFragment extends XmppFragment
                     }
                 });
             }
-        }).start();
+        });
     }
 
     /**

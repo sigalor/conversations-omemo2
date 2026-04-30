@@ -17,6 +17,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import de.monocles.chat.WebxdcUpdate;
+import de.monocles.chat.pinnedmessage.PinnedMessage;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Multimap;
@@ -741,19 +742,19 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
         }
         db.execSQL(
-                "CREATE TABLE IF NOT EXISTS pinned_messages (" +
-                        "message_uuid TEXT PRIMARY KEY, " +
-                        "conversation_uuid TEXT, " +
-                        "account_uuid TEXT, " +
-                        "body TEXT, " +
-                        "timestamp NUMBER, " +
-                        "cid TEXT, " +
-                        "FOREIGN KEY(conversation_uuid) REFERENCES " + Conversation.TABLENAME + "(" + Conversation.UUID + ") ON DELETE CASCADE, " +
-                        "FOREIGN KEY(account_uuid) REFERENCES " + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE" +
+                "CREATE TABLE IF NOT EXISTS " + PinnedMessage.TABLENAME + " (" +
+                        PinnedMessage.MESSAGE_UUID + " TEXT PRIMARY KEY, " +
+                        PinnedMessage.CONVERSATION_UUID + " TEXT, " +
+                        PinnedMessage.ACCOUNT_UUID + " TEXT, " +
+                        PinnedMessage.BODY + " TEXT, " +
+                        PinnedMessage.TIMESTAMP + " NUMBER, " +
+                        PinnedMessage.CID + " TEXT, " +
+                        "FOREIGN KEY(" + PinnedMessage.CONVERSATION_UUID + ") REFERENCES " + Conversation.TABLENAME + "(" + Conversation.UUID + ") ON DELETE CASCADE, " +
+                        "FOREIGN KEY(" + PinnedMessage.ACCOUNT_UUID + ") REFERENCES " + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE" +
                         ")"
         );
-        db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_index ON pinned_messages (conversation_uuid)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_account_index ON pinned_messages (account_uuid)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.CONVERSATION_UUID + ")");
+        db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_account_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.ACCOUNT_UUID + ")");
     }
 
     @Override
@@ -2517,7 +2518,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         final String[] args = {conversation.getUuid()};
         int num = db.delete(Message.TABLENAME, Message.CONVERSATION + "=?", args);
         db.delete("webxdc_updates", Message.CONVERSATION + "=?", args);
-        db.delete("pinned_messages", "conversation_uuid=?", args);
+        db.delete(PinnedMessage.TABLENAME, PinnedMessage.CONVERSATION_UUID + "=?", args);
         db.setTransactionSuccessful();
         db.endTransaction();
         Log.d(
@@ -2534,28 +2535,28 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public void pinMessage(String messageUuid, String conversationUuid, String accountUuid, String body, String cid, long timestamp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("message_uuid", messageUuid);
-        values.put("conversation_uuid", conversationUuid);
-        values.put("account_uuid", accountUuid);
-        values.put("body", body);
-        values.put("timestamp", timestamp);
-        values.put("cid", cid);
-        db.insertWithOnConflict("pinned_messages", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        values.put(PinnedMessage.MESSAGE_UUID, messageUuid);
+        values.put(PinnedMessage.CONVERSATION_UUID, conversationUuid);
+        values.put(PinnedMessage.ACCOUNT_UUID, accountUuid);
+        values.put(PinnedMessage.BODY, body);
+        values.put(PinnedMessage.TIMESTAMP, timestamp);
+        values.put(PinnedMessage.CID, cid);
+        db.insertWithOnConflict(PinnedMessage.TABLENAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public void unpinMessage(String messageUuid) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("pinned_messages", "message_uuid=?", new String[]{messageUuid});
+        db.delete(PinnedMessage.TABLENAME, PinnedMessage.MESSAGE_UUID + "=?", new String[]{messageUuid});
     }
 
     public Cursor getPinnedMessages(String conversationUuid) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query("pinned_messages", null, "conversation_uuid=?", new String[]{conversationUuid}, null, null, "timestamp DESC");
+        return db.query(PinnedMessage.TABLENAME, null, PinnedMessage.CONVERSATION_UUID + "=?", new String[]{conversationUuid}, null, null, PinnedMessage.TIMESTAMP + " DESC");
     }
 
     public void deletePinnedMessage(String conversationUuid, String messageUuid) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("pinned_messages", "conversation_uuid=? and message_uuid=?", new String[]{conversationUuid, messageUuid});
+        db.delete(PinnedMessage.TABLENAME, PinnedMessage.CONVERSATION_UUID + "=? and " + PinnedMessage.MESSAGE_UUID + "=?", new String[]{conversationUuid, messageUuid});
     }
 
     public void expireOldMessages(long timestamp) {

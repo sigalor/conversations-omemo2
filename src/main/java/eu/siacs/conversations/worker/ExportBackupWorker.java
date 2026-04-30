@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.stream.JsonWriter;
+import de.monocles.chat.pinnedmessage.PinnedMessage;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.Conversations;
@@ -300,7 +301,7 @@ public class ExportBackupWorker extends Worker {
         fileExport(db, uuid, jsonWriter, progress);
         messageExport(db, uuid, location, jsonWriter, progress);
         messageExportmonocles(db, uuid, jsonWriter, progress);
-        simpleExport(db, "pinned_messages", "account_uuid", uuid, jsonWriter);
+        simpleExport(db, PinnedMessage.TABLENAME, PinnedMessage.ACCOUNT_UUID, uuid, jsonWriter);
         for (final String table :
                 Arrays.asList(
                         SQLiteAxolotlStore.PREKEY_TABLENAME,

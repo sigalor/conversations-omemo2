@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CountingInputStream;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import de.monocles.chat.pinnedmessage.PinnedMessage;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.SQLiteAxolotlStore;
@@ -92,7 +93,7 @@ public class ImportBackupWorker extends Worker {
                             "webxdc_updates",
                             "files",
                             "muted_participants",
-                            "pinned_messages"
+                            PinnedMessage.TABLENAME
                     )
                     .addAll(OMEMO_TABLE_LIST)
                     .build();
