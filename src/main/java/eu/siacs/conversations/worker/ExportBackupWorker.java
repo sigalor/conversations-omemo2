@@ -300,6 +300,7 @@ public class ExportBackupWorker extends Worker {
         fileExport(db, uuid, jsonWriter, progress);
         messageExport(db, uuid, location, jsonWriter, progress);
         messageExportmonocles(db, uuid, jsonWriter, progress);
+        simpleExport(db, "pinned_messages", "account_uuid", uuid, jsonWriter);
         for (final String table :
                 Arrays.asList(
                         SQLiteAxolotlStore.PREKEY_TABLENAME,

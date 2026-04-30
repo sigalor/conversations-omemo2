@@ -91,7 +91,8 @@ public class ImportBackupWorker extends Worker {
                             Message.TABLENAME,
                             "webxdc_updates",
                             "files",
-                            "muted_participants"
+                            "muted_participants",
+                            "pinned_messages"
                     )
                     .addAll(OMEMO_TABLE_LIST)
                     .build();

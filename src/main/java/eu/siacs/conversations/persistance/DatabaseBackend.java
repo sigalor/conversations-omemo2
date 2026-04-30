@@ -740,6 +740,20 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         } catch (SQLiteException ex) {
             Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
         }
+        db.execSQL(
+                "CREATE TABLE IF NOT EXISTS pinned_messages (" +
+                        "message_uuid TEXT PRIMARY KEY, " +
+                        "conversation_uuid TEXT, " +
+                        "account_uuid TEXT, " +
+                        "body TEXT, " +
+                        "timestamp NUMBER, " +
+                        "cid TEXT, " +
+                        "FOREIGN KEY(conversation_uuid) REFERENCES " + Conversation.TABLENAME + "(" + Conversation.UUID + ") ON DELETE CASCADE, " +
+                        "FOREIGN KEY(account_uuid) REFERENCES " + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE" +
+                        ")"
+        );
+        db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_index ON pinned_messages (conversation_uuid)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_account_index ON pinned_messages (account_uuid)");
     }
 
     @Override
@@ -2376,6 +2390,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 args);
     }
 
+    public String getAccountUuidForConversation(String conversationUuid) {
+        final SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor cursor = db.query(Conversation.TABLENAME, new String[]{Conversation.ACCOUNT}, Conversation.UUID + "=?", new String[]{conversationUuid}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getString(0);
+            }
+        }
+        return null;
+    }
+
     public List<Account> getAccounts() {
         SQLiteDatabase db = this.getReadableDatabase();
         return getAccounts(db);
@@ -2493,17 +2517,45 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         final String[] args = {conversation.getUuid()};
         int num = db.delete(Message.TABLENAME, Message.CONVERSATION + "=?", args);
         db.delete("webxdc_updates", Message.CONVERSATION + "=?", args);
+        db.delete("pinned_messages", "conversation_uuid=?", args);
         db.setTransactionSuccessful();
         db.endTransaction();
         Log.d(
                 Config.LOGTAG,
                 "deleted "
                         + num
-                        + " messages for "
+                        + " messages and associated data for "
                         + conversation.getJid().asBareJid()
                         + " in "
                         + (SystemClock.elapsedRealtime() - start)
                         + "ms");
+    }
+
+    public void pinMessage(String messageUuid, String conversationUuid, String accountUuid, String body, String cid, long timestamp) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("message_uuid", messageUuid);
+        values.put("conversation_uuid", conversationUuid);
+        values.put("account_uuid", accountUuid);
+        values.put("body", body);
+        values.put("timestamp", timestamp);
+        values.put("cid", cid);
+        db.insertWithOnConflict("pinned_messages", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public void unpinMessage(String messageUuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("pinned_messages", "message_uuid=?", new String[]{messageUuid});
+    }
+
+    public Cursor getPinnedMessages(String conversationUuid) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("pinned_messages", null, "conversation_uuid=?", new String[]{conversationUuid}, null, null, "timestamp DESC");
+    }
+
+    public void deletePinnedMessage(String conversationUuid, String messageUuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("pinned_messages", "conversation_uuid=? and message_uuid=?", new String[]{conversationUuid, messageUuid});
     }
 
     public void expireOldMessages(long timestamp) {

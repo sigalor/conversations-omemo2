@@ -1856,8 +1856,13 @@ public class ConversationsActivity extends XmppActivity
         super.onBackPressed();
     }
 
+    private PinnedMessageRepository pinnedMessageRepository;
+
     public PinnedMessageRepository getPinnedMessageRepository() {
-        return new PinnedMessageRepository(this);
+        if (pinnedMessageRepository == null) {
+            pinnedMessageRepository = new PinnedMessageRepository(this);
+        }
+        return pinnedMessageRepository;
     }
 
     @Override

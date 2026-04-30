@@ -6,6 +6,13 @@ import java.util.Arrays; // For Arrays.equals and Arrays.hashCode if needed for 
 import io.ipfs.cid.Cid;
 
 public class PinnedMessage {
+    public static final String TABLENAME = "pinned_messages";
+    public static final String MESSAGE_UUID = "message_uuid";
+    public static final String CONVERSATION_UUID = "conversation_uuid";
+    public static final String BODY = "body";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String CID = "cid";
+
     private final String messageUuid; // UUID of the original message
     private final String conversationUuid;
     private final byte[] encryptedContent; // The message body, encrypted for local storage
