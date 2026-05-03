@@ -110,7 +110,7 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 68;
+    private static final int DATABASE_VERSION = 69;
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -1366,6 +1366,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.EPHEMERAL_TIMER + " INTEGER DEFAULT 0");
             db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.EXPIRE_AT + " NUMBER DEFAULT 0");
             db.execSQL(CREATE_MESSAGE_EXPIRE_AT_INDEX);
+        }
+        if (oldVersion < 69 && newVersion >= 69) {
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS " + PinnedMessage.TABLENAME + " (" +
+                            PinnedMessage.MESSAGE_UUID + " TEXT PRIMARY KEY, " +
+                            PinnedMessage.CONVERSATION_UUID + " TEXT, " +
+                            PinnedMessage.ACCOUNT_UUID + " TEXT, " +
+                            PinnedMessage.BODY + " TEXT, " +
+                            PinnedMessage.TIMESTAMP + " NUMBER, " +
+                            PinnedMessage.CID + " TEXT, " +
+                            "FOREIGN KEY(" + PinnedMessage.CONVERSATION_UUID + ") REFERENCES " + Conversation.TABLENAME + "(" + Conversation.UUID + ") ON DELETE CASCADE, " +
+                            "FOREIGN KEY(" + PinnedMessage.ACCOUNT_UUID + ") REFERENCES " + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE" +
+                            ")"
+            );
+            db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.CONVERSATION_UUID + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_account_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.ACCOUNT_UUID + ")");
         }
     }
 
