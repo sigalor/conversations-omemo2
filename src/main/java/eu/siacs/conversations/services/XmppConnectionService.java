@@ -69,6 +69,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 import com.kedia.ogparser.JsoupProxy;
@@ -90,6 +91,10 @@ import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -224,6 +229,10 @@ import eu.siacs.conversations.xmpp.pep.Avatar;
 import eu.siacs.conversations.xmpp.pep.PublishOptions;
 import im.conversations.android.xmpp.model.stanza.Iq;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -943,7 +952,40 @@ public class XmppConnectionService extends Service {
         });
     }
 
-    protected void cleanupCache() {
+    private void migrateCacheToInternalStorage() {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("cache_migrated_to_internal_v2", false)) {
+            return;
+        }
+        final List<String> dirsToMigrate = Arrays.asList("media", "Camera", "avatars", "stories");
+        for (String dirName : dirsToMigrate) {
+            final File oldDir = new File(getCacheDir(), dirName);
+            final File newDir = new File(getFilesDir(), dirName);
+            if (oldDir.exists() && oldDir.isDirectory()) {
+                if (!newDir.exists()) {
+                    newDir.mkdirs();
+                }
+                final File[] files = oldDir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        final File newFile = new File(newDir, file.getName());
+                        if (!file.renameTo(newFile)) {
+                            try (InputStream in = new FileInputStream(file);
+                                 OutputStream out = new FileOutputStream(newFile)) {
+                                ByteStreams.copy(in, out);
+                                file.delete();
+                            } catch (IOException e) {
+                                Log.w(Config.LOGTAG, "Failed to migrate " + dirName + " file: " + file.getAbsolutePath());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        preferences.edit().putBoolean("cache_migrated_to_internal_v2", true).apply();
+    }
+
+    protected void cleanupTemporaryStorage() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final int deletionTimeDays;
         try {
@@ -961,18 +1003,27 @@ public class XmppConnectionService extends Service {
             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
             final var now = System.currentTimeMillis();
             final long maxAge = 1000L * 60 * 60 * 24 * deletionTimeDays;
-            try {
-                for (File file : Files.fileTraverser().breadthFirst(getCacheDir())) {
-                    if (file.isFile() && file.canRead() && file.canWrite()) {
-                        final var attrs = java.nio.file.Files.readAttributes(file.toPath(), java.nio.file.attribute.BasicFileAttributes.class);
-                        if ((now - attrs.lastAccessTime().toMillis()) > maxAge) {
-                            Log.d(Config.LOGTAG, "cleanupCache removing file not used recently: " + file);
-                            file.delete();
+            final List<File> directories = new ArrayList<>();
+            directories.add(getCacheDir());
+            directories.add(new File(getFilesDir(), "media"));
+            directories.add(new File(getFilesDir(), "Camera"));
+            for (File directory : directories) {
+                if (!directory.exists()) {
+                    continue;
+                }
+                try {
+                    for (File file : Files.fileTraverser().breadthFirst(directory)) {
+                        if (file.isFile() && file.canRead() && file.canWrite()) {
+                            final var attrs = java.nio.file.Files.readAttributes(file.toPath(), java.nio.file.attribute.BasicFileAttributes.class);
+                            if ((now - attrs.lastAccessTime().toMillis()) > maxAge) {
+                                Log.d(Config.LOGTAG, "cleanupTemporaryStorage removing file not used recently: " + file);
+                                file.delete();
+                            }
                         }
                     }
+                } catch (final Exception e) {
+                    Log.w(Config.LOGTAG, "cleanupTemporaryStorage " + e);
                 }
-            } catch (final Exception e) {
-                Log.w(Config.LOGTAG, "cleanupCache " + e);
             }
         });
     }
@@ -1832,7 +1883,6 @@ public class XmppConnectionService extends Service {
                 == PackageManager.PERMISSION_GRANTED) {
             startContactObserver();
         }
-        FILE_OBSERVER_EXECUTOR.execute(fileBackend::deleteHistoricAvatarPath);
         if (Compatibility.hasStoragePermission(this)) {
             Log.d(Config.LOGTAG, "starting file observer");
             FILE_OBSERVER_EXECUTOR.execute(this.fileObserver::startWatching);
@@ -1897,7 +1947,8 @@ public class XmppConnectionService extends Service {
         mForceDuringOnCreate.set(false);
         toggleForegroundService();
         rescanStickers();
-        cleanupCache();
+        migrateCacheToInternalStorage();
+        cleanupTemporaryStorage();
 
         internalPingExecutor.scheduleWithFixedDelay(
                 this::manageAccountConnectionStatesInternal, 10, 10, TimeUnit.SECONDS);

@@ -39,9 +39,9 @@
             android:title="@string/pref_hide_media_title"
             android:summary="@string/pref_hide_media_summary" />
         <SwitchPreferenceCompat
-            android:defaultValue="@bool/default_store_media_in_cache"
+            android:defaultValue="@bool/default_store_media_securely"
             android:icon="@drawable/ic_archive_24dp"
-            android:key="default_store_media_in_cache"
+            android:key="default_store_media_securely"
             android:summary="@string/pref_store_media_in_cache"
             android:title="@string/store_media_only_in_cache" />
     </PreferenceCategory>

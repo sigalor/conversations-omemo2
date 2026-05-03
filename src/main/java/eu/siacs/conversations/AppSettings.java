@@ -68,7 +68,7 @@ public class AppSettings {
     public static final String SECURE_TLS = "secure_tls";
     public static final String PREFER_IPV6 = "prefer_ipv6";
     public static final String UNENCRYPTED_REACTIONS = "allow_unencrypted_reactions";
-    public static final String USE_CACHE_STORAGE = "default_store_media_in_cache";
+    public static final String USE_INTERNAL_SECURE_STORAGE = "default_store_media_securely";
     public static final String SHOW_MAPS_INSIDE = "show_maps_inside";
 
     private static final String EXTERNAL_STORAGE_AUTHORITY =

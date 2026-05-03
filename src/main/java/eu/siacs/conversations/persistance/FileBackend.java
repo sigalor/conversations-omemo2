@@ -247,7 +247,7 @@ public class FileBackend {
     }
 
     public static Uri getUriForFile(Context context, File file, final String displayName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Config.ONLY_INTERNAL_STORAGE || file.toString().startsWith(context.getCacheDir().toString())) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Config.ONLY_INTERNAL_STORAGE || file.toString().startsWith(context.getCacheDir().toString()) || file.toString().startsWith(context.getFilesDir().toString())) {
             try {
                 return FileProvider.getUriForFile(context, getAuthority(context), file, displayName);
             } catch (IllegalArgumentException e) {
@@ -1206,8 +1206,8 @@ public class FileBackend {
         }
         final File appDirectory =
                 new File(String.valueOf(parentDirectory));
-        if (message == null || message.getStatus() == Message.STATUS_DUMMY || (message.getConversation() instanceof Conversation && ((Conversation) message.getConversation()).storeInCache(mXmppConnectionService))) {
-            final var mediaCache = new File(mXmppConnectionService.getCacheDir(), "/media");
+        if (message == null || message.getStatus() == Message.STATUS_DUMMY || (message.getConversation() instanceof Conversation && ((Conversation) message.getConversation()).storeSecurely(mXmppConnectionService))) {
+            final var mediaCache = new File(mXmppConnectionService.getFilesDir(), "/media");
             return new File(mediaCache, filename);
         } else {
             return new File(appDirectory, filename);
@@ -1713,7 +1713,7 @@ public class FileBackend {
                 String.format("IMG_%s.%s", IMAGE_DATE_FORMAT.format(new Date()), "jpg");
         final File directory;
         if (Config.ONLY_INTERNAL_STORAGE) {
-            directory = new File(mXmppConnectionService.getCacheDir(), "Camera");
+            directory = new File(mXmppConnectionService.getFilesDir(), "Camera");
         } else {
             directory =
                     new File(
@@ -1960,30 +1960,8 @@ public class FileBackend {
         return true;
     }
 
-    public void deleteHistoricAvatarPath() {
-        delete(getHistoricAvatarPath());
-    }
-
-    private void delete(final File file) {
-        if (file.isDirectory()) {
-            final File[] files = file.listFiles();
-            if (files != null) {
-                for (final File f : files) {
-                    delete(f);
-                }
-            }
-        }
-        if (file.delete()) {
-            Log.d(Config.LOGTAG, "deleted " + file.getAbsolutePath());
-        }
-    }
-
-    private File getHistoricAvatarPath() {
-        return new File(mXmppConnectionService.getFilesDir(), "/avatars/");
-    }
-
     public File getAvatarFile(String avatar) {
-        final var f = new File(mXmppConnectionService.getCacheDir(), "/avatars/" + avatar);
+        final var f = new File(mXmppConnectionService.getFilesDir(), "/avatars/" + avatar);
         if (Build.VERSION.SDK_INT < 26) return f; // Doesn't support file.toPath
         try {
             if (f.exists()) java.nio.file.Files.setAttribute(f.toPath(), "lastAccessTime", java.nio.file.attribute.FileTime.fromMillis(System.currentTimeMillis()));
@@ -2436,8 +2414,8 @@ public class FileBackend {
     }
 
     public File getStoryCacheDirectory() {
-        File cacheDir = mXmppConnectionService.getCacheDir();
-        File storyCache = new File(cacheDir, "stories");
+        File filesDir = mXmppConnectionService.getFilesDir();
+        File storyCache = new File(filesDir, "stories");
         if (!storyCache.exists()) {
             storyCache.mkdirs();
         }
@@ -2462,7 +2440,7 @@ public class FileBackend {
                 String.format("IMG_%s.%s", IMAGE_DATE_FORMAT.format(new Date()), "mp4");
         final File directory;
         if (Config.ONLY_INTERNAL_STORAGE) {
-            directory = new File(mXmppConnectionService.getCacheDir(), "Camera");
+            directory = new File(mXmppConnectionService.getFilesDir(), "Camera");
         } else {
             directory =
                     new File(

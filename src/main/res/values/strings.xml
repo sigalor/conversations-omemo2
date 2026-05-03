@@ -1105,7 +1105,7 @@
     <string name="block_avatar">Block avatar</string>
     <string name="pref_show_less_avatars">Show less avatars</string>
     <string name="pref_show_less_avatars_summary">Show only needed avatars in the chats</string>
-    <string name="store_media_only_in_cache">Store media only in cache</string>
+    <string name="store_media_only_in_cache">Store media in internal hidden storage</string>
     <string name="cant_open_file">Can\'t open file</string>
     <string name="encryption">Encryption</string>
     <string name="choose_widget">Choose widget</string>
@@ -1430,7 +1430,7 @@
     <string name="pref_swipe_to_archive_summary">Swipe left or right in the chats overview to archive a chat</string>
     <string name="set_preferences_title">Set preferences</string>
     <string name="set_preferences_summary">Here you can change the default settings for some of the most important preferences before you login to enhance your privacy or security. You can change them all again after you logged in.</string>
-    <string name="pref_store_media_in_cache">Default system wide to store media in cache only.</string>
+    <string name="pref_store_media_in_cache">Default system wide to store media in internal and hidden storage.</string>
     <string name="monocles_account_introduction">Sign up now and <b>get a secure monocles account, powered with regenerative energies</b> to directly start chatting.</string>
     <string name="monocles_account_details">This includes:\n● one month temporary chat storage\n● e-mail with 2 GB storage\n\n optionally: \n● 5 GB cloud storage (nextcloud)\n● calendar and contact sync\n● a secure conferencing tool \n and more on <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
     <string name="create_monocles_account">Sign up</string>
@@ -1671,7 +1671,7 @@
         <item quantity="one">Liked by %d person</item>
         <item quantity="other">Liked by %d people</item>
     </plurals>
-    <string name="pref_cache_deletion_time">Delete files from cache after</string>
+    <string name="pref_cache_deletion_time">Delete files from internal hidden storage after</string>
     <string name="one_day">1 day</string>
     <string name="three_days">3 days</string>
     <string name="one_week">1 week</string>

@@ -686,10 +686,10 @@ public class ConferenceDetailsActivity extends XmppActivity
                 this.binding.destroy.setText(groupChat ? R.string.destroy_room : R.string.destroy_channel);
                 this.binding.leaveMuc.setText(groupChat ? R.string.action_end_conversation_muc : R.string.action_end_conversation_channel);
 
-                binding.storeInCache.setEnabled(true);
-                binding.storeInCache.setChecked(mConversation.storeInCache(xmppConnectionService));
-                binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
-                    mConversation.setStoreInCache(checked);
+                binding.storeSecurely.setEnabled(true);
+                binding.storeSecurely.setChecked(mConversation.storeSecurely(xmppConnectionService));
+                binding.storeSecurely.setOnCheckedChangeListener((v, checked) -> {
+                    mConversation.setStoreSecurely(checked);
                     xmppConnectionService.updateConversation(mConversation);
                 });
 

@@ -540,7 +540,7 @@
                             android:textAppearance="?textAppearanceBody1" />
 
                         <ImageButton
-                            android:id="@+id/action_info_store_in_cache"
+                            android:id="@+id/action_info_store_securely"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="?attr/selectableItemBackgroundBorderless"
@@ -549,7 +549,7 @@
                             android:src="@drawable/ic_help_24dp" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/store_in_cache"
+                            android:id="@+id/store_securely"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:gravity="center_vertical" />

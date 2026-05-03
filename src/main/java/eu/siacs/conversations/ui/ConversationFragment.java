@@ -6012,8 +6012,8 @@ public class ConversationFragment extends XmppFragment
         final String filename =
                 String.format("RECORDING_%s.%s", dateFormat.format(new Date()), extension);
         final File parentDirectory;
-        if (conversation.storeInCache(activity.xmppConnectionService)) {
-            parentDirectory = new File(activity.xmppConnectionService.getCacheDir(), "/media");
+        if (conversation.storeSecurely(activity.xmppConnectionService)) {
+            parentDirectory = new File(activity.xmppConnectionService.getFilesDir(), "/media");
         } else {
             parentDirectory =
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");

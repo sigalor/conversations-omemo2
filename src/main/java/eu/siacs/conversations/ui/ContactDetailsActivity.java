@@ -1111,10 +1111,10 @@ public class ContactDetailsActivity extends OmemoActivity
             });
 
             final var conversation = xmppConnectionService.findOrCreateConversation(account, contact.getJid(), false, true);
-            binding.storeInCache.setEnabled(true);
-            binding.storeInCache.setChecked(conversation.storeInCache(xmppConnectionService));
-            binding.storeInCache.setOnCheckedChangeListener((v, checked) -> {
-                conversation.setStoreInCache(checked);
+            binding.storeSecurely.setEnabled(true);
+            binding.storeSecurely.setChecked(conversation.storeSecurely(xmppConnectionService));
+            binding.storeSecurely.setOnCheckedChangeListener((v, checked) -> {
+                conversation.setStoreSecurely(checked);
                 xmppConnectionService.updateConversation(conversation);
             });
 

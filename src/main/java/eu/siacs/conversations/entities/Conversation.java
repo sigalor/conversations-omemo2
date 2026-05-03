@@ -89,6 +89,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import eu.siacs.conversations.AppSettings;
 import io.ipfs.cid.Cid;
 
 import io.michaelrocks.libphonenumber.android.NumberParseException;
@@ -1557,10 +1558,10 @@ public class Conversation extends AbstractEntity
         return alwaysNotify() || getBooleanAttribute(ATTRIBUTE_NOTIFY_REPLIES, false);
     }
 
-    public void setStoreInCache(final boolean cache) {
+    public void setStoreSecurely(final boolean cache) {
         setAttribute("storeMedia", cache ? "explicit_on" : "explicit_off");}
 
-    public boolean storeInCache(final XmppConnectionService xmppConnectionService) {
+    public boolean storeSecurely(final XmppConnectionService xmppConnectionService) {
         final String preference = getAttribute("storeMedia");
 
         if ("explicit_on".equals(preference)) {
@@ -1571,7 +1572,7 @@ public class Conversation extends AbstractEntity
         }
 
         if (xmppConnectionService != null) {
-            return xmppConnectionService.getBooleanPreference("default_store_media_in_cache", R.bool.default_store_media_in_cache);
+            return xmppConnectionService.getBooleanPreference(AppSettings.USE_INTERNAL_SECURE_STORAGE, R.bool.default_store_media_securely);
         }
 
         return true;
