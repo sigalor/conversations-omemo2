@@ -13,10 +13,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.documentfile.provider.DocumentFile;
@@ -65,6 +68,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -128,6 +132,7 @@ public class ExportBackupWorker extends Worker {
                 | NoSuchAlgorithmException
                 | NoSuchProviderException e) {
             Log.d(Config.LOGTAG, "could not create backup", e);
+            showToast(R.string.could_not_create_backup);
             return Result.failure();
         } finally {
             getApplicationContext()
@@ -319,6 +324,12 @@ public class ExportBackupWorker extends Worker {
         }
         Log.d(Config.LOGTAG, "written backup to " + location);
 
+        if (getFileSize(context, location) > 80) {
+            cleanup(backupLocation, account.getJid());
+        } else {
+            Log.w(Config.LOGTAG, "Backup file " + location + " is too small. Skipping cleanup.");
+            showToast(R.string.could_not_create_backup);
+        }
 
         mDatabaseBackend = DatabaseBackend.getInstance(Conversations.getContext());
         mAccounts = mDatabaseBackend.getAccounts();
@@ -338,8 +349,77 @@ public class ExportBackupWorker extends Worker {
             e.printStackTrace();
         }
 
-
         return location;
+    }
+
+    private void showToast(final int resId) {
+        new Handler(Looper.getMainLooper())
+                .post(() -> Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show());
+    }
+
+    private long getFileSize(Context context, Uri uri) {
+        final String scheme = uri.getScheme();
+        if ("file".equalsIgnoreCase(scheme)) {
+            final String path = uri.getPath();
+            return path == null ? 0 : new File(path).length();
+        } else {
+            final DocumentFile file = DocumentFile.fromSingleUri(context, uri);
+            return file == null ? 0 : file.length();
+        }
+    }
+
+    private void cleanup(Uri backupLocation, Jid jid) {
+        final Context context = getApplicationContext();
+        final String prefix = jid.asBareJid().toString() + ".";
+        final String scheme = backupLocation.getScheme();
+        if ("file".equalsIgnoreCase(scheme)) {
+            final String path = backupLocation.getPath();
+            if (path == null) {
+                return;
+            }
+            final File directory = new File(path);
+            final File[] files =
+                    directory.listFiles(
+                            (dir, name) -> name.startsWith(prefix) && name.endsWith(".ceb"));
+            if (files != null && files.length > 3) {
+                Arrays.sort(files, (f1, f2) -> f1.getName().compareTo(f2.getName()));
+                for (int i = 0; i < files.length - 3; i++) {
+                    if (files[i].delete()) {
+                        Log.d(Config.LOGTAG, "deleted old backup " + files[i].getName());
+                    }
+                }
+            }
+        } else {
+            final DocumentFile tree = DocumentFile.fromTreeUri(context, backupLocation);
+            if (tree == null) {
+                return;
+            }
+            final DocumentFile[] files = tree.listFiles();
+            final List<DocumentFile> backups = new ArrayList<>();
+            for (DocumentFile file : files) {
+                final String name = file.getName();
+                if (name != null && name.startsWith(prefix) && name.endsWith(".ceb")) {
+                    backups.add(file);
+                }
+            }
+            if (backups.size() > 3) {
+                Collections.sort(
+                        backups,
+                        (f1, f2) -> {
+                            String n1 = f1.getName();
+                            String n2 = f2.getName();
+                            if (n1 == null) return -1;
+                            if (n2 == null) return 1;
+                            return n1.compareTo(n2);
+                        });
+                for (int i = 0; i < backups.size() - 3; i++) {
+                    final DocumentFile fileToDelete = backups.get(i);
+                    if (fileToDelete.delete()) {
+                        Log.d(Config.LOGTAG, "deleted old backup " + fileToDelete.getName());
+                    }
+                }
+            }
+        }
     }
 
     private NotificationCompat.Builder getNotification() {
