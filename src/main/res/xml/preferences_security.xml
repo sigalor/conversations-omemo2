@@ -23,6 +23,12 @@
             android:summary="@string/pref_enable_otr_summary"
             android:title="@string/pref_enable_otr" />
 
+        <Preference
+            android:icon="@drawable/ic_delete_24dp"
+            android:key="delete_omemo_identities"
+            android:summary="@string/pref_delete_omemo_identities_summary"
+            android:title="@string/pref_delete_omemo_identities" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:key="server_connection"

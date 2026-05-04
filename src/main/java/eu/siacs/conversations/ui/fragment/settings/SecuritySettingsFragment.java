@@ -16,14 +16,17 @@ import com.google.common.base.Strings;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.OmemoSetting;
+import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.services.MemorizingTrustManager;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
+import eu.siacs.conversations.xmpp.Jid;
 import p32929.easypasscodelock.Utils.EasyLock;
 
 import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
@@ -34,6 +37,13 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences_security, rootKey);
         final ListPreference omemo = findPreference(AppSettings.OMEMO);
+
+        final Preference deleteOmemoPreference = findPreference("delete_omemo_identities");
+        if (deleteOmemoPreference != null) {
+            deleteOmemoPreference.setOnPreferenceClickListener(
+                    preference -> deleteOmemoIdentities());
+        }
+
         final ListPreference automaticMessageDeletion =
                 findPreference(AppSettings.AUTOMATIC_MESSAGE_DELETION);
         final Preference serverConnection = findPreference(SERVER_CONNECTION);
@@ -197,5 +207,53 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 String.format(
                         "%s is not %s",
                         activity.getClass().getName(), SettingsActivity.class.getName()));
+    }
+
+    private boolean deleteOmemoIdentities() {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(R.string.pref_delete_omemo_identities);
+        final List<CharSequence> accounts = new ArrayList<>();
+        for (Account account : requireService().getAccounts()) {
+            if (account.isEnabled()) {
+                accounts.add(account.getJid().asBareJid().toString());
+            }
+        }
+        final boolean[] checkedItems = new boolean[accounts.size()];
+        builder.setMultiChoiceItems(
+                accounts.toArray(new CharSequence[accounts.size()]),
+                checkedItems,
+                (dialog, which, isChecked) -> {
+                    checkedItems[which] = isChecked;
+                    final AlertDialog alertDialog = (AlertDialog) dialog;
+                    for (boolean item : checkedItems) {
+                        if (item) {
+                            alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+                            return;
+                        }
+                    }
+                    alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(
+                R.string.delete_selected_keys,
+                (dialog, which) -> {
+                    for (int i = 0; i < checkedItems.length; ++i) {
+                        if (checkedItems[i]) {
+                            try {
+                                Jid jid = Jid.of(accounts.get(i).toString());
+                                Account account = requireService().findAccountByJid(jid);
+                                if (account != null) {
+                                    account.getAxolotlService().regenerateKeys(true);
+                                }
+                            } catch (IllegalArgumentException e) {
+                                //
+                            }
+                        }
+                    }
+                });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        return true;
     }
 }
