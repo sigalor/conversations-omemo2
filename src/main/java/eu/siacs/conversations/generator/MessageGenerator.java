@@ -124,7 +124,7 @@ public class MessageGenerator extends AbstractGenerator {
                 // Allow <thread>, XEP-0461 <reply>, and XEP-0461 <fallback for reply> elements
                 if ("thread".equals(el.getName()) ||
                         ("reply".equals(el.getName()) && "urn:xmpp:reply:0".equals(el.getNamespace())) ||
-                        ("fallback".equals(el.getName()) && "urn:xmpp:fallback:0".equals(el.getNamespace()) && "urn:xmpp:reply:0".equals(el.getAttribute("for")))
+                        ("fallback".equals(el.getName()) && "urn:xmpp:fallback:0".equals(el.getNamespace()) && "urn:xmpp:reply:0".equals(el.getAttribute("for")) && !message.hasFileOnRemoteHost())
                 ) {
                     packet.addChild(el);
                 }
