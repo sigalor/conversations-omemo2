@@ -62,6 +62,7 @@ public class AppSettings {
     public static final String CALL_INTEGRATION = "call_integration";
     public static final String ALIGN_START = "align_start";
     public static final String BACKUP_LOCATION = "backup_location";
+    public static final String HIDE_EPHEMERAL_WARNING = "hide_ephemeral_warning";
 
     private static final String ACCEPT_INVITES_FROM_STRANGERS = "accept_invites_from_strangers";
     private static final String INSTALLATION_ID = "im.conversations.android.install_id";

@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +50,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityMucDetailsBinding;
@@ -381,16 +383,46 @@ public class ConferenceDetailsActivity extends XmppActivity
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.ephemeralMessagesDurationSpinner.setAdapter(spinnerAdapter);
 
-        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            binding.ephemeralMessagesDurationLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        binding.ephemeralMessagesSwitch.setOnClickListener(v -> {
+            boolean isChecked = binding.ephemeralMessagesSwitch.isChecked();
             if (mConversation != null) {
                 if (isChecked) {
-                    int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
-                    if (mConversation.setEphemeralTimer(seconds)) {
-                        xmppConnectionService.databaseBackend.updateConversation(mConversation);
-                        xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
+                    final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+                    if (sp.getBoolean(AppSettings.HIDE_EPHEMERAL_WARNING, false)) {
+                        binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+                        int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                        if (mConversation.setEphemeralTimer(seconds)) {
+                            xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                            xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
+                        }
+                        return;
                     }
+                    final View dialogView = getLayoutInflater().inflate(R.layout.dialog_ephemeral_warning, null);
+                    final CheckBox dontShowAgain = dialogView.findViewById(R.id.dont_show_again);
+                    new MaterialAlertDialogBuilder(this)
+                            .setView(dialogView)
+                            .setPositiveButton(R.string.ok, (dialog, which) -> {
+                                if (dontShowAgain.isChecked()) {
+                                    sp.edit().putBoolean(AppSettings.HIDE_EPHEMERAL_WARNING, true).apply();
+                                }
+                                binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+                                int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                                if (mConversation.setEphemeralTimer(seconds)) {
+                                    xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                                    xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                                binding.ephemeralMessagesSwitch.setChecked(false);
+                                binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+                            })
+                            .setOnCancelListener(dialog -> {
+                                binding.ephemeralMessagesSwitch.setChecked(false);
+                                binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+                            })
+                            .show();
                 } else {
+                    binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
                     if (mConversation.setEphemeralTimer(0)) {
                         xmppConnectionService.databaseBackend.updateConversation(mConversation);
                         xmppConnectionService.sendEphemeralIWantOut(mConversation);

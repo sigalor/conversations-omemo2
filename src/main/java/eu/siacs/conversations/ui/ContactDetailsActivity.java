@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
@@ -1012,15 +1013,45 @@ public class ContactDetailsActivity extends OmemoActivity
             public void onNothingSelected(android.widget.AdapterView<?> parent) {
             }
         });
-        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            binding.ephemeralMessagesDurationLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        binding.ephemeralMessagesSwitch.setOnClickListener(v -> {
+            boolean isChecked = binding.ephemeralMessagesSwitch.isChecked();
             if (isChecked) {
-                int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
-                if (conversation.setEphemeralTimer(seconds)) {
-                    xmppConnectionService.databaseBackend.updateConversation(conversation);
-                    xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
+                final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+                if (sp.getBoolean(AppSettings.HIDE_EPHEMERAL_WARNING, false)) {
+                    binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+                    int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                    if (conversation.setEphemeralTimer(seconds)) {
+                        xmppConnectionService.databaseBackend.updateConversation(conversation);
+                        xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
+                    }
+                    return;
                 }
+                final View dialogView = getLayoutInflater().inflate(R.layout.dialog_ephemeral_warning, null);
+                final CheckBox dontShowAgain = dialogView.findViewById(R.id.dont_show_again);
+                new MaterialAlertDialogBuilder(this)
+                        .setView(dialogView)
+                        .setPositiveButton(R.string.ok, (dialog, which) -> {
+                            if (dontShowAgain.isChecked()) {
+                                sp.edit().putBoolean(AppSettings.HIDE_EPHEMERAL_WARNING, true).apply();
+                            }
+                            binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+                            int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
+                            if (conversation.setEphemeralTimer(seconds)) {
+                                xmppConnectionService.databaseBackend.updateConversation(conversation);
+                                xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                            binding.ephemeralMessagesSwitch.setChecked(false);
+                            binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+                        })
+                        .setOnCancelListener(dialog -> {
+                            binding.ephemeralMessagesSwitch.setChecked(false);
+                            binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+                        })
+                        .show();
             } else {
+                binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
                 if (conversation.setEphemeralTimer(0)) {
                     xmppConnectionService.databaseBackend.updateConversation(conversation);
                     xmppConnectionService.sendEphemeralIWantOut(conversation);

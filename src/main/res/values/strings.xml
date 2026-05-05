@@ -1686,4 +1686,6 @@
     <string name="destroy_channel_failed">Channel could not be destroyed</string>
     <string name="omemo_identities_reset">OMEMO identities reset</string>
     <string name="failed_to_reset_omemo_identities">Failed to reset OMEMO identities</string>
+    <string name="ephemeral_messages_warning">Ephemeral messages are not guaranteed to disappear on other clients.</string>
+    <string name="dont_show_again">Don’t show again</string>
 </resources>
