@@ -149,6 +149,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2798,6 +2799,7 @@ public class ConversationFragment extends XmppFragment
                             activity.xmppConnectionService.deleteMessage(retractionMessage);
                             activity.onConversationsListItemUpdated();
                             refresh();
+                            Toast.makeText(activity, R.string.message_retracted, Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton(R.string.no, null).show();
                 return true;
