@@ -953,36 +953,33 @@ public class ConferenceDetailsActivity extends XmppActivity
         binding.ephemeralMessagesSwitch.setOnCheckedChangeListener(null);
         int timer = mConversation.getEphemeralTimer();
         final var ephemeralDurationValues = getResources().getIntArray(R.array.ephemeral_duration_values);
-        if (timer > 0) {
-            binding.ephemeralMessagesSwitch.setChecked(true);
-            binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
-            int index = 0;
-            for (int i = 0; i < ephemeralDurationValues.length; i++) {
-                if (ephemeralDurationValues[i] == timer) {
-                    index = i;
-                    break;
-                }
-            }
-            binding.ephemeralMessagesDurationSpinner.setSelection(index);
-        } else {
-            binding.ephemeralMessagesSwitch.setChecked(false);
+        final boolean isPublic = !mConversation.isPrivateAndNonAnonymous();
+        if (isPublic) {
+            binding.ephemeralMessagesSwitch.setVisibility(View.GONE);
             binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
-        }
-        binding.ephemeralMessagesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            binding.ephemeralMessagesDurationLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            if (isChecked) {
-                int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
-                if (mConversation.setEphemeralTimer(seconds)) {
-                    xmppConnectionService.databaseBackend.updateConversation(mConversation);
-                    xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
-                }
-            } else {
-                if (mConversation.setEphemeralTimer(0)) {
-                    xmppConnectionService.databaseBackend.updateConversation(mConversation);
-                    xmppConnectionService.sendEphemeralIWantOut(mConversation);
-                }
+            if (timer > 0) {
+                mConversation.setEphemeralTimer(0);
+                xmppConnectionService.databaseBackend.updateConversation(mConversation);
+                xmppConnectionService.sendEphemeralIWantOut(mConversation);
             }
-        });
+        } else {
+            binding.ephemeralMessagesSwitch.setVisibility(View.VISIBLE);
+            if (timer > 0) {
+                binding.ephemeralMessagesSwitch.setChecked(true);
+                binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
+                int index = 0;
+                for (int i = 0; i < ephemeralDurationValues.length; i++) {
+                    if (ephemeralDurationValues[i] == timer) {
+                        index = i;
+                        break;
+                    }
+                }
+                binding.ephemeralMessagesDurationSpinner.setSelection(index);
+            } else {
+                binding.ephemeralMessagesSwitch.setChecked(false);
+                binding.ephemeralMessagesDurationLayout.setVisibility(View.GONE);
+            }
+        }
 
         final List<ListItem.Tag> tagList = bookmark.getTags(this);
         if (tagList.isEmpty() || !this.showDynamicTags) {

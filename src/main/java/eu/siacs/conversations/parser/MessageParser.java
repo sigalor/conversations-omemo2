@@ -894,8 +894,10 @@ public class MessageParser extends AbstractParser
             if (ephemeralElement != null) {
                 try {
                     int timer = Integer.parseInt(ephemeralElement.getAttribute("timer"));
-                    conversation.setEphemeralTimer(timer);
-                    mXmppConnectionService.databaseBackend.updateConversation(conversation);
+                    if (conversation.getMode() != Conversation.MODE_MULTI || conversation.isPrivateAndNonAnonymous()) {
+                        conversation.setEphemeralTimer(timer);
+                        mXmppConnectionService.databaseBackend.updateConversation(conversation);
+                    }
                 } catch (Exception e) {
                     // ignore
                 }
