@@ -1,0 +1,13 @@
+* Unterstützung für verschwindenden Nachrichten
+* Behebung eines NPE
+* Einbeziehung von Dateien in Backups und Verwendung portabler Pfade
+* Standardmäßige Speicherung im internen versteckten Speicher
+* Entfernung der veralteten Einstellung zum Dateiexport
+* Änderung der standardmäßigen Löschfrist für den internen versteckten Speicher auf „nie“
+* Überarbeitung der angehefteten Nachrichten und Hinzufügen dieser Nachrichten zum Backup
+* Toast-Benachrichtigung bei fehlgeschlagener Sicherung anzeigen und alte Sicherungsdateien bereinigen, dabei jedoch die letzten drei beibehalten
+* Fallback-Antwort für Nachrichten mit Remote-Dateien ausschließen
+* Erstellen und Wiederherstellen von Sicherungen verbessern
+* Toast-Benachrichtigung anzeigen, wenn eine Nachricht zurückgezogen wird
+* Zurückgezogene Nachrichten aus den Benachrichtigungen entfernen
+* und mehr

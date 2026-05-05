@@ -1,0 +1,13 @@
+* Support for ephemeral messages
+* Fix NPE
+* Include files in backups and use portable paths
+* Default to store in internal hidden storage
+* Remove obsolete file export preference
+* Change default internal hidden storage deletion period to never
+* Refactor pinned messages and also add pinned messages to backup
+* Show toast on backup failure and prune old backup files but keep the last three
+* Exclude reply fallback for messages with remote files
+* Improve create and restore backup
+* Show toast notification when a message is retracted
+* Remove retracted messages from notifications
+* and more
