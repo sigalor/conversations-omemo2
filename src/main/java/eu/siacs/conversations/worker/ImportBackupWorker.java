@@ -322,19 +322,24 @@ public class ImportBackupWorker extends Worker {
             }
             contentValues.put(Account.KEYS, importReadyKeys.toString());
         }
+        final long rowId;
         if (this.includeOmemo) {
-            db.insert(table, null, contentValues);
+            rowId = db.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
         } else {
             if (OMEMO_TABLE_LIST.contains(table)) {
                 if (SQLiteAxolotlStore.IDENTITIES_TABLENAME.equals(table)
                         && contentValues.getAsInteger(SQLiteAxolotlStore.OWN) == 0) {
-                    db.insert(table, null, contentValues);
+                    rowId = db.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
                 } else {
                     Log.d(Config.LOGTAG, "skipping over omemo key material in table " + table);
+                    rowId = 0;
                 }
             } else {
-                db.insert(table, null, contentValues);
+                rowId = db.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
             }
+        }
+        if (rowId == -1) {
+            Log.w(Config.LOGTAG, "skipped duplicate row in " + table);
         }
     }
 

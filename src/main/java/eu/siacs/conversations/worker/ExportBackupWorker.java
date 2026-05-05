@@ -305,7 +305,7 @@ public class ExportBackupWorker extends Worker {
         simpleExport(db, Conversation.TABLENAME, Conversation.ACCOUNT, uuid, jsonWriter);
         fileExport(db, uuid, jsonWriter, progress);
         messageExport(db, uuid, location, jsonWriter, progress);
-        messageExportmonocles(db, uuid, jsonWriter, progress);
+        webxdcExport(db, uuid, jsonWriter, progress);
         simpleExport(db, PinnedMessage.TABLENAME, PinnedMessage.ACCOUNT_UUID, uuid, jsonWriter);
         for (final String table :
                 Arrays.asList(
@@ -459,44 +459,14 @@ public class ExportBackupWorker extends Worker {
         getApplicationContext().sendBroadcast(intent);
     }
 
-    private void messageExportmonocles(final SQLiteDatabase db, final String uuid, final JsonWriter writer, final Progress progress) throws IOException {
+    private void webxdcExport(final SQLiteDatabase db, final String uuid, final JsonWriter writer, final Progress progress) throws IOException {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
-        Cursor cursor = db.rawQuery("select mmessages.* from messages join messages mmessages using (uuid) join conversations on conversations.uuid=messages.conversationUuid where conversations.accountUuid=?", new String[]{uuid});
+
+        final Cursor cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
         int size = cursor != null ? cursor.getCount() : 0;
-        Log.d(Config.LOGTAG, "exporting " + size + " monocles messages for account " + uuid);
+        Log.d(Config.LOGTAG, "exporting " + size + " WebXDC updates for account " + uuid);
         int i = 0;
         int p = 0;
-        while (cursor != null && cursor.moveToNext()) {
-            writer.beginObject();
-            writer.name("table");
-            writer.value(Message.TABLENAME);
-            writer.name("values");
-            writer.beginObject();
-            for (int j = 0; j < cursor.getColumnCount(); ++j) {
-                final String name = cursor.getColumnName(j);
-                writer.name(name);
-                String value = cursor.getString(j);
-                if (Message.RELATIVE_FILE_PATH.equals(name)) {
-                    value = toPortablePath(value);
-                }
-                writer.value(value);
-            }
-            writer.endObject();
-            writer.endObject();
-            final int percentage = i * 100 / size;
-            if (p < percentage) {
-                p = percentage;
-                notificationManager.notify(NOTIFICATION_ID, progress.build(p));
-            }
-            i++;
-        }
-        if (cursor != null) {
-            cursor.close();
-        }
-
-        cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
-        size = cursor != null ? cursor.getCount() : 0;
-        Log.d(Config.LOGTAG, "exporting " + size + " WebXDC updates for account " + uuid);
         while (cursor != null && cursor.moveToNext()) {
             writer.beginObject();
             writer.name("table");
@@ -511,7 +481,7 @@ public class ExportBackupWorker extends Worker {
             }
             writer.endObject();
             writer.endObject();
-            final int percentage = i * 100 / size;
+            final int percentage = i * 100 / (size == 0 ? 1 : size);
             if (p < percentage) {
                 p = percentage;
                 notificationManager.notify(NOTIFICATION_ID, progress.build(p));
