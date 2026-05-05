@@ -2469,6 +2469,31 @@ public class NotificationService {
         }
     }
 
+    public void markRetracted(final Message message) {
+        synchronized (notifications) {
+            final String conversationUuid = message.getConversationUuid();
+            final ArrayList<Message> messages = notifications.get(conversationUuid);
+            if (messages != null) {
+                boolean removed = false;
+                final Iterator<Message> iterator = messages.iterator();
+                while (iterator.hasNext()) {
+                    final Message m = iterator.next();
+                    if (m.getUuid().equals(message.getUuid())) {
+                        iterator.remove();
+                        removed = true;
+                    }
+                }
+                if (removed) {
+                    if (messages.isEmpty()) {
+                        notifications.remove(conversationUuid);
+                        cancel(conversationUuid, NOTIFICATION_ID);
+                    }
+                    updateNotification(false);
+                }
+            }
+        }
+    }
+
     public boolean hasNewMissedCalls() {
         synchronized (mMissedCalls) {
             return !mMissedCalls.isEmpty();
