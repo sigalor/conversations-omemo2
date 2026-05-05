@@ -1684,4 +1684,6 @@
     <string name="destroy_channel_succeed">Channel successfully destroyed</string>
     <string name="destroy_room_failed">Group chat could not be destroyed</string>
     <string name="destroy_channel_failed">Channel could not be destroyed</string>
+    <string name="omemo_identities_reset">OMEMO identities reset</string>
+    <string name="failed_to_reset_omemo_identities">Failed to reset OMEMO identities</string>
 </resources>
