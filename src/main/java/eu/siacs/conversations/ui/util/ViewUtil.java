@@ -45,7 +45,7 @@ public class ViewUtil {
             return;
         }
         String mime = file.getMimeType();
-        if (mime == null) {
+        if (mime == null || mime.isEmpty()) {
             mime = "*/*";
         }
         view(context, file, mime, displayName, conversationUuid, messageUuid, null, null);
@@ -58,6 +58,9 @@ public class ViewUtil {
     public static void view(Context context, File file, String mime, final String displayName,
                             @Nullable String conversationUuid, @Nullable String messageUuid,
                             @Nullable String accountUuid, @Nullable String jidString) {
+        if (mime == null || mime.isEmpty()) {
+            mime = "*/*";
+        }
         Log.d(Config.LOGTAG, "viewing " + file.getAbsolutePath() + " " + mime);
         final Uri uri;
         try {
