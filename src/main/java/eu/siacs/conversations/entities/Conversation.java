@@ -221,6 +221,7 @@ public class Conversation extends AbstractEntity
     private static final String ATTRIBUTE_CORRECTING_MESSAGE = "correcting_message";
     public static final String ATTRIBUTE_EPHEMERAL_TIMER = "ephemeral_timer";
     public static final String ATTRIBUTE_EPHEMERAL_HINT_HIDDEN = "ephemeral_hint_hidden";
+    public static final String ATTRIBUTE_EPHEMERAL_BY = "ephemeral_by";
     protected final ArrayList<Message> messages = new ArrayList<>();
     protected final ArrayList<Message> historyPartMessages = new ArrayList<>();
     public AtomicBoolean messagesLoaded = new AtomicBoolean(true);
@@ -2027,6 +2028,14 @@ public class Conversation extends AbstractEntity
 
     public void setEphemeralHintHidden(boolean hidden) {
         setAttribute(ATTRIBUTE_EPHEMERAL_HINT_HIDDEN, hidden);
+    }
+
+    public String getEphemeralBy() {
+        return getAttribute(ATTRIBUTE_EPHEMERAL_BY);
+    }
+
+    public void setEphemeralBy(String by) {
+        setAttribute(ATTRIBUTE_EPHEMERAL_BY, by);
     }
 
     public String getDisplayState() {

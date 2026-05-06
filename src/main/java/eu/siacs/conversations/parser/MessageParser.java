@@ -896,6 +896,11 @@ public class MessageParser extends AbstractParser
                     int timer = Integer.parseInt(ephemeralElement.getAttribute("timer"));
                     if (conversation.getMode() != Conversation.MODE_MULTI || conversation.isPrivateAndNonAnonymous()) {
                         conversation.setEphemeralTimer(timer);
+                        if (conversation.getMode() == Conversation.MODE_MULTI) {
+                            conversation.setEphemeralBy(from.isBareJid() ? null : from.getResource());
+                        } else {
+                            conversation.setEphemeralBy(null);
+                        }
                         mXmppConnectionService.databaseBackend.updateConversation(conversation);
                     }
                 } catch (Exception e) {

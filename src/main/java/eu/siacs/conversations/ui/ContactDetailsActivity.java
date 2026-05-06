@@ -1003,6 +1003,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 int seconds = ephemeralDurationValues[position];
                 if (conversation.getEphemeralTimer() != seconds && binding.ephemeralMessagesSwitch.isChecked()) {
                     if (conversation.setEphemeralTimer(seconds)) {
+                        conversation.setEphemeralBy(null);
                         xmppConnectionService.databaseBackend.updateConversation(conversation);
                         xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
                     }
@@ -1021,6 +1022,7 @@ public class ContactDetailsActivity extends OmemoActivity
                     binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
                     int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
                     if (conversation.setEphemeralTimer(seconds)) {
+                        conversation.setEphemeralBy(null);
                         xmppConnectionService.databaseBackend.updateConversation(conversation);
                         xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
                     }
@@ -1037,6 +1039,7 @@ public class ContactDetailsActivity extends OmemoActivity
                             binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
                             int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
                             if (conversation.setEphemeralTimer(seconds)) {
+                                conversation.setEphemeralBy(null);
                                 xmppConnectionService.databaseBackend.updateConversation(conversation);
                                 xmppConnectionService.sendEphemeralImplicitNegotiation(conversation, seconds);
                             }

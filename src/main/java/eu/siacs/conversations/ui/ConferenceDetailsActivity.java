@@ -392,6 +392,7 @@ public class ConferenceDetailsActivity extends XmppActivity
                         binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
                         int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
                         if (mConversation.setEphemeralTimer(seconds)) {
+                            mConversation.setEphemeralBy(null);
                             xmppConnectionService.databaseBackend.updateConversation(mConversation);
                             xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
                         }
@@ -408,6 +409,7 @@ public class ConferenceDetailsActivity extends XmppActivity
                                 binding.ephemeralMessagesDurationLayout.setVisibility(View.VISIBLE);
                                 int seconds = ephemeralDurationValues[binding.ephemeralMessagesDurationSpinner.getSelectedItemPosition()];
                                 if (mConversation.setEphemeralTimer(seconds)) {
+                                    mConversation.setEphemeralBy(null);
                                     xmppConnectionService.databaseBackend.updateConversation(mConversation);
                                     xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
                                 }
@@ -438,6 +440,7 @@ public class ConferenceDetailsActivity extends XmppActivity
                     int seconds = ephemeralDurationValues[position];
                     if (mConversation.getEphemeralTimer() != seconds && binding.ephemeralMessagesSwitch.isChecked()) {
                         if (mConversation.setEphemeralTimer(seconds)) {
+                            mConversation.setEphemeralBy(null);
                             xmppConnectionService.databaseBackend.updateConversation(mConversation);
                             xmppConnectionService.sendEphemeralImplicitNegotiation(mConversation, seconds);
                         }
