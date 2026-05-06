@@ -1113,7 +1113,7 @@
     <string name="call_is_using_speaker">Anruf verwendet Lautsprecher.</string>
     <string name="call_is_using_bluetooth">Anruf verwendet Bluetooth.</string>
     <string name="call_is_using_speaker_tap_to_switch_to_earpiece">Anruf verwendet Lautsprecher. Antippen um auf Hörer zu wechseln.</string>
-    <string name="store_media_only_in_cache">Medien nur im Cache speichern</string>
+    <string name="store_media_only_in_cache">Medien im internen versteckten Speicher ablegen</string>
     <string name="pref_show_mappreview_inside_summary">Kartenvorschau direkt in der Chat-Ansicht anzeigen, es wird eine Verbindung zum monocles-Server aufgebaut.</string>
     <string name="show_link_previews">Link-Vorschau aktivieren</string>
     <string name="show_link_previews_summary">Zeige eine Link-Beschreibung, wenn der Absender sie angegeben hat</string>
@@ -1430,7 +1430,7 @@
     <string name="pref_swipe_to_archive_title">Wischen zum archivieren</string>
     <string name="set_preferences_title">Einstellungen festlegen</string>
     <string name="set_preferences_summary">Hier können Sie die wichtigsten Einstellungen ändern, bevor Sie sich anmelden, um Ihre Privatsphäre oder Sicherheit zu verbessern. Nach der Anmeldung können Sie alle Einstellungen erneut ändern.</string>
-    <string name="pref_store_media_in_cache">Standardmäßig werden alle Medien nur im Cache gespeichert.</string>
+    <string name="pref_store_media_in_cache">Standardmäßig werden Medien systemweit im internen und versteckten Speicher abgelegt.</string>
     <string name="monocles_account_introduction">Melde dich jetzt an und <b>erhalte ein sicheres monocles-Konto, gespeist aus regenerativen Energien</b>, um direkt mit dem Chatten zu beginnen.</string>
     <string name="create_monocles_account">Jetzt registrieren</string>
     <string name="or_use_another">... oder wähle eine andere Option</string>
@@ -1664,7 +1664,7 @@
         <item quantity="one">Gefällt %d Person</item>
         <item quantity="other">Gefällt %d Personen</item>
     </plurals>
-    <string name="pref_cache_deletion_time">Dateien aus dem Cache löschen nach</string>
+    <string name="pref_cache_deletion_time">Dateien aus dem internen versteckten Speicher löschen nach</string>
     <string name="one_day">1 Tag</string>
     <string name="three_days">3 Tage</string>
     <string name="one_week">1 Woche</string>
@@ -1676,4 +1676,25 @@
     <string name="destroy_channel_succeed">Channel erfolgreich gelöscht</string>
     <string name="destroy_room_failed">Der Gruppenchat konnte nicht gelöscht werden</string>
     <string name="destroy_channel_failed">Channel konnte nicht gelöscht werden</string>
+    <string name="could_not_create_backup">Sicherung konnte nicht erstellt werden</string>
+    <string name="ephemeral_messages">Verschwindende Nachrichten</string>
+    <string name="ephemeral_messages_duration">Dauer</string>
+    <string name="ephemeral_messages_off">Aus</string>
+    <string name="ephemeral_messages_30_seconds">30 Sekunden</string>
+    <string name="ephemeral_messages_1_minute">1 Minute</string>
+    <string name="ephemeral_messages_5_minutes">5 Minuten</string>
+    <string name="ephemeral_messages_30_minutes">30 Minuten</string>
+    <string name="ephemeral_messages_1_hour">1 Stunde</string>
+    <string name="ephemeral_messages_6_hours">6 Stunden</string>
+    <string name="ephemeral_messages_12_hours">12 Stunden</string>
+    <string name="ephemeral_messages_1_day">1 Tag</string>
+    <string name="ephemeral_messages_1_week">1 Woche</string>
+    <string name="ephemeral_messages_1_month">1 Monat</string>
+    <string name="message_has_disappeared">Diese Nachricht ist verschwunden</string>
+    <string name="ephemeral_messages_active_hint">Verschwindende Nachrichten sind aktiv (%s)</string>
+    <string name="omemo_identities_reset">OMEMO-Identitäten zurückgesetzt</string>
+    <string name="failed_to_reset_omemo_identities">Das Zurücksetzen der OMEMO-Identitäten ist fehlgeschlagen</string>
+    <string name="ephemeral_messages_warning">Es ist nicht garantiert, dass verschwindende Nachrichten auch auf anderen Clients verschwinden.</string>
+    <string name="dont_show_again">Nicht mehr anzeigen</string>
+    <string name="ephemeral_messages_active_by_hint">Verschwindende Nachrichten wurden von %1$s (%2$s) aktiviert</string>
 </resources>

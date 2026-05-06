@@ -772,7 +772,7 @@
     <string name="phone_number">número de teléfono</string>
     <string name="verify_your_phone_number">Valida o teu número de teléfono</string>
     <string name="enter_country_code_and_phone_number">Quicksy vaiche enviar unha mensaxe SMS (podería ter custos) para validar o teu número de teléfono. Escribe o código de país e número de teléfono:</string>
-    <string name="we_will_be_verifying">Validaremos o número de teléfono<br/><br/><b>%s</b><br/><br/>É correcto, ou queres modificar o número?</string>
+    <string name="we_will_be_verifying"><![CDATA[Validaremos o número de teléfono<br/><br/><b>%s</b><br/><br/>É correcto, ou queres modificar o número?]]></string>
     <string name="not_a_valid_phone_number">%s non é un número de teléfono válido.</string>
     <string name="please_enter_your_phone_number">Por favor escribe o teu número de teléfono.</string>
     <string name="search_countries">Buscar países</string>
@@ -877,7 +877,7 @@
     <string name="unable_to_perform_this_action">Non se puido completar a acción</string>
     <string name="open_join_dialog">Unirse a canle pública…</string>
     <string name="sharing_application_not_grant_permission">A aplicación que comparte non proporciona permiso para acceder ao ficheiro.</string>
-    <string name="group_chats_and_channels">Chats en grupo e Canles</string>
+    <string name="group_chats_and_channels"><![CDATA[Chats en grupo e Canles]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Servidor local</string>
     <string name="pref_channel_discovery_summary">A maioría das usuarias debería escoller \'jabber.network\' para obter mellores suxestións desde o ecosistema público XMPP.</string>

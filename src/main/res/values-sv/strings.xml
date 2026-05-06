@@ -94,7 +94,7 @@
     <string name="send_unencrypted">Skicka okrypterat</string>
     <string name="decryption_failed">Dekrypteringen misslyckades. Du har kanske inte rätt privat nyckel.</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">%1$s använder &lt;b&gt;OpenKeychain&lt;/b&gt; för att kryptera och avkryptera dina publika nycklar.&lt;br&gt;&lt;br&gt;Programmet är licensierat under GPLv3+, och finns tillgängligt via F-Droid och Google Play.&lt;br&gt;&lt;br&gt;&lt;small&gt;(Var god starta om %1$s efter installationen.)&lt;/small&gt;</string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s använder <b>OpenKeychain</b> för att kryptera och avkryptera dina publika nycklar.<br><br>Programmet är licensierat under GPLv3+, och finns tillgängligt via F-Droid och Google Play.<br><br><small>(Var god starta om %1$s efter installationen.)</small>]]></string>
     <string name="restart">Starta om</string>
     <string name="install">Installera</string>
     <string name="openkeychain_not_installed">Var god installera OpenKeychain</string>
@@ -837,7 +837,7 @@
     <string name="unable_to_perform_this_action">Det gick inte att utföra den här åtgärden</string>
     <string name="open_join_dialog">Anslut till publik gruppchatt…</string>
     <string name="sharing_application_not_grant_permission">Delningsappen gav inte behörighet att komma åt den här filen.</string>
-    <string name="group_chats_and_channels">Gruppchattar &amp; Kanaler</string>
+    <string name="group_chats_and_channels"><![CDATA[Gruppchattar & Kanaler]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">Lokal server</string>
     <string name="pref_channel_discovery_summary">De flesta användare bör välja \"jabber.network\", för att få bättre förslag från hela det offentliga XMPP-ekosystemet.</string>
@@ -939,7 +939,7 @@
     <string name="resend_sms">Skicka SMS igen</string>
     <string name="resend_sms_in">Skicka SMS igen (%s)</string>
     <string name="wait_x">Var god vänta (%s)</string>
-    <string name="we_will_be_verifying">Vi kommer att verifiera telefonnumret<br/><br/><b>%s</b><br/><br/>Är det här okej, eller vill du ändra telefonnumret\?</string>
+    <string name="we_will_be_verifying"><![CDATA[Vi kommer att verifiera telefonnumret<br/><br/><b>%s</b><br/><br/>Är det här okej, eller vill du ändra telefonnumret?]]></string>
     <string name="not_a_valid_phone_number">%s är inte ett giltigt telefonnummer.</string>
     <string name="security_violation_not_attaching_file">Filen har utelämnats på grund av säkerhetsöverträdelse.</string>
     <string name="pref_video_compression_summary">Lägre kvalitet resulterar i mindre filer</string>
@@ -972,7 +972,7 @@
     <string name="unable_to_connect_to_server">Det gick inte att ansluta till servern.</string>
     <string name="something_went_wrong_processing_your_request">Något gick fel när din begäran behandlades.</string>
     <string name="unknown_api_error_response">Okänt svar från servern.</string>
-    <string name="we_have_sent_you_an_sms_to_x">Vi har skickat ett SMS till <b>%s</b>.</string>
+    <string name="we_have_sent_you_an_sms_to_x"><![CDATA[Vi har skickat ett SMS till <b>%s</b>.]]></string>
     <string name="enter_country_code_and_phone_number">Quicksy kommer att skicka ett SMS (operatörsavgifter kan tillkomma) för att verifiera ditt telefonnummer. Ange din landskod och ditt telefonnummer:</string>
     <string name="missed_calls_channel_name">Missade samtal</string>
     <string name="pref_use_share_location_plugin_summary">Använd Dela plats-tillägget istället för den inbyggda kartan</string>

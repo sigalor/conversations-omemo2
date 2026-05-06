@@ -100,9 +100,9 @@
     <string name="offering">正在提供…</string>
     <string name="waiting">正在等待…</string>
     <string name="no_pgp_key">未找到 OpenPGP 密钥</string>
-    <string name="contact_has_no_pgp_key">无法加密您的消息，因为您的联系人未公布其公钥。\n\n<small>请让您的联系人设置 OpenPGP。</small></string>
+    <string name="contact_has_no_pgp_key">无法加密您的消息，因为您的联系人未发布其公钥。\n\n<small>请让您的联系人设置 OpenPGP。</small></string>
     <string name="no_pgp_keys">未找到 OpenPGP 密钥</string>
-    <string name="contacts_have_no_pgp_keys">无法加密您的消息，因为您的联系人未公布其公钥。\n\n<small>请让您的联系人设置 OpenPGP。</small></string>
+    <string name="contacts_have_no_pgp_keys">无法加密您的消息，因为您的联系人未发布其公钥。\n\n<small>请让您的联系人设置 OpenPGP。</small></string>
     <string name="pref_general">常规</string>
     <string name="pref_accept_files">接受文件</string>
     <string name="pref_accept_files_summary">自动接受小于此大小的文件…</string>
@@ -172,8 +172,7 @@
     <string name="mgmt_account_publish_avatar">发布头像</string>
     <string name="mgmt_account_publish_pgp">发布 OpenPGP 公钥</string>
     <string name="unpublish_pgp">移除 OpenPGP 公钥</string>
-    <string name="unpublish_pgp_message">是否确定要从在线状态公布中移除 OpenPGP 公钥？
-\n您的联系人将无法再向您发送 OpenPGP 加密消息。</string>
+    <string name="unpublish_pgp_message">是否确定要从在线状态发布中移除 OpenPGP 公钥？ \n您的联系人将无法再向您发送 OpenPGP 加密消息。</string>
     <string name="openpgp_has_been_published">OpenPGP 公钥已发布。</string>
     <string name="mgmt_account_enable">启用账号</string>
     <string name="mgmt_account_delete_confirm_text">是否确定要删除账号？删除账号会清空全部聊天记录</string>
@@ -198,7 +197,7 @@
     <string name="server_info_push">XEP-0357：推送</string>
     <string name="server_info_available">有效</string>
     <string name="server_info_unavailable">无效</string>
-    <string name="missing_public_keys">缺少公钥公布</string>
+    <string name="missing_public_keys">缺少公钥发布</string>
     <string name="last_seen_now">最后上线于刚刚</string>
     <string name="last_seen_min">最后上线于 1 分钟前</string>
     <string name="last_seen_mins">最后上线于 %d 分钟前</string>
@@ -359,7 +358,7 @@
     <string name="copy_omemo_clipboard_description">复制 OMEMO 指纹到剪贴板</string>
     <string name="regenerate_omemo_key">重新生成 OMEMO 密钥</string>
     <string name="clear_other_devices">清除设备</string>
-    <string name="clear_other_devices_desc">是否确定要从 OMEMO 公布中清除所有其他设备？下次您的设备连接时将会重新公布自身，但可能无法接收在此期间发送的消息。</string>
+    <string name="clear_other_devices_desc">是否确定要从 OMEMO 发布中清除所有其他设备？下次您的设备连接时将会重新发布自身，但可能无法接收在此期间发送的消息。</string>
     <string name="error_no_keys_to_trust_server_error">此联系人没有可用密钥。 \n无法从服务器获取新密钥。也许是对方的服务器有问题？</string>
     <string name="error_no_keys_to_trust_presence">此联系人没有可用密钥。 \n请确保双方都有在线状态订阅。</string>
     <string name="error_trustkeys_title">出了点问题</string>
@@ -508,7 +507,7 @@
     <string name="shared_images_with_x">图片已分享给 %s</string>
     <string name="shared_text_with_x">文本已分享给 %s</string>
     <string name="no_storage_permission">授予 %1$s 访问外部存储的权限</string>
-    <string name="no_camera_permission">授予 %1$s 相机使用权限</string>
+    <string name="no_camera_permission">授予 %1$s 摄像头使用权限</string>
     <string name="sync_with_contacts">联系人列表集成</string>
     <string name="sync_with_contacts_long">%1$s 在您的设备上本地处理您的联系人列表，以向您显示 XMPP 上匹配联系人的名称和个人资料照片。 \n\n任何联系人列表数据都不会离开您的设备！</string>
     <string name="notify_on_all_messages">通知所有消息</string>
@@ -584,7 +583,7 @@
     <string name="unable_to_update_account">无法更新账号</string>
     <string name="report_jid_as_spammer">举报此 XMPP 地址发送垃圾信息。</string>
     <string name="pref_delete_omemo_identities">删除 OMEMO 身份</string>
-    <string name="pref_delete_omemo_identities_summary">重新生成 OMEMO 密钥。您的所有联系人将必须再次验证您。仅将此作为最后的方法。</string>
+    <string name="pref_delete_omemo_identities_summary">重新生成您的 OMEMO 密钥。您的所有联系人将必须再次验证您。仅在万不得已时才可使用此操作。</string>
     <string name="delete_selected_keys">删除所选密钥</string>
     <string name="error_publish_avatar_offline">连接后才能发布头像。</string>
     <string name="show_error_message">显示错误消息</string>
@@ -720,7 +719,7 @@
     <string name="pref_use_share_location_plugin_summary">使用分享位置插件代替内置地图</string>
     <string name="copy_link">复制网址</string>
     <string name="copy_jabber_id">复制 XMPP 地址</string>
-    <string name="p1_s3_filetransfer">用于 S3 的 HTTP 文件分享</string>
+    <string name="p1_s3_filetransfer">用于 S3 的 HTTP 文件共享</string>
     <string name="pref_start_search">直接搜索</string>
     <string name="pref_start_search_summary">在“新聊天”屏幕上打开键盘并将光标放入搜索栏</string>
     <string name="group_chat_avatar">群聊头像</string>
@@ -757,8 +756,8 @@
     <string name="security_violation_not_attaching_file">由于违反安全规定，文件已删除。</string>
     <string name="pref_video_compression">视频画质</string>
     <string name="pref_video_compression_summary">画质越低，文件越小</string>
-    <string name="video_360p">360p（中）</string>
-    <string name="video_720p">720p（高）</string>
+    <string name="video_360p">中（360p）</string>
+    <string name="video_720p">高（720p）</string>
     <string name="cancelled">已取消</string>
     <string name="already_drafting_message">您已经在起草消息了。</string>
     <string name="feature_not_implemented">功能未实现</string>
@@ -813,7 +812,7 @@
     <string name="no_market_app_installed">未安装应用商店。</string>
     <string name="group_chat_will_make_your_jabber_id_public">此频道将公开您的 XMPP 地址</string>
     <string name="ebook">电子书</string>
-    <string name="video_original">未压缩（原始）</string>
+    <string name="video_original">原始（未压缩）</string>
     <string name="open_with">打开…</string>
     <string name="set_profile_picture">monocles chat 个人资料照片</string>
     <string name="choose_account">选择账号</string>
@@ -871,7 +870,7 @@
     <string name="please_enter_password">请输入此账号的密码</string>
     <string name="unable_to_perform_this_action">无法执行此操作</string>
     <string name="open_join_dialog">加入公开频道…</string>
-    <string name="sharing_application_not_grant_permission">分享应用未授予访问此文件的权限。</string>
+    <string name="sharing_application_not_grant_permission">共享应用未授予访问此文件的权限。</string>
     <string name="group_chats_and_channels"><![CDATA[群聊和频道]]></string>
     <string name="jabber_network">jabber.network</string>
     <string name="local_server">本地服务器</string>
@@ -985,10 +984,10 @@
     <string name="this_account_is_logged_out">您已退出此账号的登录</string>
     <string name="log_in">登录</string>
     <string name="hide_notification">隐藏通知</string>
-    <string name="contact_uses_unverified_keys">对方使用未经验证的设备。扫描其二维码进行验证并阻止主动式中间人攻击。</string>
+    <string name="contact_uses_unverified_keys">对方使用未经验证的设备。扫描其二维码进行验证以阻止主动式中间人攻击。</string>
     <string name="log_out">退出登录</string>
     <string name="account_state_logged_out">已退出登录</string>
-    <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证并阻止主动式中间人攻击。</string>
+    <string name="unverified_devices">您正在使用未经验证的设备。扫描您其他设备的二维码进行验证以阻止主动式中间人攻击。</string>
     <string name="report_spam_and_block">举报垃圾信息并屏蔽垃圾信息发送者</string>
     <string name="report_spam">举报垃圾信息</string>
     <string name="welcome_header_quicksy">欢迎使用 Quicksy！</string>
@@ -998,7 +997,7 @@
     <string name="rtp_state_contact_offline">联系人已离线</string>
     <string name="no_permission_to_place_call">没有发起通话的权限</string>
     <string name="call_integration_not_available">无法使用通话集成功能！</string>
-    <string name="remove_bookmark_and_close">是否移除 %s 的书签并归档聊天？</string>
+    <string name="remove_bookmark_and_close">是否移除 %s 的书签并将该聊天归档？</string>
     <string name="remove_bookmark">是否移除 %s 的书签？</string>
     <string name="delete_and_close">删除并归档聊天</string>
     <string name="channel_discover_opt_in_message">频道发现使用称为 &lt;a href=https://search.jabber.network&gt;search.jabber.network&lt;/a&gt; 的第三方服务。&lt;br&gt;&lt;br&gt;使用此功能会将您的 IP 地址和搜索词传输到此服务。如需更多信息，请参阅其&lt;a href=https://search.jabber.network/privacy&gt;隐私政策&lt;/a&gt;。</string>
@@ -1119,7 +1118,7 @@
     <string name="monocles_chat_intro_description">monocles chat 将您连接到称为 XMPP 的全球网络。此网络包括称为网关的服务，用于与短信、IRC、Matrix 等其他网络聊天。</string>
     <string name="how_the_xmpp_network_works">XMPP 网络的运作方式</string>
     <string name="do_you_really_want_to_retract_this_message">是否确定要撤回此消息？将会发送撤回请求，但接收者的客户端可能不会接受。</string>
-    <string name="store_media_only_in_cache">仅将媒体存储在缓存中</string>
+    <string name="store_media_only_in_cache">将媒体存储在内部隐藏存储空间中</string>
     <string name="cant_open_file">无法打开文件</string>
     <string name="encryption">加密</string>
     <string name="choose_widget">选择微件</string>
@@ -1419,7 +1418,7 @@
     <string name="pref_swipe_to_archive_summary">在聊天概览中左右滑动即可归档聊天</string>
     <string name="pref_swipe_to_archive_title">滑动归档</string>
     <string name="set_preferences_title">设置首选项</string>
-    <string name="pref_store_media_in_cache">默认系统范围内仅将媒体存储在缓存中。</string>
+    <string name="pref_store_media_in_cache">默认系统范围内将媒体文件存储在内部隐藏存储空间中。</string>
     <string name="set_preferences_summary">您可以在此处更改登录前一些最重要的首选项的默认设置，以增强您的隐私或安全。登录后，您可以再次更改所有设置。</string>
     <string name="create_monocles_account">注册</string>
     <string name="use_monocles">我更喜欢 monocles</string>
@@ -1651,7 +1650,7 @@
     <plurals name="liked_by_title">
         <item quantity="other">%d 人点赞</item>
     </plurals>
-    <string name="pref_cache_deletion_time">缓存文件自动删除时长</string>
+    <string name="pref_cache_deletion_time">多久后从内部隐藏存储空间中删除文件</string>
     <string name="one_day">1 天</string>
     <string name="three_days">3 天</string>
     <string name="one_week">1 周</string>
@@ -1663,4 +1662,24 @@
     <string name="destroy_channel_succeed">频道已成功解散</string>
     <string name="destroy_room_failed">群聊无法解散</string>
     <string name="destroy_channel_failed">频道无法解散</string>
+    <string name="ephemeral_messages">限时消息</string>
+    <string name="ephemeral_messages_duration">时长</string>
+    <string name="ephemeral_messages_off">关闭</string>
+    <string name="ephemeral_messages_30_seconds">30 秒</string>
+    <string name="ephemeral_messages_1_minute">1 分钟</string>
+    <string name="ephemeral_messages_5_minutes">5 分钟</string>
+    <string name="ephemeral_messages_30_minutes">30 分钟</string>
+    <string name="ephemeral_messages_1_hour">1 小时</string>
+    <string name="ephemeral_messages_6_hours">6 小时</string>
+    <string name="ephemeral_messages_12_hours">12 小时</string>
+    <string name="ephemeral_messages_1_day">1 天</string>
+    <string name="ephemeral_messages_1_week">1 周</string>
+    <string name="ephemeral_messages_1_month">1 个月</string>
+    <string name="message_has_disappeared">此消息已消失</string>
+    <string name="ephemeral_messages_active_hint">限时消息功能已开启（%s）</string>
+    <string name="could_not_create_backup">无法创建备份</string>
+    <string name="omemo_identities_reset">OMEMO 身份已重置</string>
+    <string name="failed_to_reset_omemo_identities">无法重置 OMEMO 身份</string>
+    <string name="ephemeral_messages_warning">限时消息无法保证在其他客户端上消失。</string>
+    <string name="dont_show_again">不再显示</string>
 </resources>

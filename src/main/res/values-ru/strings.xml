@@ -50,7 +50,7 @@
     <string name="blocked">Заблокирован</string>
     <string name="register_account">Создать новый аккаунт на сервере</string>
     <string name="change_password_on_server">Изменить пароль на сервере</string>
-    <string name="share_with">Поделиться с…</string>
+    <string name="share_with">Поделиться…</string>
     <string name="invite_contact">Пригласить контакт</string>
     <string name="invite">Пригласить</string>
     <string name="contacts">Контакты</string>
@@ -235,7 +235,7 @@
     <string name="delete_bookmark">Удалить закладку</string>
     <string name="destroy_room">Уничтожить конференцию</string>
     <string name="destroy_channel">Уничтожить канал</string>
-    <string name="destroy_room_dialog">Вы уверены, что хотите распустить эту конференцию?\n\n<b>Предупреждение:</b>Конференция будет полностью удалена с сервера.</string>
+    <string name="destroy_room_dialog">Вы уверены, что хотите распустить эту конференцию?\n\n<b>Предупреждение:</b> Конференция будет полностью удалена с сервера.</string>
     <string name="destroy_channel_dialog">Вы уверены, что хотите закрыть этот публичный канал?\n\n<b>Предупреждение:</b> Канал будет полностью удален с сервера.</string>
     <string name="could_not_destroy_room">Не удалось уничтожить конференцию</string>
     <string name="could_not_destroy_channel">Не удалось уничтожить канал</string>
@@ -777,7 +777,7 @@
     <string name="phone_number">номер телефона</string>
     <string name="verify_your_phone_number">Проверьте ваш номер телефона</string>
     <string name="enter_country_code_and_phone_number">Quicksy отправит SMS (оператором может взиматься абонентская плата) для проверки вашего номера телефона. Введите код страны и номер телефона:</string>
-    <string name="we_will_be_verifying"><![CDATA[Мы проверим номер телефона<br/><br/><b>%s</b><br/><br/>Продолжить или вы желаете изменить номер?]]></string>
+    <string name="we_will_be_verifying"><![CDATA[Мы проверим номер телефона<br><br><b>%s</b><br><br>Продолжить или вы желаете изменить номер?]]></string>
     <string name="not_a_valid_phone_number">%s не является правильным номером телефона.</string>
     <string name="please_enter_your_phone_number">Пожалуйста, введите ваш номер телефона.</string>
     <string name="search_countries">Поиск стран</string>
@@ -1043,7 +1043,7 @@
     <string name="pref_title_security">Безопасность</string>
     <string name="pref_allow_screenshots">Разрешить снимки экрана</string>
     <string name="pref_keyboard_options">Клавиатура</string>
-    <string name="title_activity_share_with">Поделиться с…</string>
+    <string name="title_activity_share_with">Поделиться…</string>
     <string name="pref_use_colorful_bubbles">Цветные пузыри</string>
     <string name="pref_use_colorful_bubbles_summary">Различные цвета фона для отправленных и полученных сообщений</string>
     <string name="pref_dynamic_colors">Динамические цвета</string>
@@ -1152,7 +1152,7 @@
     <string name="how_the_xmpp_network_works">Как работает сеть XMPP</string>
     <string name="do_you_really_want_to_retract_this_message">Вы уверены, что хотите отозвать это сообщение? Запрос на отзыв будет отправлен, но клиент получателя может его не принять.</string>
     <string name="show_avatar">Показать аватар</string>
-    <string name="store_media_only_in_cache">Хранить медиа в кэше</string>
+    <string name="store_media_only_in_cache">Хранить медиа в хранилище</string>
     <string name="cant_open_file">Невозможно открыть файл</string>
     <string name="encryption">Шифрование</string>
     <string name="choose_widget">Выбрать виджет</string>
@@ -1456,7 +1456,7 @@
     <string name="pref_swipe_to_archive_title">Свайп для архивации</string>
     <string name="pref_swipe_to_archive_summary">Свайп влево или вправо в обзоре чатов, чтобы архивировать чат</string>
     <string name="set_preferences_title">Установить настройки</string>
-    <string name="pref_store_media_in_cache">По умолчанию сохранять медиа файлы только в кэше.</string>
+    <string name="pref_store_media_in_cache">По умолчанию медиафайлы сохраняются во внутреннем скрытом хранилище.</string>
     <string name="set_preferences_summary">Здесь вы можете изменить основные настройки перед входом в систему, чтобы повысить уровень приватности и безопасности. После входа вы сможете настроить всё заново.</string>
     <string name="monocles_account_introduction">Зарегистрируйтесь сейчас и <b>получите защищённый аккаунт Monocles, работающий на возобновляемой энергии</b>, чтобы сразу начать общение.</string>
     <string name="monocles_account_details">Это включает:\n● Один месяц временного хранения чатов\n● e‑mail с хранилищем 2 ГБ\n\n Дополнительно по желанию: \n● 5 ГБ облачного хранилища (NextCloud)\n● Синхронизация календаря и контактов\n● Защищённый инструмент для конференций \n и другое на <a href="https://monocles.eu/more/">https://monocles.eu/more/</a></string>
@@ -1639,7 +1639,7 @@
     <string name="title_and_content_are_required">Необходимо указать название и содержание</string>
     <string name="post_published">Сообщение опубликовано</string>
     <string name="error_publish_post">Не удалось опубликовать сообщение</string>
-    <string name="share_post_with">Поделиться публикацией с…</string>
+    <string name="share_post_with">Поделиться публикацией…</string>
     <string name="title_or_content_are_required">Необходимо указать название или содержание</string>
     <string name="retract_post">Отозвать публикацию</string>
     <string name="retract_post_confirm">Вы действительно хотите отозвать это сообщение?</string>
@@ -1694,7 +1694,7 @@
         <item quantity="many">Понравилось %d человек</item>
         <item quantity="other">Понравилось %d человек</item>
     </plurals>
-    <string name="pref_cache_deletion_time">Удалять файлы из кэша через</string>
+    <string name="pref_cache_deletion_time">Удалять файлы из хранилища</string>
     <string name="one_day">1 день</string>
     <string name="three_days">3 дня</string>
     <string name="one_week">1 неделя</string>
@@ -1706,4 +1706,25 @@
     <string name="destroy_channel_succeed">Канал успешно удален</string>
     <string name="destroy_room_failed">Не удалось удалить конференцию</string>
     <string name="destroy_channel_failed">Не удалось удалить канал</string>
+    <string name="ephemeral_messages">Исчезающие сообщения</string>
+    <string name="ephemeral_messages_duration">Продолжительность</string>
+    <string name="ephemeral_messages_off">Отключить</string>
+    <string name="ephemeral_messages_30_seconds">30 секунд</string>
+    <string name="ephemeral_messages_1_minute">1 минута</string>
+    <string name="ephemeral_messages_5_minutes">5 минут</string>
+    <string name="ephemeral_messages_30_minutes">30 минут</string>
+    <string name="ephemeral_messages_1_hour">1 час</string>
+    <string name="ephemeral_messages_6_hours">6 часов</string>
+    <string name="ephemeral_messages_12_hours">12 часов</string>
+    <string name="ephemeral_messages_1_day">1 день</string>
+    <string name="ephemeral_messages_1_week">1 неделя</string>
+    <string name="ephemeral_messages_1_month">1 месяц</string>
+    <string name="message_has_disappeared">Это сообщение исчезло</string>
+    <string name="ephemeral_messages_active_hint">Исчезающие сообщения активны (%s)</string>
+    <string name="could_not_create_backup">Не удалось создать резервную копию</string>
+    <string name="omemo_identities_reset">Сброс личности OMEMO</string>
+    <string name="failed_to_reset_omemo_identities">Не удалось сбросить идентификаторы OMEMO</string>
+    <string name="ephemeral_messages_warning">Эфемерные сообщения не гарантированно исчезнут на других клиентах.</string>
+    <string name="dont_show_again">Больше не показывать</string>
+    <string name="ephemeral_messages_active_by_hint">Эфемерные сообщения были активированы %1$s (%2$s)</string>
 </resources>

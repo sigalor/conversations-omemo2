@@ -716,7 +716,7 @@
     <string name="please_enter_your_phone_number">請輸入您的電話號碼。</string>
     <string name="search_countries">搜尋國家</string>
     <string name="verify_x">驗證 %s</string>
-    <string name="we_have_sent_you_an_sms_to_x">我們傳送簡訊至 <b>%s</b>。</string>
+    <string name="we_have_sent_you_an_sms_to_x"><![CDATA[我們傳送簡訊至 <b>%s</b>。]]></string>
     <string name="we_have_sent_you_another_sms">我們已傳送另外一則帶有 6 位數代碼的簡訊給您。</string>
     <string name="please_enter_pin_below">請在下面輸入 6 位數字的 PIN 碼。</string>
     <string name="resend_sms">重新傳送簡訊</string>
@@ -816,7 +816,7 @@
     <string name="unable_to_perform_this_action">無法執行此動作</string>
     <string name="open_join_dialog">加入公用頻道…</string>
     <string name="sharing_application_not_grant_permission">分享應用程式未授予此檔案的存取權。</string>
-    <string name="group_chats_and_channels"><![CDATA[群組聊天 & 頻道]]> </string>
+    <string name="group_chats_and_channels"><![CDATA[群組聊天 & 頻道]]></string>
     <string name="local_server">本機伺服器</string>
     <string name="pref_channel_discovery_summary">大多數使用者應該選擇「jabber.network」以從整個公用 XMPP 生態系統中取得更好的建議。</string>
     <string name="pref_channel_discovery">頻道探索方法</string>
@@ -912,9 +912,9 @@
     <string name="error_security_exception_during_image_copy">您用來選取此圖像的應用程式沒有足夠的權限以讀取此檔案。
 \n
 \n<small>請使用不同的檔案管理員以選擇圖像</small>。</string>
-    <string name="openkeychain_required_long">%1$s 使用 &lt;b&gt;OpenKeychain&lt;/b&gt; 以加密和解密訊息並管理您的公開金鑰。&lt;br&gt;&lt;br&gt;已獲 GPLv3+ 授權並可在 F-Droid 和 Google Play 中取得。&lt;br&gt;&lt;br&gt;&lt;small&gt;(之後請重新啟動 %1$s。)&lt;/small&gt;</string>
+    <string name="openkeychain_required_long"><![CDATA[%1$s 使用 <b>OpenKeychain</b> 以加密和解密訊息並管理您的公開金鑰。<br><br>已獲 GPLv3+ 授權並可在 F-Droid 和 Google Play 中取得。<br><br><small>(之後請重新啟動 %1$s。)</small>]]></string>
     <string name="pref_clean_cache_summary">清除快取資料夾 (由相機應用程式使用)</string>
-    <string name="we_will_be_verifying">我們將驗證 <br/><br/><b>%s</b><br/><br/> 電話號碼是否正確，或者您想編輯這個號碼嗎？</string>
+    <string name="we_will_be_verifying"><![CDATA[我們將驗證 <br/><br/><b>%s</b><br/><br/> 電話號碼是否正確，或者您想編輯這個號碼嗎？]]></string>
     <string name="distrust_omemo_key_text">您確定要移除此裝置的驗證嗎？
 \n此裝置和來自此裝置的訊息將被標示為「未受信任」。</string>
     <string name="huawei_protected_apps_summary">若要在螢幕關閉時保持接收通知，您需要將 Conversations 加入受保護的應用程式清單。</string>

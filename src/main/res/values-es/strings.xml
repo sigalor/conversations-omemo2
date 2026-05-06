@@ -1041,7 +1041,7 @@
     <string name="pref_connection_summary_w_cd">Nombre del host y puerto, Tor, descubrimiento de canales</string>
     <string name="pref_summary_security">Cifrado E2E, confianza ciega antes de la verificación, detección de MITM</string>
     <string name="pref_up_long_summary">Al actuar como un Distribuidor de UnifiedPush la conexión XMPP persistente, fiable y de bajo consumo de batería se utilizará para despertar a otras aplicaciones compatibles con UnifiedPush como Tusky, Ltt.rs, FluffyChat y más.</string>
-    <string name="send_encrypted_message">Enviar mensaje cifrado</string>
+    <string name="send_encrypted_message">Mensaje cifrado</string>
     <string name="pref_title_interface">Interfaz</string>
     <string name="pref_summary_appearance">Tema, Colores, Capturas de pantalla, Entrada</string>
     <string name="pref_title_security">Seguridad</string>

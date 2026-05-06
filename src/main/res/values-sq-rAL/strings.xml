@@ -1116,7 +1116,7 @@
     <string name="block_avatar">Bllokoje avatarin</string>
     <string name="pref_show_less_avatars">Shfaq më pak avatare</string>
     <string name="pref_show_less_avatars_summary">Në fjalosje shfaq vetëm avatarë të nevojshëm</string>
-    <string name="store_media_only_in_cache">Median depozitoje vetëm në fshehtinë</string>
+    <string name="store_media_only_in_cache">Median depozitoje në depozitë të brendshme të fshehtë</string>
     <string name="cant_open_file">S’hapet dot kartela</string>
     <string name="encryption">Fshehtëzim</string>
     <string name="choose_widget">Zgjidhni widget</string>
@@ -1568,7 +1568,7 @@
     <string name="action_dialpad">Pjesa numerike</string>
     <string name="snooze">Dremitje</string>
     <string name="dialler_integration_title">Integrim pjese numerike</string>
-    <string name="pref_store_media_in_cache">Parazgjedhje për krejt sistemin, që media të depozitohet vetëm në fshehtinë.</string>
+    <string name="pref_store_media_in_cache">Parazgjedhje për krejt sistemin, që media të depozitohet në depozitë internale dhe të fshehtë.</string>
     <string name="clarendon">Klarendon</string>
     <string name="oldman">Plaku</string>
     <string name="haan">Haan</string>
@@ -1664,7 +1664,7 @@
         <item quantity="other">Pëlqyer nga %d vetë</item>
     </plurals>
     <string name="three_days">3 ditë</string>
-    <string name="pref_cache_deletion_time">Fshiji kartelat te fshehtina pas</string>
+    <string name="pref_cache_deletion_time">Fshiji kartelat te depo e brendshme e fshehur pas</string>
     <string name="one_day">1 ditë</string>
     <string name="post_link">Shtoni një lidhje</string>
     <string name="one_week">1 javë</string>
@@ -1674,4 +1674,27 @@
     <string name="destroy_room_succeed">U asgjësua me sukses fjalosje grupi</string>
     <string name="destroy_room_failed">S’u asgjësua dot fjalosje grupi</string>
     <string name="destroy_channel_succeed">Kanali u asgjësua me sukses</string>
+    <string name="ephemeral_messages">Mesazhe që zhduken</string>
+    <string name="ephemeral_messages_duration">Kohëzgjatje</string>
+    <string name="ephemeral_messages_30_seconds">30 sekonda</string>
+    <string name="ephemeral_messages_1_minute">1 minutë</string>
+    <string name="ephemeral_messages_5_minutes">5 minuta</string>
+    <string name="ephemeral_messages_30_minutes">30 minuta</string>
+    <string name="ephemeral_messages_1_hour">1 orë</string>
+    <string name="ephemeral_messages_6_hours">6 orë</string>
+    <string name="ephemeral_messages_12_hours">12 orë</string>
+    <string name="ephemeral_messages_1_day">1 ditë</string>
+    <string name="ephemeral_messages_1_week">1 javë</string>
+    <string name="ephemeral_messages_1_month">1 muaj</string>
+    <string name="message_has_disappeared">Ku mesazh është zhdukur</string>
+    <string name="ephemeral_messages_active_hint">“Mesazhe që zhduken” është aktive (%s)</string>
+    <string name="destroy_channel_failed">Kanali s’u asgjësua dot</string>
+    <string name="could_not_create_backup">S’u krijua dot kopjeruajtje</string>
+    <string name="pref_headsup_notifications">Njoftime “Vini Re”</string>
+    <string name="pref_headsup_notifications_summary">Shfaq njoftime “vini re”</string>
+    <string name="ephemeral_messages_active_by_hint">Mesazhet e tretshëm qenë aktivizuar nga %1$s (%2$s)</string>
+    <string name="omemo_identities_reset">Identitetet OMEMO i kthyen te parazgjedhjet</string>
+    <string name="failed_to_reset_omemo_identities">S’u arrit të kthehen te parazgjedhjet identitetet OMEMO</string>
+    <string name="ephemeral_messages_warning">S’ka garanci se mesazhet e tretshëm do të zhduken në klientë të tjerë.</string>
+    <string name="dont_show_again">Mos e shfaq sërish</string>
 </resources>
