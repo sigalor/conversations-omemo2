@@ -26,5 +26,5 @@
     <bool name="load_image_from_any_link">false</bool>
     <bool name="pinned_status_message">true</bool>
     <bool name="show_contact_status">true</bool>
-    <bool name="delete_files_on_chat_deletion">true</bool>
+    <bool name="delete_unused_files">true</bool>
 </resources>

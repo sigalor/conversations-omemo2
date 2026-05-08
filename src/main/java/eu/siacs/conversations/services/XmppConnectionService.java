@@ -1744,9 +1744,11 @@ public class XmppConnectionService extends Service {
         mDatabaseWriterExecutor.execute(
                 () -> {
                     long timestamp = getAutomaticMessageDeletionDate();
-                    List<Message> expiringMessages = databaseBackend.getExpiringMessages();
-                    for (Message message : expiringMessages) {
-                        fileBackend.deleteFile(message);
+                    if (getAppSettings().isDeleteUnusedFiles()) {
+                        final List<String> exclusivePaths = databaseBackend.getExclusiveFilePathsExpiring(timestamp);
+                        if (!exclusivePaths.isEmpty()) {
+                            FILE_ATTACHMENT_EXECUTOR.execute(() -> deleteFilesAsync(exclusivePaths, "background expiry"));
+                        }
                     }
                     databaseBackend.expireOldMessages(timestamp);
                     synchronized (XmppConnectionService.this.conversations) {
@@ -5517,9 +5519,20 @@ public class XmppConnectionService extends Service {
 
     public void deleteMessage(Message message) {
         mScheduledMessages.remove(message.getUuid());
+        deleteFileIfUnused(message);
         databaseBackend.deleteMessage(message.getUuid());
         ((Conversation) message.getConversation()).remove(message);
         updateConversationUi();
+    }
+
+    public void deleteFileIfUnused(Message message) {
+        if (getAppSettings().isDeleteUnusedFiles()) {
+            final String exclusivePath = databaseBackend.getExclusiveFilePath(message);
+            if (exclusivePath != null) {
+                final String jid = message.getConversation().getJid().asBareJid().toString();
+                FILE_ATTACHMENT_EXECUTOR.execute(() -> deleteFilesAsync(Collections.singletonList(exclusivePath), jid));
+            }
+        }
     }
 
     public void updateMessage(Message message) {
@@ -7273,7 +7286,7 @@ public class XmppConnectionService extends Service {
         conversation.clearMessages();
         conversation.setHasMessagesLeftOnServer(false); // avoid messages getting loaded through mam
         conversation.setLastClearHistory(clearDate, reference);
-        final boolean deleteFiles = getAppSettings().isDeleteFilesOnChatDeletion();
+        final boolean deleteFiles = getAppSettings().isDeleteUnusedFiles();
         Runnable runnable =
                 () -> {
                     final List<String> exclusiveFilePaths;

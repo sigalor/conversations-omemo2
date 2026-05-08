@@ -2517,6 +2517,24 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return paths;
     }
 
+    public String getExclusiveFilePath(final Message message) {
+        final String relativePath = message.getRelativeFilePath();
+        if (relativePath == null) {
+            return null;
+        }
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final String sql = "SELECT 1 FROM " + Message.TABLENAME
+                + " WHERE " + Message.RELATIVE_FILE_PATH + "=?"
+                + " AND " + Message.UUID + "!=?"
+                + " LIMIT 1";
+        try (Cursor cursor = db.rawQuery(sql, new String[]{relativePath, message.getUuid()})) {
+            if (cursor.getCount() == 0) {
+                return relativePath;
+            }
+        }
+        return null;
+    }
+
     public void readRoster(Roster roster) {
         final SQLiteDatabase db = this.getReadableDatabase();
         final String[] args = {roster.getAccount().getUuid()};
@@ -2634,31 +2652,30 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return 0;
     }
 
-    public List<Message> getExpiringMessages() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM " + Message.TABLENAME + " WHERE " + Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?";
-        List<Message> messages = new ArrayList<>();
-        Map<String, Conversation> conversationMap = new HashMap<>();
-        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(System.currentTimeMillis())})) {
+    public List<String> getExclusiveFilePathsExpiring(long historyTimestamp) {
+        final List<String> paths = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final long now = System.currentTimeMillis();
+        final String sql = "SELECT DISTINCT m." + Message.RELATIVE_FILE_PATH
+                + " FROM " + Message.TABLENAME + " m"
+                + " WHERE ((" + Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?)"
+                + " OR (" + Message.TIME_SENT + " < ? AND ? > 0))"
+                + " AND m." + Message.RELATIVE_FILE_PATH + " IS NOT NULL"
+                + " AND NOT EXISTS ("
+                + "SELECT 1 FROM " + Message.TABLENAME + " m2"
+                + " WHERE m2." + Message.RELATIVE_FILE_PATH + "=m." + Message.RELATIVE_FILE_PATH
+                + " AND NOT ((" + Message.EXPIRE_AT + " > 0 AND " + Message.EXPIRE_AT + " < ?)"
+                + " OR (" + Message.TIME_SENT + " < ? AND ? > 0))"
+                + ")";
+        try (Cursor cursor = db.rawQuery(sql, new String[]{
+                String.valueOf(now), String.valueOf(historyTimestamp), String.valueOf(historyTimestamp),
+                String.valueOf(now), String.valueOf(historyTimestamp), String.valueOf(historyTimestamp)
+        })) {
             while (cursor.moveToNext()) {
-                String conversationUuid = cursor.getString(cursor.getColumnIndexOrThrow(Message.CONVERSATION));
-                Conversation conversation = conversationMap.get(conversationUuid);
-                if (conversation == null) {
-                    conversation = findConversation(conversationUuid);
-                    if (conversation != null) {
-                        conversationMap.put(conversationUuid, conversation);
-                    }
-                }
-                if (conversation != null) {
-                    try {
-                        messages.add(Message.fromCursor(cursor, conversation));
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
+                paths.add(cursor.getString(0));
             }
         }
-        return messages;
+        return paths;
     }
 
     public MamReference getLastMessageReceived(Account account) {

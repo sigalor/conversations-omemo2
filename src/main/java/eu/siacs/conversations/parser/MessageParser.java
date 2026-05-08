@@ -1304,6 +1304,7 @@ public class MessageParser extends AbstractParser
 
                                 replacedMessage.setDeleted(true);
                                 replacedMessage.setRetractId(replacementId);
+                                mXmppConnectionService.deleteFileIfUnused(replacedMessage);
                                 mXmppConnectionService.updateMessage(replacedMessage, replacedMessage.getUuid());
                                 mXmppConnectionService.getNotificationService().markRetracted(replacedMessage);
                             } else {
