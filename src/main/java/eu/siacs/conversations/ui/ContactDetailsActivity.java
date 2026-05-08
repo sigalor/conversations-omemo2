@@ -395,7 +395,7 @@ public class ContactDetailsActivity extends OmemoActivity
                 };
         mFollowFeedSwitch.setOnCheckedChangeListener(mOnFollowFeedCheckedChange);
 
-        mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
+        mMediaAdapter = new MediaAdapter(this, R.dimen.media_size, false);
         this.binding.media.setAdapter(mMediaAdapter);
         GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
         this.binding.recentThreads.setOnItemClickListener((a0, v, pos, a3) -> {

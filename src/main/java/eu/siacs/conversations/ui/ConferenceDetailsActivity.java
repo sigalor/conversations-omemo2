@@ -354,7 +354,7 @@ public class ConferenceDetailsActivity extends XmppActivity
         //this.binding.mucEditSubject.addTextChangedListener(
         //        new StylingHelper.MessageEditorStyler(this.binding.mucEditSubject));
         this.binding.editTags.addTextChangedListener(this);
-        this.mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
+        this.mMediaAdapter = new MediaAdapter(this, R.dimen.media_size, false);
         this.mUserPreviewAdapter = new UserPreviewAdapter();
         this.binding.media.setAdapter(mMediaAdapter);
         this.binding.users.setAdapter(mUserPreviewAdapter);

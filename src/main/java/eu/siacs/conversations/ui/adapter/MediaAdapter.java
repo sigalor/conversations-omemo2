@@ -77,6 +77,7 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private final ArrayList<Object> items = new ArrayList<>();
     private HashSet<Attachment> selectedAttachments = new HashSet<>();
     private boolean selectionMode = false;
+    private boolean showDateSeparators = true;
 
     private final XmppActivity activity;
 
@@ -99,8 +100,13 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public MediaAdapter(XmppActivity activity, @DimenRes int mediaSize) {
+        this(activity, mediaSize, true);
+    }
+
+    public MediaAdapter(XmppActivity activity, @DimenRes int mediaSize, boolean showDateSeparators) {
         this.activity = activity;
         this.mediaSize = Math.round(activity.getResources().getDimension(mediaSize));
+        this.showDateSeparators = showDateSeparators;
     }
 
     public void toggleSelection(Attachment attachment) {
@@ -312,22 +318,26 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void setAttachments(final List<Attachment> attachments) {
         this.items.clear();
         if (attachments != null && !attachments.isEmpty()) {
-            java.util.Calendar calendar = java.util.Calendar.getInstance();
-            int currentDay = -1;
-            int currentMonth = -1;
-            int currentYear = -1;
-            for (Attachment attachment : attachments) {
-                calendar.setTimeInMillis(attachment.getTimestamp());
-                int day = calendar.get(java.util.Calendar.DAY_OF_YEAR);
-                int month = calendar.get(java.util.Calendar.MONTH);
-                int year = calendar.get(java.util.Calendar.YEAR);
-                if (day != currentDay || month != currentMonth || year != currentYear) {
-                    items.add(new DateSeparator(attachment.getTimestamp()));
-                    currentDay = day;
-                    currentMonth = month;
-                    currentYear = year;
+            if (showDateSeparators) {
+                java.util.Calendar calendar = java.util.Calendar.getInstance();
+                int currentDay = -1;
+                int currentMonth = -1;
+                int currentYear = -1;
+                for (Attachment attachment : attachments) {
+                    calendar.setTimeInMillis(attachment.getTimestamp());
+                    int day = calendar.get(java.util.Calendar.DAY_OF_YEAR);
+                    int month = calendar.get(java.util.Calendar.MONTH);
+                    int year = calendar.get(java.util.Calendar.YEAR);
+                    if (day != currentDay || month != currentMonth || year != currentYear) {
+                        items.add(new DateSeparator(attachment.getTimestamp()));
+                        currentDay = day;
+                        currentMonth = month;
+                        currentYear = year;
+                    }
+                    items.add(attachment);
                 }
-                items.add(attachment);
+            } else {
+                items.addAll(attachments);
             }
         }
         notifyDataSetChanged();
