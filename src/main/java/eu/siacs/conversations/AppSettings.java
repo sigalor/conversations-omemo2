@@ -69,6 +69,7 @@ public class AppSettings {
     public static final String SECURE_TLS = "secure_tls";
     public static final String PREFER_IPV6 = "prefer_ipv6";
     public static final String UNENCRYPTED_REACTIONS = "allow_unencrypted_reactions";
+    public static final String DELETE_FILES_ON_CHAT_DELETION = "delete_files_on_chat_deletion";
     public static final String USE_INTERNAL_SECURE_STORAGE = "default_store_media_securely";
     public static final String SHOW_MAPS_INSIDE = "show_maps_inside";
 
@@ -157,6 +158,10 @@ public class AppSettings {
 
     public boolean isShowAvatars() {
         return getBooleanPreference(SHOW_AVATARS, R.bool.show_avatars);
+    }
+
+    public boolean isDeleteFilesOnChatDeletion() {
+        return getBooleanPreference(DELETE_FILES_ON_CHAT_DELETION, R.bool.delete_files_on_chat_deletion);
     }
 
     public boolean isCallIntegration() {

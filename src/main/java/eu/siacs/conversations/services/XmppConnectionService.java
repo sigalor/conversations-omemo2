@@ -7273,12 +7273,40 @@ public class XmppConnectionService extends Service {
         conversation.clearMessages();
         conversation.setHasMessagesLeftOnServer(false); // avoid messages getting loaded through mam
         conversation.setLastClearHistory(clearDate, reference);
+        final boolean deleteFiles = getAppSettings().isDeleteFilesOnChatDeletion();
         Runnable runnable =
                 () -> {
+                    final List<String> exclusiveFilePaths;
+                    if (deleteFiles) {
+                        exclusiveFilePaths = databaseBackend.getExclusiveFilePaths(conversation);
+                    } else {
+                        exclusiveFilePaths = null;
+                    }
                     databaseBackend.deleteMessagesInConversation(conversation);
                     databaseBackend.updateConversation(conversation);
+                    if (exclusiveFilePaths != null && !exclusiveFilePaths.isEmpty()) {
+                        final String jid = conversation.getJid().asBareJid().toString();
+                        FILE_ATTACHMENT_EXECUTOR.execute(() -> deleteFilesAsync(exclusiveFilePaths, jid));
+                    }
                 };
         mDatabaseWriterExecutor.execute(runnable);
+    }
+
+    private void deleteFilesAsync(final List<String> exclusiveFilePaths, final String jid) {
+        int deletedCount = 0;
+        for (final String relativePath : exclusiveFilePaths) {
+            try {
+                final File file = getFileBackend().getFileForPath(relativePath);
+                if (file.exists() && file.delete()) {
+                    deletedCount++;
+                    getFileBackend().updateMediaScanner(file);
+                    Log.d(Config.LOGTAG, "deleted file: " + file.getAbsolutePath());
+                }
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "error deleting file for path " + relativePath, e);
+            }
+        }
+        Log.d(Config.LOGTAG, "deleted " + deletedCount + "/" + exclusiveFilePaths.size() + " exclusive files for " + jid);
     }
 
     public boolean sendBlockRequest(

@@ -2490,6 +2490,33 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 db.delete("" + Message.TABLENAME, Message.UUID + "=?", args) == 1;
     }
 
+    /**
+     * Returns a list of relative file paths for messages in the given conversation
+     * that are not referenced by any other conversation's messages.
+     */
+    public List<String> getExclusiveFilePaths(final Conversation conversation) {
+        final List<String> paths = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final String sql = "SELECT DISTINCT m." + Message.RELATIVE_FILE_PATH
+                + " FROM " + Message.TABLENAME + " m"
+                + " WHERE m." + Message.CONVERSATION + "=?"
+                + " AND m." + Message.RELATIVE_FILE_PATH + " IS NOT NULL"
+                + " AND NOT EXISTS ("
+                + "SELECT 1 FROM " + Message.TABLENAME + " m2"
+                + " WHERE m2." + Message.RELATIVE_FILE_PATH + "=m." + Message.RELATIVE_FILE_PATH
+                + " AND m2." + Message.CONVERSATION + "!=?"
+                + ")";
+        try (Cursor cursor = db.rawQuery(sql, new String[]{conversation.getUuid(), conversation.getUuid()})) {
+            while (cursor.moveToNext()) {
+                final String relativePath = cursor.getString(0);
+                if (relativePath != null) {
+                    paths.add(relativePath);
+                }
+            }
+        }
+        return paths;
+    }
+
     public void readRoster(Roster roster) {
         final SQLiteDatabase db = this.getReadableDatabase();
         final String[] args = {roster.getAccount().getUuid()};
