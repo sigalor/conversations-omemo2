@@ -69,6 +69,15 @@
     <string name="unblock">Unblock</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="media_gallery">Media gallery</string>
+    <string name="action_save_to_downloads">Save to Downloads</string>
+    <string name="search_by_date">Search by date</string>
+    <string name="clear_search">Clear search</string>
+    <string name="tab_all">All</string>
+    <string name="tab_images">Images</string>
+    <string name="tab_videos">Videos</string>
+    <string name="tab_audio">Audio</string>
+    <string name="tab_files">Files</string>
     <string name="crash_report_title">%1$s has crashed</string>
     <string name="crash_report_message">Using your XMPP address to send in stack traces helps the ongoing development of %1$s.</string>
     <string name="send_now">Send now</string>

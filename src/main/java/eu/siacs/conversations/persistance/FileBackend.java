@@ -632,7 +632,7 @@ public class FileBackend {
                     MimeUtils.guessMimeTypeFromExtension(
                             MimeUtils.extractRelevantExtension(relativeFilePath.path));
             final File file = getFileForPath(relativeFilePath.path, mime);
-            attachments.add(Attachment.of(relativeFilePath.uuid, file, mime));
+            attachments.add(Attachment.of(relativeFilePath.uuid, file, mime, relativeFilePath.timestamp));
         }
         return attachments;
     }

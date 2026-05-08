@@ -37,14 +37,19 @@
         android:title="@string/action_account"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_stories"
+        android:id="@+id/action_media_gallery"
         android:orderInCategory="92"
+        android:title="@string/media_gallery"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_stories"
+        android:orderInCategory="93"
         android:title="@string/stories"
         android:icon="@drawable/outline_stories_24"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_calls"
-        android:orderInCategory="93"
+        android:orderInCategory="94"
         android:title="@string/calls"
         app:showAsAction="never" />
     <item

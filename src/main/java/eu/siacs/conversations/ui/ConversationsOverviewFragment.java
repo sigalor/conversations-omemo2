@@ -368,11 +368,13 @@ public class ConversationsOverviewFragment extends XmppFragment {
             final MenuItem stories = menu.findItem(R.id.action_stories);
             final MenuItem calls = menu.findItem(R.id.action_calls);
             final MenuItem feeds = menu.findItem(R.id.action_feeds);
+            final MenuItem mediaGallery = menu.findItem(R.id.action_media_gallery);
             if (manageAccounts != null) manageAccounts.setVisible(false);
             if (settings != null) settings.setVisible(false);
             if (stories != null) stories.setVisible(false);
             if (calls != null) calls.setVisible(false);
             if (feeds != null) feeds.setVisible(false);
+            if (mediaGallery != null) mediaGallery.setVisible(false);
         }
         if (activity == null || activity.xmppConnectionService == null || activity.xmppConnectionService.getAccounts().size() != 1) {
             noteToSelf.setVisible(false);
@@ -489,6 +491,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
         MenuItem stories = menu.findItem(R.id.action_stories);
         MenuItem calls = menu.findItem(R.id.action_calls);
         MenuItem feeds = menu.findItem(R.id.action_feeds);
+        MenuItem mediaGallery = menu.findItem(R.id.action_media_gallery);
+        boolean showNavDrawer = activity.getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer);
 		if (navBarVisible) {
             stories.setVisible(false);
             calls.setVisible(false);
@@ -496,6 +500,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		} else {
 			AccountUtils.showHideMenuItems(menu);
 		}
+        if (mediaGallery != null) {
+            mediaGallery.setVisible(!showNavDrawer);
+        }
 	}
 
 	@Override
@@ -553,6 +560,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
                 return true;
             case R.id.action_calls:
                 startActivity(new Intent(getActivity(), CallsActivity.class));
+                return true;
+            case R.id.action_media_gallery:
+                startActivity(new Intent(getActivity(), MediaBrowserActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);

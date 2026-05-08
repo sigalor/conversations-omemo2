@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.DimenRes;
@@ -21,7 +22,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ItemMediaBinding;
-import eu.siacs.conversations.ui.MediaBrowserActivity;
+import eu.siacs.conversations.databinding.ItemDateSeparatorBinding;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.ViewUtil;
@@ -32,10 +33,14 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
-public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHolder> {
+public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    public static final int VIEW_TYPE_MEDIA = 0;
+    public static final int VIEW_TYPE_DATE_SEPARATOR = 1;
 
     public static final List<String> DOCUMENT_MIMES =
             new ImmutableList.Builder<String>()
@@ -69,15 +74,66 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
                     "application/x-tar");
     public static final List<String> CODE_MIMES = Arrays.asList("text/html", "text/xml");
 
-    private final ArrayList<Attachment> attachments = new ArrayList<>();
+    private final ArrayList<Object> items = new ArrayList<>();
+    private HashSet<Attachment> selectedAttachments = new HashSet<>();
+    private boolean selectionMode = false;
 
     private final XmppActivity activity;
 
     private int mediaSize = 0;
 
+    public interface OnSelectionChangedListener {
+        void onSelectionChanged(int count);
+    }
+
+    private OnSelectionChangedListener selectionChangedListener;
+
+    public void setOnSelectionChangedListener(OnSelectionChangedListener listener) {
+        this.selectionChangedListener = listener;
+    }
+
+    public void setSelectedAttachments(HashSet<Attachment> selectedAttachments) {
+        this.selectedAttachments = selectedAttachments;
+        this.selectionMode = !selectedAttachments.isEmpty();
+        notifyDataSetChanged();
+    }
+
     public MediaAdapter(XmppActivity activity, @DimenRes int mediaSize) {
         this.activity = activity;
         this.mediaSize = Math.round(activity.getResources().getDimension(mediaSize));
+    }
+
+    public void toggleSelection(Attachment attachment) {
+        if (selectedAttachments.contains(attachment)) {
+            selectedAttachments.remove(attachment);
+            if (selectedAttachments.isEmpty()) {
+                selectionMode = false;
+            }
+        } else {
+            selectedAttachments.add(attachment);
+            selectionMode = true;
+        }
+        notifyDataSetChanged();
+        if (selectionChangedListener != null) {
+            selectionChangedListener.onSelectionChanged(selectedAttachments.size());
+        }
+    }
+
+    public void clearSelection() {
+        selectedAttachments.clear();
+        selectionMode = false;
+        notifyDataSetChanged();
+        if (selectionChangedListener != null) {
+            selectionChangedListener.onSelectionChanged(0);
+        }
+    }
+
+    public HashSet<Attachment> getSelectedAttachments() {
+        return selectedAttachments;
+    }
+
+    public boolean isSelectionMode() {
+        return selectionMode;
     }
 
     @SuppressWarnings("rawtypes")
@@ -99,12 +155,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
     }
 
     private static @DrawableRes int getImageDrawable(final String mime) {
-
-        // TODO ideas for more mime types: XML, HTML documents, GPG/PGP files, eml files,
-        // spreadsheets (table symbol)
-
-        // add bz2 and tar.gz to archive detection
-
         if (Strings.isNullOrEmpty(mime)) {
             return R.drawable.ic_help_center_48dp;
         } else if (mime.equals("audio/x-m4b")) {
@@ -184,50 +234,102 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         return null;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return items.get(position) instanceof DateSeparator ? VIEW_TYPE_DATE_SEPARATOR : VIEW_TYPE_MEDIA;
+    }
+
     @NonNull
     @Override
-    public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         final LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        ItemMediaBinding binding =
-                DataBindingUtil.inflate(layoutInflater, R.layout.item_media, parent, false);
-        return new MediaViewHolder(binding);
+        if (viewType == VIEW_TYPE_DATE_SEPARATOR) {
+            ItemDateSeparatorBinding binding =
+                    DataBindingUtil.inflate(layoutInflater, R.layout.item_date_separator, parent, false);
+            return new DateSeparatorViewHolder(binding);
+        } else {
+            ItemMediaBinding binding =
+                    DataBindingUtil.inflate(layoutInflater, R.layout.item_media, parent, false);
+            return new MediaViewHolder(binding);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
-        final Attachment attachment = attachments.get(position);
-        if (attachment.renderThumbnail()) {
-            loadPreview(attachment, holder.binding.media);
-        } else {
-            cancelPotentialWork(attachment, holder.binding.media);
-            renderPreview(attachment, holder.binding.media);
-        }
-        holder.binding.getRoot().setOnClickListener(v -> {
-            String convUuid = activity.getIntent().getStringExtra("conversation_uuid");
-            String accountUuid = activity.getIntent().getStringExtra("account");
-            String jid = activity.getIntent().getStringExtra("jid");
-            ViewUtil.view(activity, attachment, convUuid, accountUuid, jid);
-        });
-        holder.binding.getRoot().setOnCreateContextMenuListener((menu, v, menuInfo) -> {
-            final var path = activity.xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());
-            if (path == null) return;
-            final var file = new File(path);
-            if (!file.canWrite()) return;
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Object item = items.get(position);
+        if (holder instanceof MediaViewHolder mediaViewHolder && item instanceof Attachment attachment) {
+            if (attachment.renderThumbnail()) {
+                loadPreview(attachment, mediaViewHolder.binding.media);
+            } else {
+                cancelPotentialWork(attachment, mediaViewHolder.binding.media);
+                renderPreview(attachment, mediaViewHolder.binding.media);
+            }
 
-            menu.add("Delete File").setOnMenuItemClickListener((x) -> {
-                if (file.delete()) {
-                    activity.xmppConnectionService.evictPreview(file);
-                    attachments.remove(attachment);
-                    notifyDataSetChanged();
+            final boolean isSelected = selectedAttachments.contains(attachment);
+            mediaViewHolder.binding.selectionOverlay.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            mediaViewHolder.binding.selectionCheck.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+
+            mediaViewHolder.binding.getRoot().setOnClickListener(v -> {
+                if (selectionMode) {
+                    toggleSelection(attachment);
+                } else {
+                    String convUuid = activity.getIntent().getStringExtra("conversation_uuid");
+                    String accountUuid = activity.getIntent().getStringExtra("account");
+                    String jid = activity.getIntent().getStringExtra("jid");
+                    ViewUtil.view(activity, attachment, convUuid, accountUuid, jid);
                 }
-                return true;
             });
-        });
+
+            mediaViewHolder.binding.getRoot().setOnLongClickListener(v -> {
+                if (!selectionMode) {
+                    toggleSelection(attachment);
+                    return true;
+                }
+                return false;
+            });
+
+            mediaViewHolder.binding.getRoot().setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+                if (selectionMode) return;
+                final var path = activity.xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());
+                if (path == null) return;
+                final var file = new File(path);
+                if (!file.canWrite()) return;
+
+                menu.add("Delete File").setOnMenuItemClickListener((x) -> {
+                    if (file.delete()) {
+                        activity.xmppConnectionService.evictPreview(file);
+                        items.remove(attachment);
+                        notifyDataSetChanged();
+                    }
+                    return true;
+                });
+            });
+        } else if (holder instanceof DateSeparatorViewHolder dateSeparatorViewHolder && item instanceof DateSeparator dateSeparator) {
+            dateSeparatorViewHolder.binding.date.setText(android.text.format.DateUtils.formatDateTime(activity, dateSeparator.timestamp, android.text.format.DateUtils.FORMAT_SHOW_DATE | android.text.format.DateUtils.FORMAT_SHOW_YEAR | android.text.format.DateUtils.FORMAT_SHOW_WEEKDAY));
+        }
     }
 
     public void setAttachments(final List<Attachment> attachments) {
-        this.attachments.clear();
-        this.attachments.addAll(attachments);
+        this.items.clear();
+        if (attachments != null && !attachments.isEmpty()) {
+            java.util.Calendar calendar = java.util.Calendar.getInstance();
+            int currentDay = -1;
+            int currentMonth = -1;
+            int currentYear = -1;
+            for (Attachment attachment : attachments) {
+                calendar.setTimeInMillis(attachment.getTimestamp());
+                int day = calendar.get(java.util.Calendar.DAY_OF_YEAR);
+                int month = calendar.get(java.util.Calendar.MONTH);
+                int year = calendar.get(java.util.Calendar.YEAR);
+                if (day != currentDay || month != currentMonth || year != currentYear) {
+                    items.add(new DateSeparator(attachment.getTimestamp()));
+                    currentDay = day;
+                    currentMonth = month;
+                    currentYear = year;
+                }
+                items.add(attachment);
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -263,7 +365,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
 
     @Override
     public int getItemCount() {
-        return attachments.size();
+        return items.size();
     }
 
     static class AsyncDrawable extends BitmapDrawable {
@@ -286,6 +388,23 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         MediaViewHolder(ItemMediaBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+    }
+
+    static class DateSeparatorViewHolder extends RecyclerView.ViewHolder {
+        private final ItemDateSeparatorBinding binding;
+
+        DateSeparatorViewHolder(ItemDateSeparatorBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    public static class DateSeparator {
+        public final long timestamp;
+
+        public DateSeparator(long timestamp) {
+            this.timestamp = timestamp;
         }
     }
 

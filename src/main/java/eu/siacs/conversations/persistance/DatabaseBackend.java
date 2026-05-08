@@ -2129,20 +2129,38 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return list;
     }
 
-    public List<FilePath> getRelativeFilePaths(String account, Jid jid, int limit) {
+    public List<FilePath> getRelativeFilePaths(String account, Jid jid, String query, int limit) {
         SQLiteDatabase db = this.getReadableDatabase();
-        final String SQL =
-                "select uuid,relativeFilePath from messages where type in (1,2,5) and deleted=0 and"
-                        + " "
-                        + Message.RELATIVE_FILE_PATH
-                        + " is not null and conversationUuid=(select uuid from conversations where"
-                        + " accountUuid=? and (contactJid=? or contactJid like ?)) order by"
-                        + " timeSent desc";
-        final String[] args = {account, jid.toString(), jid.toString() + "/%"};
-        Cursor cursor = db.rawQuery(SQL + (limit > 0 ? " limit " + limit : ""), args);
+        StringBuilder sqlBuilder = new StringBuilder("select uuid,relativeFilePath,timeSent from messages where type in (1,2,5) and deleted=0 and " + Message.RELATIVE_FILE_PATH + " is not null");
+        List<String> args = new ArrayList<>();
+
+        if (account != null && jid != null) {
+            sqlBuilder.append(" and conversationUuid=(select uuid from conversations where accountUuid=? and (contactJid=? or contactJid like ?))");
+            args.add(account);
+            args.add(jid.toString());
+            args.add(jid.toString() + "/%");
+        }
+
+        if (!TextUtils.isEmpty(query)) {
+            if (query.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                sqlBuilder.append(" and date(" + Message.TIME_SENT + " / 1000, 'unixepoch', 'localtime') = ?");
+                args.add(query);
+            } else {
+                sqlBuilder.append(" and (body like ? or " + Message.RELATIVE_FILE_PATH + " like ?)");
+                args.add("%" + query + "%");
+                args.add("%" + query + "%");
+            }
+        }
+
+        sqlBuilder.append(" order by " + Message.TIME_SENT + " desc");
+        if (limit > 0) {
+            sqlBuilder.append(" limit ").append(limit);
+        }
+
+        Cursor cursor = db.rawQuery(sqlBuilder.toString(), args.toArray(new String[0]));
         List<FilePath> filesPaths = new ArrayList<>();
         while (cursor.moveToNext()) {
-            filesPaths.add(new FilePath(cursor.getString(0), cursor.getString(1)));
+            filesPaths.add(new FilePath(cursor.getString(0), cursor.getString(1), cursor.getLong(2)));
         }
         cursor.close();
         return filesPaths;
@@ -2199,7 +2217,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         int day = cursor.getInt(dayOfMonthIndex);
                         String uuid = cursor.getString(uuidIndex);
                         String relativePath = cursor.getString(relativePathIndex);
-                        dayToFilePath.put(day, new FilePath(uuid, relativePath));
+                        dayToFilePath.put(day, new FilePath(uuid, relativePath, 0));
                     }
                 }
             } finally {
@@ -2295,10 +2313,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public static class FilePath {
         public final UUID uuid;
         public final String path;
+        public final long timestamp;
 
-        private FilePath(String uuid, String path) {
+        private FilePath(String uuid, String path, long timestamp) {
             this.uuid = UUID.fromString(uuid);
             this.path = path;
+            this.timestamp = timestamp;
         }
     }
 
@@ -2306,7 +2326,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         public boolean deleted;
 
         private FilePathInfo(String uuid, String path, boolean deleted) {
-            super(uuid, path);
+            super(uuid, path, 0);
             this.deleted = deleted;
         }
 

@@ -182,6 +182,7 @@ import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.interfaces.OnAvatarPublication;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
+import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.Compatibility;
@@ -4854,8 +4855,13 @@ public class XmppConnectionService extends Service {
 
     public void getAttachments(
             final Conversation conversation, int limit, final OnMediaLoaded onMediaLoaded) {
+        getAttachments(conversation, null, limit, onMediaLoaded);
+    }
+
+    public void getAttachments(
+            final Conversation conversation, String query, int limit, final OnMediaLoaded onMediaLoaded) {
         getAttachments(
-                conversation.getAccount(), conversation.getJid().asBareJid(), limit, onMediaLoaded);
+                conversation.getAccount(), conversation.getJid().asBareJid(), query, limit, onMediaLoaded);
     }
 
     public void getAttachments(
@@ -4863,7 +4869,16 @@ public class XmppConnectionService extends Service {
             final Jid jid,
             final int limit,
             final OnMediaLoaded onMediaLoaded) {
-        getAttachments(account.getUuid(), jid.asBareJid(), limit, onMediaLoaded);
+        getAttachments(account, jid, null, limit, onMediaLoaded);
+    }
+
+    public void getAttachments(
+            final Account account,
+            final Jid jid,
+            final String query,
+            final int limit,
+            final OnMediaLoaded onMediaLoaded) {
+        getAttachments(account.getUuid(), jid.asBareJid(), query, limit, onMediaLoaded);
     }
 
     public void getAttachments(
@@ -4871,13 +4886,41 @@ public class XmppConnectionService extends Service {
             final Jid jid,
             final int limit,
             final OnMediaLoaded onMediaLoaded) {
+        getAttachments(account, jid, null, limit, onMediaLoaded);
+    }
+
+    public void getAttachments(
+            final String account,
+            final Jid jid,
+            final String query,
+            final int limit,
+            final OnMediaLoaded onMediaLoaded) {
         new Thread(
                 () ->
                         onMediaLoaded.onMediaLoaded(
                                 fileBackend.convertToAttachments(
                                         databaseBackend.getRelativeFilePaths(
-                                                account, jid, limit))))
+                                                account, jid, query, limit))))
                 .start();
+    }
+
+    public void getAttachments(final String query, final int limit, final OnMediaLoaded onMediaLoaded) {
+        getAttachments((String) null, (Jid) null, query, limit, onMediaLoaded);
+    }
+
+    public void deleteMedia(List<Attachment> attachments) {
+        List<String> uuids = new ArrayList<>();
+        for (Attachment attachment : attachments) {
+            final var path = getFileBackend().getOriginalPath(attachment.getUri());
+            if (path != null) {
+                final var file = new java.io.File(path);
+                if (file.delete()) {
+                    evictPreview(file);
+                }
+            }
+            uuids.add(attachment.getUuid().toString());
+        }
+        databaseBackend.markFileAsDeleted(uuids);
     }
 
     public void persistSelfNick(final MucOptions.User self, final boolean modified) {

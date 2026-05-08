@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_date_search"
+        android:icon="@drawable/ic_calendar_month_24dp"
+        android:title="@string/search_by_date"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_clear_search"
+        android:icon="@drawable/rounded_close_24"
+        android:title="@string/clear_search"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+</menu>

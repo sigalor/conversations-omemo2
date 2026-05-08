@@ -195,6 +195,7 @@ public class ConversationsActivity extends XmppActivity
     public static final long DRAWER_START_CHAT_GROUP = 13;
     public static final long DRAWER_START_CHAT_PUBLIC = 14;
     public static final long DRAWER_START_CHAT_DISCOVER = 15;
+    public static final long DRAWER_MEDIA_GALLERY = 16;
 
     // secondary fragment (when holding the conversation, must be initialized before refreshing the
     // overview fragment
@@ -565,12 +566,17 @@ public class ConversationsActivity extends XmppActivity
                 new com.mikepenz.materialdrawer.model.DividerDrawerItem()
         );
 
+        final var mediaGallery = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
+        mediaGallery.setIdentifier(DRAWER_MEDIA_GALLERY);
+        com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(mediaGallery, getString(R.string.media_gallery));
+        com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(mediaGallery, R.drawable.ic_image_24dp);
+
         final var settings = new com.mikepenz.materialdrawer.model.PrimaryDrawerItem();
         settings.setIdentifier(DRAWER_SETTINGS);
         settings.setSelectable(false);
         com.mikepenz.materialdrawer.model.interfaces.NameableKt.setNameText(settings, getString(R.string.action_settings));
         com.mikepenz.materialdrawer.model.interfaces.IconableKt.setIconRes(settings, R.drawable.ic_settings_24dp);
-        com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, settings);
+        com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt.addStickyDrawerItems(binding.drawer, mediaGallery, settings);
 
         if (useSavedState != null) {
             mainFilter = useSavedState.getLong("mainFilter", DRAWER_ALL_CHATS);
@@ -601,6 +607,9 @@ public class ConversationsActivity extends XmppActivity
                 launchStartConversation(R.id.create_public_channel);
             } else if (id == DRAWER_START_CHAT_DISCOVER) {
                 launchStartConversation(R.id.discover_public_channels);
+            } else if (id == DRAWER_MEDIA_GALLERY) {
+                startActivity(new Intent(this, MediaBrowserActivity.class));
+                return false;
             } else if (id == DRAWER_ALL_CHATS || id == DRAWER_UNREAD_CHATS || id == DRAWER_DIRECT_MESSAGES || id == DRAWER_CHANNELS || id == DRAWER_CHAT_REQUESTS) {
                 selectedTag.clear();
                 mainFilter = id;
