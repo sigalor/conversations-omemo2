@@ -70,13 +70,21 @@ public class ViewUtil {
             ToastCompat.makeText(context, context.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), ToastCompat.LENGTH_SHORT).show();
             return;
         }
-        // use internal viewer for images and videos
-        if ((mime.startsWith("image/") || mime.startsWith("video/")) &&
+        // use internal viewer for images, videos and audio
+        if ((mime.startsWith("image/") || mime.startsWith("video/") || mime.startsWith("audio/")) &&
                 PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_meda_viewer", context.getResources().getBoolean(R.bool.internal_meda_viewer))) {
 
             final Intent intent = new Intent(context, MediaViewerActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(mime.startsWith("image/") ? "image" : "video", Uri.fromFile(file));
+            String type = "file";
+            if (mime.startsWith("image/")) {
+                type = "image";
+            } else if (mime.startsWith("video/")) {
+                type = "video";
+            } else if (mime.startsWith("audio/")) {
+                type = "audio";
+            }
+            intent.putExtra(type, Uri.fromFile(file));
 
             if (conversationUuid != null) intent.putExtra("conversation_uuid", conversationUuid);
             if (messageUuid != null) intent.putExtra("message_uuid", messageUuid);

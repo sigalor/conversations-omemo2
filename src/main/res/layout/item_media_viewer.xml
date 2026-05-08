@@ -26,6 +26,8 @@
             app:show_shuffle_button="false"
             app:show_subtitle_button="false"
             app:show_vr_button="false"
-            app:unplayed_color="@color/gray_700"/>
+            app:unplayed_color="@color/gray_700"
+            app:default_artwork="@drawable/ic_headphones_48dp"
+            app:use_artwork="true"/>
     </FrameLayout>
 </layout>
