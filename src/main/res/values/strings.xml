@@ -79,6 +79,7 @@
     <string name="tab_videos">Videos</string>
     <string name="tab_audio">Audio</string>
     <string name="tab_files">Files</string>
+    <string name="jump_to_message">Jump to message</string>
     <string name="crash_report_title">%1$s has crashed</string>
     <string name="crash_report_message">Using your XMPP address to send in stack traces helps the ongoing development of %1$s.</string>
     <string name="send_now">Send now</string>

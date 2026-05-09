@@ -57,6 +57,7 @@ public class Attachment implements Parcelable {
         uuid = UUID.fromString(in.readString());
         type = Type.valueOf(in.readString());
         timestamp = in.readLong();
+        conversationUuid = in.readString();
     }
 
     @Override
@@ -66,6 +67,7 @@ public class Attachment implements Parcelable {
         dest.writeString(uuid.toString());
         dest.writeString(type.toString());
         dest.writeLong(timestamp);
+        dest.writeString(conversationUuid);
     }
 
     @Override
@@ -98,6 +100,10 @@ public class Attachment implements Parcelable {
         return timestamp;
     }
 
+    public String getConversationUuid() {
+        return conversationUuid;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -107,6 +113,7 @@ public class Attachment implements Parcelable {
                 .add("uuid", uuid)
                 .add("mime", mime)
                 .add("timestamp", timestamp)
+                .add("conversationUuid", conversationUuid)
                 .toString();
     }
 
@@ -122,21 +129,24 @@ public class Attachment implements Parcelable {
     private final UUID uuid;
     private final String mime;
     private final long timestamp;
+    private final String conversationUuid;
 
-    private Attachment(UUID uuid, Uri uri, Type type, String mime, long timestamp) {
+    private Attachment(UUID uuid, Uri uri, Type type, String mime, long timestamp, String conversationUuid) {
         this.uri = uri;
         this.type = type;
         this.mime = mime;
         this.uuid = uuid;
         this.timestamp = timestamp;
+        this.conversationUuid = conversationUuid;
     }
 
-    private Attachment(Uri uri, Type type, String mime, long timestamp) {
+    private Attachment(Uri uri, Type type, String mime, long timestamp, String conversationUuid) {
         this.uri = uri;
         this.type = type;
         this.mime = mime;
         this.uuid = UUID.randomUUID();
         this.timestamp = timestamp;
+        this.conversationUuid = conversationUuid;
     }
 
     public static boolean canBeSendInBand(final List<Attachment> attachments) {
@@ -151,26 +161,27 @@ public class Attachment implements Parcelable {
     public static List<Attachment> of(final Context context, Uri uri, Type type) {
         final String mime =
                 type == Type.LOCATION ? null : MimeUtils.guessMimeTypeFromUri(context, uri);
-        return Collections.singletonList(new Attachment(uri, type, mime, System.currentTimeMillis()));
+        return Collections.singletonList(new Attachment(uri, type, mime, System.currentTimeMillis(), null));
     }
 
     public static Attachment of(final Message message) {
         final UUID uuid = UUID.fromString(message.getUuid());
+        final String conversationUuid = message.getConversation().getUuid();
         if (message.isGeoUri()) {
-            return new Attachment(uuid, Uri.EMPTY, Type.LOCATION, null, message.getTimeSent());
+            return new Attachment(uuid, Uri.EMPTY, Type.LOCATION, null, message.getTimeSent(), conversationUuid);
         }
         final String mime = message.getMimeType();
         if (MimeUtils.AMBIGUOUS_CONTAINER_FORMATS.contains(mime)) {
             final Message.FileParams fileParams = message.getFileParams();
             if (fileParams.width > 0 && fileParams.height > 0) {
-                return new Attachment(uuid, Uri.EMPTY, Type.FILE, "video/*", message.getTimeSent());
+                return new Attachment(uuid, Uri.EMPTY, Type.FILE, "video/*", message.getTimeSent(), conversationUuid);
             } else if (fileParams.runtime > 0) {
-                return new Attachment(uuid, Uri.EMPTY, Type.FILE, "audio/*", message.getTimeSent());
+                return new Attachment(uuid, Uri.EMPTY, Type.FILE, "audio/*", message.getTimeSent(), conversationUuid);
             } else {
-                return new Attachment(uuid, Uri.EMPTY, Type.FILE, "application/octet-stream", message.getTimeSent());
+                return new Attachment(uuid, Uri.EMPTY, Type.FILE, "application/octet-stream", message.getTimeSent(), conversationUuid);
             }
         }
-        return new Attachment(uuid, Uri.EMPTY, Type.FILE, mime, message.getTimeSent());
+        return new Attachment(uuid, Uri.EMPTY, Type.FILE, mime, message.getTimeSent(), conversationUuid);
     }
 
     public static List<Attachment> of(final Context context, List<Uri> uris, final String type) {
@@ -182,16 +193,16 @@ public class Attachment implements Parcelable {
             final String mime = MimeUtils.guessMimeTypeFromUriAndMime(context, uri, type);
             attachments.add(
                     new Attachment(
-                            uri, mime != null && isImage(mime) ? Type.IMAGE : Type.FILE, mime, System.currentTimeMillis()));
+                            uri, mime != null && isImage(mime) ? Type.IMAGE : Type.FILE, mime, System.currentTimeMillis(), null));
         }
         return attachments;
     }
 
     public static Attachment of(UUID uuid, final File file, String mime) {
-        return of(uuid, file, mime, System.currentTimeMillis());
+        return of(uuid, file, mime, System.currentTimeMillis(), null);
     }
 
-    public static Attachment of(UUID uuid, final File file, String mime, long timestamp) {
+    public static Attachment of(UUID uuid, final File file, String mime, long timestamp, String conversationUuid) {
         return new Attachment(
                 uuid,
                 Uri.fromFile(file),
@@ -199,7 +210,8 @@ public class Attachment implements Parcelable {
                         ? Type.IMAGE
                         : Type.FILE,
                 mime,
-                timestamp);
+                timestamp,
+                conversationUuid);
     }
 
     public static List<Attachment> extractAttachments(
@@ -217,12 +229,12 @@ public class Attachment implements Parcelable {
                     final Uri uri = clipData.getItemAt(i).getUri();
                     final String mime =
                             MimeUtils.guessMimeTypeFromUriAndMime(context, uri, contentType);
-                    uris.add(new Attachment(uri, type, mime, System.currentTimeMillis()));
+                    uris.add(new Attachment(uri, type, mime, System.currentTimeMillis(), null));
                 }
             }
         } else {
             final String mime = MimeUtils.guessMimeTypeFromUriAndMime(context, data, contentType);
-            uris.add(new Attachment(data, type, mime, System.currentTimeMillis()));
+            uris.add(new Attachment(data, type, mime, System.currentTimeMillis(), null));
         }
         return uris;
     }

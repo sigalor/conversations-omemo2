@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui;
 
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -48,7 +49,8 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
 
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
+            menu.findItem(R.id.action_jump_to_message).setVisible(selectedAttachments.size() == 1);
+            return true;
         }
 
         @Override
@@ -63,6 +65,12 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
                         .setPositiveButton(R.string.confirm, (dialog, which) -> saveSelectedMedia())
                         .setNegativeButton(R.string.cancel, null)
                         .show();
+                return true;
+            } else if (item.getItemId() == R.id.action_share) {
+                shareSelectedMedia();
+                return true;
+            } else if (item.getItemId() == R.id.action_jump_to_message) {
+                jumpToSelectedMessage();
                 return true;
             }
             return false;
@@ -82,10 +90,12 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
             }
             if (mActionMode != null) {
                 mActionMode.setTitle(String.valueOf(count));
+                mActionMode.invalidate();
             }
         } else if (mActionMode != null) {
             mActionMode.finish();
         }
+        notifyFragmentsSelectionChanged();
     };
 
     @Override
@@ -185,6 +195,50 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
             invalidateOptionsMenu();
         });
         datePicker.show(getSupportFragmentManager(), "date_picker");
+    }
+
+    private void shareSelectedMedia() {
+        if (selectedAttachments.isEmpty()) return;
+        final Intent intent = new Intent();
+        if (selectedAttachments.size() == 1) {
+            Attachment attachment = selectedAttachments.iterator().next();
+            final var path = xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());
+            if (path == null) return;
+            final var file = new java.io.File(path);
+            final var uri = eu.siacs.conversations.persistance.FileBackend.getUriForFile(this, file, file.getName());
+            intent.setAction(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.setType(attachment.getMime());
+        } else {
+            ArrayList<android.net.Uri> uris = new ArrayList<>();
+            String mimeType = "*/*";
+            for (Attachment attachment : selectedAttachments) {
+                final var path = xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());
+                if (path != null) {
+                    final var file = new java.io.File(path);
+                    uris.add(eu.siacs.conversations.persistance.FileBackend.getUriForFile(this, file, file.getName()));
+                }
+            }
+            intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+            intent.setType(mimeType);
+        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            startActivity(Intent.createChooser(intent, getString(R.string.share_with)));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void jumpToSelectedMessage() {
+        if (selectedAttachments.size() != 1) return;
+        Attachment attachment = selectedAttachments.iterator().next();
+        if (attachment.getConversationUuid() == null) return;
+        Conversation conversation = xmppConnectionService.findConversationByUuid(attachment.getConversationUuid());
+        if (conversation != null) {
+            switchToConversationOnMessage(conversation, attachment.getUuid().toString());
+        }
     }
 
     private void saveSelectedMedia() {

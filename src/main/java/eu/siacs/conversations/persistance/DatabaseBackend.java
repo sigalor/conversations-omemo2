@@ -2131,7 +2131,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public List<FilePath> getRelativeFilePaths(String account, Jid jid, String query, int limit) {
         SQLiteDatabase db = this.getReadableDatabase();
-        StringBuilder sqlBuilder = new StringBuilder("select uuid,relativeFilePath,timeSent from messages where type in (1,2,5) and deleted=0 and " + Message.RELATIVE_FILE_PATH + " is not null");
+        StringBuilder sqlBuilder = new StringBuilder("select uuid,relativeFilePath,timeSent,conversationUuid from messages where type in (1,2,5) and deleted=0 and " + Message.RELATIVE_FILE_PATH + " is not null");
         List<String> args = new ArrayList<>();
 
         if (account != null && jid != null) {
@@ -2160,7 +2160,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sqlBuilder.toString(), args.toArray(new String[0]));
         List<FilePath> filesPaths = new ArrayList<>();
         while (cursor.moveToNext()) {
-            filesPaths.add(new FilePath(cursor.getString(0), cursor.getString(1), cursor.getLong(2)));
+            filesPaths.add(new FilePath(cursor.getString(0), cursor.getString(1), cursor.getLong(2), cursor.getString(3)));
         }
         cursor.close();
         return filesPaths;
@@ -2217,7 +2217,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         int day = cursor.getInt(dayOfMonthIndex);
                         String uuid = cursor.getString(uuidIndex);
                         String relativePath = cursor.getString(relativePathIndex);
-                        dayToFilePath.put(day, new FilePath(uuid, relativePath, 0));
+                        dayToFilePath.put(day, new FilePath(uuid, relativePath, 0, conversationUuid));
                     }
                 }
             } finally {
@@ -2314,11 +2314,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         public final UUID uuid;
         public final String path;
         public final long timestamp;
+        public final String conversationUuid;
 
-        private FilePath(String uuid, String path, long timestamp) {
+        private FilePath(String uuid, String path, long timestamp, String conversationUuid) {
             this.uuid = UUID.fromString(uuid);
             this.path = path;
             this.timestamp = timestamp;
+            this.conversationUuid = conversationUuid;
         }
     }
 
@@ -2326,7 +2328,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         public boolean deleted;
 
         private FilePathInfo(String uuid, String path, boolean deleted) {
-            super(uuid, path, 0);
+            super(uuid, path, 0, null);
             this.deleted = deleted;
         }
 
