@@ -56,7 +56,13 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             if (item.getItemId() == R.id.action_delete) {
-                deleteSelectedMedia();
+                int count = selectedAttachments.size();
+                new MaterialAlertDialogBuilder(MediaBrowserActivity.this)
+                        .setTitle(R.string.delete_file_dialog)
+                        .setMessage(getString(R.string.delete_files_dialog_msg, count))
+                        .setPositiveButton(R.string.confirm, (dialog, which) -> deleteSelectedMedia())
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
                 return true;
             } else if (item.getItemId() == R.id.action_save) {
                 new MaterialAlertDialogBuilder(MediaBrowserActivity.this)
