@@ -79,6 +79,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -256,7 +257,6 @@ public class ExportBackupWorker extends Worker {
                 String.format(
                         "%s.%s.ceb",
                         account.getJid().asBareJid().toString(), DATE_FORMAT.format(new Date()));
-        final OutputStream outputStream;
         final Uri location;
         if ("file".equalsIgnoreCase(backupLocation.getScheme())) {
             final File file = new File(backupLocation.getPath(), filename);
@@ -264,7 +264,6 @@ public class ExportBackupWorker extends Worker {
             if (directory != null && directory.mkdirs()) {
                 Log.d(Config.LOGTAG, "created backup directory " + directory.getAbsolutePath());
             }
-            outputStream = new FileOutputStream(file);
             location = Uri.fromFile(file);
         } else {
             final var tree = DocumentFile.fromTreeUri(context, backupLocation);
@@ -279,46 +278,49 @@ public class ExportBackupWorker extends Worker {
                         String.format("Could not create %s in %s", filename, backupLocation));
             }
             location = file.getUri();
-            outputStream = context.getContentResolver().openOutputStream(location);
         }
-        final DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-        backupFileHeader.write(dataOutputStream);
-        dataOutputStream.flush();
 
-        final Cipher cipher =
-                Compatibility.twentyEight()
-                        ? Cipher.getInstance(CIPHER_MODE)
-                        : Cipher.getInstance(CIPHER_MODE, PROVIDER);
-        final byte[] key = getKey(password, salt);
-        SecretKeySpec keySpec = new SecretKeySpec(key, KEY_TYPE);
-        IvParameterSpec ivSpec = new IvParameterSpec(IV);
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-        CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
+        try (final OutputStream outputStream = context.getContentResolver().openOutputStream(location)) {
+            final DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            backupFileHeader.write(dataOutputStream);
+            dataOutputStream.flush();
 
-        final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(cipherOutputStream);
-        final JsonWriter jsonWriter =
-                new JsonWriter(new OutputStreamWriter(gzipOutputStream, StandardCharsets.UTF_8));
-        jsonWriter.beginArray();
-        final SQLiteDatabase db = database.getReadableDatabase();
-        final String uuid = account.getUuid();
-        accountExport(db, uuid, jsonWriter);
-        simpleExport(db, Conversation.TABLENAME, Conversation.ACCOUNT, uuid, jsonWriter);
-        fileExport(db, uuid, jsonWriter, progress);
-        messageExport(db, uuid, location, jsonWriter, progress);
-        webxdcExport(db, uuid, jsonWriter, progress);
-        simpleExport(db, PinnedMessage.TABLENAME, PinnedMessage.ACCOUNT_UUID, uuid, jsonWriter);
-        for (final String table :
-                Arrays.asList(
-                        SQLiteAxolotlStore.PREKEY_TABLENAME,
-                        SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
-                        SQLiteAxolotlStore.SESSION_TABLENAME,
-                        SQLiteAxolotlStore.IDENTITIES_TABLENAME)) {
-            throwIfWorkStopped(location);
-            simpleExport(db, table, SQLiteAxolotlStore.ACCOUNT, uuid, jsonWriter);
+            final Cipher cipher =
+                    Compatibility.twentyEight()
+                            ? Cipher.getInstance(CIPHER_MODE)
+                            : Cipher.getInstance(CIPHER_MODE, PROVIDER);
+            final byte[] key = getKey(password, salt);
+            SecretKeySpec keySpec = new SecretKeySpec(key, KEY_TYPE);
+            final GCMParameterSpec parameterSpec = new GCMParameterSpec(128, IV);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, parameterSpec);
+            try (CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
+                 GZIPOutputStream gzipOutputStream = new GZIPOutputStream(cipherOutputStream);
+                 JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(gzipOutputStream, StandardCharsets.UTF_8))) {
+                jsonWriter.beginArray();
+                final SQLiteDatabase db = database.getReadableDatabase();
+                final String uuid = account.getUuid();
+                accountExport(db, uuid, jsonWriter);
+                simpleExport(db, Conversation.TABLENAME, Conversation.ACCOUNT, uuid, jsonWriter);
+                fileExport(db, uuid, jsonWriter, progress);
+                messageExport(db, uuid, jsonWriter, progress);
+                webxdcExport(db, uuid, jsonWriter, progress);
+                simpleExport(db, PinnedMessage.TABLENAME, PinnedMessage.ACCOUNT_UUID, uuid, jsonWriter);
+                simpleExport(db, "muted_participants", null, null, jsonWriter);
+                for (final String table :
+                        Arrays.asList(
+                                SQLiteAxolotlStore.PREKEY_TABLENAME,
+                                SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
+                                SQLiteAxolotlStore.SESSION_TABLENAME,
+                                SQLiteAxolotlStore.IDENTITIES_TABLENAME)) {
+                    simpleExport(db, table, SQLiteAxolotlStore.ACCOUNT, uuid, jsonWriter);
+                }
+                jsonWriter.endArray();
+                jsonWriter.flush();
+            }
+        } catch (Exception e) {
+            deleteFile(context, location);
+            throw e;
         }
-        jsonWriter.endArray();
-        jsonWriter.flush();
-        jsonWriter.close();
         if ("file".equalsIgnoreCase(location.getScheme())) {
             mediaScannerScanFile(new File(location.getPath()));
         }
@@ -435,21 +437,23 @@ public class ExportBackupWorker extends Worker {
         return notification;
     }
 
-    private void throwIfWorkStopped(final Uri location) throws WorkStoppedException {
+    private void throwIfWorkStopped() throws WorkStoppedException {
         if (isStopped()) {
-            if ("file".equalsIgnoreCase(location.getScheme())) {
-                final var file = new File(location.getPath());
-                if (file.delete()) {
-                    Log.d(Config.LOGTAG, "deleted " + file.getAbsolutePath());
-                }
-            } else {
-                final var documentFile =
-                        DocumentFile.fromSingleUri(getApplicationContext(), location);
-                if (documentFile != null && documentFile.delete()) {
-                    Log.d(Config.LOGTAG, "deleted " + location);
-                }
-            }
             throw new WorkStoppedException();
+        }
+    }
+
+    private void deleteFile(Context context, Uri uri) {
+        if ("file".equalsIgnoreCase(uri.getScheme())) {
+            final var file = new File(uri.getPath());
+            if (file.delete()) {
+                Log.d(Config.LOGTAG, "deleted " + file.getAbsolutePath());
+            }
+        } else {
+            final var documentFile = DocumentFile.fromSingleUri(context, uri);
+            if (documentFile != null && documentFile.delete()) {
+                Log.d(Config.LOGTAG, "deleted " + uri);
+            }
         }
     }
 
@@ -459,7 +463,7 @@ public class ExportBackupWorker extends Worker {
         getApplicationContext().sendBroadcast(intent);
     }
 
-    private void webxdcExport(final SQLiteDatabase db, final String uuid, final JsonWriter writer, final Progress progress) throws IOException {
+    private void webxdcExport(final SQLiteDatabase db, final String uuid, final JsonWriter writer, final Progress progress) throws IOException, WorkStoppedException {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
 
         final Cursor cursor = db.rawQuery("select webxdc_updates.* from " + Conversation.TABLENAME + " join webxdc_updates webxdc_updates on " + Conversation.TABLENAME + ".uuid=webxdc_updates." + Message.CONVERSATION + " where conversations.accountUuid=?", new String[]{uuid});
@@ -468,6 +472,7 @@ public class ExportBackupWorker extends Worker {
         int i = 0;
         int p = 0;
         while (cursor != null && cursor.moveToNext()) {
+            throwIfWorkStopped();
             writer.beginObject();
             writer.name("table");
             writer.value("webxdc_updates");
@@ -533,16 +538,19 @@ public class ExportBackupWorker extends Worker {
         }
     }
 
-    private static void simpleExport(
+    private void simpleExport(
             final SQLiteDatabase db,
             final String table,
             final String column,
             final String uuid,
             final JsonWriter writer)
-            throws IOException {
+            throws IOException, WorkStoppedException {
+        final String selection = column != null ? column + "=?" : null;
+        final String[] selectionArgs = uuid != null ? new String[]{uuid} : null;
         try (final Cursor cursor =
-                db.query(table, null, column + "=?", new String[] {uuid}, null, null, null)) {
+                db.query(table, null, selection, selectionArgs, null, null, null)) {
             while (cursor != null && cursor.moveToNext()) {
+                throwIfWorkStopped();
                 writer.beginObject();
                 writer.name("table");
                 writer.value(table);
@@ -563,7 +571,6 @@ public class ExportBackupWorker extends Worker {
     private void messageExport(
             final SQLiteDatabase db,
             final String uuid,
-            final Uri location,
             final JsonWriter writer,
             final Progress progress)
             throws IOException, WorkStoppedException {
@@ -581,7 +588,7 @@ public class ExportBackupWorker extends Worker {
             int i = 0;
             int p = Integer.MIN_VALUE;
             while (cursor != null && cursor.moveToNext()) {
-                throwIfWorkStopped(location);
+                throwIfWorkStopped();
                 writer.beginObject();
                 writer.name("table");
                 writer.value(Message.TABLENAME);
@@ -686,6 +693,7 @@ public class ExportBackupWorker extends Worker {
 
     private void writeToFile(Conversation conversation) {
         Jid accountJid = resolveAccountUuid(conversation.getAccountUuid());
+        if (accountJid == null) return;
         Jid contactJid = conversation.getJid();
         final var context = getApplicationContext();
         final var appSettings = new AppSettings(context);
@@ -696,6 +704,7 @@ public class ExportBackupWorker extends Worker {
         BufferedWriter bw = null;
         try {
             for (Message message : mDatabaseBackend.getMessagesIterable(conversation)) {
+                if (isStopped()) return;
                 if (message == null)
                     continue;
                 if (message.getType() == Message.TYPE_TEXT || message.hasFileOnRemoteHost()) {
@@ -805,15 +814,20 @@ public class ExportBackupWorker extends Worker {
         return files;
     }
 
-    private void fileExport(SQLiteDatabase db, String uuid, JsonWriter writer, Progress progress) throws IOException {
+    private void fileExport(SQLiteDatabase db, String uuid, JsonWriter writer, Progress progress) throws WorkStoppedException {
         final var notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
         Set<File> files = getFilesForAccount(db, uuid);
         Log.d(Config.LOGTAG, "exporting " + files.size() + " files for account " + uuid);
         int i = 0;
         int p = 0;
         for (File file : files) {
+            throwIfWorkStopped();
             if (file.exists() && file.canRead()) {
-                exportFile(file, writer);
+                try {
+                    exportFile(file, writer);
+                } catch (IOException e) {
+                    Log.w(Config.LOGTAG, "failed to export file " + file.getAbsolutePath(), e);
+                }
             }
             i++;
             final int percentage = i * 100 / Math.max(1, files.size());
