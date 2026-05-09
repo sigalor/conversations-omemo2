@@ -112,6 +112,7 @@ import de.monocles.chat.BobTransfer;
 import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
+import de.monocles.chat.MediaViewerActivity;
 import de.monocles.chat.StickersAdapter;
 import de.monocles.chat.StickersMigration;
 import de.monocles.chat.WebxdcPage;
@@ -2876,7 +2877,12 @@ public class ConversationFragment extends XmppFragment
                 deleteFile(selectedMessage);
                 return true;
             case R.id.save_to_downloads:
-                saveToDownloads(selectedMessage);
+                new MaterialAlertDialogBuilder(activity)
+                        .setTitle(R.string.action_save_to_downloads)
+                        .setMessage(R.string.save_to_downloads_warning)
+                        .setPositiveButton(R.string.confirm, (dialog, which) -> saveToDownloads(selectedMessage))
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
                 return true;
             case R.id.show_error_message:
                 showErrorMessage(selectedMessage);

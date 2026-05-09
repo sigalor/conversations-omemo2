@@ -71,6 +71,7 @@
     <string name="ok">OK</string>
     <string name="media_gallery">Media gallery</string>
     <string name="action_save_to_downloads">Save to Downloads</string>
+    <string name="save_to_downloads_warning">Are you sure you want to save these files to the Downloads folder? They will be accessible by other apps on your device.</string>
     <string name="search_by_date">Search by date</string>
     <string name="clear_search">Clear search</string>
     <string name="tab_all">All</string>

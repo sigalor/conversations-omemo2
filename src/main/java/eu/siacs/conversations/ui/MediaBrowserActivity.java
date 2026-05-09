@@ -1,17 +1,20 @@
 package eu.siacs.conversations.ui;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
@@ -54,7 +57,12 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
                 deleteSelectedMedia();
                 return true;
             } else if (item.getItemId() == R.id.action_save) {
-                saveSelectedMedia();
+                new MaterialAlertDialogBuilder(MediaBrowserActivity.this)
+                        .setTitle(R.string.action_save_to_downloads)
+                        .setMessage(R.string.save_to_downloads_warning)
+                        .setPositiveButton(R.string.confirm, (dialog, which) -> saveSelectedMedia())
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
                 return true;
             }
             return false;
@@ -180,13 +188,30 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
     }
 
     private void saveSelectedMedia() {
+        int count = selectedAttachments.size();
         for (Attachment attachment : selectedAttachments) {
             final var path = xmppConnectionService.getFileBackend().getOriginalPath(attachment.getUri());
             if (path != null) {
                 final var file = new java.io.File(path);
-                xmppConnectionService.copyAttachmentToDownloadsFolder(file, null);
+                xmppConnectionService.copyAttachmentToDownloadsFolder(file, new UiCallback<Integer>() {
+                    @Override
+                    public void success(Integer object) {
+                        // ignore
+                    }
+
+                    @Override
+                    public void error(int errorCode, Integer object) {
+                        runOnUiThread(() -> Toast.makeText(MediaBrowserActivity.this, object, Toast.LENGTH_SHORT).show());
+                    }
+
+                    @Override
+                    public void userInputRequired(PendingIntent pi, Integer object) {
+                        // ignore
+                    }
+                });
             }
         }
+        Toast.makeText(this, getString(R.string.save_to_downloads_success), Toast.LENGTH_SHORT).show();
         clearSelection();
     }
 

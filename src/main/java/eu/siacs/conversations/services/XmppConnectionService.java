@@ -650,9 +650,13 @@ public class XmppConnectionService extends Service {
         COPY_TO_DOWNLOAD_EXECUTOR.execute(() -> {
             try {
                 fileBackend.copyAttachmentToDownloadsFolder(m);
-                callback.success(-1);
+                if (callback != null) {
+                    callback.success(-1);
+                }
             } catch (FileBackend.FileCopyException e) {
-                callback.error(-1, e.getResId());
+                if (callback != null) {
+                    callback.error(-1, e.getResId());
+                }
             }
         });
     }
@@ -661,9 +665,13 @@ public class XmppConnectionService extends Service {
         COPY_TO_DOWNLOAD_EXECUTOR.execute(() -> {
             try {
                 fileBackend.copyAttachmentToDownloadsFolder(file);
-                callback.success(-1);
+                if (callback != null) {
+                    callback.success(-1);
+                }
             } catch (FileBackend.FileCopyException e) {
-                callback.error(-1, e.getResId());
+                if (callback != null) {
+                    callback.error(-1, e.getResId());
+                }
             }
         });
     }

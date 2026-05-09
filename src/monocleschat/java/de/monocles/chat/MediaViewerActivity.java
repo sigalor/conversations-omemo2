@@ -47,6 +47,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 
 import java.io.File;
@@ -61,6 +62,7 @@ import eu.siacs.conversations.databinding.ActivityMediaViewerBinding;
 import eu.siacs.conversations.databinding.ItemMediaViewerBinding;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.persistance.FileBackend;
+import eu.siacs.conversations.ui.MediaBrowserActivity;
 import eu.siacs.conversations.ui.UiCallback;
 import eu.siacs.conversations.ui.XmppActivity;
 import eu.siacs.conversations.ui.interfaces.OnMediaLoaded;
@@ -675,7 +677,12 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
                     open();
                     break;
                 case R.id.action_save:
-                    saveToDownloads(mFile);
+                    new MaterialAlertDialogBuilder(MediaViewerActivity.this)
+                            .setTitle(R.string.action_save_to_downloads)
+                            .setMessage(R.string.save_to_downloads_warning)
+                            .setPositiveButton(R.string.confirm, (dialog, which) -> saveToDownloads(mFile))
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
                     break;
                 case R.id.action_delete:
                     deleteFile();
