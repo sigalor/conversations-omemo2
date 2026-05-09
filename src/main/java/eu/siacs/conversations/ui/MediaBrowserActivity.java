@@ -231,9 +231,18 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
         for (Fragment fragment : getSupportFragmentManager().getFragments()) {
             if (fragment instanceof MediaBrowserFragment mediaBrowserFragment) {
                 if (mediaBrowserFragment.getMediaAdapter() != null) {
-                    mediaBrowserFragment.getMediaAdapter().notifyDataSetChanged();
+                    mediaBrowserFragment.getMediaAdapter().setSelectedAttachments(selectedAttachments);
                 }
             }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mActionMode != null) {
+            mActionMode.finish();
+        } else {
+            super.onBackPressed();
         }
     }
 
