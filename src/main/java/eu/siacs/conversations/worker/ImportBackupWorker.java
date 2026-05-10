@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.util.Log;
@@ -105,6 +106,8 @@ public class ImportBackupWorker extends Worker {
     private final String password;
     private final Uri uri;
     private final boolean includeOmemo;
+
+    private long lastNotificationUpdate = 0;
 
     public ImportBackupWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -222,14 +225,22 @@ public class ImportBackupWorker extends Worker {
         }
         db.beginTransaction();
         while (jsonReader.hasNext()) {
+            if (isStopped()) {
+                db.endTransaction();
+                return failure(Reason.GENERIC);
+            }
             if (jsonReader.peek() == JsonToken.BEGIN_OBJECT) {
                 importRow(db, jsonReader, backupFileHeader.getJid(), password);
             } else if (jsonReader.peek() == JsonToken.END_ARRAY) {
                 jsonReader.endArray();
                 continue;
             }
-            updateImportBackupNotification(fileSize, countingInputStream.getCount());
+            if ((SystemClock.elapsedRealtime() - lastNotificationUpdate) > 2_000) {
+                lastNotificationUpdate = SystemClock.elapsedRealtime();
+                updateImportBackupNotification(fileSize, countingInputStream.getCount());
+            }
         }
+        updateImportBackupNotification(fileSize, countingInputStream.getCount());
         db.setTransactionSuccessful();
         db.endTransaction();
         final Jid jid = backupFileHeader.getJid();
