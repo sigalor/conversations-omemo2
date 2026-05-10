@@ -33,14 +33,17 @@ public class PinnedMessageRepository {
     private static final String PINNED_MESSAGES_FILE_V2 = "pinned_messages_v2.enc.json";
 
     private final Context context;
-    private final DatabaseBackend databaseBackend;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public PinnedMessageRepository(Context context) {
         this.context = context.getApplicationContext();
-        this.databaseBackend = DatabaseBackend.getInstance(this.context);
         migrateFromJsonToDb();
     }
+
+    private DatabaseBackend getDatabaseBackend() {
+        return DatabaseBackend.getInstance(context);
+    }
+
 
     private void migrateFromJsonToDb() {
         executorService.submit(() -> {
@@ -68,8 +71,8 @@ public class PinnedMessageRepository {
                                 decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8);
                             }
                         }
-                        String accountUuid = databaseBackend.getAccountUuidForConversation(pm.getConversationUuid());
-                        databaseBackend.pinMessage(
+                        String accountUuid = getDatabaseBackend().getAccountUuidForConversation(pm.getConversationUuid());
+                        getDatabaseBackend().pinMessage(
                                 pm.getMessageUuid(),
                                 pm.getConversationUuid(),
                                 accountUuid,
@@ -92,8 +95,8 @@ public class PinnedMessageRepository {
     public void pinMessage(String messageUuid, String conversationUuid, String plaintextBody, Cid cid, final OnPinCompleteListener listener) {
         executorService.submit(() -> {
             try {
-                String accountUuid = databaseBackend.getAccountUuidForConversation(conversationUuid);
-                databaseBackend.pinMessage(messageUuid, conversationUuid, accountUuid, plaintextBody, cid != null ? cid.toString() : null, System.currentTimeMillis());
+                String accountUuid = getDatabaseBackend().getAccountUuidForConversation(conversationUuid);
+                getDatabaseBackend().pinMessage(messageUuid, conversationUuid, accountUuid, plaintextBody, cid != null ? cid.toString() : null, System.currentTimeMillis());
                 if (listener != null) listener.onPinComplete(true);
             } catch (Exception e) {
                 Log.e(TAG, "Error pinning message", e);
@@ -105,7 +108,7 @@ public class PinnedMessageRepository {
     public void unpinMessage(String messageUuid, final OnUnpinCompleteListener listener) {
         executorService.submit(() -> {
             try {
-                databaseBackend.unpinMessage(messageUuid);
+                getDatabaseBackend().unpinMessage(messageUuid);
                 if (listener != null) listener.onUnpinComplete(true);
             } catch (Exception e) {
                 Log.e(TAG, "Error unpinning message", e);
@@ -115,11 +118,11 @@ public class PinnedMessageRepository {
     }
 
     public void delete(String conversationUuid, String messageUuid) {
-        executorService.submit(() -> databaseBackend.deletePinnedMessage(conversationUuid, messageUuid));
+        executorService.submit(() -> getDatabaseBackend().deletePinnedMessage(conversationUuid, messageUuid));
     }
 
     public DecryptedPinnedMessageData getLatestDecryptedPinnedMessageForConversation(String conversationUuid) {
-        try (Cursor cursor = databaseBackend.getPinnedMessages(conversationUuid)) {
+        try (Cursor cursor = getDatabaseBackend().getPinnedMessages(conversationUuid)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return fromCursor(cursor);
             }
@@ -131,7 +134,7 @@ public class PinnedMessageRepository {
 
     public List<DecryptedPinnedMessageData> getAllDecryptedPinnedMessagesForConversation(String conversationUuid) {
         List<DecryptedPinnedMessageData> result = new ArrayList<>();
-        try (Cursor cursor = databaseBackend.getPinnedMessages(conversationUuid)) {
+        try (Cursor cursor = getDatabaseBackend().getPinnedMessages(conversationUuid)) {
             while (cursor != null && cursor.moveToNext()) {
                 result.add(fromCursor(cursor));
             }

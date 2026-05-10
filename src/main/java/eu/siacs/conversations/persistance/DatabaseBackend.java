@@ -117,7 +117,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
     private static final String CREATE_CONTATCS_STATEMENT =
-            "create table "
+            "create table if not exists "
                     + Contact.TABLENAME
                     + "("
                     + Contact.ACCOUNT
@@ -162,7 +162,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ") ON CONFLICT REPLACE);";
 
     private static final String CREATE_DISCOVERY_RESULTS_STATEMENT =
-            "create table "
+            "create table if not exists "
                     + ServiceDiscoveryResult.TABLENAME
                     + "("
                     + ServiceDiscoveryResult.HASH
@@ -178,7 +178,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ") ON CONFLICT REPLACE);";
 
     private static final String CREATE_PRESENCE_TEMPLATES_STATEMENT =
-            "CREATE TABLE "
+            "CREATE TABLE if not exists "
                     + PresenceTemplate.TABELNAME
                     + "("
                     + PresenceTemplate.UUID
@@ -196,7 +196,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ") ON CONFLICT REPLACE);";
 
     private static final String CREATE_PREKEYS_STATEMENT =
-            "CREATE TABLE "
+            "CREATE TABLE if not exists "
                     + SQLiteAxolotlStore.PREKEY_TABLENAME
                     + "("
                     + SQLiteAxolotlStore.ACCOUNT
@@ -219,7 +219,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ");";
 
     private static final String CREATE_SIGNED_PREKEYS_STATEMENT =
-            "CREATE TABLE "
+            "CREATE TABLE if not exists "
                     + SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME
                     + "("
                     + SQLiteAxolotlStore.ACCOUNT
@@ -242,7 +242,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ");";
 
     private static final String CREATE_SESSIONS_STATEMENT =
-            "CREATE TABLE "
+            "CREATE TABLE if not exists "
                     + SQLiteAxolotlStore.SESSION_TABLENAME
                     + "("
                     + SQLiteAxolotlStore.ACCOUNT
@@ -269,7 +269,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ");";
 
     private static final String CREATE_IDENTITIES_STATEMENT =
-            "CREATE TABLE "
+            "CREATE TABLE if not exists "
                     + SQLiteAxolotlStore.IDENTITIES_TABLENAME
                     + "("
                     + SQLiteAxolotlStore.ACCOUNT
@@ -308,7 +308,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private static final String RESOLVER_RESULTS_TABLENAME = "resolver_results";
 
     private static final String CREATE_RESOLVER_RESULTS_TABLE =
-            "create table "
+            "create table if not exists "
                     + RESOLVER_RESULTS_TABLENAME
                     + "("
                     + Resolver.Result.DOMAIN
@@ -329,64 +329,64 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + Resolver.Result.DOMAIN
                     + ") ON CONFLICT REPLACE"
                     + ");";
-    private static String CREATE_MESSAGE_FILE_DELETED_INDEX = "create index message_file_deleted_index ON " + Message.TABLENAME + "(" + "file_deleted" + ")";
+    private static String CREATE_MESSAGE_FILE_DELETED_INDEX = "create index if not exists message_file_deleted_index ON " + Message.TABLENAME + "(" + "file_deleted" + ")";
     private static final String CREATE_MESSAGE_TIME_INDEX =
-            "CREATE INDEX message_time_index ON "
+            "CREATE INDEX if not exists message_time_index ON "
                     + Message.TABLENAME
                     + "("
                     + Message.TIME_SENT
                     + ")";
     private static final String CREATE_MESSAGE_CONVERSATION_INDEX =
-            "CREATE INDEX message_conversation_index ON "
+            "CREATE INDEX if not exists message_conversation_index ON "
                     + Message.TABLENAME
                     + "("
                     + Message.CONVERSATION
                     + ")";
     private static final String CREATE_MESSAGE_DELETED_INDEX =
-            "CREATE INDEX message_deleted_index ON "
+            "CREATE INDEX if not exists message_deleted_index ON "
                     + Message.TABLENAME
                     + "("
                     + Message.DELETED
                     + ")";
     private static final String CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX =
-            "CREATE INDEX message_file_path_index ON "
+            "CREATE INDEX if not exists message_file_path_index ON "
                     + Message.TABLENAME
                     + "("
                     + Message.RELATIVE_FILE_PATH
                     + ")";
     private static final String CREATE_MESSAGE_TYPE_INDEX =
-            "CREATE INDEX message_type_index ON " + Message.TABLENAME + "(" + Message.TYPE + ")";
+            "CREATE INDEX if not exists message_type_index ON " + Message.TABLENAME + "(" + Message.TYPE + ")";
     private static final String CREATE_MESSAGE_EXPIRE_AT_INDEX =
-            "CREATE INDEX message_expire_at_index ON "
+            "CREATE INDEX if not exists message_expire_at_index ON "
                     + Message.TABLENAME
                     + "("
                     + Message.EXPIRE_AT
                     + ")";
 
     private static final String CREATE_MESSAGE_INDEX_TABLE =
-            "CREATE VIRTUAL TABLE messages_index USING fts4"
+            "CREATE VIRTUAL TABLE if not exists messages_index USING fts4"
                     + " (uuid,body,notindexed=\"uuid\",content=\""
                     + Message.TABLENAME
                     + "\",tokenize='unicode61')";
     private static final String CREATE_MESSAGE_INSERT_TRIGGER =
-            "CREATE TRIGGER after_message_insert AFTER INSERT ON "
+            "CREATE TRIGGER if not exists after_message_insert AFTER INSERT ON "
                     + Message.TABLENAME
                     + " BEGIN INSERT INTO messages_index(rowid,uuid,body)"
                     + " VALUES(NEW.rowid,NEW.uuid,NEW.body); END;";
     private static final String CREATE_MESSAGE_UPDATE_TRIGGER =
-            "CREATE TRIGGER after_message_update UPDATE OF uuid,body ON "
+            "CREATE TRIGGER if not exists after_message_update UPDATE OF uuid,body ON "
                     + Message.TABLENAME
                     + " BEGIN UPDATE messages_index SET body=NEW.body,uuid=NEW.uuid WHERE"
                     + " rowid=OLD.rowid; END;";
     private static final String CREATE_MESSAGE_DELETE_TRIGGER =
-            "CREATE TRIGGER after_message_delete AFTER DELETE ON "
+            "CREATE TRIGGER if not exists after_message_delete AFTER DELETE ON "
                     + Message.TABLENAME
                     + " BEGIN DELETE FROM messages_index WHERE rowid=OLD.rowid; END;";
     private static final String COPY_PREEXISTING_ENTRIES =
             "INSERT INTO messages_index(messages_index) VALUES('rebuild');";
 
     private static final String CREATE_POSTS_TABLE =
-            "CREATE TABLE " + eu.siacs.conversations.entities.Post.TABLENAME + " ("
+            "CREATE TABLE if not exists " + eu.siacs.conversations.entities.Post.TABLENAME + " ("
                     + eu.siacs.conversations.entities.Post.UUID + " TEXT PRIMARY KEY,"
                     + eu.siacs.conversations.entities.Post.ACCOUNT_UUID + " TEXT,"
                     + eu.siacs.conversations.entities.Post.AUTHOR_JID + " TEXT,"
@@ -451,7 +451,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "create table "
+                "create table if not exists "
                         + Account.TABLENAME
                         + "("
                         + Account.UUID
@@ -493,7 +493,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + Account.PORT
                         + " NUMBER DEFAULT 5222)");
         db.execSQL(
-                "create table "
+                "create table if not exists "
                         + Conversation.TABLENAME
                         + " ("
                         + Conversation.UUID
@@ -521,7 +521,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + Account.UUID
                         + ") ON DELETE CASCADE);");
         db.execSQL(
-                "create table "
+                "create table if not exists "
                         + Message.TABLENAME
                         + "( "
                         + Message.UUID
@@ -1140,12 +1140,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         }
                     } else if (file.isFile()) {
                         final String name = file.getName();
-                        boolean isVideo = false;
-                        int start = name.lastIndexOf('.') + 1;
+                        final int start = name.lastIndexOf('.') + 1;
+                        final boolean isVideo;
                         if (start < name.length()) {
                             String mime =
                                     MimeUtils.guessMimeTypeFromExtension(name.substring(start));
                             isVideo = mime != null && mime.startsWith("video/");
+                        } else {
+                            isVideo = false;
                         }
                         File dst =
                                 new File(
@@ -3703,29 +3705,39 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.delete(eu.siacs.conversations.entities.Post.TABLENAME, null, null);
     }
 
-    public static void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+    public static synchronized void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+        closeInstance();
         System.loadLibrary("sqlcipher");
         File dbFile = context.getDatabasePath(DATABASE_NAME);
         if (!dbFile.exists()) return;
 
-        File tempFile = new File(dbFile.getAbsolutePath() + ".tmp");
+        File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
         if (tempFile.exists() && !tempFile.delete()) {
             throw new java.io.IOException("Failed to delete existing temporary database file");
         }
+        if (!tempFile.createNewFile()) {
+            throw new java.io.IOException("Failed to create temporary database file");
+        }
 
         SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : oldPassword, null, SQLiteDatabase.OPEN_READWRITE, null);
+        int version = db.getVersion();
         try {
-            db.rawExecSQL("ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword));
+            String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword);
+            db.rawExecSQL(attachSql);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+            db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
             db.rawExecSQL("DETACH DATABASE encrypted;");
         } finally {
             db.close();
         }
 
         if (dbFile.delete()) {
+            new File(dbFile.getAbsolutePath() + "-wal").delete();
+            new File(dbFile.getAbsolutePath() + "-shm").delete();
             if (!tempFile.renameTo(dbFile)) {
                 throw new java.io.IOException("Failed to rename temporary database file");
             }
+            new AppSettings(context).setDatabasePassword(newPassword);
         } else {
             throw new java.io.IOException("Failed to delete old database file");
         }

@@ -36,39 +36,46 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         }
     }
 
-    public static void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+    public static synchronized void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+        closeInstance();
         System.loadLibrary("sqlcipher");
         File dbFile = context.getDatabasePath(DATABASE_NAME);
         if (!dbFile.exists()) return;
 
-        File tempFile = new File(dbFile.getAbsolutePath() + ".tmp");
+        File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
         if (tempFile.exists() && !tempFile.delete()) {
             throw new java.io.IOException("Failed to delete existing temporary database file");
         }
+        if (!tempFile.createNewFile()) {
+            throw new java.io.IOException("Failed to create temporary database file");
+        }
 
         SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : oldPassword, null, SQLiteDatabase.OPEN_READWRITE, null);
+        int version = db.getVersion();
         try {
-            db.rawExecSQL("ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword));
+            String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword);
+            db.rawExecSQL(attachSql);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+            db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
             db.rawExecSQL("DETACH DATABASE encrypted;");
         } finally {
             db.close();
         }
 
         if (dbFile.delete()) {
+            new File(dbFile.getAbsolutePath() + "-wal").delete();
+            new File(dbFile.getAbsolutePath() + "-shm").delete();
             if (!tempFile.renameTo(dbFile)) {
                 throw new java.io.IOException("Failed to rename temporary database file");
             }
+            new AppSettings(context).setDatabasePassword(newPassword);
         } else {
             throw new java.io.IOException("Failed to delete old database file");
         }
     }
 
-    private final Context context;
-
     private UnifiedPushDatabase(@Nullable Context context) {
         super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, null, true);
-        this.context = context;
     }
 
     public static UnifiedPushDatabase getInstance(final Context context) {
@@ -85,7 +92,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(final SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(
-                "CREATE TABLE push (account TEXT, transport TEXT, application TEXT NOT NULL, instance TEXT NOT NULL UNIQUE, endpoint TEXT, expiration NUMBER DEFAULT 0)");
+                "CREATE TABLE if not exists push (account TEXT, transport TEXT, application TEXT NOT NULL, instance TEXT NOT NULL UNIQUE, endpoint TEXT, expiration NUMBER DEFAULT 0)");
     }
 
     public boolean register(final String application, final String instance) {

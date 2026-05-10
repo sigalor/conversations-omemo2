@@ -304,6 +304,6 @@ public class AppSettings {
     public void setDatabasePassword(String password) {
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        sharedPreferences.edit().putString(DATABASE_PASSWORD, password).apply();
+        sharedPreferences.edit().putString(DATABASE_PASSWORD, password).commit();
     }
 }
