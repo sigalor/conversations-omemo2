@@ -3,8 +3,8 @@ package eu.siacs.conversations.persistance;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.services.UnifiedPushBroker;
 
@@ -35,8 +36,11 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         }
     }
 
+    private final Context context;
+
     private UnifiedPushDatabase(@Nullable Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, null, true);
+        this.context = context;
     }
 
     @Override

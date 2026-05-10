@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Base64;

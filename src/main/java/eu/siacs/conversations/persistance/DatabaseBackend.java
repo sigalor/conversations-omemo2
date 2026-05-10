@@ -4,9 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.os.Build;
 import android.os.Environment;
@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 
 import de.monocles.chat.WebxdcUpdate;
 import de.monocles.chat.pinnedmessage.PinnedMessage;
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.xml.Element;
 
 import com.google.common.base.Stopwatch;
@@ -403,9 +404,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     protected Context context;
 
     private DatabaseBackend(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, null, true);
         this.context = context;
-        setWriteAheadLoggingEnabled(true);
     }
 
     private static ContentValues createFingerprintStatusContentValues(
@@ -429,9 +429,17 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public static synchronized DatabaseBackend getInstance(Context context) {
         if (instance == null) {
+            System.loadLibrary("sqlcipher");
             instance = new DatabaseBackend(context);
-    }
+        }
         return instance;
+    }
+
+    public static synchronized void closeInstance() {
+        if (instance != null) {
+            instance.close();
+            instance = null;
+        }
     }
 
     @Override
@@ -3262,25 +3270,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             FingerprintStatus.Trust.VERIFIED.toString(),
             FingerprintStatus.Trust.VERIFIED_X509.toString()
         };
-        return DatabaseUtils.queryNumEntries(
-                db,
-                SQLiteAxolotlStore.IDENTITIES_TABLENAME,
-                SQLiteAxolotlStore.ACCOUNT
-                        + " = ?"
-                        + " AND "
-                        + SQLiteAxolotlStore.NAME
-                        + " = ?"
-                        + " AND ("
-                        + SQLiteAxolotlStore.TRUST
-                        + " = ? OR "
-                        + SQLiteAxolotlStore.TRUST
-                        + " = ? OR "
-                        + SQLiteAxolotlStore.TRUST
-                        + " = ?)"
-                        + " AND "
-                        + SQLiteAxolotlStore.ACTIVE
-                        + " > 0",
-                args);
+        try (Cursor cursor = db.rawQuery("SELECT count(*) FROM " + SQLiteAxolotlStore.IDENTITIES_TABLENAME + " WHERE " + SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.NAME + " = ? AND (" + SQLiteAxolotlStore.TRUST + " = ? OR " + SQLiteAxolotlStore.TRUST + " = ? OR " + SQLiteAxolotlStore.TRUST + " = ?) AND " + SQLiteAxolotlStore.ACTIVE + " > 0", args)) {
+            if (cursor.moveToFirst()) {
+                return cursor.getLong(0);
+            }
+        }
+        return 0;
     }
 
     private void storeIdentityKey(
@@ -3683,14 +3678,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public void createPost(eu.siacs.conversations.entities.Post post, eu.siacs.conversations.entities.Account account) {
-        final android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
-        db.insertWithOnConflict(eu.siacs.conversations.entities.Post.TABLENAME, null, post.getContentValues(account), android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE);
+        final SQLiteDatabase db = this.getWritableDatabase();
+        db.insertWithOnConflict(eu.siacs.conversations.entities.Post.TABLENAME, null, post.getContentValues(account), SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public java.util.List<eu.siacs.conversations.entities.Post> getPosts() {
         final java.util.List<eu.siacs.conversations.entities.Post> list = new java.util.ArrayList<>();
-        final android.database.sqlite.SQLiteDatabase db = this.getReadableDatabase();
-        android.database.Cursor cursor = db.query(eu.siacs.conversations.entities.Post.TABLENAME, null, null, null, null, null, eu.siacs.conversations.entities.Post.PUBLISHED + " DESC");
+        final SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(eu.siacs.conversations.entities.Post.TABLENAME, null, null, null, null, null, eu.siacs.conversations.entities.Post.PUBLISHED + " DESC");
         while (cursor.moveToNext()) {
             list.add(eu.siacs.conversations.entities.Post.fromCursor(cursor));
         }
@@ -3699,12 +3694,38 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public void deletePost(String uuid) {
-        final android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(eu.siacs.conversations.entities.Post.TABLENAME, eu.siacs.conversations.entities.Post.UUID + "=?", new String[]{uuid});
     }
 
     public void clearPosts() {
-        final android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(eu.siacs.conversations.entities.Post.TABLENAME, null, null);
+    }
+
+    public static void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+        System.loadLibrary("sqlcipher");
+        File dbFile = context.getDatabasePath(DATABASE_NAME);
+        if (!dbFile.exists()) return;
+
+        File tempFile = new File(dbFile.getAbsolutePath() + ".tmp");
+        if (tempFile.exists()) tempFile.delete();
+
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : oldPassword, null, SQLiteDatabase.OPEN_READWRITE, null);
+        try {
+            db.rawExecSQL("ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword));
+            db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+            db.rawExecSQL("DETACH DATABASE encrypted;");
+        } finally {
+            db.close();
+        }
+
+        if (dbFile.delete()) {
+            if (!tempFile.renameTo(dbFile)) {
+                throw new IOException("Failed to rename temporary database file");
+            }
+        } else {
+            throw new IOException("Failed to delete old database file");
+        }
     }
 }

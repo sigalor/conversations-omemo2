@@ -83,6 +83,10 @@
             android:key="automatic_message_deletion"
             android:summary="@string/pref_automatically_delete_messages_description"
             android:title="@string/pref_automatically_delete_messages" />
+        <Preference
+            android:key="database_encryption"
+            android:icon="@drawable/ic_lock_24dp"
+            android:title="@string/pref_database_encryption" />
     </PreferenceCategory>
 
 </PreferenceScreen>

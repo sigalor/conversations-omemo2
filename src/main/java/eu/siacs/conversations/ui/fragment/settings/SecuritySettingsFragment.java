@@ -2,6 +2,8 @@ package eu.siacs.conversations.ui.fragment.settings;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +19,7 @@ import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.OmemoSetting;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.MemorizingTrustManager;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
@@ -74,7 +77,184 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 return true;
             });
         }
+
+        final Preference databaseEncryption = findPreference("database_encryption");
+        if (databaseEncryption != null) {
+            databaseEncryption.setOnPreferenceClickListener(preference -> {
+                showDatabaseEncryptionDialog();
+                return true;
+            });
+            updateDatabaseEncryptionSummary(databaseEncryption);
+        }
     }
+
+    private void updateDatabaseEncryptionSummary(Preference preference) {
+        if (preference != null) {
+            String password = new AppSettings(requireContext()).getDatabasePassword();
+            preference.setSummary(password == null ? R.string.pref_database_encryption_summary_disabled : R.string.pref_database_encryption_summary_enabled);
+        }
+    }
+
+    private void showDatabaseEncryptionDialog() {
+        final String currentPassword = new AppSettings(requireContext()).getDatabasePassword();
+        if (currentPassword == null) {
+            showEnableEncryptionDialog();
+        } else {
+            showEncryptionOptionsDialog(currentPassword);
+        }
+    }
+
+    private void showEnableEncryptionDialog() {
+        final var builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(R.string.dialog_set_db_password_title);
+
+        final var layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        final var passwordInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
+        passwordInput.setHint(R.string.dialog_db_password_hint);
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(passwordInput);
+
+        final var confirmInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
+        confirmInput.setHint(R.string.dialog_db_password_confirm_hint);
+        confirmInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(confirmInput);
+
+        builder.setView(layout);
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
+            String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
+            if (password.isEmpty()) {
+                Toast.makeText(requireContext(), "Password cannot be empty", Toast.LENGTH_SHORT).show();
+            } else if (password.equals(confirm)) {
+                performMigration(null, password);
+            } else {
+                Toast.makeText(requireContext(), R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.show();
+    }
+
+    private void showEncryptionOptionsDialog(String currentPassword) {
+        final var builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(R.string.pref_database_encryption);
+        String[] options = {getString(R.string.dialog_change_db_password_title), getString(R.string.pref_database_encryption_summary_disabled)};
+        builder.setItems(options, (dialog, which) -> {
+            if (which == 0) {
+                showChangePasswordDialog(currentPassword);
+            } else {
+                showDisableEncryptionDialog(currentPassword);
+            }
+        });
+        builder.show();
+    }
+
+    private void showChangePasswordDialog(String currentPassword) {
+        final var builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(R.string.dialog_change_db_password_title);
+
+        final var layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        final var currentInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
+        currentInput.setHint(R.string.dialog_db_password_current_hint);
+        currentInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(currentInput);
+
+        final var passwordInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
+        passwordInput.setHint(R.string.dialog_db_password_hint);
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(passwordInput);
+
+        final var confirmInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
+        confirmInput.setHint(R.string.dialog_db_password_confirm_hint);
+        confirmInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(confirmInput);
+
+        builder.setView(layout);
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            String current = currentInput.getText() == null ? "" : currentInput.getText().toString();
+            String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
+            String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
+            if (!current.equals(currentPassword)) {
+                Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
+            } else if (password.equals(confirm)) {
+                performMigration(current, password);
+            } else {
+                Toast.makeText(requireContext(), R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.show();
+    }
+
+    private void showDisableEncryptionDialog(String currentPassword) {
+        final var builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(R.string.pref_database_encryption_summary_disabled);
+
+        final var layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        final var currentInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
+        currentInput.setHint(R.string.dialog_db_password_current_hint);
+        currentInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(currentInput);
+
+        builder.setView(layout);
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            String current = currentInput.getText().toString();
+            if (current.equals(currentPassword)) {
+                performMigration(current, null);
+            } else {
+                Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.show();
+    }
+
+    private void performMigration(String oldPassword, String newPassword) {
+        final var progressBuilder = new MaterialAlertDialogBuilder(requireActivity());
+        progressBuilder.setTitle("Database Migration");
+        progressBuilder.setMessage("Please wait...");
+        progressBuilder.setCancelable(false);
+        final var progressBar = new android.widget.ProgressBar(requireContext());
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        progressBar.setPadding(padding, padding, padding, padding);
+        progressBuilder.setView(progressBar);
+        final AlertDialog progressDialog = progressBuilder.show();
+
+        new Thread(() -> {
+            try {
+                DatabaseBackend.closeInstance();
+                DatabaseBackend.migrate(requireContext(), oldPassword, newPassword);
+                new AppSettings(requireContext()).setDatabasePassword(newPassword);
+                requireActivity().runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(requireContext(), newPassword == null ? R.string.toast_db_password_success_disabled : R.string.toast_db_password_success_set, Toast.LENGTH_SHORT).show();
+                    updateDatabaseEncryptionSummary(findPreference("database_encryption"));
+                });
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    new MaterialAlertDialogBuilder(requireActivity())
+                            .setTitle("Error")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                });
+            }
+        }).start();
+    }
+
 
     @Override
     protected void onSharedPreferenceChanged(@NonNull String key) {

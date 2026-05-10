@@ -38,6 +38,7 @@ public class AppSettings {
     public static final String LOAD_PROVIDERS_EXTERNAL = "load_providers_list_external";
     public static final String RINGTONE = "call_ringtone";
     public static final String BTBV = "btbv";
+    public static final String DATABASE_PASSWORD = "database_password";
 
     public static final String CONFIRM_MESSAGES = "confirm_messages";
     public static final String ALLOW_MESSAGE_CORRECTION = "allow_message_correction";
@@ -292,5 +293,17 @@ public class AppSettings {
                 .edit()
                 .putLong(INSTALLATION_ID, installationId)
                 .apply();
+    }
+
+    public String getDatabasePassword() {
+        final SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getString(DATABASE_PASSWORD, null);
+    }
+
+    public void setDatabasePassword(String password) {
+        final SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences.edit().putString(DATABASE_PASSWORD, password).apply();
     }
 }

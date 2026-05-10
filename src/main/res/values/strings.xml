@@ -1705,4 +1705,18 @@
     <string name="failed_to_reset_omemo_identities">Failed to reset OMEMO identities</string>
     <string name="ephemeral_messages_warning">Ephemeral messages are not guaranteed to disappear on other clients.</string>
     <string name="dont_show_again">Don’t show again</string>
+    <string name="pref_database_encryption">Database encryption</string>
+    <string name="pref_database_encryption_summary">Encrypt the local database with a password</string>
+    <string name="dialog_set_db_password_title">Set database password</string>
+    <string name="dialog_change_db_password_title">Change database password</string>
+    <string name="dialog_db_password_hint">Password</string>
+    <string name="dialog_db_password_confirm_hint">Confirm password</string>
+    <string name="dialog_db_password_current_hint">Current password</string>
+    <string name="toast_db_password_error_mismatch">Passwords do not match</string>
+    <string name="toast_db_password_error_wrong">Wrong current password</string>
+    <string name="toast_db_password_success_set">Database password set</string>
+    <string name="toast_db_password_success_changed">Database password changed</string>
+    <string name="toast_db_password_success_disabled">Database encryption disabled</string>
+    <string name="pref_database_encryption_summary_enabled">Database is encrypted</string>
+    <string name="pref_database_encryption_summary_disabled">Database is not encrypted</string>
 </resources>
