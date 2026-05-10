@@ -75,6 +75,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
+import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
+import org.bouncycastle.crypto.params.Argon2Parameters;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
@@ -592,7 +594,22 @@ public class ExportBackupWorker extends Worker {
         }
     }
 
-    public static byte[] getKey(final String password, final byte[] salt)
+    public static byte[] getKey(final String password, final byte[] salt) {
+        Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+                .withVersion(Argon2Parameters.ARGON2_VERSION_13)
+                .withIterations(3)
+                .withMemoryAsKB(65536) // 64MB
+                .withParallelism(4)
+                .withSalt(salt)
+                .build();
+        Argon2BytesGenerator gen = new Argon2BytesGenerator();
+        gen.init(params);
+        byte[] result = new byte[32]; // 256-bit key for AES-256
+        gen.generateBytes(password.toCharArray(), result);
+        return result;
+    }
+
+    public static byte[] getLegacyKey(final String password, final byte[] salt)
             throws InvalidKeySpecException {
         final SecretKeyFactory factory;
         try {

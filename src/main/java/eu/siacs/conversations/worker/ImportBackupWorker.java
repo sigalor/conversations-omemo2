@@ -198,7 +198,12 @@ public class ImportBackupWorker extends Worker {
             return failure(Reason.ACCOUNT_ALREADY_EXISTS);
         }
 
-        final byte[] key = ExportBackupWorker.getKey(password, backupFileHeader.getSalt());
+        final byte[] key;
+        if (backupFileHeader.getVersion() >= 4) {
+            key = ExportBackupWorker.getKey(password, backupFileHeader.getSalt());
+        } else {
+            key = ExportBackupWorker.getLegacyKey(password, backupFileHeader.getSalt());
+        }
 
         final AEADBlockCipher cipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
         cipher.init(
