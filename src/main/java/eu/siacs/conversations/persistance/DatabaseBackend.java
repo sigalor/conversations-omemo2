@@ -2487,8 +2487,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public List<Account> getAccounts() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return getAccounts(db);
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            return getAccounts(db);
+        } catch (final Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     public List<Jid> getAccountJids(final boolean enabledOnly) {

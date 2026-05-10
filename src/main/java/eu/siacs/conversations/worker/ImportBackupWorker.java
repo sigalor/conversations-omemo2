@@ -161,7 +161,27 @@ public class ImportBackupWorker extends Worker {
         final var database = DatabaseBackend.getInstance(context);
         Log.d(Config.LOGTAG, "importing backup from " + uri);
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        final SQLiteDatabase db = database.getWritableDatabase();
+        SQLiteDatabase db;
+        try {
+            db = database.getWritableDatabase();
+        } catch (final net.zetetic.database.sqlcipher.SQLiteNotADatabaseException e) {
+            Log.d(Config.LOGTAG, "database is encrypted but we don't have the password. deleting it to proceed with import");
+            DatabaseBackend.closeInstance();
+            final File dbFile = context.getDatabasePath("history");
+            if (dbFile.delete()) {
+                final File walFile = new File(dbFile.getAbsolutePath() + "-wal");
+                if (walFile.exists()) {
+                    walFile.delete();
+                }
+                final File shmFile = new File(dbFile.getAbsolutePath() + "-shm");
+                if (shmFile.exists()) {
+                    shmFile.delete();
+                }
+                db = database.getWritableDatabase();
+            } else {
+                throw e;
+            }
+        }
         final InputStream inputStream;
         final String path = uri.getPath();
         final long fileSize;
