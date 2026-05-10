@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
+
 import androidx.annotation.BoolRes;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -296,14 +300,52 @@ public class AppSettings {
     }
 
     public String getDatabasePassword() {
-        final SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        return sharedPreferences.getString(DATABASE_PASSWORD, null);
+        try {
+            final SharedPreferences encryptedPrefs = getEncryptedPreferences();
+            String password = encryptedPrefs.getString(DATABASE_PASSWORD, null);
+            if (password == null) {
+                // Check legacy preferences
+                final SharedPreferences normalPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+                final String legacyPassword = normalPrefs.getString(DATABASE_PASSWORD, null);
+                if (legacyPassword != null) {
+                    // Migrate to encrypted preferences
+                    encryptedPrefs.edit().putString(DATABASE_PASSWORD, legacyPassword).commit();
+                    normalPrefs.edit().remove(DATABASE_PASSWORD).apply();
+                    Log.d("AppSettings", "Migrated database password to encrypted storage");
+                    password = legacyPassword;
+                }
+            }
+            return password;
+        } catch (Exception e) {
+            Log.e("AppSettings", "Could not load encrypted shared preferences", e);
+            // Fallback to normal prefs if encryption fails
+            return PreferenceManager.getDefaultSharedPreferences(context).getString(DATABASE_PASSWORD, null);
+        }
     }
 
     public void setDatabasePassword(String password) {
-        final SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        sharedPreferences.edit().putString(DATABASE_PASSWORD, password).commit();
+        try {
+            final SharedPreferences encryptedPrefs = getEncryptedPreferences();
+            encryptedPrefs.edit().putString(DATABASE_PASSWORD, password).commit();
+            // Ensure it's removed from legacy storage
+            PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
+        } catch (Exception e) {
+            Log.e("AppSettings", "Could not save encrypted shared preferences", e);
+            // Fallback to normal prefs if encryption fails
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putString(DATABASE_PASSWORD, password).commit();
+        }
+    }
+
+    private SharedPreferences getEncryptedPreferences() throws Exception {
+        MasterKey masterKey = new MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
+        return EncryptedSharedPreferences.create(
+                context,
+                "encrypted_settings",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        );
     }
 }

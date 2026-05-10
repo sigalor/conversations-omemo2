@@ -136,6 +136,7 @@ dependencies {
     implementation "io.noties.markwon:core:4.6.2"
     implementation "net.zetetic:sqlcipher-android:4.15.0@aar"
     implementation "androidx.sqlite:sqlite:2.6.2"
+    implementation "androidx.security:security-crypto:1.1.0"
 }
 
 ext {
