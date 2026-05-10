@@ -75,14 +75,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
+import org.bouncycastle.crypto.engines.AESEngine;
+import org.bouncycastle.crypto.modes.AEADBlockCipher;
+import org.bouncycastle.crypto.modes.GCMBlockCipher;
+import org.bouncycastle.crypto.params.AEADParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
 public class ExportBackupWorker extends Worker {
 
@@ -107,6 +106,7 @@ public class ExportBackupWorker extends Worker {
 
     private final boolean recurringBackup;
 
+    private long lastNotificationUpdate = 0;
     boolean ReadableLogsEnabled = false;
     private DatabaseBackend mDatabaseBackend;
     private List<Account> mAccounts;
@@ -125,13 +125,7 @@ public class ExportBackupWorker extends Worker {
         final List<Uri> files;
         try {
             files = export();
-        } catch (final IOException
-                | InvalidKeySpecException
-                | InvalidAlgorithmParameterException
-                | InvalidKeyException
-                | NoSuchPaddingException
-                | NoSuchAlgorithmException
-                | NoSuchProviderException e) {
+        } catch (final Exception e) {
             Log.d(Config.LOGTAG, "could not create backup", e);
             showToast(R.string.could_not_create_backup);
             return Result.failure();
@@ -164,20 +158,14 @@ public class ExportBackupWorker extends Worker {
     }
 
     private List<Uri> export()
-            throws IOException,
-                    InvalidKeySpecException,
-                    InvalidAlgorithmParameterException,
-                    InvalidKeyException,
-                    NoSuchPaddingException,
-                    NoSuchAlgorithmException,
-                    NoSuchProviderException {
+            throws Exception {
         final Context context = getApplicationContext();
         final var appSettings = new AppSettings(context);
         final var backupLocation = appSettings.getBackupLocation();
         final var database = DatabaseBackend.getInstance(context);
         final var accounts = database.getAccounts();
 
-        int count = 0;
+        int currentCount = 0;
         final int max = accounts.size();
         final ImmutableList.Builder<Uri> locations = new ImmutableList.Builder<>();
         Log.d(Config.LOGTAG, "starting backup for " + max + " accounts");
@@ -194,18 +182,18 @@ public class ExportBackupWorker extends Worker {
                                 "skipping backup for %s because password is empty. unable to"
                                         + " encrypt",
                                 account.getJid().asBareJid()));
-                count++;
+                currentCount++;
                 continue;
             }
             final Uri uri;
             try {
-                uri = export(database, account, password, backupLocation, max, count);
+                uri = export(database, account, password, backupLocation, max, currentCount);
             } catch (final WorkStoppedException e) {
                 Log.d(Config.LOGTAG, "ExportBackupWorker has stopped. Returning what we have");
                 return locations.build();
             }
             locations.add(uri);
-            count++;
+            currentCount++;
         }
         return locations.build();
     }
@@ -217,14 +205,7 @@ public class ExportBackupWorker extends Worker {
             final Uri backupLocation,
             final int max,
             final int count)
-            throws IOException,
-                    InvalidKeySpecException,
-                    InvalidAlgorithmParameterException,
-                    InvalidKeyException,
-                    NoSuchPaddingException,
-                    NoSuchAlgorithmException,
-                    NoSuchProviderException,
-                    WorkStoppedException {
+            throws Exception {
         final var context = getApplicationContext();
         final SecureRandom secureRandom = new SecureRandom();
         Log.d(
@@ -285,17 +266,12 @@ public class ExportBackupWorker extends Worker {
             backupFileHeader.write(dataOutputStream);
             dataOutputStream.flush();
 
-            final Cipher cipher =
-                    Compatibility.twentyEight()
-                            ? Cipher.getInstance(CIPHER_MODE)
-                            : Cipher.getInstance(CIPHER_MODE, PROVIDER);
+            final AEADBlockCipher aeadBlockCipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
             final byte[] key = getKey(password, salt);
-            SecretKeySpec keySpec = new SecretKeySpec(key, KEY_TYPE);
-            final GCMParameterSpec parameterSpec = new GCMParameterSpec(128, IV);
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, parameterSpec);
-            try (CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
-                 GZIPOutputStream gzipOutputStream = new GZIPOutputStream(cipherOutputStream);
-                 JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(gzipOutputStream, StandardCharsets.UTF_8))) {
+            aeadBlockCipher.init(true, new AEADParameters(new KeyParameter(key), 128, IV));
+            final org.bouncycastle.crypto.io.CipherOutputStream cipherOutputStream = new org.bouncycastle.crypto.io.CipherOutputStream(outputStream, aeadBlockCipher);
+            final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(cipherOutputStream);
+            try (final JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(gzipOutputStream, StandardCharsets.UTF_8))) {
                 jsonWriter.beginArray();
                 final SQLiteDatabase db = database.getReadableDatabase();
                 final String uuid = account.getUuid();
@@ -470,7 +446,7 @@ public class ExportBackupWorker extends Worker {
         int size = cursor != null ? cursor.getCount() : 0;
         Log.d(Config.LOGTAG, "exporting " + size + " WebXDC updates for account " + uuid);
         int i = 0;
-        int p = 0;
+        int p = Integer.MIN_VALUE;
         while (cursor != null && cursor.moveToNext()) {
             throwIfWorkStopped();
             writer.beginObject();
@@ -487,8 +463,9 @@ public class ExportBackupWorker extends Worker {
             writer.endObject();
             writer.endObject();
             final int percentage = i * 100 / (size == 0 ? 1 : size);
-            if (p < percentage) {
+            if (p < percentage && (SystemClock.elapsedRealtime() - lastNotificationUpdate) > 2_000) {
                 p = percentage;
+                lastNotificationUpdate = SystemClock.elapsedRealtime();
                 notificationManager.notify(NOTIFICATION_ID, progress.build(p));
             }
             i++;
@@ -584,7 +561,6 @@ public class ExportBackupWorker extends Worker {
                         new String[] {uuid})) {
             final int size = cursor != null ? cursor.getCount() : 0;
             Log.d(Config.LOGTAG, "exporting " + size + " messages for account " + uuid);
-            long lastUpdate = 0;
             int i = 0;
             int p = Integer.MIN_VALUE;
             while (cursor != null && cursor.moveToNext()) {
@@ -605,10 +581,10 @@ public class ExportBackupWorker extends Worker {
                 }
                 writer.endObject();
                 writer.endObject();
-                final int percentage = i * 100 / size;
-                if (p < percentage && (SystemClock.elapsedRealtime() - lastUpdate) > 2_000) {
+                final int percentage = i * 100 / (size == 0 ? 1 : size);
+                if (p < percentage && (SystemClock.elapsedRealtime() - lastNotificationUpdate) > 2_000) {
                     p = percentage;
-                    lastUpdate = SystemClock.elapsedRealtime();
+                    lastNotificationUpdate = SystemClock.elapsedRealtime();
                     notificationManager.notify(NOTIFICATION_ID, progress.build(p));
                 }
                 i++;
@@ -819,7 +795,7 @@ public class ExportBackupWorker extends Worker {
         Set<File> files = getFilesForAccount(db, uuid);
         Log.d(Config.LOGTAG, "exporting " + files.size() + " files for account " + uuid);
         int i = 0;
-        int p = 0;
+        int p = Integer.MIN_VALUE;
         for (File file : files) {
             throwIfWorkStopped();
             if (file.exists() && file.canRead()) {
@@ -831,8 +807,9 @@ public class ExportBackupWorker extends Worker {
             }
             i++;
             final int percentage = i * 100 / Math.max(1, files.size());
-            if (p < percentage) {
+            if (p < percentage && (SystemClock.elapsedRealtime() - lastNotificationUpdate) > 2_000) {
                 p = percentage;
+                lastNotificationUpdate = SystemClock.elapsedRealtime();
                 notificationManager.notify(NOTIFICATION_ID, progress.build(p));
             }
         }
