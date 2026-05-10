@@ -48,6 +48,7 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.color.MaterialColors;
+
 import com.google.common.base.Strings;
 
 import java.lang.ref.WeakReference;
@@ -71,6 +72,7 @@ import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.ShareUtil;
 import eu.siacs.conversations.utils.FtsUtils;
 import eu.siacs.conversations.utils.MessageUtils;
+import eu.siacs.conversations.xml.Element;
 
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.showKeyboard;
@@ -185,7 +187,8 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		if (message != null) {
 			switch (item.getItemId()) {
 				case R.id.open_conversation:
-					switchToConversationOnMessage(wrap(message.getConversation()), message.getUuid());
+					final Element thread = message.getThread();
+					switchToConversationOnMessage(wrap(message.getConversation()), thread == null ? null : thread.getContent(), message.getUuid());
 					break;
 				case R.id.share_with:
 					ShareUtil.share(this, message);

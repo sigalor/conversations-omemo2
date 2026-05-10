@@ -2441,21 +2441,21 @@ public class ConversationFragment extends XmppFragment
 
         Runnable updateSelectionRunnable = () -> {
             FragmentConversationBinding binding = ConversationFragment.this.binding;
+            if (binding == null) return;
+            final int height = binding.messagesView.getHeight();
+            final int effectiveOffset = offsetFormTop != null && offsetFormTop > 0 ? offsetFormTop : (height > 0 ? height / 2 : 200);
 
             Runnable performRunnable = () -> {
-                if (offsetFormTop != null) {
-                    binding.messagesView.setSelectionFromTop(pos, offsetFormTop);
-                    return;
-                }
-
-                binding.messagesView.setSelection(pos);
+                binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+                binding.messagesView.setSelectionFromTop(pos, effectiveOffset);
+                binding.messagesView.post(() -> binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL));
             };
 
             performRunnable.run();
             binding.messagesView.post(performRunnable);
 
             if (selectionUpdatedRunnable != null) {
-                selectionUpdatedRunnable.run();
+                binding.messagesView.post(selectionUpdatedRunnable);
             }
         };
 
@@ -4142,6 +4142,7 @@ public class ConversationFragment extends XmppFragment
     public void onStart() {
         super.onStart();
         if (this.reInitRequiredOnStart && this.conversation != null) {
+            this.reInitRequiredOnStart = false;
             final Bundle extras = pendingExtras.pop();
             reInit(this.conversation, extras != null, extras != null && extras.getString(ConversationsActivity.EXTRA_MESSAGE_UUID) != null);
             if (extras != null) {

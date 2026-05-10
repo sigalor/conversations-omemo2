@@ -759,7 +759,11 @@ public abstract class XmppActivity extends ActionBarActivity {
     }
 
     public void switchToConversationOnMessage(Conversation conversation, String messageUuid) {
-        switchToConversation(conversation, null, false, null, false, false, null, null, messageUuid);
+        switchToConversationOnMessage(conversation, null, messageUuid);
+    }
+
+    public void switchToConversationOnMessage(Conversation conversation, String thread, String messageUuid) {
+        switchToConversation(conversation, null, false, null, false, false, null, thread, messageUuid);
     }
 
     public void switchToConversationAndQuote(Conversation conversation, String text) {

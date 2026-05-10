@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 
 import de.monocles.chat.WebxdcUpdate;
 import de.monocles.chat.pinnedmessage.PinnedMessage;
+import eu.siacs.conversations.xml.Element;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Multimap;
@@ -1847,37 +1848,68 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     @Nullable
     public ArrayList<Message> getMessagesNearUuid(Conversation conversation, int limit, String uuid) {
-        SQLiteDatabase db = this.getReadableDatabase();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final String query = "WITH anchor AS (SELECT " + Message.TIME_SENT + ", " + Message.UUID + " FROM " + Message.TABLENAME
+                + " WHERE " + Message.CONVERSATION + "=? AND (" + Message.SERVER_MSG_ID + "=? OR " + Message.REMOTE_MSG_ID + "=? OR " + Message.UUID + "=?)"
+                + " ORDER BY " + Message.TIME_SENT + " DESC LIMIT 1) "
+                + "SELECT * FROM ( "
+                + "  SELECT m.* FROM " + Message.TABLENAME + " m, anchor a "
+                + "  WHERE m." + Message.CONVERSATION + "=? AND (m." + Message.TIME_SENT + " < a." + Message.TIME_SENT + " OR (m." + Message.TIME_SENT + " = a." + Message.TIME_SENT + " AND m." + Message.UUID + " < a." + Message.UUID + ")) "
+                + "  ORDER BY m." + Message.TIME_SENT + " DESC, m." + Message.UUID + " DESC LIMIT ? "
+                + ") "
+                + "UNION ALL "
+                + "SELECT m.* FROM " + Message.TABLENAME + " m, anchor a WHERE m." + Message.UUID + " = a." + Message.UUID + " "
+                + "UNION ALL "
+                + "SELECT * FROM ( "
+                + "  SELECT m.* FROM " + Message.TABLENAME + " m, anchor a "
+                + "  WHERE m." + Message.CONVERSATION + "=? AND (m." + Message.TIME_SENT + " > a." + Message.TIME_SENT + " OR (m." + Message.TIME_SENT + " = a." + Message.TIME_SENT + " AND m." + Message.UUID + " > a." + Message.UUID + ")) "
+                + "  ORDER BY m." + Message.TIME_SENT + " ASC, m." + Message.UUID + " ASC LIMIT ? "
+                + ") "
+                + "ORDER BY " + Message.TIME_SENT + " ASC, " + Message.UUID + " ASC";
 
-        String[] selectionArgs = {conversation.getUuid(), uuid, uuid, uuid};
-        Cursor cursor = db.query(Message.TABLENAME, null, Message.CONVERSATION
-                + "=? and (" + Message.SERVER_MSG_ID + "=? or " + Message.REMOTE_MSG_ID +  "=? or " + Message.UUID + "=?)", selectionArgs, null, null, Message.TIME_SENT
-                + " DESC", String.valueOf(1));
+        final String[] selectionArgs = {
+                conversation.getUuid(), uuid, uuid, uuid,
+                conversation.getUuid(), String.valueOf(limit / 2),
+                conversation.getUuid(), String.valueOf(limit / 2)
+        };
+
+        final Cursor cursor = db.rawQuery(query, selectionArgs);
         CursorUtils.upgradeCursorWindowSize(cursor);
-        Message anchorMessage = null;
+        final ArrayList<Message> list = new ArrayList<>();
+        final Multimap<String, Message> waitingForReplies = HashMultimap.create();
+        final var replyIds = new HashSet<String>();
+        boolean foundAnchor = false;
         while (cursor.moveToNext()) {
             try {
-                anchorMessage = Message.fromCursor(cursor, conversation);
+                final Message m = Message.fromCursor(cursor, conversation);
+                if (uuid.equals(m.getServerMsgId()) || uuid.equals(m.getRemoteMsgId()) || uuid.equals(m.getUuid())) {
+                    foundAnchor = true;
+                }
+                final Element reply = m.getReply();
+                if (reply != null && reply.getAttribute("id") != null) {
+                    replyIds.add(reply.getAttribute("id"));
+                    waitingForReplies.put(reply.getAttribute("id"), m);
+                }
+                list.add(m);
             } catch (Exception e) {
-                Log.e(Config.LOGTAG, "unable to restore message");
+                Log.e(Config.LOGTAG, "unable to restore message", e);
             }
         }
-
         cursor.close();
 
-        if (anchorMessage == null) {
+        if (!foundAnchor) {
             return null;
         }
 
-        List<Message> prev = getMessages(conversation, limit / 2, anchorMessage.getTimeSent(), false);
-        List<Message> next = getMessages(conversation, limit / 2, anchorMessage.getTimeSent(), true);
-
-        ArrayList<Message> list = new ArrayList<>(prev);
-        list.add(anchorMessage);
-        list.addAll(next);
+        for (final var parent : getMessageFuzzyIds(conversation, replyIds).entrySet()) {
+            for (final var m : waitingForReplies.get(parent.getKey())) {
+                m.setInReplyTo(parent.getValue());
+            }
+        }
 
         return list;
     }
+
 
 
     public Map<String, Message> getMessageFuzzyIds(Conversation conversation, Collection<String> ids) {
@@ -1914,11 +1946,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return result;
     }
 
-    public ArrayList<Message> getMessages(Conversation conversation, int limit, long timestamp, boolean isForward) {
+    public ArrayList<Message> getMessages(Conversation conversation, int limit, long timestamp, String uuid, boolean isForward) {
         ArrayList<Message> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
-        String comparsionOperation = isForward ? ">? " : "<? ";
+        String comparsionOperation = isForward ? ">" : "<";
         String sorting = isForward ? " ASC " : " DESC ";
         if (timestamp == -1) {
             String[] selectionArgs = {conversation.getUuid()};
@@ -1927,23 +1959,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                             "WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
                             " WHERE " + Message.CONVERSATION + "=? " +
-                            "ORDER BY " + Message.TIME_SENT + sorting +
+                            "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting +
                             "LIMIT " + String.valueOf(limit) + ") " +
-                            "ORDER BY " + Message.TIME_SENT + sorting,
+                            "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting,
                     selectionArgs
             );
         } else {
             String[] selectionArgs = {conversation.getUuid(),
-                    Long.toString(timestamp)};
+                    Long.toString(timestamp), uuid, Long.toString(timestamp)};
             cursor = db.rawQuery(
                     "SELECT * FROM " + Message.TABLENAME + " " +
                             "WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
-                            " WHERE " + Message.CONVERSATION + "=? AND " +
-                            Message.TIME_SENT + comparsionOperation +
-                            "ORDER BY " + Message.TIME_SENT + sorting +
+                            " WHERE " + Message.CONVERSATION + "=? AND (" +
+                            Message.TIME_SENT + comparsionOperation + " ? OR (" + Message.TIME_SENT + " = ? AND " + Message.UUID + comparsionOperation + " ?)) " +
+                            "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting +
                             "LIMIT " + String.valueOf(limit) + ") " +
-                            "ORDER BY " + Message.TIME_SENT + sorting,
+                            "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting,
                     selectionArgs
             );
         }
@@ -1975,6 +2007,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         cursor.close();
         return list;
     }
+
+    public ArrayList<Message> getMessages(Conversation conversation, int limit, long timestamp, boolean isForward) {
+        return getMessages(conversation, limit, timestamp, "", isForward);
+    }
+
 
     public Cursor getMessageSearchCursor(final List<String> term, final String uuid) {
         final SQLiteDatabase db = this.getReadableDatabase();
