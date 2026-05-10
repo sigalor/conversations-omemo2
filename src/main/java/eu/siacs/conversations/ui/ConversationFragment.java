@@ -6663,6 +6663,9 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void loadMediaFromBackground() {
+        if (backgroundExecutor.isShutdown()) {
+            return;
+        }
         backgroundExecutor.execute(() -> {
             LoadStickers();
             LoadGifs();
@@ -6676,6 +6679,9 @@ public class ConversationFragment extends XmppFragment
             return;
         }
 
+        if (backgroundExecutor.isShutdown()) {
+            return;
+        }
         backgroundExecutor.execute(() -> {
             final PinnedMessageRepository.DecryptedPinnedMessageData pinnedData =
                     pinnedMessageRepository.getLatestDecryptedPinnedMessageForConversation(conversation.getUuid());
@@ -6949,7 +6955,9 @@ public class ConversationFragment extends XmppFragment
     public void onUnpinClick(PinnedMessageRepository.DecryptedPinnedMessageData messageData) {
         if (conversation != null) {
             // Use your repository to delete the message
-            backgroundExecutor.execute(() -> pinnedMessageRepository.delete(conversation.getUuid(), messageData.messageUuid));
+            if (!backgroundExecutor.isShutdown()) {
+                backgroundExecutor.execute(() -> pinnedMessageRepository.delete(conversation.getUuid(), messageData.messageUuid));
+            }
 
             // Remove the item from the adapter to update the UI instantly
             if (pinnedMessagesPopup != null && pinnedMessagesPopup.getListView() != null) {
