@@ -3,6 +3,7 @@ package eu.siacs.conversations.persistance;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import java.io.File;
 import java.util.List;
 
 import eu.siacs.conversations.AppSettings;
@@ -27,12 +29,38 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
 
     private static UnifiedPushDatabase instance;
 
-    public static UnifiedPushDatabase getInstance(final Context context) {
-        synchronized (UnifiedPushDatabase.class) {
-            if (instance == null) {
-                instance = new UnifiedPushDatabase(context.getApplicationContext());
+    public static synchronized void closeInstance() {
+        if (instance != null) {
+            instance.close();
+            instance = null;
+        }
+    }
+
+    public static void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+        System.loadLibrary("sqlcipher");
+        File dbFile = context.getDatabasePath(DATABASE_NAME);
+        if (!dbFile.exists()) return;
+
+        File tempFile = new File(dbFile.getAbsolutePath() + ".tmp");
+        if (tempFile.exists() && !tempFile.delete()) {
+            throw new java.io.IOException("Failed to delete existing temporary database file");
+        }
+
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : oldPassword, null, SQLiteDatabase.OPEN_READWRITE, null);
+        try {
+            db.rawExecSQL("ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword));
+            db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+            db.rawExecSQL("DETACH DATABASE encrypted;");
+        } finally {
+            db.close();
+        }
+
+        if (dbFile.delete()) {
+            if (!tempFile.renameTo(dbFile)) {
+                throw new java.io.IOException("Failed to rename temporary database file");
             }
-            return instance;
+        } else {
+            throw new java.io.IOException("Failed to delete old database file");
         }
     }
 
@@ -42,6 +70,17 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, null, true);
         this.context = context;
     }
+
+    public static UnifiedPushDatabase getInstance(final Context context) {
+        synchronized (UnifiedPushDatabase.class) {
+            if (instance == null) {
+                System.loadLibrary("sqlcipher");
+                instance = new UnifiedPushDatabase(context.getApplicationContext());
+            }
+            return instance;
+        }
+    }
+
 
     @Override
     public void onCreate(final SQLiteDatabase sqLiteDatabase) {

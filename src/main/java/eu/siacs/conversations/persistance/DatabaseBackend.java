@@ -3709,7 +3709,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (!dbFile.exists()) return;
 
         File tempFile = new File(dbFile.getAbsolutePath() + ".tmp");
-        if (tempFile.exists()) tempFile.delete();
+        if (tempFile.exists() && !tempFile.delete()) {
+            throw new java.io.IOException("Failed to delete existing temporary database file");
+        }
 
         SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : oldPassword, null, SQLiteDatabase.OPEN_READWRITE, null);
         try {
@@ -3722,10 +3724,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
         if (dbFile.delete()) {
             if (!tempFile.renameTo(dbFile)) {
-                throw new IOException("Failed to rename temporary database file");
+                throw new java.io.IOException("Failed to rename temporary database file");
             }
         } else {
-            throw new IOException("Failed to delete old database file");
+            throw new java.io.IOException("Failed to delete old database file");
         }
     }
 }

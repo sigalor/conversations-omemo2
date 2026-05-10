@@ -20,6 +20,7 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.OmemoSetting;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.persistance.DatabaseBackend;
+import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.services.MemorizingTrustManager;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
@@ -235,7 +236,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         new Thread(() -> {
             try {
                 DatabaseBackend.closeInstance();
+                UnifiedPushDatabase.closeInstance();
                 DatabaseBackend.migrate(requireContext(), oldPassword, newPassword);
+                UnifiedPushDatabase.migrate(requireContext(), oldPassword, newPassword);
                 new AppSettings(requireContext()).setDatabasePassword(newPassword);
                 requireActivity().runOnUiThread(() -> {
                     progressDialog.dismiss();
