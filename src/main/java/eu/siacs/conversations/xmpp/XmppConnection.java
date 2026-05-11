@@ -659,12 +659,13 @@ public class XmppConnection implements Runnable {
             keyManager = null;
         }
         final String domain = account.getServer();
+        final boolean enforceDane = isDANEnforced();
         sc.init(
                 keyManager,
                 new X509TrustManager[] {
                         mInteractive
-                                ? trustManager.getInteractive(domain, verifiedHostname, port, daneCb)
-                                : trustManager.getNonInteractive(domain, verifiedHostname, port, daneCb)
+                                ? trustManager.getInteractive(domain, verifiedHostname, port, daneCb, enforceDane)
+                                : trustManager.getNonInteractive(domain, verifiedHostname, port, daneCb, enforceDane)
                 },
                 SECURE_RANDOM);
         return sc.getSocketFactory();
@@ -1240,7 +1241,7 @@ public class XmppConnection implements Runnable {
     }
 
     private void changeStatusToOnline() {
-        if (mXmppConnectionService.getBooleanPreference("enforce_dane",R.bool.enforce_dane)) {
+        if (isDANEnforced()) {
             if (daneVerified()) {
                 Log.d(
                         Config.LOGTAG,
@@ -1251,6 +1252,7 @@ public class XmppConnection implements Runnable {
                         Config.LOGTAG,
                         account.getJid().asBareJid() + ": offline with enforced DANE with resource " + account.getResource());
                 changeStatus(Account.State.DANE_FAILED);
+                disconnect(false);
             }
         } else {
             Log.d(
@@ -1533,10 +1535,22 @@ public class XmppConnection implements Runnable {
             throw new StateChangingException(Account.State.TLS_ERROR);
         }
         final InetAddress address = socket.getInetAddress();
-        final SSLSocket sslSocket =
-                (SSLSocket)
-                        sslSocketFactory.createSocket(
-                                socket, address.getHostAddress(), socket.getPort(), true);
+        final SSLSocket sslSocket;
+        try {
+            sslSocket =
+                    (SSLSocket)
+                            sslSocketFactory.createSocket(
+                                    socket, address.getHostAddress(), socket.getPort(), true);
+        } catch (final IOException e) {
+            Throwable cause = e.getCause();
+            while (cause != null) {
+                if (cause.getClass().getName().endsWith("DaneEnforcementException")) {
+                    throw new StateChangingException(Account.State.DANE_FAILED, cause);
+                }
+                cause = cause.getCause();
+            }
+            throw e;
+        }
         SSLSockets.setSecurity(sslSocket, isRequireTlsV13());
         SSLSockets.setHostname(sslSocket, IDN.toASCII(account.getServer()));
         SSLSockets.setApplicationProtocol(sslSocket, "xmpp-client");
@@ -2630,6 +2644,11 @@ public class XmppConnection implements Runnable {
                 || appSettings.isRequireTlsV13();
     }
 
+    private boolean isDANEnforced() {
+        return AppSettings.SECURE_DOMAINS.contains(account.getDomain())
+                || appSettings.isDANEnforced();
+    }
+
     private void sendStartStream(final boolean from, final boolean flush) throws IOException {
         final Tag stream = Tag.start("stream:stream");
         stream.setAttribute("to", account.getServer());
@@ -3131,6 +3150,16 @@ public class XmppConnection implements Runnable {
         private final Account.State state;
 
         public StateChangingException(Account.State state) {
+            this.state = state;
+        }
+
+        public StateChangingException(Account.State state, String message) {
+            super(message);
+            this.state = state;
+        }
+
+        public StateChangingException(Account.State state, Throwable cause) {
+            super(cause);
             this.state = state;
         }
     }

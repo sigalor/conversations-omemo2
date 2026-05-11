@@ -36,6 +36,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -96,6 +97,10 @@ public class DaneVerifier {
      * @throws CertificateException if the certificate chain provided differs from the one enforced using DANE.
      */
     public boolean verifyCertificateChain(X509Certificate[] chain, String hostName, int port) throws CertificateException {
+        return verifyCertificateChain(chain, hostName, port, null);
+    }
+
+    public boolean verifyCertificateChain(X509Certificate[] chain, String hostName, int port, Consumer<Boolean> matchedCb) throws CertificateException {
         DnsName req = DnsName.from("_" + port + "._tcp." + hostName);
         DnssecQueryResult result;
         try {
@@ -118,11 +123,14 @@ public class DaneVerifier {
 
         List<DaneCertificateException.CertificateMismatch> certificateMismatchExceptions = new ArrayList<>();
         boolean verified = false;
+        boolean matched = false;
         for (Record<? extends Data> record : res.answerSection) {
             if (record.type == Record.TYPE.TLSA && record.name.equals(req)) {
                 TLSA tlsa = (TLSA) record.payloadData;
                 try {
-                    verified |= checkCertificateMatches(chain[0], tlsa, hostName);
+                    boolean m = checkCertificateMatches(chain[0], tlsa, hostName);
+                    matched |= m;
+                    verified |= m;
                 } catch (DaneCertificateException.CertificateMismatch certificateMismatchException) {
                     // Record the mismatch and only throw an exception if no
                     // TLSA RR is able to verify the cert. This allows for TLSA
@@ -132,6 +140,8 @@ public class DaneVerifier {
                 if (verified) break;
             }
         }
+
+        if (matchedCb != null) matchedCb.accept(matched);
 
         if (!verified && !certificateMismatchExceptions.isEmpty()) {
             throw new DaneCertificateException.MultipleCertificateMismatchExceptions(certificateMismatchExceptions);

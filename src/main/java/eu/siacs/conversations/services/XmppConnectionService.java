@@ -3933,7 +3933,7 @@ public class XmppConnectionService extends Service {
                             if (Config.X509_VERIFICATION) {
                                 try {
                                     getMemorizingTrustManager()
-                                            .getNonInteractive(account.getServer(), null, 0, null)
+                                            .getNonInteractive(account.getServer(), null, 0, null, false)
                                             .checkClientTrusted(chain, "RSA");
                                 } catch (CertificateException e) {
                                     callback.informUser(

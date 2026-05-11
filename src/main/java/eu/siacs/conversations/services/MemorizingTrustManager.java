@@ -388,7 +388,6 @@ public class MemorizingTrustManager {
         }
     }
 
-    // TODO: Check DANE enforcement here
     private void checkCertTrusted(
             X509Certificate[] chain,
             String authType,
@@ -397,7 +396,8 @@ public class MemorizingTrustManager {
             boolean interactive,
             String verifiedHostname,
             int port,
-            Consumer<Boolean> daneCb)
+            Consumer<Boolean> daneCb,
+            boolean enforceDane)
             throws CertificateException {
         LOGGER.log(
                 Level.FINE, "checkCertTrusted(" + chain + ", " + authType + ", " + isServer + ")");
@@ -406,21 +406,37 @@ public class MemorizingTrustManager {
             if (isServer) {
                 if (verifiedHostname != null && !eu.siacs.conversations.utils.IP.matches(verifiedHostname)) {
                     try {
-                        if (daneVerifier.verifyCertificateChain(chain, verifiedHostname, port)) {
-                            if (daneCb != null) daneCb.accept(true);
+                        if (daneVerifier.verifyCertificateChain(chain, verifiedHostname, port, (m) -> {
+                            if (daneCb != null) daneCb.accept(m);
+                        })) {
                             return;
+                        } else if (enforceDane) {
+                            throw new DaneEnforcementException("DANE is enforced but verification did not match for " + verifiedHostname);
                         }
+                    } catch (final DaneEnforcementException e) {
+                        throw e;
                     } catch (final CertificateException e) {
                         Log.d(Config.LOGTAG, "checkCertTrusted DANE failure: " + e);
+                        if (enforceDane) {
+                            throw new DaneEnforcementException("DANE failure: " + e.getMessage());
+                        }
                         throw e;
                     } catch (final Throwable e) {
                         Log.d(Config.LOGTAG, "checkCertTrusted DANE related failure: " + e);
+                        if (enforceDane) {
+                            throw new DaneEnforcementException("DANE related failure: " + e.getMessage());
+                        }
                     }
+                } else if (enforceDane) {
+                    throw new DaneEnforcementException("DANE is enforced but verified hostname is missing or IP for " + domain);
                 }
                 appTrustManager.checkServerTrusted(chain, authType);
             } else
                 appTrustManager.checkClientTrusted(chain, authType);
         } catch (final CertificateException ae) {
+            if (ae instanceof DaneEnforcementException) {
+                throw ae;
+            }
             LOGGER.log(Level.FINER, "checkCertTrusted: appTrustManager failed", ae);
             if (isCertKnown(chain[0])) {
                 LOGGER.log(
@@ -568,20 +584,20 @@ public class MemorizingTrustManager {
         }
     }
 
-    public X509TrustManager getNonInteractive(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
-        return new NonInteractiveMemorizingTrustManager(domain, verifiedHostname, port, daneCb);
+    public X509TrustManager getNonInteractive(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb, boolean enforceDane) {
+        return new NonInteractiveMemorizingTrustManager(domain, verifiedHostname, port, daneCb, enforceDane);
     }
 
-    public X509TrustManager getInteractive(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
-        return new InteractiveMemorizingTrustManager(domain, verifiedHostname, port, daneCb);
+    public X509TrustManager getInteractive(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb, boolean enforceDane) {
+        return new InteractiveMemorizingTrustManager(domain, verifiedHostname, port, daneCb, enforceDane);
     }
 
     public X509TrustManager getNonInteractive() {
-        return new NonInteractiveMemorizingTrustManager(null, null, 0, null);
+        return new NonInteractiveMemorizingTrustManager(null, null, 0, null, false);
     }
 
     public X509TrustManager getInteractive() {
-        return new InteractiveMemorizingTrustManager(null, null, 0, null);
+        return new InteractiveMemorizingTrustManager(null, null, 0, null, false);
     }
 
     private class NonInteractiveMemorizingTrustManager implements X509TrustManager {
@@ -590,23 +606,25 @@ public class MemorizingTrustManager {
         private final String verifiedHostname;
         private final int port;
         private final Consumer<Boolean> daneCb;
+        private final boolean enforceDane;
 
-        public NonInteractiveMemorizingTrustManager(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
+        public NonInteractiveMemorizingTrustManager(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb, boolean enforceDane) {
             this.domain = domain;
             this.verifiedHostname = verifiedHostname;
             this.port = port;
             this.daneCb = daneCb;
+            this.enforceDane = enforceDane;
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, false, verifiedHostname, port, daneCb);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, false, verifiedHostname, port, daneCb, enforceDane);
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType)
                 throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, false, verifiedHostname, port, daneCb);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, false, verifiedHostname, port, daneCb, enforceDane);
         }
 
         @Override
@@ -620,23 +638,25 @@ public class MemorizingTrustManager {
         private final String verifiedHostname;
         private final int port;
         private final Consumer<Boolean> daneCb;
+        private final boolean enforceDane;
 
-        public InteractiveMemorizingTrustManager(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb) {
+        public InteractiveMemorizingTrustManager(String domain, String verifiedHostname, int port, Consumer<Boolean> daneCb, boolean enforceDane) {
             this.domain = domain;
             this.verifiedHostname = verifiedHostname;
             this.port = port;
             this.daneCb = daneCb;
+            this.enforceDane = enforceDane;
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, true, verifiedHostname, port, daneCb);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, false, true, verifiedHostname, port, daneCb, enforceDane);
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType)
                 throws CertificateException {
-            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, true, verifiedHostname, port, daneCb);
+            MemorizingTrustManager.this.checkCertTrusted(chain, authType, domain, true, true, verifiedHostname, port, daneCb, enforceDane);
         }
 
         @Override

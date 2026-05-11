@@ -136,7 +136,7 @@ public class AppSettings {
         return getBooleanPreference(TRUST_SYSTEM_CA_STORE, R.bool.trust_system_ca_store);
     }
 
-    public boolean isDANEenforced() {
+    public boolean isDANEnforced() {
         return getBooleanPreference(DANE_ENFORCED, R.bool.enforce_dane);
     }
 
