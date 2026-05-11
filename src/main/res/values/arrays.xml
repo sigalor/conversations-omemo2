@@ -116,6 +116,16 @@
 		<item>604800</item>
 		<item>2592000</item>
 	</integer-array>
+	<integer-array name="omemo_auto_expiry_values">
+		<item>604800</item>
+		<item>1209600</item>
+		<item>2592000</item>
+		<item>3628800</item>
+		<item>7776000</item>
+		<item>15552000</item>
+		<item>31536000</item>
+		<item>0</item>
+	</integer-array>
 	<string-array name="omemo_setting_entry_values">
 		<item>always</item>
 		<item>default_on</item>

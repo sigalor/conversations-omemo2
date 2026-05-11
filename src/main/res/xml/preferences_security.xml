@@ -29,6 +29,12 @@
             android:summary="@string/pref_delete_omemo_identities_summary"
             android:title="@string/pref_delete_omemo_identities" />
 
+        <ListPreference
+            android:defaultValue="@integer/omemo_auto_expiry"
+            android:icon="@drawable/ic_auto_delete_24dp"
+            android:key="omemo_auto_expiry"
+            android:title="@string/pref_omemo_auto_expiry" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:key="server_connection"

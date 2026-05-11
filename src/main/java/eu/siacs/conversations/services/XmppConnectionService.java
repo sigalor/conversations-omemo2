@@ -6474,6 +6474,10 @@ public class XmppConnectionService extends Service {
         return timeout == 0 ? timeout : (System.currentTimeMillis() - (timeout * 1000));
     }
 
+    public long getOmemoAutoExpiry() {
+        return getLongPreference(AppSettings.OMEMO_AUTO_EXPIRY, R.integer.omemo_auto_expiry) * 1000L;
+    }
+
     public long getLongPreference(String name, @IntegerRes int res) {
         long defaultValue = getResources().getInteger(res);
         try {

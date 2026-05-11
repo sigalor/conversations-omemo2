@@ -1072,6 +1072,8 @@
     <string name="detect_mim">Require channel binding</string>
     <string name="detect_mim_summary">WARNING: Will break your connection if not supported by your server</string>
     <string name="pref_category_server_connection">Server connection</string>
+    <string name="pref_omemo_auto_expiry">OMEMO device expiry</string>
+    <string name="pref_omemo_auto_expiry_summary">How long an OMEMO device is kept after it has been inactive</string>
     <string name="pref_category_operating_system">Operating System</string>
     <string name="pref_privacy_summary">Typing notifications, Last Seen, Availability</string>
     <string name="pref_connection_summary">Hostname &amp; Port, Tor</string>

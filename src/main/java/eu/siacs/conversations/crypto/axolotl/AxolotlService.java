@@ -339,7 +339,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
         }
         if (me) {
-            if (Config.OMEMO_AUTO_EXPIRY != 0) {
+            if (mXmppConnectionService.getOmemoAutoExpiry() != 0) {
                 needsPublishing |= deviceIds.removeAll(getExpiredDevices());
             }
             needsPublishing |= this.changeAccessMode.get();
@@ -415,10 +415,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         for (XmppAxolotlSession session : findOwnSessions()) {
             if (session.getTrust().isActive()) {
                 long diff = System.currentTimeMillis() - session.getTrust().getLastActivation();
-                if (diff > Config.OMEMO_AUTO_EXPIRY) {
+                if (diff > mXmppConnectionService.getOmemoAutoExpiry()) {
                     long lastMessageDiff = System.currentTimeMillis() - mXmppConnectionService.databaseBackend.getLastTimeFingerprintUsed(account, session.getFingerprint());
                     long hours = Math.round(lastMessageDiff / (1000 * 60.0 * 60.0));
-                    if (lastMessageDiff > Config.OMEMO_AUTO_EXPIRY) {
+                    if (lastMessageDiff > mXmppConnectionService.getOmemoAutoExpiry()) {
                         devices.add(session.getRemoteAddress().getDeviceId());
                         session.setTrust(session.getTrust().toInactive());
                         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": added own device " + session.getFingerprint() + " to list of expired devices. Last message received " + hours + " hours ago");

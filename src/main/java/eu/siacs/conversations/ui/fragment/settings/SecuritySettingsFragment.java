@@ -46,14 +46,20 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
         final ListPreference automaticMessageDeletion =
                 findPreference(AppSettings.AUTOMATIC_MESSAGE_DELETION);
+        final ListPreference omemoAutoExpiry =
+                findPreference(AppSettings.OMEMO_AUTO_EXPIRY);
         final Preference serverConnection = findPreference(SERVER_CONNECTION);
-        if (omemo == null || automaticMessageDeletion == null || serverConnection == null) {
+        if (omemo == null || automaticMessageDeletion == null || omemoAutoExpiry == null || serverConnection == null) {
             throw new IllegalStateException("The preference resource file is missing preferences");
         }
         omemo.setSummaryProvider(new OmemoSummaryProvider());
         setValues(
                 automaticMessageDeletion,
                 R.array.automatic_message_deletion_values,
+                value -> timeframeValueToName(requireContext(), value));
+        setValues(
+                omemoAutoExpiry,
+                R.array.omemo_auto_expiry_values,
                 value -> timeframeValueToName(requireContext(), value));
 
         final var appLockPreference = findPreference("app_lock_enabled");
@@ -86,6 +92,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             }
             case AppSettings.AUTOMATIC_MESSAGE_DELETION -> {
                 requireService().expireOldMessages(true);
+            }
+            case AppSettings.OMEMO_AUTO_EXPIRY -> {
+                //No immediate action required
             }
         }
     }

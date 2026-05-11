@@ -24,6 +24,7 @@
     <bool name="show_dynamic_tags">true</bool>
     <bool name="btbv">true</bool>
     <integer name="automatic_message_deletion">0</integer>
+    <integer name="omemo_auto_expiry">3628800</integer>
     <bool name="trust_system_ca_store">true</bool>
     <bool name="allow_message_correction">true</bool>
     <bool name="use_tor">false</bool>
