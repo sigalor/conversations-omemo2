@@ -776,6 +776,7 @@ public class ExportBackupWorker extends Worker {
 
     private Set<File> getFilesForAccount(SQLiteDatabase db, String accountUuid) {
         Set<File> files = new HashSet<>();
+        final String filesDir = getApplicationContext().getFilesDir().getAbsolutePath();
         // Message attachments
         try (Cursor cursor = db.rawQuery("select " + Message.RELATIVE_FILE_PATH + " from " + Message.TABLENAME +
                 " join " + Conversation.TABLENAME + " on " + Conversation.TABLENAME + ".uuid=" + Message.TABLENAME + "." + Message.CONVERSATION +
@@ -783,13 +784,13 @@ public class ExportBackupWorker extends Worker {
                 new String[]{accountUuid})) {
             while (cursor != null && cursor.moveToNext()) {
                 String path = cursor.getString(0);
-                if (path != null) {
+                if (path != null && path.startsWith(filesDir)) {
                     files.add(new File(path));
                 }
             }
         }
 
-        final File avatarDir = new File(getApplicationContext().getCacheDir(), "avatars");
+        final File avatarDir = new File(getApplicationContext().getFilesDir(), "avatars");
         // Avatars
         // Account avatar
         try (Cursor cursor = db.query(Account.TABLENAME, new String[]{Account.AVATAR}, Account.AVATAR + " is not null and uuid=?", new String[]{accountUuid}, null, null, null)) {
