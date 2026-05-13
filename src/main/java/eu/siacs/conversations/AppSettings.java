@@ -310,7 +310,7 @@ public class AppSettings {
                 if (legacyPassword != null) {
                     // Migrate to encrypted preferences
                     encryptedPrefs.edit().putString(DATABASE_PASSWORD, legacyPassword).commit();
-                    normalPrefs.edit().remove(DATABASE_PASSWORD).apply();
+                    normalPrefs.edit().remove(DATABASE_PASSWORD).commit();
                     Log.d("AppSettings", "Migrated database password to encrypted storage");
                     password = legacyPassword;
                 }
