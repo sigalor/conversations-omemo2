@@ -572,6 +572,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + " TEXT,"
                         + Message.OCCUPANT_ID
                         + " TEXT,"
+                        + Message.OCCUPANTID
+                        + " TEXT,"
                         + Message.REACTIONS
                         + " TEXT,"
                         + Message.REMOTE_MSG_ID
@@ -734,7 +736,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         "PRIMARY KEY (muc_jid, occupant_id)" +
                         ")"
         );
-        if (!columnExists(db, Message.TABLENAME, Message.OCCUPANT_ID)) {
+        if (!columnExists(db, Message.TABLENAME, Message.OCCUPANTID)) {
             try {
                 db.execSQL(
                     "ALTER TABLE " + Message.TABLENAME + " " +
