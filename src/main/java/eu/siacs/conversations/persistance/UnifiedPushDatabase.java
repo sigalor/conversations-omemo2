@@ -22,6 +22,7 @@ import java.util.List;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.services.UnifiedPushBroker;
+import eu.siacs.conversations.utils.FileHelper;
 
 public class UnifiedPushDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "unified-push-distributor";
@@ -62,15 +63,30 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             db.close();
         }
 
-        if (dbFile.delete()) {
-            new File(dbFile.getAbsolutePath() + "-wal").delete();
-            new File(dbFile.getAbsolutePath() + "-shm").delete();
-            if (!tempFile.renameTo(dbFile)) {
-                throw new java.io.IOException("Failed to rename temporary database file");
+        final AppSettings settings = new AppSettings(context);
+        final String savedPassword = settings.getDatabasePassword();
+        try {
+            // Update password in prefs FIRST
+            settings.setDatabasePassword(newPassword);
+
+            // Now perform file operations
+            if (FileHelper.secureDelete(dbFile)) {
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+                if (!tempFile.renameTo(dbFile)) {
+                    throw new java.io.IOException("Failed to rename temporary database file");
+                }
+            } else {
+                throw new java.io.IOException("Failed to delete old database file");
             }
-            new AppSettings(context).setDatabasePassword(newPassword);
-        } else {
-            throw new java.io.IOException("Failed to delete old database file");
+        } catch (Exception e) {
+            // Rollback password in prefs if file operations fail
+            try {
+                settings.setDatabasePassword(savedPassword);
+            } catch (Exception rollbackError) {
+                Log.e("UnifiedPushDatabase", "Failed to rollback password after migration error", rollbackError);
+            }
+            throw e;
         }
     }
 

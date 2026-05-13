@@ -75,6 +75,7 @@ import eu.siacs.conversations.entities.ServiceDiscoveryResult;
 import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.ShortcutService;
 import eu.siacs.conversations.utils.CryptoHelper;
+import eu.siacs.conversations.utils.FileHelper;
 import eu.siacs.conversations.utils.CursorUtils;
 import eu.siacs.conversations.utils.FtsUtils;
 import eu.siacs.conversations.utils.MimeUtils;
@@ -3762,15 +3763,30 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.close();
         }
 
-        if (dbFile.delete()) {
-            new File(dbFile.getAbsolutePath() + "-wal").delete();
-            new File(dbFile.getAbsolutePath() + "-shm").delete();
-            if (!tempFile.renameTo(dbFile)) {
-                throw new java.io.IOException("Failed to rename temporary database file");
+        final AppSettings settings = new AppSettings(context);
+        final String savedPassword = settings.getDatabasePassword();
+        try {
+            // Update password in prefs FIRST
+            settings.setDatabasePassword(newPassword);
+
+            // Now perform file operations
+            if (FileHelper.secureDelete(dbFile)) {
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+                if (!tempFile.renameTo(dbFile)) {
+                    throw new java.io.IOException("Failed to rename temporary database file");
+                }
+            } else {
+                throw new java.io.IOException("Failed to delete old database file");
             }
-            new AppSettings(context).setDatabasePassword(newPassword);
-        } else {
-            throw new java.io.IOException("Failed to delete old database file");
+        } catch (Exception e) {
+            // Rollback password in prefs if file operations fail
+            try {
+                settings.setDatabasePassword(savedPassword);
+            } catch (Exception rollbackError) {
+                Log.e("DATABASE BACKEND", "Failed to rollback password after migration error", rollbackError);
+            }
+            throw e;
         }
     }
 }
