@@ -610,51 +610,64 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     private void monoclesDatabase(SQLiteDatabase db) {
-        try {
-            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + "file_deleted" + " NUMBER DEFAULT 0");
-            db.execSQL(CREATE_MESSAGE_DELETED_INDEX);
-            db.execSQL(CREATE_MESSAGE_FILE_DELETED_INDEX);
-            db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
-            db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, "file_deleted")) {
+            try {
+                db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + "file_deleted" + " NUMBER DEFAULT 0");
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
-        try {
-            db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        db.execSQL(CREATE_MESSAGE_DELETED_INDEX);
+        db.execSQL(CREATE_MESSAGE_FILE_DELETED_INDEX);
+        db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
+        db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
+
+        if (!columnExists(db, Message.TABLENAME, Message.RETRACT_ID)) {
+            try {
+                db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.RETRACT_ID + " TEXT;");
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
-        try {
-            db.execSQL(
-                    "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " +
-                            Message.SUBJECT + " TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, Message.SUBJECT)) {
+            try {
+                db.execSQL(
+                        "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " +
+                                Message.SUBJECT + " TEXT"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
-        try {
-            db.execSQL(
-                "ALTER TABLE " + Message.TABLENAME + " " +
-                        "ADD COLUMN oobUri TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, "oobUri")) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN oobUri TEXT"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
-        try {
-            db.execSQL(
-                "ALTER TABLE " + Message.TABLENAME + " " +
-                        "ADD COLUMN fileParams TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, "fileParams")) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN fileParams TEXT"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
-        try {
-            db.execSQL(
-                "ALTER TABLE " + Message.TABLENAME + " " +
-                        "ADD COLUMN payloads TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, "payloads")) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN payloads TEXT"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
         db.execSQL(
                 "CREATE TABLE IF NOT EXISTS cids (" +
@@ -662,13 +675,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         "path TEXT NOT NULL" +
                         ")"
         );
-        try {
-            db.execSQL(
-                "ALTER TABLE " + Message.TABLENAME + " " +
-                        "ADD COLUMN timeReceived NUMBER"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, "timeReceived")) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN timeReceived NUMBER"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
         db.execSQL("CREATE INDEX IF NOT EXISTS message_time_received_index ON " + Message.TABLENAME + " (timeReceived)");
         db.execSQL(
@@ -676,13 +691,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         "cid TEXT NOT NULL PRIMARY KEY" +
                         ")"
         );
-        try {
-            db.execSQL(
-                "ALTER TABLE cids " +
-                        "ADD COLUMN url TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, "cids", "url")) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE cids " +
+                            "ADD COLUMN url TEXT"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
         db.execSQL(
                 "CREATE TABLE IF NOT EXISTS webxdc_updates (" +
@@ -698,13 +715,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         ")"
         );
         db.execSQL("CREATE INDEX IF NOT EXISTS webxdc_index ON webxdc_updates (" + Message.CONVERSATION + ", thread)");
-        try {
-            db.execSQL(
-                "ALTER TABLE webxdc_updates " +
-                        "ADD COLUMN message_id TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, "webxdc_updates", "message_id")) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE webxdc_updates " +
+                            "ADD COLUMN message_id TEXT"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS webxdc_message_id_index ON webxdc_updates (" + Message.CONVERSATION + ", message_id)");
         db.execSQL(
@@ -715,22 +734,26 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         "PRIMARY KEY (muc_jid, occupant_id)" +
                         ")"
         );
-        try {
-            db.execSQL(
-                "ALTER TABLE " + Message.TABLENAME + " " +
-                        "ADD COLUMN occupant_id TEXT"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
-        }
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (!columnExists(db, Message.TABLENAME, Message.OCCUPANT_ID)) {
             try {
                 db.execSQL(
-                    "ALTER TABLE muted_participants " +
-                            "DROP COLUMN nick"
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN occupant_id TEXT"
                 );
             } catch (SQLiteException ex) {
                 Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 34) {
+            if (columnExists(db, "muted_participants", "nick")) {
+                try {
+                    db.execSQL(
+                        "ALTER TABLE muted_participants " +
+                                "DROP COLUMN nick"
+                    );
+                } catch (SQLiteException ex) {
+                    Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+                }
             }
         } else {
             db.execSQL("DROP TABLE IF EXISTS muted_participants");
@@ -742,13 +765,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                             ")"
             );
         }
-        try {
-            db.execSQL(
-                "ALTER TABLE " + Message.TABLENAME + " " +
-                        "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
-            );
-        } catch (SQLiteException ex) {
-            Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+        if (!columnExists(db, Message.TABLENAME, Message.NOTIFICATION_DISMISSED)) {
+            try {
+                db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " " +
+                            "ADD COLUMN notificationDismissed NUMBER DEFAULT 0"
+                );
+            } catch (SQLiteException ex) {
+                Log.w("DATABASE BACKEND", "Altering " + Message.TABLENAME + ": " + ex.getMessage());
+            }
         }
         db.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + PinnedMessage.TABLENAME + " (" +
