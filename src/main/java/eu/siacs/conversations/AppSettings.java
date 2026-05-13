@@ -318,8 +318,7 @@ public class AppSettings {
             return password;
         } catch (Exception e) {
             Log.e("AppSettings", "Could not load encrypted shared preferences", e);
-            // Fallback to normal prefs if encryption fails
-            return PreferenceManager.getDefaultSharedPreferences(context).getString(DATABASE_PASSWORD, null);
+            throw new EncryptionException("Could not load encrypted shared preferences", e);
         }
     }
 
@@ -331,8 +330,7 @@ public class AppSettings {
             PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
         } catch (Exception e) {
             Log.e("AppSettings", "Could not save encrypted shared preferences", e);
-            // Fallback to normal prefs if encryption fails
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putString(DATABASE_PASSWORD, password).commit();
+            throw new EncryptionException("Could not save encrypted shared preferences", e);
         }
     }
 
