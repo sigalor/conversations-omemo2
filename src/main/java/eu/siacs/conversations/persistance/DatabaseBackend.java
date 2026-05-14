@@ -119,9 +119,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         @Override
         public void preKey(SQLiteConnection connection) {
             connection.executeRaw("PRAGMA cipher_kdf_algorithm = argon2id;", null, null);
-            connection.executeRaw("PRAGMA cipher_memory_limit = 65536;", null, null);
-            connection.executeRaw("PRAGMA cipher_kdf_iterations = 4;", null, null);
-            connection.executeRaw("PRAGMA cipher_kdf_parallelism = 4;", null, null);
+            connection.executeRaw("PRAGMA cipher_memory_limit = 12288;", null, null);
+            connection.executeRaw("PRAGMA cipher_kdf_iterations = 3;", null, null);
+            connection.executeRaw("PRAGMA cipher_kdf_parallelism = 1;", null, null);
         }
 
         @Override
@@ -3781,9 +3781,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
             db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");
-            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 65536;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 4;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 4;");
+            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 12288;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 1;");
 
             final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPassword == null ? "" : new String(newPassword));
             String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
