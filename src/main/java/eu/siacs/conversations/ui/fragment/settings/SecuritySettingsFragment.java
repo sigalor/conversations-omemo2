@@ -321,7 +321,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             try {
                 DatabaseBackend.migrate(requireContext(), oldPasswordArr, newPassword);
                 UnifiedPushDatabase.migrate(requireContext(), oldPasswordArr, newPassword);
-                requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
+                if (requireService() != null) {
+                    requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
+                }
                 requireActivity().runOnUiThread(() -> {
                     progressDialog.dismiss();
                     Toast.makeText(requireContext(), newPassword == null ? R.string.toast_db_password_success_disabled : R.string.toast_db_password_success_set, Toast.LENGTH_SHORT).show();

@@ -58,7 +58,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, DatabaseBackend.DATABASE_HOOK);
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, oldPassword == null ? null : DatabaseBackend.DATABASE_HOOK);
         int version = db.getVersion();
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them

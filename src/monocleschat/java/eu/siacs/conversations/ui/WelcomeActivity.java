@@ -444,6 +444,9 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             try {
                 DatabaseBackend.migrate(this, null, newPassword);
                 UnifiedPushDatabase.migrate(this, null, newPassword);
+                if (xmppConnectionService != null) {
+                    xmppConnectionService.databaseBackend = DatabaseBackend.getInstance(this);
+                }
                 runOnUiThread(() -> {
                     progressDialog.dismiss();
                     Toast.makeText(this, R.string.toast_db_password_success_set, Toast.LENGTH_SHORT).show();
