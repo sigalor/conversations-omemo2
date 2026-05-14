@@ -413,7 +413,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
             } else if (password.length < 8) {
                 Toast.makeText(this, R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
-            } else if (java.util.Arrays.equals(password, confirm)) {
+            } else if (CryptoHelper.isEqual(password, confirm)) {
                 passwordInput.getText().clear();
                 confirmInput.getText().clear();
                 performDatabaseMigration(password);

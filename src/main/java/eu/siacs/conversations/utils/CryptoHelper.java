@@ -333,4 +333,18 @@ public final class CryptoHelper {
 
         return cid;
     }
+
+    public static boolean isEqual(char[] a, char[] b) {
+        if (a == null || b == null) {
+            return a == b;
+        }
+        if (a.length != b.length) {
+            return false;
+        }
+        int result = 0;
+        for (int i = 0; i < a.length; i++) {
+            result |= a[i] ^ b[i];
+        }
+        return result == 0;
+    }
 }

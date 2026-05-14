@@ -41,11 +41,17 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         closeInstance();
         System.loadLibrary("sqlcipher");
         File dbFile = context.getDatabasePath(DATABASE_NAME);
-        if (!dbFile.exists()) return;
+        if (!dbFile.exists()) {
+            new AppSettings(context).setDatabasePassword(newPassword);
+            return;
+        }
 
         File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
         if (tempFile.exists() && !tempFile.delete()) {
             throw new java.io.IOException("Failed to delete existing temporary database file");
+        }
+        if (tempFile.getParentFile() != null && !tempFile.getParentFile().exists() && !tempFile.getParentFile().mkdirs()) {
+            throw new java.io.IOException("Failed to create database directory");
         }
         if (!tempFile.createNewFile()) {
             throw new java.io.IOException("Failed to create temporary database file");
@@ -66,22 +72,38 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
 
         final AppSettings settings = new AppSettings(context);
         final String savedPassword = settings.getDatabasePassword();
+        final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
+        if (backupFile.exists() && !backupFile.delete()) {
+             throw new java.io.IOException("Failed to delete existing backup file");
+        }
+
         try {
-            // Update password in prefs FIRST
+            // Step 1: Backup old file
+            if (!dbFile.renameTo(backupFile)) {
+                throw new java.io.IOException("Failed to backup old database file");
+            }
+
+            // Step 2: Update password in prefs
             settings.setDatabasePassword(newPassword);
 
-            // Now perform file operations
-            if (FileHelper.secureDelete(dbFile)) {
-                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
-                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
-                if (!tempFile.renameTo(dbFile)) {
-                    throw new java.io.IOException("Failed to rename temporary database file");
+            // Step 3: Rename temp to original
+            if (!tempFile.renameTo(dbFile)) {
+                // Step 4: Rollback if rename fails
+                if (!backupFile.renameTo(dbFile)) {
+                    Log.e("UnifiedPushDatabase", "CRITICAL: Failed to rollback database file after rename failure");
                 }
-            } else {
-                throw new java.io.IOException("Failed to delete old database file");
+                throw new java.io.IOException("Failed to rename temporary database file");
             }
+
+            // Step 5: Securely delete backup and auxiliary files
+            FileHelper.secureDelete(backupFile);
+            FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
+            FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
+            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+
         } catch (Exception e) {
-            // Rollback password in prefs if file operations fail
+            // Rollback password in prefs
             try {
                 settings.setDatabasePassword(savedPassword);
             } catch (Exception rollbackError) {

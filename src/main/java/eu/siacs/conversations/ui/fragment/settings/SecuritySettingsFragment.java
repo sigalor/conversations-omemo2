@@ -26,6 +26,7 @@ import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.services.MemorizingTrustManager;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
+import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.FileHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import p32929.easypasscodelock.Utils.EasyLock;
@@ -153,7 +154,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 Toast.makeText(requireContext(), "Password cannot be empty", Toast.LENGTH_SHORT).show();
             } else if (password.length < 8) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
-            } else if (java.util.Arrays.equals(password, confirm)) {
+            } else if (CryptoHelper.isEqual(password, confirm)) {
                 passwordInput.getText().clear();
                 confirmInput.getText().clear();
                 performMigration(null, password);
@@ -231,17 +232,19 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             final var confirm = new char[confirmInput.length()];
             confirmInput.getText().getChars(0, confirmInput.length(), confirm, 0);
 
-            if (!new String(current).equals(currentPassword)) {
+            final char[] currentPasswordArr = currentPassword.toCharArray();
+            if (!CryptoHelper.isEqual(current, currentPasswordArr)) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
             } else if (password.length < 8) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
-            } else if (java.util.Arrays.equals(password, confirm)) {
+            } else if (CryptoHelper.isEqual(password, confirm)) {
                 currentInput.getText().clear();
                 passwordInput.getText().clear();
                 confirmInput.getText().clear();
                 performMigration(currentPassword, password);
                 FileHelper.zero(current);
                 FileHelper.zero(confirm);
+                FileHelper.zero(currentPasswordArr);
                 return;
             } else {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
@@ -249,6 +252,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             FileHelper.zero(current);
             FileHelper.zero(password);
             FileHelper.zero(confirm);
+            FileHelper.zero(currentPasswordArr);
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
@@ -285,12 +289,17 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
         builder.setView(layout);
         builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            String current = currentInput.getText().toString();
-            if (current.equals(currentPassword)) {
-                performMigration(current, null);
+            final char[] current = new char[currentInput.length()];
+            currentInput.getText().getChars(0, currentInput.length(), current, 0);
+            final char[] currentPasswordArr = currentPassword.toCharArray();
+            if (CryptoHelper.isEqual(current, currentPasswordArr)) {
+                currentInput.getText().clear();
+                performMigration(currentPassword, null);
             } else {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
             }
+            FileHelper.zero(current);
+            FileHelper.zero(currentPasswordArr);
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
