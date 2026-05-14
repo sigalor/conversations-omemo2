@@ -114,6 +114,12 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         int padding = (int) (16 * getResources().getDisplayMetrics().density);
         layout.setPadding(padding, padding, padding, padding);
 
+        final var warningText = new android.widget.TextView(requireContext());
+        warningText.setText(R.string.dialog_db_password_policy_warning);
+        warningText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+        warningText.setPadding(0, 0, 0, padding);
+        layout.addView(warningText);
+
         final var passwordInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
         passwordInput.setHint(R.string.dialog_db_password_hint);
         passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -130,6 +136,8 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
             if (password.isEmpty()) {
                 Toast.makeText(requireContext(), "Password cannot be empty", Toast.LENGTH_SHORT).show();
+            } else if (password.length() < 8) {
+                Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
             } else if (password.equals(confirm)) {
                 performMigration(null, password);
             } else {
@@ -163,6 +171,12 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         int padding = (int) (16 * getResources().getDisplayMetrics().density);
         layout.setPadding(padding, padding, padding, padding);
 
+        final var warningText = new android.widget.TextView(requireContext());
+        warningText.setText(R.string.dialog_db_password_policy_warning);
+        warningText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+        warningText.setPadding(0, 0, 0, padding);
+        layout.addView(warningText);
+
         final var currentInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
         currentInput.setHint(R.string.dialog_db_password_current_hint);
         currentInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -185,6 +199,8 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
             if (!current.equals(currentPassword)) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
+            } else if (password.length() < 8) {
+                Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
             } else if (password.equals(confirm)) {
                 performMigration(current, password);
             } else {
@@ -203,6 +219,12 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         layout.setOrientation(LinearLayout.VERTICAL);
         int padding = (int) (16 * getResources().getDisplayMetrics().density);
         layout.setPadding(padding, padding, padding, padding);
+
+        final var warningText = new android.widget.TextView(requireContext());
+        warningText.setText(R.string.dialog_db_password_policy_warning);
+        warningText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+        warningText.setPadding(0, 0, 0, padding);
+        layout.addView(warningText);
 
         final var currentInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
         currentInput.setHint(R.string.dialog_db_password_current_hint);
