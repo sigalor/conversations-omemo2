@@ -323,6 +323,9 @@ public class AppSettings {
     }
 
     public void setDatabasePassword(String password) {
+        if (password != null && password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
         try {
             final SharedPreferences encryptedPrefs = getEncryptedPreferences();
             encryptedPrefs.edit().putString(DATABASE_PASSWORD, password).commit();
@@ -335,6 +338,9 @@ public class AppSettings {
     }
 
     public void setDatabasePassword(char[] password) {
+        if (password != null && password.length == 0) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
         setDatabasePassword(password == null ? null : new String(password));
     }
 
