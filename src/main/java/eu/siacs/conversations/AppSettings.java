@@ -43,6 +43,7 @@ public class AppSettings {
     public static final String RINGTONE = "call_ringtone";
     public static final String BTBV = "btbv";
     public static final String DATABASE_PASSWORD = "database_password";
+    public static final String APP_LOCK_PIN = "app_lock_pin";
 
     public static final String CONFIRM_MESSAGES = "confirm_messages";
     public static final String ALLOW_MESSAGE_CORRECTION = "allow_message_correction";
@@ -344,14 +345,18 @@ public class AppSettings {
         setDatabasePassword(password == null ? null : new String(password));
     }
 
-    private SharedPreferences getEncryptedPreferences() throws Exception {
+    public SharedPreferences getEncryptedPreferences() throws Exception {
+        return getEncryptedPreferences("encrypted_settings");
+    }
+
+    public SharedPreferences getEncryptedPreferences(String name) throws Exception {
         MasterKey masterKey = new MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .setRequestStrongBoxBacked(true)
                 .build();
         return EncryptedSharedPreferences.create(
                 context,
-                "encrypted_settings",
+                name,
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM

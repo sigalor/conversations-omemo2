@@ -16,18 +16,14 @@ import p32929.easypasscodelock.Interfaces.ActivityChanger;
 public class EasyLock {
     public static int backgroundColor = Color.parseColor("#000000");
     public static View.OnClickListener onClickListener;
-    private static ActivityChanger activityChanger;
 
     private static void init(Context context) {
         EasylockSP.init(context);
-        if (activityChanger == null) {
-            activityChanger = new LockscreenActivity();
-        }
     }
 
     public static void setPassword(Context context, Class activityClassToGo) {
         init(context);
-        activityChanger.activityClass(activityClassToGo);
+        LockscreenActivity.activityClassToGo = activityClassToGo;
         Intent intent = new Intent(context, LockscreenActivity.class);
         intent.putExtra("passStatus", "set");
         context.startActivity(intent);
@@ -35,7 +31,7 @@ public class EasyLock {
 
     public static void changePassword(Context context, Class activityClassToGo) {
         init(context);
-        activityChanger.activityClass(activityClassToGo);
+        LockscreenActivity.activityClassToGo = activityClassToGo;
         Intent intent = new Intent(context, LockscreenActivity.class);
         intent.putExtra("passStatus", "change");
         context.startActivity(intent);
@@ -43,7 +39,7 @@ public class EasyLock {
 
     public static void disablePassword(Context context, Class activityClassToGo) {
         init(context);
-        activityChanger.activityClass(activityClassToGo);
+        LockscreenActivity.activityClassToGo = activityClassToGo;
         Intent intent = new Intent(context, LockscreenActivity.class);
         intent.putExtra("passStatus", "disable");
         context.startActivity(intent);

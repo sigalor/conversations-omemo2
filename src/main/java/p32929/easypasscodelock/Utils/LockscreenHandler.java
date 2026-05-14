@@ -23,7 +23,6 @@ public class LockscreenHandler extends AppCompatActivity implements ComponentCal
         super.onTrimMemory(i);
         ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-        Log.d("Activity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
 
         if (taskInfo.size() > 0) {
             ComponentName componentInfo = taskInfo.get(0).topActivity;
@@ -40,12 +39,16 @@ public class LockscreenHandler extends AppCompatActivity implements ComponentCal
     protected void onResume() {
         super.onResume();
 
-        if (WentToBackground && EasylockSP.getString("password", null) != null) {
+        if (WentToBackground && EasylockSP.getString("password", null) != null && !(this instanceof p32929.easypasscodelock.Activities.LockscreenActivity)) {
             // We're in the foreground & password != null
             WentToBackground = false;
             Log.d(TAG, "WentToBackground: " + WentToBackground);
 
             EasyLock.checkPassword(this);
         }
+    }
+
+    public static void setWentToBackground(boolean wentToBackground) {
+        WentToBackground = wentToBackground;
     }
 }

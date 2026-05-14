@@ -1723,4 +1723,5 @@
     <string name="toast_db_password_error_too_short">Password must be at least 8 characters long</string>
     <string name="dialog_db_password_no_lock_warning">Warning: Your device does not have a secure lock screen (PIN, Pattern, or Password). For maximum security, we highly recommend setting one up.</string>
     <string name="setup">Setup</string>
+    <string name="lockscreen_ui_only_warning">Note: This PIN is a UI lock only and does not provide additional encryption for your database.</string>
 </resources>

@@ -11,7 +11,7 @@
         android:id="@+id/monocles_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/logo"
+        android:layout_above="@+id/ui_lock_warning"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
         android:contentDescription="Logo"
@@ -19,6 +19,18 @@
         android:visibility="visible"
         tools:ignore="HardcodedText"
         tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/ui_lock_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/logo"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:text="@string/lockscreen_ui_only_warning"
+        android:textAlignment="center"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp" />
 
     <ImageView
         android:id="@+id/logo"
@@ -279,7 +291,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
 
     <TextView
         android:id="@+id/forgot_pass_textview"

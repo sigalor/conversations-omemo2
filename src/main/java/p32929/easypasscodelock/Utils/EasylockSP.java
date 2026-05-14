@@ -3,6 +3,7 @@ package p32929.easypasscodelock.Utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import eu.siacs.conversations.AppSettings;
 
 /**
  * Created by p32929 on 7/17/2018.
@@ -14,7 +15,19 @@ public class EasylockSP {
     //
     public static void init(Context context) {
         if (sharedPreferences == null) {
-            sharedPreferences = context.getSharedPreferences("Lockscreen", Context.MODE_PRIVATE);
+            try {
+                AppSettings appSettings = new AppSettings(context);
+                sharedPreferences = appSettings.getEncryptedPreferences("Lockscreen");
+
+                SharedPreferences normalPrefs = context.getSharedPreferences("Lockscreen", Context.MODE_PRIVATE);
+                String password = normalPrefs.getString("password", null);
+                if (password != null) {
+                    sharedPreferences.edit().putString("password", password).commit();
+                    normalPrefs.edit().remove("password").commit();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Could not initialize encrypted preferences for Lockscreen", e);
+            }
         }
     }
 
