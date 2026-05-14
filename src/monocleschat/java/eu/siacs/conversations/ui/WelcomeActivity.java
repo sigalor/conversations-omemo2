@@ -1,7 +1,9 @@
 package eu.siacs.conversations.ui;
 
 import android.Manifest;
+import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -10,18 +12,23 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -34,6 +41,8 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityWelcomeBinding;
 import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.persistance.DatabaseBackend;
+import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Compatibility;
@@ -58,8 +67,6 @@ import static eu.siacs.conversations.utils.PermissionUtils.allGranted;
 import static eu.siacs.conversations.utils.PermissionUtils.writeGranted;
 import static eu.siacs.conversations.xml.Namespace.CHAT_STATES;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 public class WelcomeActivity extends XmppActivity implements XmppConnectionService.OnAccountCreated, XmppConnectionService.OnAccountUpdate, KeyChainAliasCallback {
 
     private static final int REQUEST_IMPORT_BACKUP = 0x63fb;
@@ -78,6 +85,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     static final int USESECURETLSCIPHERS = 10;
     static final int USESECURESTORAGE = 11;
     static final int SENDCRASHREPORTS = 12;
+    static final int DATABASEENCRYPTION = 13;
 
     private XmppUri inviteUri;
     private Account onboardingAccount = null;
@@ -272,6 +280,8 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         this.binding.actionInfoUseSecureTls.setOnClickListener(string -> showInfo(USESECURETLSCIPHERS));
         this.binding.actionInfoStoreSecurely.setOnClickListener(string -> showInfo(USESECURESTORAGE));
         this.binding.actionInfoSendCrashReports.setOnClickListener(string -> showInfo(SENDCRASHREPORTS));
+        this.binding.actionInfoDatabaseEncryption.setOnClickListener(string -> showInfo(DATABASEENCRYPTION));
+        this.binding.setupDatabaseEncryption.setOnClickListener(v -> showDatabaseEncryptionDialog());
     }
 
     private void getDefaults() {
@@ -347,6 +357,10 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 title = getString(R.string.pref_send_crash_reports);
                 message = getString(R.string.pref_never_send_crash_summary);
                 break;
+            case DATABASEENCRYPTION:
+                title = getString(R.string.pref_database_encryption);
+                message = getString(R.string.pref_database_encryption_summary);
+                break;
             default:
                 title = getString(R.string.error);
                 message = getString(R.string.error);
@@ -357,6 +371,93 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         builder.setMessage(message);
         builder.setNeutralButton(getString(R.string.ok), null);
         builder.create().show();
+    }
+
+
+    private void showDatabaseEncryptionDialog() {
+        final var builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.dialog_set_db_password_title);
+
+        final var layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        final var warningText = new android.widget.TextView(this);
+        warningText.setText(R.string.dialog_db_password_policy_warning);
+        warningText.setTextColor(getColor(android.R.color.holo_red_dark));
+        warningText.setPadding(0, 0, 0, padding);
+        layout.addView(warningText);
+
+        final KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (keyguardManager != null && !keyguardManager.isDeviceSecure()) {
+            final var lockWarningText = new android.widget.TextView(this);
+            lockWarningText.setText(R.string.dialog_db_password_no_lock_warning);
+            lockWarningText.setTextColor(getColor(android.R.color.holo_orange_dark));
+            lockWarningText.setPadding(0, 0, 0, padding);
+            layout.addView(lockWarningText);
+        }
+
+        final var passwordInput = new com.google.android.material.textfield.TextInputEditText(this);
+        passwordInput.setHint(R.string.dialog_db_password_hint);
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(passwordInput);
+
+        final var confirmInput = new com.google.android.material.textfield.TextInputEditText(this);
+        confirmInput.setHint(R.string.dialog_db_password_confirm_hint);
+        confirmInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        layout.addView(confirmInput);
+
+        builder.setView(layout);
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
+            String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
+            } else if (password.length() < 8) {
+                Toast.makeText(this, R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
+            } else if (password.equals(confirm)) {
+                performDatabaseMigration(password);
+            } else {
+                Toast.makeText(this, R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.show();
+    }
+
+    private void performDatabaseMigration(String newPassword) {
+        final var progressBuilder = new MaterialAlertDialogBuilder(this);
+        progressBuilder.setTitle("Database Migration");
+        progressBuilder.setMessage("Please wait...");
+        progressBuilder.setCancelable(false);
+        final var progressBar = new android.widget.ProgressBar(this);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        progressBar.setPadding(padding, padding, padding, padding);
+        progressBuilder.setView(progressBar);
+        final AlertDialog progressDialog = progressBuilder.show();
+
+        new Thread(() -> {
+            try {
+                DatabaseBackend.migrate(this, null, newPassword);
+                UnifiedPushDatabase.migrate(this, null, newPassword);
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, R.string.toast_db_password_success_set, Toast.LENGTH_SHORT).show();
+                    this.binding.setupDatabaseEncryption.setText(R.string.pref_database_encryption_summary_enabled);
+                    this.binding.setupDatabaseEncryption.setEnabled(false);
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("Error")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                });
+            }
+        }).start();
     }
 
 

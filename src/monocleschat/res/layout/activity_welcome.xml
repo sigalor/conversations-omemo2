@@ -554,6 +554,37 @@
                             android:layout_height="match_parent"
                             android:gravity="center_vertical" />
                     </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/card_padding_regular">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
+                            android:text="@string/pref_database_encryption"
+                            android:textAppearance="?textAppearanceBody1" />
+
+                        <ImageButton
+                            android:id="@+id/action_info_database_encryption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/image_button_padding"
+                            android:src="@drawable/ic_help_24dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/setup_database_encryption"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:text="@string/setup" />
+                    </TableRow>
                     <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

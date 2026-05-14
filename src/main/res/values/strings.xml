@@ -1721,4 +1721,6 @@
     <string name="pref_database_encryption_summary_disabled">Database is not encrypted</string>
     <string name="dialog_db_password_policy_warning">Warning: A weak password provides effectively no protection against an offline attacker who has access to your database file. Use a long and complex password.</string>
     <string name="toast_db_password_error_too_short">Password must be at least 8 characters long</string>
+    <string name="dialog_db_password_no_lock_warning">Warning: Your device does not have a secure lock screen (PIN, Pattern, or Password). For maximum security, we highly recommend setting one up.</string>
+    <string name="setup">Setup</string>
 </resources>

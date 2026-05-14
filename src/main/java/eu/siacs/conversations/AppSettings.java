@@ -338,7 +338,6 @@ public class AppSettings {
         MasterKey masterKey = new MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .setRequestStrongBoxBacked(true)
-                .setUserAuthenticationRequired(true, 5 * 60)
                 .build();
         return EncryptedSharedPreferences.create(
                 context,

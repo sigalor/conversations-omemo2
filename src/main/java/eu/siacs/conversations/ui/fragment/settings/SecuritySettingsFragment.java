@@ -1,5 +1,7 @@
 package eu.siacs.conversations.ui.fragment.settings;
 
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -120,6 +122,15 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         warningText.setPadding(0, 0, 0, padding);
         layout.addView(warningText);
 
+        final KeyguardManager keyguardManager = (KeyguardManager) requireContext().getSystemService(Context.KEYGUARD_SERVICE);
+        if (keyguardManager != null && !keyguardManager.isDeviceSecure()) {
+            final var lockWarningText = new android.widget.TextView(requireContext());
+            lockWarningText.setText(R.string.dialog_db_password_no_lock_warning);
+            lockWarningText.setTextColor(requireContext().getColor(android.R.color.holo_orange_dark));
+            lockWarningText.setPadding(0, 0, 0, padding);
+            layout.addView(lockWarningText);
+        }
+
         final var passwordInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
         passwordInput.setHint(R.string.dialog_db_password_hint);
         passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -177,6 +188,15 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         warningText.setPadding(0, 0, 0, padding);
         layout.addView(warningText);
 
+        final KeyguardManager keyguardManager = (KeyguardManager) requireContext().getSystemService(Context.KEYGUARD_SERVICE);
+        if (keyguardManager != null && !keyguardManager.isDeviceSecure()) {
+            final var lockWarningText = new android.widget.TextView(requireContext());
+            lockWarningText.setText(R.string.dialog_db_password_no_lock_warning);
+            lockWarningText.setTextColor(requireContext().getColor(android.R.color.holo_orange_dark));
+            lockWarningText.setPadding(0, 0, 0, padding);
+            layout.addView(lockWarningText);
+        }
+
         final var currentInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
         currentInput.setHint(R.string.dialog_db_password_current_hint);
         currentInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -225,6 +245,15 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         warningText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
         warningText.setPadding(0, 0, 0, padding);
         layout.addView(warningText);
+
+        final KeyguardManager keyguardManager = (KeyguardManager) requireContext().getSystemService(Context.KEYGUARD_SERVICE);
+        if (keyguardManager != null && !keyguardManager.isDeviceSecure()) {
+            final var lockWarningText = new android.widget.TextView(requireContext());
+            lockWarningText.setText(R.string.dialog_db_password_no_lock_warning);
+            lockWarningText.setTextColor(requireContext().getColor(android.R.color.holo_orange_dark));
+            lockWarningText.setPadding(0, 0, 0, padding);
+            layout.addView(lockWarningText);
+        }
 
         final var currentInput = new com.google.android.material.textfield.TextInputEditText(requireContext());
         currentInput.setHint(R.string.dialog_db_password_current_hint);
