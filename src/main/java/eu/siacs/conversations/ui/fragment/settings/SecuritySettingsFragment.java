@@ -26,6 +26,7 @@ import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.services.MemorizingTrustManager;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
+import eu.siacs.conversations.utils.FileHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import p32929.easypasscodelock.Utils.EasyLock;
 
@@ -143,17 +144,26 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
         builder.setView(layout);
         builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
-            String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
-            if (password.isEmpty()) {
+            final var password = new char[passwordInput.length()];
+            passwordInput.getText().getChars(0, passwordInput.length(), password, 0);
+            final var confirm = new char[confirmInput.length()];
+            confirmInput.getText().getChars(0, confirmInput.length(), confirm, 0);
+
+            if (password.length == 0) {
                 Toast.makeText(requireContext(), "Password cannot be empty", Toast.LENGTH_SHORT).show();
-            } else if (password.length() < 8) {
+            } else if (password.length < 8) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
-            } else if (password.equals(confirm)) {
+            } else if (java.util.Arrays.equals(password, confirm)) {
+                passwordInput.getText().clear();
+                confirmInput.getText().clear();
                 performMigration(null, password);
+                FileHelper.zero(confirm);
+                return;
             } else {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
             }
+            FileHelper.zero(password);
+            FileHelper.zero(confirm);
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
@@ -214,18 +224,31 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
         builder.setView(layout);
         builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            String current = currentInput.getText() == null ? "" : currentInput.getText().toString();
-            String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
-            String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
-            if (!current.equals(currentPassword)) {
+            final var current = new char[currentInput.length()];
+            currentInput.getText().getChars(0, currentInput.length(), current, 0);
+            final var password = new char[passwordInput.length()];
+            passwordInput.getText().getChars(0, passwordInput.length(), password, 0);
+            final var confirm = new char[confirmInput.length()];
+            confirmInput.getText().getChars(0, confirmInput.length(), confirm, 0);
+
+            if (!new String(current).equals(currentPassword)) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
-            } else if (password.length() < 8) {
+            } else if (password.length < 8) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
-            } else if (password.equals(confirm)) {
-                performMigration(current, password);
+            } else if (java.util.Arrays.equals(password, confirm)) {
+                currentInput.getText().clear();
+                passwordInput.getText().clear();
+                confirmInput.getText().clear();
+                performMigration(currentPassword, password);
+                FileHelper.zero(current);
+                FileHelper.zero(confirm);
+                return;
             } else {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
             }
+            FileHelper.zero(current);
+            FileHelper.zero(password);
+            FileHelper.zero(confirm);
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
@@ -273,7 +296,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         builder.show();
     }
 
-    private void performMigration(String oldPassword, String newPassword) {
+    private void performMigration(String oldPassword, char[] newPassword) {
         final var progressBuilder = new MaterialAlertDialogBuilder(requireActivity());
         progressBuilder.setTitle("Database Migration");
         progressBuilder.setMessage("Please wait...");
@@ -285,9 +308,10 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         final AlertDialog progressDialog = progressBuilder.show();
 
         new Thread(() -> {
+            final char[] oldPasswordArr = oldPassword == null ? null : oldPassword.toCharArray();
             try {
-                DatabaseBackend.migrate(requireContext(), oldPassword, newPassword);
-                UnifiedPushDatabase.migrate(requireContext(), oldPassword, newPassword);
+                DatabaseBackend.migrate(requireContext(), oldPasswordArr, newPassword);
+                UnifiedPushDatabase.migrate(requireContext(), oldPasswordArr, newPassword);
                 requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
                 requireActivity().runOnUiThread(() -> {
                     progressDialog.dismiss();
@@ -303,6 +327,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                             .setPositiveButton(android.R.string.ok, null)
                             .show();
                 });
+            } finally {
+                FileHelper.zero(oldPasswordArr);
+                FileHelper.zero(newPassword);
             }
         }).start();
     }

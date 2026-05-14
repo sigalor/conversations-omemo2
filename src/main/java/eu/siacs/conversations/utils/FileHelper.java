@@ -43,4 +43,15 @@ public class FileHelper {
 
         return file.delete();
     }
+
+    /**
+     * Zeros out a character array to clear sensitive data from memory.
+     *
+     * @param array The array to clear.
+     */
+    public static void zero(char[] array) {
+        if (array != null) {
+            java.util.Arrays.fill(array, '\0');
+        }
+    }
 }

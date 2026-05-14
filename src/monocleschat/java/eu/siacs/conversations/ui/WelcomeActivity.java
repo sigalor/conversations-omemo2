@@ -44,6 +44,7 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.services.XmppConnectionService;
+import eu.siacs.conversations.utils.FileHelper;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.InstallReferrerUtils;
@@ -403,23 +404,32 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
 
         builder.setView(layout);
         builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
-            String confirm = confirmInput.getText() == null ? "" : confirmInput.getText().toString();
-            if (password.isEmpty()) {
+            final var password = new char[passwordInput.length()];
+            passwordInput.getText().getChars(0, passwordInput.length(), password, 0);
+            final var confirm = new char[confirmInput.length()];
+            confirmInput.getText().getChars(0, confirmInput.length(), confirm, 0);
+
+            if (password.length == 0) {
                 Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
-            } else if (password.length() < 8) {
+            } else if (password.length < 8) {
                 Toast.makeText(this, R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
-            } else if (password.equals(confirm)) {
+            } else if (java.util.Arrays.equals(password, confirm)) {
+                passwordInput.getText().clear();
+                confirmInput.getText().clear();
                 performDatabaseMigration(password);
+                FileHelper.zero(confirm);
+                return;
             } else {
                 Toast.makeText(this, R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
             }
+            FileHelper.zero(password);
+            FileHelper.zero(confirm);
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
     }
 
-    private void performDatabaseMigration(String newPassword) {
+    private void performDatabaseMigration(char[] newPassword) {
         final var progressBuilder = new MaterialAlertDialogBuilder(this);
         progressBuilder.setTitle("Database Migration");
         progressBuilder.setMessage("Please wait...");
@@ -449,6 +459,8 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                             .setPositiveButton(android.R.string.ok, null)
                             .show();
                 });
+            } finally {
+                FileHelper.zero(newPassword);
             }
         }).start();
     }

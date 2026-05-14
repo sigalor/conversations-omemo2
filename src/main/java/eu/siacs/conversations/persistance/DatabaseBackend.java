@@ -43,6 +43,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -3737,7 +3738,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.delete(eu.siacs.conversations.entities.Post.TABLENAME, null, null);
     }
 
-    public static synchronized void migrate(Context context, String oldPassword, String newPassword) throws Exception {
+    public static synchronized void migrate(Context context, char[] oldPassword, char[] newPassword) throws Exception {
         closeInstance();
         System.loadLibrary("sqlcipher");
         File dbFile = context.getDatabasePath(DATABASE_NAME);
@@ -3751,10 +3752,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : oldPassword, null, SQLiteDatabase.OPEN_READWRITE, null);
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, null);
         int version = db.getVersion();
         try {
-            String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + DatabaseUtils.sqlEscapeString(newPassword == null ? "" : newPassword);
+            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPassword == null ? "" : new String(newPassword));
+            String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
             db.rawExecSQL(attachSql);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
             db.rawExecSQL("PRAGMA encrypted.user_version = " + version);

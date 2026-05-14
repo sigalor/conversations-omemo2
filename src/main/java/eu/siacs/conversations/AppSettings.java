@@ -334,6 +334,10 @@ public class AppSettings {
         }
     }
 
+    public void setDatabasePassword(char[] password) {
+        setDatabasePassword(password == null ? null : new String(password));
+    }
+
     private SharedPreferences getEncryptedPreferences() throws Exception {
         MasterKey masterKey = new MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
