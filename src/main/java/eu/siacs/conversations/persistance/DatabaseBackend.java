@@ -126,7 +126,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
         @Override
         public void postKey(SQLiteConnection connection) {
-
+            connection.executeRaw("PRAGMA cipher_memory_security = ON;", null, null);
+            connection.executeRaw("PRAGMA secure_delete = ON;", null, null);
         }
     };
 
