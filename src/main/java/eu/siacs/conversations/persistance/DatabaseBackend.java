@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabaseHook;
+import net.zetetic.database.sqlcipher.SQLiteConnection;
 import android.database.sqlite.SQLiteException;
 import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 import android.text.TextUtils;
@@ -112,6 +114,21 @@ import org.whispersystems.libsignal.state.SessionRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 
 public class DatabaseBackend extends SQLiteOpenHelper {
+
+    public static final SQLiteDatabaseHook DATABASE_HOOK = new SQLiteDatabaseHook() {
+        @Override
+        public void preKey(SQLiteConnection connection) {
+            connection.executeRaw("PRAGMA cipher_kdf_algorithm = argon2id;", null, null);
+            connection.executeRaw("PRAGMA cipher_memory_limit = 65536;", null, null);
+            connection.executeRaw("PRAGMA cipher_kdf_iterations = 4;", null, null);
+            connection.executeRaw("PRAGMA cipher_kdf_parallelism = 4;", null, null);
+        }
+
+        @Override
+        public void postKey(SQLiteConnection connection) {
+
+        }
+    };
 
     private static final String DATABASE_NAME = "history";
     private static final int DATABASE_VERSION = 69;
@@ -406,7 +423,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     protected Context context;
 
     private DatabaseBackend(Context context) {
-        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, null, true);
+        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, DATABASE_HOOK, true);
         this.context = context;
     }
 
@@ -3758,9 +3775,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, null);
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, DATABASE_HOOK);
         int version = db.getVersion();
         try {
+            // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
+            db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");
+            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 65536;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 4;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 4;");
+
             final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPassword == null ? "" : new String(newPassword));
             String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
             db.rawExecSQL(attachSql);

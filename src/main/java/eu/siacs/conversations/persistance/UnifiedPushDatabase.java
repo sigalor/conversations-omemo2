@@ -25,6 +25,7 @@ import eu.siacs.conversations.services.UnifiedPushBroker;
 import eu.siacs.conversations.utils.FileHelper;
 
 public class UnifiedPushDatabase extends SQLiteOpenHelper {
+
     private static final String DATABASE_NAME = "unified-push-distributor";
     private static final int DATABASE_VERSION = 1;
 
@@ -57,9 +58,15 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, null);
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, DatabaseBackend.DATABASE_HOOK);
         int version = db.getVersion();
         try {
+            // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
+            db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");
+            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 65536;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 4;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 4;");
+
             final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPassword == null ? "" : new String(newPassword));
             String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
             db.rawExecSQL(attachSql);
@@ -114,7 +121,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
     }
 
     private UnifiedPushDatabase(@Nullable Context context) {
-        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, null, true);
+        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, DatabaseBackend.DATABASE_HOOK, true);
     }
 
     public static UnifiedPushDatabase getInstance(final Context context) {
