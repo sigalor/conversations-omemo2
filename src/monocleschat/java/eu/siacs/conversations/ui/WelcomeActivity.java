@@ -76,7 +76,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     static final int ALLOWSCREENSHOTS = 1;
     static final int SHOWWEBLINKS = 2;
     static final int SHOWMAPPREVIEW = 3;
-    static final int UNENCRYPTEDREACTIONS = 4;
     static final int CHATSTATES = 5;
     static final int CONFIRMMESSAGES = 6;
     static final int LASTSEEN = 7;
@@ -271,7 +270,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         this.binding.actionInfoAllowScreenshots.setOnClickListener(string -> showInfo(ALLOWSCREENSHOTS));
         this.binding.actionInfoShowWeblinks.setOnClickListener(string -> showInfo(SHOWWEBLINKS));
         this.binding.actionInfoShowMapPreviews.setOnClickListener(string -> showInfo(SHOWMAPPREVIEW));
-        this.binding.actionInfoAllowUnencryptedReactions.setOnClickListener(string -> showInfo(UNENCRYPTEDREACTIONS));
         this.binding.actionInfoChatStates.setOnClickListener(string -> showInfo(CHATSTATES));
         this.binding.actionInfoConfirmMessages.setOnClickListener(string -> showInfo(CONFIRMMESSAGES));
         this.binding.actionInfoLastSeen.setOnClickListener(string -> showInfo(LASTSEEN));
@@ -289,7 +287,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         this.binding.allowScreenshots.setChecked(getResources().getBoolean(R.bool.allow_screenshots));
         this.binding.showLinks.setChecked(getResources().getBoolean(R.bool.show_link_previews));
         this.binding.showMappreview.setChecked(getResources().getBoolean(R.bool.show_maps_inside));
-        this.binding.allowUnencryptedReactions.setChecked(getResources().getBoolean(R.bool.allow_unencrypted_reactions));
         this.binding.chatStates.setChecked(getResources().getBoolean(R.bool.chat_states));
         this.binding.confirmMessages.setChecked(getResources().getBoolean(R.bool.confirm_messages));
         this.binding.lastSeen.setChecked(getResources().getBoolean(R.bool.last_activity));
@@ -320,10 +317,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             case SHOWMAPPREVIEW:
                 title = getString(R.string.pref_show_mappreview_inside);
                 message = getString(R.string.pref_show_mappreview_inside_summary);
-                break;
-            case UNENCRYPTEDREACTIONS:
-                title = getString(R.string.pref_allow_unencrypted_reactions);
-                message = getString(R.string.pref_allow_unencrypted_reactions_summary);
                 break;
             case CHATSTATES:
                 title = getString(R.string.pref_chat_states);
@@ -467,7 +460,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         preferences.edit().putBoolean(ALLOW_SCREENSHOTS, this.binding.allowScreenshots.isChecked()).apply();
         preferences.edit().putBoolean(SHOW_LINK_PREVIEWS, this.binding.showLinks.isChecked()).apply();
         preferences.edit().putBoolean(SHOW_MAPS_INSIDE, this.binding.showMappreview.isChecked()).apply();
-        preferences.edit().putBoolean(UNENCRYPTED_REACTIONS, this.binding.allowUnencryptedReactions.isChecked()).apply();
         preferences.edit().putBoolean(CHAT_STATES, this.binding.chatStates.isChecked()).apply();
         preferences.edit().putBoolean(CONFIRM_MESSAGES, this.binding.confirmMessages.isChecked()).apply();
         preferences.edit().putBoolean(BROADCAST_LAST_ACTIVITY, this.binding.lastSeen.isChecked()).apply();
