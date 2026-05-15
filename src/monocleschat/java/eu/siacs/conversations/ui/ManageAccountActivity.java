@@ -411,7 +411,7 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
     private void addAccountFromKey() {
         try {
             KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
-        } catch (ActivityNotFoundException e) {
+        } catch (final Exception e) {
             Toast.makeText(this, R.string.device_does_not_support_certificates, Toast.LENGTH_LONG).show();
         }
     }
@@ -524,7 +524,11 @@ public class ManageAccountActivity extends XmppActivity implements XmppConnectio
 
     @Override
     public void alias(final String alias) {
-        if (alias != null) {
+        if (alias == null) {
+            runOnUiThread(() -> Toast.makeText(this, R.string.no_certificate_selected, Toast.LENGTH_SHORT).show());
+            return;
+        }
+        if (xmppConnectionService != null) {
             xmppConnectionService.createAccountFromKey(alias, this);
         }
     }
