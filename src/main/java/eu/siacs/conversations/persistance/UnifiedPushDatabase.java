@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -58,7 +59,12 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, oldPassword == null ? null : DatabaseBackend.DATABASE_HOOK);
+        final byte[] oldPwBytes = oldPassword != null ? DatabaseBackend.charsToUtf8Bytes(oldPassword) : null;
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                dbFile.getAbsolutePath(), oldPwBytes, null,
+                SQLiteDatabase.OPEN_READWRITE,
+                oldPwBytes != null ? DatabaseBackend.DATABASE_HOOK : null);
+        if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
         int version = db.getVersion();
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
@@ -67,7 +73,10 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
             db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 1;");
 
-            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPassword == null ? "" : new String(newPassword));
+            // ATTACH KEY must be a SQL string literal — unavoidable String; null it immediately.
+            String newPwStr = newPassword == null ? "" : new String(newPassword);
+            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPwStr);
+            newPwStr = null;
             String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
             db.rawExecSQL(attachSql);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
@@ -78,55 +87,56 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         }
 
         final AppSettings settings = new AppSettings(context);
-        final String savedPassword = settings.getDatabasePassword();
         final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
         if (backupFile.exists() && !backupFile.delete()) {
-             throw new java.io.IOException("Failed to delete existing backup file");
+            throw new java.io.IOException("Failed to delete existing backup file");
         }
 
+        // Sentinel mirrors the DatabaseBackend migration pattern — protects against process kill
+        // between the file rename and the prefs write.
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putBoolean("rekey_migration_updb_in_progress", true).commit();
+
+        boolean prefsUpdated = false;
         try {
-            // Step 1: Backup old file
             if (!dbFile.renameTo(backupFile)) {
                 throw new java.io.IOException("Failed to backup old database file");
             }
-
-            // Step 2: Update password in prefs
-            settings.setDatabasePassword(newPassword);
-
-            // Step 3: Rename temp to original
             if (!tempFile.renameTo(dbFile)) {
-                // Step 4: Rollback if rename fails
                 if (!backupFile.renameTo(dbFile)) {
-                    Log.e("UnifiedPushDatabase", "CRITICAL: Failed to rollback database file after rename failure");
+                    Log.e(Config.LOGTAG, "updb rekey: CRITICAL — failed to rollback after temp rename failure");
                 }
                 throw new java.io.IOException("Failed to rename temporary database file");
             }
-
-            // Step 5: Securely delete backup and auxiliary files
+            settings.setDatabasePassword(newPassword);
+            prefsUpdated = true;
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().remove("rekey_migration_updb_in_progress").commit();
             FileHelper.secureDelete(backupFile);
             FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
             FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
-
         } catch (Exception e) {
-            // Rollback password in prefs
-            try {
-                settings.setDatabasePassword(savedPassword);
-            } catch (Exception rollbackError) {
-                Log.e("UnifiedPushDatabase", "Failed to rollback password after migration error", rollbackError);
+            if (!prefsUpdated) {
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().remove("rekey_migration_updb_in_progress").apply();
             }
             throw e;
         }
     }
 
     private UnifiedPushDatabase(@Nullable Context context) {
-        super(context, DATABASE_NAME, getPassword(context), null, DATABASE_VERSION, 0, null, DatabaseBackend.DATABASE_HOOK, true);
+        super(context, DATABASE_NAME, getPasswordBytes(context), null, DATABASE_VERSION, 0, null, DatabaseBackend.DATABASE_HOOK, true);
     }
 
-    private static String getPassword(Context context) {
+    private static byte[] getPasswordBytes(Context context) {
         try {
-            return new AppSettings(context).getDatabasePassword();
+            final char[] chars = new AppSettings(context).getDatabasePasswordChars();
+            if (chars == null) return null;
+            final byte[] bytes = DatabaseBackend.charsToUtf8Bytes(chars);
+            java.util.Arrays.fill(chars, '\0');
+            return bytes;
         } catch (eu.siacs.conversations.EncryptionException e) {
             return null;
         }

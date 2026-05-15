@@ -426,15 +426,27 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     protected Context context;
 
     private DatabaseBackend(Context context) {
-        super(context, DATABASE_NAME, getPassword(context), null, DATABASE_VERSION, 0, null, DATABASE_HOOK, true);
+        // byte[] constructor (new in sqlcipher-android 4.16.0) avoids creating an immutable String
+        // in the JVM heap. EncryptionException propagates intentionally — see callers.
+        super(context, DATABASE_NAME, getPasswordBytes(context), null, DATABASE_VERSION, 0, null, DATABASE_HOOK, true);
         this.context = context;
     }
 
-    private static String getPassword(Context context) {
-        // EncryptionException (RuntimeException) propagates intentionally:
-        // NEEDS_SESSION_PASSWORD → service sets mNeedsPassword and waits for user input
-        // GENERIC / DB_WRONG_KEY → service sets mCriticalError
-        return new AppSettings(context).getDatabasePassword();
+    private static byte[] getPasswordBytes(Context context) {
+        final char[] chars = new AppSettings(context).getDatabasePasswordChars();
+        if (chars == null) return null;
+        final byte[] bytes = charsToUtf8Bytes(chars);
+        java.util.Arrays.fill(chars, '\0');
+        return bytes;
+    }
+
+    static byte[] charsToUtf8Bytes(char[] chars) {
+        final java.nio.ByteBuffer bb =
+                java.nio.charset.StandardCharsets.UTF_8.encode(java.nio.CharBuffer.wrap(chars));
+        final byte[] bytes = new byte[bb.remaining()];
+        bb.get(bytes);
+        if (bb.hasArray()) java.util.Arrays.fill(bb.array(), (byte) 0);
+        return bytes;
     }
 
     private static ContentValues createFingerprintStatusContentValues(
@@ -498,9 +510,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
 
         // States C/D: both files exist — need to test dbFile with current prefs key.
-        final String currentPassword;
+        final char[] currentPasswordChars;
         try {
-            currentPassword = new AppSettings(context).getDatabasePassword();
+            currentPasswordChars = new AppSettings(context).getDatabasePasswordChars();
         } catch (eu.siacs.conversations.EncryptionException e) {
             if (e.reason == eu.siacs.conversations.EncryptionException.Reason.NEEDS_SESSION_PASSWORD) {
                 // Startup-password mode: session not entered yet — defer until next getInstance()
@@ -512,16 +524,21 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
 
         boolean dbFileValid = false;
+        final byte[] currentPasswordBytes =
+                currentPasswordChars != null ? charsToUtf8Bytes(currentPasswordChars) : null;
+        if (currentPasswordChars != null) java.util.Arrays.fill(currentPasswordChars, '\0');
         try {
             final SQLiteDatabase test = SQLiteDatabase.openDatabase(
                     dbFile.getAbsolutePath(),
-                    currentPassword == null ? "" : currentPassword,
+                    currentPasswordBytes,
                     null,
                     SQLiteDatabase.OPEN_READONLY,
-                    currentPassword == null ? null : DATABASE_HOOK);
+                    currentPasswordBytes != null ? DATABASE_HOOK : null);
             test.close();
             dbFileValid = true;
-        } catch (Exception ignored) { /* dbFile not openable with current key */ }
+        } catch (Exception ignored) { /* dbFile not openable with current key */ } finally {
+            if (currentPasswordBytes != null) java.util.Arrays.fill(currentPasswordBytes, (byte) 0);
+        }
 
         if (dbFileValid) {
             // State D: dbFile valid with current key — migration completed; just clean up .bak
@@ -3865,11 +3882,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        // SQLCipher's Java bridge requires String; hold a single reference and null it immediately
-        // after the call so there is at most one collectable reference in the heap at any time.
-        String oldPwStr = oldPassword == null ? "" : new String(oldPassword);
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPwStr, null, SQLiteDatabase.OPEN_READWRITE, oldPassword == null ? null : DATABASE_HOOK);
-        oldPwStr = null;
+        // Use byte[] openDatabase overload (new in sqlcipher-android 4.16.0) — byte[] can be
+        // zeroed immediately after the call; String cannot be zeroed at all.
+        final byte[] oldPwBytes = oldPassword != null ? charsToUtf8Bytes(oldPassword) : null;
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                dbFile.getAbsolutePath(), oldPwBytes, null,
+                SQLiteDatabase.OPEN_READWRITE,
+                oldPwBytes != null ? DATABASE_HOOK : null);
+        if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
         int version = db.getVersion();
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
@@ -3878,6 +3898,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
             db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 1;");
 
+            // ATTACH KEY must be a SQL string literal — unavoidable String; null it immediately.
             String newPwStr = newPassword == null ? "" : new String(newPassword);
             final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPwStr);
             newPwStr = null;
