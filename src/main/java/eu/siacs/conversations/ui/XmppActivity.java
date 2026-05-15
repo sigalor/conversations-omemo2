@@ -1,6 +1,7 @@
 package eu.siacs.conversations.ui;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -172,8 +173,12 @@ public abstract class XmppActivity extends ActionBarActivity {
                     xmppConnectionService = binder.getService();
                     staticXmppConnectionService = binder.getService();
                     xmppConnectionServiceBound = true;
-                    registerListeners();
-                    onBackendConnected();
+                    if (xmppConnectionService.getCriticalError() != null) {
+                        showCriticalErrorDialog(xmppConnectionService.getCriticalError());
+                    } else {
+                        registerListeners();
+                        onBackendConnected();
+                    }
                 }
 
                 @Override
@@ -979,6 +984,25 @@ public abstract class XmppActivity extends ActionBarActivity {
                                 }
                             }
                         });
+    }
+
+    public void showCriticalErrorDialog(final eu.siacs.conversations.EncryptionException error) {
+        runOnUiThread(() -> {
+            final var builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this);
+            builder.setTitle(R.string.title_critical_keystore_error);
+            builder.setMessage(R.string.message_critical_keystore_error);
+            builder.setCancelable(false);
+            builder.setPositiveButton(R.string.action_clear_app_data, (dialog, which) -> {
+                final ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                if (am != null) {
+                    am.clearApplicationUserData();
+                }
+            });
+            builder.setNegativeButton(R.string.action_exit, (dialog, which) -> {
+                finishAffinity();
+            });
+            builder.show();
+        });
     }
 
     protected void displayErrorDialog(final int errorCode) {

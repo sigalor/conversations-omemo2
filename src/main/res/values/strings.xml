@@ -48,6 +48,10 @@
     <string name="block_contact_text">Would you like to block %s from sending you messages?</string>
     <string name="unblock_contact_text">Would you like to unblock %s and allow them to send you messages?</string>
     <string name="block_domain_text">Block all contacts from %s?</string>
+    <string name="title_critical_keystore_error">Critical Encryption Error</string>
+    <string name="message_critical_keystore_error">The hardware security module on this device failed to provide the encryption keys. This can happen after a system update or device migration. Unfortunately, your local data is currently inaccessible. You can try to clear the app data and start fresh, or restore from a backup.</string>
+    <string name="action_clear_app_data">Clear App Data</string>
+    <string name="action_exit">Exit</string>
     <string name="unblock_domain_text">Unblock all contacts from %s?</string>
     <string name="contact_blocked">Contact blocked</string>
     <string name="blocked">Blocked</string>

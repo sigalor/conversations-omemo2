@@ -339,6 +339,11 @@ public class XmppConnectionService extends Service {
                 }
             };
     public DatabaseBackend databaseBackend;
+    private eu.siacs.conversations.EncryptionException mCriticalError = null;
+
+    public eu.siacs.conversations.EncryptionException getCriticalError() {
+        return mCriticalError;
+    }
     private Multimap<String, String> mutedMucUsers;
     private final ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor("ContactMerger");
     private final ReplacingSerialSingleThreadExecutor mStickerScanExecutor = new ReplacingSerialSingleThreadExecutor("StickerScan");
@@ -1869,7 +1874,15 @@ public class XmppConnectionService extends Service {
         }
 
         Log.d(Config.LOGTAG, "initializing database...");
-        this.databaseBackend = DatabaseBackend.getInstance(getApplicationContext());
+        try {
+            appSettings.checkEncryptionOrThrow();
+            this.databaseBackend = DatabaseBackend.getInstance(getApplicationContext());
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            Log.e(Config.LOGTAG, "Critical keystore failure during service startup", e);
+            this.mCriticalError = e;
+            this.accounts = new java.util.ArrayList<>();
+            return;
+        }
         Log.d(Config.LOGTAG, "restoring accounts...");
         this.accounts = databaseBackend.getAccounts();
         for (Account account : this.accounts) {

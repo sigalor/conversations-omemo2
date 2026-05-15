@@ -345,6 +345,10 @@ public class AppSettings {
         setDatabasePassword(password == null ? null : new String(password));
     }
 
+    public void checkEncryptionOrThrow() throws EncryptionException {
+        getDatabasePassword();
+    }
+
     public SharedPreferences getEncryptedPreferences() throws Exception {
         return getEncryptedPreferences("encrypted_settings");
     }

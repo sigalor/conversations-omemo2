@@ -121,7 +121,15 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
     }
 
     private UnifiedPushDatabase(@Nullable Context context) {
-        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, DatabaseBackend.DATABASE_HOOK, true);
+        super(context, DATABASE_NAME, getPassword(context), null, DATABASE_VERSION, 0, null, DatabaseBackend.DATABASE_HOOK, true);
+    }
+
+    private static String getPassword(Context context) {
+        try {
+            return new AppSettings(context).getDatabasePassword();
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            return null;
+        }
     }
 
     public static UnifiedPushDatabase getInstance(final Context context) {

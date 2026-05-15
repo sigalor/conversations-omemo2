@@ -424,8 +424,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     protected Context context;
 
     private DatabaseBackend(Context context) {
-        super(context, DATABASE_NAME, new AppSettings(context).getDatabasePassword(), null, DATABASE_VERSION, 0, null, DATABASE_HOOK, true);
+        super(context, DATABASE_NAME, getPassword(context), null, DATABASE_VERSION, 0, null, DATABASE_HOOK, true);
         this.context = context;
+    }
+
+    private static String getPassword(Context context) {
+        try {
+            return new AppSettings(context).getDatabasePassword();
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            return null;
+        }
     }
 
     private static ContentValues createFingerprintStatusContentValues(

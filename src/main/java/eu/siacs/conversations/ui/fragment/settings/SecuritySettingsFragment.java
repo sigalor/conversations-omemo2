@@ -95,17 +95,25 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
     private void updateDatabaseEncryptionSummary(Preference preference) {
         if (preference != null) {
-            String password = new AppSettings(requireContext()).getDatabasePassword();
-            preference.setSummary(password == null ? R.string.pref_database_encryption_summary_disabled : R.string.pref_database_encryption_summary_enabled);
+            try {
+                String password = new AppSettings(requireContext()).getDatabasePassword();
+                preference.setSummary(password == null ? R.string.pref_database_encryption_summary_disabled : R.string.pref_database_encryption_summary_enabled);
+            } catch (eu.siacs.conversations.EncryptionException e) {
+                preference.setSummary(R.string.title_critical_keystore_error);
+            }
         }
     }
 
     private void showDatabaseEncryptionDialog() {
-        final String currentPassword = new AppSettings(requireContext()).getDatabasePassword();
-        if (currentPassword == null) {
-            showEnableEncryptionDialog();
-        } else {
-            showEncryptionOptionsDialog(currentPassword);
+        try {
+            final String currentPassword = new AppSettings(requireContext()).getDatabasePassword();
+            if (currentPassword == null) {
+                showEnableEncryptionDialog();
+            } else {
+                showEncryptionOptionsDialog(currentPassword);
+            }
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            ((eu.siacs.conversations.ui.XmppActivity) requireActivity()).showCriticalErrorDialog(e);
         }
     }
 
