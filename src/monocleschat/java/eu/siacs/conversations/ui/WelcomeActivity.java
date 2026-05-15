@@ -402,8 +402,19 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         confirmInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         layout.addView(confirmInput);
 
+        final var noRecoveryCheckbox = new android.widget.CheckBox(this);
+        noRecoveryCheckbox.setText(R.string.dialog_db_password_no_recovery_checkbox);
+        noRecoveryCheckbox.setPadding(0, padding / 2, 0, 0);
+        layout.addView(noRecoveryCheckbox);
+
         builder.setView(layout);
-        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNegativeButton(android.R.string.cancel, null);
+        final AlertDialog d = builder.show();
+        final android.widget.Button okButton = d.getButton(AlertDialog.BUTTON_POSITIVE);
+        okButton.setEnabled(false);
+        noRecoveryCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> okButton.setEnabled(isChecked));
+        okButton.setOnClickListener(v -> {
             final var password = new char[passwordInput.length()];
             passwordInput.getText().getChars(0, passwordInput.length(), password, 0);
             final var confirm = new char[confirmInput.length()];
@@ -416,6 +427,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             } else if (CryptoHelper.isEqual(password, confirm)) {
                 passwordInput.getText().clear();
                 confirmInput.getText().clear();
+                d.dismiss();
                 performDatabaseMigration(password);
                 FileHelper.zero(confirm);
                 return;
@@ -425,8 +437,6 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             FileHelper.zero(password);
             FileHelper.zero(confirm);
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.show();
     }
 
     private void performDatabaseMigration(char[] newPassword) {
