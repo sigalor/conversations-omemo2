@@ -1803,6 +1803,7 @@ public class Conversation extends AbstractEntity
                     message.setRelativeFilePath(null);
                     message.setFileParams(null);
                     message.setEncryption(Message.ENCRYPTION_NONE);
+                    message.setReactions(Collections.emptyList());
                 }
             }
             untieMessages();

@@ -2010,6 +2010,10 @@ public class MessageParser extends AbstractParser
                                         conversation, reactingTo);
                     }
                     if (message != null) {
+                        if (message.isDeleted()) {
+                            Log.d(Config.LOGTAG, "ignoring reaction to deleted/expired message " + reactingTo);
+                            return;
+                        }
                         final var newReactions = new HashSet<>(reactions.getReactions());
                         newReactions.removeAll(message.getReactions().stream().filter(r -> occupantId.equals(r.occupantId)).map(r -> r.reaction).collect(Collectors.toList()));
                         final var combinedReactions =
@@ -2042,6 +2046,10 @@ public class MessageParser extends AbstractParser
                 }
                 if (message == null) {
                     Log.d(Config.LOGTAG, "message with id " + reactingTo + " not found");
+                    return;
+                }
+                if (message.isDeleted()) {
+                    Log.d(Config.LOGTAG, "ignoring reaction to deleted/expired message " + reactingTo);
                     return;
                 }
                 final boolean isReceived;

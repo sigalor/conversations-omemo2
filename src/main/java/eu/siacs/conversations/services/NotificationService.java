@@ -559,6 +559,7 @@ public class NotificationService {
 
         final var message = reactingTo.reply();
         final var quoteable = reactingTo.getQuoteableBody();
+        if (quoteable == null && !reactingTo.isOOb()) return;
         final var parentTxt = reactingTo.isOOb() ? "media" : "'" + (quoteable.length() > 35 ? quoteable.substring(0, 35) + "…" : quoteable) + "'";
         message.appendBody(String.join(" ", newReactions) + " " + mXmppConnectionService.getString(R.string.reaction_to) + " " + parentTxt);
         message.setCounterpart(counterpart);
