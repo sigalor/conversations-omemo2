@@ -69,9 +69,9 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
             db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");
-            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 12288;");
+            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 65536;");
             db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 1;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 4;");
 
             // ATTACH KEY must be a SQL string literal — unavoidable String; null it immediately.
             String newPwStr = newPassword == null ? "" : new String(newPassword);
