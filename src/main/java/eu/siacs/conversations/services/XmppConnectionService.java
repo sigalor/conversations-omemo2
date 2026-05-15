@@ -340,9 +340,14 @@ public class XmppConnectionService extends Service {
             };
     public DatabaseBackend databaseBackend;
     private eu.siacs.conversations.EncryptionException mCriticalError = null;
+    private boolean mNeedsPassword = false;
 
     public eu.siacs.conversations.EncryptionException getCriticalError() {
         return mCriticalError;
+    }
+
+    public boolean needsPassword() {
+        return mNeedsPassword;
     }
     private Multimap<String, String> mutedMucUsers;
     private final ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor("ContactMerger");
@@ -1754,6 +1759,7 @@ public class XmppConnectionService extends Service {
     }
 
     public void expireOldMessages(final boolean resetHasMessagesLeftOnServer) {
+        if (databaseBackend == null) return;
         mLastExpiryRun.set(SystemClock.elapsedRealtime());
         mDatabaseWriterExecutor.execute(
                 () -> {
@@ -1878,13 +1884,29 @@ public class XmppConnectionService extends Service {
             appSettings.checkEncryptionOrThrow();
             this.databaseBackend = DatabaseBackend.getInstance(getApplicationContext());
         } catch (eu.siacs.conversations.EncryptionException e) {
-            Log.e(Config.LOGTAG, "Critical keystore failure during service startup", e);
-            this.mCriticalError = e;
             this.accounts = new java.util.ArrayList<>();
+            if (e.reason == eu.siacs.conversations.EncryptionException.Reason.NEEDS_SESSION_PASSWORD) {
+                Log.i(Config.LOGTAG, "Database requires startup password — waiting for user");
+                this.mNeedsPassword = true;
+            } else {
+                Log.e(Config.LOGTAG, "Critical keystore failure during service startup", e);
+                this.mCriticalError = e;
+            }
             return;
         }
         Log.d(Config.LOGTAG, "restoring accounts...");
-        this.accounts = databaseBackend.getAccounts();
+        try {
+            this.accounts = databaseBackend.getAccounts();
+        } catch (net.zetetic.database.sqlcipher.SQLiteNotADatabaseException e) {
+            Log.e(Config.LOGTAG, "Wrong database key on getAccounts", e);
+            DatabaseBackend.closeInstance();
+            this.databaseBackend = null;
+            eu.siacs.conversations.AppSettings.clearSessionPassword();
+            this.mCriticalError = new eu.siacs.conversations.EncryptionException(
+                    "Wrong database key", e, eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY);
+            this.accounts = new java.util.ArrayList<>();
+            return;
+        }
         for (Account account : this.accounts) {
             final int color = getPreferences().getInt("account_color:" + account.getUuid(), 0);
             if (color != 0) account.setColor(color);
@@ -1900,7 +1922,17 @@ public class XmppConnectionService extends Service {
             CallIntegrationConnectionService.togglePhoneAccountsAsync(this, this.accounts);
         }
 
-        restoreFromDatabase();
+        try {
+            restoreFromDatabase();
+        } catch (net.zetetic.database.sqlcipher.SQLiteNotADatabaseException e) {
+            Log.e(Config.LOGTAG, "Wrong database key on restoreFromDatabase", e);
+            DatabaseBackend.closeInstance();
+            this.databaseBackend = null;
+            eu.siacs.conversations.AppSettings.clearSessionPassword();
+            this.mCriticalError = new eu.siacs.conversations.EncryptionException(
+                    "Wrong database key", e, eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY);
+            return;
+        }
 
         if (QuickConversationsService.isContactListIntegration(this)
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)

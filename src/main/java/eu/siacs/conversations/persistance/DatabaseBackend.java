@@ -429,11 +429,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     private static String getPassword(Context context) {
-        try {
-            return new AppSettings(context).getDatabasePassword();
-        } catch (eu.siacs.conversations.EncryptionException e) {
-            return null;
-        }
+        // EncryptionException (RuntimeException) propagates intentionally:
+        // NEEDS_SESSION_PASSWORD → service sets mNeedsPassword and waits for user input
+        // GENERIC / DB_WRONG_KEY → service sets mCriticalError
+        return new AppSettings(context).getDatabasePassword();
     }
 
     private static ContentValues createFingerprintStatusContentValues(

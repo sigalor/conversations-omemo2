@@ -1728,4 +1728,14 @@
     <string name="dialog_db_password_no_lock_warning">Warning: Your device does not have a secure lock screen (PIN, Pattern, or Password). For maximum security, we highly recommend setting one up.</string>
     <string name="setup">Setup</string>
     <string name="lockscreen_ui_only_warning">Note: This PIN is a UI lock only and does not provide additional encryption for your database.</string>
+    <string name="action_unlock_database">Unlock</string>
+    <string name="pref_require_startup_password_title">Require password on startup</string>
+    <string name="pref_require_startup_password_summary">Database password must be entered on every cold start — never stored on device</string>
+    <string name="pref_require_startup_password_summary_needs_encryption">Enable database encryption first</string>
+    <string name="dialog_startup_password_title">Unlock database</string>
+    <string name="dialog_enable_startup_password_message">Enter your current database password to confirm. It will no longer be stored on the device — you must enter it each time the app starts.</string>
+    <string name="toast_wrong_startup_password">Incorrect password</string>
+    <string name="toast_startup_password_enabled">Startup password required — password removed from device storage</string>
+    <string name="toast_startup_password_disabled">Startup password no longer required</string>
+    <string name="toast_startup_password_session_required">Unlock the app first before changing this setting</string>
 </resources>

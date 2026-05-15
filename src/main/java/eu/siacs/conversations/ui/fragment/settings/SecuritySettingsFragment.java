@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Strings;
@@ -91,6 +92,20 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             });
             updateDatabaseEncryptionSummary(databaseEncryption);
         }
+
+        final SwitchPreferenceCompat startupPasswordPref =
+                findPreference(AppSettings.REQUIRE_PASSWORD_ON_STARTUP);
+        if (startupPasswordPref != null) {
+            updateStartupPasswordPreferenceState(startupPasswordPref);
+            startupPasswordPref.setOnPreferenceChangeListener((pref, newValue) -> {
+                if (Boolean.TRUE.equals(newValue)) {
+                    showEnableStartupPasswordDialog((SwitchPreferenceCompat) pref);
+                } else {
+                    disableStartupPasswordRequirement((SwitchPreferenceCompat) pref);
+                }
+                return false; // applied manually after verification
+            });
+        }
     }
 
     private void updateDatabaseEncryptionSummary(Preference preference) {
@@ -101,6 +116,137 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             } catch (eu.siacs.conversations.EncryptionException e) {
                 preference.setSummary(R.string.title_critical_keystore_error);
             }
+        }
+        updateStartupPasswordPreferenceState(findPreference(AppSettings.REQUIRE_PASSWORD_ON_STARTUP));
+    }
+
+    private void updateStartupPasswordPreferenceState(SwitchPreferenceCompat pref) {
+        if (pref == null) return;
+        final AppSettings appSettings = new AppSettings(requireContext());
+        // When startup-required mode is ON, the DB is always encrypted (enforced during setup)
+        if (appSettings.isPasswordOnStartupRequired()) {
+            pref.setEnabled(true);
+            pref.setSummary(R.string.pref_require_startup_password_summary);
+            return;
+        }
+        final boolean dbEncrypted;
+        try {
+            dbEncrypted = appSettings.getDatabasePassword() != null;
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            pref.setEnabled(false);
+            return;
+        }
+        pref.setEnabled(dbEncrypted);
+        if (!dbEncrypted) {
+            pref.setChecked(false);
+            pref.setSummary(R.string.pref_require_startup_password_summary_needs_encryption);
+        } else {
+            pref.setSummary(R.string.pref_require_startup_password_summary);
+        }
+    }
+
+    /**
+     * Enabling the startup-password requirement:
+     * Ask the user to type their current DB password to prove they know it, then remove it from
+     * persistent storage so it lives only in the session and must be re-entered on every cold start.
+     */
+    private void showEnableStartupPasswordDialog(SwitchPreferenceCompat pref) {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
+        builder.setTitle(R.string.pref_require_startup_password_title);
+        builder.setMessage(R.string.dialog_enable_startup_password_message);
+
+        final android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        final int p = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(p, p, p, p);
+
+        final com.google.android.material.textfield.TextInputEditText input =
+                new com.google.android.material.textfield.TextInputEditText(requireContext());
+        input.setHint(R.string.dialog_db_password_hint);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setSingleLine(true);
+        layout.addView(input);
+        builder.setView(layout);
+
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setPositiveButton(android.R.string.ok, null);
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            final android.text.Editable text = input.getText();
+            if (text == null || text.length() == 0) return;
+            final char[] entered = new char[text.length()];
+            text.getChars(0, text.length(), entered, 0);
+            text.clear();
+            try {
+                final String stored = new AppSettings(requireContext()).getDatabasePassword();
+                final boolean match = stored != null
+                        && CryptoHelper.isEqual(entered, stored.toCharArray());
+                java.util.Arrays.fill(entered, '\0');
+                if (!match) {
+                    Toast.makeText(requireContext(),
+                            R.string.toast_wrong_startup_password, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Correct — set the flag first so subsequent getDatabasePassword() uses session,
+                // then erase the persisted copy from EncryptedSharedPreferences.
+                AppSettings.setSessionPassword(stored.toCharArray());
+                androidx.preference.PreferenceManager
+                        .getDefaultSharedPreferences(requireContext())
+                        .edit().putBoolean(AppSettings.REQUIRE_PASSWORD_ON_STARTUP, true).commit();
+                try {
+                    new AppSettings(requireContext()).getEncryptedPreferences()
+                            .edit().remove(AppSettings.DATABASE_PASSWORD).commit();
+                } catch (Exception e) {
+                    android.util.Log.e("SecuritySettings",
+                            "Could not remove stored DB password", e);
+                }
+                dialog.dismiss();
+                pref.setChecked(true);
+                updateStartupPasswordPreferenceState(pref);
+                Toast.makeText(requireContext(),
+                        R.string.toast_startup_password_enabled, Toast.LENGTH_SHORT).show();
+            } catch (eu.siacs.conversations.EncryptionException e) {
+                java.util.Arrays.fill(entered, '\0');
+                ((eu.siacs.conversations.ui.XmppActivity) requireActivity()).showCriticalErrorDialog(e);
+            }
+        });
+    }
+
+    /**
+     * Disabling the startup-password requirement:
+     * Store the session password back to encrypted persistent storage so the service can open the
+     * DB automatically on the next cold start.
+     */
+    private void disableStartupPasswordRequirement(SwitchPreferenceCompat pref) {
+        final char[] sessionPw = AppSettings.getSessionPassword();
+        if (sessionPw == null) {
+            // Should not happen (user is in settings after unlocking), but guard defensively
+            Toast.makeText(requireContext(),
+                    R.string.toast_startup_password_session_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            // Flip the flag to false FIRST so setDatabasePassword uses the normal persistent path
+            androidx.preference.PreferenceManager
+                    .getDefaultSharedPreferences(requireContext())
+                    .edit().putBoolean(AppSettings.REQUIRE_PASSWORD_ON_STARTUP, false).commit();
+            // Write the password back to EncryptedSharedPreferences
+            new AppSettings(requireContext()).setDatabasePassword(sessionPw);
+            // Clear the in-memory copy (persistent storage is now the source of truth again)
+            AppSettings.clearSessionPassword();
+            pref.setChecked(false);
+            updateStartupPasswordPreferenceState(pref);
+            Toast.makeText(requireContext(),
+                    R.string.toast_startup_password_disabled, Toast.LENGTH_SHORT).show();
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            // Restore the flag if the write failed
+            androidx.preference.PreferenceManager
+                    .getDefaultSharedPreferences(requireContext())
+                    .edit().putBoolean(AppSettings.REQUIRE_PASSWORD_ON_STARTUP, true).commit();
+            ((eu.siacs.conversations.ui.XmppActivity) requireActivity()).showCriticalErrorDialog(e);
         }
     }
 

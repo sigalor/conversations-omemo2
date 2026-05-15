@@ -79,6 +79,39 @@ public class AppSettings {
     public static final String DELETE_UNUSED_FILES = "delete_unused_files";
     public static final String USE_INTERNAL_SECURE_STORAGE = "default_store_media_securely";
     public static final String SHOW_MAPS_INSIDE = "show_maps_inside";
+    public static final String REQUIRE_PASSWORD_ON_STARTUP = "require_password_on_startup";
+
+    // In-memory session password: the char[] the user typed at startup.
+    // Never written to disk. Zeroed when no longer needed. Null when locked.
+    private static volatile char[] sSessionPassword = null;
+
+    public static boolean isSessionUnlocked() {
+        return sSessionPassword != null;
+    }
+
+    /** Store the entered password for this process lifetime. Zeros any previously held value. */
+    public static void setSessionPassword(final char[] password) {
+        final char[] old = sSessionPassword;
+        sSessionPassword = password != null ? password.clone() : null;
+        if (old != null) java.util.Arrays.fill(old, '\0');
+    }
+
+    /** Zero and discard the session password (e.g. on wrong-key error so the user retries). */
+    public static void clearSessionPassword() {
+        final char[] pw = sSessionPassword;
+        sSessionPassword = null;
+        if (pw != null) java.util.Arrays.fill(pw, '\0');
+    }
+
+    /** Returns the live session-password array. Callers must NOT modify or zero it. */
+    public static char[] getSessionPassword() {
+        return sSessionPassword;
+    }
+
+    public boolean isPasswordOnStartupRequired() {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(REQUIRE_PASSWORD_ON_STARTUP, false);
+    }
 
     private static final String EXTERNAL_STORAGE_AUTHORITY =
             "com.android.externalstorage.documents";
@@ -301,6 +334,17 @@ public class AppSettings {
     }
 
     public String getDatabasePassword() {
+        if (isPasswordOnStartupRequired()) {
+            // Password is never stored on disk in this mode — must come from the session
+            if (sSessionPassword == null) {
+                throw new EncryptionException(
+                        "Database requires startup password",
+                        null,
+                        EncryptionException.Reason.NEEDS_SESSION_PASSWORD);
+            }
+            return new String(sSessionPassword);
+        }
+        // Normal mode: read from encrypted storage
         try {
             final SharedPreferences encryptedPrefs = getEncryptedPreferences();
             String password = encryptedPrefs.getString(DATABASE_PASSWORD, null);
@@ -317,6 +361,8 @@ public class AppSettings {
                 }
             }
             return password;
+        } catch (EncryptionException e) {
+            throw e;
         } catch (Exception e) {
             Log.e("AppSettings", "Could not load encrypted shared preferences", e);
             throw new EncryptionException("Could not load encrypted shared preferences", e);
@@ -327,11 +373,30 @@ public class AppSettings {
         if (password != null && password.isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
+        if (isPasswordOnStartupRequired()) {
+            // Never write to disk in startup-required mode; update the session copy instead
+            if (password == null) {
+                // Encryption disabled — clear session and remove the startup-required flag
+                clearSessionPassword();
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().putBoolean(REQUIRE_PASSWORD_ON_STARTUP, false).commit();
+            } else {
+                setSessionPassword(password.toCharArray());
+            }
+            // Also purge any stale entry that might exist in encrypted storage
+            try {
+                getEncryptedPreferences().edit().remove(DATABASE_PASSWORD).commit();
+            } catch (Exception ignored) {}
+            PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
+            return;
+        }
         try {
             final SharedPreferences encryptedPrefs = getEncryptedPreferences();
             encryptedPrefs.edit().putString(DATABASE_PASSWORD, password).commit();
             // Ensure it's removed from legacy storage
             PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
+        } catch (EncryptionException e) {
+            throw e;
         } catch (Exception e) {
             Log.e("AppSettings", "Could not save encrypted shared preferences", e);
             throw new EncryptionException("Could not save encrypted shared preferences", e);

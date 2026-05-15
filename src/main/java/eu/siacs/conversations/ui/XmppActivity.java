@@ -173,8 +173,33 @@ public abstract class XmppActivity extends ActionBarActivity {
                     xmppConnectionService = binder.getService();
                     staticXmppConnectionService = binder.getService();
                     xmppConnectionServiceBound = true;
-                    if (xmppConnectionService.getCriticalError() != null) {
-                        showCriticalErrorDialog(xmppConnectionService.getCriticalError());
+                    final eu.siacs.conversations.EncryptionException err =
+                            xmppConnectionService.getCriticalError();
+                    if (xmppConnectionService.needsPassword() && AppSettings.isSessionUnlocked()) {
+                        // Service was already running without DB access; session pw now available
+                        // — restart so onCreate() re-runs with the password.
+                        unregisterListeners();
+                        unbindService(mConnection);
+                        xmppConnectionServiceBound = false;
+                        stopService(new Intent(XmppActivity.this, XmppConnectionService.class));
+                        connectToBackend();
+                    } else if (xmppConnectionService.needsPassword()) {
+                        // Service locked and user hasn't entered password yet (shouldn't normally
+                        // reach here; onStart guards it, but handle defensively).
+                        showStartupPasswordPrompt();
+                    } else if (err != null
+                            && err.reason == eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY
+                            && new AppSettings(XmppActivity.this).isPasswordOnStartupRequired()) {
+                        // Wrong startup password — clear and let the user retry
+                        AppSettings.clearSessionPassword();
+                        unregisterListeners();
+                        unbindService(mConnection);
+                        xmppConnectionServiceBound = false;
+                        stopService(new Intent(XmppActivity.this, XmppConnectionService.class));
+                        mStartupPasswordError = getString(R.string.toast_wrong_startup_password);
+                        showStartupPasswordPrompt();
+                    } else if (err != null) {
+                        showCriticalErrorDialog(err);
                     } else {
                         registerListeners();
                         onBackendConnected();
@@ -278,7 +303,11 @@ public abstract class XmppActivity extends ActionBarActivity {
             recreate();
         }
         if (!xmppConnectionServiceBound) {
-            connectToBackend();
+            if (new AppSettings(this).isPasswordOnStartupRequired() && !AppSettings.isSessionUnlocked()) {
+                showStartupPasswordPrompt();
+            } else {
+                connectToBackend();
+            }
         } else {
             this.registerListeners();
             this.onBackendConnected();
@@ -286,6 +315,66 @@ public abstract class XmppActivity extends ActionBarActivity {
         this.mUsingEnterKey = usingEnterKey();
         this.mUseTor = useTor();
         this.mUseI2P = useI2P();
+    }
+
+    private AlertDialog mStartupPasswordDialog;
+    private String mStartupPasswordError = null;
+
+    private void showStartupPasswordPrompt() {
+        if (mStartupPasswordDialog != null && mStartupPasswordDialog.isShowing()) {
+            return;
+        }
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.dialog_startup_password_title);
+        builder.setCancelable(false);
+
+        final android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        final int p = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(p, p, p, p);
+
+        // Show error from a previous failed attempt (wrong password)
+        if (mStartupPasswordError != null) {
+            final android.widget.TextView errorView = new android.widget.TextView(this);
+            errorView.setText(mStartupPasswordError);
+            errorView.setTextColor(0xFFB00020); // Material error red
+            errorView.setPadding(0, 0, 0, p / 2);
+            layout.addView(errorView);
+            mStartupPasswordError = null;
+        }
+
+        final com.google.android.material.textfield.TextInputEditText input =
+                new com.google.android.material.textfield.TextInputEditText(this);
+        input.setHint(R.string.dialog_db_password_hint);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setSingleLine(true);
+        layout.addView(input);
+        builder.setView(layout);
+
+        builder.setPositiveButton(R.string.action_unlock_database, null);
+        builder.setNegativeButton(R.string.action_exit, (d, w) -> {
+            AppSettings.clearSessionPassword();
+            finishAffinity();
+        });
+
+        mStartupPasswordDialog = builder.create();
+        mStartupPasswordDialog.show();
+
+        mStartupPasswordDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            final Editable text = input.getText();
+            if (text == null || text.length() == 0) return;
+            // Copy to char[] so we can zero it; set as session password for DB open
+            final char[] entered = new char[text.length()];
+            text.getChars(0, text.length(), entered, 0);
+            text.clear();
+            AppSettings.setSessionPassword(entered);
+            java.util.Arrays.fill(entered, '\0');
+            mStartupPasswordDialog.dismiss();
+            mStartupPasswordDialog = null;
+            connectToBackend();
+        });
+
+        input.requestFocus();
     }
 
     public void connectToBackend() {

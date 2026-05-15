@@ -87,6 +87,12 @@
             android:key="database_encryption"
             android:icon="@drawable/ic_lock_24dp"
             android:title="@string/pref_database_encryption" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_lock_24dp"
+            android:key="require_password_on_startup"
+            android:title="@string/pref_require_startup_password_title"
+            android:summary="@string/pref_require_startup_password_summary" />
     </PreferenceCategory>
 
 </PreferenceScreen>
