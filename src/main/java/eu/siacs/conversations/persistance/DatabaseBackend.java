@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 
 import de.monocles.chat.WebxdcUpdate;
 import de.monocles.chat.pinnedmessage.PinnedMessage;
+import androidx.preference.PreferenceManager;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.xml.Element;
 
@@ -133,6 +134,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "history";
     private static final int DATABASE_VERSION = 69;
+    private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
     private static DatabaseBackend instance = null;
@@ -457,9 +459,89 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public static synchronized DatabaseBackend getInstance(Context context) {
         if (instance == null) {
             System.loadLibrary("sqlcipher");
+            recoverFromInterruptedMigration(context);
             instance = new DatabaseBackend(context);
         }
         return instance;
+    }
+
+    private static void recoverFromInterruptedMigration(Context context) {
+        if (!PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(REKEY_MIGRATION_IN_PROGRESS, false)) return;
+
+        final File dbFile = context.getDatabasePath(DATABASE_NAME);
+        final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
+        final File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
+
+        Log.w(Config.LOGTAG, "rekey: sentinel set — checking interrupted migration state");
+
+        // State A: no .bak — migration hadn't started or sentinel wasn't cleared after success
+        if (!backupFile.exists()) {
+            Log.w(Config.LOGTAG, "rekey: no backup found, treating as clean");
+            if (tempFile.exists()) tempFile.delete();
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+            return;
+        }
+
+        // State B: .bak exists but dbFile is missing — killed between step 1 and step 2
+        // Prefs still hold old key (setDatabasePassword hadn't run yet).
+        if (!dbFile.exists()) {
+            Log.w(Config.LOGTAG, "rekey: dbFile missing, restoring backup");
+            if (!backupFile.renameTo(dbFile)) {
+                Log.e(Config.LOGTAG, "rekey: CRITICAL — could not restore backup file");
+            }
+            if (tempFile.exists()) tempFile.delete();
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+            return;
+        }
+
+        // States C/D: both files exist — need to test dbFile with current prefs key.
+        final String currentPassword;
+        try {
+            currentPassword = new AppSettings(context).getDatabasePassword();
+        } catch (eu.siacs.conversations.EncryptionException e) {
+            if (e.reason == eu.siacs.conversations.EncryptionException.Reason.NEEDS_SESSION_PASSWORD) {
+                // Startup-password mode: session not entered yet — defer until next getInstance()
+                Log.w(Config.LOGTAG, "rekey: session password not available, deferring recovery");
+                return;
+            }
+            Log.e(Config.LOGTAG, "rekey: cannot obtain password for recovery", e);
+            return;
+        }
+
+        boolean dbFileValid = false;
+        try {
+            final SQLiteDatabase test = SQLiteDatabase.openDatabase(
+                    dbFile.getAbsolutePath(),
+                    currentPassword == null ? "" : currentPassword,
+                    null,
+                    SQLiteDatabase.OPEN_READONLY,
+                    currentPassword == null ? null : DATABASE_HOOK);
+            test.close();
+            dbFileValid = true;
+        } catch (Exception ignored) { /* dbFile not openable with current key */ }
+
+        if (dbFileValid) {
+            // State D: dbFile valid with current key — migration completed; just clean up .bak
+            Log.w(Config.LOGTAG, "rekey: dbFile valid, cleaning up orphaned backup");
+            FileHelper.secureDelete(backupFile);
+            FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
+            FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
+        } else {
+            // State C: dbFile has new key but prefs still hold old key (setDatabasePassword
+            // hadn't run yet). Restore .bak to undo the migration; data is recoverable.
+            Log.w(Config.LOGTAG, "rekey: dbFile invalid with current key, restoring backup");
+            FileHelper.secureDelete(dbFile);
+            if (!backupFile.renameTo(dbFile)) {
+                Log.e(Config.LOGTAG, "rekey: CRITICAL — could not restore backup file");
+            }
+        }
+
+        if (tempFile.exists()) tempFile.delete();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
     }
 
     public static synchronized void closeInstance() {
@@ -3803,31 +3885,40 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
 
         final AppSettings settings = new AppSettings(context);
-        final String savedPassword = settings.getDatabasePassword();
         final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
         if (backupFile.exists() && !backupFile.delete()) {
-             throw new java.io.IOException("Failed to delete existing backup file");
+            throw new java.io.IOException("Failed to delete existing backup file");
         }
 
+        // Write sentinel before touching any files. If the process dies mid-migration,
+        // recoverFromInterruptedMigration() will restore a consistent state on next launch.
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
+
+        boolean prefsUpdated = false;
         try {
-            // Step 1: Backup old file
+            // Step 1: Move original DB to .bak
             if (!dbFile.renameTo(backupFile)) {
                 throw new java.io.IOException("Failed to backup old database file");
             }
 
-            // Step 2: Update password in prefs
-            settings.setDatabasePassword(newPassword);
-
-            // Step 3: Rename temp to original
+            // Step 2: Move new (re-encrypted) DB into place
             if (!tempFile.renameTo(dbFile)) {
-                // Step 4: Rollback if rename fails
                 if (!backupFile.renameTo(dbFile)) {
-                    Log.e("DATABASE BACKEND", "CRITICAL: Failed to rollback database file after rename failure");
+                    Log.e(Config.LOGTAG, "rekey: CRITICAL — failed to rollback after temp rename failure");
                 }
                 throw new java.io.IOException("Failed to rename temporary database file");
             }
 
-            // Step 5: Securely delete backup and auxiliary files
+            // Step 3: Persist new key — last write that changes observable state
+            settings.setDatabasePassword(newPassword);
+            prefsUpdated = true;
+
+            // Step 4: Clear sentinel now that both files and prefs are consistent
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
+
+            // Step 5: Securely delete backup and auxiliary files (best-effort)
             FileHelper.secureDelete(backupFile);
             FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
             FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
@@ -3835,12 +3926,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
 
         } catch (Exception e) {
-            // Rollback password in prefs
-            try {
-                settings.setDatabasePassword(savedPassword);
-            } catch (Exception rollbackError) {
-                Log.e("DATABASE BACKEND", "Failed to rollback password after migration error", rollbackError);
+            if (!prefsUpdated) {
+                // Failed before or during file operations and before prefs were updated —
+                // safe to clear sentinel since file state was either not changed or restored.
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
             }
+            // If prefsUpdated is true, the migration succeeded but cleanup threw.
+            // Sentinel was already cleared; .bak will be an orphan but data is accessible.
             throw e;
         }
     }
