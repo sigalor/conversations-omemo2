@@ -333,6 +333,21 @@ public class AppSettings {
                 .apply();
     }
 
+    public char[] getDatabasePasswordChars() {
+        if (isPasswordOnStartupRequired()) {
+            if (sSessionPassword == null) {
+                throw new EncryptionException(
+                        "Database requires startup password",
+                        null,
+                        EncryptionException.Reason.NEEDS_SESSION_PASSWORD);
+            }
+            return sSessionPassword.clone(); // no String ever created in this path
+        }
+        final String pw = getDatabasePassword();
+        if (pw == null) return null;
+        return pw.toCharArray(); // String from prefs API; can't zero it, but we release the ref here
+    }
+
     public String getDatabasePassword() {
         if (isPasswordOnStartupRequired()) {
             // Password is never stored on disk in this mode — must come from the session

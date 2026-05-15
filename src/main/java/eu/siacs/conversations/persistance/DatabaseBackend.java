@@ -3865,7 +3865,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPassword == null ? "" : new String(oldPassword), null, SQLiteDatabase.OPEN_READWRITE, oldPassword == null ? null : DATABASE_HOOK);
+        // SQLCipher's Java bridge requires String; hold a single reference and null it immediately
+        // after the call so there is at most one collectable reference in the heap at any time.
+        String oldPwStr = oldPassword == null ? "" : new String(oldPassword);
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldPwStr, null, SQLiteDatabase.OPEN_READWRITE, oldPassword == null ? null : DATABASE_HOOK);
+        oldPwStr = null;
         int version = db.getVersion();
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
@@ -3874,7 +3878,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
             db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 1;");
 
-            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPassword == null ? "" : new String(newPassword));
+            String newPwStr = newPassword == null ? "" : new String(newPassword);
+            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPwStr);
+            newPwStr = null;
             String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
             db.rawExecSQL(attachSql);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");

@@ -111,8 +111,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
     private void updateDatabaseEncryptionSummary(Preference preference) {
         if (preference != null) {
             try {
-                String password = new AppSettings(requireContext()).getDatabasePassword();
-                preference.setSummary(password == null ? R.string.pref_database_encryption_summary_disabled : R.string.pref_database_encryption_summary_enabled);
+                final char[] pw = new AppSettings(requireContext()).getDatabasePasswordChars();
+                preference.setSummary(pw == null ? R.string.pref_database_encryption_summary_disabled : R.string.pref_database_encryption_summary_enabled);
+                if (pw != null) FileHelper.zero(pw);
             } catch (eu.siacs.conversations.EncryptionException e) {
                 preference.setSummary(R.string.title_critical_keystore_error);
             }
@@ -131,7 +132,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         }
         final boolean dbEncrypted;
         try {
-            dbEncrypted = appSettings.getDatabasePassword() != null;
+            final char[] pw = appSettings.getDatabasePasswordChars();
+            dbEncrypted = pw != null;
+            if (pw != null) FileHelper.zero(pw);
         } catch (eu.siacs.conversations.EncryptionException e) {
             pref.setEnabled(false);
             return;
@@ -181,18 +184,20 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             text.getChars(0, text.length(), entered, 0);
             text.clear();
             try {
-                final String stored = new AppSettings(requireContext()).getDatabasePassword();
+                final char[] stored = new AppSettings(requireContext()).getDatabasePasswordChars();
                 final boolean match = stored != null
-                        && CryptoHelper.isEqual(entered, stored.toCharArray());
+                        && CryptoHelper.isEqual(entered, stored);
                 java.util.Arrays.fill(entered, '\0');
                 if (!match) {
+                    if (stored != null) java.util.Arrays.fill(stored, '\0');
                     Toast.makeText(requireContext(),
                             R.string.toast_wrong_startup_password, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 // Correct — set the flag first so subsequent getDatabasePassword() uses session,
                 // then erase the persisted copy from EncryptedSharedPreferences.
-                AppSettings.setSessionPassword(stored.toCharArray());
+                AppSettings.setSessionPassword(stored);
+                java.util.Arrays.fill(stored, '\0');
                 androidx.preference.PreferenceManager
                         .getDefaultSharedPreferences(requireContext())
                         .edit().putBoolean(AppSettings.REQUIRE_PASSWORD_ON_STARTUP, true).commit();
@@ -252,7 +257,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
     private void showDatabaseEncryptionDialog() {
         try {
-            final String currentPassword = new AppSettings(requireContext()).getDatabasePassword();
+            final char[] currentPassword = new AppSettings(requireContext()).getDatabasePasswordChars();
             if (currentPassword == null) {
                 showEnableEncryptionDialog();
             } else {
@@ -324,21 +329,23 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         builder.show();
     }
 
-    private void showEncryptionOptionsDialog(String currentPassword) {
+    private void showEncryptionOptionsDialog(char[] currentPassword) {
         final var builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setTitle(R.string.pref_database_encryption);
         String[] options = {getString(R.string.dialog_change_db_password_title), getString(R.string.pref_database_encryption_summary_disabled)};
         builder.setItems(options, (dialog, which) -> {
+            // Clone so the sub-dialog owns its copy; dismiss listener will zero this original.
             if (which == 0) {
-                showChangePasswordDialog(currentPassword);
+                showChangePasswordDialog(currentPassword.clone());
             } else {
-                showDisableEncryptionDialog(currentPassword);
+                showDisableEncryptionDialog(currentPassword.clone());
             }
         });
-        builder.show();
+        final AlertDialog d = builder.show();
+        d.setOnDismissListener(dialog -> FileHelper.zero(currentPassword));
     }
 
-    private void showChangePasswordDialog(String currentPassword) {
+    private void showChangePasswordDialog(char[] currentPassword) {
         final var builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setTitle(R.string.dialog_change_db_password_title);
 
@@ -386,33 +393,36 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             final var confirm = new char[confirmInput.length()];
             confirmInput.getText().getChars(0, confirmInput.length(), confirm, 0);
 
-            final char[] currentPasswordArr = currentPassword.toCharArray();
-            if (!CryptoHelper.isEqual(current, currentPasswordArr)) {
+            if (!CryptoHelper.isEqual(current, currentPassword)) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
+                FileHelper.zero(current);
+                FileHelper.zero(password);
+                FileHelper.zero(confirm);
             } else if (password.length < 8) {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_too_short, Toast.LENGTH_SHORT).show();
+                FileHelper.zero(current);
+                FileHelper.zero(password);
+                FileHelper.zero(confirm);
             } else if (CryptoHelper.isEqual(password, confirm)) {
                 currentInput.getText().clear();
                 passwordInput.getText().clear();
                 confirmInput.getText().clear();
-                performMigration(currentPassword, password);
                 FileHelper.zero(current);
                 FileHelper.zero(confirm);
-                FileHelper.zero(currentPasswordArr);
-                return;
+                performMigration(currentPassword, password); // performMigration zeros both in finally
             } else {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_mismatch, Toast.LENGTH_SHORT).show();
+                FileHelper.zero(current);
+                FileHelper.zero(password);
+                FileHelper.zero(confirm);
             }
-            FileHelper.zero(current);
-            FileHelper.zero(password);
-            FileHelper.zero(confirm);
-            FileHelper.zero(currentPasswordArr);
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setNegativeButton(android.R.string.cancel,
+                (d, w) -> FileHelper.zero(currentPassword));
         builder.show();
     }
 
-    private void showDisableEncryptionDialog(String currentPassword) {
+    private void showDisableEncryptionDialog(char[] currentPassword) {
         final var builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setTitle(R.string.pref_database_encryption_summary_disabled);
 
@@ -445,21 +455,21 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             final char[] current = new char[currentInput.length()];
             currentInput.getText().getChars(0, currentInput.length(), current, 0);
-            final char[] currentPasswordArr = currentPassword.toCharArray();
-            if (CryptoHelper.isEqual(current, currentPasswordArr)) {
+            if (CryptoHelper.isEqual(current, currentPassword)) {
                 currentInput.getText().clear();
-                performMigration(currentPassword, null);
+                FileHelper.zero(current);
+                performMigration(currentPassword, null); // performMigration zeros currentPassword in finally
             } else {
                 Toast.makeText(requireContext(), R.string.toast_db_password_error_wrong, Toast.LENGTH_SHORT).show();
+                FileHelper.zero(current);
             }
-            FileHelper.zero(current);
-            FileHelper.zero(currentPasswordArr);
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setNegativeButton(android.R.string.cancel,
+                (d, w) -> FileHelper.zero(currentPassword));
         builder.show();
     }
 
-    private void performMigration(String oldPassword, char[] newPassword) {
+    private void performMigration(char[] oldPassword, char[] newPassword) {
         final var progressBuilder = new MaterialAlertDialogBuilder(requireActivity());
         progressBuilder.setTitle("Database Migration");
         progressBuilder.setMessage("Please wait...");
@@ -471,10 +481,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         final AlertDialog progressDialog = progressBuilder.show();
 
         new Thread(() -> {
-            final char[] oldPasswordArr = oldPassword == null ? null : oldPassword.toCharArray();
             try {
-                DatabaseBackend.migrate(requireContext(), oldPasswordArr, newPassword);
-                UnifiedPushDatabase.migrate(requireContext(), oldPasswordArr, newPassword);
+                DatabaseBackend.migrate(requireContext(), oldPassword, newPassword);
+                UnifiedPushDatabase.migrate(requireContext(), oldPassword, newPassword);
                 if (requireService() != null) {
                     requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
                 }
@@ -493,7 +502,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                             .show();
                 });
             } finally {
-                FileHelper.zero(oldPasswordArr);
+                FileHelper.zero(oldPassword);
                 FileHelper.zero(newPassword);
             }
         }).start();
