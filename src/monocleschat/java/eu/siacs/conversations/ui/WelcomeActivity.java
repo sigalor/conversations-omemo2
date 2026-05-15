@@ -50,6 +50,7 @@ import eu.siacs.conversations.utils.Compatibility;
 import eu.siacs.conversations.utils.InstallReferrerUtils;
 import eu.siacs.conversations.utils.SignupUtils;
 import eu.siacs.conversations.utils.XmppUri;
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.xmpp.Jid;
 
 import static eu.siacs.conversations.AppSettings.ALLOW_SCREENSHOTS;
@@ -158,6 +159,12 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
             onboardingAccount = xmppConnectionService.getAccounts().get(0);
             xmppConnectionService.reconnectAccountInBackground(onboardingAccount);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateDatabaseEncryptionButton();
     }
 
     @Override
@@ -284,18 +291,19 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     }
 
     private void getDefaults() {
-        this.binding.switchLoadProvidersListExternal.setChecked(getResources().getBoolean(R.bool.load_providers_list_external));
-        this.binding.allowScreenshots.setChecked(getResources().getBoolean(R.bool.allow_screenshots));
-        this.binding.showLinks.setChecked(getResources().getBoolean(R.bool.show_link_previews));
-        this.binding.showMappreview.setChecked(getResources().getBoolean(R.bool.show_maps_inside));
-        this.binding.chatStates.setChecked(getResources().getBoolean(R.bool.chat_states));
-        this.binding.confirmMessages.setChecked(getResources().getBoolean(R.bool.confirm_messages));
-        this.binding.lastSeen.setChecked(getResources().getBoolean(R.bool.last_activity));
-        this.binding.blindTrust.setChecked(getResources().getBoolean(R.bool.btbv));
-        this.binding.dane.setChecked(getResources().getBoolean(R.bool.enforce_dane));
-        this.binding.useSecureTls.setChecked(getResources().getBoolean(R.bool.require_tls_v1_3));
-        this.binding.storeSecurely.setChecked(getResources().getBoolean(R.bool.default_store_media_securely));
-        this.binding.sendCrashReports.setChecked(getResources().getBoolean(R.bool.send_crash_reports));
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.binding.switchLoadProvidersListExternal.setChecked(preferences.getBoolean(LOAD_PROVIDERS_EXTERNAL, getResources().getBoolean(R.bool.load_providers_list_external)));
+        this.binding.allowScreenshots.setChecked(preferences.getBoolean(ALLOW_SCREENSHOTS, getResources().getBoolean(R.bool.allow_screenshots)));
+        this.binding.showLinks.setChecked(preferences.getBoolean(SHOW_LINK_PREVIEWS, getResources().getBoolean(R.bool.show_link_previews)));
+        this.binding.showMappreview.setChecked(preferences.getBoolean(SHOW_MAPS_INSIDE, getResources().getBoolean(R.bool.show_maps_inside)));
+        this.binding.chatStates.setChecked(preferences.getBoolean(CHAT_STATES, getResources().getBoolean(R.bool.chat_states)));
+        this.binding.confirmMessages.setChecked(preferences.getBoolean(CONFIRM_MESSAGES, getResources().getBoolean(R.bool.confirm_messages)));
+        this.binding.lastSeen.setChecked(preferences.getBoolean(BROADCAST_LAST_ACTIVITY, getResources().getBoolean(R.bool.last_activity)));
+        this.binding.blindTrust.setChecked(preferences.getBoolean(BLIND_TRUST_BEFORE_VERIFICATION, getResources().getBoolean(R.bool.btbv)));
+        this.binding.dane.setChecked(preferences.getBoolean(DANE_ENFORCED, getResources().getBoolean(R.bool.enforce_dane)));
+        this.binding.useSecureTls.setChecked(preferences.getBoolean(REQUIRE_TLS_V1_3, getResources().getBoolean(R.bool.require_tls_v1_3)));
+        this.binding.storeSecurely.setChecked(preferences.getBoolean(USE_INTERNAL_SECURE_STORAGE, getResources().getBoolean(R.bool.default_store_media_securely)));
+        this.binding.sendCrashReports.setChecked(preferences.getBoolean(SEND_CRASH_REPORTS, getResources().getBoolean(R.bool.send_crash_reports)));
     }
 
 
@@ -367,6 +375,21 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
         builder.create().show();
     }
 
+
+    private void updateDatabaseEncryptionButton() {
+        boolean encrypted;
+        try {
+            encrypted = new AppSettings(this).getDatabasePassword() != null;
+        } catch (Exception e) {
+            encrypted = false;
+        }
+        if (encrypted) {
+            this.binding.setupDatabaseEncryption.setText(R.string.pref_database_encryption_summary_enabled);
+            this.binding.setupDatabaseEncryption.setEnabled(false);
+        } else {
+            this.binding.setupDatabaseEncryption.setEnabled(true);
+        }
+    }
 
     private void showDatabaseEncryptionDialog() {
         final var builder = new MaterialAlertDialogBuilder(this);
