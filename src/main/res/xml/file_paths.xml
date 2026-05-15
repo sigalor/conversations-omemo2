@@ -1,36 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path
-        name="external"
-        path="/"/>
-    <root-path
-        name="storage"
-        path="/storage/"/>
-    <files-path
-        name="pictures"
-        path="Images/"/>
-    <files-path
-        name="videos"
-        path="Videos"/>
-    <files-path
-        name="files"
-        path="Files/"/>
-    <files-path
-        name="recordings"
-        path="Recordings/"/>
-    <files-path
-        name="secure_media"
-        path="media/"/>
-    <files-path
-        name="camera"
-        path="Camera/"/>
-    <files-path
-        name="avatars"
-        path="avatars/"/>
-    <files-path
-        name="stories"
-        path="stories/"/>
-    <cache-path
-        name="camera"
-        path="Camera/"/>
+    <!-- Internal app storage (getFilesDir()) -->
+    <files-path name="secure_media" path="media/" />
+    <files-path name="avatars"      path="avatars/" />
+    <files-path name="stories"      path="stories/" />
+    <!-- Camera captures written to public DCIM (getTakePhotoUri / getTakeVideoUri) -->
+    <external-path name="ext_dcim_camera" path="DCIM/Camera/" />
+    <!-- Received files and backups saved under Documents/monocles chat/ (getStorageLocation, ExportBackupWorker) -->
+    <external-path name="ext_documents"   path="Documents/" />
 </paths>
