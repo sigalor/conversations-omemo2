@@ -346,8 +346,8 @@ public abstract class XmppActivity extends ActionBarActivity {
         final com.google.android.material.textfield.TextInputEditText input =
                 new com.google.android.material.textfield.TextInputEditText(this);
         input.setHint(R.string.dialog_db_password_hint);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setSingleLine(true);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         layout.addView(input);
         builder.setView(layout);
 

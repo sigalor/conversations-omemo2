@@ -163,9 +163,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         final com.google.android.material.textfield.TextInputEditText input =
                 new com.google.android.material.textfield.TextInputEditText(requireContext());
         input.setHint(R.string.dialog_db_password_hint);
+        input.setSingleLine(true);
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
                 | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        input.setSingleLine(true);
         layout.addView(input);
         builder.setView(layout);
 
