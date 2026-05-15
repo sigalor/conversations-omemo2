@@ -3891,6 +3891,25 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 oldPwBytes != null ? DATABASE_HOOK : null);
         if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
         int version = db.getVersion();
+
+        // Optimization: DB is just-created and empty (onCreate never ran). Delete it and set
+        // the password now; the next getInstance() will build the schema encrypted via onCreate.
+        final boolean isEmpty;
+        try (final Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table'", null)) {
+            isEmpty = version == 0 && c != null && c.moveToFirst() && c.getInt(0) == 0;
+        }
+        if (isEmpty) {
+            db.close();
+            tempFile.delete();
+            // Delete before writing prefs: a crash here leaves the app in its original clean
+            // state (no file, no password) rather than a broken one (new password, old file).
+            FileHelper.secureDelete(dbFile);
+            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+            new AppSettings(context).setDatabasePassword(newPassword);
+            return;
+        }
+
         try {
             // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
             db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");

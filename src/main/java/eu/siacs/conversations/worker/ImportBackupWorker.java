@@ -41,6 +41,7 @@ import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.AccountUtils;
 import eu.siacs.conversations.utils.BackupFileHeader;
+import eu.siacs.conversations.utils.FileHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -168,19 +169,15 @@ public class ImportBackupWorker extends Worker {
             Log.d(Config.LOGTAG, "database is encrypted but we don't have the password. deleting it to proceed with import");
             DatabaseBackend.closeInstance();
             final File dbFile = context.getDatabasePath("history");
-            if (dbFile.delete()) {
-                final File walFile = new File(dbFile.getAbsolutePath() + "-wal");
-                if (walFile.exists()) {
-                    walFile.delete();
-                }
-                final File shmFile = new File(dbFile.getAbsolutePath() + "-shm");
-                if (shmFile.exists()) {
-                    shmFile.delete();
-                }
-                db = database.getWritableDatabase();
-            } else {
+            FileHelper.secureDelete(dbFile);
+            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+            if (dbFile.exists()) {
                 throw e;
             }
+            // Re-create via getInstance so the new DB uses the current AppSettings password,
+            // not the stale constructor-time password from the closed helper.
+            db = DatabaseBackend.getInstance(context).getWritableDatabase();
         }
         final InputStream inputStream;
         final String path = uri.getPath();
