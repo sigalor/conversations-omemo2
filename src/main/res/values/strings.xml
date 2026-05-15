@@ -1384,7 +1384,7 @@
     <string name="clear_txt">Clear</string>
     <string name="forgot_password_txt">Forgot password ?</string>
     <string name="pref_app_lock_enable_title">Enable app lock</string>
-    <string name="pref_app_lock_enable_summary">Enable the app lock. Be aware you can\'t open the app anymore when you forgot the PIN.</string>
+    <string name="pref_app_lock_enable_summary">App lock — prevents casual access to the app UI. Does not protect your data from attackers with device access; use Database Password for that.</string>
     <string name="app_lock_forgot_password">Reinstall app and load chat backup</string>
     <string name="new_message">New message</string>
     <string name="action_fix">Fix</string>
