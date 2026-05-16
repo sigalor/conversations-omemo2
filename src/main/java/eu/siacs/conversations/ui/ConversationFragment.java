@@ -33,6 +33,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
 import android.icu.util.TimeZone;
 import android.media.MediaRecorder;
@@ -146,6 +147,7 @@ import eu.siacs.conversations.xmpp.pep.UserTune;
 import io.ipfs.cid.Cid;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
@@ -1383,9 +1385,9 @@ public class ConversationFragment extends XmppFragment
                         if (source != null && source.length() > 0 && source.substring(0, 4).equals("cid:")) {
                             try {
                                 final Cid cid = BobTransfer.cid(Uri.parse(source));
-                                final String url = activity.xmppConnectionService.getUrlForCid(cid);
                                 final File f = activity.xmppConnectionService.getFileForCid(cid);
-                                if (url != null) {
+                                // Only convert to file upload for E2EE (BoB is not encrypted)
+                                if (f != null && (message.getEncryption() == Message.ENCRYPTION_AXOLOTL || message.getEncryption() == Message.ENCRYPTION_PGP || message.getEncryption() == Message.ENCRYPTION_OTR)) {
                                     message.setBody("");
                                     message.setRelativeFilePath(f.getAbsolutePath());
                                     activity.xmppConnectionService.getFileBackend().updateFileParams(message);
@@ -6370,6 +6372,31 @@ public class ConversationFragment extends XmppFragment
         }
     };
 
+    private void insertStickerIntoInput(final SpannableStringBuilder span) {
+        if (binding == null) return;
+        final Editable editable = binding.textinput.getText();
+        final int start = Math.max(binding.textinput.getSelectionStart(), 0);
+        final int end = Math.max(binding.textinput.getSelectionEnd(), 0);
+        editable.replace(Math.min(start, end), Math.max(start, end), span);
+    }
+
+    private void insertStickerFromFile(final File stickerFile, final String shortcode, final Drawable icon) {
+        new Thread(() -> {
+            try {
+                final Cid[] cids = activity.xmppConnectionService.getFileBackend()
+                        .calculateCids(new FileInputStream(stickerFile));
+                try { activity.xmppConnectionService.saveCid(cids[0], stickerFile); }
+                catch (final XmppConnectionService.BlockedMediaException ignored) { }
+                final SpannableStringBuilder span = new EmojiSearch.CustomEmoji(
+                        shortcode, cids[0].toString(), icon,
+                        stickerFile.getParentFile().getName()).toInsert();
+                activity.runOnUiThread(() -> insertStickerIntoInput(span));
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "sticker insert: " + e);
+            }
+        }).start();
+    }
+
     public void LoadStickers() {
         if (!hasStoragePermission(activity)) return;
 
@@ -6410,9 +6437,20 @@ public class ConversationFragment extends XmppFragment
                 StickersGrid.setAdapter(new StickersAdapter(activity, StickerfilesNames, StickerfilesPaths));
                 StickersGrid.setOnItemClickListener((parent, view, position, id) -> {
                     if (activity == null || StickerfilesPaths == null || position >= StickerfilesPaths.length) return;
-                    String filePath = StickerfilesPaths[position];
-                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                    toggleInputMethod();
+                    final String name = StickerfilesNames[position];
+                    final String shortcode = name.contains(".") ? name.substring(0, name.lastIndexOf('.')) : name;
+                    setupEmojiSearch();
+                    if (emojiSearch != null) {
+                        for (final EmojiSearch.Emoji emoji : emojiSearch.find(shortcode)) {
+                            if (emoji instanceof EmojiSearch.CustomEmoji && emoji.shortcodeMatch(shortcode)) {
+                                insertStickerIntoInput(((EmojiSearch.CustomEmoji) emoji).toInsert());
+                                return;
+                            }
+                        }
+                    }
+                    final ImageView gridItemView = view.findViewById(R.id.grid_item);
+                    final Drawable icon = gridItemView != null ? gridItemView.getDrawable() : null;
+                    insertStickerFromFile(new File(StickerfilesPaths[position]), shortcode, icon);
                 });
 
                 StickersGrid.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -6467,9 +6505,20 @@ public class ConversationFragment extends XmppFragment
                 GifsGrid.setAdapter(new GifsAdapter(activity, GifsfilesNames, GifsfilesPaths));
                 GifsGrid.setOnItemClickListener((parent, view, position, id) -> {
                     if (activity == null || GifsfilesPaths == null || position >= GifsfilesPaths.length) return;
-                    String filePath = GifsfilesPaths[position];
-                    mediaPreviewAdapter.addMediaPreviews(Attachment.of(activity, Uri.fromFile(new File(filePath)), Attachment.Type.IMAGE));
-                    toggleInputMethod();
+                    final String name = GifsfilesNames[position];
+                    final String shortcode = name.contains(".") ? name.substring(0, name.lastIndexOf('.')) : name;
+                    setupEmojiSearch();
+                    if (emojiSearch != null) {
+                        for (final EmojiSearch.Emoji emoji : emojiSearch.find(shortcode)) {
+                            if (emoji instanceof EmojiSearch.CustomEmoji && emoji.shortcodeMatch(shortcode)) {
+                                insertStickerIntoInput(((EmojiSearch.CustomEmoji) emoji).toInsert());
+                                return;
+                            }
+                        }
+                    }
+                    final ImageView gridItemView = view.findViewById(R.id.grid_item);
+                    final Drawable icon = gridItemView != null ? gridItemView.getDrawable() : null;
+                    insertStickerFromFile(new File(GifsfilesPaths[position]), shortcode, icon);
                 });
 
                 GifsGrid.setOnItemLongClickListener((parent, view, position, id) -> {
