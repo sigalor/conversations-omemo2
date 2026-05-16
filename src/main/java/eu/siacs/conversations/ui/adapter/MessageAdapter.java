@@ -1074,6 +1074,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 imagePreviewLayout(width, height, viewHolder.image(), message.getInReplyTo() != null, true, viewHolder);
                 activity.loadBitmap(message, viewHolder.image());
                 viewHolder.image().setOnClickListener(v -> ConversationFragment.downloadFile(activity, message));
+                viewHolder.image().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
 
                 break;
             }
@@ -1093,6 +1094,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         viewHolder
                 .downloadButton()
                 .setOnClickListener(v -> ConversationFragment.downloadFile(activity, message));
+        viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
     }
 
     private void displayWebxdcMessage(BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor) {
@@ -1116,12 +1118,14 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 conversation.startWebxdc(webxdc);
             }
         });
+        viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
         viewHolder.image().setOnClickListener(v -> {
             Conversation conversation = (Conversation) message.getConversation();
             if (!conversation.switchToSession("webxdc\0" + message.getUuid())) {
                 conversation.startWebxdc(webxdc);
             }
         });
+        viewHolder.image().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
 
         final WebxdcUpdate lastUpdate;
         synchronized (lastWebxdcUpdate) {
@@ -1188,6 +1192,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
         viewHolder.downloadButton().setIconResource(imageResource);
         viewHolder.downloadButton().setOnClickListener(v -> openDownloadable(message));
+        viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
     }
 
     private void displayURIMessage(
@@ -1236,6 +1241,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             viewHolder.downloadButton().setText("Send " + formattedAmount + "Taler");
         }
         viewHolder.downloadButton().setOnClickListener(v -> new FixedURLSpan(message.getRawBody()).onClick(v));
+        viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
     }
 
     private void displayLocationMessage(
@@ -1265,6 +1271,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             viewHolder.image().setVisibility(View.VISIBLE);
             imagePreviewLayout(540, 540, viewHolder.image(), message.getInReplyTo() != null, true, viewHolder);
             viewHolder.image().setOnClickListener(v -> showLocation(message));
+            viewHolder.image().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
             viewHolder.downloadButton().setVisibility(GONE);
         } else {
             viewHolder.image().setVisibility(GONE);
@@ -1274,6 +1281,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
             viewHolder.downloadButton().setIconResource(imageResource);
             viewHolder.downloadButton().setOnClickListener(v -> showLocation(message));
+            viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
         }
     }
 
@@ -1294,6 +1302,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         audioPlayer.setVisibility(View.VISIBLE);
         AudioPlayer.ViewHolder.get(audioPlayer).setBubbleColor(bubbleColor);
         this.audioPlayer.init(audioPlayer, message);
+        audioPlayer.setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
     }
 
     private void displayMediaPreviewMessage(
@@ -1321,6 +1330,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         imagePreviewLayout(params.width, params.height, viewHolder.image(), message.getInReplyTo() != null, viewHolder.messageBody().getVisibility() != GONE, viewHolder);
         activity.loadBitmap(message, viewHolder.image());
         viewHolder.image().setOnClickListener(v -> openDownloadable(message));
+        viewHolder.image().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
     }
 
     private void imagePreviewLayout(int w, int h, ShapeableImageView image, boolean otherAbove, boolean otherBelow, BubbleMessageItemViewHolder viewHolder) {
