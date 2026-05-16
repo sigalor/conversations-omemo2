@@ -6343,10 +6343,8 @@ public class ConversationFragment extends XmppFragment
             if (binding.keyboardButton.getVisibility() != VISIBLE) return;
             binding.keyboardButton.setVisibility(GONE);
             binding.emojiButton.setVisibility(VISIBLE);
-            final LinearLayout emojipickerview = binding.emojisStickerLayout;
-            final ViewGroup.LayoutParams params = emojipickerview.getLayoutParams();
-            params.height = 0;
-            emojipickerview.setLayoutParams(params);
+            // Do NOT collapse height here. Let onKeyboardStateChanged collapse it in sync
+            // with the keyboard sliding up, same as when tapping the input field directly.
             final InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputMethodManager != null) {
                 binding.textinput.requestFocus();
