@@ -34,6 +34,8 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import androidx.core.widget.ImageViewCompat;
+import eu.siacs.conversations.ui.AddReactionActivity;
 import android.icu.util.Calendar;
 import android.icu.util.TimeZone;
 import android.media.MediaRecorder;
@@ -79,10 +81,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
@@ -119,7 +123,6 @@ import de.monocles.chat.WebxdcPage;
 import de.monocles.chat.WebxdcStore;
 import de.monocles.chat.EditMessageSelectionActionModeCallback;
 
-import com.github.pgreze.reactions.ReactionPopup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
@@ -277,7 +280,7 @@ public class ConversationFragment extends XmppFragment
 
     private FileObserver mFileObserver;
 
-    public ReactionPopup reactionPopup = null;
+    private Dialog messageOptionsDialog = null;
 
 
     public static final int REQUEST_TRUST_KEYS_NONE = 0x0;
@@ -2024,8 +2027,8 @@ public class ConversationFragment extends XmppFragment
         binding.textinput.addTextChangedListener(
                 new StylingHelper.MessageEditorStyler(binding.textinput, messageListAdapter));
 
-        registerForContextMenu(binding.messagesView);
         registerForContextMenu(binding.textSendButton);
+        messageListAdapter.setOnMessageLongPressListener(this::showMessageOptionsDialog);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.binding.textinput.setCustomInsertionActionModeCallback(
@@ -2560,7 +2563,7 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
-    private void populateContextMenu(final ContextMenu menu) {
+    private void populateContextMenu(final Menu menu) {
         final Message m = this.selectedMessage;
         final Transferable t = m.getTransferable();
         if (m.getType() != Message.TYPE_STATUS && m.getType() != Message.TYPE_RTP_SESSION) {
@@ -2740,7 +2743,12 @@ public class ConversationFragment extends XmppFragment
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        if (handleMessageContextAction(item.getItemId())) return true;
+        return onOptionsItemSelected(item);
+    }
+
+    private boolean handleMessageContextAction(final int itemId) {
+        switch (itemId) {
             case R.id.share_with:
                 ShareUtil.share(activity, selectedMessage);
                 return true;
@@ -2899,8 +2907,282 @@ public class ConversationFragment extends XmppFragment
                 reportMessage(selectedMessage);
                 return true;
             default:
-                return onOptionsItemSelected(item);
+                return false;
         }
+    }
+
+    private void showMessageOptionsDialog(final Message message, final View messageView, final float rawX, final float rawY) {
+        this.selectedMessage = message;
+
+        messageView.setForeground(new ColorDrawable(Color.argb(50, 0, 120, 255)));
+        final Runnable clearHighlight = () -> messageView.setForeground(null);
+
+        final int[] msgLoc = new int[2];
+        messageView.getLocationOnScreen(msgLoc);
+        final int msgTop = msgLoc[1];
+        final int msgBottom = msgTop + messageView.getHeight();
+        final int msgWidth = messageView.getWidth();
+        final int screenW = getResources().getDisplayMetrics().widthPixels;
+        final int screenH = getResources().getDisplayMetrics().heightPixels;
+        final int statusBarH = getStatusBarHeightPx();
+        final int navBarH = getNavBarHeightPx();
+        // Window content area: from below status bar to above nav bar
+        final int windowH = screenH - statusBarH - navBarH;
+        final int gapPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+        final int marginPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
+        // Message coordinates in window-content space (relative to below status bar)
+        final int msgTopW = msgTop - statusBarH;
+        final int msgBottomW = msgBottom - statusBarH;
+
+        // Single full-screen transparent dialog — both elements share one window so touch dispatch works correctly
+        final Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        final FrameLayout container = new FrameLayout(activity);
+        // Tap anywhere outside the reaction pill or context menu card dismisses
+        container.setOnClickListener(v -> dialog.dismiss());
+
+        // Reactions pill
+        final boolean hasReactions = canMessageReceiveReactions(message);
+        int popupH = 0, popupW = 0;
+        boolean reactionAbove = false;
+        if (hasReactions) {
+            final View reactionPillView = getLayoutInflater().inflate(R.layout.popup_reactions, container, false);
+            final LinearLayout reactionRow = reactionPillView.findViewById(R.id.reaction_row);
+            setupDialogReactionRow(reactionRow, message, () -> {
+                clearHighlight.run();
+                dialog.dismiss();
+            });
+            reactionPillView.measure(
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            popupH = reactionPillView.getMeasuredHeight();
+            popupW = reactionPillView.getMeasuredWidth();
+
+            reactionAbove = msgTopW >= popupH + gapPx * 2;
+            int reactionY = reactionAbove ? (msgTopW - popupH - gapPx) : (msgBottomW + gapPx);
+            reactionY = Math.max(marginPx, Math.min(windowH - popupH - marginPx, reactionY));
+            int reactionX = msgLoc[0] + (msgWidth - popupW) / 2;
+            reactionX = Math.max(marginPx, Math.min(screenW - popupW - marginPx, reactionX));
+
+            final FrameLayout.LayoutParams rp = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            rp.gravity = Gravity.TOP | Gravity.START;
+            rp.topMargin = reactionY;
+            rp.leftMargin = reactionX;
+            // Consume touches so they don't bubble up and dismiss the dialog
+            reactionPillView.setClickable(true);
+            container.addView(reactionPillView, rp);
+        }
+
+        // Context menu card
+        final View menuView = getLayoutInflater().inflate(R.layout.dialog_context_menu, container, false);
+        final LinearLayout menuContainer = menuView.findViewById(R.id.menu_container);
+        final Menu menu = new PopupMenu(activity, menuView).getMenu();
+        activity.getMenuInflater().inflate(R.menu.message_context, menu);
+        populateContextMenu(menu);
+        final List<MenuItem> visible = new ArrayList<>();
+        for (int i = 0; i < menu.size(); i++) {
+            if (menu.getItem(i).isVisible()) visible.add(menu.getItem(i));
+        }
+        for (int i = 0; i < visible.size(); i++) {
+            final MenuItem item = visible.get(i);
+            final int itemId = item.getItemId();
+            final boolean isLast = i == visible.size() - 1;
+            addDialogMenuRow(menuContainer, getMessageMenuIcon(itemId), item.getTitle(), isLast, () -> {
+                dialog.dismiss();
+                handleMessageContextAction(itemId);
+            });
+        }
+        final int widthPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 280, getResources().getDisplayMetrics());
+        menuView.measure(
+                View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(windowH, View.MeasureSpec.UNSPECIFIED));
+        final int menuH = menuView.getMeasuredHeight();
+
+        // Place context menu on the opposite side of the message from the reactions
+        int menuY;
+        if (!hasReactions) {
+            menuY = msgTopW + (messageView.getHeight() - menuH) / 2;
+        } else if (reactionAbove) {
+            // Reactions above → try below; if no room, stack above the reactions
+            final int proposedBelow = msgBottomW + gapPx;
+            menuY = (proposedBelow + menuH + marginPx <= windowH)
+                    ? proposedBelow
+                    : (msgTopW - popupH - gapPx - menuH - gapPx);
+        } else {
+            // Reactions below → try above; if no room, stack below the reactions
+            final int proposedAbove = msgTopW - menuH - gapPx;
+            menuY = (proposedAbove >= marginPx)
+                    ? proposedAbove
+                    : (msgBottomW + popupH + gapPx * 2);
+        }
+        menuY = Math.max(marginPx, Math.min(windowH - menuH - marginPx, menuY));
+        final int menuX = (screenW - widthPx) / 2;
+
+        final FrameLayout.LayoutParams mp = new FrameLayout.LayoutParams(widthPx, FrameLayout.LayoutParams.WRAP_CONTENT);
+        mp.gravity = Gravity.TOP | Gravity.START;
+        mp.topMargin = menuY;
+        mp.leftMargin = menuX;
+        // Consume touches on the card itself so they don't dismiss the dialog
+        menuView.setClickable(true);
+        container.addView(menuView, mp);
+
+        dialog.setContentView(container);
+        dialog.setOnDismissListener(d -> clearHighlight.run());
+        messageOptionsDialog = dialog;
+
+        final android.view.Window w = dialog.getWindow();
+        if (w != null) {
+            w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            w.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+        dialog.show();
+    }
+
+    private int getStatusBarHeightPx() {
+        final View root = getView();
+        if (root != null) {
+            final WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(root);
+            if (insets != null) {
+                return insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            }
+        }
+        final int resId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        return resId > 0 ? getResources().getDimensionPixelSize(resId) : 0;
+    }
+
+    private int getNavBarHeightPx() {
+        final View root = getView();
+        if (root != null) {
+            final WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(root);
+            if (insets != null) {
+                return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            }
+        }
+        return 0;
+    }
+
+    private boolean canMessageReceiveReactions(final Message message) {
+        final boolean showError = message.getStatus() == Message.STATUS_SEND_FAILED
+                && message.getErrorMessage() != null
+                && !Message.ERROR_MESSAGE_CANCELLED.equals(message.getErrorMessage());
+        if (showError || message.isPrivateMessage() || message.isDeleted()) return false;
+        final boolean encryptionOk = message.getEncryption() == Message.ENCRYPTION_NONE
+                || activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions);
+        if (!encryptionOk) return false;
+        final Conversational c = message.getConversation();
+        if (!(c instanceof Conversation conv)) return false;
+        return conv.getMode() == Conversational.MODE_SINGLE
+                || (conv.getMucOptions().occupantId() && conv.getMucOptions().participating());
+    }
+
+    private void setupDialogReactionRow(final LinearLayout row, final Message message, final Runnable onDismiss) {
+        final String[] emojis = {"❤️", "👍", "👎", "😂", "😲", "😢"};
+        final var aggregated = message.getAggregatedReactions();
+        final int sizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 44, getResources().getDisplayMetrics());
+        final TypedValue selectorTv = new TypedValue();
+        activity.getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, selectorTv, true);
+        for (final String emoji : emojis) {
+            final TextView btn = new TextView(activity);
+            btn.setText(emoji);
+            btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+            btn.setGravity(Gravity.CENTER);
+            btn.setMinimumWidth(sizePx);
+            btn.setMinimumHeight(sizePx);
+            btn.setAlpha(aggregated.ourReactions.contains(emoji) ? 1.0f : 0.6f);
+            btn.setBackgroundResource(selectorTv.resourceId);
+            btn.setOnClickListener(v -> {
+                sendMessageReaction(message, emoji);
+                onDismiss.run();
+            });
+            row.addView(btn);
+        }
+        final ImageView moreBtn = new ImageView(activity);
+        moreBtn.setImageResource(R.drawable.ic_add_reaction_24dp);
+        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizePx, sizePx);
+        moreBtn.setLayoutParams(params);
+        moreBtn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        moreBtn.setAlpha(0.6f);
+        moreBtn.setBackgroundResource(selectorTv.resourceId);
+        final TypedValue colorTv = new TypedValue();
+        activity.getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface, colorTv, true);
+        ImageViewCompat.setImageTintList(moreBtn, ColorStateList.valueOf(colorTv.data));
+        moreBtn.setOnClickListener(v -> {
+            onDismiss.run();
+            final Intent intent = new Intent(activity, AddReactionActivity.class);
+            intent.putExtra("conversation", message.getConversation().getUuid());
+            intent.putExtra("message", message.getUuid());
+            activity.startActivity(intent);
+        });
+        row.addView(moreBtn);
+    }
+
+    private void sendMessageReaction(final Message message, final String emoji) {
+        if (requireTrustKeys()) return;
+        final var aggregated = message.getAggregatedReactions();
+        final ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<>();
+        if (aggregated.ourReactions.contains(emoji)) {
+            for (final String r : aggregated.ourReactions) {
+                if (!r.equals(emoji)) builder.add(r);
+            }
+        } else {
+            builder.addAll(aggregated.ourReactions);
+            builder.add(emoji);
+        }
+        activity.xmppConnectionService.sendReactions(message, builder.build());
+    }
+
+    private void addDialogMenuRow(final LinearLayout container, final int iconRes,
+            final CharSequence title, final boolean isLast, final Runnable action) {
+        final View row = getLayoutInflater().inflate(R.layout.item_message_context_menu, container, false);
+        final ImageView icon = row.findViewById(R.id.menu_icon);
+        final TextView titleView = row.findViewById(R.id.menu_title);
+        icon.setImageResource(iconRes);
+        if (iconRes != R.drawable.outline_delete_red_24) {
+            final TypedValue tv = new TypedValue();
+            activity.getTheme().resolveAttribute(androidx.appcompat.R.attr.colorControlNormal, tv, true);
+            ImageViewCompat.setImageTintList(icon, ColorStateList.valueOf(tv.data));
+        }
+        titleView.setText(title);
+        row.setOnClickListener(v -> action.run());
+        container.addView(row);
+        if (!isLast) {
+            final View divider = new View(activity);
+            final int marginStartPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 54, getResources().getDisplayMetrics());
+            final LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
+            p.setMarginStart(marginStartPx);
+            divider.setLayoutParams(p);
+            final TypedValue colorTv = new TypedValue();
+            activity.getTheme().resolveAttribute(com.google.android.material.R.attr.colorOutlineVariant, colorTv, true);
+            divider.setBackgroundColor(colorTv.data);
+            container.addView(divider);
+        }
+    }
+
+    private int getMessageMenuIcon(final int itemId) {
+        if (itemId == R.id.share_with) return R.drawable.ic_share_24dp;
+        if (itemId == R.id.correct_message) return R.drawable.ic_edit_24dp;
+        if (itemId == R.id.retract_message) return R.drawable.outline_delete_red_24;
+        if (itemId == R.id.moderate_message) return R.drawable.ic_report_24dp;
+        if (itemId == R.id.pin_message_to_top) return R.drawable.outline_push_pin_24;
+        if (itemId == R.id.copy_message) return R.drawable.ic_description_24dp;
+        if (itemId == R.id.copy_link || itemId == R.id.copy_url) return R.drawable.ic_link_24dp;
+        if (itemId == R.id.quote_message) return R.drawable.ic_reply_24dp;
+        if (itemId == R.id.only_this_thread) return R.drawable.ic_thread;
+        if (itemId == R.id.retry_decryption) return R.drawable.ic_refresh_24dp;
+        if (itemId == R.id.send_again) return R.drawable.ic_send_24dp;
+        if (itemId == R.id.send_again_as_p2p) return R.drawable.ic_p2p_24dp;
+        if (itemId == R.id.download_file) return R.drawable.ic_download_24dp;
+        if (itemId == R.id.cancel_transmission) return R.drawable.ic_cancel_24dp;
+        if (itemId == R.id.block_media) return R.drawable.ic_link_off_24dp;
+        if (itemId == R.id.delete_file) return R.drawable.outline_delete_red_24;
+        if (itemId == R.id.save_to_downloads) return R.drawable.ic_save_24dp;
+        if (itemId == R.id.save_as_sticker) return R.drawable.toys_and_games_24dp;
+        if (itemId == R.id.show_error_message) return R.drawable.ic_error_24dp;
+        if (itemId == R.id.open_with) return R.drawable.ic_open_with_24dp;
+        if (itemId == R.id.action_report_and_block) return R.drawable.ic_report_24dp;
+        return R.drawable.ic_more_horiz_24dp;
     }
 
     @Override
@@ -3067,8 +3349,8 @@ public class ConversationFragment extends XmppFragment
             binding.recordingVoiceActivity.setVisibility(View.GONE);
             return false;
         }
-        if (reactionPopup != null && reactionPopup.isShowing()) {
-            reactionPopup.dismiss();
+        if (messageOptionsDialog != null && messageOptionsDialog.isShowing()) {
+            messageOptionsDialog.dismiss();
             return true;
         }
         return false;
