@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -3197,9 +3198,11 @@ public class ConversationFragment extends XmppFragment
         final TextView titleView = row.findViewById(R.id.menu_title);
         icon.setImageResource(iconRes);
         if (iconRes != R.drawable.outline_delete_red_24) {
-            final TypedValue tv = new TypedValue();
-            activity.getTheme().resolveAttribute(androidx.appcompat.R.attr.colorControlNormal, tv, true);
-            ImageViewCompat.setImageTintList(icon, ColorStateList.valueOf(tv.data));
+            final int[] colorAttrs = {androidx.appcompat.R.attr.colorControlNormal};
+            final TypedArray ta = activity.obtainStyledAttributes(colorAttrs);
+            final int color = ta.getColor(0, Color.DKGRAY);
+            ta.recycle();
+            ImageViewCompat.setImageTintList(icon, ColorStateList.valueOf(color));
         }
         titleView.setText(title);
         row.setOnClickListener(v -> action.run());
@@ -3221,9 +3224,9 @@ public class ConversationFragment extends XmppFragment
         if (itemId == R.id.share_with) return R.drawable.ic_share_24dp;
         if (itemId == R.id.correct_message) return R.drawable.ic_edit_24dp;
         if (itemId == R.id.retract_message) return R.drawable.outline_delete_red_24;
-        if (itemId == R.id.moderate_message) return R.drawable.ic_report_24dp;
+        if (itemId == R.id.moderate_message) return R.drawable.outline_report_24;
         if (itemId == R.id.pin_message_to_top) return R.drawable.outline_push_pin_24;
-        if (itemId == R.id.copy_message) return R.drawable.ic_description_24dp;
+        if (itemId == R.id.copy_message) return R.drawable.outline_article_24;
         if (itemId == R.id.copy_link || itemId == R.id.copy_url) return R.drawable.ic_link_24dp;
         if (itemId == R.id.quote_message) return R.drawable.ic_reply_24dp;
         if (itemId == R.id.only_this_thread) return R.drawable.ic_thread;
@@ -3234,11 +3237,11 @@ public class ConversationFragment extends XmppFragment
         if (itemId == R.id.cancel_transmission) return R.drawable.ic_cancel_24dp;
         if (itemId == R.id.block_media) return R.drawable.ic_link_off_24dp;
         if (itemId == R.id.delete_file) return R.drawable.outline_delete_red_24;
-        if (itemId == R.id.save_to_downloads) return R.drawable.ic_save_24dp;
-        if (itemId == R.id.save_as_sticker) return R.drawable.toys_and_games_24dp;
-        if (itemId == R.id.show_error_message) return R.drawable.ic_error_24dp;
+        if (itemId == R.id.save_to_downloads) return R.drawable.outline_save_24;
+        if (itemId == R.id.save_as_sticker) return R.drawable.outline_emoji_emotions_24;
+        if (itemId == R.id.show_error_message) return R.drawable.outline_error_24;
         if (itemId == R.id.open_with) return R.drawable.ic_open_with_24dp;
-        if (itemId == R.id.action_report_and_block) return R.drawable.ic_report_24dp;
+        if (itemId == R.id.action_report_and_block) return R.drawable.outline_report_24;
         return R.drawable.ic_more_horiz_24dp;
     }
 
