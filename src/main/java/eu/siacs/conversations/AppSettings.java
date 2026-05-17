@@ -343,39 +343,22 @@ public class AppSettings {
             }
             return sSessionPassword.clone(); // no String ever created in this path
         }
-        final String pw = getDatabasePassword();
-        if (pw == null) return null;
-        return pw.toCharArray(); // String from prefs API; can't zero it, but we release the ref here
-    }
-
-    public String getDatabasePassword() {
-        if (isPasswordOnStartupRequired()) {
-            // Password is never stored on disk in this mode — must come from the session
-            if (sSessionPassword == null) {
-                throw new EncryptionException(
-                        "Database requires startup password",
-                        null,
-                        EncryptionException.Reason.NEEDS_SESSION_PASSWORD);
-            }
-            return new String(sSessionPassword);
-        }
-        // Normal mode: read from encrypted storage
+        // Normal mode: SharedPreferences API returns a String — unavoidable at the OS boundary.
+        // Convert to char[] immediately and let the String reference go out of scope.
         try {
             final SharedPreferences encryptedPrefs = getEncryptedPreferences();
-            String password = encryptedPrefs.getString(DATABASE_PASSWORD, null);
-            if (password == null) {
-                // Check legacy preferences
+            String pw = encryptedPrefs.getString(DATABASE_PASSWORD, null);
+            if (pw == null) {
                 final SharedPreferences normalPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-                final String legacyPassword = normalPrefs.getString(DATABASE_PASSWORD, null);
-                if (legacyPassword != null) {
-                    // Migrate to encrypted preferences
-                    encryptedPrefs.edit().putString(DATABASE_PASSWORD, legacyPassword).commit();
+                final String legacyPw = normalPrefs.getString(DATABASE_PASSWORD, null);
+                if (legacyPw != null) {
+                    encryptedPrefs.edit().putString(DATABASE_PASSWORD, legacyPw).commit();
                     normalPrefs.edit().remove(DATABASE_PASSWORD).commit();
                     Log.d("AppSettings", "Migrated database password to encrypted storage");
-                    password = legacyPassword;
+                    pw = legacyPw;
                 }
             }
-            return password;
+            return pw != null ? pw.toCharArray() : null;
         } catch (EncryptionException e) {
             throw e;
         } catch (Exception e) {
@@ -384,31 +367,34 @@ public class AppSettings {
         }
     }
 
-    public void setDatabasePassword(String password) {
-        if (password != null && password.isEmpty()) {
+    public void setDatabasePassword(final char[] password) {
+        if (password != null && password.length == 0) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
         if (isPasswordOnStartupRequired()) {
-            // Never write to disk in startup-required mode; update the session copy instead
+            // Never write to disk in startup-required mode; update the in-memory session copy.
             if (password == null) {
-                // Encryption disabled — clear session and remove the startup-required flag
+                // Encryption disabled — clear session and remove the startup-required flag.
                 clearSessionPassword();
                 PreferenceManager.getDefaultSharedPreferences(context)
                         .edit().putBoolean(REQUIRE_PASSWORD_ON_STARTUP, false).commit();
             } else {
-                setSessionPassword(password.toCharArray());
+                setSessionPassword(password); // no String created
             }
-            // Also purge any stale entry that might exist in encrypted storage
+            // Purge any stale entry that might exist in encrypted storage.
             try {
                 getEncryptedPreferences().edit().remove(DATABASE_PASSWORD).commit();
             } catch (Exception ignored) {}
             PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
             return;
         }
+        // Normal mode: SharedPreferences only supports putString — create the String inline so
+        // its scope is limited to this single call and no reference escapes this method.
         try {
             final SharedPreferences encryptedPrefs = getEncryptedPreferences();
-            encryptedPrefs.edit().putString(DATABASE_PASSWORD, password).commit();
-            // Ensure it's removed from legacy storage
+            encryptedPrefs.edit()
+                    .putString(DATABASE_PASSWORD, password != null ? new String(password) : null)
+                    .commit();
             PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
         } catch (EncryptionException e) {
             throw e;
@@ -418,15 +404,9 @@ public class AppSettings {
         }
     }
 
-    public void setDatabasePassword(char[] password) {
-        if (password != null && password.length == 0) {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
-        setDatabasePassword(password == null ? null : new String(password));
-    }
-
     public void checkEncryptionOrThrow() throws EncryptionException {
-        getDatabasePassword();
+        final char[] chars = getDatabasePasswordChars();
+        if (chars != null) java.util.Arrays.fill(chars, '\0');
     }
 
     public SharedPreferences getEncryptedPreferences() throws Exception {

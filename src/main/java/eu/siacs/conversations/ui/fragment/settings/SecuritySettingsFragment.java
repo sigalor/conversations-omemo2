@@ -194,7 +194,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                             R.string.toast_wrong_startup_password, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // Correct — set the flag first so subsequent getDatabasePassword() uses session,
+                // Correct — set the flag first so subsequent getDatabasePasswordChars() uses session,
                 // then erase the persisted copy from EncryptedSharedPreferences.
                 AppSettings.setSessionPassword(stored);
                 java.util.Arrays.fill(stored, '\0');

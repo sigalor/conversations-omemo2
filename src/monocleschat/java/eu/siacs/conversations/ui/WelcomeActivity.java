@@ -380,7 +380,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
     private void updateDatabaseEncryptionButton() {
         boolean encrypted;
         try {
-            encrypted = new AppSettings(this).getDatabasePassword() != null;
+            encrypted = new AppSettings(this).getDatabasePasswordChars() != null;
         } catch (Exception e) {
             encrypted = false;
         }
