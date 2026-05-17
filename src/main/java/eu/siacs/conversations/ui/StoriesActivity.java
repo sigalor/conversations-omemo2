@@ -403,7 +403,8 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
 
         // Show badge for new stories in bottom nav
         long lastRead = getPreferences().getLong("last_read_story_timestamp", 0);
-        boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead);
+        final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
+        boolean hasNewStories = xmppConnectionService.getStories().stream().anyMatch(s -> s.getPublished() > lastRead && s.getPublished() >= twentyFourHoursAgo);
         var storiesBadge = bottomnav.getOrCreateBadge(R.id.stories);
         storiesBadge.setVisible(hasNewStories);
 

@@ -1,5 +1,6 @@
-package eu.siacs.conversations.entities;import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
-import static eu.siacs.conversations.parser.AbstractParser.parseTimestampAtom;
+package eu.siacs.conversations.entities;
+
+import static eu.siacs.conversations.parser.AbstractParser.parseTimestamp;
 
 import android.util.Log;
 
@@ -72,12 +73,8 @@ public class Post {
         if (publishedString != null) {
             try {
                 published = new Date(parseTimestamp(publishedString));
-            } catch (Exception e) {
-                try {
-                    published =  new Date(parseTimestampAtom(publishedString));
-                } catch (ParseException error) {
-                    Log.e("Feeds", "Couldn't parse timestamp " + publishedString);
-                }
+            } catch (ParseException e) {
+                Log.e("Feeds", "Couldn't parse timestamp " + publishedString);
             }
         }
 

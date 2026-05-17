@@ -42,6 +42,7 @@ public class StoryFragment extends Fragment {
     private static final String ARG_URL = "url";
     private static final String ARG_MIME_TYPE = "mime_type";
     private static final long STORY_DURATION_MS = 6000;
+    private static final long LONG_PRESS_THRESHOLD_MS = 300;
 
     private OnStoryInteractionListener mListener;
     private VideoView videoView;
@@ -50,8 +51,13 @@ public class StoryFragment extends Fragment {
     private ArrayList<String> urls;
     private final Handler videoProgressHandler = new Handler(Looper.getMainLooper());
     private Runnable videoProgressRunnable;
+    private final Handler touchHandler = new Handler(Looper.getMainLooper());
+    private Runnable touchPauseRunnable;
+    private boolean isPausedByTouch = false;
 
     public interface OnStoryInteractionListener {
+        void onPreviousStory();
+
         void onNextStory();
 
         void pauseStory();
@@ -92,10 +98,36 @@ public class StoryFragment extends Fragment {
         view.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    pauseStory();
+                    isPausedByTouch = false;
+                    touchPauseRunnable = () -> {
+                        isPausedByTouch = true;
+                        pauseStory();
+                    };
+                    touchHandler.postDelayed(touchPauseRunnable, LONG_PRESS_THRESHOLD_MS);
                     return true;
                 case MotionEvent.ACTION_UP:
-                    resumeStory();
+                    if (touchPauseRunnable != null) {
+                        touchHandler.removeCallbacks(touchPauseRunnable);
+                        touchPauseRunnable = null;
+                    }
+                    if (isPausedByTouch) {
+                        resumeStory();
+                    } else if (mListener != null) {
+                        if (event.getX() < v.getWidth() / 2f) {
+                            mListener.onPreviousStory();
+                        } else {
+                            mListener.onNextStory();
+                        }
+                    }
+                    return true;
+                case MotionEvent.ACTION_CANCEL:
+                    if (touchPauseRunnable != null) {
+                        touchHandler.removeCallbacks(touchPauseRunnable);
+                        touchPauseRunnable = null;
+                    }
+                    if (isPausedByTouch) {
+                        resumeStory();
+                    }
                     return true;
             }
             return false;
@@ -195,6 +227,26 @@ public class StoryFragment extends Fragment {
         } else {
             videoView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
+            if (progressBarContainer.getChildCount() > currentPosition) {
+                final ProgressBar currentProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
+                currentAnimator = ObjectAnimator.ofInt(currentProgressBar, "progress", 0, 1000);
+                currentAnimator.setDuration(STORY_DURATION_MS);
+                currentAnimator.addListener(new AnimatorListenerAdapter() {
+                    private boolean cancelled = false;
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        cancelled = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (!cancelled && mListener != null) {
+                            mListener.onNextStory();
+                        }
+                    }
+                });
+            }
             Glide.with(this)
                     .load(url)
                     .listener(new RequestListener<Drawable>() {
@@ -211,26 +263,14 @@ public class StoryFragment extends Fragment {
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                             if (isAdded()) {
                                 progressBar.setVisibility(View.GONE);
+                                if (currentAnimator != null) {
+                                    currentAnimator.start();
+                                }
                             }
                             return false;
                         }
                     })
                     .into(imageView);
-            if (progressBarContainer.getChildCount() > currentPosition) {
-                final ProgressBar currentProgressBar = (ProgressBar) progressBarContainer.getChildAt(currentPosition);
-                currentAnimator = ObjectAnimator.ofInt(currentProgressBar, "progress", 0, 1000);
-                currentAnimator.setDuration(STORY_DURATION_MS);
-                currentAnimator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        if (mListener != null) {
-                            mListener.onNextStory();
-                        }
-                    }
-                });
-                currentAnimator.start();
-            }
         }
     }
 
@@ -252,6 +292,39 @@ public class StoryFragment extends Fragment {
         }
     }
 
+    public void stopStory() {
+        if (touchPauseRunnable != null) {
+            touchHandler.removeCallbacks(touchPauseRunnable);
+            touchPauseRunnable = null;
+        }
+        if (currentAnimator != null) {
+            currentAnimator.cancel();
+            currentAnimator = null;
+        }
+        if (videoProgressRunnable != null) {
+            videoProgressHandler.removeCallbacks(videoProgressRunnable);
+        }
+        if (videoView != null && videoView.isPlaying()) {
+            videoView.pause();
+        }
+    }
+
+    public void restartStory() {
+        isPausedByTouch = false;
+        if (touchPauseRunnable != null) {
+            touchHandler.removeCallbacks(touchPauseRunnable);
+            touchPauseRunnable = null;
+        }
+        if (currentAnimator != null) {
+            currentAnimator.cancel();
+            currentAnimator = null;
+        }
+        if (videoProgressRunnable != null) {
+            videoProgressHandler.removeCallbacks(videoProgressRunnable);
+        }
+        loadStory();
+    }
+
     public void pauseStory() {
         if (currentAnimator != null && currentAnimator.isRunning()) {
             currentAnimator.pause();
@@ -268,13 +341,10 @@ public class StoryFragment extends Fragment {
         resumeVideo();
     }
 
-
     @Override
     public void onDetach() {
         super.onDetach();
-        if (videoProgressRunnable != null) {
-            videoProgressHandler.removeCallbacks(videoProgressRunnable);
-        }
+        stopStory();
         mListener = null;
     }
 }

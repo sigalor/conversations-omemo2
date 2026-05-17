@@ -105,10 +105,24 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
 
         StoryPagerAdapter adapter = new StoryPagerAdapter(this);
         viewPager.setAdapter(adapter);
+        viewPager.setUserInputEnabled(false);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            private int lastPosition = 0;
+
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                if (lastPosition != position) {
+                    final Fragment prev = getSupportFragmentManager().findFragmentByTag("f" + lastPosition);
+                    if (prev instanceof StoryFragment) {
+                        ((StoryFragment) prev).stopStory();
+                    }
+                    final Fragment next = getSupportFragmentManager().findFragmentByTag("f" + position);
+                    if (next instanceof StoryFragment) {
+                        ((StoryFragment) next).restartStory();
+                    }
+                    lastPosition = position;
+                }
                 updateUiForPosition(position);
                 for (int i = 0; i < progressBarContainer.getChildCount(); ++i) {
                     ProgressBar pb = (ProgressBar) progressBarContainer.getChildAt(i);
@@ -137,6 +151,16 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
         }
     }
 
+    @Override
+    public void onPreviousStory() {
+        showSystemUi();
+        final int currentItem = viewPager.getCurrentItem();
+        if (currentItem > 0) {
+            viewPager.setCurrentItem(currentItem - 1, false);
+        }
+    }
+
+    @Override
     public void onNextStory() {
         showSystemUi();
         final int currentItem = viewPager.getCurrentItem();

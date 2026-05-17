@@ -1037,11 +1037,16 @@ public class FileBackend {
             if (originalBitmap == null) {
                 throw new ImageCompressionException("Source file was not an image");
             }
+            Bitmap sourceBitmap = originalBitmap;
             if (!"image/jpeg".equals(options.outMimeType) && hasAlpha(originalBitmap)) {
+                final Bitmap flattened = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                final Canvas canvas = new Canvas(flattened);
+                canvas.drawColor(Color.WHITE);
+                canvas.drawBitmap(originalBitmap, 0, 0, null);
                 originalBitmap.recycle();
-                throw new ImageCompressionException("Source file had alpha channel");
+                sourceBitmap = flattened;
             }
-            Bitmap scaledBitmap = resize(originalBitmap, Config.IMAGE_SIZE);
+            Bitmap scaledBitmap = resize(sourceBitmap, Config.IMAGE_SIZE);
             final int rotation = getRotation(image);
             scaledBitmap = rotate(scaledBitmap, rotation);
             boolean targetSizeReached = false;

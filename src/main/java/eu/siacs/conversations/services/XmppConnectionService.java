@@ -558,6 +558,7 @@ public class XmppConnectionService extends Service {
                         for (Conversation conversation : pendingJoins) {
                             joinMuc(conversation);
                         }
+                        fetchOwnStories(account);
                         scheduleWakeUpCall(
                                 Config.PING_MAX_INTERVAL * 1000L, account.getUuid().hashCode());
                     } else if (account.getStatus() == Account.State.OFFLINE
@@ -3288,6 +3289,23 @@ public class XmppConnectionService extends Service {
                 final long diffMessageRestore = SystemClock.elapsedRealtime() - startMessageRestore;
                 Log.d(Config.LOGTAG, "finished restoring messages in " + diffMessageRestore + "ms");
                 updateConversationUi();
+                Log.d(Config.LOGTAG, "restoring stories...");
+                final List<eu.siacs.conversations.entities.Story> persistedStories = databaseBackend.getStoriesFromDatabase();
+                for (final eu.siacs.conversations.entities.Story story : persistedStories) {
+                    boolean found = false;
+                    for (int i = 0; i < stories.size(); ++i) {
+                        if (stories.get(i).getUuid().equals(story.getUuid())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        stories.add(story);
+                    }
+                }
+                java.util.Collections.sort(stories, (a, b) -> Long.compare(b.getPublished(), a.getPublished()));
+                Log.d(Config.LOGTAG, "restored " + persistedStories.size() + " stories from database");
+                updateStoriesUi();
             };
             mDatabaseReaderExecutor.execute(runnable); //will contain one write command (expiry) but that's fine
         }
@@ -8184,7 +8202,7 @@ public class XmppConnectionService extends Service {
                     getFileBackend().copyFileToPrivateStorage(file, uri);
                 }
             } catch (FileBackend.ImageCompressionException e) {
-                Log.d(Config.LOGTAG, "unable to compress image for story. falling back to file transfer", e);
+                Log.d(Config.LOGTAG, "unable to decode image for story, uploading raw", e);
                 try {
                     getFileBackend().copyFileToPrivateStorage(file, uri);
                 } catch (FileBackend.FileCopyException ex) {
@@ -8242,6 +8260,7 @@ public class XmppConnectionService extends Service {
         if (story == null) {
             return;
         }
+        mDatabaseWriterExecutor.execute(() -> databaseBackend.upsertStory(story));
         for (int i = 0; i < stories.size(); ++i) {
             if (stories.get(i).getUuid().equals(story.getUuid())) {
                 stories.set(i, story);
@@ -8277,17 +8296,25 @@ public class XmppConnectionService extends Service {
     }
 
     public void fetchStories(Account account, Contact contact) {
+        fetchStoriesForJid(account, contact.getJid());
+    }
+
+    public void fetchOwnStories(Account account) {
+        fetchStoriesForJid(account, account.getJid().asBareJid());
+    }
+
+    private void fetchStoriesForJid(Account account, Jid jid) {
         if (account.getStatus() != Account.State.ONLINE) {
             return;
         }
-        Log.d(Config.LOGTAG, "fetching stories for " + contact.getJid());
-        Iq request = getIqGenerator().retrieveStories(contact.getJid());
+        Log.d(Config.LOGTAG, "fetching stories for " + jid);
+        final Iq request = getIqGenerator().retrieveStories(jid);
         sendIqPacket(account, request, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 final Element pubsub = response.findChild("pubsub", Namespace.PUBSUB);
                 if (pubsub != null) {
-                    final List<eu.siacs.conversations.entities.Story> stories = eu.siacs.conversations.entities.Story.parseFromPubSub(pubsub, contact.getJid());
-                    for (eu.siacs.conversations.entities.Story story : stories) {
+                    final List<eu.siacs.conversations.entities.Story> fetched = eu.siacs.conversations.entities.Story.parseFromPubSub(pubsub, jid);
+                    for (final eu.siacs.conversations.entities.Story story : fetched) {
                         onStoryReceived(story);
                     }
                 }
@@ -8296,18 +8323,12 @@ public class XmppConnectionService extends Service {
     }
 
     public void retractStory(Account account, String storyId, final UiCallback<Void> callback) {
-        Iq iq = getIqGenerator().deleteItem(Namespace.PUBSUB_STORIES, storyId);
+        final Iq iq = getIqGenerator().deleteItem(Namespace.PUBSUB_STORIES, storyId);
+        iq.setTo(account.getJid().asBareJid());
         this.sendIqPacket(account, iq, response -> {
             if (response.getType() == Iq.Type.RESULT) {
-                final List<eu.siacs.conversations.entities.Story> newStories = new ArrayList<>(stories);
-                for (Iterator<eu.siacs.conversations.entities.Story> iterator = newStories.iterator(); iterator.hasNext(); ) {
-                    if (iterator.next().getUuid().equals(storyId)) {
-                        iterator.remove();
-                        break;
-                    }
-                }
-                this.stories.clear();
-                this.stories.addAll(newStories);
+                this.stories.removeIf(s -> s.getUuid().equals(storyId));
+                mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
                 updateStoriesUi();
                 if (callback != null) {
                     callback.success(null);
@@ -8324,15 +8345,9 @@ public class XmppConnectionService extends Service {
         if (storyId == null) {
             return;
         }
-        Story storyToRemove = null;
-        for (final Story story : this.stories) {
-            if (story.getUuid().equals(storyId)) {
-                storyToRemove = story;
-                break;
-            }
-        }
-        if (storyToRemove != null) {
-            this.stories.remove(storyToRemove);
+        final boolean removed = this.stories.removeIf(s -> s.getUuid().equals(storyId));
+        mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
+        if (removed) {
             updateStoriesUi();
             Log.d(Config.LOGTAG, "Retracted story with id: " + storyId);
         }
@@ -8340,21 +8355,22 @@ public class XmppConnectionService extends Service {
 
     public void retractOldStories() {
         final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
+        mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteExpiredStories());
         final Map<Jid, Account> onlineAccounts = new HashMap<>();
         for (final Account account : getAccounts()) {
             if (account.isOnlineAndConnected()) {
                 onlineAccounts.put(account.getJid().asBareJid(), account);
             }
         }
-        if (onlineAccounts.isEmpty()) {
-            return;
-        }
-        for (final Story story : this.stories) {
+        for (final eu.siacs.conversations.entities.Story story : this.stories) {
             if (story.getPublished() < twentyFourHoursAgo) {
-                final Account owner = onlineAccounts.get(story.getContact());
+                final Account owner = onlineAccounts.get(story.getContact().asBareJid());
                 if (owner != null) {
                     Log.d(Config.LOGTAG, "Retracting old story from account: " + owner.getJid().asBareJid());
                     retractStory(owner, story.getUuid(), null);
+                } else {
+                    // Not own story — just remove from memory; DB already cleaned up above
+                    this.stories.remove(story);
                 }
             }
         }

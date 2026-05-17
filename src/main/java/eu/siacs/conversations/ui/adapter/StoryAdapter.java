@@ -134,13 +134,21 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             ArrayList<String> titles = new ArrayList<>();
             ArrayList<String> storyIds = new ArrayList<>();
             ArrayList<String> mimeTypes = new ArrayList<>();
+            final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
+            final List<Story> contactStories = new ArrayList<>();
             for (Story s : activity.xmppConnectionService.getStories()) {
-                if (s.getContact().asBareJid().equals(story.getContact().asBareJid())) {
-                    urls.add(s.getUrl());
-                    titles.add(s.getTitle());
-                    storyIds.add(s.getUuid());
-                    mimeTypes.add(s.getType());
+                if (s.getContact().asBareJid().equals(story.getContact().asBareJid())
+                        && s.getPublished() >= twentyFourHoursAgo) {
+                    contactStories.add(s);
                 }
+            }
+            // Show oldest first so the viewer plays them in chronological order
+            contactStories.sort((a, b) -> Long.compare(a.getPublished(), b.getPublished()));
+            for (Story s : contactStories) {
+                urls.add(s.getUrl());
+                titles.add(s.getTitle());
+                storyIds.add(s.getUuid());
+                mimeTypes.add(s.getType());
             }
             intent.putStringArrayListExtra(StoryViewActivity.EXTRA_URLS, urls);
             intent.putStringArrayListExtra(StoryViewActivity.EXTRA_TITLES, titles);

@@ -133,7 +133,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 69;
+    private static final int DATABASE_VERSION = 70;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -422,6 +422,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + "FOREIGN KEY(" + eu.siacs.conversations.entities.Post.ACCOUNT_UUID + ") REFERENCES "
                     + eu.siacs.conversations.entities.Account.TABLENAME
                     + "(" + eu.siacs.conversations.entities.Account.UUID + ") ON DELETE CASCADE);";
+
+    private static final String CREATE_STORIES_TABLE =
+            "CREATE TABLE IF NOT EXISTS " + eu.siacs.conversations.entities.Story.TABLENAME + " ("
+                    + eu.siacs.conversations.entities.Story.UUID + " TEXT PRIMARY KEY,"
+                    + eu.siacs.conversations.entities.Story.CONTACT + " TEXT,"
+                    + eu.siacs.conversations.entities.Story.URL + " TEXT,"
+                    + eu.siacs.conversations.entities.Story.TYPE + " TEXT,"
+                    + eu.siacs.conversations.entities.Story.TITLE + " TEXT,"
+                    + eu.siacs.conversations.entities.Story.PUBLISHED + " NUMBER);";
 
     protected Context context;
 
@@ -734,6 +743,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_UPDATE_TRIGGER);
         db.execSQL(CREATE_MESSAGE_DELETE_TRIGGER);
         db.execSQL(CREATE_POSTS_TABLE);
+        db.execSQL(CREATE_STORIES_TABLE);
         monoclesDatabase(db);
     }
 
@@ -1546,6 +1556,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             );
             db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.CONVERSATION_UUID + ")");
             db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_account_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.ACCOUNT_UUID + ")");
+        }
+        if (oldVersion < 70 && newVersion >= 70) {
+            db.execSQL(CREATE_STORIES_TABLE);
         }
     }
 
@@ -3860,6 +3873,48 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public void clearPosts() {
         final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(eu.siacs.conversations.entities.Post.TABLENAME, null, null);
+    }
+
+    public void upsertStory(eu.siacs.conversations.entities.Story story) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        db.insertWithOnConflict(eu.siacs.conversations.entities.Story.TABLENAME, null, story.getContentValues(), SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public java.util.List<eu.siacs.conversations.entities.Story> getStoriesFromDatabase() {
+        final java.util.List<eu.siacs.conversations.entities.Story> list = new java.util.ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000L;
+        final Cursor cursor = db.query(
+                eu.siacs.conversations.entities.Story.TABLENAME,
+                null,
+                eu.siacs.conversations.entities.Story.PUBLISHED + " >= ?",
+                new String[]{String.valueOf(twentyFourHoursAgo)},
+                null, null,
+                eu.siacs.conversations.entities.Story.PUBLISHED + " DESC");
+        while (cursor.moveToNext()) {
+            try {
+                list.add(eu.siacs.conversations.entities.Story.fromCursor(cursor));
+            } catch (Exception e) {
+                Log.w(Config.LOGTAG, "Failed to restore story from database", e);
+            }
+        }
+        cursor.close();
+        return list;
+    }
+
+    public void deleteStory(String uuid) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(eu.siacs.conversations.entities.Story.TABLENAME,
+                eu.siacs.conversations.entities.Story.UUID + "=?",
+                new String[]{uuid});
+    }
+
+    public void deleteExpiredStories() {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000L;
+        db.delete(eu.siacs.conversations.entities.Story.TABLENAME,
+                eu.siacs.conversations.entities.Story.PUBLISHED + " < ?",
+                new String[]{String.valueOf(twentyFourHoursAgo)});
     }
 
     public static synchronized void migrate(Context context, char[] oldPassword, char[] newPassword) throws Exception {

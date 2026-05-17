@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import eu.siacs.conversations.entities.Account;
@@ -72,75 +73,103 @@ public abstract class AbstractParser {
 		return parseTimestamp(element, System.currentTimeMillis());
 	}
 
-	public static long parseTimestamp(String timestamp) throws ParseException {
-		timestamp = timestamp.replace("Z", "+0000");
-		SimpleDateFormat dateFormat;
-		long ms;
-		if (timestamp.length() >= 25 && timestamp.charAt(19) == '.') {
-			String millis = timestamp.substring(19, timestamp.length() - 5);
-			try {
-				double fractions = Double.parseDouble("0" + millis);
-				ms = Math.round(1000 * fractions);
-			} catch (NumberFormatException e) {
-				ms = 0;
-			}
-		} else {
-			ms = 0;
+	// Formats tried in order. Formats without an explicit timezone token (Z/z) are parsed
+	// as UTC to avoid device-locale-dependent results.
+	private static final String[] TIMESTAMP_FORMATS = {
+		"yyyy-MM-dd'T'HH:mm:ssZ",       // ISO 8601 / RFC 3339 / XEP-0082  e.g. 2024-01-15T10:30:00+0530
+		"yyyy-MM-dd'T'HH:mm:ss",        // ISO 8601 without timezone        e.g. 2024-01-15T10:30:00
+		"EEE, dd MMM yyyy HH:mm:ss Z",  // RFC 2822 with numeric offset      e.g. Mon, 15 Jan 2024 10:30:00 +0000
+		"EEE, dd MMM yyyy HH:mm:ss z",  // RFC 2822 with named timezone      e.g. Mon, 15 Jan 2024 10:30:00 GMT
+		"dd MMM yyyy HH:mm:ss Z",       // RFC 2822 without weekday          e.g. 15 Jan 2024 10:30:00 +0000
+		"dd MMM yyyy HH:mm:ss z",       // RFC 2822 without weekday, named   e.g. 15 Jan 2024 10:30:00 GMT
+		"yyyy-MM-dd HH:mm:ssZ",         // SQL-style with offset             e.g. 2024-01-15 10:30:00+0000
+		"yyyy-MM-dd HH:mm:ss",          // SQL-style without timezone        e.g. 2024-01-15 10:30:00
+		"yyyy-MM-dd",                   // date only                         e.g. 2024-01-15
+	};
+
+	/**
+	 * Parses a timestamp string in any of the commonly used formats (ISO 8601 / RFC 3339,
+	 * RFC 2822, XEP-0082, SQL-style, date-only). Handles arbitrary-precision fractional
+	 * seconds and all numeric timezone offset forms (+HH:MM, +HHMM, Z).
+	 */
+	public static long parseTimestamp(final String raw) throws ParseException {
+		if (raw == null) {
+			throw new ParseException("null timestamp", 0);
 		}
-		timestamp = timestamp.substring(0, 19) + timestamp.substring(timestamp.length() - 5);
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
-		return Math.min(dateFormat.parse(timestamp).getTime() + ms, System.currentTimeMillis());
+		final String normalized = normalizeTimezoneOffset(raw.trim());
+
+		// ISO 8601 allows arbitrary-precision fractional seconds; SimpleDateFormat only handles
+		// milliseconds. Strip the fraction, convert it to ms, and re-add it after parsing.
+		long extraMillis = 0;
+		String forParsing = normalized;
+		if (normalized.length() > 19 && normalized.charAt(19) == '.') {
+			final int tzStart = findTimezoneOffset(normalized);
+			final String fraction = normalized.substring(19, tzStart);
+			try {
+				extraMillis = Math.round(Double.parseDouble("0" + fraction) * 1000);
+			} catch (final NumberFormatException ignored) {}
+			forParsing = normalized.substring(0, 19) + normalized.substring(tzStart);
+		}
+
+		for (final String format : TIMESTAMP_FORMATS) {
+			try {
+				final SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+				sdf.setLenient(false);
+				// Formats without an explicit timezone token default to UTC.
+				if (!format.endsWith("Z") && !format.endsWith("z")) {
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+				}
+				final Date date = sdf.parse(forParsing);
+				if (date != null) {
+					return date.getTime() + extraMillis;
+				}
+			} catch (final ParseException ignored) {}
+		}
+		throw new ParseException("Unparseable timestamp: " + raw, 0);
 	}
 
-    public static long parseTimestampAtom(String timestamp) throws ParseException {
-        timestamp = timestamp.replace("+00:00", "+0000");
-        SimpleDateFormat dateFormat;
-        long ms;
-        if (timestamp.length() >= 25 && timestamp.charAt(19) == '.') {
-            String millis = timestamp.substring(19, timestamp.length() - 5);
-            try {
-                double fractions = Double.parseDouble("0" + millis);
-                ms = Math.round(1000 * fractions);
-            } catch (NumberFormatException e) {
-                ms = 0;
-            }
-        } else {
-            ms = 0;
-        }
-        timestamp = timestamp.substring(0, 19) + timestamp.substring(timestamp.length() - 5);
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
-        return Math.min(dateFormat.parse(timestamp).getTime() + ms, System.currentTimeMillis());
-    }
+	/**
+	 * Normalises the timezone suffix of a timestamp string:
+	 *  Z           → +0000
+	 *  +HH:MM      → +HHMM  (RFC 3339 colon form, any offset)
+	 *  -HH:MM      → -HHMM
+	 * All other forms are returned unchanged.
+	 */
+	private static String normalizeTimezoneOffset(final String timestamp) {
+		if (timestamp.endsWith("Z")) {
+			return timestamp.substring(0, timestamp.length() - 1) + "+0000";
+		}
+		final int len = timestamp.length();
+		if (len >= 6) {
+			final char sign = timestamp.charAt(len - 6);
+			final char colon = timestamp.charAt(len - 3);
+			if ((sign == '+' || sign == '-') && colon == ':') {
+				return timestamp.substring(0, len - 3) + timestamp.substring(len - 2);
+			}
+		}
+		return timestamp;
+	}
+
+	/**
+	 * Returns the start index of a ±HHMM timezone suffix in a normalized timestamp,
+	 * or the string length if no such suffix is present.
+	 */
+	private static int findTimezoneOffset(final String normalized) {
+		final int len = normalized.length();
+		if (len >= 5) {
+			final char sign = normalized.charAt(len - 5);
+			if (sign == '+' || sign == '-') {
+				return len - 5;
+			}
+		}
+		return len;
+	}
 
 	public static long getTimestamp(final String input) throws ParseException {
 		if (input == null) {
 			throw new IllegalArgumentException("timestamp should not be null");
 		}
-		final String timestamp = input.replace("Z", "+0000");
-		final SimpleDateFormat simpleDateFormat =
-				new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
-		final long milliseconds = getMilliseconds(timestamp);
-		final String formatted =
-				timestamp.substring(0, 19) + timestamp.substring(timestamp.length() - 5);
-		final Date date = simpleDateFormat.parse(formatted);
-		if (date == null) {
-			throw new IllegalArgumentException("Date was null");
-		}
-		return date.getTime() + milliseconds;
-	}
-
-	private static long getMilliseconds(final String timestamp) {
-		if (timestamp.length() >= 25 && timestamp.charAt(19) == '.') {
-			final String millis = timestamp.substring(19, timestamp.length() - 5);
-			try {
-				double fractions = Double.parseDouble("0" + millis);
-				return Math.round(1000 * fractions);
-			} catch (NumberFormatException e) {
-				return 0;
-			}
-		} else {
-			return 0;
-		}
+		return parseTimestamp(input);
 	}
 
 	protected void updateLastseen(final Account account, final Jid from) {
