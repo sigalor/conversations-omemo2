@@ -53,6 +53,17 @@ public class ConnectionSettingsFragment extends XmppPreferenceFragment {
             channelDiscovery.setVisible(false);
         }
 
+        final var resourceNamePreference =
+                (EditTextPreference) findPreference(AppSettings.CUSTOM_RESOURCE_NAME);
+        if (resourceNamePreference != null) {
+            resourceNamePreference.setOnBindEditTextListener(
+                    editText ->
+                            editText.setHint(
+                                    getString(
+                                            R.string.pref_custom_resource_name_hint,
+                                            AppSettings.CUSTOM_RESOURCE_NAME_MAX_LENGTH)));
+        }
+
         final var resetDNSServerPreference = findPreference("reset_dns_server");
         if (resetDNSServerPreference != null) {
             resetDNSServerPreference.setOnPreferenceClickListener(preference -> {
@@ -105,7 +116,7 @@ public class ConnectionSettingsFragment extends XmppPreferenceFragment {
                 reconnectAccounts();
                 requireService().reinitializeMuclumbusService();
             }
-            case AppSettings.SHOW_CONNECTION_OPTIONS, AppSettings.PREFER_IPV6, "dns_server_ipv4", "dns_server_ipv6" -> {
+            case AppSettings.SHOW_CONNECTION_OPTIONS, AppSettings.PREFER_IPV6, "dns_server_ipv4", "dns_server_ipv6", AppSettings.CUSTOM_RESOURCE_NAME -> {
                 reconnectAccounts();
             }
         }

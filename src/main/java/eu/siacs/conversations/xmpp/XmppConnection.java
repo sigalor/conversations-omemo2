@@ -222,14 +222,23 @@ public class XmppConnection implements Runnable {
     }
 
     private static void fixResource(final Context context, final Account account) {
-        String resource = account.getResource();
-        int fixedPartLength =
-                context.getString(R.string.app_name).length() + 1; // include the trailing dot
-        int randomPartLength = 4; // 3 bytes
-        if (resource != null && resource.length() > fixedPartLength + randomPartLength) {
+        final String resource = account.getResource();
+        final String clientName = getEffectiveClientName(new AppSettings(context));
+        final String expectedPrefix = clientName + ".";
+        final int fixedPartLength = expectedPrefix.length();
+        final int randomPartLength = 4; // 3 bytes base64-encoded
+        if (resource == null || !resource.startsWith(expectedPrefix)) {
+            // Resource doesn't match our format (e.g. server-assigned or accumulated conflicts);
+            // strip the resource so bind() generates a fresh one.
+            account.setJid(account.getJid().asBareJid());
+            return;
+        }
+        if (resource.length() > fixedPartLength + randomPartLength) {
             if (validBase64(
                     resource.substring(fixedPartLength, fixedPartLength + randomPartLength))) {
                 account.setResource(resource.substring(0, fixedPartLength + randomPartLength));
+            } else {
+                account.setJid(account.getJid().asBareJid());
             }
         }
     }
@@ -1924,7 +1933,7 @@ public class XmppConnection implements Runnable {
     private Bind generateBindRequest(final Collection<String> bindFeatures) {
         Log.d(Config.LOGTAG, "inline bind features: " + bindFeatures);
         final var bind = new Bind();
-        bind.setTag(BuildConfig.APP_NAME);
+        bind.setTag(getEffectiveClientName(appSettings));
         if (bindFeatures.contains(Namespace.CARBONS)) {
             bind.addExtension(new im.conversations.android.xmpp.model.carbons.Enable());
         }
@@ -2133,10 +2142,11 @@ public class XmppConnection implements Runnable {
             return;
         }
         clearIqCallbacks();
+        if (!account.getJid().isBareJid()) {
+            fixResource(mXmppConnectionService, account);
+        }
         if (account.getJid().isBareJid()) {
             account.setResource(createNewResource());
-        } else {
-            fixResource(mXmppConnectionService, account);
         }
         final Iq iq = new Iq(Iq.Type.SET);
         final String resource =
@@ -2662,8 +2672,13 @@ public class XmppConnection implements Runnable {
         tagWriter.writeTag(stream, flush);
     }
 
-    private static String createNewResource() {
-        return String.format("%s.%s", BuildConfig.APP_NAME, CryptoHelper.random(3));
+    private static String getEffectiveClientName(final AppSettings settings) {
+        final String custom = settings.getCustomResourceName();
+        return custom.isEmpty() ? BuildConfig.APP_NAME : custom;
+    }
+
+    private String createNewResource() {
+        return getEffectiveClientName(appSettings) + "." + CryptoHelper.random(3);
     }
 
     public String sendIqPacket(final Iq packet, final Consumer<Iq> callback) {

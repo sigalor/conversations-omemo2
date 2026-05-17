@@ -80,6 +80,8 @@ public class AppSettings {
     public static final String USE_INTERNAL_SECURE_STORAGE = "default_store_media_securely";
     public static final String SHOW_MAPS_INSIDE = "show_maps_inside";
     public static final String REQUIRE_PASSWORD_ON_STARTUP = "require_password_on_startup";
+    public static final String CUSTOM_RESOURCE_NAME = "custom_resource_name";
+    public static final int CUSTOM_RESOURCE_NAME_MAX_LENGTH = 64;
 
     // In-memory session password: the char[] the user typed at startup.
     // Never written to disk. Zeroed when no longer needed. Null when locked.
@@ -235,6 +237,17 @@ public class AppSettings {
 
     public boolean isUseI2P() {
         return getBooleanPreference(USE_I2P, R.bool.use_i2p);
+    }
+
+    public String getCustomResourceName() {
+        final String value =
+                Strings.nullToEmpty(
+                                PreferenceManager.getDefaultSharedPreferences(context)
+                                        .getString(CUSTOM_RESOURCE_NAME, ""))
+                        .trim();
+        return value.length() > CUSTOM_RESOURCE_NAME_MAX_LENGTH
+                ? value.substring(0, CUSTOM_RESOURCE_NAME_MAX_LENGTH)
+                : value;
     }
 
     private boolean getBooleanPreference(@NonNull final String name, @BoolRes int res) {

@@ -2,6 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/pref_category_server_connection">
+        <EditTextPreference
+            android:key="custom_resource_name"
+            android:icon="@drawable/ic_label_24dp"
+            android:title="@string/pref_custom_resource_name"
+            android:summary="@string/pref_custom_resource_name_summary"
+            android:dialogTitle="@string/pref_custom_resource_name_dialog_title"
+            android:maxLength="64" />
         <SwitchPreferenceCompat
             android:defaultValue="@bool/show_connection_options"
             android:icon="@drawable/ic_settings_24dp"
