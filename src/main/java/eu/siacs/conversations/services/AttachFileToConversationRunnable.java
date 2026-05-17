@@ -69,7 +69,16 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
             final int encryption = message.getEncryption();
             mXmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
                 message.setEncryption(encryption);
-                mXmppConnectionService.sendMessage(message, () -> callback.success(message));
+                if (encryption == Message.ENCRYPTION_DECRYPTED) {
+                    final PgpEngine pgpEngine = mXmppConnectionService.getPgpEngine();
+                    if (pgpEngine != null) {
+                        pgpEngine.encrypt(message, callback);
+                    } else if (callback != null) {
+                        callback.error(R.string.unable_to_connect_to_keychain, null);
+                    }
+                } else {
+                    mXmppConnectionService.sendMessage(message, () -> callback.success(message));
+                }
             });
             /*      // TODO for now we copy all files to private storage
         } else if (path != null && !FileBackend.isPathBlacklisted(path)) {
