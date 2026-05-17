@@ -2924,13 +2924,17 @@ public class ConversationFragment extends XmppFragment
         final int msgWidth = messageView.getWidth();
         final int screenW = getResources().getDisplayMetrics().widthPixels;
         final int screenH = getResources().getDisplayMetrics().heightPixels;
+        final float density = getResources().getDisplayMetrics().density;
         final int statusBarH = getStatusBarHeightPx();
         final int navBarH = getNavBarHeightPx();
-        // Window content area: from below status bar to above nav bar
-        final int windowH = screenH - statusBarH - navBarH;
-        final int gapPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
-        final int marginPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
-        // Message coordinates in window-content space (relative to below status bar)
+        final int imeH = getImeHeightPx();
+        // Visible window height: excludes status bar, nav bar, and keyboard when open.
+        // FLAG_NOT_FOCUSABLE keeps the keyboard from hiding, so this is always accurate.
+        final int windowH = screenH - statusBarH - navBarH - imeH;
+        final int gapPx = (int) (8 * density + 0.5f);
+        final int marginPx = (int) (12 * density + 0.5f);
+        final int widthPx = (int) (280 * density + 0.5f);
+        // Message position in window-content coordinates (Y=0 is just below the status bar)
         final int msgTopW = msgTop - statusBarH;
         final int msgBottomW = msgBottom - statusBarH;
 
@@ -2938,17 +2942,15 @@ public class ConversationFragment extends XmppFragment
         final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         final FrameLayout container = new FrameLayout(activity);
-        // Tap anywhere outside the reaction pill or context menu card dismisses
         container.setOnClickListener(v -> dialog.dismiss());
 
-        // Reactions pill
+        // ── Measure both elements before deciding positions ──────────────────
         final boolean hasReactions = canMessageReceiveReactions(message);
+        View reactionPillView = null;
         int popupH = 0, popupW = 0;
-        boolean reactionAbove = false;
         if (hasReactions) {
-            final View reactionPillView = getLayoutInflater().inflate(R.layout.popup_reactions, container, false);
-            final LinearLayout reactionRow = reactionPillView.findViewById(R.id.reaction_row);
-            setupDialogReactionRow(reactionRow, message, () -> {
+            reactionPillView = getLayoutInflater().inflate(R.layout.popup_reactions, container, false);
+            setupDialogReactionRow(reactionPillView.findViewById(R.id.reaction_row), message, () -> {
                 clearHighlight.run();
                 dialog.dismiss();
             });
@@ -2957,24 +2959,9 @@ public class ConversationFragment extends XmppFragment
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
             popupH = reactionPillView.getMeasuredHeight();
             popupW = reactionPillView.getMeasuredWidth();
-
-            reactionAbove = msgTopW >= popupH + gapPx * 2;
-            int reactionY = reactionAbove ? (msgTopW - popupH - gapPx) : (msgBottomW + gapPx);
-            reactionY = Math.max(marginPx, Math.min(windowH - popupH - marginPx, reactionY));
-            int reactionX = msgLoc[0] + (msgWidth - popupW) / 2;
-            reactionX = Math.max(marginPx, Math.min(screenW - popupW - marginPx, reactionX));
-
-            final FrameLayout.LayoutParams rp = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            rp.gravity = Gravity.TOP | Gravity.START;
-            rp.topMargin = reactionY;
-            rp.leftMargin = reactionX;
-            // Consume touches so they don't bubble up and dismiss the dialog
             reactionPillView.setClickable(true);
-            container.addView(reactionPillView, rp);
         }
 
-        // Context menu card
         final View menuView = getLayoutInflater().inflate(R.layout.dialog_context_menu, container, false);
         final LinearLayout menuContainer = menuView.findViewById(R.id.menu_container);
         final Menu menu = new PopupMenu(activity, menuView).getMenu();
@@ -2993,38 +2980,96 @@ public class ConversationFragment extends XmppFragment
                 handleMessageContextAction(itemId);
             });
         }
-        final int widthPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 280, getResources().getDisplayMetrics());
         menuView.measure(
                 View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(windowH, View.MeasureSpec.UNSPECIFIED));
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
         final int menuH = menuView.getMeasuredHeight();
+        menuView.setClickable(true);
 
-        // Place context menu on the opposite side of the message from the reactions
-        int menuY;
+        // ── Positioning: pick the arrangement that gives the menu the most room ─
+        // Four possible arrangements (message is the anchor):
+        //   A: reactions above,  menu below   → menu space = spaceBelow
+        //   B: reactions below,  menu above   → menu space = spaceAbove
+        //   C: both above (reactions closer to message, menu above reactions)
+        //   D: both below (reactions closer to message, menu below reactions)
+        final int spaceAbove = msgTopW - marginPx;
+        final int spaceBelow = windowH - msgBottomW - marginPx;
+        final boolean rFitsAbove = hasReactions && spaceAbove >= popupH + gapPx;
+        final boolean rFitsBelow = hasReactions && spaceBelow >= popupH + gapPx;
+
+        // 0=A, 1=B, 2=C, 3=D;  -1 = no reactions
+        final int arrangement;
         if (!hasReactions) {
-            menuY = msgTopW + (messageView.getHeight() - menuH) / 2;
-        } else if (reactionAbove) {
-            // Reactions above → try below; if no room, stack above the reactions
-            final int proposedBelow = msgBottomW + gapPx;
-            menuY = (proposedBelow + menuH + marginPx <= windowH)
-                    ? proposedBelow
-                    : (msgTopW - popupH - gapPx - menuH - gapPx);
+            arrangement = -1;
+        } else if (rFitsAbove && rFitsBelow) {
+            // Both sides have room for reactions: give menu the larger side
+            arrangement = (spaceBelow >= spaceAbove) ? 0 : 1;
+        } else if (rFitsAbove) {
+            arrangement = 2; // reactions only fit above → both above
         } else {
-            // Reactions below → try above; if no room, stack below the reactions
-            final int proposedAbove = msgTopW - menuH - gapPx;
-            menuY = (proposedAbove >= marginPx)
-                    ? proposedAbove
-                    : (msgBottomW + popupH + gapPx * 2);
+            arrangement = 3; // reactions only fit below (or nowhere) → both below
         }
-        menuY = Math.max(marginPx, Math.min(windowH - menuH - marginPx, menuY));
-        final int menuX = (screenW - widthPx) / 2;
 
-        final FrameLayout.LayoutParams mp = new FrameLayout.LayoutParams(widthPx, FrameLayout.LayoutParams.WRAP_CONTENT);
+        // Available height for the menu in each arrangement
+        final int menuSideSpace = switch (arrangement) {
+            case 0  -> spaceBelow;
+            case 1  -> spaceAbove;
+            case 2  -> spaceAbove - popupH - gapPx;
+            case 3  -> spaceBelow - popupH - gapPx;
+            default -> Math.max(spaceAbove, spaceBelow); // no reactions
+        };
+        // Cap menu height to available space; NestedScrollView handles overflow
+        final int effectiveMenuH = Math.max(0, Math.min(menuH, menuSideSpace - gapPx));
+
+        final int menuY;
+        final int reactionY;
+        final boolean reactionAbove;
+        switch (arrangement) {
+            case 0 -> { // reactions ↑, menu ↓
+                reactionAbove = true;
+                reactionY = Math.max(marginPx, msgTopW - popupH - gapPx);
+                menuY = Math.min(windowH - effectiveMenuH - marginPx, msgBottomW + gapPx);
+            }
+            case 1 -> { // reactions ↓, menu ↑
+                reactionAbove = false;
+                reactionY = Math.min(windowH - popupH - marginPx, msgBottomW + gapPx);
+                menuY = Math.max(marginPx, msgTopW - effectiveMenuH - gapPx);
+            }
+            case 2 -> { // both ↑: reactions adjacent to message, menu above them
+                reactionAbove = true;
+                reactionY = Math.max(marginPx, msgTopW - popupH - gapPx);
+                menuY = Math.max(marginPx, reactionY - effectiveMenuH - gapPx);
+            }
+            case 3 -> { // both ↓: reactions adjacent to message, menu below them
+                reactionAbove = false;
+                reactionY = Math.min(windowH - popupH - marginPx, msgBottomW + gapPx);
+                menuY = Math.min(windowH - effectiveMenuH - marginPx, reactionY + popupH + gapPx);
+            }
+            default -> { // no reactions: centre menu on message, clamped
+                reactionAbove = false;
+                reactionY = 0;
+                int cy = msgTopW + (messageView.getHeight() - effectiveMenuH) / 2;
+                menuY = Math.max(marginPx, Math.min(windowH - effectiveMenuH - marginPx, cy));
+            }
+        }
+
+        // ── Add views to container ───────────────────────────────────────────
+        if (hasReactions && reactionPillView != null) {
+            int reactionX = msgLoc[0] + (msgWidth - popupW) / 2;
+            reactionX = Math.max(marginPx, Math.min(screenW - popupW - marginPx, reactionX));
+            final FrameLayout.LayoutParams rp = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            rp.gravity = Gravity.TOP | Gravity.START;
+            rp.topMargin = reactionY;
+            rp.leftMargin = reactionX;
+            container.addView(reactionPillView, rp);
+        }
+
+        final int menuX = (screenW - widthPx) / 2;
+        final FrameLayout.LayoutParams mp = new FrameLayout.LayoutParams(widthPx, effectiveMenuH);
         mp.gravity = Gravity.TOP | Gravity.START;
         mp.topMargin = menuY;
         mp.leftMargin = menuX;
-        // Consume touches on the card itself so they don't dismiss the dialog
-        menuView.setClickable(true);
         container.addView(menuView, mp);
 
         dialog.setContentView(container);
@@ -3035,6 +3080,7 @@ public class ConversationFragment extends XmppFragment
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             w.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            w.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
             w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
         dialog.show();
@@ -3058,6 +3104,17 @@ public class ConversationFragment extends XmppFragment
             final WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(root);
             if (insets != null) {
                 return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            }
+        }
+        return 0;
+    }
+
+    private int getImeHeightPx() {
+        final View root = getView();
+        if (root != null) {
+            final WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(root);
+            if (insets != null) {
+                return insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
             }
         }
         return 0;
