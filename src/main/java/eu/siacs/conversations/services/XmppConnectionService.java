@@ -8327,7 +8327,11 @@ public class XmppConnectionService extends Service {
         iq.setTo(account.getJid().asBareJid());
         this.sendIqPacket(account, iq, response -> {
             if (response.getType() == Iq.Type.RESULT) {
-                this.stories.removeIf(s -> s.getUuid().equals(storyId));
+                for (eu.siacs.conversations.entities.Story s : this.stories) {
+                    if (s.getUuid().equals(storyId)) {
+                        this.stories.remove(s);
+                    }
+                }
                 mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
                 updateStoriesUi();
                 if (callback != null) {
@@ -8345,7 +8349,15 @@ public class XmppConnectionService extends Service {
         if (storyId == null) {
             return;
         }
-        final boolean removed = this.stories.removeIf(s -> s.getUuid().equals(storyId));
+        boolean removed = false;
+        for (eu.siacs.conversations.entities.Story s : this.stories) {
+            if (s.getUuid().equals(storyId)) {
+                if (this.stories.remove(s)) {
+                    removed = true;
+                    break;
+                }
+            }
+        }
         mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
         if (removed) {
             updateStoriesUi();
