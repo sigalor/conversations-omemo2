@@ -140,10 +140,10 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
         if (this.myLoc != null) {
             this.binding.map.getOverlays().add(new MyLocation(this, null, this.myLoc));
         }
-        final android.graphics.Bitmap avatarBitmap =
+        final android.graphics.drawable.Drawable avatarDrawable =
                 LiveLocationManager.getInstance().getSessionAvatar(liveSessionId);
-        if (avatarBitmap != null) {
-            this.binding.map.getOverlays().add(new AvatarMarker(this, avatarBitmap, this.loc));
+        if (avatarDrawable != null) {
+            this.binding.map.getOverlays().add(new AvatarMarker(this, avatarDrawable, this.loc));
         } else {
             this.binding.map.getOverlays().add(new Marker(this.marker_icon, this.loc));
         }

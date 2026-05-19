@@ -2505,10 +2505,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             drawable = activity.xmppConnectionService.getAvatarService()
                     .get(message.getConversation().getAccount(), sizePx, false);
         }
-        if (drawable != null) {
-            final android.graphics.Bitmap bitmap = FileBackend.drawDrawable(drawable);
-            eu.siacs.conversations.utils.LiveLocationManager.getInstance().setSessionAvatar(sessionId, bitmap);
-        }
+        eu.siacs.conversations.utils.LiveLocationManager.getInstance().setSessionAvatar(sessionId, drawable);
     }
 
     public void updatePreferences() {

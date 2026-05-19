@@ -1,119 +1,148 @@
 package eu.siacs.conversations.ui.widget;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.annotation.NonNull;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
-public class AvatarMarker extends Overlay {
+import java.lang.ref.WeakReference;
+
+public class AvatarMarker extends Overlay implements Drawable.Callback {
 
     private final GeoPoint position;
-    private final Bitmap markerBitmap;
+    private final Drawable avatarDrawable;
+
+    private final Path pinPath;
+    private final Path clipPath;
+    private final Paint strokePaint;
+    private final Paint fillPaint;
+    private final int bmpWidth;
+    private final int bmpHeight;
+    private final float cx;
+    private final float cy;
+    private final float innerRadius;
+
     private final Point mapPoint = new Point();
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private WeakReference<MapView> mapViewRef;
 
-    public AvatarMarker(Context context, Bitmap avatarBitmap, GeoPoint position) {
+    public AvatarMarker(Context context, Drawable avatarDrawable, GeoPoint position) {
         this.position = position;
-        this.markerBitmap = buildPin(context, avatarBitmap);
-    }
+        this.avatarDrawable = avatarDrawable;
 
-    @Override
-    public void draw(final Canvas c, final MapView view, final boolean shadow) {
-        if (shadow || markerBitmap == null) return;
-        view.getProjection().toPixels(position == null ? view.getMapCenter() : position, mapPoint);
-        c.drawBitmap(markerBitmap,
-                mapPoint.x - markerBitmap.getWidth() / 2f,
-                mapPoint.y - markerBitmap.getHeight(),
-                null);
-    }
-
-    private static Bitmap buildPin(Context context, Bitmap avatar) {
         final float d = context.getResources().getDisplayMetrics().density;
-
         final float avatarDiameter = 44 * d;
         final float whiteBorder = 3 * d;
         final float outerRadius = avatarDiameter / 2f + whiteBorder;
         final float tipHeight = 14 * d;
         final float tipHalfWidth = 5 * d;
         final float borderStroke = 1.5f * d;
-
-        // Canvas width: 2 * outerRadius + extra for stroke
         final float extra = (float) Math.ceil(borderStroke);
-        final int bmpWidth = (int) Math.ceil(2 * outerRadius + 2 * extra);
-        final int bmpHeight = (int) Math.ceil(2 * outerRadius + tipHeight + 2 * extra);
 
-        final float cx = bmpWidth / 2f;
-        final float cy = outerRadius + extra;
+        bmpWidth = (int) Math.ceil(2 * outerRadius + 2 * extra);
+        bmpHeight = (int) Math.ceil(2 * outerRadius + tipHeight + 2 * extra);
+        cx = bmpWidth / 2f;
+        cy = outerRadius + extra;
+        innerRadius = outerRadius - whiteBorder;
 
-        final Bitmap result = Bitmap.createBitmap(bmpWidth, bmpHeight, Bitmap.Config.ARGB_8888);
-        final Canvas canvas = new Canvas(result);
-
-        // --- Build the combined teardrop path (circle arc + tip triangle) ---
-        // The tip junction angle (measured from straight-down direction):
-        // halfAngle = atan(tipHalfWidth / outerRadius)
+        // Combined teardrop path: arc over the top + tip lines
         final double halfAngleRad = Math.atan2(tipHalfWidth, outerRadius);
         final double halfAngleDeg = Math.toDegrees(halfAngleRad);
-        // Junction Y from circle center:
         final float junctionDy = (float) (outerRadius * Math.cos(halfAngleRad));
-
-        // In Android's arc system (0° = 3 o'clock, increasing clockwise):
-        // Right junction is at 90° - halfAngleDeg (just right of straight-down)
-        // Sweep counterclockwise (negative) by (360 - 2*halfAngleDeg) to reach left junction
         final float arcStart = (float) (90 - halfAngleDeg);
         final float arcSweep = (float) -(360 - 2 * halfAngleDeg);
-
         final RectF circleRect = new RectF(cx - outerRadius, cy - outerRadius, cx + outerRadius, cy + outerRadius);
-        final Path pinPath = new Path();
-        // Start at right junction
+
+        pinPath = new Path();
         pinPath.moveTo(cx + tipHalfWidth, cy + junctionDy);
-        // Arc counterclockwise over the top to the left junction
         pinPath.arcTo(circleRect, arcStart, arcSweep, false);
-        // Line to tip point
         pinPath.lineTo(cx, cy + outerRadius + tipHeight);
-        // Close back to right junction
         pinPath.close();
 
-        // --- Draw border stroke first (half will be covered by the white fill) ---
-        final Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        clipPath = new Path();
+        clipPath.addCircle(cx, cy, innerRadius, Path.Direction.CW);
+
+        strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(borderStroke * 2); // drawn centered; fill covers the inner half
+        strokePaint.setStrokeWidth(borderStroke * 2); // fill will cover inner half
         strokePaint.setColor(Color.argb(160, 60, 60, 60));
         strokePaint.setStrokeJoin(Paint.Join.ROUND);
         strokePaint.setStrokeCap(Paint.Cap.ROUND);
-        canvas.drawPath(pinPath, strokePaint);
 
-        // --- Draw white fill ---
-        final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         fillPaint.setStyle(Paint.Style.FILL);
         fillPaint.setColor(Color.WHITE);
-        canvas.drawPath(pinPath, fillPaint);
 
-        // --- Draw circular avatar clipped to inner radius ---
-        final float innerRadius = outerRadius - whiteBorder;
-        final int aSize = (int) avatarDiameter;
-        final Bitmap avatarScaled = Bitmap.createScaledBitmap(avatar, aSize, aSize, true);
+        avatarDrawable.setCallback(this);
+        if (avatarDrawable instanceof Animatable) {
+            ((Animatable) avatarDrawable).start();
+        }
+    }
 
-        final Bitmap circularAvatar = Bitmap.createBitmap(aSize, aSize, Bitmap.Config.ARGB_8888);
-        final Canvas ac = new Canvas(circularAvatar);
-        final Paint clipPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        ac.drawCircle(aSize / 2f, aSize / 2f, innerRadius, clipPaint);
-        clipPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        ac.drawBitmap(avatarScaled, 0, 0, clipPaint);
+    @Override
+    public void draw(final Canvas c, final MapView view, final boolean shadow) {
+        if (shadow) return;
+        if (mapViewRef == null || mapViewRef.get() == null) {
+            mapViewRef = new WeakReference<>(view);
+        }
 
-        canvas.drawBitmap(circularAvatar, cx - aSize / 2f, cy - aSize / 2f, null);
+        view.getProjection().toPixels(position == null ? view.getMapCenter() : position, mapPoint);
 
-        avatarScaled.recycle();
-        circularAvatar.recycle();
+        c.save();
+        c.translate(mapPoint.x - bmpWidth / 2f, mapPoint.y - bmpHeight);
 
-        return result;
+        // Stroke first so fill covers its inner half, leaving only the outer border visible
+        c.drawPath(pinPath, strokePaint);
+        c.drawPath(pinPath, fillPaint);
+
+        c.save();
+        c.clipPath(clipPath);
+        avatarDrawable.setBounds(
+                (int) (cx - innerRadius), (int) (cy - innerRadius),
+                (int) (cx + innerRadius), (int) (cy + innerRadius));
+        avatarDrawable.draw(c);
+        c.restore();
+
+        c.restore();
+    }
+
+    @Override
+    public void onDetach(MapView mapView) {
+        avatarDrawable.setCallback(null);
+        if (avatarDrawable instanceof Animatable) {
+            ((Animatable) avatarDrawable).stop();
+        }
+        mapViewRef = null;
+    }
+
+    // --- Drawable.Callback ---
+
+    @Override
+    public void invalidateDrawable(@NonNull Drawable who) {
+        final MapView mv = mapViewRef != null ? mapViewRef.get() : null;
+        if (mv != null) mv.postInvalidate();
+    }
+
+    @Override
+    public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
+        handler.postAtTime(what, who, when);
+    }
+
+    @Override
+    public void unscheduleDrawable(@NonNull Drawable who, @NonNull Runnable what) {
+        handler.removeCallbacksAndMessages(who);
     }
 }

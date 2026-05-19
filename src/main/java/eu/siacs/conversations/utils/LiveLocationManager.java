@@ -1,6 +1,6 @@
 package eu.siacs.conversations.utils;
 
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -64,7 +64,7 @@ public class LiveLocationManager {
     private final ConcurrentHashMap<String, String> messageToSession = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, OutgoingSession> outgoingByConversation = new ConcurrentHashMap<>();
     private final CopyOnWriteArraySet<PositionListener> listeners = new CopyOnWriteArraySet<>();
-    private final ConcurrentHashMap<String, Bitmap> sessionAvatars = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Drawable> sessionAvatars = new ConcurrentHashMap<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public void registerIncomingSession(String sessionId, String messageUuid, double lat, double lon, long expiresAt) {
@@ -91,11 +91,11 @@ public class LiveLocationManager {
         }
     }
 
-    public void setSessionAvatar(String sessionId, Bitmap bitmap) {
-        if (bitmap != null) sessionAvatars.put(sessionId, bitmap);
+    public void setSessionAvatar(String sessionId, Drawable drawable) {
+        if (drawable != null) sessionAvatars.put(sessionId, drawable);
     }
 
-    public Bitmap getSessionAvatar(String sessionId) {
+    public Drawable getSessionAvatar(String sessionId) {
         return sessionId != null ? sessionAvatars.get(sessionId) : null;
     }
 
