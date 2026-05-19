@@ -117,6 +117,7 @@ public class NotificationService {
     private static final int DELIVERY_FAILED_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 13;
     public static final int ONGOING_VIDEO_TRANSCODING_NOTIFICATION_ID =
             NOTIFICATION_ID_MULTIPLIER * 14;
+    public static final int LIVE_LOCATION_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 16;
     private final XmppConnectionService mXmppConnectionService;
     private final LinkedHashMap<String, ArrayList<Message>> notifications = new LinkedHashMap<>();
     private final HashMap<Conversation, AtomicInteger> mBacklogMessageCounter = new HashMap<>();
@@ -275,6 +276,15 @@ public class NotificationService {
                         .build());
         deliveryFailedChannel.setGroup("chats");
         notificationManager.createNotificationChannel(deliveryFailedChannel);
+
+        final NotificationChannel liveLocationChannel =
+                new NotificationChannel(
+                        "live_location",
+                        c.getString(R.string.live_location_channel_name),
+                        NotificationManager.IMPORTANCE_LOW);
+        liveLocationChannel.setShowBadge(false);
+        liveLocationChannel.setGroup("status");
+        notificationManager.createNotificationChannel(liveLocationChannel);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
@@ -2499,5 +2509,41 @@ public class NotificationService {
         synchronized (mMissedCalls) {
             return !mMissedCalls.isEmpty();
         }
+    }
+
+    public void showLiveLocationNotification(final String conversationUuid) {
+        final Intent stopIntent = new Intent(mXmppConnectionService, XmppConnectionService.class);
+        stopIntent.setAction(XmppConnectionService.ACTION_STOP_LIVE_LOCATION);
+        stopIntent.putExtra("uuid", conversationUuid);
+        final PendingIntent stopPendingIntent = PendingIntent.getService(
+                mXmppConnectionService, 0, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        final Intent openIntent = new Intent(mXmppConnectionService, eu.siacs.conversations.ui.ConversationsActivity.class);
+        openIntent.setAction(eu.siacs.conversations.ui.ConversationsActivity.ACTION_VIEW_CONVERSATION);
+        openIntent.putExtra(eu.siacs.conversations.ui.ConversationsActivity.EXTRA_CONVERSATION, conversationUuid);
+        final PendingIntent openPendingIntent = PendingIntent.getActivity(
+                mXmppConnectionService, 0, openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mXmppConnectionService, "live_location");
+        builder.setSmallIcon(R.drawable.ic_location_pin_24dp);
+        builder.setContentTitle(mXmppConnectionService.getString(R.string.share_live_location));
+        builder.setContentText(mXmppConnectionService.getString(R.string.live_location_notification_text));
+        builder.setOngoing(true);
+        builder.setLocalOnly(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        builder.setPriority(NotificationCompat.PRIORITY_LOW);
+        builder.setContentIntent(openPendingIntent);
+        builder.addAction(new NotificationCompat.Action.Builder(
+                R.drawable.ic_location_disabled_24dp,
+                mXmppConnectionService.getString(R.string.stop_live_location),
+                stopPendingIntent).build());
+        notify(LIVE_LOCATION_NOTIFICATION_ID, builder.build());
+    }
+
+    public void cancelLiveLocationNotification() {
+        cancel(LIVE_LOCATION_NOTIFICATION_ID);
     }
 }

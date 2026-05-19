@@ -288,6 +288,7 @@ public class XmppConnectionService extends Service {
     public static final String ACTION_FCM_MESSAGE_RECEIVED = "fcm_message_received";
     public static final String ACTION_DISMISS_CALL = "dismiss_call";
     public static final String ACTION_END_CALL = "end_call";
+    public static final String ACTION_STOP_LIVE_LOCATION = "stop_live_location";
     public static final String ACTION_STARTING_CALL = "starting_call";
     public static final String ACTION_PROVISION_ACCOUNT = "provision_account";
     public static final String ACTION_CALL_INTEGRATION_SERVICE_STARTED =
@@ -909,6 +910,7 @@ public class XmppConnectionService extends Service {
         info.expiryRunnable = expiryRunnable;
         mLiveLocationHandler.postDelayed(expiryRunnable, durationMs);
 
+        mNotificationService.showLiveLocationNotification(conversation.getUuid());
         updateConversationUi();
     }
 
@@ -960,6 +962,7 @@ public class XmppConnectionService extends Service {
             packet.addChild("no-store", Namespace.HINTS);
             sendMessagePacket(conversation.getAccount(), packet);
         }
+        mNotificationService.cancelLiveLocationNotification();
         updateConversationUi();
     }
 
@@ -1375,6 +1378,13 @@ public class XmppConnectionService extends Service {
                         Config.LOGTAG,
                         "received intent to end call with session id " + sessionId);
                 mJingleConnectionManager.endRtpSession(sessionId);
+            }
+            break;
+            case ACTION_STOP_LIVE_LOCATION:
+            {
+                if (uuid != null) {
+                    stopLiveLocationSharing(uuid);
+                }
             }
             break;
             case ACTION_PROVISION_ACCOUNT:
