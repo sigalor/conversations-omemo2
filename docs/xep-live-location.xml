@@ -1,0 +1,442 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE xep SYSTEM 'xep.dtd' [
+  <!ENTITY % ents SYSTEM 'xep.ent'>
+%ents;
+]>
+<?xml-stylesheet type='text/xsl' href='xep.xsl'?>
+<xep>
+
+<header>
+  <title>Live Location Sharing</title>
+  <abstract>
+    This document defines a protocol for sharing continuously updating geographic location
+    (live location) over XMPP. It specifies how a sender announces a timed sharing session,
+    broadcasts position updates during the session, and terminates the session — either
+    on expiry or by an explicit stop signal.
+  </abstract>
+  <legal>
+    <copyright>This document is in the public domain.</copyright>
+  </legal>
+  <number>xxxx</number>
+  <status>ProtoXEP</status>
+  <type>Standards Track</type>
+  <sig>Standards</sig>
+  <dependencies>
+    <spec>XMPP Core</spec>
+    <spec>XEP-0030</spec>
+    <spec>XEP-0080</spec>
+    <spec>XEP-0082</spec>
+    <spec>XEP-0334</spec>
+  </dependencies>
+  <supersedes/>
+  <supersededby/>
+  <shortname>live-location</shortname>
+  <author>
+    <firstname>Arne-Brün</firstname>
+    <surname>Vogelsang</surname>
+    <email>arne-bruen@monocles.de</email>
+    <jid>arne-bruen@monocles.de</jid>
+  </author>
+  <revision>
+    <version>0.0.1</version>
+    <date>2026-05-19</date>
+    <initials>am</initials>
+    <remark>Initial draft.</remark>
+  </revision>
+</header>
+
+<section1 topic='Introduction' anchor='intro'>
+  <p>
+    &xep0080; defines a way for XMPP entities to publish their geographic location at a point in
+    time, either as a one-shot publication via &xep0163; (PEP) or as part of a message stanza.
+    However, it does not define a mechanism for continuous, real-time location sharing within the
+    context of an existing conversation — a common feature in modern messaging applications often
+    called "live location" or "live location sharing".
+  </p>
+  <p>
+    This document defines a lightweight extension that allows one entity (the <em>sender</em>) to:
+  </p>
+  <ol>
+    <li>announce a bounded live location session with an expiry time;</li>
+    <li>broadcast periodic position updates for the duration of the session;</li>
+    <li>terminate the session early via an explicit stop signal.</li>
+  </ol>
+  <p>
+    Position payloads reuse the RFC 5870 <tt>geo:</tt> URI scheme, keeping the protocol simple and
+    interoperable with existing location-aware clients.
+  </p>
+</section1>
+
+<section1 topic='Requirements' anchor='reqs'>
+  <ul>
+    <li>A sender MUST be able to start a live location session with a defined expiry time.</li>
+    <li>A sender MUST be able to send periodic position updates without creating new archived messages.</li>
+    <li>A sender MUST be able to stop sharing before the session expires.</li>
+    <li>A receiver MUST be able to determine the current position and session state from the conversation history alone (without retaining any server-side state).</li>
+    <li>Update stanzas MUST NOT be stored in the server-side message archive (&xep0313;).</li>
+    <li>The protocol MUST work in both one-to-one and multi-user (&xep0045;) conversations.</li>
+  </ul>
+</section1>
+
+<section1 topic='Glossary' anchor='glossary'>
+  <dl>
+    <di>
+      <dt>Session</dt>
+      <dd>A live location sharing episode with a defined start, an expiry time, and a unique session identifier.</dd>
+    </di>
+    <di>
+      <dt>Session announcement</dt>
+      <dd>The initial message stanza that starts a session. It is stored in the message archive and acts as the anchor for the session within conversation history.</dd>
+    </di>
+    <di>
+      <dt>Position update</dt>
+      <dd>A message stanza that carries a new geographic position for an active session. It is NOT stored in the message archive.</dd>
+    </di>
+    <di>
+      <dt>Session stop</dt>
+      <dd>A message stanza that explicitly terminates a session before its expiry time. It is NOT stored in the message archive.</dd>
+    </di>
+    <di>
+      <dt>Sender</dt>
+      <dd>The entity that initiates a live location session and publishes position updates.</dd>
+    </di>
+    <di>
+      <dt>Receiver</dt>
+      <dd>Any entity that receives stanzas belonging to the session.</dd>
+    </di>
+  </dl>
+</section1>
+
+<section1 topic='Protocol' anchor='protocol'>
+
+  <section2 topic='Namespace' anchor='ns'>
+    <p>All elements defined in this document are qualified by the namespace
+      <tt>urn:xmpp:live-location:0</tt>.</p>
+  </section2>
+
+  <section2 topic='Starting a Session' anchor='start'>
+    <p>
+      To begin sharing a live location, the sender transmits a normal message stanza whose
+      body contains a <tt>geo:</tt> URI (RFC 5870) representing the initial position, and
+      whose payload includes a <tt>&lt;live-location&gt;</tt> element carrying a unique session
+      identifier and an expiry timestamp.
+    </p>
+    <p>
+      The <tt>&lt;live-location&gt;</tt> element has the following attributes:
+    </p>
+    <dl>
+      <di>
+        <dt>id</dt>
+        <dd>REQUIRED. A UUID (RFC 4122) that uniquely identifies this session. The same value
+        MUST appear in all subsequent update and stop stanzas for this session.</dd>
+      </di>
+      <di>
+        <dt>expires</dt>
+        <dd>REQUIRED. An &xep0082; DateTime string (e.g. <tt>2026-05-19T14:30:00+02:00</tt>)
+        indicating when the session automatically ends. After this time receivers MUST treat the
+        session as inactive even if no explicit stop stanza was received.</dd>
+      </di>
+    </dl>
+    <p>
+      The session announcement message MUST be stored in the message archive so that receivers
+      joining the conversation later can reconstruct session state from history.
+    </p>
+    <example caption='Sender starts a live location session'><![CDATA[
+<message from='juliet@capulet.lit/balcony'
+         to='romeo@montague.lit'
+         type='chat'
+         id='msg-001'>
+  <body>geo:48.858844,2.294351;u=10</body>
+  <live-location xmlns='urn:xmpp:live-location:0'
+                 id='a4a5b7c2-1d3e-4f56-8901-abcdef012345'
+                 expires='2026-05-19T15:30:00+02:00'/>
+</message>
+]]></example>
+    <p>
+      The <tt>geo:</tt> URI body SHOULD include the <tt>u</tt> parameter (uncertainty in metres)
+      when accuracy information is available, as defined in RFC 5870 §3.4.3.
+    </p>
+    <p>
+      Receiving clients SHOULD render the session announcement as an interactive map preview
+      rather than displaying the raw URI text.
+    </p>
+  </section2>
+
+  <section2 topic='Sending Position Updates' anchor='update'>
+    <p>
+      While the session is active, the sender transmits position updates as message stanzas
+      with a <tt>&lt;live-location-update&gt;</tt> element. Each update stanza:
+    </p>
+    <ul>
+      <li>MUST carry a <tt>geo:</tt> URI in the <tt>&lt;body&gt;</tt> reflecting the current position.</li>
+      <li>MUST include a <tt>&lt;live-location-update&gt;</tt> element with the <tt>id</tt> attribute
+          matching the session identifier.</li>
+      <li>MUST include a <tt>&lt;no-store&gt;</tt> hint (&xep0334;) so that the stanza is not
+          archived. Update stanzas carry transient data; only the session announcement is the
+          durable record.</li>
+      <li>SHOULD NOT be sent after the session <tt>expires</tt> timestamp has passed.</li>
+    </ul>
+    <example caption='Sender publishes a position update'><![CDATA[
+<message from='juliet@capulet.lit/balcony'
+         to='romeo@montague.lit'
+         type='chat'>
+  <body>geo:48.859200,2.294800;u=8</body>
+  <live-location-update xmlns='urn:xmpp:live-location:0'
+                        id='a4a5b7c2-1d3e-4f56-8901-abcdef012345'/>
+  <no-store xmlns='urn:xmpp:hints'/>
+</message>
+]]></example>
+    <p>
+      The recommended update interval is implementation-defined. Implementations SHOULD respect
+      battery and bandwidth constraints and SHOULD use a minimum interval of 5 seconds.
+    </p>
+  </section2>
+
+  <section2 topic='Stopping a Session' anchor='stop'>
+    <p>
+      A sender MAY terminate a session before its <tt>expires</tt> time by sending a message
+      stanza containing a <tt>&lt;live-location-stop&gt;</tt> element with the session
+      <tt>id</tt>. This stanza:
+    </p>
+    <ul>
+      <li>MUST include a <tt>&lt;no-store&gt;</tt> hint (&xep0334;).</li>
+      <li>MUST NOT carry a message body.</li>
+    </ul>
+    <example caption='Sender explicitly stops the session'><![CDATA[
+<message from='juliet@capulet.lit/balcony'
+         to='romeo@montague.lit'
+         type='chat'>
+  <live-location-stop xmlns='urn:xmpp:live-location:0'
+                      id='a4a5b7c2-1d3e-4f56-8901-abcdef012345'/>
+  <no-store xmlns='urn:xmpp:hints'/>
+</message>
+]]></example>
+    <p>
+      Upon receiving a stop stanza, receivers MUST immediately treat the referenced session as
+      inactive, regardless of whether the <tt>expires</tt> timestamp has passed.
+    </p>
+    <p>
+      A sender whose client restarts while a session is still within its expiry window MUST send
+      a stop stanza upon reconnecting, since it is no longer able to provide updates for that
+      session. This ensures receivers are promptly informed even if no formal stop was sent before
+      the restart.
+    </p>
+  </section2>
+
+  <section2 topic='Session Lifecycle' anchor='lifecycle'>
+    <p>A live location session transitions through the following states:</p>
+    <ol>
+      <li><strong>Active</strong> — after the session announcement is sent and before either the
+          <tt>expires</tt> time is reached or a stop stanza is received.</li>
+      <li><strong>Expired</strong> — the <tt>expires</tt> timestamp has passed. No stop stanza
+          was received.</li>
+      <li><strong>Stopped</strong> — a <tt>&lt;live-location-stop&gt;</tt> stanza was received
+          for this session ID. An explicit stop takes precedence over the expiry timestamp:
+          a session that was stopped MUST be treated as inactive even if <tt>expires</tt> is
+          still in the future.</li>
+    </ol>
+    <p>
+      Receivers that only have access to the archived session announcement (e.g. after rejoining
+      a chat) MUST compare the current time against <tt>expires</tt> to determine whether the
+      session is still potentially active. They SHOULD treat it as active and display an
+      interactive map if the current time is before <tt>expires</tt> AND no stop stanza has been
+      received. The most recently received position from either the announcement or any update
+      stanzas SHOULD be used as the displayed location.
+    </p>
+  </section2>
+
+  <section2 topic='Multi-User Chat' anchor='muc'>
+    <p>
+      The protocol operates identically in &xep0045; rooms. The sender addresses stanzas to the
+      bare JID of the room. All occupants receive announcement, update, and stop stanzas via the
+      normal room distribution mechanism.
+    </p>
+    <p>
+      Because update and stop stanzas carry <tt>&lt;no-store&gt;</tt>, they are not archived by
+      the room's MAM service. A receiver that connects after a session has started will see only
+      the session announcement in the archive and MUST infer session state from its
+      <tt>expires</tt> attribute and the presence or absence of subsequent archived stop stanzas
+      (if any).
+    </p>
+    <p>
+      Note: stop stanzas are not archived. A receiver joining after a sender stopped will
+      see the announcement and infer the session is active if <tt>expires</tt> is in the future.
+      This is a known limitation; implementations may choose to send an archived stop message
+      at their discretion, trading archive cleanliness for correctness.
+    </p>
+  </section2>
+
+</section1>
+
+<section1 topic='Business Rules' anchor='rules'>
+  <ol>
+    <li>A sender MUST NOT start more than one active live location session per conversation at a
+        time. If the sender wishes to begin a new session, it MUST first stop the existing one.</li>
+    <li>Receivers MUST silently ignore update and stop stanzas whose <tt>id</tt> does not match
+        any known active session.</li>
+    <li>Receivers MUST ignore update stanzas received after the session's <tt>expires</tt> time.</li>
+    <li>The session announcement MUST be treated as the first position data point; receivers MUST
+        use it as the initial map position before any update stanza arrives.</li>
+    <li>A receiver MUST use the position from the most recently received update stanza (or the
+        announcement if no updates have arrived) as the current displayed location.</li>
+    <li>Implementations SHOULD throttle map preview refreshes (e.g. no more frequently than once
+        per minute) to avoid overloading tile servers or consuming excessive bandwidth.</li>
+  </ol>
+</section1>
+
+<section1 topic='Determining Support' anchor='support'>
+  <p>
+    If an entity supports live location sharing as defined in this document, it MUST advertise
+    that fact by including the following feature in its service discovery information
+    (&xep0030;) responses:
+  </p>
+  <code>urn:xmpp:live-location:0</code>
+  <example caption='Service discovery information response'><![CDATA[
+<iq type='result'
+    from='juliet@capulet.lit/balcony'
+    to='romeo@montague.lit/garden'
+    id='disco1'>
+  <query xmlns='http://jabber.org/protocol/disco#info'>
+    ...
+    <feature var='urn:xmpp:live-location:0'/>
+    ...
+  </query>
+</iq>
+]]></example>
+</section1>
+
+<section1 topic='Relation to XEP-0080' anchor='xep0080'>
+  <p>
+    &xep0080; (User Location) defines a PEP-based mechanism for publishing a user's current
+    location to subscribers. It uses a rich XML element with typed sub-elements for latitude,
+    longitude, altitude, accuracy, and many semantic fields (country, region, street, etc.).
+  </p>
+  <p>
+    This document takes a different approach, optimised for the conversation context:
+  </p>
+  <table caption='Comparison with XEP-0080'>
+    <tr>
+      <th>Property</th>
+      <th>XEP-0080</th>
+      <th>This document</th>
+    </tr>
+    <tr>
+      <td>Transport</td>
+      <td>PEP (pubsub)</td>
+      <td>Message stanza in a conversation</td>
+    </tr>
+    <tr>
+      <td>Position format</td>
+      <td>Structured XML sub-elements</td>
+      <td>RFC 5870 <tt>geo:</tt> URI in message body</td>
+    </tr>
+    <tr>
+      <td>Session lifetime</td>
+      <td>Until retracted</td>
+      <td>Bounded by <tt>expires</tt> timestamp</td>
+    </tr>
+    <tr>
+      <td>Session identity</td>
+      <td>PEP node / item ID</td>
+      <td>UUID per session</td>
+    </tr>
+    <tr>
+      <td>Archival</td>
+      <td>Items stored in pubsub node</td>
+      <td>Only announcement stored; updates ephemeral</td>
+    </tr>
+    <tr>
+      <td>Target audience</td>
+      <td>All subscribers</td>
+      <td>Specific conversation participants</td>
+    </tr>
+  </table>
+  <p>
+    Implementations SHOULD use XEP-0080 for ambient "what is my current location" publishing
+    and this protocol for the distinct use case of intentional, conversation-scoped,
+    time-bounded location sharing.
+  </p>
+</section1>
+
+<section1 topic='Security Considerations' anchor='security'>
+  <p>
+    Live location sharing exposes precise physical location data in real time. Implementations
+    MUST therefore:
+  </p>
+  <ul>
+    <li>Require explicit, informed user consent before starting a session. The UI MUST make the
+        session duration clearly visible before the user confirms.</li>
+    <li>Display an unambiguous, persistent indicator (e.g. a status bar notification) on the
+        sender's device for the entire duration of an active session, including a one-tap action
+        to stop sharing immediately.</li>
+    <li>Automatically stop all active sessions if the application is restarted or the account
+        disconnects, and transmit the corresponding stop stanza upon reconnection.</li>
+    <li>Only offer this feature over encrypted transports. Sessions SHOULD only be started when
+        the conversation uses transport-layer encryption (TLS). The feature SHOULD be disabled
+        when end-to-end encryption (e.g. OMEMO, OpenPGP) is active, as the geo: URI body is not
+        encrypted by those mechanisms and would be transmitted in cleartext to the server.</li>
+    <li>Clearly communicate to the user which parties will receive their location (all
+        participants of the conversation, including any server-side logging).</li>
+  </ul>
+  <p>
+    Receivers MUST NOT forward or re-publish position data received from a live location session
+    without the explicit consent of the sender.
+  </p>
+  <p>
+    Servers MUST NOT store update or stop stanzas in the message archive (the <tt>&lt;no-store&gt;</tt>
+    hint serves this purpose), but clients SHOULD NOT rely solely on server-side enforcement of
+    this hint.
+  </p>
+</section1>
+
+<section1 topic='IANA Considerations' anchor='iana'>
+  <p>This document requires no interaction with &IANA;.</p>
+</section1>
+
+<section1 topic='XMPP Registrar Considerations' anchor='registrar'>
+  <section2 topic='Protocol Namespaces' anchor='registrar-ns'>
+    <p>The &REGISTRAR; shall include <tt>urn:xmpp:live-location:0</tt> in its registry of
+    protocol namespaces.</p>
+  </section2>
+  <section2 topic='Protocol Versioning' anchor='registrar-versioning'>
+    &NSVER;
+  </section2>
+</section1>
+
+<section1 topic='XML Schema' anchor='schema'>
+  <code><![CDATA[
+<?xml version='1.0' encoding='UTF-8'?>
+
+<xs:schema
+    xmlns:xs='http://www.w3.org/2001/XMLSchema'
+    targetNamespace='urn:xmpp:live-location:0'
+    xmlns='urn:xmpp:live-location:0'
+    elementFormDefault='qualified'>
+
+  <!-- Session announcement: child of <message> -->
+  <xs:element name='live-location'>
+    <xs:complexType>
+      <xs:attribute name='id'      type='xs:string'   use='required'/>
+      <xs:attribute name='expires' type='xs:dateTime'  use='required'/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Position update: child of <message> -->
+  <xs:element name='live-location-update'>
+    <xs:complexType>
+      <xs:attribute name='id' type='xs:string' use='required'/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Explicit session stop: child of <message> -->
+  <xs:element name='live-location-stop'>
+    <xs:complexType>
+      <xs:attribute name='id' type='xs:string' use='required'/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+]]></code>
+</section1>
+
+</xep>
