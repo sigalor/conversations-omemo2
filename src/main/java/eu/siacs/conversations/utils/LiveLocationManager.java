@@ -70,7 +70,9 @@ public class LiveLocationManager {
     private final CopyOnWriteArraySet<PositionListener> listeners = new CopyOnWriteArraySet<>();
     private final ConcurrentHashMap<String, Drawable> sessionAvatars = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> previewRefreshTimes = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Boolean> stoppedSessionIds = new ConcurrentHashMap<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Runnable onSessionExpiredUiCallback = null;
 
     public void registerIncomingSession(String sessionId, String messageUuid, double lat, double lon, long expiresAt) {
         IncomingSession s = new IncomingSession(sessionId, messageUuid, lat, lon, expiresAt);
@@ -188,13 +190,29 @@ public class LiveLocationManager {
         mainHandler.postDelayed(() -> expireSession(sessionId), delay);
     }
 
+    public void setOnSessionExpiredUiCallback(Runnable callback) {
+        this.onSessionExpiredUiCallback = callback;
+    }
+
+    public void expireIncomingSession(String sessionId) {
+        expireSession(sessionId);
+    }
+
+    public boolean isSessionStopped(String sessionId) {
+        return sessionId != null && stoppedSessionIds.containsKey(sessionId);
+    }
+
     private void expireSession(String sessionId) {
+        stoppedSessionIds.put(sessionId, Boolean.TRUE);
         IncomingSession s = incoming.remove(sessionId);
         if (s != null) {
             messageToSession.remove(s.messageUuid);
             previewRefreshTimes.remove(sessionId);
             for (PositionListener l : listeners) {
                 l.onSessionExpired(sessionId);
+            }
+            if (onSessionExpiredUiCallback != null) {
+                mainHandler.post(onSessionExpiredUiCallback);
             }
         }
     }

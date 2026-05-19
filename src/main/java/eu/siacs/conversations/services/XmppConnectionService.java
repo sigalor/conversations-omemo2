@@ -562,6 +562,7 @@ public class XmppConnectionService extends Service {
                             joinMuc(conversation);
                         }
                         fetchOwnStories(account);
+                        sendLiveLocationStopForOrphanedSessions(account);
                         scheduleWakeUpCall(
                                 Config.PING_MAX_INTERVAL * 1000L, account.getUuid().hashCode());
                     } else if (account.getStatus() == Account.State.OFFLINE
@@ -945,11 +946,70 @@ public class XmppConnectionService extends Service {
             mLiveLocationHandler.removeCallbacks(info.expiryRunnable);
         }
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().clearOutgoingSession(conversationUuid);
+        // Notify receiver that sharing has stopped
+        final Conversation conversation = findConversationByUuid(conversationUuid);
+        if (conversation != null) {
+            final im.conversations.android.xmpp.model.stanza.Message packet =
+                    new im.conversations.android.xmpp.model.stanza.Message();
+            packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
+                    ? conversation.getJid() : conversation.getJid().asBareJid());
+            packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
+                    ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
+                    : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
+            packet.addChild("live-location-stop", Namespace.LIVE_LOCATION).setAttribute("id", info.sessionId);
+            packet.addChild("no-store", Namespace.HINTS);
+            sendMessagePacket(conversation.getAccount(), packet);
+        }
         updateConversationUi();
     }
 
-    public boolean hasActiveLiveLocationSharing(final Conversation conversation) {
-        return eu.siacs.conversations.utils.LiveLocationManager.getInstance().getOutgoingSession(conversation.getUuid()) != null;
+    private void sendLiveLocationStopForOrphanedSessions(final Account account) {
+        final java.util.List<String[]> rows = databaseBackend.getRecentOutgoingLiveLocationMessages(account.getUuid());
+        for (final String[] row : rows) {
+            final String conversationUuid = row[0];
+            if (mOutgoingLiveSessions.containsKey(conversationUuid)) continue;
+            final String payloadsXml = row[1];
+            if (payloadsXml == null) continue;
+            // Parse session id and expires out of the stored payload XML
+            String sessionId = null;
+            long expiresAt = 0;
+            try {
+                final eu.siacs.conversations.xml.XmlReader xmlReader = new eu.siacs.conversations.xml.XmlReader();
+                xmlReader.setInputStream(new java.io.ByteArrayInputStream(payloadsXml.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+                eu.siacs.conversations.xml.Tag tag;
+                while ((tag = xmlReader.readTag()) != null) {
+                    if ("live-location".equals(tag.getName())) {
+                        final eu.siacs.conversations.xml.Element el = xmlReader.readElement(tag);
+                        sessionId = el.getAttribute("id");
+                        final String expiresStr = el.getAttribute("expires");
+                        if (expiresStr != null) {
+                            try {
+                                expiresAt = eu.siacs.conversations.parser.AbstractParser.parseTimestamp(expiresStr);
+                            } catch (Exception ignored) {}
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                Log.d(Config.LOGTAG, "Could not parse live-location payload: " + e.getMessage());
+                continue;
+            }
+            if (sessionId == null || System.currentTimeMillis() >= expiresAt) continue;
+            // Session was active when app died — send stop stanza now
+            final Conversation conversation = findConversationByUuid(conversationUuid);
+            if (conversation == null || conversation.getAccount() != account) continue;
+            final im.conversations.android.xmpp.model.stanza.Message packet =
+                    new im.conversations.android.xmpp.model.stanza.Message();
+            packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
+                    ? conversation.getJid() : conversation.getJid().asBareJid());
+            packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
+                    ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
+                    : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
+            packet.addChild("live-location-stop", Namespace.LIVE_LOCATION).setAttribute("id", sessionId);
+            packet.addChild("no-store", Namespace.HINTS);
+            sendMessagePacket(account, packet);
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": sent live-location-stop for orphaned session " + sessionId);
+        }
     }
 
     public void attachFileToConversation(
@@ -1969,6 +2029,8 @@ public class XmppConnectionService extends Service {
     @SuppressLint("TrulyRandom")
     @Override
     public void onCreate() {
+        eu.siacs.conversations.utils.LiveLocationManager.getInstance()
+                .setOnSessionExpiredUiCallback(this::updateConversationUi);
         de.monocles.chat.AndroidLoggingHandler.reset(new de.monocles.chat.AndroidLoggingHandler());
         java.util.logging.Logger.getLogger("").setLevel(java.util.logging.Level.FINEST);
         LibIdnXmppStringprep.setup();

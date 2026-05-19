@@ -960,6 +960,17 @@ public class MessageParser extends AbstractParser
             }
         }
 
+        // Handle live location stop silently
+        final eu.siacs.conversations.xml.Element liveLocStop = packet.findChild("live-location-stop", Namespace.LIVE_LOCATION);
+        if (liveLocStop != null && status == Message.STATUS_RECEIVED && query == null) {
+            final String sessionId = liveLocStop.getAttribute("id");
+            if (sessionId != null) {
+                eu.siacs.conversations.utils.LiveLocationManager.getInstance().expireIncomingSession(sessionId);
+                mXmppConnectionService.updateConversationUi();
+            }
+            return;
+        }
+
         // Handle live location updates silently — do not store as messages
         final eu.siacs.conversations.xml.Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
         if (liveLocUpdate != null && body != null && status == Message.STATUS_RECEIVED && query == null) {

@@ -4038,4 +4038,26 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             throw e;
         }
     }
+
+    // Returns [conversationUuid, rawPayloads] for sent messages with live-location payloads
+    // sent within the last 8 hours for the given account.
+    public List<String[]> getRecentOutgoingLiveLocationMessages(final String accountUuid) {
+        final List<String[]> result = new ArrayList<>();
+        final long cutoff = System.currentTimeMillis() - 8 * 60 * 60 * 1000L;
+        final String sql = "SELECT m." + Message.CONVERSATION + ", m." + Message.PAYLOADS
+                + " FROM " + Message.TABLENAME + " m"
+                + " JOIN " + Conversation.TABLENAME + " c ON m." + Message.CONVERSATION + " = c." + Conversation.UUID
+                + " WHERE c." + Conversation.ACCOUNT + " = ?"
+                + " AND m." + Message.STATUS + " > 0"
+                + " AND m." + Message.PAYLOADS + " LIKE '%live-location%'"
+                + " AND m." + Message.TIME_SENT + " > ?";
+        try (Cursor cursor = getReadableDatabase().rawQuery(sql, new String[]{accountUuid, String.valueOf(cutoff)})) {
+            while (cursor.moveToNext()) {
+                result.add(new String[]{cursor.getString(0), cursor.getString(1)});
+            }
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "Error querying outgoing live location messages", e);
+        }
+        return result;
+    }
 }
