@@ -54,6 +54,7 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
         super.onCreate(savedInstanceState);
 
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_show_location);
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setSupportActionBar(binding.toolbar);
 
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
