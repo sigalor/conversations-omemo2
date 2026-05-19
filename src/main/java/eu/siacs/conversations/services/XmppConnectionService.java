@@ -911,6 +911,7 @@ public class XmppConnectionService extends Service {
         mLiveLocationHandler.postDelayed(expiryRunnable, durationMs);
 
         mNotificationService.showLiveLocationNotification(conversation.getUuid());
+        toggleForegroundService();
         updateConversationUi();
     }
 
@@ -963,6 +964,7 @@ public class XmppConnectionService extends Service {
             sendMessagePacket(conversation.getAccount(), packet);
         }
         mNotificationService.cancelLiveLocationNotification();
+        toggleForegroundService();
         updateConversationUi();
     }
 
@@ -2352,10 +2354,12 @@ public class XmppConnectionService extends Service {
         final boolean status;
         final OngoingCall ongoing = ongoingCall.get();
         final boolean ongoingVideoTranscoding = mOngoingVideoTranscoding.get();
+        final boolean ongoingLiveLocation = !mOutgoingLiveSessions.isEmpty();
         final int id;
         if (force
                 || mForceDuringOnCreate.get()
                 || ongoingVideoTranscoding
+                || ongoingLiveLocation
                 || ongoing != null
                 || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
             if (Compatibility.runsTwentySix()) {
@@ -2401,7 +2405,7 @@ public class XmppConnectionService extends Service {
             final int id, final Notification notification, final boolean requireMicrophone) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                final int foregroundServiceType;
+                int foregroundServiceType;
                 if (requireMicrophone
                         && ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                         == PackageManager.PERMISSION_GRANTED) {
@@ -2420,7 +2424,11 @@ public class XmppConnectionService extends Service {
                     foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
                     Log.w(Config.LOGTAG, "falling back to special use foreground service type");
                 }
-
+                if (!mOutgoingLiveSessions.isEmpty()
+                        && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    foregroundServiceType |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+                }
                 startForeground(id, notification, foregroundServiceType);
             } else {
                 startForeground(id, notification);
