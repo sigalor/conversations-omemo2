@@ -2485,12 +2485,30 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 } catch (Exception ignored) {}
             }
         }
+        loadAvatarForSession(message, liveSessionId);
         final Intent intent = new Intent(activity, eu.siacs.conversations.ui.ShowLocationActivity.class);
         intent.setAction("eu.siacs.conversations.location.show");
         intent.putExtra("latitude", lat);
         intent.putExtra("longitude", lon);
         intent.putExtra("live_session_id", liveSessionId);
         activity.startActivity(intent);
+    }
+
+    private void loadAvatarForSession(final Message message, final String sessionId) {
+        if (activity.xmppConnectionService == null) return;
+        final int sizePx = activity.getResources().getDimensionPixelSize(R.dimen.avatar);
+        final Drawable drawable;
+        if (message.getStatus() == Message.STATUS_RECEIVED) {
+            drawable = activity.xmppConnectionService.getAvatarService()
+                    .get(message.getConversation().getContact(), sizePx, false);
+        } else {
+            drawable = activity.xmppConnectionService.getAvatarService()
+                    .get(message.getConversation().getAccount(), sizePx, false);
+        }
+        if (drawable != null) {
+            final android.graphics.Bitmap bitmap = FileBackend.drawDrawable(drawable);
+            eu.siacs.conversations.utils.LiveLocationManager.getInstance().setSessionAvatar(sessionId, bitmap);
+        }
     }
 
     public void updatePreferences() {

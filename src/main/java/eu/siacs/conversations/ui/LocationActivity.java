@@ -37,6 +37,7 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.http.HttpConnectionManager;
 import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.ui.util.LocationHelper;
+import eu.siacs.conversations.ui.widget.AvatarMarker;
 import eu.siacs.conversations.ui.widget.Marker;
 import eu.siacs.conversations.ui.widget.MyLocation;
 import eu.siacs.conversations.ui.util.SettingsUtils;
@@ -61,7 +62,7 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 	protected void clearMarkers() {
 		synchronized (this.map.getOverlays()) {
 			for (final Overlay overlay : this.map.getOverlays()) {
-				if (overlay instanceof Marker || overlay instanceof MyLocation) {
+				if (overlay instanceof Marker || overlay instanceof MyLocation || overlay instanceof AvatarMarker) {
 					this.map.getOverlays().remove(overlay);
 				}
 			}

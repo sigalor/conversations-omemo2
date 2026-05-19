@@ -28,6 +28,7 @@ import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityShowLocationBinding;
 import eu.siacs.conversations.ui.util.LocationHelper;
 import eu.siacs.conversations.ui.util.UriHelper;
+import eu.siacs.conversations.ui.widget.AvatarMarker;
 import eu.siacs.conversations.ui.widget.Marker;
 import eu.siacs.conversations.ui.widget.MyLocation;
 import eu.siacs.conversations.utils.GeoHelper;
@@ -139,7 +140,13 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
         if (this.myLoc != null) {
             this.binding.map.getOverlays().add(new MyLocation(this, null, this.myLoc));
         }
-        this.binding.map.getOverlays().add(new Marker(this.marker_icon, this.loc));
+        final android.graphics.Bitmap avatarBitmap =
+                LiveLocationManager.getInstance().getSessionAvatar(liveSessionId);
+        if (avatarBitmap != null) {
+            this.binding.map.getOverlays().add(new AvatarMarker(this, avatarBitmap, this.loc));
+        } else {
+            this.binding.map.getOverlays().add(new Marker(this.marker_icon, this.loc));
+        }
     }
 
     @Override
