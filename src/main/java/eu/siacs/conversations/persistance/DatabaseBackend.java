@@ -477,6 +477,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         Log.d(Config.LOGTAG, "rebuilt message index in " + stopwatch.stop().toString());
     }
 
+    public boolean isFtsIndexFragmented() {
+        final SQLiteDatabase db = getReadableDatabase();
+        try (final Cursor c = db.rawQuery("SELECT count(*) FROM messages_index_segdir", null)) {
+            return c.moveToFirst() && c.getInt(0) > 4;
+        }
+    }
+
     public static synchronized DatabaseBackend getInstance(Context context) {
         if (instance == null) {
             System.loadLibrary("sqlcipher");
@@ -2191,60 +2198,37 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public Cursor getMessageSearchCursor(final List<String> term, final String uuid) {
         final SQLiteDatabase db = this.getReadableDatabase();
+        final String matchString = FtsUtils.toMatchString(term);
+        // Use a subquery so SQLite drives the query from the FTS index: it resolves the MATCH
+        // to a small set of rowids first, then fetches only those rows from messages by rowid
+        // (the fastest possible access). The old 3-table JOIN left query plan choice ambiguous.
+        final String columns = "m.*, c." + Conversation.CONTACTJID
+                + ", c." + Conversation.ACCOUNT + ", c." + Conversation.MODE;
+        final String encryptionFilter = Message.ENCRYPTION + " NOT IN("
+                + Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE + ","
+                + Message.ENCRYPTION_PGP + ","
+                + Message.ENCRYPTION_DECRYPTION_FAILED + ","
+                + Message.ENCRYPTION_AXOLOTL_FAILED + ")";
+        final String typeFilter = Message.TYPE + " IN("
+                + Message.TYPE_TEXT + "," + Message.TYPE_PRIVATE + ")";
         final StringBuilder SQL = new StringBuilder();
         final String[] selectionArgs;
-        SQL.append(
-                "SELECT "
-                        + Message.TABLENAME
-                        + ".*,"
-                        + Conversation.TABLENAME
-                        + "."
-                        + Conversation.CONTACTJID
-                        + ","
-                        + Conversation.TABLENAME
-                        + "."
-                        + Conversation.ACCOUNT
-                        + ","
-                        + Conversation.TABLENAME
-                        + "."
-                        + Conversation.MODE
-                        + " FROM "
-                        + Message.TABLENAME
-                        + " JOIN "
-                        + Conversation.TABLENAME
-                        + " ON "
-                        + Message.TABLENAME
-                        + "."
-                        + Message.CONVERSATION
-                        + "="
-                        + Conversation.TABLENAME
-                        + "."
-                        + Conversation.UUID
-                        + " JOIN messages_index ON messages_index.rowid=messages.rowid WHERE "
-                        + Message.ENCRYPTION
-                        + " NOT IN("
-                        + Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE
-                        + ","
-                        + Message.ENCRYPTION_PGP
-                        + ","
-                        + Message.ENCRYPTION_DECRYPTION_FAILED
-                        + ","
-                        + Message.ENCRYPTION_AXOLOTL_FAILED
-                        + ") AND "
-                        + Message.TYPE
-                        + " IN("
-                        + Message.TYPE_TEXT
-                        + ","
-                        + Message.TYPE_PRIVATE
-                        + ") AND messages_index.body MATCH ?");
+        SQL.append("SELECT ").append(columns)
+                .append(" FROM ").append(Message.TABLENAME).append(" m")
+                .append(" JOIN ").append(Conversation.TABLENAME).append(" c ON m.")
+                .append(Message.CONVERSATION).append("=c.").append(Conversation.UUID)
+                .append(" WHERE m.rowid IN (SELECT rowid FROM messages_index WHERE body MATCH ?)")
+                .append(" AND ").append(encryptionFilter)
+                .append(" AND ").append(typeFilter);
         if (uuid == null) {
-            selectionArgs = new String[] {FtsUtils.toMatchString(term)};
+            selectionArgs = new String[] {matchString};
         } else {
-            selectionArgs = new String[] {FtsUtils.toMatchString(term), uuid};
-            SQL.append(" AND " + Conversation.TABLENAME + '.' + Conversation.UUID + "=?");
+            selectionArgs = new String[] {matchString, uuid};
+            SQL.append(" AND c.").append(Conversation.UUID).append("=?");
         }
-        SQL.append(" ORDER BY " + Message.TIME_SENT + " DESC limit " + Config.MAX_SEARCH_RESULTS);
-        Log.d(Config.LOGTAG, "search term: " + FtsUtils.toMatchString(term));
+        SQL.append(" ORDER BY m.").append(Message.TIME_SENT)
+                .append(" DESC LIMIT ").append(Config.MAX_SEARCH_RESULTS);
+        Log.d(Config.LOGTAG, "search term: " + matchString);
         return db.rawQuery(SQL.toString(), selectionArgs);
     }
 

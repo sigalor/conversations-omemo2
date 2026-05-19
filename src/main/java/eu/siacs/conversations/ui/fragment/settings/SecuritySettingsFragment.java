@@ -25,6 +25,7 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.persistance.UnifiedPushDatabase;
 import eu.siacs.conversations.services.MemorizingTrustManager;
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.activity.SettingsActivity;
 import eu.siacs.conversations.utils.CryptoHelper;
@@ -490,37 +491,44 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         progressBuilder.setView(progressBar);
         final AlertDialog progressDialog = progressBuilder.show();
 
-        // Null out the service backend before migration so in-flight background tasks skip DB
-        // access rather than hitting the about-to-be-closed singleton with the wrong key.
-        if (requireService() != null) {
-            requireService().databaseBackend = null;
-        }
+        // Capture the service reference on the UI thread before going to the background.
+        final XmppConnectionService service = requireService();
 
         new Thread(() -> {
             try {
+                // The old backend stays alive throughout migrate() — service threads must remain
+                // functional during the multi-second export. closeInstance() is called at the
+                // very end of migrate(), after which getInstance() opens the new file with the
+                // new key.
                 DatabaseBackend.migrate(requireContext(), oldPassword, newPassword);
-                UnifiedPushDatabase.migrate(requireContext(), oldPassword, newPassword);
+
+                // migrate() succeeded and called closeInstance(). Restore the backend on this
+                // thread immediately (no UI-thread hop) to minimise the window where the old
+                // closed backend is still referenced by service.databaseBackend.
                 final DatabaseBackend newBackend = DatabaseBackend.getInstance(requireContext());
-                // Restore the service backend immediately — before the slow FTS rebuild —
-                // to minimise the window where the service has no database access.
-                requireActivity().runOnUiThread(() -> {
-                    if (requireService() != null) {
-                        requireService().databaseBackend = newBackend;
-                    }
-                });
-                newBackend.rebuildMessagesIndex();
+                service.databaseBackend = newBackend;
+
+                // UnifiedPush is a separate DB — migrate best-effort; don't abort on failure.
+                try {
+                    UnifiedPushDatabase.migrate(requireContext(), oldPassword, newPassword);
+                } catch (Exception e) {
+                    android.util.Log.e(eu.siacs.conversations.Config.LOGTAG, "UnifiedPush DB migration failed (non-fatal)", e);
+                }
+
+                try {
+                    newBackend.rebuildMessagesIndex();
+                } catch (Exception e) {
+                    android.util.Log.e(eu.siacs.conversations.Config.LOGTAG, "FTS rebuild failed after migration (non-fatal)", e);
+                }
                 requireActivity().runOnUiThread(() -> {
                     progressDialog.dismiss();
                     Toast.makeText(requireContext(), newPassword == null ? R.string.toast_db_password_success_disabled : R.string.toast_db_password_success_set, Toast.LENGTH_SHORT).show();
                     updateDatabaseEncryptionSummary(findPreference("database_encryption"));
                 });
             } catch (Exception e) {
+                // migrate() itself failed — closeInstance() was NOT called, so the old backend
+                // is still alive and service.databaseBackend still works. Just show the error.
                 requireActivity().runOnUiThread(() -> {
-                    // Restore backend on failure — migrate() may have rolled back to the original
-                    // state, in which case the old instance (if any) is still usable.
-                    if (requireService() != null && requireService().databaseBackend == null) {
-                        requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
-                    }
                     progressDialog.dismiss();
                     new MaterialAlertDialogBuilder(requireActivity())
                             .setTitle("Error")

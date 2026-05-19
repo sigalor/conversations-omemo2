@@ -3468,8 +3468,8 @@ public class XmppConnectionService extends Service {
             long diffConversationsRestore = SystemClock.elapsedRealtime() - startTimeConversationsRestore;
             Log.d(Config.LOGTAG, "finished restoring conversations in " + diffConversationsRestore + "ms");
             Runnable runnable = () -> {
-                if (DatabaseBackend.requiresMessageIndexRebuild()) {
-                    DatabaseBackend.getInstance(this).rebuildMessagesIndex();
+                if (DatabaseBackend.requiresMessageIndexRebuild() || databaseBackend.isFtsIndexFragmented()) {
+                    databaseBackend.rebuildMessagesIndex();
                 }
                 mutedMucUsers = databaseBackend.loadMutedMucUsers();
                 final long deletionDate = getAutomaticMessageDeletionDate();
@@ -7758,7 +7758,9 @@ public class XmppConnectionService extends Service {
             return result;
         } else {
             if (key.first == null || key.second == null) return null;
-            result = databaseBackend.findDiscoveryResult(key.first, key.second);
+            final DatabaseBackend backend = databaseBackend;
+            if (backend == null) return null;
+            result = backend.findDiscoveryResult(key.first, key.second);
             if (result != null) {
                 discoCache.put(key, result);
             }

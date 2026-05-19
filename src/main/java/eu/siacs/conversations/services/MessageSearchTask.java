@@ -88,14 +88,18 @@ public class MessageSearchTask implements Runnable, Cancellable {
 		try {
 			final HashMap<String, Conversational> conversationCache = new HashMap<>();
 			final List<Message> result = new ArrayList<>();
-			cursor = xmppConnectionService.databaseBackend.getMessageSearchCursor(term, uuid);
+			final eu.siacs.conversations.persistance.DatabaseBackend backend = xmppConnectionService.databaseBackend;
+			if (backend == null) {
+				onSearchResultsAvailable.onSearchResultsAvailable(term, result);
+				return;
+			}
+			cursor = backend.getMessageSearchCursor(term, uuid);
 			long dbTimer = SystemClock.elapsedRealtime();
 			if (isCancelled) {
 				Log.d(Config.LOGTAG, "canceled search task");
 				return;
 			}
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToLast();
+			if (cursor != null && cursor.moveToLast()) {
 				final int indexBody = cursor.getColumnIndex(Message.BODY);
 				final int indexOob = cursor.getColumnIndex(Message.OOB);
 				final int indexConversation = cursor.getColumnIndex(Message.CONVERSATION);
@@ -130,6 +134,7 @@ public class MessageSearchTask implements Runnable, Cancellable {
 			onSearchResultsAvailable.onSearchResultsAvailable(term, result);
 		} catch (Exception e) {
 			Log.d(Config.LOGTAG, "exception while searching ", e);
+			onSearchResultsAvailable.onSearchResultsAvailable(term, new ArrayList<>());
 		} finally {
 			if (cursor != null) {
 				cursor.close();

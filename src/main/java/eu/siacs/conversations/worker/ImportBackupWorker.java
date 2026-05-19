@@ -260,6 +260,10 @@ public class ImportBackupWorker extends Worker {
         updateImportBackupNotification(fileSize, countingInputStream.getCount());
         db.setTransactionSuccessful();
         db.endTransaction();
+        // The FTS triggers fire on every individual INSERT during the big transaction, creating
+        // thousands of tiny segments. Rebuild the index now to collapse them into one compact
+        // segment so message search is fast on the first query.
+        database.rebuildMessagesIndex();
         final Jid jid = backupFileHeader.getJid();
         final Cursor countCursor =
                 db.rawQuery(
