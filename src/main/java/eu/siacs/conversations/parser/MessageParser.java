@@ -1508,7 +1508,7 @@ public class MessageParser extends AbstractParser
                     if (sessionId != null && expiresAtStr != null) {
                         try {
                             long expiresAt = eu.siacs.conversations.parser.AbstractParser.parseTimestamp(expiresAtStr);
-                            final java.util.regex.Matcher geoMatcher = eu.siacs.conversations.utils.GeoHelper.GEO_URI.matcher(message.getBody());
+                            final java.util.regex.Matcher geoMatcher = eu.siacs.conversations.utils.GeoHelper.GEO_URI.matcher(message.getRawBody());
                             if (geoMatcher.matches()) {
                                 final double lat = Double.parseDouble(geoMatcher.group(1));
                                 final double lon = Double.parseDouble(geoMatcher.group(2));

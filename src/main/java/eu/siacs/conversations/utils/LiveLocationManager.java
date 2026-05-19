@@ -47,12 +47,16 @@ public class LiveLocationManager {
         public final String conversationUuid;
         public final String messageUuid;
         public final long expiresAt;
+        public volatile double latitude;
+        public volatile double longitude;
 
-        OutgoingSession(String sessionId, String conversationUuid, String messageUuid, long expiresAt) {
+        OutgoingSession(String sessionId, String conversationUuid, String messageUuid, long expiresAt, double lat, double lon) {
             this.sessionId = sessionId;
             this.conversationUuid = conversationUuid;
             this.messageUuid = messageUuid;
             this.expiresAt = expiresAt;
+            this.latitude = lat;
+            this.longitude = lon;
         }
 
         public boolean isExpired() {
@@ -86,6 +90,13 @@ public class LiveLocationManager {
     }
 
     public void notifyOutgoingPositionUpdate(String sessionId, double lat, double lon) {
+        for (OutgoingSession os : outgoingByConversation.values()) {
+            if (sessionId.equals(os.sessionId)) {
+                os.latitude = lat;
+                os.longitude = lon;
+                break;
+            }
+        }
         for (PositionListener l : listeners) {
             l.onPositionUpdate(sessionId, lat, lon);
         }
@@ -139,14 +150,18 @@ public class LiveLocationManager {
         listeners.remove(l);
     }
 
-    public void registerOutgoingSession(String conversationUuid, String sessionId, String messageUuid, long expiresAt) {
-        OutgoingSession os = new OutgoingSession(sessionId, conversationUuid, messageUuid, expiresAt);
+    public void registerOutgoingSession(String conversationUuid, String sessionId, String messageUuid, long expiresAt, double lat, double lon) {
+        OutgoingSession os = new OutgoingSession(sessionId, conversationUuid, messageUuid, expiresAt, lat, lon);
         outgoingByConversation.put(conversationUuid, os);
     }
 
     public OutgoingSession getOutgoingSession(String conversationUuid) {
         OutgoingSession os = outgoingByConversation.get(conversationUuid);
         return os != null && !os.isExpired() ? os : null;
+    }
+
+    public java.util.Collection<OutgoingSession> getAllOutgoingSessions() {
+        return outgoingByConversation.values();
     }
 
     public void clearOutgoingSession(String conversationUuid) {

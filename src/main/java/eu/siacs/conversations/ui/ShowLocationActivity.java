@@ -155,12 +155,22 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
         super.onResume();
         if (liveSessionId != null) {
             LiveLocationManager.getInstance().addListener(this);
-            // Apply latest known position immediately
-            final LiveLocationManager.IncomingSession session = LiveLocationManager.getInstance().getSession(liveSessionId);
-            if (session != null && !session.isExpired()) {
-                this.loc = new GeoPoint(session.latitude, session.longitude);
+            final LiveLocationManager.IncomingSession incoming = LiveLocationManager.getInstance().getSession(liveSessionId);
+            if (incoming != null && !incoming.isExpired()) {
+                this.loc = new GeoPoint(incoming.latitude, incoming.longitude);
                 updateLocationMarkers();
                 gotoLoc(false);
+            } else {
+                // outgoing session: apply the last sent position
+                for (LiveLocationManager.OutgoingSession outgoing :
+                        new java.util.ArrayList<>(LiveLocationManager.getInstance().getAllOutgoingSessions())) {
+                    if (liveSessionId.equals(outgoing.sessionId) && !outgoing.isExpired()) {
+                        this.loc = new GeoPoint(outgoing.latitude, outgoing.longitude);
+                        updateLocationMarkers();
+                        gotoLoc(false);
+                        break;
+                    }
+                }
             }
         }
     }

@@ -2470,19 +2470,26 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
     }
 
     private void openLiveLocationMap(final Message message, final String liveSessionId, final eu.siacs.conversations.utils.LiveLocationManager mgr) {
-        final eu.siacs.conversations.utils.LiveLocationManager.IncomingSession s = mgr.getSession(liveSessionId);
         double lat = 0, lon = 0;
-        if (s != null) {
-            lat = s.latitude;
-            lon = s.longitude;
+        final eu.siacs.conversations.utils.LiveLocationManager.IncomingSession incoming = mgr.getSession(liveSessionId);
+        if (incoming != null) {
+            lat = incoming.latitude;
+            lon = incoming.longitude;
         } else {
-            final String body = message.getBody();
-            if (body != null) {
-                try {
-                    final org.osmdroid.util.GeoPoint gp = GeoHelper.parseGeoPoint(android.net.Uri.parse(body));
-                    lat = gp.getLatitude();
-                    lon = gp.getLongitude();
-                } catch (Exception ignored) {}
+            final eu.siacs.conversations.utils.LiveLocationManager.OutgoingSession outgoing =
+                    mgr.getOutgoingSession(message.getConversation().getUuid());
+            if (outgoing != null && liveSessionId != null && liveSessionId.equals(outgoing.sessionId)) {
+                lat = outgoing.latitude;
+                lon = outgoing.longitude;
+            } else {
+                final String rawBody = message.getRawBody();
+                if (rawBody != null) {
+                    try {
+                        final org.osmdroid.util.GeoPoint gp = GeoHelper.parseGeoPoint(android.net.Uri.parse(rawBody));
+                        lat = gp.getLatitude();
+                        lon = gp.getLongitude();
+                    } catch (Exception ignored) {}
+                }
             }
         }
         loadAvatarForSession(message, liveSessionId);

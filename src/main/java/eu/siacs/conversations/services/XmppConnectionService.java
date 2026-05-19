@@ -867,7 +867,7 @@ public class XmppConnectionService extends Service {
         sendMessage(message);
 
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().registerOutgoingSession(
-                conversation.getUuid(), sessionId, message.getUuid(), expiresAt);
+                conversation.getUuid(), sessionId, message.getUuid(), expiresAt, initialLat, initialLon);
 
         if (mLiveLocationAndroidManager == null) {
             mLiveLocationAndroidManager = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
