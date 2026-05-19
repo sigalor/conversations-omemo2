@@ -971,7 +971,10 @@ public class MessageParser extends AbstractParser
                         final double lat = Double.parseDouble(geoMatcher.group(1));
                         final double lon = Double.parseDouble(geoMatcher.group(2));
                         eu.siacs.conversations.utils.LiveLocationManager.getInstance().updateIncomingPosition(sessionId, lat, lon);
-                        mXmppConnectionService.updateConversationUi();
+                        if (eu.siacs.conversations.utils.LiveLocationManager.getInstance()
+                                .isPreviewRefreshDue(sessionId, 60_000L)) {
+                            mXmppConnectionService.updateConversationUi();
+                        }
                     } catch (NumberFormatException ignored) {}
                 }
             }

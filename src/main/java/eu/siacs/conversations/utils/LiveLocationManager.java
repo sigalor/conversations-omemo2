@@ -69,6 +69,7 @@ public class LiveLocationManager {
     private final ConcurrentHashMap<String, OutgoingSession> outgoingByConversation = new ConcurrentHashMap<>();
     private final CopyOnWriteArraySet<PositionListener> listeners = new CopyOnWriteArraySet<>();
     private final ConcurrentHashMap<String, Drawable> sessionAvatars = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> previewRefreshTimes = new ConcurrentHashMap<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public void registerIncomingSession(String sessionId, String messageUuid, double lat, double lon, long expiresAt) {
@@ -108,6 +109,16 @@ public class LiveLocationManager {
 
     public Drawable getSessionAvatar(String sessionId) {
         return sessionId != null ? sessionAvatars.get(sessionId) : null;
+    }
+
+    public boolean isPreviewRefreshDue(String sessionId, long throttleMs) {
+        final long now = System.currentTimeMillis();
+        final Long last = previewRefreshTimes.get(sessionId);
+        if (last == null || now - last >= throttleMs) {
+            previewRefreshTimes.put(sessionId, now);
+            return true;
+        }
+        return false;
     }
 
     public boolean isActiveLiveLocationMessage(String messageUuid) {
@@ -181,6 +192,7 @@ public class LiveLocationManager {
         IncomingSession s = incoming.remove(sessionId);
         if (s != null) {
             messageToSession.remove(s.messageUuid);
+            previewRefreshTimes.remove(sessionId);
             for (PositionListener l : listeners) {
                 l.onSessionExpired(sessionId);
             }

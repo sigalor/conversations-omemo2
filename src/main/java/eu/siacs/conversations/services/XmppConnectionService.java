@@ -893,12 +893,12 @@ public class XmppConnectionService extends Service {
                 final java.util.List<String> providers = mLiveLocationAndroidManager.getAllProviders();
                 if (providers.contains(android.location.LocationManager.GPS_PROVIDER)) {
                     mLiveLocationAndroidManager.requestLocationUpdates(
-                            android.location.LocationManager.GPS_PROVIDER, 10_000L, 5f,
+                            android.location.LocationManager.GPS_PROVIDER, 5_000L, 5f,
                             locationListener, android.os.Looper.getMainLooper());
                 }
                 if (providers.contains(android.location.LocationManager.NETWORK_PROVIDER)) {
                     mLiveLocationAndroidManager.requestLocationUpdates(
-                            android.location.LocationManager.NETWORK_PROVIDER, 10_000L, 5f,
+                            android.location.LocationManager.NETWORK_PROVIDER, 5_000L, 5f,
                             locationListener, android.os.Looper.getMainLooper());
                 }
             }
