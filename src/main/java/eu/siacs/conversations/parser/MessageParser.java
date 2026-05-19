@@ -983,7 +983,7 @@ public class MessageParser extends AbstractParser
                         final double lon = Double.parseDouble(geoMatcher.group(2));
                         eu.siacs.conversations.utils.LiveLocationManager.getInstance().updateIncomingPosition(sessionId, lat, lon);
                         if (eu.siacs.conversations.utils.LiveLocationManager.getInstance()
-                                .isPreviewRefreshDue(sessionId, 60_000L)) {
+                                .isPreviewRefreshDue(sessionId, 300_000L)) {  //TODO: Reduce the refreshment time when the server is capable for generating map previews more often
                             mXmppConnectionService.updateConversationUi();
                         }
                     } catch (NumberFormatException ignored) {}
