@@ -119,4 +119,5 @@ public final class Namespace {
 
     public static final String ENTITY_CAPABILITIES = "http://jabber.org/protocol/caps";
     public static final String ENTITY_CAPABILITIES_2 = "urn:xmpp:caps";
+    public static final String LIVE_LOCATION = "http://monocles.eu/live-location";
 }

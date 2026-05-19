@@ -1247,7 +1247,20 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
     private void displayLocationMessage(
             final BubbleMessageItemViewHolder viewHolder, final Message message, final BubbleColor bubbleColor) {
         displayTextMessage(viewHolder, message, bubbleColor);
-        final String url = GeoHelper.MapPreviewUri(message, activity);
+
+        final eu.siacs.conversations.utils.LiveLocationManager.IncomingSession liveSession =
+                eu.siacs.conversations.utils.LiveLocationManager.getInstance().getSessionForMessage(message.getUuid());
+        final boolean isActiveLive = liveSession != null ||
+                eu.siacs.conversations.utils.LiveLocationManager.getInstance().isActiveLiveLocationMessage(message.getUuid()) ||
+                isLiveLocationPayloadActive(message);
+
+        final String url;
+        if (liveSession != null) {
+            url = GeoHelper.MapPreviewUriFromCoords(liveSession.latitude, liveSession.longitude, activity);
+        } else {
+            url = GeoHelper.MapPreviewUri(message, activity);
+        }
+
         viewHolder.audioPlayer().setVisibility(GONE);
         if (message.isGeoUri() && viewHolder.messageBody().getVisibility() == GONE) {
             viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.CLEAR);
@@ -1272,11 +1285,23 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             imagePreviewLayout(540, 540, viewHolder.image(), message.getInReplyTo() != null, true, viewHolder);
             viewHolder.image().setOnClickListener(v -> showLocation(message));
             viewHolder.image().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
-            viewHolder.downloadButton().setVisibility(GONE);
+            if (isActiveLive) {
+                viewHolder.downloadButton().setVisibility(View.VISIBLE);
+                viewHolder.downloadButton().setText(R.string.live_location_active);
+                viewHolder.downloadButton().setIconResource(R.drawable.ic_location_pin_24dp);
+                viewHolder.downloadButton().setOnClickListener(v -> showLocation(message));
+                viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
+            } else {
+                viewHolder.downloadButton().setVisibility(GONE);
+            }
         } else {
             viewHolder.image().setVisibility(GONE);
             viewHolder.downloadButton().setVisibility(View.VISIBLE);
-            viewHolder.downloadButton().setText(R.string.show_location);
+            if (isActiveLive) {
+                viewHolder.downloadButton().setText(R.string.live_location_active);
+            } else {
+                viewHolder.downloadButton().setText(R.string.show_location);
+            }
             final var attachment = Attachment.of(message);
             final @DrawableRes int imageResource = MediaAdapter.getImageDrawable(attachment);
             viewHolder.downloadButton().setIconResource(imageResource);
@@ -2377,6 +2402,34 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
     }
 
     private void showLocation(Message message) {
+        final eu.siacs.conversations.utils.LiveLocationManager mgr =
+                eu.siacs.conversations.utils.LiveLocationManager.getInstance();
+        final String liveSessionId = mgr.getSessionIdForMessage(message.getUuid());
+
+        final eu.siacs.conversations.utils.LiveLocationManager.OutgoingSession outgoing =
+                mgr.getOutgoingSession(message.getConversation().getUuid());
+        final boolean isOurOutgoingLive = outgoing != null && message.getUuid().equals(outgoing.messageUuid);
+
+        if (isOurOutgoingLive) {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.live_location)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setNeutralButton(R.string.stop_live_location, (d, w) -> {
+                        if (activity.xmppConnectionService != null) {
+                            activity.xmppConnectionService.stopLiveLocationSharing(message.getConversation().getUuid());
+                        }
+                    })
+                    .setPositiveButton(R.string.open_map, (d, w) -> openLiveLocationMap(message, liveSessionId != null ? liveSessionId : outgoing.sessionId, mgr))
+                    .show();
+            return;
+        }
+
+        // Fall back to session ID from the persisted payload (works after restart too)
+        final String resolvedSessionId = liveSessionId != null ? liveSessionId : getLiveLocationSessionId(message);
+        if (resolvedSessionId != null && isLiveLocationPayloadActive(message)) {
+            openLiveLocationMap(message, resolvedSessionId, mgr);
+            return;
+        }
         for (Intent intent : GeoHelper.createGeoIntentsFromMessage(activity, message)) {
             if (intent.resolveActivity(getContext().getPackageManager()) != null) {
                 getContext().startActivity(intent);
@@ -2388,6 +2441,56 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                         R.string.no_application_found_to_display_location,
                         Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    private static Element getLiveLocationElement(Message message) {
+        for (Element el : message.getPayloads()) {
+            if ("live-location".equals(el.getName()) && eu.siacs.conversations.xml.Namespace.LIVE_LOCATION.equals(el.getNamespace())) {
+                return el;
+            }
+        }
+        return null;
+    }
+
+    private static String getLiveLocationSessionId(Message message) {
+        final Element el = getLiveLocationElement(message);
+        return el != null ? el.getAttribute("id") : null;
+    }
+
+    private static boolean isLiveLocationPayloadActive(Message message) {
+        final Element el = getLiveLocationElement(message);
+        if (el == null) return false;
+        final String expiresStr = el.getAttribute("expires");
+        if (expiresStr == null) return false;
+        try {
+            return System.currentTimeMillis() < eu.siacs.conversations.parser.AbstractParser.parseTimestamp(expiresStr);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private void openLiveLocationMap(final Message message, final String liveSessionId, final eu.siacs.conversations.utils.LiveLocationManager mgr) {
+        final eu.siacs.conversations.utils.LiveLocationManager.IncomingSession s = mgr.getSession(liveSessionId);
+        double lat = 0, lon = 0;
+        if (s != null) {
+            lat = s.latitude;
+            lon = s.longitude;
+        } else {
+            final String body = message.getBody();
+            if (body != null) {
+                try {
+                    final org.osmdroid.util.GeoPoint gp = GeoHelper.parseGeoPoint(android.net.Uri.parse(body));
+                    lat = gp.getLatitude();
+                    lon = gp.getLongitude();
+                } catch (Exception ignored) {}
+            }
+        }
+        final Intent intent = new Intent(activity, eu.siacs.conversations.ui.ShowLocationActivity.class);
+        intent.setAction("eu.siacs.conversations.location.show");
+        intent.putExtra("latitude", lat);
+        intent.putExtra("longitude", lon);
+        intent.putExtra("live_session_id", liveSessionId);
+        activity.startActivity(intent);
     }
 
     public void updatePreferences() {

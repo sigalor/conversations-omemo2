@@ -455,6 +455,17 @@
     <string name="pref_chat_states_summary">Let your contacts know when you are writing messages to them</string>
     <string name="send_location">Send location</string>
     <string name="show_location">Show location</string>
+    <string name="share_live_location">Share live location</string>
+    <string name="live_location">Live location</string>
+    <string name="live_location_active">● Live location</string>
+    <string name="live_location_duration">Share for how long?</string>
+    <string name="live_location_15min">15 minutes</string>
+    <string name="live_location_1hour">1 hour</string>
+    <string name="live_location_8hours">8 hours</string>
+    <string name="live_location_custom">Custom…</string>
+    <string name="live_location_minutes_hint">Duration (minutes)</string>
+    <string name="stop_live_location">Stop sharing</string>
+    <string name="open_map">Open map</string>
     <string name="no_application_found_to_display_location">No app found to display location</string>
     <string name="location">Location</string>
     <string name="title_undo_swipe_out_chat">Chat archived</string>

@@ -356,6 +356,9 @@ public class XmppConnectionService extends Service {
     private long mLastMucPing = 0;
     private Map<String, Message> mScheduledMessages = new HashMap<>();
     private long mLastStickerRescan = 0;
+    private android.location.LocationManager mLiveLocationAndroidManager = null;
+    private final java.util.concurrent.ConcurrentHashMap<String, OutgoingLiveInfo> mOutgoingLiveSessions = new java.util.concurrent.ConcurrentHashMap<>();
+    private final android.os.Handler mLiveLocationHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private final AppSettings appSettings = new AppSettings(this);
     private final FileBackend fileBackend = new FileBackend(this);
     private MemorizingTrustManager mMemorizingTrustManager;
@@ -818,6 +821,135 @@ public class XmppConnectionService extends Service {
             sendMessage(message);
             callback.success(message);
         }
+    }
+
+    private static class OutgoingLiveInfo {
+        final String sessionId;
+        final Conversation conversation;
+        final long expiresAt;
+        android.location.LocationListener locationListener;
+        Runnable expiryRunnable;
+
+        OutgoingLiveInfo(String sessionId, Conversation conversation, long expiresAt) {
+            this.sessionId = sessionId;
+            this.conversation = conversation;
+            this.expiresAt = expiresAt;
+        }
+    }
+
+    public void startLiveLocationSharing(final Conversation conversation, final long durationMs,
+                                         final double initialLat, final double initialLon, final float initialAccuracy) {
+        final String sessionId = java.util.UUID.randomUUID().toString();
+        final long expiresAt = System.currentTimeMillis() + durationMs;
+        final String expiresAtISO = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", java.util.Locale.US).format(new java.util.Date(expiresAt));
+
+        int encryption = conversation.getNextEncryption();
+        if (encryption == Message.ENCRYPTION_PGP) {
+            encryption = Message.ENCRYPTION_DECRYPTED;
+        }
+        final String geoUriStr;
+        if (initialAccuracy > 0) {
+            geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s;u=%s", initialLat, initialLon, (int) initialAccuracy);
+        } else {
+            geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s", initialLat, initialLon);
+        }
+        final Message message = new Message(conversation, geoUriStr, encryption);
+        if (getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+            message.setThread(conversation.getThread());
+        }
+        Message.configurePrivateMessage(message);
+
+        final eu.siacs.conversations.xml.Element liveEl = new eu.siacs.conversations.xml.Element("live-location", Namespace.LIVE_LOCATION);
+        liveEl.setAttribute("id", sessionId);
+        liveEl.setAttribute("expires", expiresAtISO);
+        message.addPayload(liveEl);
+
+        sendMessage(message);
+
+        eu.siacs.conversations.utils.LiveLocationManager.getInstance().registerOutgoingSession(
+                conversation.getUuid(), sessionId, message.getUuid(), expiresAt);
+
+        if (mLiveLocationAndroidManager == null) {
+            mLiveLocationAndroidManager = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
+
+        final OutgoingLiveInfo info = new OutgoingLiveInfo(sessionId, conversation, expiresAt);
+
+        final android.location.LocationListener locationListener = new android.location.LocationListener() {
+            @Override
+            public void onLocationChanged(@androidx.annotation.NonNull android.location.Location location) {
+                sendLiveLocationUpdate(conversation, sessionId, location.getLatitude(), location.getLongitude(), location.getAccuracy());
+            }
+            @Override public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
+            @Override public void onProviderEnabled(@androidx.annotation.NonNull String provider) {}
+            @Override public void onProviderDisabled(@androidx.annotation.NonNull String provider) {}
+        };
+
+        info.locationListener = locationListener;
+        mOutgoingLiveSessions.put(conversation.getUuid(), info);
+
+        try {
+            if (mLiveLocationAndroidManager != null) {
+                final java.util.List<String> providers = mLiveLocationAndroidManager.getAllProviders();
+                if (providers.contains(android.location.LocationManager.GPS_PROVIDER)) {
+                    mLiveLocationAndroidManager.requestLocationUpdates(
+                            android.location.LocationManager.GPS_PROVIDER, 10_000L, 5f,
+                            locationListener, android.os.Looper.getMainLooper());
+                }
+                if (providers.contains(android.location.LocationManager.NETWORK_PROVIDER)) {
+                    mLiveLocationAndroidManager.requestLocationUpdates(
+                            android.location.LocationManager.NETWORK_PROVIDER, 10_000L, 5f,
+                            locationListener, android.os.Looper.getMainLooper());
+                }
+            }
+        } catch (SecurityException ignored) {}
+
+        final Runnable expiryRunnable = () -> stopLiveLocationSharing(conversation.getUuid());
+        info.expiryRunnable = expiryRunnable;
+        mLiveLocationHandler.postDelayed(expiryRunnable, durationMs);
+
+        updateConversationUi();
+    }
+
+    private void sendLiveLocationUpdate(final Conversation conversation, final String sessionId,
+                                        final double lat, final double lon, final float accuracy) {
+        final String geoUriStr;
+        if (accuracy > 0) {
+            geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s;u=%s", lat, lon, (int) accuracy);
+        } else {
+            geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s", lat, lon);
+        }
+        final im.conversations.android.xmpp.model.stanza.Message packet =
+                new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
+                ? conversation.getJid() : conversation.getJid().asBareJid());
+        packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
+                ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
+                : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
+        packet.setBody(geoUriStr);
+        packet.addChild("live-location-update", Namespace.LIVE_LOCATION).setAttribute("id", sessionId);
+        packet.addChild("no-store", Namespace.HINTS);
+        sendMessagePacket(conversation.getAccount(), packet);
+        eu.siacs.conversations.utils.LiveLocationManager.getInstance().notifyOutgoingPositionUpdate(sessionId, lat, lon);
+    }
+
+    public void stopLiveLocationSharing(final String conversationUuid) {
+        final OutgoingLiveInfo info = mOutgoingLiveSessions.remove(conversationUuid);
+        if (info == null) return;
+        if (info.locationListener != null && mLiveLocationAndroidManager != null) {
+            try {
+                mLiveLocationAndroidManager.removeUpdates(info.locationListener);
+            } catch (SecurityException ignored) {}
+        }
+        if (info.expiryRunnable != null) {
+            mLiveLocationHandler.removeCallbacks(info.expiryRunnable);
+        }
+        eu.siacs.conversations.utils.LiveLocationManager.getInstance().clearOutgoingSession(conversationUuid);
+        updateConversationUi();
+    }
+
+    public boolean hasActiveLiveLocationSharing(final Conversation conversation) {
+        return eu.siacs.conversations.utils.LiveLocationManager.getInstance().getOutgoingSession(conversation.getUuid()) != null;
     }
 
     public void attachFileToConversation(

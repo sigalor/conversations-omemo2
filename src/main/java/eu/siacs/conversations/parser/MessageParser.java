@@ -960,6 +960,24 @@ public class MessageParser extends AbstractParser
             }
         }
 
+        // Handle live location updates silently — do not store as messages
+        final eu.siacs.conversations.xml.Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
+        if (liveLocUpdate != null && body != null && status == Message.STATUS_RECEIVED && query == null) {
+            final String sessionId = liveLocUpdate.getAttribute("id");
+            if (sessionId != null) {
+                final java.util.regex.Matcher geoMatcher = eu.siacs.conversations.utils.GeoHelper.GEO_URI.matcher(body.content);
+                if (geoMatcher.matches()) {
+                    try {
+                        final double lat = Double.parseDouble(geoMatcher.group(1));
+                        final double lon = Double.parseDouble(geoMatcher.group(2));
+                        eu.siacs.conversations.utils.LiveLocationManager.getInstance().updateIncomingPosition(sessionId, lat, lon);
+                        mXmppConnectionService.updateConversationUi();
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+            return;
+        }
+
         if (reactions == null && (body != null
                 || pgpEncrypted != null
                 || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload"))
@@ -1477,6 +1495,29 @@ public class MessageParser extends AbstractParser
                     && !conversation.getOtrSession().getSessionID().getUserID()
                     .equals(message.getCounterpart().getResource())) {
                 conversation.endOtrIfNeeded();
+            }
+
+            // Register incoming live-location sessions
+            if (status == Message.STATUS_RECEIVED && message.isGeoUri()) {
+                final eu.siacs.conversations.xml.Element liveLocEl = packet.findChild("live-location", Namespace.LIVE_LOCATION);
+                if (liveLocEl != null) {
+                    // Persist the payload in the message so the live indicator survives restart
+                    message.addPayload(liveLocEl);
+                    final String sessionId = liveLocEl.getAttribute("id");
+                    final String expiresAtStr = liveLocEl.getAttribute("expires");
+                    if (sessionId != null && expiresAtStr != null) {
+                        try {
+                            long expiresAt = eu.siacs.conversations.parser.AbstractParser.parseTimestamp(expiresAtStr);
+                            final java.util.regex.Matcher geoMatcher = eu.siacs.conversations.utils.GeoHelper.GEO_URI.matcher(message.getBody());
+                            if (geoMatcher.matches()) {
+                                final double lat = Double.parseDouble(geoMatcher.group(1));
+                                final double lon = Double.parseDouble(geoMatcher.group(2));
+                                eu.siacs.conversations.utils.LiveLocationManager.getInstance()
+                                        .registerIncomingSession(sessionId, message.getUuid(), lat, lon, expiresAt);
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                }
             }
 
             mXmppConnectionService.databaseBackend.createMessage(message);

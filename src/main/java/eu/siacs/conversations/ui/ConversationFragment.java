@@ -282,6 +282,7 @@ public class ConversationFragment extends XmppFragment
     private FileObserver mFileObserver;
 
     private Dialog messageOptionsDialog = null;
+    private long pendingLiveLocationDuration = 0;
 
 
     public static final int REQUEST_TRUST_KEYS_NONE = 0x0;
@@ -305,6 +306,7 @@ public class ConversationFragment extends XmppFragment
     public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
     public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
     public static final int ATTACHMENT_CHOICE_EDIT_PHOTO = 0x0308;
+    public static final int ATTACHMENT_CHOICE_LIVE_LOCATION = 0x0309;
     private static final int REQUEST_EDIT_BACKGROUND = 9124;
 
     public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
@@ -1642,6 +1644,17 @@ public class ConversationFragment extends XmppFragment
                 mediaPreviewAdapter.addMediaPreviews(
                         Attachment.of(activity, geo, Attachment.Type.LOCATION));
                 toggleInputMethod();
+                break;
+            case ATTACHMENT_CHOICE_LIVE_LOCATION:
+                final double liveLat = data.getDoubleExtra("latitude", 0);
+                final double liveLon = data.getDoubleExtra("longitude", 0);
+                final float liveAccuracy = data.getIntExtra("accuracy", 0);
+                final long liveDuration = pendingLiveLocationDuration;
+                pendingLiveLocationDuration = 0;
+                if (liveDuration > 0 && conversation != null && activity.xmppConnectionService != null) {
+                    activity.xmppConnectionService.startLiveLocationSharing(
+                            conversation, liveDuration, liveLat, liveLon, liveAccuracy);
+                }
                 break;
             case REQUEST_INVITE_TO_CONVERSATION:
                 XmppActivity.ConferenceInvite invite = XmppActivity.ConferenceInvite.parse(data);
@@ -3271,6 +3284,9 @@ public class ConversationFragment extends XmppFragment
             case R.id.attach_location:
                 handleAttachmentSelection(item);
                 break;
+            case R.id.attach_live_location:
+                showLiveLocationDurationPicker();
+                break;
             case R.id.attach_webxdc:
                 final Intent intent = new Intent(activity, WebxdcStore.class);
                 startActivityForResult(intent, REQUEST_WEBXDC_STORE);
@@ -3420,6 +3436,51 @@ public class ConversationFragment extends XmppFragment
         final Intent intent = new Intent(activity, SearchActivity.class);
         intent.putExtra(SearchActivity.EXTRA_CONVERSATION_UUID, conversation.getUuid());
         startActivity(intent);
+    }
+
+    private void showLiveLocationDurationPicker() {
+        final String[] options = {
+            getString(R.string.live_location_15min),
+            getString(R.string.live_location_1hour),
+            getString(R.string.live_location_8hours),
+            getString(R.string.live_location_custom)
+        };
+        final long[] durations = {15 * 60 * 1000L, 60 * 60 * 1000L, 8 * 60 * 60 * 1000L, -1};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.live_location_duration)
+                .setItems(options, (dialog, which) -> {
+                    if (which == 3) {
+                        showCustomLiveLocationDurationInput();
+                    } else {
+                        pendingLiveLocationDuration = durations[which];
+                        attachFile(ATTACHMENT_CHOICE_LIVE_LOCATION);
+                    }
+                })
+                .show();
+    }
+
+    private void showCustomLiveLocationDurationInput() {
+        final android.widget.EditText input = new android.widget.EditText(activity);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint(R.string.live_location_minutes_hint);
+        input.setMinEms(4);
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.live_location_duration)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    final String text = input.getText().toString().trim();
+                    if (!text.isEmpty()) {
+                        try {
+                            final int minutes = Integer.parseInt(text);
+                            if (minutes > 0) {
+                                pendingLiveLocationDuration = minutes * 60 * 1000L;
+                                attachFile(ATTACHMENT_CHOICE_LIVE_LOCATION);
+                            }
+                        } catch (NumberFormatException ignored) {}
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void scheduleMessage() {
@@ -3719,7 +3780,7 @@ public class ConversationFragment extends XmppFragment
                     Manifest.permission.CAMERA)) {
                 return;
             }
-        } else if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION) {
+        } else if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION && attachmentChoice != ATTACHMENT_CHOICE_LIVE_LOCATION) {
             if (!hasPermissions(attachmentChoice, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 return;
             }
@@ -4061,6 +4122,9 @@ public class ConversationFragment extends XmppFragment
                 recordVoice();
                 return;
             case ATTACHMENT_CHOICE_LOCATION:
+                intent = GeoHelper.getFetchIntent(activity);
+                break;
+            case ATTACHMENT_CHOICE_LIVE_LOCATION:
                 intent = GeoHelper.getFetchIntent(activity);
                 break;
         }

@@ -198,4 +198,8 @@ public class GeoHelper {
 		}
 		return activity.getResources().getString(R.string.mappreview_url) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
 	}
+
+	public static String MapPreviewUriFromCoords(double latitude, double longitude, android.content.Context context) {
+		return context.getResources().getString(R.string.mappreview_url) + "?center=" + latitude + "," + longitude + "&zoom=15" + "&size=500x500&markers=color:blue|" + latitude + "," + longitude;
+	}
 }
