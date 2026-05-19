@@ -3918,11 +3918,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public static synchronized void migrate(Context context, char[] oldPassword, char[] newPassword) throws Exception {
-        closeInstance();
+        // Keep the singleton alive during migration — service background threads may still be
+        // using it. closeInstance() is called at the end, once files and prefs are consistent.
         System.loadLibrary("sqlcipher");
         File dbFile = context.getDatabasePath(DATABASE_NAME);
         if (!dbFile.exists()) {
             new AppSettings(context).setDatabasePassword(newPassword);
+            closeInstance();
             return;
         }
 
@@ -3962,6 +3964,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
             new AppSettings(context).setDatabasePassword(newPassword);
+            closeInstance();
             return;
         }
 
@@ -4037,6 +4040,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             // Sentinel was already cleared; .bak will be an orphan but data is accessible.
             throw e;
         }
+        // Migration succeeded — close the old singleton now that files and prefs are consistent.
+        // The next getInstance() call will open the new file with the new key.
+        closeInstance();
     }
 
     // Returns [conversationUuid, rawPayloads] for sent messages with live-location payloads

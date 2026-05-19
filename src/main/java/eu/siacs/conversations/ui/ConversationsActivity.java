@@ -267,7 +267,8 @@ public class ConversationsActivity extends XmppActivity
 
         // Show badge for new posts in bottom nav
         long lastReadPosts = getPreferences().getLong("last_read_post_timestamp", 0);
-        boolean hasNewPosts = xmppConnectionService.databaseBackend.getPosts().stream().anyMatch(p -> p.getPublished() != null && p.getPublished().getTime() > lastReadPosts);
+        final eu.siacs.conversations.persistance.DatabaseBackend db = xmppConnectionService.databaseBackend;
+        boolean hasNewPosts = db != null && db.getPosts().stream().anyMatch(p -> p.getPublished() != null && p.getPublished().getTime() > lastReadPosts);
         var postsBadge = bottomnav.getOrCreateBadge(R.id.feeds);
         postsBadge.setVisible(hasNewPosts);
 

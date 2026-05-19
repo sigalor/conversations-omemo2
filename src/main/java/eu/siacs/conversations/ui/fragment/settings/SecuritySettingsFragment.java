@@ -490,13 +490,25 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
         progressBuilder.setView(progressBar);
         final AlertDialog progressDialog = progressBuilder.show();
 
+        // Null out the service backend before migration so in-flight background tasks skip DB
+        // access rather than hitting the about-to-be-closed singleton with the wrong key.
+        if (requireService() != null) {
+            requireService().databaseBackend = null;
+        }
+
         new Thread(() -> {
             try {
                 DatabaseBackend.migrate(requireContext(), oldPassword, newPassword);
                 UnifiedPushDatabase.migrate(requireContext(), oldPassword, newPassword);
-                if (requireService() != null) {
-                    requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
-                }
+                final DatabaseBackend newBackend = DatabaseBackend.getInstance(requireContext());
+                // Restore the service backend immediately — before the slow FTS rebuild —
+                // to minimise the window where the service has no database access.
+                requireActivity().runOnUiThread(() -> {
+                    if (requireService() != null) {
+                        requireService().databaseBackend = newBackend;
+                    }
+                });
+                newBackend.rebuildMessagesIndex();
                 requireActivity().runOnUiThread(() -> {
                     progressDialog.dismiss();
                     Toast.makeText(requireContext(), newPassword == null ? R.string.toast_db_password_success_disabled : R.string.toast_db_password_success_set, Toast.LENGTH_SHORT).show();
@@ -504,6 +516,11 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 });
             } catch (Exception e) {
                 requireActivity().runOnUiThread(() -> {
+                    // Restore backend on failure — migrate() may have rolled back to the original
+                    // state, in which case the old instance (if any) is still usable.
+                    if (requireService() != null && requireService().databaseBackend == null) {
+                        requireService().databaseBackend = DatabaseBackend.getInstance(requireContext());
+                    }
                     progressDialog.dismiss();
                     new MaterialAlertDialogBuilder(requireActivity())
                             .setTitle("Error")
