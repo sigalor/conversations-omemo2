@@ -3926,9 +3926,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         // Use byte[] openDatabase overload (new in sqlcipher-android 4.16.0) — byte[] can be
         // zeroed immediately after the call; String cannot be zeroed at all.
         final byte[] oldPwBytes = oldPassword != null ? charsToUtf8Bytes(oldPassword) : null;
+        // ENABLE_WRITE_AHEAD_LOGGING: singleton already holds the DB in WAL mode; opening a
+        // second connection without this flag causes SQLCipher to attempt PRAGMA journal_mode=delete,
+        // which fails with SQLITE_BUSY (5) on Android 8.1 and older. Setting the flag makes
+        // SQLCipher check the current mode first and skip the pragma when WAL is already active.
         SQLiteDatabase db = SQLiteDatabase.openDatabase(
                 dbFile.getAbsolutePath(), oldPwBytes, null,
-                SQLiteDatabase.OPEN_READWRITE,
+                SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
                 oldPwBytes != null ? DATABASE_HOOK : null);
         if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
         int version = db.getVersion();

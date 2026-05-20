@@ -62,7 +62,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         final byte[] oldPwBytes = oldPassword != null ? DatabaseBackend.charsToUtf8Bytes(oldPassword) : null;
         SQLiteDatabase db = SQLiteDatabase.openDatabase(
                 dbFile.getAbsolutePath(), oldPwBytes, null,
-                SQLiteDatabase.OPEN_READWRITE,
+                SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
                 oldPwBytes != null ? DatabaseBackend.DATABASE_HOOK : null);
         if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
         int version = db.getVersion();
