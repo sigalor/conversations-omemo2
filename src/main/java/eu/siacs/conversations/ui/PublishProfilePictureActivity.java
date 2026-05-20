@@ -18,7 +18,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.databinding.DataBindingUtil;
-import com.canhub.cropper.CropImage;
+import com.canhub.cropper.CropImageContract;
+import com.canhub.cropper.CropImageContractOptions;
+import com.canhub.cropper.CropImageOptions;
+import com.canhub.cropper.CropImageView;
+import androidx.activity.result.ActivityResultLauncher;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -32,6 +36,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PublishProfilePictureActivity extends XmppActivity
         implements XmppConnectionService.OnAccountUpdate, OnAvatarPublication {
+
+    private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
+            registerForActivityResult(
+                    new CropImageContract(),
+                    result -> {
+                        if (result.isSuccessful()) {
+                            this.avatarUri = result.getUriContent();
+                            if (xmppConnectionServiceBound) {
+                                loadImageIntoPreview(this.avatarUri);
+                            }
+                        } else {
+                            Exception error = result.getError();
+                            if (error != null) {
+                                Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
 
     public static final int REQUEST_CHOOSE_PICTURE = 0x1337;
 
@@ -124,7 +145,7 @@ public class PublishProfilePictureActivity extends XmppActivity
                     }
                     finish();
                 });
-        this.binding.accountImage.setOnClickListener(v -> chooseAvatar(this));
+        this.binding.accountImage.setOnClickListener(v -> chooseAvatar(this, cropImageLauncher));
         this.defaultUri = PhoneHelper.getProfilePictureUri(getApplicationContext());
         if (savedInstanceState != null) {
             this.avatarUri = savedInstanceState.getParcelable("uri");
@@ -179,27 +200,16 @@ public class PublishProfilePictureActivity extends XmppActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                this.avatarUri = result.getUri();
-                if (xmppConnectionServiceBound) {
-                    loadImageIntoPreview(this.avatarUri);
-                }
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-                if (error != null) {
-                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        } else if (requestCode == REQUEST_CHOOSE_PICTURE) {
+        if (requestCode == REQUEST_CHOOSE_PICTURE) {
             if (resultCode == RESULT_OK) {
                 cropUri(this, data.getData());
             }
         }
     }
 
-    public static void chooseAvatar(final Activity activity) {
+    public static void chooseAvatar(
+            final Activity activity,
+            final ActivityResultLauncher<CropImageContractOptions> launcher) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
@@ -208,11 +218,14 @@ public class PublishProfilePictureActivity extends XmppActivity
                             intent, activity.getString(R.string.attach_choose_picture)),
                     REQUEST_CHOOSE_PICTURE);
         } else {
-            CropImage.activity()
-                    .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
-                    .setAspectRatio(1, 1)
-                    .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
-                    .start(activity);
+            CropImageOptions options = new CropImageOptions();
+            options.outputCompressFormat = Bitmap.CompressFormat.PNG;
+            options.aspectRatioX = 1;
+            options.aspectRatioY = 1;
+            options.fixAspectRatio = true;
+            options.minCropResultWidth = Config.AVATAR_SIZE;
+            options.minCropResultHeight = Config.AVATAR_SIZE;
+            launcher.launch(new CropImageContractOptions(null, options));
         }
     }
 
@@ -263,17 +276,21 @@ public class PublishProfilePictureActivity extends XmppActivity
     public void cropUri(final Activity activity, final Uri uri) {
         if (Build.VERSION.SDK_INT >= 28) {
             loadImageIntoPreview(uri);
-            if (binding.accountImage.getDrawable() instanceof AnimatedImageDrawable || binding.accountImage.getDrawable() instanceof FileBackend.SVGDrawable) {
+            if (binding.accountImage.getDrawable() instanceof AnimatedImageDrawable
+                    || binding.accountImage.getDrawable() instanceof FileBackend.SVGDrawable) {
                 this.avatarUri = uri;
                 return;
             }
         }
 
-        CropImage.activity(uri)
-                .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
-                .setAspectRatio(1, 1)
-                .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
-                .start(this);
+        CropImageOptions options = new CropImageOptions();
+        options.outputCompressFormat = Bitmap.CompressFormat.PNG;
+        options.aspectRatioX = 1;
+        options.aspectRatioY = 1;
+        options.fixAspectRatio = true;
+        options.minCropResultWidth = Config.AVATAR_SIZE;
+        options.minCropResultHeight = Config.AVATAR_SIZE;
+        cropImageLauncher.launch(new CropImageContractOptions(uri, options));
     }
 
     protected void loadImageIntoPreview(final Uri uri) {

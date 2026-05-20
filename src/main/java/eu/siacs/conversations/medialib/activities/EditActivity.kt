@@ -285,7 +285,7 @@ class EditActivity : AppCompatActivity(), CropImageView.OnCropImageCompleteListe
         setOldExif()
 
         if (binding.cropImageView.isVisible()) {
-            binding.cropImageView.getCroppedImageAsync()
+            binding.cropImageView.croppedImageAsync()
         } else if (binding.editorDrawCanvas.isVisible()) {
             val bitmap = binding.editorDrawCanvas.getBitmap()
             saveBitmapToFile(bitmap, true)
@@ -642,7 +642,7 @@ class EditActivity : AppCompatActivity(), CropImageView.OnCropImageCompleteListe
         ResizeDialog(this, point) {
             resizeWidth = it.x
             resizeHeight = it.y
-            binding.cropImageView.getCroppedImageAsync()
+            binding.cropImageView.croppedImageAsync()
         }
     }
 

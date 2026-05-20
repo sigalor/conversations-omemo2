@@ -44,7 +44,12 @@ import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.StringRes;
 import androidx.databinding.DataBindingUtil;
-import com.canhub.cropper.CropImage;
+import com.canhub.cropper.CropImageContract;
+import com.canhub.cropper.CropImageContractOptions;
+import com.canhub.cropper.CropImageOptions;
+import com.canhub.cropper.CropImageView;
+import androidx.activity.result.ActivityResultLauncher;
+import eu.siacs.conversations.Config;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivityPublishProfilePictureBinding;
@@ -55,6 +60,23 @@ import eu.siacs.conversations.ui.util.PendingItem;
 
 public class PublishGroupChatProfilePictureActivity extends XmppActivity
         implements OnAvatarPublication {
+    private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
+            registerForActivityResult(
+                    new CropImageContract(),
+                    result -> {
+                        if (result.isSuccessful()) {
+                            this.uri = result.getUriContent();
+                            if (xmppConnectionServiceBound) {
+                                reloadAvatar();
+                            }
+                        } else {
+                            final var error = result.getError();
+                            if (error != null) {
+                                Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
     private final PendingItem<String> pendingConversationUuid = new PendingItem<>();
     private ActivityPublishProfilePictureBinding binding;
     private Conversation conversation;
@@ -104,7 +126,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity
         this.binding.cancelButton.setOnClickListener((v) -> this.finish());
         this.binding.secondaryHint.setVisibility(View.GONE);
         this.binding.accountImage.setOnClickListener(
-                (v) -> PublishProfilePictureActivity.chooseAvatar(this));
+                (v) -> PublishProfilePictureActivity.chooseAvatar(this, cropImageLauncher));
         final var  intent = getIntent();
         final var  uuid = intent == null ? null : intent.getStringExtra("uuid");
         if (uuid != null) {
@@ -123,20 +145,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            final CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                this.uri = result == null ? null : result.getUri();
-                if (xmppConnectionServiceBound) {
-                    reloadAvatar();
-                }
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                final var error = result == null ? null : result.getError();
-                if (error != null) {
-                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        } else if (requestCode == REQUEST_CHOOSE_PICTURE) {
+        if (requestCode == REQUEST_CHOOSE_PICTURE) {
             if (resultCode == RESULT_OK) {
                 cropUri(data.getData());
             }
@@ -147,15 +156,21 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity
         if (Build.VERSION.SDK_INT >= 28) {
             this.uri = uri;
             reloadAvatar();
-            if (this.binding.accountImage.getDrawable() instanceof AnimatedImageDrawable || this.binding.accountImage.getDrawable() instanceof FileBackend.SVGDrawable) {
+            if (this.binding.accountImage.getDrawable() instanceof AnimatedImageDrawable
+                    || this.binding.accountImage.getDrawable()
+                            instanceof FileBackend.SVGDrawable) {
                 return;
             }
         }
 
-        CropImage.activity(uri).setOutputCompressFormat(Bitmap.CompressFormat.PNG)
-                .setAspectRatio(1, 1)
-                .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
-                .start(this);
+        CropImageOptions options = new CropImageOptions();
+        options.outputCompressFormat = Bitmap.CompressFormat.PNG;
+        options.aspectRatioX = 1;
+        options.aspectRatioY = 1;
+        options.fixAspectRatio = true;
+        options.minCropResultWidth = Config.AVATAR_SIZE;
+        options.minCropResultHeight = Config.AVATAR_SIZE;
+        cropImageLauncher.launch(new CropImageContractOptions(uri, options));
     }
 
     @Override
