@@ -43,7 +43,7 @@ configurations {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
-    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     implementation 'junit:junit:4.13.2'
     androidTestImplementation 'junit:junit:4.13.2'
 
@@ -57,15 +57,15 @@ dependencies {
     monocleschatPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
     monocleschatPlaystoreImplementation 'com.github.singpolyma:play-licensing:1c637ea03c'
     conversationsPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
-    quicksyPlaystoreImplementation 'com.google.android.gms:play-services-auth-api-phone:18.2.0'
+    quicksyPlaystoreImplementation 'com.google.android.gms:play-services-auth-api-phone:18.3.0'
     implementation 'com.github.open-keychain.open-keychain:openpgp-api:v5.7.1'
     implementation("com.github.CanHub:Android-Image-Cropper:2.2.0")
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.exifinterface:exifinterface:1.4.1'
+    implementation 'androidx.exifinterface:exifinterface:1.4.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "androidx.preference:preference:1.2.1"
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.work:work-runtime:2.11.2'
 
     implementation "androidx.emoji2:emoji2:1.6.0"
@@ -75,14 +75,14 @@ dependencies {
     implementation 'org.bouncycastle:bcmail-jdk18on:1.84'
     implementation 'com.google.zxing:core:3.5.4'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
-    implementation 'org.whispersystems:signal-protocol-java:2.6.2'
+    implementation 'org.whispersystems:signal-protocol-java:2.8.1'
     implementation "com.wefika:flowlayout:0.4.1"
 
     //noinspection GradleDependency
     implementation 'io.deepmedia.community:transcoder-android:0.11.2'
 
-    implementation 'org.jxmpp:jxmpp-jid:1.0.3'
-    implementation 'org.jxmpp:jxmpp-stringprep-libidn:1.0.3'
+    implementation 'org.jxmpp:jxmpp-jid:1.1.0'
+    implementation 'org.jxmpp:jxmpp-stringprep-libidn:1.1.0'
     implementation 'org.osmdroid:osmdroid-android:6.1.20'
     implementation 'org.hsluv:hsluv:0.2'
     implementation 'org.conscrypt:conscrypt-android:2.5.3'
@@ -99,7 +99,7 @@ dependencies {
     implementation 'io.github.nishkarsh:android-permissions:2.1.8'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.documentfile:documentfile:1.1.0'
-    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'androidx.browser:browser:1.10.0'
     implementation 'com.github.martin-stone:hsv-alpha-color-picker-android:3.1.0'
     implementation 'com.github.ipld:java-cid:v1.3.1'
     //implementation 'com.splitwise:tokenautocomplete:3.0.2'
@@ -109,11 +109,11 @@ dependencies {
     implementation 'com.github.woltapp:blurhash:master'
     implementation 'com.caverock:androidsvg-aar:1.4'
     implementation 'org.tomlj:tomlj:1.1.1'
-    implementation 'com.tbuonomo:dotsindicator:4.2'
+    implementation 'com.tbuonomo:dotsindicator:5.1.0'
     implementation 'com.github.singpolyma:OpenGraphParser:d0882eadb2'
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
     implementation 'net.fellbaum:jemoji:1.7.4'
-    implementation 'com.github.bumptech.glide:glide:4.16.0' // For photo editor compatibility
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
     implementation('com.github.bumptech.glide:okhttp3-integration:4.16.0') {
         exclude group: 'glide-parent'
     }
@@ -126,10 +126,10 @@ dependencies {
     implementation 'com.mikepenz:materialdrawer:10.0.0-b01'
     implementation 'org.jitsi:org.otr4j:0.23'
     // Add Media3
-    implementation "androidx.media3:media3-exoplayer:1.10.0"
-    implementation "androidx.media3:media3-ui:1.10.0"
-    implementation "androidx.media3:media3-session:1.10.0"
-    implementation 'com.kizitonwose.calendar:view:2.5.4'
+    implementation "androidx.media3:media3-exoplayer:1.10.1"
+    implementation "androidx.media3:media3-ui:1.10.1"
+    implementation "androidx.media3:media3-session:1.10.1"
+    implementation 'com.kizitonwose.calendar:view:2.10.1'
     implementation "io.noties.markwon:core:4.6.2"
     implementation "net.zetetic:sqlcipher-android:4.16.0@aar"
     implementation "androidx.sqlite:sqlite:2.6.2"
