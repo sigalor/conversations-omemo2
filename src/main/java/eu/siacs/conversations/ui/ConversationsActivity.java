@@ -62,11 +62,15 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -1139,6 +1143,10 @@ public class ConversationsActivity extends XmppActivity
         configureActionBar(getSupportActionBar());
         this.getFragmentManager().addOnBackStackChangedListener(this::invalidateActionBarTitle);
         this.getFragmentManager().addOnBackStackChangedListener(this::showDialogsIfMainIsOverview);
+        this.getFragmentManager().addOnBackStackChangedListener(() -> {
+            backPressedCallback.setEnabled(getFragmentManager().getBackStackEntryCount() > 0);
+        });
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
         this.initializeFragments();
         this.invalidateActionBarTitle();
         final Intent intent;
@@ -1842,20 +1850,31 @@ public class ConversationsActivity extends XmppActivity
         runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
     }
 
-    @Override
-    public void onBackPressed() {
-        FragmentManager fm = getFragmentManager();
-        if (android.os.Build.VERSION.SDK_INT >= 26) {
-            Fragment f = fm.getFragments().get(fm.getFragments().size() - 1);
-            if (f != null && f instanceof ConversationFragment) {
-                if (((ConversationFragment) f).onBackPressed()) {
-                    return;
+    private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            FragmentManager fm = getFragmentManager();
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                Fragment f = fm.getFragments().get(fm.getFragments().size() - 1);
+                if (f != null && f instanceof ConversationFragment) {
+                    if (((ConversationFragment) f).onBackPressed()) {
+                        return;
+                    }
                 }
             }
+            if (fm.getBackStackEntryCount() > 0) {
+                try {
+                    fm.popBackStack();
+                } catch (IllegalStateException e) {
+                    Log.w(Config.LOGTAG, "Unable to pop back stack in OnBackPressedCallback");
+                }
+            } else {
+                this.setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+                this.setEnabled(true);
+            }
         }
-
-        super.onBackPressed();
-    }
+    };
 
     private PinnedMessageRepository pinnedMessageRepository;
 
