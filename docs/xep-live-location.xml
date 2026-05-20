@@ -195,6 +195,11 @@
       <tt>lat</tt> and <tt>lon</tt> attributes of the <tt>&lt;live-location-update&gt;</tt> element.
     </p>
     <p>
+      To ensure the last known position is preserved after a session ends, implementations
+      SHOULD update the local representation of the original session announcement message
+      with the coordinates from the most recently received update.
+    </p>
+    <p>
       The recommended update interval is implementation-defined. Implementations SHOULD respect
       battery and bandwidth constraints and SHOULD use a minimum interval of 5 seconds.
     </p>
@@ -433,8 +438,8 @@
   <xs:element name='live-location-update'>
     <xs:complexType>
       <xs:attribute name='id'  type='xs:string' use='required'/>
-      <xs:attribute name='lat' type='xs:string' use='optional'/>
-      <xs:attribute name='lon' type='xs:string' use='optional'/>
+      <xs:attribute name='lat' type='xs:string' use='required'/>
+      <xs:attribute name='lon' type='xs:string' use='required'/>
     </xs:complexType>
   </xs:element>
 
