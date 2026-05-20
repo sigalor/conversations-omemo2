@@ -890,6 +890,11 @@ public class XmppConnectionService extends Service {
         info.locationListener = locationListener;
         mOutgoingLiveSessions.put(conversation.getUuid(), info);
 
+        mNotificationService.showLiveLocationNotification(conversation.getUuid());
+        // Must call startForeground with FOREGROUND_SERVICE_TYPE_LOCATION before
+        // requestLocationUpdates — Android 14+ revokes location access otherwise.
+        toggleForegroundService();
+
         try {
             if (mLiveLocationAndroidManager != null) {
                 final java.util.List<String> providers = mLiveLocationAndroidManager.getAllProviders();
@@ -909,20 +914,11 @@ public class XmppConnectionService extends Service {
         final Runnable expiryRunnable = () -> stopLiveLocationSharing(conversation.getUuid());
         info.expiryRunnable = expiryRunnable;
         mLiveLocationHandler.postDelayed(expiryRunnable, durationMs);
-
-        mNotificationService.showLiveLocationNotification(conversation.getUuid());
-        toggleForegroundService();
         updateConversationUi();
     }
 
     private void sendLiveLocationUpdate(final Conversation conversation, final String sessionId,
                                         final double lat, final double lon, final float accuracy) {
-        final String geoUriStr;
-        if (accuracy > 0) {
-            geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s;u=%s", lat, lon, (int) accuracy);
-        } else {
-            geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s", lat, lon);
-        }
         final im.conversations.android.xmpp.model.stanza.Message packet =
                 new im.conversations.android.xmpp.model.stanza.Message();
         packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
@@ -930,8 +926,10 @@ public class XmppConnectionService extends Service {
         packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
                 ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
                 : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
-        packet.setBody(geoUriStr);
-        packet.addChild("live-location-update", Namespace.LIVE_LOCATION).setAttribute("id", sessionId);
+        final Element update = packet.addChild("live-location-update", Namespace.LIVE_LOCATION);
+        update.setAttribute("id", sessionId);
+        update.setAttribute("lat", String.valueOf(lat));
+        update.setAttribute("lon", String.valueOf(lon));
         packet.addChild("no-store", Namespace.HINTS);
         sendMessagePacket(conversation.getAccount(), packet);
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().notifyOutgoingPositionUpdate(sessionId, lat, lon);
@@ -2408,12 +2406,26 @@ public class XmppConnectionService extends Service {
             final int id, final Notification notification, final boolean requireMicrophone) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                final boolean hasLiveLocation = !mOutgoingLiveSessions.isEmpty()
+                        && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
                 int foregroundServiceType;
                 if (requireMicrophone
                         && ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                         == PackageManager.PERMISSION_GRANTED) {
+                    // Active call: claim MICROPHONE (and LOCATION if live location is also running)
                     foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
-                    Log.d(Config.LOGTAG, "defaulting to microphone foreground service type");
+                    if (hasLiveLocation) {
+                        foregroundServiceType |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+                    }
+                    Log.d(Config.LOGTAG, "foreground service type: microphone");
+                } else if (hasLiveLocation) {
+                    // Live location only, no active call — use LOCATION alone.
+                    // Do NOT combine with MICROPHONE here: MICROPHONE requires an active recording
+                    // session in API 34+, and claiming it without one can invalidate the entire
+                    // service type, revoking GPS access.
+                    foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+                    Log.d(Config.LOGTAG, "foreground service type: location");
                 } else if (getSystemService(PowerManager.class)
                         .isIgnoringBatteryOptimizations(getPackageName())) {
                     foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED;
@@ -2426,11 +2438,6 @@ public class XmppConnectionService extends Service {
                 } else {
                     foregroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
                     Log.w(Config.LOGTAG, "falling back to special use foreground service type");
-                }
-                if (!mOutgoingLiveSessions.isEmpty()
-                        && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    foregroundServiceType |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
                 }
                 startForeground(id, notification, foregroundServiceType);
             } else {

@@ -973,21 +973,18 @@ public class MessageParser extends AbstractParser
 
         // Handle live location updates silently — do not store as messages
         final eu.siacs.conversations.xml.Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
-        if (liveLocUpdate != null && body != null && status == Message.STATUS_RECEIVED && query == null) {
+        if (liveLocUpdate != null && status == Message.STATUS_RECEIVED && query == null) {
             final String sessionId = liveLocUpdate.getAttribute("id");
             if (sessionId != null) {
-                final java.util.regex.Matcher geoMatcher = eu.siacs.conversations.utils.GeoHelper.GEO_URI.matcher(body.content);
-                if (geoMatcher.matches()) {
-                    try {
-                        final double lat = Double.parseDouble(geoMatcher.group(1));
-                        final double lon = Double.parseDouble(geoMatcher.group(2));
-                        eu.siacs.conversations.utils.LiveLocationManager.getInstance().updateIncomingPosition(sessionId, lat, lon);
-                        if (eu.siacs.conversations.utils.LiveLocationManager.getInstance()
-                                .isPreviewRefreshDue(sessionId, 300_000L)) {  //TODO: Reduce the refreshment time when the server is capable for generating map previews more often
-                            mXmppConnectionService.updateConversationUi();
-                        }
-                    } catch (NumberFormatException ignored) {}
-                }
+                try {
+                    final double lat = Double.parseDouble(liveLocUpdate.getAttribute("lat"));
+                    final double lon = Double.parseDouble(liveLocUpdate.getAttribute("lon"));
+                    eu.siacs.conversations.utils.LiveLocationManager.getInstance().updateIncomingPosition(sessionId, lat, lon);
+                    if (eu.siacs.conversations.utils.LiveLocationManager.getInstance()
+                            .isPreviewRefreshDue(sessionId, 300_000L)) {  //TODO: Reduce the refreshment time when the server is capable for generating map previews more often
+                        mXmppConnectionService.updateConversationUi();
+                    }
+                } catch (Exception ignored) {}
             }
             return;
         }

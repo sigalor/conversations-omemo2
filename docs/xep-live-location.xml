@@ -168,9 +168,12 @@
       with a <tt>&lt;live-location-update&gt;</tt> element. Each update stanza:
     </p>
     <ul>
-      <li>MUST carry a <tt>geo:</tt> URI in the <tt>&lt;body&gt;</tt> reflecting the current position.</li>
       <li>MUST include a <tt>&lt;live-location-update&gt;</tt> element with the <tt>id</tt> attribute
           matching the session identifier.</li>
+      <li>MUST include <tt>lat</tt> and <tt>lon</tt> attributes on the
+          <tt>&lt;live-location-update&gt;</tt> element containing the current coordinates.</li>
+      <li>SHOULD NOT carry a message body. This prevents clients that do not support this XEP
+          from being flooded with periodic messages.</li>
       <li>MUST include a <tt>&lt;no-store&gt;</tt> hint (&xep0334;) so that the stanza is not
           archived. Update stanzas carry transient data; only the session announcement is the
           durable record.</li>
@@ -180,12 +183,17 @@
 <message from='juliet@capulet.lit/balcony'
          to='romeo@montague.lit'
          type='chat'>
-  <body>geo:48.859200,2.294800;u=8</body>
   <live-location-update xmlns='urn:xmpp:live-location:0'
-                        id='a4a5b7c2-1d3e-4f56-8901-abcdef012345'/>
+                        id='a4a5b7c2-1d3e-4f56-8901-abcdef012345'
+                        lat='48.859200'
+                        lon='2.294800'/>
   <no-store xmlns='urn:xmpp:hints'/>
 </message>
 ]]></example>
+    <p>
+      Receivers MUST support position updates that carry the coordinates in the
+      <tt>lat</tt> and <tt>lon</tt> attributes of the <tt>&lt;live-location-update&gt;</tt> element.
+    </p>
     <p>
       The recommended update interval is implementation-defined. Implementations SHOULD respect
       battery and bandwidth constraints and SHOULD use a minimum interval of 5 seconds.
@@ -424,7 +432,9 @@
   <!-- Position update: child of <message> -->
   <xs:element name='live-location-update'>
     <xs:complexType>
-      <xs:attribute name='id' type='xs:string' use='required'/>
+      <xs:attribute name='id'  type='xs:string' use='required'/>
+      <xs:attribute name='lat' type='xs:string' use='optional'/>
+      <xs:attribute name='lon' type='xs:string' use='optional'/>
     </xs:complexType>
   </xs:element>
 
