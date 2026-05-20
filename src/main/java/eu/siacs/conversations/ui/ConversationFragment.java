@@ -2762,166 +2762,165 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean handleMessageContextAction(final int itemId) {
-        switch (itemId) {
-            case R.id.share_with:
-                ShareUtil.share(activity, selectedMessage);
-                return true;
-            case R.id.correct_message:
-                correctMessage(selectedMessage);
-                return true;
-            case R.id.retract_message:
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(R.string.retract_message)
-                        .setMessage(R.string.do_you_really_want_to_retract_this_message)
-                        .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                            if (!(selectedMessage.getConversation() instanceof Conversation)) {
-                                return;
-                            }
-                            final Conversation conversation = activity.xmppConnectionService.findConversationByUuid(selectedMessage.getConversation().getUuid());
-                            if (conversation == null) {
-                                return;
-                            }
-                            final Message messageToRetract = conversation.findMessageWithUuid(selectedMessage.getUuid());
-                            if (messageToRetract == null) {
-                                return;
-                            }
-                            final Message retractionMessage = new Message(
-                                    conversation,
-                                    "",
-                                    Message.ENCRYPTION_NONE,
-                                    Message.STATUS_SEND
-                            );
-                            final String idToRetract;
-                            if (conversation.getMode() == Conversation.MODE_MULTI && messageToRetract.getServerMsgId() != null) {
-                                idToRetract = messageToRetract.getServerMsgId();
-                            } else {
-                                idToRetract = messageToRetract.getRemoteMsgId() != null ? messageToRetract.getRemoteMsgId() : messageToRetract.getUuid();
-                            }
-                            retractionMessage.setRetractId(idToRetract);
-                            retractionMessage.setDeleted(true);
-                            retractionMessage.setType(Message.TYPE_TEXT);
-                            retractionMessage.setCounterpart(messageToRetract.getCounterpart());
-                            retractionMessage.setRemoteMsgId(UUID.randomUUID().toString());
-                            if (messageToRetract.getStatus() >= Message.STATUS_SEND) {
-                                sendMessage(retractionMessage);
-                            }
+        if (itemId == R.id.share_with) {
+            ShareUtil.share(activity, selectedMessage);
+            return true;
+        } else if (itemId == R.id.correct_message) {
+            correctMessage(selectedMessage);
+            return true;
+        } else if (itemId == R.id.retract_message) {
+            new MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.retract_message)
+                    .setMessage(R.string.do_you_really_want_to_retract_this_message)
+                    .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                        if (!(selectedMessage.getConversation() instanceof Conversation)) {
+                            return;
+                        }
+                        final Conversation conversation = activity.xmppConnectionService.findConversationByUuid(selectedMessage.getConversation().getUuid());
+                        if (conversation == null) {
+                            return;
+                        }
+                        final Message messageToRetract = conversation.findMessageWithUuid(selectedMessage.getUuid());
+                        if (messageToRetract == null) {
+                            return;
+                        }
+                        final Message retractionMessage = new Message(
+                                conversation,
+                                "",
+                                Message.ENCRYPTION_NONE,
+                                Message.STATUS_SEND
+                        );
+                        final String idToRetract;
+                        if (conversation.getMode() == Conversation.MODE_MULTI && messageToRetract.getServerMsgId() != null) {
+                            idToRetract = messageToRetract.getServerMsgId();
+                        } else {
+                            idToRetract = messageToRetract.getRemoteMsgId() != null ? messageToRetract.getRemoteMsgId() : messageToRetract.getUuid();
+                        }
+                        retractionMessage.setRetractId(idToRetract);
+                        retractionMessage.setDeleted(true);
+                        retractionMessage.setType(Message.TYPE_TEXT);
+                        retractionMessage.setCounterpart(messageToRetract.getCounterpart());
+                        retractionMessage.setRemoteMsgId(UUID.randomUUID().toString());
+                        if (messageToRetract.getStatus() >= Message.STATUS_SEND) {
+                            sendMessage(retractionMessage);
+                        }
 
-                            // Mark the message as retracted locally to prevent it from reappearing after restart
-                            messageToRetract.setCarbon(false);
-                            messageToRetract.setOob(false);
-                            messageToRetract.resetFileParams();
-                            messageToRetract.setBody(Message.DELETED_MESSAGE_BODY);
-                            messageToRetract.setType(Message.TYPE_TEXT);
-                            messageToRetract.setRelativeFilePath(null);
-                            messageToRetract.setFileParams(null);
-                            messageToRetract.setDeleted(true);
-                            // Persist the retracted state. The 'true' ensures the body is updated.
-                            activity.xmppConnectionService.updateMessage(messageToRetract, false);
-                            activity.xmppConnectionService.deleteMessage(messageToRetract);
-                            activity.xmppConnectionService.deleteMessage(retractionMessage);
-                            activity.onConversationsListItemUpdated();
-                            refresh();
-                            Toast.makeText(activity, R.string.message_retracted, Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton(R.string.no, null).show();
-                return true;
-            case R.id.moderate_message:
-                activity.quickEdit("Spam", (reason) -> {
-                    activity.xmppConnectionService.moderateMessage(conversation.getAccount(), selectedMessage, reason);
-                    return null;
-                }, R.string.moderate_reason, false, false, true, true);
-                return true;
-            case R.id.pin_message_to_top:
-                // store for each conversation
-                pinMessage(selectedMessage);
-                return true;
-            case R.id.copy_message:
-                ShareUtil.copyToClipboard(activity, selectedMessage);
-                return true;
-            case R.id.quote_message:
-                quoteMessage(selectedMessage);
-                return true;
-            case R.id.send_again:
-                resendMessage(selectedMessage, false);
-                return true;
-            case R.id.send_again_as_p2p:
-                resendMessage(selectedMessage, true);
-                return true;
-            case R.id.copy_link:
-                ShareUtil.copyLinkToClipboard(activity, selectedMessage);
-                return true;
-            case R.id.copy_url:
-                ShareUtil.copyUrlToClipboard(activity, selectedMessage);
-                return true;
-            case R.id.save_as_sticker:
-                saveAsSticker(selectedMessage);
-                return true;
-            case R.id.download_file:
-                startDownloadable(selectedMessage);
-                return true;
-            case R.id.cancel_transmission:
-                cancelTransmission(selectedMessage);
-                return true;
-            case R.id.retry_decryption:
-                retryDecryption(selectedMessage);
-                return true;
-            case R.id.block_media:
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(R.string.block_media)
-                        .setMessage(R.string.block_media_question)
-                        .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                            List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
-                            if (thumbs != null && !thumbs.isEmpty()) {
-                                for (Element thumb : thumbs) {
-                                    Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                                    if (uri.getScheme().equals("cid")) {
-                                        Cid cid = BobTransfer.cid(uri);
-                                        if (cid == null) continue;
-                                        DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
-                                        activity.xmppConnectionService.blockMedia(f);
-                                        activity.xmppConnectionService.evictPreview(f);
-                                        f.delete();
-                                    }
+                        // Mark the message as retracted locally to prevent it from reappearing after restart
+                        messageToRetract.setCarbon(false);
+                        messageToRetract.setOob(false);
+                        messageToRetract.resetFileParams();
+                        messageToRetract.setBody(Message.DELETED_MESSAGE_BODY);
+                        messageToRetract.setType(Message.TYPE_TEXT);
+                        messageToRetract.setRelativeFilePath(null);
+                        messageToRetract.setFileParams(null);
+                        messageToRetract.setDeleted(true);
+                        // Persist the retracted state. The 'true' ensures the body is updated.
+                        activity.xmppConnectionService.updateMessage(messageToRetract, false);
+                        activity.xmppConnectionService.deleteMessage(messageToRetract);
+                        activity.xmppConnectionService.deleteMessage(retractionMessage);
+                        activity.onConversationsListItemUpdated();
+                        refresh();
+                        Toast.makeText(activity, R.string.message_retracted, Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton(R.string.no, null).show();
+            return true;
+        } else if (itemId == R.id.moderate_message) {
+            activity.quickEdit("Spam", (reason) -> {
+                activity.xmppConnectionService.moderateMessage(conversation.getAccount(), selectedMessage, reason);
+                return null;
+            }, R.string.moderate_reason, false, false, true, true);
+            return true;
+        } else if (itemId == R.id.pin_message_to_top) {
+            // store for each conversation
+            pinMessage(selectedMessage);
+            return true;
+        } else if (itemId == R.id.copy_message) {
+            ShareUtil.copyToClipboard(activity, selectedMessage);
+            return true;
+        } else if (itemId == R.id.quote_message) {
+            quoteMessage(selectedMessage);
+            return true;
+        } else if (itemId == R.id.send_again) {
+            resendMessage(selectedMessage, false);
+            return true;
+        } else if (itemId == R.id.send_again_as_p2p) {
+            resendMessage(selectedMessage, true);
+            return true;
+        } else if (itemId == R.id.copy_link) {
+            ShareUtil.copyLinkToClipboard(activity, selectedMessage);
+            return true;
+        } else if (itemId == R.id.copy_url) {
+            ShareUtil.copyUrlToClipboard(activity, selectedMessage);
+            return true;
+        } else if (itemId == R.id.save_as_sticker) {
+            saveAsSticker(selectedMessage);
+            return true;
+        } else if (itemId == R.id.download_file) {
+            startDownloadable(selectedMessage);
+            return true;
+        } else if (itemId == R.id.cancel_transmission) {
+            cancelTransmission(selectedMessage);
+            return true;
+        } else if (itemId == R.id.retry_decryption) {
+            retryDecryption(selectedMessage);
+            return true;
+        } else if (itemId == R.id.block_media) {
+            new MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.block_media)
+                    .setMessage(R.string.block_media_question)
+                    .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                        List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
+                        if (thumbs != null && !thumbs.isEmpty()) {
+                            for (Element thumb : thumbs) {
+                                Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                                if (uri.getScheme().equals("cid")) {
+                                    Cid cid = BobTransfer.cid(uri);
+                                    if (cid == null) continue;
+                                    DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
+                                    activity.xmppConnectionService.blockMedia(f);
+                                    activity.xmppConnectionService.evictPreview(f);
+                                    f.delete();
                                 }
                             }
-                            File f = activity.xmppConnectionService.getFileBackend().getFile(selectedMessage);
-                            activity.xmppConnectionService.blockMedia(f);
-                            activity.xmppConnectionService.getFileBackend().deleteFile(selectedMessage);
-                            activity.xmppConnectionService.evictPreview(f);
-                            activity.xmppConnectionService.updateMessage(selectedMessage, false);
-                            activity.onConversationsListItemUpdated();
-                            refresh();
-                        })
-                        .setNegativeButton(R.string.no, null).show();
-                return true;
-            case R.id.delete_file:
-                deleteFile(selectedMessage);
-                return true;
-            case R.id.save_to_downloads:
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(R.string.action_save_to_downloads)
-                        .setMessage(R.string.save_to_downloads_warning)
-                        .setPositiveButton(R.string.confirm, (dialog, which) -> saveToDownloads(selectedMessage))
-                        .setNegativeButton(R.string.cancel, null)
-                        .show();
-                return true;
-            case R.id.show_error_message:
-                showErrorMessage(selectedMessage);
-                return true;
-            case R.id.open_with:
-                openWith(selectedMessage);
-                return true;
-            case R.id.only_this_thread:
-                conversation.setLockThread(true);
-                backPressedLeaveSingleThread.setEnabled(true);
-                setThread(selectedMessage.getThread());
-                refresh();
-                return true;
-            case R.id.action_report_and_block:
-                reportMessage(selectedMessage);
-                return true;
-            default:
-                return false;
+                        }
+                        File f = activity.xmppConnectionService.getFileBackend().getFile(selectedMessage);
+                        activity.xmppConnectionService.blockMedia(f);
+                        activity.xmppConnectionService.getFileBackend().deleteFile(selectedMessage);
+                        activity.xmppConnectionService.evictPreview(f);
+                        activity.xmppConnectionService.updateMessage(selectedMessage, false);
+                        activity.onConversationsListItemUpdated();
+                        refresh();
+                    })
+                    .setNegativeButton(R.string.no, null).show();
+            return true;
+        } else if (itemId == R.id.delete_file) {
+            deleteFile(selectedMessage);
+            return true;
+        } else if (itemId == R.id.save_to_downloads) {
+            new MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.action_save_to_downloads)
+                    .setMessage(R.string.save_to_downloads_warning)
+                    .setPositiveButton(R.string.confirm, (dialog, which) -> saveToDownloads(selectedMessage))
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+            return true;
+        } else if (itemId == R.id.show_error_message) {
+            showErrorMessage(selectedMessage);
+            return true;
+        } else if (itemId == R.id.open_with) {
+            openWith(selectedMessage);
+            return true;
+        } else if (itemId == R.id.only_this_thread) {
+            conversation.setLockThread(true);
+            backPressedLeaveSingleThread.setEnabled(true);
+            setThread(selectedMessage.getThread());
+            refresh();
+            return true;
+        } else if (itemId == R.id.action_report_and_block) {
+            reportMessage(selectedMessage);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -3269,130 +3268,96 @@ public class ConversationFragment extends XmppFragment
             conversation.startWebxdc(extensions.get(item.getItemId()));
             return true;
         }
-        switch (item.getItemId()) {
-            case R.id.encryption_choice_axolotl:
-            case R.id.encryption_choice_pgp:
-            case R.id.encryption_choice_otr:
-            case R.id.encryption_choice_none:
-                handleEncryptionSelection(item);
-                break;
-            case R.id.attach_choose_picture:
-            //case R.id.attach_take_picture:
-            case R.id.attach_record_video:
-            case R.id.attach_choose_file:
-            //case R.id.attach_record_voice:
-            case R.id.attach_location:
-                handleAttachmentSelection(item);
-                break;
-            case R.id.attach_live_location:
-                showLiveLocationDurationPicker();
-                break;
-            case R.id.attach_webxdc:
-                final Intent intent = new Intent(activity, WebxdcStore.class);
-                startActivityForResult(intent, REQUEST_WEBXDC_STORE);
-                break;
-            case R.id.attach_subject:
-                binding.textinputSubject.setVisibility(binding.textinputSubject.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-                break;
-            case R.id.attach_schedule:
-                scheduleMessage();
-                break;
-            case R.id.action_search:
-                startSearch();
-                break;
-            case R.id.action_archive:
-                activity.xmppConnectionService.archiveConversation(conversation);
-                break;
-            case R.id.action_open_calendar:
-                startActivityForResult(
-                        ConversationCalendarActivity.Companion.createIntent(
-                                activity, conversation.getUuid(), null
-                        ),
-                        REQUEST_PICK_DATE
-                );
-                break;
-            case R.id.action_contact_details:
-                activity.switchToContactDetails(conversation.getContact());
-                break;
-            case R.id.action_muc_details:
-                ConferenceDetailsActivity.open(activity, conversation);
-                break;
-            case R.id.action_muc_participants:
-                Intent intent_user = new Intent(activity, MucUsersActivity.class);
-                intent_user.putExtra("uuid", conversation.getUuid());
-                activity.startActivity(intent_user);
-                break;
-            case R.id.action_invite:
-                startActivityForResult(
-                        ChooseContactActivity.create(activity, conversation),
-                        REQUEST_INVITE_TO_CONVERSATION);
-                break;
-            case R.id.action_clear_history:
-                clearHistoryDialog(conversation);
-                break;
-            case R.id.action_mute:
-                muteConversationDialog(conversation);
-                break;
-            case R.id.action_unmute:
-                unMuteConversation(conversation);
-                break;
-            case R.id.action_set_custom_bg:
-                if (activity.hasStoragePermission(ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND)) {
-                    ChatBackgroundHelper.openBGPicker(this);
+        final int id = item.getItemId();
+        if (id == R.id.encryption_choice_axolotl || id == R.id.encryption_choice_pgp
+                || id == R.id.encryption_choice_otr || id == R.id.encryption_choice_none) {
+            handleEncryptionSelection(item);
+        } else if (id == R.id.attach_choose_picture || id == R.id.attach_record_video
+                || id == R.id.attach_choose_file || id == R.id.attach_location) {
+            handleAttachmentSelection(item);
+        } else if (id == R.id.attach_live_location) {
+            showLiveLocationDurationPicker();
+        } else if (id == R.id.attach_webxdc) {
+            final Intent intent = new Intent(activity, WebxdcStore.class);
+            startActivityForResult(intent, REQUEST_WEBXDC_STORE);
+        } else if (id == R.id.attach_subject) {
+            binding.textinputSubject.setVisibility(binding.textinputSubject.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        } else if (id == R.id.attach_schedule) {
+            scheduleMessage();
+        } else if (id == R.id.action_search) {
+            startSearch();
+        } else if (id == R.id.action_archive) {
+            activity.xmppConnectionService.archiveConversation(conversation);
+        } else if (id == R.id.action_open_calendar) {
+            startActivityForResult(
+                    ConversationCalendarActivity.Companion.createIntent(
+                            activity, conversation.getUuid(), null
+                    ),
+                    REQUEST_PICK_DATE
+            );
+        } else if (id == R.id.action_contact_details) {
+            activity.switchToContactDetails(conversation.getContact());
+        } else if (id == R.id.action_muc_details) {
+            ConferenceDetailsActivity.open(activity, conversation);
+        } else if (id == R.id.action_muc_participants) {
+            Intent intent_user = new Intent(activity, MucUsersActivity.class);
+            intent_user.putExtra("uuid", conversation.getUuid());
+            activity.startActivity(intent_user);
+        } else if (id == R.id.action_invite) {
+            startActivityForResult(
+                    ChooseContactActivity.create(activity, conversation),
+                    REQUEST_INVITE_TO_CONVERSATION);
+        } else if (id == R.id.action_clear_history) {
+            clearHistoryDialog(conversation);
+        } else if (id == R.id.action_mute) {
+            muteConversationDialog(conversation);
+        } else if (id == R.id.action_unmute) {
+            unMuteConversation(conversation);
+        } else if (id == R.id.action_set_custom_bg) {
+            if (activity.hasStoragePermission(ChatBackgroundHelper.REQUEST_IMPORT_BACKGROUND)) {
+                ChatBackgroundHelper.openBGPicker(this);
+            }
+        } else if (id == R.id.action_delete_custom_bg) {
+            try {
+                File bgfile =  ChatBackgroundHelper.getBgFile(activity, conversation.getUuid());
+                if (bgfile.exists()) {
+                    bgfile.delete();
+                    Toast.makeText(activity, R.string.delete_background_success,Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(activity, R.string.no_background_set,Toast.LENGTH_LONG).show();
                 }
-                break;
-            case R.id.action_delete_custom_bg:
-                try {
-                    File bgfile =  ChatBackgroundHelper.getBgFile(activity, conversation.getUuid());
-                    if (bgfile.exists()) {
-                        bgfile.delete();
-                        Toast.makeText(activity, R.string.delete_background_success,Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(activity, R.string.no_background_set,Toast.LENGTH_LONG).show();
-                    }
-
-                    refresh();
-                } catch (Exception e) {
-                    Toast.makeText(activity, R.string.delete_background_failed,Toast.LENGTH_LONG).show();
-                    throw new RuntimeException(e);
-                }
-                break;
-            case R.id.action_block:
-            case R.id.action_unblock:
-                BlockContactDialog.show(activity, conversation);
-                break;
-            case R.id.action_audio_call:
-                checkPermissionAndTriggerAudioCall();
-                break;
-            case R.id.action_video_call:
-                checkPermissionAndTriggerVideoCall();
-                break;
-            case R.id.action_ongoing_call:
-                returnToOngoingCall();
-                break;
-            case R.id.action_toggle_pinned:
-                togglePinned();
-                break;
-            case R.id.action_add_shortcut:
-                addShortcut();
-                break;
-            case R.id.action_block_avatar:
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(R.string.block_media)
-                        .setMessage(R.string.block_avatar_question)
-                        .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                            activity.xmppConnectionService.blockMedia(activity.xmppConnectionService.getFileBackend().getAvatarFile(conversation.getContact().getAvatarFilename()));
-                            activity.xmppConnectionService.getFileBackend().getAvatarFile(conversation.getContact().getAvatarFilename()).delete();
-                            activity.avatarService().clear(conversation);
-                            conversation.getContact().setAvatar(null);
-                            activity.xmppConnectionService.updateConversationUi();
-                        })
-                        .setNegativeButton(R.string.no, null).show();
-            case R.id.action_refresh_feature_discovery:
-                refreshFeatureDiscovery();
-                break;
-            default:
-                break;
+                refresh();
+            } catch (Exception e) {
+                Toast.makeText(activity, R.string.delete_background_failed,Toast.LENGTH_LONG).show();
+                throw new RuntimeException(e);
+            }
+        } else if (id == R.id.action_block || id == R.id.action_unblock) {
+            BlockContactDialog.show(activity, conversation);
+        } else if (id == R.id.action_audio_call) {
+            checkPermissionAndTriggerAudioCall();
+        } else if (id == R.id.action_video_call) {
+            checkPermissionAndTriggerVideoCall();
+        } else if (id == R.id.action_ongoing_call) {
+            returnToOngoingCall();
+        } else if (id == R.id.action_toggle_pinned) {
+            togglePinned();
+        } else if (id == R.id.action_add_shortcut) {
+            addShortcut();
+        } else if (id == R.id.action_block_avatar) {
+            new MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.block_media)
+                    .setMessage(R.string.block_avatar_question)
+                    .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                        activity.xmppConnectionService.blockMedia(activity.xmppConnectionService.getFileBackend().getAvatarFile(conversation.getContact().getAvatarFilename()));
+                        activity.xmppConnectionService.getFileBackend().getAvatarFile(conversation.getContact().getAvatarFilename()).delete();
+                        activity.avatarService().clear(conversation);
+                        conversation.getContact().setAvatar(null);
+                        activity.xmppConnectionService.updateConversationUi();
+                    })
+                    .setNegativeButton(R.string.no, null).show();
+            refreshFeatureDiscovery();
+        } else if (id == R.id.action_refresh_feature_discovery) {
+            refreshFeatureDiscovery();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -3673,31 +3638,15 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void handleAttachmentSelection(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.attach_choose_picture:
-                attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
-                break;
-                /*
-            case R.id.attach_take_picture:
-                attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
-                break;
-
-                 */
-            case R.id.attach_record_video:
-                attachFile(ATTACHMENT_CHOICE_RECORD_VIDEO);
-                break;
-            case R.id.attach_choose_file:
-                attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
-                break;
-                /*
-            case R.id.attach_record_voice:
-                attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
-                break;
-
-                 */
-            case R.id.attach_location:
-                attachFile(ATTACHMENT_CHOICE_LOCATION);
-                break;
+        final int id = item.getItemId();
+        if (id == R.id.attach_choose_picture) {
+            attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
+        } else if (id == R.id.attach_record_video) {
+            attachFile(ATTACHMENT_CHOICE_RECORD_VIDEO);
+        } else if (id == R.id.attach_choose_file) {
+            attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
+        } else if (id == R.id.attach_location) {
+            attachFile(ATTACHMENT_CHOICE_LOCATION);
         }
     }
 
@@ -3706,45 +3655,40 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         final boolean updated;
-        switch (item.getItemId()) {
-            case R.id.encryption_choice_none:
-                updated = conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                item.setChecked(true);
-                break;
-            case R.id.encryption_choice_pgp:
-                if (activity.hasPgp()) {
-                    if (conversation.getAccount().getPgpSignature() != null) {
-                        updated = conversation.setNextEncryption(Message.ENCRYPTION_PGP);
-                        item.setChecked(true);
-                    } else {
-                        updated = false;
-                        activity.announcePgp(
-                                conversation.getAccount(),
-                                conversation,
-                                null,
-                                activity.onOpenPGPKeyPublished);
-                    }
+        final int id = item.getItemId();
+        if (id == R.id.encryption_choice_none) {
+            updated = conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+            item.setChecked(true);
+        } else if (id == R.id.encryption_choice_pgp) {
+            if (activity.hasPgp()) {
+                if (conversation.getAccount().getPgpSignature() != null) {
+                    updated = conversation.setNextEncryption(Message.ENCRYPTION_PGP);
+                    item.setChecked(true);
                 } else {
-                    activity.showInstallPgpDialog();
                     updated = false;
+                    activity.announcePgp(
+                            conversation.getAccount(),
+                            conversation,
+                            null,
+                            activity.onOpenPGPKeyPublished);
                 }
-                break;
-            case R.id.encryption_choice_axolotl:
-                Log.d(
-                        Config.LOGTAG,
-                        AxolotlService.getLogprefix(conversation.getAccount())
-                                + "Enabled axolotl for Contact "
-                                + conversation.getContact().getJid());
-                updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
-                item.setChecked(true);
-                break;
-            case R.id.encryption_choice_otr:
-                updated = conversation.setNextEncryption(Message.ENCRYPTION_OTR);
-                item.setChecked(true);
-                break;
-            default:
-                updated = conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                break;
+            } else {
+                activity.showInstallPgpDialog();
+                updated = false;
+            }
+        } else if (id == R.id.encryption_choice_axolotl) {
+            Log.d(
+                    Config.LOGTAG,
+                    AxolotlService.getLogprefix(conversation.getAccount())
+                            + "Enabled axolotl for Contact "
+                            + conversation.getContact().getJid());
+            updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
+            item.setChecked(true);
+        } else if (id == R.id.encryption_choice_otr) {
+            updated = conversation.setNextEncryption(Message.ENCRYPTION_OTR);
+            item.setChecked(true);
+        } else {
+            updated = conversation.setNextEncryption(Message.ENCRYPTION_NONE);
         }
         if (updated) {
             activity.xmppConnectionService.updateConversation(conversation);
@@ -5008,24 +4952,23 @@ public class ConversationFragment extends XmppFragment
         popupMenu.setOnMenuItemClickListener(
                 menuItem -> {
                     Blockable blockable;
-                    switch (menuItem.getItemId()) {
-                        case R.id.reject:
-                            activity.xmppConnectionService.stopPresenceUpdatesTo(
-                                    conversation.getContact());
-                            updateSnackBar(conversation);
-                            return true;
-                        case R.id.add_contact:
-                            mAddBackClickListener.onClick(view);
-                            return true;
-                        case R.id.block_domain:
-                            blockable =
-                                    conversation
-                                            .getAccount()
-                                            .getRoster()
-                                            .getContact(jid.getDomain());
-                            break;
-                        default:
-                            blockable = conversation;
+                    final int menuId = menuItem.getItemId();
+                    if (menuId == R.id.reject) {
+                        activity.xmppConnectionService.stopPresenceUpdatesTo(
+                                conversation.getContact());
+                        updateSnackBar(conversation);
+                        return true;
+                    } else if (menuId == R.id.add_contact) {
+                        mAddBackClickListener.onClick(view);
+                        return true;
+                    } else if (menuId == R.id.block_domain) {
+                        blockable =
+                                conversation
+                                        .getAccount()
+                                        .getRoster()
+                                        .getContact(jid.getDomain());
+                    } else {
+                        blockable = conversation;
                     }
                     BlockContactDialog.show(activity, blockable);
                     return true;
@@ -5042,24 +4985,23 @@ public class ConversationFragment extends XmppFragment
         popupMenu.setOnMenuItemClickListener(
                 menuItem -> {
                     Blockable blockable;
-                    switch (menuItem.getItemId()) {
-                        case R.id.reject:
-                            activity.xmppConnectionService.clearConversationHistory(conversation);
-                            activity.xmppConnectionService.archiveConversation(conversation);
-                            return true;
-                        case R.id.add_bookmark:
-                            activity.xmppConnectionService.saveConversationAsBookmark(conversation, "");
-                            updateSnackBar(conversation);
-                            return true;
-                        case R.id.block_contact:
-                            blockable =
-                                    conversation
-                                            .getAccount()
-                                            .getRoster()
-                                            .getContact(Jid.of(conversation.getAttribute("inviter")));
-                            break;
-                        default:
-                            blockable = conversation;
+                    final int menuId = menuItem.getItemId();
+                    if (menuId == R.id.reject) {
+                        activity.xmppConnectionService.clearConversationHistory(conversation);
+                        activity.xmppConnectionService.archiveConversation(conversation);
+                        return true;
+                    } else if (menuId == R.id.add_bookmark) {
+                        activity.xmppConnectionService.saveConversationAsBookmark(conversation, "");
+                        updateSnackBar(conversation);
+                        return true;
+                    } else if (menuId == R.id.block_contact) {
+                        blockable =
+                                conversation
+                                        .getAccount()
+                                        .getRoster()
+                                        .getContact(Jid.of(conversation.getAttribute("inviter")));
+                    } else {
+                        blockable = conversation;
                     }
                     BlockContactDialog.show(activity, blockable);
                     activity.xmppConnectionService.archiveConversation(conversation);
@@ -6115,19 +6057,17 @@ public class ConversationFragment extends XmppFragment
                 popupMenu.inflate(R.menu.one_on_one_context);
                 popupMenu.setOnMenuItemClickListener(
                         item -> {
-                            switch (item.getItemId()) {
-                                case R.id.action_contact_details:
-                                    activity.switchToContactDetails(
-                                            message.getContact(), fingerprint);
-                                    break;
-                                case R.id.action_show_qr_code:
-                                    activity.showQrCode(
-                                            "xmpp:"
-                                                    + message.getContact()
-                                                    .getJid()
-                                                    .asBareJid()
-                                                    .toString());
-                                    break;
+                            final int menuId = item.getItemId();
+                            if (menuId == R.id.action_contact_details) {
+                                activity.switchToContactDetails(
+                                        message.getContact(), fingerprint);
+                            } else if (menuId == R.id.action_show_qr_code) {
+                                activity.showQrCode(
+                                        "xmpp:"
+                                                + message.getContact()
+                                                .getJid()
+                                                .asBareJid()
+                                                .toString());
                             }
                             return true;
                         });
@@ -6144,17 +6084,14 @@ public class ConversationFragment extends XmppFragment
                             Log.e(Config.LOGTAG, "Unable to perform action. no context provided");
                             return true;
                         }
-                        switch (item.getItemId()) {
-                            case R.id.action_show_qr_code:
-                                activity.showQrCode(conversation.getAccount().getShareableUri());
-                                break;
-                            case R.id.action_account_details:
-                                activity.switchToAccount(
-                                        message.getConversation().getAccount(), fingerprint);
-                                break;
-                            case R.id.action_manage_accounts:
-                                AccountUtils.launchManageAccounts(activity);
-                                break;
+                        final int menuId = item.getItemId();
+                        if (menuId == R.id.action_show_qr_code) {
+                            activity.showQrCode(conversation.getAccount().getShareableUri());
+                        } else if (menuId == R.id.action_account_details) {
+                            activity.switchToAccount(
+                                    message.getConversation().getAccount(), fingerprint);
+                        } else if (menuId == R.id.action_manage_accounts) {
+                            AccountUtils.launchManageAccounts(activity);
                         }
                         return true;
                     });

@@ -459,20 +459,16 @@ public class ContactDetailsActivity extends OmemoActivity
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (menuItem.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.action_share_http:
-                shareLink(true);
-                break;
-            case R.id.action_share_uri:
-                shareLink(false);
-                break;
-            case R.id.action_save:
-                saveEdits();
-                break;
-            case R.id.action_edit_contact:
+        final int menuId = menuItem.getItemId();
+        if (menuId == android.R.id.home) {
+            finish();
+        } else if (menuId == R.id.action_share_http) {
+            shareLink(true);
+        } else if (menuId == R.id.action_share_uri) {
+            shareLink(false);
+        } else if (menuId == R.id.action_save) {
+            saveEdits();
+        } else if (menuId == R.id.action_edit_contact) {
                 Uri systemAccount = contact.getSystemAccount();
                 if (systemAccount == null) {
                     menuItem.expandActionView();
@@ -584,13 +580,10 @@ public class ContactDetailsActivity extends OmemoActivity
                     });
                     EditConactbuilder.create().show();
                 }
-                break;
-            case R.id.action_block, R.id.action_unblock:
-                BlockContactDialog.show(this, contact);
-                break;
-            case R.id.action_custom_notifications:
-                configureCustomNotifications(contact);
-                break;
+        } else if (menuId == R.id.action_block || menuId == R.id.action_unblock) {
+            BlockContactDialog.show(this, contact);
+        } else if (menuId == R.id.action_custom_notifications) {
+            configureCustomNotifications(contact);
         }
         return super.onOptionsItemSelected(menuItem);
     }

@@ -80,27 +80,27 @@ public class StoriesActivity extends XmppActivity implements XmppConnectionServi
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.chats:
-                    startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                case R.id.feeds:
-                    Intent i = new Intent(getApplicationContext(), PostsActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                case R.id.stories:
-                    return true;
-                case R.id.calls:
-                    Intent callsIntent = new Intent(getApplicationContext(), CallsActivity.class);
-                    callsIntent.putExtra("show_nav_bar", true);
-                    startActivity(callsIntent);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + item.getItemId());
+            final int navId = item.getItemId();
+            if (navId == R.id.chats) {
+                startActivity(new Intent(getApplicationContext(), ConversationsActivity.class));
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            } else if (navId == R.id.feeds) {
+                Intent i = new Intent(getApplicationContext(), PostsActivity.class);
+                i.putExtra("show_nav_bar", true);
+                startActivity(i);
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            } else if (navId == R.id.stories) {
+                return true;
+            } else if (navId == R.id.calls) {
+                Intent callsIntent = new Intent(getApplicationContext(), CallsActivity.class);
+                callsIntent.putExtra("show_nav_bar", true);
+                startActivity(callsIntent);
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            } else {
+                throw new IllegalStateException("Unexpected value: " + item.getItemId());
             }
         });
     }

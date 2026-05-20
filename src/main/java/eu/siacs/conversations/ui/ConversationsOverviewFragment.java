@@ -536,34 +536,34 @@ public class ConversationsOverviewFragment extends XmppFragment {
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                startActivity(new Intent(getActivity(), SearchActivity.class));
-                return true;
-            case R.id.action_easy_invite:
-                selectAccountToStartEasyInvite();
-                return true;
-            case R.id.action_note_to_self:
-                final List<Account> accounts = activity.xmppConnectionService.getAccounts();
-                if (accounts.size() == 1) {
-                    final Contact self = new Contact(accounts.get(0).getSelfContact());
-                    Conversation conversation = activity.xmppConnectionService.findOrCreateConversation(self.getAccount(), self.getJid(), false, false, null, true, null);
-                    SoftKeyboardUtils.hideSoftKeyboard(activity);
-                    activity.switchToConversation(conversation);
-                }
-                return true;
-            case R.id.action_feeds:
-                startActivity(new Intent(getActivity(), PostsActivity.class));
-                return true;
-            case R.id.action_stories:
-                startActivity(new Intent(getActivity(), StoriesActivity.class));
-                return true;
-            case R.id.action_calls:
-                startActivity(new Intent(getActivity(), CallsActivity.class));
-                return true;
-            case R.id.action_media_gallery:
-                startActivity(new Intent(getActivity(), MediaBrowserActivity.class));
-                return true;
+        final int id = item.getItemId();
+        if (id == R.id.action_search) {
+            startActivity(new Intent(getActivity(), SearchActivity.class));
+            return true;
+        } else if (id == R.id.action_easy_invite) {
+            selectAccountToStartEasyInvite();
+            return true;
+        } else if (id == R.id.action_note_to_self) {
+            final List<Account> accounts = activity.xmppConnectionService.getAccounts();
+            if (accounts.size() == 1) {
+                final Contact self = new Contact(accounts.get(0).getSelfContact());
+                Conversation conversation = activity.xmppConnectionService.findOrCreateConversation(self.getAccount(), self.getJid(), false, false, null, true, null);
+                SoftKeyboardUtils.hideSoftKeyboard(activity);
+                activity.switchToConversation(conversation);
+            }
+            return true;
+        } else if (id == R.id.action_feeds) {
+            startActivity(new Intent(getActivity(), PostsActivity.class));
+            return true;
+        } else if (id == R.id.action_stories) {
+            startActivity(new Intent(getActivity(), StoriesActivity.class));
+            return true;
+        } else if (id == R.id.action_calls) {
+            startActivity(new Intent(getActivity(), CallsActivity.class));
+            return true;
+        } else if (id == R.id.action_media_gallery) {
+            startActivity(new Intent(getActivity(), MediaBrowserActivity.class));
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -664,13 +664,11 @@ public class ConversationsOverviewFragment extends XmppFragment {
                     PopupMenu popupMenu = new PopupMenu(getActivity(), v);
                     popupMenu.inflate(R.menu.mam_pref_fix);
                     popupMenu.setOnMenuItemClickListener(menuItem -> {
-                        switch (menuItem.getItemId()) {
-                            case R.id.ignore:
-                                final var editor = activity.getPreferences().edit();
-                                editor.putBoolean("no_mam_pref_warn:" + account.getUuid(), true).apply();
-                                editor.apply();
-                                refresh();
-                                return true;
+                        if (menuItem.getItemId() == R.id.ignore) {
+                            final var editor = activity.getPreferences().edit();
+                            editor.putBoolean("no_mam_pref_warn:" + account.getUuid(), true).apply();
+                            editor.apply();
+                            refresh();
                         }
                         return true;
                     });

@@ -211,52 +211,52 @@ public final class MucDetailsContextMenuHelper {
         final Conversation conversation = user.getConversation();
         final XmppConnectionService.OnAffiliationChanged onAffiliationChanged = activity instanceof XmppConnectionService.OnAffiliationChanged ? (XmppConnectionService.OnAffiliationChanged) activity : null;
         Jid jid = user.getRealJid();
-        switch (item.getItemId()) {
-            case R.id.action_show_avatar:
-                activity.ShowAvatarPopup(user);
-                return true;
-            case R.id.action_contact_details:
-                final Jid realJid = user.getRealJid();
-                final Account account = conversation.getAccount();
-                final Contact contact = realJid == null ? null : account.getRoster().getContact(realJid);
-                if (contact != null) {
-                    activity.switchToContactDetails(contact, fingerprint);
-                }
-                return true;
-            case R.id.action_block_avatar:
-                new AlertDialog.Builder(activity)
-                    .setTitle(R.string.block_media)
-                    .setMessage(R.string.block_avatar_question)
-                    .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                        activity.xmppConnectionService.blockMedia(
-                            activity.xmppConnectionService.getFileBackend().getAvatarFile(user.getAvatar())
-                        );
-                        activity.xmppConnectionService.getFileBackend().getAvatarFile(user.getAvatar()).delete();
-                        activity.avatarService().clear(user);
-                        if (user.getContact() != null) activity.avatarService().clear(user.getContact());
-                        user.setAvatar(null);
-                        activity.xmppConnectionService.updateConversationUi();
-                    })
-                    .setNegativeButton(R.string.no, null).show();
-                return true;
-            case R.id.action_mute_participant:
-                if (activity.xmppConnectionService.muteMucUser(user)) {
+        final int menuId = item.getItemId();
+        if (menuId == R.id.action_show_avatar) {
+            activity.ShowAvatarPopup(user);
+            return true;
+        } else if (menuId == R.id.action_contact_details) {
+            final Jid realJid = user.getRealJid();
+            final Account account = conversation.getAccount();
+            final Contact contact = realJid == null ? null : account.getRoster().getContact(realJid);
+            if (contact != null) {
+                activity.switchToContactDetails(contact, fingerprint);
+            }
+            return true;
+        } else if (menuId == R.id.action_block_avatar) {
+            new AlertDialog.Builder(activity)
+                .setTitle(R.string.block_media)
+                .setMessage(R.string.block_avatar_question)
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    activity.xmppConnectionService.blockMedia(
+                        activity.xmppConnectionService.getFileBackend().getAvatarFile(user.getAvatar())
+                    );
+                    activity.xmppConnectionService.getFileBackend().getAvatarFile(user.getAvatar()).delete();
+                    activity.avatarService().clear(user);
+                    if (user.getContact() != null) activity.avatarService().clear(user.getContact());
+                    user.setAvatar(null);
                     activity.xmppConnectionService.updateConversationUi();
-                } else {
-                    Toast.makeText(activity, "Failed to mute", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.action_unmute_participant:
-                if (activity.xmppConnectionService.unmuteMucUser(user)) {
-                    activity.xmppConnectionService.updateConversationUi();
-                } else {
-                    Toast.makeText(activity, "Failed to unmute", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            case R.id.start_conversation:
-                startConversation(user, activity);
-                return true;
-            case R.id.manage_permissions:
+                })
+                .setNegativeButton(R.string.no, null).show();
+            return true;
+        } else if (menuId == R.id.action_mute_participant) {
+            if (activity.xmppConnectionService.muteMucUser(user)) {
+                activity.xmppConnectionService.updateConversationUi();
+            } else {
+                Toast.makeText(activity, "Failed to mute", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (menuId == R.id.action_unmute_participant) {
+            if (activity.xmppConnectionService.unmuteMucUser(user)) {
+                activity.xmppConnectionService.updateConversationUi();
+            } else {
+                Toast.makeText(activity, "Failed to unmute", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (menuId == R.id.start_conversation) {
+            startConversation(user, activity);
+            return true;
+        } else if (menuId == R.id.manage_permissions) {
                 Pair<CharSequence[], Integer[]> choices = getPermissionsChoices(activity, conversation, user);
                 int[] selected = new int[] { -1 };
                 new AlertDialog.Builder(activity)
@@ -290,41 +290,41 @@ public final class MucDetailsContextMenuHelper {
                         }
                     })
                     .setNeutralButton(R.string.cancel, null).show();
-                return true;
-            case R.id.remove_from_room:
-                removeFromRoom(user, activity, onAffiliationChanged);
-                return true;
-            case R.id.send_private_message:
-                if (activity instanceof ConversationsActivity) {
-                    ConversationFragment conversationFragment = ConversationFragment.get(activity);
-                    if (conversationFragment != null) {
-                        conversationFragment.privateMessageWith(user.getFullJid());
-                        return true;
-                    }
+            return true;
+        } else if (menuId == R.id.remove_from_room) {
+            removeFromRoom(user, activity, onAffiliationChanged);
+            return true;
+        } else if (menuId == R.id.send_private_message) {
+            if (activity instanceof ConversationsActivity) {
+                ConversationFragment conversationFragment = ConversationFragment.get(activity);
+                if (conversationFragment != null) {
+                    conversationFragment.privateMessageWith(user.getFullJid());
+                    return true;
                 }
-                activity.privateMsgInMuc(conversation, user.getName());
-                return true;
-            case R.id.share_contact_details:
-                final var message = new Message(conversation, "/me invites you to chat " + conversation.getAccount().getShareableUri(), conversation.getNextEncryption());
-                Message.configurePrivateMessage(message, user.getFullJid());
-                /* This triggers a gajim bug right now https://dev.gajim.org/gajim/gajim/-/issues/11900
-                final var rosterx = new Element("x", "http://jabber.org/protocol/rosterx");
-                final var ritem = rosterx.addChild("item");
-                ritem.setAttribute("action", "add");
-                ritem.setAttribute("name", conversation.getMucOptions().getSelf().getNick());
-                ritem.setAttribute("jid", conversation.getAccount().getJid().asBareJid().toString());
-                message.addPayload(rosterx);*/
-                activity.xmppConnectionService.sendMessage(message);
-                return true;
-            case R.id.invite:
-                if (user.getAffiliation().ranks(MucOptions.Affiliation.MEMBER)) {
-                    activity.xmppConnectionService.directInvite(conversation, jid.asBareJid());
-                } else {
-                    activity.xmppConnectionService.invite(conversation, jid);
-                }
-                return true;
-            default:
-                return false;
+            }
+            activity.privateMsgInMuc(conversation, user.getName());
+            return true;
+        } else if (menuId == R.id.share_contact_details) {
+            final var message = new Message(conversation, "/me invites you to chat " + conversation.getAccount().getShareableUri(), conversation.getNextEncryption());
+            Message.configurePrivateMessage(message, user.getFullJid());
+            /* This triggers a gajim bug right now https://dev.gajim.org/gajim/gajim/-/issues/11900
+            final var rosterx = new Element("x", "http://jabber.org/protocol/rosterx");
+            final var ritem = rosterx.addChild("item");
+            ritem.setAttribute("action", "add");
+            ritem.setAttribute("name", conversation.getMucOptions().getSelf().getNick());
+            ritem.setAttribute("jid", conversation.getAccount().getJid().asBareJid().toString());
+            message.addPayload(rosterx);*/
+            activity.xmppConnectionService.sendMessage(message);
+            return true;
+        } else if (menuId == R.id.invite) {
+            if (user.getAffiliation().ranks(MucOptions.Affiliation.MEMBER)) {
+                activity.xmppConnectionService.directInvite(conversation, jid.asBareJid());
+            } else {
+                activity.xmppConnectionService.invite(conversation, jid);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 

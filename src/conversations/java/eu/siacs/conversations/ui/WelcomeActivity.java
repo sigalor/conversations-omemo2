@@ -153,18 +153,15 @@ public class WelcomeActivity extends XmppActivity
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_import_backup:
-                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
-                    startActivity(new Intent(this, ImportBackupActivity.class));
-                }
-                break;
-            case R.id.action_scan_qr_code:
-                UriHandlerActivity.scan(this, true);
-                break;
-            case R.id.action_add_account_with_cert:
-                addAccountFromKey();
-                break;
+        final int id = item.getItemId();
+        if (id == R.id.action_import_backup) {
+            if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
+                startActivity(new Intent(this, ImportBackupActivity.class));
+            }
+        } else if (id == R.id.action_scan_qr_code) {
+            UriHandlerActivity.scan(this, true);
+        } else if (id == R.id.action_add_account_with_cert) {
+            addAccountFromKey();
         }
         return super.onOptionsItemSelected(item);
     }

@@ -177,24 +177,24 @@ public class ManageAccountActivity extends XmppActivity
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.mgmt_account_publish_avatar:
-                publishAvatar(selectedAccount);
-                return true;
-            case R.id.mgmt_account_disable:
-                disableAccount(selectedAccount);
-                return true;
-            case R.id.mgmt_account_enable:
-                enableAccount(selectedAccount);
-                return true;
-            case R.id.mgmt_account_delete:
-                deleteAccount(selectedAccount);
-                return true;
-            case R.id.mgmt_account_announce_pgp:
-                publishOpenPGPPublicKey(selectedAccount);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        final int ctxId = item.getItemId();
+        if (ctxId == R.id.mgmt_account_publish_avatar) {
+            publishAvatar(selectedAccount);
+            return true;
+        } else if (ctxId == R.id.mgmt_account_disable) {
+            disableAccount(selectedAccount);
+            return true;
+        } else if (ctxId == R.id.mgmt_account_enable) {
+            enableAccount(selectedAccount);
+            return true;
+        } else if (ctxId == R.id.mgmt_account_delete) {
+            deleteAccount(selectedAccount);
+            return true;
+        } else if (ctxId == R.id.mgmt_account_announce_pgp) {
+            publishOpenPGPPublicKey(selectedAccount);
+            return true;
+        } else {
+            return super.onContextItemSelected(item);
         }
     }
 
@@ -209,26 +209,19 @@ public class ManageAccountActivity extends XmppActivity
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (item.getItemId()) {
-            case R.id.action_add_account:
-                startActivity(new Intent(this, EditAccountActivity.class));
-                break;
-            case R.id.action_import_backup:
-                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
-                    startActivity(new Intent(this, ImportBackupActivity.class));
-                }
-                break;
-            case R.id.action_disable_all:
-                disableAllAccounts();
-                break;
-            case R.id.action_enable_all:
-                enableAllAccounts();
-                break;
-            case R.id.action_add_account_with_cert:
-                addAccountFromKey();
-                break;
-            default:
-                break;
+        final int id = item.getItemId();
+        if (id == R.id.action_add_account) {
+            startActivity(new Intent(this, EditAccountActivity.class));
+        } else if (id == R.id.action_import_backup) {
+            if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
+                startActivity(new Intent(this, ImportBackupActivity.class));
+            }
+        } else if (id == R.id.action_disable_all) {
+            disableAllAccounts();
+        } else if (id == R.id.action_enable_all) {
+            enableAllAccounts();
+        } else if (id == R.id.action_add_account_with_cert) {
+            addAccountFromKey();
         }
         return super.onOptionsItemSelected(item);
     }

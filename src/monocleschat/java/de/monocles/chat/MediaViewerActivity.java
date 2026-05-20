@@ -669,26 +669,22 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         );
 
         binding.speedDial.setOnActionSelectedListener(actionItem -> {
-            switch (actionItem.getId()) {
-                case R.id.action_share:
-                    share();
-                    break;
-                case R.id.action_open:
-                    open();
-                    break;
-                case R.id.action_save:
-                    new MaterialAlertDialogBuilder(MediaViewerActivity.this)
-                            .setTitle(R.string.action_save_to_downloads)
-                            .setMessage(R.string.save_to_downloads_warning)
-                            .setPositiveButton(R.string.confirm, (dialog, which) -> saveToDownloads(mFile))
-                            .setNegativeButton(R.string.cancel, null)
-                            .show();
-                    break;
-                case R.id.action_delete:
-                    deleteFile();
-                    break;
-                default:
-                    return false;
+            final int actionId = actionItem.getId();
+            if (actionId == R.id.action_share) {
+                share();
+            } else if (actionId == R.id.action_open) {
+                open();
+            } else if (actionId == R.id.action_save) {
+                new MaterialAlertDialogBuilder(MediaViewerActivity.this)
+                        .setTitle(R.string.action_save_to_downloads)
+                        .setMessage(R.string.save_to_downloads_warning)
+                        .setPositiveButton(R.string.confirm, (dialog, which) -> saveToDownloads(mFile))
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
+            } else if (actionId == R.id.action_delete) {
+                deleteFile();
+            } else {
+                return false;
             }
             return false;
         });

@@ -185,40 +185,34 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	public boolean onContextItemSelected(MenuItem item) {
 		final Message message = selectedMessageReference.get();
 		if (message != null) {
-			switch (item.getItemId()) {
-				case R.id.open_conversation:
-					final Element thread = message.getThread();
-					switchToConversationOnMessage(wrap(message.getConversation()), thread == null ? null : thread.getContent(), message.getUuid());
-					break;
-				case R.id.share_with:
-					ShareUtil.share(this, message);
-					break;
-				case R.id.copy_message:
-					ShareUtil.copyToClipboard(this, message);
-					break;
-				case R.id.save_to_downloads:
-					xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<>() {
-						@Override
-						public void success(Integer object) {
-							runOnUiThread(() -> Toast.makeText(SearchActivity.this, R.string.save_to_downloads_success, Toast.LENGTH_LONG).show());
-						}
+			final int menuId = item.getItemId();
+			if (menuId == R.id.open_conversation) {
+				final Element thread = message.getThread();
+				switchToConversationOnMessage(wrap(message.getConversation()), thread == null ? null : thread.getContent(), message.getUuid());
+			} else if (menuId == R.id.share_with) {
+				ShareUtil.share(this, message);
+			} else if (menuId == R.id.copy_message) {
+				ShareUtil.copyToClipboard(this, message);
+			} else if (menuId == R.id.save_to_downloads) {
+				xmppConnectionService.copyAttachmentToDownloadsFolder(message, new UiCallback<>() {
+					@Override
+					public void success(Integer object) {
+						runOnUiThread(() -> Toast.makeText(SearchActivity.this, R.string.save_to_downloads_success, Toast.LENGTH_LONG).show());
+					}
 
-						@Override
-						public void error(int errorCode, Integer object) {
-							runOnUiThread(() -> Toast.makeText(SearchActivity.this, object, Toast.LENGTH_LONG).show());
-						}
+					@Override
+					public void error(int errorCode, Integer object) {
+						runOnUiThread(() -> Toast.makeText(SearchActivity.this, object, Toast.LENGTH_LONG).show());
+					}
 
-						@Override
-						public void userInputRequired(PendingIntent pi, Integer object) {
-						}
-					});
-					break;
-				case R.id.copy_url:
-					ShareUtil.copyUrlToClipboard(this, message);
-					break;
-				case R.id.quote_message:
-					quote(message);
-					break;
+					@Override
+					public void userInputRequired(PendingIntent pi, Integer object) {
+					}
+				});
+			} else if (menuId == R.id.copy_url) {
+				ShareUtil.copyUrlToClipboard(this, message);
+			} else if (menuId == R.id.quote_message) {
+				quote(message);
 			}
 		}
 		return super.onContextItemSelected(item);

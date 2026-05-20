@@ -98,25 +98,24 @@ public class SignUpPage extends RegisterMonoclesActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.login_in_now:
-                final List<Account> accounts = xmppConnectionService.getAccounts();
-                Intent intent = new Intent(this, EditAccountActivity.class);
-                if (accounts.size() == 1) {
-                    intent.putExtra("jid", accounts.get(0).getJid().asBareJid().toString());
-                    intent.putExtra("init", true);
-                } else if (accounts.size() >= 1) {
-                    intent = new Intent(this, ManageAccountActivity.class);
-                }
-                intent.putExtra("existing", true);
-                //addInviteUri(intent);
-                startActivity(intent);
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                finish();
-                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.login_in_now) {
+            final List<Account> accounts = xmppConnectionService.getAccounts();
+            Intent intent = new Intent(this, EditAccountActivity.class);
+            if (accounts.size() == 1) {
+                intent.putExtra("jid", accounts.get(0).getJid().asBareJid().toString());
+                intent.putExtra("init", true);
+            } else if (accounts.size() >= 1) {
+                intent = new Intent(this, ManageAccountActivity.class);
+            }
+            intent.putExtra("existing", true);
+            //addInviteUri(intent);
+            startActivity(intent);
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            finish();
+            overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 

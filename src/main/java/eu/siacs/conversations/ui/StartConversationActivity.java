@@ -410,24 +410,20 @@ public class StartConversationActivity extends XmppActivity
                     } else {
                         prefilled = null;
                     }
-                    switch (actionItem.getId()) {
-                        case R.id.discover_public_channels:
-                            if (QuickConversationsService.isPlayStoreFlavor()) {
-                                throw new IllegalStateException(
-                                        "Channel discovery is not available on Google Play flavor");
-                            } else {
-                                startActivity(new Intent(this, ChannelDiscoveryActivity.class));
-                            }
-                            break;
-                        case R.id.create_private_group_chat:
-                            showCreatePrivateGroupChatDialog();
-                            break;
-                        case R.id.create_public_channel:
-                            showPublicChannelDialog();
-                            break;
-                        case R.id.create_contact:
-                            showCreateContactDialog(prefilled, null);
-                            break;
+                    final int actionId1 = actionItem.getId();
+                    if (actionId1 == R.id.discover_public_channels) {
+                        if (QuickConversationsService.isPlayStoreFlavor()) {
+                            throw new IllegalStateException(
+                                    "Channel discovery is not available on Google Play flavor");
+                        } else {
+                            startActivity(new Intent(this, ChannelDiscoveryActivity.class));
+                        }
+                    } else if (actionId1 == R.id.create_private_group_chat) {
+                        showCreatePrivateGroupChatDialog();
+                    } else if (actionId1 == R.id.create_public_channel) {
+                        showPublicChannelDialog();
+                    } else if (actionId1 == R.id.create_contact) {
+                        showCreateContactDialog(prefilled, null);
                     }
                     return false;
                 });
@@ -442,23 +438,19 @@ public class StartConversationActivity extends XmppActivity
             } else {
                 prefilled = null;
             }
-            switch (actionItem.getId()) {
-                case R.id.discover_public_channels:
-                    if (QuickConversationsService.isPlayStoreFlavor()) {
-                        throw new IllegalStateException("Channel discovery is not available on Google Play flavor");
-                    } else {
-                        startActivity(new Intent(this, ChannelDiscoveryActivity.class));
-                    }
-                    break;
-                case R.id.create_private_group_chat:
-                    showCreatePrivateGroupChatDialog();
-                    break;
-                case R.id.create_public_channel:
-                    showPublicChannelDialog();
-                    break;
-                case R.id.create_contact:
-                    showCreateContactDialog(prefilled, null);
-                    break;
+            final int actionId2 = actionItem.getId();
+            if (actionId2 == R.id.discover_public_channels) {
+                if (QuickConversationsService.isPlayStoreFlavor()) {
+                    throw new IllegalStateException("Channel discovery is not available on Google Play flavor");
+                } else {
+                    startActivity(new Intent(this, ChannelDiscoveryActivity.class));
+                }
+            } else if (actionId2 == R.id.create_private_group_chat) {
+                showCreatePrivateGroupChatDialog();
+            } else if (actionId2 == R.id.create_public_channel) {
+                showPublicChannelDialog();
+            } else if (actionId2 == R.id.create_contact) {
+                showCreateContactDialog(prefilled, null);
             }
             return false;
         });
@@ -942,27 +934,27 @@ public class StartConversationActivity extends XmppActivity
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                navigateBack();
-                return true;
-            case R.id.action_scan_qr_code:
-                UriHandlerActivity.scan(this);
-                return true;
-            case R.id.action_hide_offline:
-                mHideOfflineContacts = !item.isChecked();
-                getPreferences().edit().putBoolean("hide_offline", mHideOfflineContacts).apply();
-                if (mSearchEditText != null) {
-                    filter(mSearchEditText.getText().toString());
-                }
-                invalidateOptionsMenu();
-                return true;
-            case R.id.action_note_to_self:
-                final List<Account> accounts = xmppConnectionService.getAccounts();
-                if (accounts.size() == 1) {
-                    final Contact self = new Contact(accounts.get(0).getSelfContact());
-                    openConversationForContact(self);
-                }
+        final int id = item.getItemId();
+        if (id == android.R.id.home) {
+            navigateBack();
+            return true;
+        } else if (id == R.id.action_scan_qr_code) {
+            UriHandlerActivity.scan(this);
+            return true;
+        } else if (id == R.id.action_hide_offline) {
+            mHideOfflineContacts = !item.isChecked();
+            getPreferences().edit().putBoolean("hide_offline", mHideOfflineContacts).apply();
+            if (mSearchEditText != null) {
+                filter(mSearchEditText.getText().toString());
+            }
+            invalidateOptionsMenu();
+            return true;
+        } else if (id == R.id.action_note_to_self) {
+            final List<Account> accounts = xmppConnectionService.getAccounts();
+            if (accounts.size() == 1) {
+                final Contact self = new Contact(accounts.get(0).getSelfContact());
+                openConversationForContact(self);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1184,19 +1176,14 @@ public class StartConversationActivity extends XmppActivity
         configureHomeButton();
 
         final var goTo = intent.getIntExtra(EXTRA_GOTO, 0);
-        switch (goTo) {
-            case R.id.discover_public_channels:
-                startActivity(new Intent(this, ChannelDiscoveryActivity.class));
-                break;
-            case R.id.create_private_group_chat:
-                showCreatePrivateGroupChatDialog();
-                break;
-            case R.id.create_public_channel:
-                showPublicChannelDialog();
-                break;
-            case R.id.create_contact:
-                showCreateContactDialog(null, null);
-                break;
+        if (goTo == R.id.discover_public_channels) {
+            startActivity(new Intent(this, ChannelDiscoveryActivity.class));
+        } else if (goTo == R.id.create_private_group_chat) {
+            showCreatePrivateGroupChatDialog();
+        } else if (goTo == R.id.create_public_channel) {
+            showPublicChannelDialog();
+        } else if (goTo == R.id.create_contact) {
+            showCreateContactDialog(null, null);
         }
 
         /*      // Better Onboarding later
@@ -1704,24 +1691,19 @@ public class StartConversationActivity extends XmppActivity
             if (activity == null) {
                 return true;
             }
-            switch (item.getItemId()) {
-                case R.id.context_contact_details:
-                    activity.openDetailsForContact();
-                    break;
-                case R.id.context_show_qr:
-                    activity.showQrForContact();
-                    break;
-                case R.id.context_contact_block_unblock:
-                    activity.toggleContactBlock();
-                    break;
-                case R.id.context_delete_contact:
-                    activity.deleteContact();
-                    break;
-                case R.id.context_share_uri:
-                    activity.shareBookmarkUri();
-                    break;
-                case R.id.context_delete_conference:
-                    activity.deleteConference();
+            final int menuId = item.getItemId();
+            if (menuId == R.id.context_contact_details) {
+                activity.openDetailsForContact();
+            } else if (menuId == R.id.context_show_qr) {
+                activity.showQrForContact();
+            } else if (menuId == R.id.context_contact_block_unblock) {
+                activity.toggleContactBlock();
+            } else if (menuId == R.id.context_delete_contact) {
+                activity.deleteContact();
+            } else if (menuId == R.id.context_share_uri) {
+                activity.shareBookmarkUri();
+            } else if (menuId == R.id.context_delete_conference) {
+                activity.deleteConference();
             }
             return true;
         }

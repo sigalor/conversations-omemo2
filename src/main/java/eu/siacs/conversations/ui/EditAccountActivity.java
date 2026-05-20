@@ -1100,47 +1100,35 @@ public class EditAccountActivity extends OmemoActivity
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                deleteAccountAndReturnIfNecessary();
-                break;
-            case R.id.action_show_block_list:
-                final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
-                showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
-                startActivity(showBlocklistIntent);
-                break;
-            case R.id.action_server_info_show_more:
-                changeMoreTableVisibility(!item.isChecked());
-                break;
-            case R.id.action_share_barcode:
-                shareBarcode();
-                break;
-            case R.id.action_share_http:
-                shareLink(true);
-                break;
-            case R.id.action_share_uri:
-                shareLink(false);
-                break;
-            case R.id.action_change_password_on_server:
-                gotoChangePassword();
-                break;
-            case R.id.action_delete_account:
-                deleteAccount();
-                break;
-            case R.id.action_mam_prefs:
-                editMamPrefs();
-                break;
-            case R.id.action_renew_certificate:
-                renewCertificate();
-                break;
-            case R.id.action_change_presence:
-                changePresence();
-                break;
-            case R.id.action_import_backup:
-                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
-                    startActivity(new Intent(this, ImportBackupActivity.class));
-                }
-                break;
+        final int id = item.getItemId();
+        if (id == android.R.id.home) {
+            deleteAccountAndReturnIfNecessary();
+        } else if (id == R.id.action_show_block_list) {
+            final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
+            showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
+            startActivity(showBlocklistIntent);
+        } else if (id == R.id.action_server_info_show_more) {
+            changeMoreTableVisibility(!item.isChecked());
+        } else if (id == R.id.action_share_barcode) {
+            shareBarcode();
+        } else if (id == R.id.action_share_http) {
+            shareLink(true);
+        } else if (id == R.id.action_share_uri) {
+            shareLink(false);
+        } else if (id == R.id.action_change_password_on_server) {
+            gotoChangePassword();
+        } else if (id == R.id.action_delete_account) {
+            deleteAccount();
+        } else if (id == R.id.action_mam_prefs) {
+            editMamPrefs();
+        } else if (id == R.id.action_renew_certificate) {
+            renewCertificate();
+        } else if (id == R.id.action_change_presence) {
+            changePresence();
+        } else if (id == R.id.action_import_backup) {
+            if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
+                startActivity(new Intent(this, ImportBackupActivity.class));
+            }
         }
         return super.onOptionsItemSelected(item);
     }

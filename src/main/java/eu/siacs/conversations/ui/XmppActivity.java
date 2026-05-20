@@ -691,27 +691,21 @@ public abstract class XmppActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(
-                        new Intent(
-                                this, eu.siacs.conversations.ui.activity.SettingsActivity.class));
-                break;
-            case R.id.action_privacy_policy:
-                openPrivacyPolicy();
-                break;
-            case R.id.action_accounts:
-                AccountUtils.launchManageAccounts(this);
-                break;
-            case R.id.action_account:
-                AccountUtils.launchManageAccount(this);
-                break;
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.action_show_qr_code:
-                showQrCode();
-                break;
+        final int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            startActivity(
+                    new Intent(
+                            this, eu.siacs.conversations.ui.activity.SettingsActivity.class));
+        } else if (id == R.id.action_privacy_policy) {
+            openPrivacyPolicy();
+        } else if (id == R.id.action_accounts) {
+            AccountUtils.launchManageAccounts(this);
+        } else if (id == R.id.action_account) {
+            AccountUtils.launchManageAccount(this);
+        } else if (id == android.R.id.home) {
+            finish();
+        } else if (id == R.id.action_show_qr_code) {
+            showQrCode();
         }
         return super.onOptionsItemSelected(item);
     }

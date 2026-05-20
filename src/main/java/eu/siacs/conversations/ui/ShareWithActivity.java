@@ -171,13 +171,12 @@ public class ShareWithActivity extends XmppActivity
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_add:
-                final Intent intent =
-                        new Intent(getApplicationContext(), ChooseContactActivity.class);
-                intent.putExtra("direct_search", true);
-                startActivityForResult(intent, REQUEST_START_NEW_CONVERSATION);
-                return true;
+        if (item.getItemId() == R.id.action_add) {
+            final Intent intent =
+                    new Intent(getApplicationContext(), ChooseContactActivity.class);
+            intent.putExtra("direct_search", true);
+            startActivityForResult(intent, REQUEST_START_NEW_CONVERSATION);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -323,23 +323,21 @@ public class ConferenceDetailsActivity extends XmppActivity
             PopupMenu popupMenu = new PopupMenu(this, v);
             popupMenu.inflate(R.menu.conference_photo);
             popupMenu.setOnMenuItemClickListener(menuItem -> {
-                switch (menuItem.getItemId()) {
-                    case R.id.action_show_avatar:
-                        ShowAvatarPopup(mConversation);
-                        return true;
-                    case R.id.action_block_avatar:
-                        new MaterialAlertDialogBuilder(this)
-                                .setTitle(R.string.block_media)
-                                .setMessage(R.string.block_avatar_question)
-                                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                                    xmppConnectionService.blockMedia(xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()));
-                                    xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()).delete();
-                                    avatarService().clear(mConversation);
-                                    mConversation.getContact().setAvatar(null);
-                                    xmppConnectionService.updateConversationUi();
-                                })
-                                .setNegativeButton(R.string.no, null).show();
-                        return true;
+                final int photoMenuId = menuItem.getItemId();
+                if (photoMenuId == R.id.action_show_avatar) {
+                    ShowAvatarPopup(mConversation);
+                } else if (photoMenuId == R.id.action_block_avatar) {
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.block_media)
+                            .setMessage(R.string.block_avatar_question)
+                            .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                                xmppConnectionService.blockMedia(xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()));
+                                xmppConnectionService.getFileBackend().getAvatarFile(mConversation.getContact().getAvatarFilename()).delete();
+                                avatarService().clear(mConversation);
+                                mConversation.getContact().setAvatar(null);
+                                xmppConnectionService.updateConversationUi();
+                            })
+                            .setNegativeButton(R.string.no, null).show();
                 }
                 return true;
             });
@@ -466,32 +464,27 @@ public class ConferenceDetailsActivity extends XmppActivity
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (menuItem.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.action_share_http:
-                shareLink(true);
-                break;
-            case R.id.action_share_uri:
-                shareLink(false);
-                break;
-            case R.id.action_advanced_mode:
-                this.mAdvancedMode = !menuItem.isChecked();
-                menuItem.setChecked(this.mAdvancedMode);
-                getPreferences().edit().putBoolean("advanced_muc_mode", mAdvancedMode).apply();
-                final boolean online =
-                        mConversation != null && mConversation.getMucOptions().online();
-                this.binding.mucInfoMore.setVisibility(
-                        this.mAdvancedMode && online ? View.VISIBLE : View.GONE);
-                invalidateOptionsMenu();
-                updateView();
-                break;
-            case R.id.action_custom_notifications:
-                if (mConversation != null) {
-                    configureCustomNotifications(mConversation);
-                }
-                break;
+        final int id = menuItem.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+        } else if (id == R.id.action_share_http) {
+            shareLink(true);
+        } else if (id == R.id.action_share_uri) {
+            shareLink(false);
+        } else if (id == R.id.action_advanced_mode) {
+            this.mAdvancedMode = !menuItem.isChecked();
+            menuItem.setChecked(this.mAdvancedMode);
+            getPreferences().edit().putBoolean("advanced_muc_mode", mAdvancedMode).apply();
+            final boolean online =
+                    mConversation != null && mConversation.getMucOptions().online();
+            this.binding.mucInfoMore.setVisibility(
+                    this.mAdvancedMode && online ? View.VISIBLE : View.GONE);
+            invalidateOptionsMenu();
+            updateView();
+        } else if (id == R.id.action_custom_notifications) {
+            if (mConversation != null) {
+                configureCustomNotifications(mConversation);
+            }
         }
         return super.onOptionsItemSelected(menuItem);
     }

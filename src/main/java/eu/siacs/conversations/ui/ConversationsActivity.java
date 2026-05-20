@@ -1156,34 +1156,29 @@ public class ConversationsActivity extends XmppActivity
         bottomNavigationView.setBackgroundColor(Color.TRANSPARENT);
         bottomNavigationView.setOnItemSelectedListener(item -> {
 
-            switch (item.getItemId()) {
-                case R.id.chats -> {
-                    return true;
-                }
-                case R.id.feeds -> {
-                    Intent i = new Intent(getApplicationContext(), PostsActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                case R.id.stories -> {
-                    Intent i = new Intent(getApplicationContext(), StoriesActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                case R.id.calls -> {
-                    Intent i = new Intent(getApplicationContext(), CallsActivity.class);
-                    i.putExtra("show_nav_bar", true);
-                    startActivity(i);
-                    overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
-                    return true;
-                }
-                default ->
-                        throw new IllegalStateException("Unexpected value: " + item.getItemId());
+            final int navId = item.getItemId();
+            if (navId == R.id.chats) {
+                return true;
+            } else if (navId == R.id.feeds) {
+                Intent i = new Intent(getApplicationContext(), PostsActivity.class);
+                i.putExtra("show_nav_bar", true);
+                startActivity(i);
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            } else if (navId == R.id.stories) {
+                Intent i = new Intent(getApplicationContext(), StoriesActivity.class);
+                i.putExtra("show_nav_bar", true);
+                startActivity(i);
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            } else if (navId == R.id.calls) {
+                Intent i = new Intent(getApplicationContext(), CallsActivity.class);
+                i.putExtra("show_nav_bar", true);
+                startActivity(i);
+                overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
+                return true;
+            } else {
+                throw new IllegalStateException("Unexpected value: " + item.getItemId());
             }
         });
     }
@@ -1357,62 +1352,60 @@ public class ConversationsActivity extends XmppActivity
         if (MenuDoubleTabUtil.shouldIgnoreTap()) {
             return false;
         }
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                FragmentManager fm = getFragmentManager();
-                if (android.os.Build.VERSION.SDK_INT >= 26) {
-                    Fragment f = fm.getFragments().get(fm.getFragments().size() - 1);
-                    if (f != null && f instanceof ConversationFragment) {
-                        if (((ConversationFragment) f).onBackPressed()) {
-                            return true;
-                        }
+        final int id = item.getItemId();
+        if (id == android.R.id.home) {
+            FragmentManager fm = getFragmentManager();
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                Fragment f = fm.getFragments().get(fm.getFragments().size() - 1);
+                if (f != null && f instanceof ConversationFragment) {
+                    if (((ConversationFragment) f).onBackPressed()) {
+                        return true;
                     }
                 }
-                if (fm.getBackStackEntryCount() > 0) {
-                    try {
-                        fm.popBackStack();
-                    } catch (IllegalStateException e) {
-                        Log.w(Config.LOGTAG, "Unable to pop back stack after pressing home button");
-                    }
-                } else {
-                    if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
-                        if (binding.drawer != null && binding.drawer.getDrawerLayout() != null) {
-                            binding.drawer.getDrawerLayout().openDrawer(binding.drawer);
-                        }
+            }
+            if (fm.getBackStackEntryCount() > 0) {
+                try {
+                    fm.popBackStack();
+                } catch (IllegalStateException e) {
+                    Log.w(Config.LOGTAG, "Unable to pop back stack after pressing home button");
+                }
+            } else {
+                if (getBooleanPreference("show_nav_drawer", R.bool.show_nav_drawer)) {
+                    if (binding.drawer != null && binding.drawer.getDrawerLayout() != null) {
+                        binding.drawer.getDrawerLayout().openDrawer(binding.drawer);
                     }
                 }
-                return true;
-            case R.id.action_scan_qr_code:
-                UriHandlerActivity.scan(this);
-                return true;
-            case R.id.action_search_all_conversations:
-                startActivity(new Intent(this, SearchActivity.class));
-                return true;
-            case R.id.action_search_this_conversation: {
-                final Conversation conversation = ConversationFragment.getConversation(this);
-                if (conversation == null) {
-                    return true;
-                }
-                final Intent intent = new Intent(this, SearchActivity.class);
-                intent.putExtra(SearchActivity.EXTRA_CONVERSATION_UUID, conversation.getUuid());
-                startActivity(intent);
+            }
+            return true;
+        } else if (id == R.id.action_scan_qr_code) {
+            UriHandlerActivity.scan(this);
+            return true;
+        } else if (id == R.id.action_search_all_conversations) {
+            startActivity(new Intent(this, SearchActivity.class));
+            return true;
+        } else if (id == R.id.action_search_this_conversation) {
+            final Conversation conversation = ConversationFragment.getConversation(this);
+            if (conversation == null) {
                 return true;
             }
-            case R.id.action_report_spam: {
-                final var list = new ArrayList<Conversation>();
-                populateWithOrderedConversations(list, true, false);
-                new AlertDialog.Builder(this)
-                    .setTitle(R.string.report_spam)
-                    .setMessage(R.string.block_user_and_spam_question)
-                    .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
-                        for (final var conversation : list) {
-                            final var m = conversation.getLatestMessage();
-                            xmppConnectionService.sendBlockRequest(conversation, true, m == null ? null : m.getServerMsgId());
-                        }
-                    })
-                    .setNegativeButton(R.string.no, null).show();
-                return true;
-            }
+            final Intent intent = new Intent(this, SearchActivity.class);
+            intent.putExtra(SearchActivity.EXTRA_CONVERSATION_UUID, conversation.getUuid());
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_report_spam) {
+            final var list = new ArrayList<Conversation>();
+            populateWithOrderedConversations(list, true, false);
+            new AlertDialog.Builder(this)
+                .setTitle(R.string.report_spam)
+                .setMessage(R.string.block_user_and_spam_question)
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    for (final var conversation : list) {
+                        final var m = conversation.getLatestMessage();
+                        xmppConnectionService.sendBlockRequest(conversation, true, m == null ? null : m.getServerMsgId());
+                    }
+                })
+                .setNegativeButton(R.string.no, null).show();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1749,10 +1742,8 @@ public class ConversationsActivity extends XmppActivity
             intent.putExtra("contact", conversation.getContact().getJid().asBareJid().toString());
             intent.putExtra("counterpart", conversation.getNextCounterpart().toString());
             intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
-            switch (menuItem.getItemId()) {
-                case R.id.ask_question:
-                    intent.putExtra("mode", VerifyOTRActivity.MODE_ASK_QUESTION);
-                    break;
+            if (menuItem.getItemId() == R.id.ask_question) {
+                intent.putExtra("mode", VerifyOTRActivity.MODE_ASK_QUESTION);
             }
             startActivity(intent);
             overridePendingTransition(R.animator.fade_in, R.animator.fade_out);
