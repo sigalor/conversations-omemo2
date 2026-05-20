@@ -1,10 +1,10 @@
 -dontobfuscate
 
--keep class eu.siacs.conversations.**
--keep class im.conversations.**
--keep class de.monocles.chat.**
+-keep class eu.siacs.conversations.** { *; }
+-keep class im.conversations.** { *; }
+-keep class de.monocles.chat.** { *; }
 
--keep class org.whispersystems.**
+-keep class org.whispersystems.** { *; }
 
 -keep class com.kyleduo.switchbutton.Configuration
 
@@ -13,12 +13,17 @@
 -keep class * extends com.google.gson.reflect.TypeToken
 -keep public class * implements java.lang.reflect.Type
 
--keep class com.soundcloud.android.crop.**
+-keep class com.soundcloud.android.crop.** { *; }
 
--keep class com.google.android.gms.**
+-keep class com.google.android.gms.** { *; }
 
 -keep class org.openintents.openpgp.*
 -keep class org.webrtc.** { *; }
+
+
+-keep class net.fellbaum.jemoji.** { *; }
+-keeppackagenames net.fellbaum.jemoji.**
+-keepdirectories jemoji
 
 -dontwarn javax.mail.internet.MimeMessage
 -dontwarn javax.mail.internet.MimeBodyPart
