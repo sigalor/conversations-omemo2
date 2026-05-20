@@ -1,7 +1,6 @@
 package eu.siacs.conversations.ui;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,14 +9,10 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 
-import androidx.annotation.BoolRes;
 import androidx.annotation.NonNull;
 
 import org.osmdroid.api.IGeoPoint;
@@ -35,14 +30,12 @@ import eu.siacs.conversations.BuildConfig;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.http.HttpConnectionManager;
-import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.ui.util.LocationHelper;
 import eu.siacs.conversations.ui.widget.AvatarMarker;
 import eu.siacs.conversations.ui.widget.Marker;
 import eu.siacs.conversations.ui.widget.MyLocation;
-import eu.siacs.conversations.ui.util.SettingsUtils;
 
-public abstract class LocationActivity extends ActionBarActivity implements LocationListener {
+public abstract class LocationActivity extends XmppActivity implements LocationListener {
 	protected LocationManager locationManager;
 	protected boolean hasLocationFeature;
 
@@ -61,11 +54,13 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 
 	protected void clearMarkers() {
 		synchronized (this.map.getOverlays()) {
+			final java.util.List<Overlay> toRemove = new java.util.ArrayList<>();
 			for (final Overlay overlay : this.map.getOverlays()) {
 				if (overlay instanceof Marker || overlay instanceof MyLocation || overlay instanceof AvatarMarker) {
-					this.map.getOverlays().remove(overlay);
+					toRemove.add(overlay);
 				}
 			}
+			this.map.getOverlays().removeAll(toRemove);
 		}
 	}
 
@@ -205,7 +200,7 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 	}
 
 	@Override
-	protected void onPause() {
+	public void onPause() {
 		super.onPause();
 		Configuration.getInstance().save(this, getPreferences());
 		map.onPause();
@@ -222,7 +217,7 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 	}
 
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 		Configuration.getInstance().load(this, getPreferences());
 		map.onResume();
@@ -260,30 +255,27 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 										   @NonNull final String[] permissions,
 										   @NonNull final int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		for (int i = 0; i < grantResults.length; i++) {
-			if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[i]) ||
-					Manifest.permission.ACCESS_COARSE_LOCATION.equals(permissions[i])) {
-				if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+		for (int j = 0; j < grantResults.length; j++) {
+			if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[j]) ||
+					Manifest.permission.ACCESS_COARSE_LOCATION.equals(permissions[j])) {
+				if (grantResults[j] == PackageManager.PERMISSION_GRANTED) {
 					requestLocationUpdates();
 				}
 			}
 		}
 	}
 
-	protected SharedPreferences getPreferences() {
-		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-	}
-
-	protected boolean getBooleanPreference(String name, @BoolRes int res) {
-		return getPreferences().getBoolean(name, getResources().getBoolean(res));
-	}
-
 	protected boolean isLocationEnabled() {
 		try {
-			final int locationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
-			return locationMode != Settings.Secure.LOCATION_MODE_OFF;
-		} catch( final Settings.SettingNotFoundException e ){
+			final int locationMode = android.provider.Settings.Secure.getInt(getContentResolver(), android.provider.Settings.Secure.LOCATION_MODE);
+			return locationMode != android.provider.Settings.Secure.LOCATION_MODE_OFF;
+		} catch( final Exception e ){
 			return false;
 		}
 	}
+
+    @Override
+    protected void refreshUiReal() {
+        updateUi();
+    }
 }

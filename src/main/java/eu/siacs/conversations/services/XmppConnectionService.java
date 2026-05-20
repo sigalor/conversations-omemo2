@@ -933,6 +933,16 @@ public class XmppConnectionService extends Service {
         packet.addChild("no-store", Namespace.HINTS);
         sendMessagePacket(conversation.getAccount(), packet);
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().notifyOutgoingPositionUpdate(sessionId, lat, lon);
+        updateMessageGeoUri(conversation.getUuid(), getLiveLocationMessageUuid(sessionId), lat, lon);
+    }
+
+    private String getLiveLocationMessageUuid(String sessionId) {
+        for (eu.siacs.conversations.utils.LiveLocationManager.OutgoingSession os : eu.siacs.conversations.utils.LiveLocationManager.getInstance().getAllOutgoingSessions()) {
+            if (sessionId.equals(os.sessionId)) {
+                return os.messageUuid;
+            }
+        }
+        return null;
     }
 
     public void stopLiveLocationSharing(final String conversationUuid) {
@@ -5867,6 +5877,20 @@ public class XmppConnectionService extends Service {
             if (exclusivePath != null) {
                 final String jid = message.getConversation().getJid().asBareJid().toString();
                 FILE_ATTACHMENT_EXECUTOR.execute(() -> deleteFilesAsync(Collections.singletonList(exclusivePath), jid));
+            }
+        }
+    }
+
+    public void updateMessageGeoUri(String conversationUuid, String messageUuid, double lat, double lon) {
+        if (messageUuid == null) {
+            return;
+        }
+        final Conversation conversation = findConversationByUuid(conversationUuid);
+        if (conversation != null) {
+            final Message message = conversation.findMessageWithUuid(messageUuid);
+            if (message != null) {
+                message.setBody("geo:" + lat + "," + lon);
+                databaseBackend.updateMessage(message, true);
             }
         }
     }

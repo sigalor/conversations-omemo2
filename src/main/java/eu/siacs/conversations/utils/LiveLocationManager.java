@@ -24,13 +24,15 @@ public class LiveLocationManager {
 
     public static class IncomingSession {
         public final String sessionId;
+        public final String conversationUuid;
         public final String messageUuid;
         public volatile double latitude;
         public volatile double longitude;
         public final long expiresAt;
 
-        IncomingSession(String sessionId, String messageUuid, double lat, double lon, long expiresAt) {
+        IncomingSession(String sessionId, String conversationUuid, String messageUuid, double lat, double lon, long expiresAt) {
             this.sessionId = sessionId;
+            this.conversationUuid = conversationUuid;
             this.messageUuid = messageUuid;
             this.latitude = lat;
             this.longitude = lon;
@@ -74,14 +76,22 @@ public class LiveLocationManager {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private Runnable onSessionExpiredUiCallback = null;
 
-    public void registerIncomingSession(String sessionId, String messageUuid, double lat, double lon, long expiresAt) {
-        IncomingSession s = new IncomingSession(sessionId, messageUuid, lat, lon, expiresAt);
+    public void registerIncomingSession(String sessionId, String conversationUuid, String messageUuid, double lat, double lon, long expiresAt) {
+        if (sessionId == null) {
+            return;
+        }
+        IncomingSession s = new IncomingSession(sessionId, conversationUuid, messageUuid, lat, lon, expiresAt);
         incoming.put(sessionId, s);
-        messageToSession.put(messageUuid, sessionId);
+        if (messageUuid != null) {
+            messageToSession.put(messageUuid, sessionId);
+        }
         scheduleExpiry(sessionId, expiresAt);
     }
 
     public void updateIncomingPosition(String sessionId, double lat, double lon) {
+        if (sessionId == null) {
+            return;
+        }
         IncomingSession s = incoming.get(sessionId);
         if (s != null && !s.isExpired()) {
             s.latitude = lat;
@@ -93,6 +103,9 @@ public class LiveLocationManager {
     }
 
     public void notifyOutgoingPositionUpdate(String sessionId, double lat, double lon) {
+        if (sessionId == null) {
+            return;
+        }
         for (OutgoingSession os : outgoingByConversation.values()) {
             if (sessionId.equals(os.sessionId)) {
                 os.latitude = lat;
@@ -114,6 +127,9 @@ public class LiveLocationManager {
     }
 
     public boolean isPreviewRefreshDue(String sessionId, long throttleMs) {
+        if (sessionId == null) {
+            return false;
+        }
         final long now = System.currentTimeMillis();
         final Long last = previewRefreshTimes.get(sessionId);
         if (last == null || now - last >= throttleMs) {
@@ -124,6 +140,9 @@ public class LiveLocationManager {
     }
 
     public boolean isActiveLiveLocationMessage(String messageUuid) {
+        if (messageUuid == null) {
+            return false;
+        }
         String sessionId = messageToSession.get(messageUuid);
         if (sessionId != null) {
             IncomingSession s = incoming.get(sessionId);
@@ -136,6 +155,9 @@ public class LiveLocationManager {
     }
 
     public IncomingSession getSessionForMessage(String messageUuid) {
+        if (messageUuid == null) {
+            return null;
+        }
         String sessionId = messageToSession.get(messageUuid);
         if (sessionId == null) return null;
         IncomingSession s = incoming.get(sessionId);
@@ -143,10 +165,16 @@ public class LiveLocationManager {
     }
 
     public IncomingSession getSession(String sessionId) {
+        if (sessionId == null) {
+            return null;
+        }
         return incoming.get(sessionId);
     }
 
     public String getSessionIdForMessage(String messageUuid) {
+        if (messageUuid == null) {
+            return null;
+        }
         String sessionId = messageToSession.get(messageUuid);
         if (sessionId != null) return sessionId;
         for (OutgoingSession os : outgoingByConversation.values()) {
@@ -178,7 +206,9 @@ public class LiveLocationManager {
     }
 
     public void clearOutgoingSession(String conversationUuid) {
-        outgoingByConversation.remove(conversationUuid);
+        if (conversationUuid != null) {
+            outgoingByConversation.remove(conversationUuid);
+        }
     }
 
     private void scheduleExpiry(String sessionId, long expiresAt) {
@@ -203,10 +233,15 @@ public class LiveLocationManager {
     }
 
     private void expireSession(String sessionId) {
+        if (sessionId == null) {
+            return;
+        }
         stoppedSessionIds.put(sessionId, Boolean.TRUE);
         IncomingSession s = incoming.remove(sessionId);
         if (s != null) {
-            messageToSession.remove(s.messageUuid);
+            if (s.messageUuid != null) {
+                messageToSession.remove(s.messageUuid);
+            }
             previewRefreshTimes.remove(sessionId);
             for (PositionListener l : listeners) {
                 l.onSessionExpired(sessionId);

@@ -12,7 +12,7 @@ import org.osmdroid.views.overlay.mylocation.SimpleLocationOverlay;
  * An immutable marker overlay.
  */
 public class Marker extends SimpleLocationOverlay {
-	private final GeoPoint position;
+	private GeoPoint position;
 	private final Bitmap icon;
 	private final Point mapPoint;
 
@@ -26,6 +26,10 @@ public class Marker extends SimpleLocationOverlay {
 		this.icon = icon;
 		this.position = position;
 		this.mapPoint = new Point();
+	}
+
+	public void setPosition(GeoPoint position) {
+		this.position = position;
 	}
 
 	/**

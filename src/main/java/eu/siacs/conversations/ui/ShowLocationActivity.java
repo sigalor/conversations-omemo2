@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.utils.LiveLocationManager;
 
 import androidx.annotation.NonNull;
@@ -39,11 +40,14 @@ import org.osmdroid.util.GeoPoint;
 import java.util.Map;
 
 public class ShowLocationActivity extends LocationActivity implements LocationListener,
-        LiveLocationManager.PositionListener {
+        LiveLocationManager.PositionListener, XmppConnectionService.OnConversationUpdate {
+
 
     private GeoPoint loc = LocationProvider.FALLBACK;
     private ActivityShowLocationBinding binding;
     private String liveSessionId = null;
+    private AvatarMarker avatarMarker;
+    private Marker genericMarker;
 
     private Uri createGeoUri() {
         return Uri.parse("geo:" + this.loc.getLatitude() + "," + this.loc.getLongitude());
@@ -109,7 +113,7 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
             if (setZoomLevel) {
                 mapController.setZoom(Config.Map.FINAL_ZOOM_LEVEL);
             }
-            mapController.animateTo(new GeoPoint(this.loc));
+            mapController.animateTo(this.loc);
         }
     }
 
@@ -144,14 +148,24 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
         final android.graphics.drawable.Drawable avatarDrawable =
                 LiveLocationManager.getInstance().getSessionAvatar(liveSessionId);
         if (avatarDrawable != null) {
-            this.binding.map.getOverlays().add(new AvatarMarker(this, avatarDrawable, this.loc));
+            if (this.avatarMarker == null) {
+                this.avatarMarker = new AvatarMarker(this, avatarDrawable, this.loc);
+            } else {
+                this.avatarMarker.setPosition(this.loc);
+            }
+            this.binding.map.getOverlays().add(this.avatarMarker);
         } else {
-            this.binding.map.getOverlays().add(new Marker(this.marker_icon, this.loc));
+            if (this.genericMarker == null) {
+                this.genericMarker = new Marker(this.marker_icon, this.loc);
+            } else {
+                this.genericMarker.setPosition(this.loc);
+            }
+            this.binding.map.getOverlays().add(this.genericMarker);
         }
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if (liveSessionId != null) {
             LiveLocationManager.getInstance().addListener(this);
@@ -176,7 +190,7 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (liveSessionId != null) {
             LiveLocationManager.getInstance().removeListener(this);
@@ -185,12 +199,14 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
 
     @Override
     public void onPositionUpdate(final String sessionId, final double latitude, final double longitude) {
-        if (sessionId.equals(liveSessionId)) {
+        if (liveSessionId != null && liveSessionId.equals(sessionId)) {
             runOnUiThread(() -> {
                 this.loc = new GeoPoint(latitude, longitude);
                 updateLocationMarkers();
-                this.binding.map.invalidate();
                 gotoLoc(false);
+                if (this.binding != null) {
+                    this.binding.map.postInvalidate();
+                }
             });
         }
     }
@@ -279,4 +295,19 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
 
     @Override
     public void onProviderDisabled(@NonNull final String provider) {}
+
+    @Override
+    public void onConversationUpdate() {
+        updateUi();
+    }
+
+    @Override
+    public void onConversationUpdate(boolean newCaps) {
+        updateUi();
+    }
+
+    @Override
+    protected void onBackendConnected() {
+
+    }
 }

@@ -644,11 +644,43 @@ public class MessageParser extends AbstractParser
         return false;
     }
 
+    private void processLiveLocationUpdate(Element updateElement) {
+        final String sessionId = updateElement.getAttribute("id");
+        if (sessionId != null) {
+            try {
+                final double lat = Double.parseDouble(updateElement.getAttribute("lat"));
+                final double lon = Double.parseDouble(updateElement.getAttribute("lon"));
+                final var mgr = eu.siacs.conversations.utils.LiveLocationManager.getInstance();
+                final var session = mgr.getSession(sessionId);
+                if (session == null) {
+                    // Recover session after restart: 1 hour default expiry
+                    mgr.registerIncomingSession(sessionId, null, null, lat, lon, System.currentTimeMillis() + 3600_000L);
+                }
+                mgr.updateIncomingPosition(sessionId, lat, lon);
+                final var updatedSession = mgr.getSession(sessionId);
+                if (updatedSession != null && updatedSession.conversationUuid != null && updatedSession.messageUuid != null) {
+                    mXmppConnectionService.updateMessageGeoUri(updatedSession.conversationUuid, updatedSession.messageUuid, lat, lon);
+                }
+                if (mgr.isPreviewRefreshDue(sessionId, 300_000L)) {
+                    mXmppConnectionService.updateConversationUi();
+                }
+            } catch (Exception ignored) {}
+        }
+    }
+
     @Override
     public void accept(final im.conversations.android.xmpp.model.stanza.Message original) {
         if (handleErrorMessage(account, original)) {
             return;
         }
+
+        // Handle live location updates as early as possible
+        final Element earlyUpdate = original.findChild("live-location-update", Namespace.LIVE_LOCATION);
+        if (earlyUpdate != null && !original.fromAccount(account)) {
+            processLiveLocationUpdate(earlyUpdate);
+            return;
+        }
+
         final im.conversations.android.xmpp.model.stanza.Message packet;
         Long timestamp = null;
         final boolean isForwarded;
@@ -974,18 +1006,7 @@ public class MessageParser extends AbstractParser
         // Handle live location updates silently — do not store as messages
         final eu.siacs.conversations.xml.Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
         if (liveLocUpdate != null && status == Message.STATUS_RECEIVED && query == null) {
-            final String sessionId = liveLocUpdate.getAttribute("id");
-            if (sessionId != null) {
-                try {
-                    final double lat = Double.parseDouble(liveLocUpdate.getAttribute("lat"));
-                    final double lon = Double.parseDouble(liveLocUpdate.getAttribute("lon"));
-                    eu.siacs.conversations.utils.LiveLocationManager.getInstance().updateIncomingPosition(sessionId, lat, lon);
-                    if (eu.siacs.conversations.utils.LiveLocationManager.getInstance()
-                            .isPreviewRefreshDue(sessionId, 300_000L)) {  //TODO: Reduce the refreshment time when the server is capable for generating map previews more often
-                        mXmppConnectionService.updateConversationUi();
-                    }
-                } catch (Exception ignored) {}
-            }
+            processLiveLocationUpdate(liveLocUpdate);
             return;
         }
 
@@ -1524,7 +1545,7 @@ public class MessageParser extends AbstractParser
                                 final double lat = Double.parseDouble(geoMatcher.group(1));
                                 final double lon = Double.parseDouble(geoMatcher.group(2));
                                 eu.siacs.conversations.utils.LiveLocationManager.getInstance()
-                                        .registerIncomingSession(sessionId, message.getUuid(), lat, lon, expiresAt);
+                                        .registerIncomingSession(sessionId, message.getConversation().getUuid(), message.getUuid(), lat, lon, expiresAt);
                             }
                         } catch (Exception ignored) {}
                     }

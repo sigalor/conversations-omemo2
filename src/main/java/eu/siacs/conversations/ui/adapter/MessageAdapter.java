@@ -2437,7 +2437,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         // Fall back to session ID from the persisted payload (works after restart too)
         final String resolvedSessionId = liveSessionId != null ? liveSessionId : getLiveLocationSessionId(message);
-        if (resolvedSessionId != null && isLiveLocationPayloadActive(message)) {
+        if (resolvedSessionId != null) {
             openLiveLocationMap(message, resolvedSessionId, mgr);
             return;
         }

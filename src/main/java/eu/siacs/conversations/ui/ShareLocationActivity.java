@@ -143,7 +143,7 @@ public class ShareLocationActivity extends LocationActivity implements LocationL
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
     }
 
@@ -230,5 +230,10 @@ public class ShareLocationActivity extends LocationActivity implements LocationL
         } else {
             this.binding.fab.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected void onBackendConnected() {
+
     }
 }

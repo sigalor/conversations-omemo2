@@ -22,7 +22,7 @@ import java.lang.ref.WeakReference;
 
 public class AvatarMarker extends Overlay implements Drawable.Callback {
 
-    private final GeoPoint position;
+    private GeoPoint position;
     private final Drawable avatarDrawable;
 
     private final Path pinPath;
@@ -90,6 +90,10 @@ public class AvatarMarker extends Overlay implements Drawable.Callback {
         if (avatarDrawable instanceof Animatable) {
             ((Animatable) avatarDrawable).start();
         }
+    }
+
+    public void setPosition(GeoPoint position) {
+        this.position = position;
     }
 
     @Override
