@@ -195,6 +195,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private long expireAt = 0;
     private boolean ephemeralIWantOut = false;
     private androidx.core.util.Pair<Jid, String> storyReference = null;
+    private boolean expanded = false;
 
     protected Message(Conversational conversation) {
         this.conversation = conversation;
@@ -1381,6 +1382,14 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
     }
 
     public String getEditedId() {

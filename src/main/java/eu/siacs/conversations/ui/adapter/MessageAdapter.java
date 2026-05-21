@@ -86,6 +86,8 @@ import com.google.common.collect.ImmutableList;
 
 import com.lelloman.identicon.view.GithubIdenticonView;
 
+import android.text.StaticLayout;
+import de.monocles.chat.ui.CollapsableTextView;
 import de.monocles.chat.ui.DraggableListView;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -964,31 +966,56 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         viewHolder.messageBody().setAutoLinkMask(0);
         viewHolder.messageBody().setText(body);
 
-        // Experimental expandable text, collapse after 8 lines
         if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-            viewHolder.messageBody().post(() -> {
-                int lineCount = viewHolder.messageBody().getLineCount();
-                if (lineCount > 8) {
-                    viewHolder.showMore().setVisibility(View.VISIBLE);
-                } else {
-                    viewHolder.showMore().setVisibility(GONE);
-                }
-            });
-            final boolean[] isTextViewClicked = {false};
+            // We use a StaticLayout to measure the text with a safe maximum width.
+            final int maxWidth = (int) (metrics.widthPixels - (80 * density)); // Rough estimate of bubble overhead
+            final StaticLayout staticLayout;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                staticLayout = StaticLayout.Builder.obtain(body, 0, body.length(), viewHolder.messageBody().getPaint(), maxWidth)
+                        .setLineSpacing(viewHolder.messageBody().getLineSpacingExtra(), viewHolder.messageBody().getLineSpacingMultiplier())
+                        .setIncludePad(viewHolder.messageBody().getIncludeFontPadding())
+                        .setBreakStrategy(viewHolder.messageBody().getBreakStrategy())
+                        .setHyphenationFrequency(viewHolder.messageBody().getHyphenationFrequency())
+                        .build();
+            } else {
+                staticLayout = new StaticLayout(body, viewHolder.messageBody().getPaint(), maxWidth, Layout.Alignment.ALIGN_NORMAL,
+                        viewHolder.messageBody().getLineSpacingMultiplier(), viewHolder.messageBody().getLineSpacingExtra(),
+                        viewHolder.messageBody().getIncludeFontPadding());
+            }
+
+            final boolean isLong = staticLayout.getLineCount() > 10 || (staticLayout.getLineCount() == 10 && staticLayout.getEllipsisCount(9) > 0);
+
+            if (message.isExpanded()) {
+                viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+                viewHolder.showMore().setText(R.string.show_less);
+                viewHolder.showMore().setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.messageBody().setMaxLines(8);
+                viewHolder.showMore().setText(R.string.show_more);
+                viewHolder.showMore().setVisibility(isLong ? View.VISIBLE : View.GONE);
+            }
+
             viewHolder.showMore().setOnClickListener(v -> {
-                if (isTextViewClicked[0]) {
-                    //This will shrink textview to 8 lines if it is expanded.
-                    viewHolder.showMore().setText(R.string.show_more);
-                    viewHolder.messageBody().setMaxLines(8);
-                    isTextViewClicked[0] = false;
-                } else {
-                    //This will expand the textview if it is of 8 lines
-                    viewHolder.showMore().setText(R.string.show_less);
+                android.transition.TransitionSet set = new android.transition.TransitionSet();
+                set.addTransition(new android.transition.ChangeBounds());
+                set.addTransition(new android.transition.Fade());
+                set.setOrdering(android.transition.TransitionSet.ORDERING_TOGETHER);
+                set.setDuration(300);
+                android.transition.TransitionManager.beginDelayedTransition(viewHolder.messageBox(), set);
+
+                message.setExpanded(!message.isExpanded());
+                if (message.isExpanded()) {
                     viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
-                    isTextViewClicked[0] = true;
+                    viewHolder.showMore().setText(R.string.show_less);
+                } else {
+                    viewHolder.messageBody().setMaxLines(8);
+                    viewHolder.showMore().setText(R.string.show_more);
                 }
             });
-        } else viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+        } else {
+            viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+            viewHolder.showMore().setVisibility(GONE);
+        }
 
         if (body.length() <= 0) viewHolder.messageBody().setVisibility(GONE);
         BetterLinkMovementMethod method = getBetterLinkMovementMethod();
@@ -2736,7 +2763,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         protected abstract TextView time();
 
-        protected abstract TextView messageBody();
+        protected abstract CollapsableTextView messageBody();
 
         protected abstract ImageView contactPicture();
 
@@ -2829,7 +2856,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         }
 
         @Override
-        protected TextView messageBody() {
+        protected CollapsableTextView messageBody() {
             return this.binding.messageContent.messageBody;
         }
 
@@ -3003,7 +3030,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         }
 
         @Override
-        protected TextView messageBody() {
+        protected CollapsableTextView messageBody() {
             return this.binding.messageContent.messageBody;
         }
 

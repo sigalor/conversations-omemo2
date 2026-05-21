@@ -93,7 +93,7 @@
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
-        <TextView
+        <de.monocles.chat.ui.CollapsableTextView
             android:id="@+id/message_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -101,6 +101,7 @@
             android:paddingTop="4dp"
             android:autoLink="web"
             android:maxLines="8"
+            android:ellipsize="end"
             android:longClickable="false"
             android:breakStrategy="simple"
             android:textAppearance="?textAppearanceBodyMedium"
@@ -115,8 +116,10 @@
             android:text="@string/show_more"
             android:textColor="?colorPrimary"
             android:textStyle="bold"
-            android:textAppearance="?textAppearanceBodyLarge"
-            android:padding="2dp"
+            android:textAppearance="?textAppearanceBodySmall"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="4dp"
+            android:background="?attr/selectableItemBackground"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
