@@ -105,6 +105,7 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
                 break;
         }
         updateLocationMarkers();
+        gotoLoc(true);
     }
 
     @Override

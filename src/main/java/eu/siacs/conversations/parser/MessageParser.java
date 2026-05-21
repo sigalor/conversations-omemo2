@@ -659,7 +659,7 @@ public class MessageParser extends AbstractParser
                 mgr.updateIncomingPosition(sessionId, lat, lon);
                 final var updatedSession = mgr.getSession(sessionId);
                 if (updatedSession != null && updatedSession.conversationUuid != null && updatedSession.messageUuid != null) {
-                    mXmppConnectionService.updateMessageGeoUri(updatedSession.conversationUuid, updatedSession.messageUuid, lat, lon);
+                    mXmppConnectionService.updateMessageGeoPayload(updatedSession.conversationUuid, updatedSession.messageUuid, lat, lon);
                 }
                 if (mgr.isPreviewRefreshDue(sessionId, 300_000L)) {
                     mXmppConnectionService.updateConversationUi();
@@ -671,13 +671,6 @@ public class MessageParser extends AbstractParser
     @Override
     public void accept(final im.conversations.android.xmpp.model.stanza.Message original) {
         if (handleErrorMessage(account, original)) {
-            return;
-        }
-
-        // Handle live location updates as early as possible
-        final Element earlyUpdate = original.findChild("live-location-update", Namespace.LIVE_LOCATION);
-        if (earlyUpdate != null && !original.fromAccount(account)) {
-            processLiveLocationUpdate(earlyUpdate);
             return;
         }
 
@@ -992,21 +985,20 @@ public class MessageParser extends AbstractParser
             }
         }
 
-        // Handle live location stop silently
-        final eu.siacs.conversations.xml.Element liveLocStop = packet.findChild("live-location-stop", Namespace.LIVE_LOCATION);
+        // Handle live location updates silently — do not store as messages
+        final Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
+        if (liveLocUpdate != null && status == Message.STATUS_RECEIVED && query == null) {
+            processLiveLocationUpdate(liveLocUpdate);
+            return;
+        }
+
+        final Element liveLocStop = packet.findChild("live-location-stop", Namespace.LIVE_LOCATION);
         if (liveLocStop != null && status == Message.STATUS_RECEIVED && query == null) {
             final String sessionId = liveLocStop.getAttribute("id");
             if (sessionId != null) {
                 eu.siacs.conversations.utils.LiveLocationManager.getInstance().expireIncomingSession(sessionId);
                 mXmppConnectionService.updateConversationUi();
             }
-            return;
-        }
-
-        // Handle live location updates silently — do not store as messages
-        final eu.siacs.conversations.xml.Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
-        if (liveLocUpdate != null && status == Message.STATUS_RECEIVED && query == null) {
-            processLiveLocationUpdate(liveLocUpdate);
             return;
         }
 
@@ -1533,8 +1525,6 @@ public class MessageParser extends AbstractParser
             if (status == Message.STATUS_RECEIVED && message.isGeoUri()) {
                 final eu.siacs.conversations.xml.Element liveLocEl = packet.findChild("live-location", Namespace.LIVE_LOCATION);
                 if (liveLocEl != null) {
-                    // Persist the payload in the message so the live indicator survives restart
-                    message.addPayload(liveLocEl);
                     final String sessionId = liveLocEl.getAttribute("id");
                     final String expiresAtStr = liveLocEl.getAttribute("expires");
                     if (sessionId != null && expiresAtStr != null) {
@@ -1549,6 +1539,7 @@ public class MessageParser extends AbstractParser
                             }
                         } catch (Exception ignored) {}
                     }
+                    message.addPayload(liveLocEl);
                 }
             }
 

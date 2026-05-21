@@ -933,7 +933,7 @@ public class XmppConnectionService extends Service {
         packet.addChild("no-store", Namespace.HINTS);
         sendMessagePacket(conversation.getAccount(), packet);
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().notifyOutgoingPositionUpdate(sessionId, lat, lon);
-        updateMessageGeoUri(conversation.getUuid(), getLiveLocationMessageUuid(sessionId), lat, lon);
+        updateMessageGeoPayload(conversation.getUuid(), getLiveLocationMessageUuid(sessionId), lat, lon);
     }
 
     private String getLiveLocationMessageUuid(String sessionId) {
@@ -5881,7 +5881,7 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public void updateMessageGeoUri(String conversationUuid, String messageUuid, double lat, double lon) {
+    public void updateMessageGeoPayload(String conversationUuid, String messageUuid, double lat, double lon) {
         if (messageUuid == null) {
             return;
         }
@@ -5889,8 +5889,14 @@ public class XmppConnectionService extends Service {
         if (conversation != null) {
             final Message message = conversation.findMessageWithUuid(messageUuid);
             if (message != null) {
-                message.setBody("geo:" + lat + "," + lon);
-                databaseBackend.updateMessage(message, true);
+                for (eu.siacs.conversations.xml.Element el : message.getPayloads()) {
+                    if ("live-location".equals(el.getName()) && Namespace.LIVE_LOCATION.equals(el.getAttribute("xmlns"))) {
+                        el.setAttribute("last_lat", String.valueOf(lat));
+                        el.setAttribute("last_lon", String.valueOf(lon));
+                        databaseBackend.updateMessage(message, false);
+                        break;
+                    }
+                }
             }
         }
     }

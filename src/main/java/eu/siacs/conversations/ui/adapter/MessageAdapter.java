@@ -1254,11 +1254,22 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 eu.siacs.conversations.utils.LiveLocationManager.getInstance().isActiveLiveLocationMessage(message.getUuid()) ||
                 (message.getStatus() == Message.STATUS_RECEIVED && isLiveLocationPayloadActive(message));
 
-        final String url;
+        String url;
         if (liveSession != null) {
             url = GeoHelper.MapPreviewUriFromCoords(liveSession.latitude, liveSession.longitude, activity);
         } else {
-            url = GeoHelper.MapPreviewUri(message, activity);
+            final Element el = getLiveLocationElement(message);
+            if (el != null && el.getAttribute("last_lat") != null && el.getAttribute("last_lon") != null) {
+                try {
+                    double lat = Double.parseDouble(el.getAttribute("last_lat"));
+                    double lon = Double.parseDouble(el.getAttribute("last_lon"));
+                    url = GeoHelper.MapPreviewUriFromCoords(lat, lon, activity);
+                } catch (Exception ignored) {
+                    url = GeoHelper.MapPreviewUri(message, activity);
+                }
+            } else {
+                url = GeoHelper.MapPreviewUri(message, activity);
+            }
         }
 
         viewHolder.audioPlayer().setVisibility(GONE);
@@ -2505,13 +2516,23 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 lat = outgoing.latitude;
                 lon = outgoing.longitude;
             } else {
-                final String rawBody = message.getRawBody();
-                if (rawBody != null) {
+                // Try to get last known position from payload attributes
+                final Element el = getLiveLocationElement(message);
+                if (el != null && el.getAttribute("last_lat") != null && el.getAttribute("last_lon") != null) {
                     try {
-                        final org.osmdroid.util.GeoPoint gp = GeoHelper.parseGeoPoint(android.net.Uri.parse(rawBody));
-                        lat = gp.getLatitude();
-                        lon = gp.getLongitude();
+                        lat = Double.parseDouble(el.getAttribute("last_lat"));
+                        lon = Double.parseDouble(el.getAttribute("last_lon"));
                     } catch (Exception ignored) {}
+                }
+                if (lat == 0 && lon == 0) {
+                    final String rawBody = message.getRawBody();
+                    if (rawBody != null) {
+                        try {
+                            final org.osmdroid.util.GeoPoint gp = GeoHelper.parseGeoPoint(android.net.Uri.parse(rawBody));
+                            lat = gp.getLatitude();
+                            lon = gp.getLongitude();
+                        } catch (Exception ignored) {}
+                    }
                 }
             }
         }
