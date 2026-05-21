@@ -5174,18 +5174,19 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                if (messageListAdapter.hasSelection()) {
-                    if (notifyConversationRead)
-                        binding.messagesView.postDelayed(this::refresh, 1000L);
+                final boolean hasInteraction = messageListAdapter.hasSelection() || (messageOptionsDialog != null && messageOptionsDialog.isShowing());
+                if (hasInteraction) {
+                    binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
                 } else {
-                    conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
-                    try {
-                        updateStatusMessages();
-                    } catch (IllegalStateException e) {
-                        Log.e(Config.LOGTAG, "Problem updating status messages on refresh: " + e);
-                    }
-                    this.messageListAdapter.notifyDataSetChanged();
+                    binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
                 }
+                conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
+                try {
+                    updateStatusMessages();
+                } catch (IllegalStateException e) {
+                    Log.e(Config.LOGTAG, "Problem updating status messages on refresh: " + e);
+                }
+                this.messageListAdapter.notifyDataSetChanged();
                 if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
                     binding.unreadCountCustomView.setVisibility(View.VISIBLE);
                     binding.unreadCountCustomView.setUnreadCount(
