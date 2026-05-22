@@ -439,6 +439,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private DatabaseBackend(Context context) {
         // byte[] constructor (new in sqlcipher-android 4.16.0) avoids creating an immutable String
         // in the JVM heap. EncryptionException propagates intentionally — see callers.
+        // Note: SQLiteOpenHelper stores the byte[] by reference (no copy) and opens the database
+        // lazily — the array cannot be zeroed here without corrupting the stored password.
         super(context, DATABASE_NAME, getPasswordBytes(context), null, DATABASE_VERSION, 0, null, DATABASE_HOOK, true);
         this.context = context;
     }
@@ -454,10 +456,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     static byte[] charsToUtf8Bytes(char[] chars) {
         final java.nio.ByteBuffer bb =
                 java.nio.charset.StandardCharsets.UTF_8.encode(java.nio.CharBuffer.wrap(chars));
-        final byte[] bytes = new byte[bb.remaining()];
-        bb.get(bytes);
-        if (bb.hasArray()) java.util.Arrays.fill(bb.array(), (byte) 0);
-        return bytes;
+        try {
+            final byte[] bytes = new byte[bb.remaining()];
+            bb.get(bytes);
+            return bytes;
+        } finally {
+            if (bb.hasArray()) {
+                java.util.Arrays.fill(bb.array(), (byte) 0);
+            }
+        }
     }
 
     private static ContentValues createFingerprintStatusContentValues(
