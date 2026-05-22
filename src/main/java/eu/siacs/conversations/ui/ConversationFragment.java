@@ -2962,7 +2962,7 @@ public class ConversationFragment extends XmppFragment
         View reactionPillView = null;
         int popupH = 0, popupW = 0;
         if (hasReactions) {
-            reactionPillView = getLayoutInflater().inflate(R.layout.popup_reactions, container, false);
+            reactionPillView = requireActivity().getLayoutInflater().inflate(R.layout.popup_reactions, container, false);
             setupDialogReactionRow(reactionPillView.findViewById(R.id.reaction_row), message, () -> {
                 clearHighlight.run();
                 dialog.dismiss();
@@ -2975,7 +2975,7 @@ public class ConversationFragment extends XmppFragment
             reactionPillView.setClickable(true);
         }
 
-        final View menuView = getLayoutInflater().inflate(R.layout.dialog_context_menu, container, false);
+        final View menuView = requireActivity().getLayoutInflater().inflate(R.layout.dialog_context_menu, container, false);
         final LinearLayout menuContainer = menuView.findViewById(R.id.menu_container);
         final Menu menu = new PopupMenu(activity, menuView).getMenu();
         activity.getMenuInflater().inflate(R.menu.message_context, menu);
@@ -3205,7 +3205,7 @@ public class ConversationFragment extends XmppFragment
 
     private void addDialogMenuRow(final LinearLayout container, final int iconRes,
             final CharSequence title, final boolean isLast, final Runnable action) {
-        final View row = getLayoutInflater().inflate(R.layout.item_message_context_menu, container, false);
+        final View row = requireActivity().getLayoutInflater().inflate(R.layout.item_message_context_menu, container, false);
         final ImageView icon = row.findViewById(R.id.menu_icon);
         final TextView titleView = row.findViewById(R.id.menu_title);
         icon.setImageResource(iconRes);
