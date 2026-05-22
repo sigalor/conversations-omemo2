@@ -51,6 +51,11 @@ class SecurePasswordStorage(context: Context) {
         handle.getPrimitive(Aead::class.java)
     }
 
+    // Binds ciphertext to this app: decryption fails if the blob is moved to a different package.
+    private val aad: ByteArray by lazy {
+        appContext.packageName.toByteArray(StandardCharsets.UTF_8)
+    }
+
     /**
      * Read the stored password as a char[]. Returns null if nothing is stored.
      * Zeroes all intermediate byte arrays.
@@ -60,7 +65,7 @@ class SecurePasswordStorage(context: Context) {
             dataStore.data.map { it[PASSWORD_KEY] }.first()
         } ?: return null
         val ciphertext = Base64.decode(encoded, Base64.NO_WRAP)
-        val plainBytes = aead.decrypt(ciphertext, null)
+        val plainBytes = aead.decrypt(ciphertext, aad)
         return try {
             bytesToChars(plainBytes)
         } finally {
@@ -79,7 +84,7 @@ class SecurePasswordStorage(context: Context) {
         }
         val plainBytes = charsToBytes(password)
         try {
-            val ciphertext = aead.encrypt(plainBytes, null)
+            val ciphertext = aead.encrypt(plainBytes, aad)
             val encoded = Base64.encodeToString(ciphertext, Base64.NO_WRAP)
             runBlocking { dataStore.edit { it[PASSWORD_KEY] = encoded } }
         } finally {

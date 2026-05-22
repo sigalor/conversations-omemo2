@@ -3,7 +3,6 @@ package eu.siacs.conversations.persistance;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import net.zetetic.database.sqlcipher.SQLiteDatabaseHook;
 import net.zetetic.database.sqlcipher.SQLiteConnection;
@@ -119,14 +118,17 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public static final SQLiteDatabaseHook DATABASE_HOOK = new SQLiteDatabaseHook() {
         @Override
         public void preKey(SQLiteConnection connection) {
-            connection.executeRaw("PRAGMA cipher_kdf_algorithm = argon2id;", null, null);
-            connection.executeRaw("PRAGMA cipher_memory_limit = 65536;", null, null);
-            connection.executeRaw("PRAGMA cipher_kdf_iterations = 3;", null, null);
-            connection.executeRaw("PRAGMA cipher_kdf_parallelism = 4;", null, null);
+            // SQLCipher community edition only supports PBKDF2 (not Argon2id).
+            // Set the algorithm before PRAGMA key so it is used for key derivation.
+            connection.executeRaw(
+                    "PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;", null, null);
         }
 
         @Override
         public void postKey(SQLiteConnection connection) {
+            // kdf_iter must be set after PRAGMA key per SQLCipher docs.
+            // 256 000 is the SQLCipher 4 default; OWASP minimum for PBKDF2-SHA-512 is 210 000.
+            connection.executeRaw("PRAGMA kdf_iter = 256000;", null, null);
             connection.executeRaw("PRAGMA cipher_memory_security = ON;", null, null);
             connection.executeRaw("PRAGMA secure_delete = ON;", null, null);
         }
@@ -587,7 +589,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     @Override
     public void onConfigure(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys=ON");
-        db.rawQuery("PRAGMA secure_delete=ON", null).close();
     }
 
     @Override
@@ -3916,7 +3917,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (tempFile.exists() && !tempFile.delete()) {
             throw new java.io.IOException("Failed to delete existing temporary database file");
         }
-        if (tempFile.getParentFile() != null && !tempFile.getParentFile().exists() && !tempFile.getParentFile().mkdirs()) {
+        if (tempFile.getParentFile() != null
+                && !tempFile.getParentFile().exists()
+                && !tempFile.getParentFile().mkdirs()) {
             throw new java.io.IOException("Failed to create database directory");
         }
         if (!tempFile.createNewFile()) {
@@ -3930,17 +3933,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         // second connection without this flag causes SQLCipher to attempt PRAGMA journal_mode=delete,
         // which fails with SQLITE_BUSY (5) on Android 8.1 and older. Setting the flag makes
         // SQLCipher check the current mode first and skip the pragma when WAL is already active.
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(
-                dbFile.getAbsolutePath(), oldPwBytes, null,
-                SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
-                oldPwBytes != null ? DATABASE_HOOK : null);
+        SQLiteDatabase db =
+                SQLiteDatabase.openDatabase(
+                        dbFile.getAbsolutePath(),
+                        oldPwBytes,
+                        null,
+                        SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+                        oldPwBytes != null ? DATABASE_HOOK : null);
         if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
         int version = db.getVersion();
 
         // Optimization: DB is just-created and empty (onCreate never ran). Delete it and set
         // the password now; the next getInstance() will build the schema encrypted via onCreate.
         final boolean isEmpty;
-        try (final Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table'", null)) {
+        try (final Cursor c =
+                db.rawQuery(
+                        "SELECT count(*) FROM sqlite_master WHERE type='table'", null)) {
             isEmpty = version == 0 && c != null && c.moveToFirst() && c.getInt(0) == 0;
         }
         if (isEmpty) {
@@ -3957,18 +3965,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
 
         try {
-            // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
-            db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");
-            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 65536;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 4;");
+            // Set PBKDF2-SHA512 defaults so the attached (exported) DB is created with the same
+            // KDF as the live database. SQLCipher community edition only supports PBKDF2.
+            db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = PBKDF2_HMAC_SHA512;");
+            db.rawExecSQL("PRAGMA cipher_default_kdf_iter = 256000;");
+            db.rawExecSQL("PRAGMA cipher_default_use_hmac = ON;");
+            db.rawExecSQL("PRAGMA cipher_default_memory_security = ON;");
 
             // ATTACH KEY must be a SQL string literal — unavoidable String; null it immediately.
             String newPwStr = newPassword == null ? "" : new String(newPassword);
-            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPwStr);
+            final String escapedNewPassword = android.database.DatabaseUtils.sqlEscapeString(newPwStr);
             newPwStr = null;
-            String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
-            db.rawExecSQL(attachSql);
+            db.rawExecSQL(
+                    "ATTACH DATABASE "
+                            + android.database.DatabaseUtils.sqlEscapeString(
+                                    tempFile.getAbsolutePath())
+                            + " AS encrypted KEY "
+                            + escapedNewPassword);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
             db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
             db.rawExecSQL("DETACH DATABASE encrypted;");
