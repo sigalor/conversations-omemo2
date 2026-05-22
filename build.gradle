@@ -12,12 +12,8 @@ buildscript {
     }
 }
 
-plugins {
-    id 'org.ajoberstar.grgit' version '4.1.1'
-    // PLUGIN INSERT
-}
-
 apply plugin: 'com.android.application'
+apply plugin: 'com.diffplug.spotless'
 
 repositories {
     google()
@@ -25,7 +21,6 @@ repositories {
     maven { url='https://jitpack.io'}
 }
 
-def tags = grgit.tag.list().findAll { it.dateTime != null }.sort { it.dateTime }
 
 // ROOT INSERT
 
@@ -39,6 +34,14 @@ configurations {
     quicksyPlaystoreImplementation
     quicksyFreeImplementation
     quicksyImplementation
+}
+
+spotless {
+    ratchetFrom '2.17.4'
+    java {
+        target '**/*.java'
+        googleJavaFormat().aosp().reflowLongStrings()
+    }
 }
 
 dependencies {
@@ -320,7 +323,7 @@ androidComponents {
         variant.resValues.put(
             variant.makeResValueKey("string", "applicationId"),
             variant.applicationId.map { appId ->
-                new com.android.build.api.variant.ResValue("string", appId)
+                new com.android.build.api.variant.ResValue(appId, null)
             }
         )
 
