@@ -196,7 +196,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                     return;
                 }
                 // Correct — set the flag first so subsequent getDatabasePasswordChars() uses session,
-                // then erase the persisted copy from EncryptedSharedPreferences.
+                // then erase the persisted copy from secure storage.
                 AppSettings.setSessionPassword(stored);
                 java.util.Arrays.fill(stored, '\0');
                 androidx.preference.PreferenceManager

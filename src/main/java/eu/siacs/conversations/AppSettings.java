@@ -9,8 +9,6 @@ import android.util.Log;
 import androidx.annotation.BoolRes;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
-import androidx.security.crypto.EncryptedSharedPreferences;
-import androidx.security.crypto.MasterKey;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -401,21 +399,4 @@ public class AppSettings {
         if (chars != null) java.util.Arrays.fill(chars, '\0');
     }
 
-    /** Creates an EncryptedSharedPreferences instance for the given name. Used by EasylockSP ("Lockscreen"). */
-    public SharedPreferences getEncryptedPreferences(String name) throws Exception {
-        final Context appContext = context.getApplicationContext();
-        final boolean hasStrongBox = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P
-                && appContext.getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_STRONGBOX_KEYSTORE);
-        final MasterKey masterKey = new MasterKey.Builder(appContext)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .setRequestStrongBoxBacked(hasStrongBox)
-                .build();
-        return EncryptedSharedPreferences.create(
-                appContext,
-                name,
-                masterKey,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        );
-    }
 }

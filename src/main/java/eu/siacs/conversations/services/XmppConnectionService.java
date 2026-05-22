@@ -2133,7 +2133,7 @@ public class XmppConnectionService extends Service {
 
     /**
      * Opens the encrypted database on a background thread to avoid blocking the main thread with
-     * the AndroidKeyStore MasterKey build and SQLCipher Argon2id KDF. Posts back to the main
+     * the AndroidKeyStore key setup and SQLCipher Argon2id KDF. Posts back to the main
      * thread when done (success or failure).
      */
     private void initializeDatabaseInBackground() {
