@@ -342,6 +342,8 @@ public class XmppConnectionService extends Service {
     public DatabaseBackend databaseBackend;
     private eu.siacs.conversations.EncryptionException mCriticalError = null;
     private boolean mNeedsPassword = false;
+    private volatile boolean mDatabaseReady = false;
+    private final List<Runnable> mDbReadyCallbacks = new ArrayList<>();
 
     public eu.siacs.conversations.EncryptionException getCriticalError() {
         return mCriticalError;
@@ -349,6 +351,33 @@ public class XmppConnectionService extends Service {
 
     public boolean needsPassword() {
         return mNeedsPassword;
+    }
+
+    public boolean isDatabaseReady() {
+        return mDatabaseReady;
+    }
+
+    /** True while the background DB-init thread is running (not yet ready, no error yet). */
+    public boolean isInitializing() {
+        return !mDatabaseReady && !mNeedsPassword && mCriticalError == null;
+    }
+
+    /**
+     * Run {@code r} on the main thread once the database is ready (or in an error/needs-password
+     * state). If already in a terminal state, {@code r} is posted immediately.
+     * Must be called from the main thread.
+     */
+    public void runWhenDatabaseReady(final Runnable r) {
+        if (!isInitializing()) {
+            mLiveLocationHandler.post(r);
+        } else {
+            mDbReadyCallbacks.add(r);
+        }
+    }
+
+    private void notifyDbReadyCallbacks() {
+        for (final Runnable r : mDbReadyCallbacks) r.run();
+        mDbReadyCallbacks.clear();
     }
     private Multimap<String, String> mutedMucUsers;
     private final ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor("ContactMerger");
@@ -636,7 +665,7 @@ public class XmppConnectionService extends Service {
     private final BroadcastReceiver mInternalRestrictedEventReceiver =
             new RestrictedEventReceiver(Arrays.asList(TorServiceUtils.ACTION_STATUS));
     private final BroadcastReceiver mInternalScreenEventReceiver = new InternalEventReceiver();
-    private EmojiSearch emojiSearch = null;
+    private volatile EmojiSearch emojiSearch = null;
 
     private static String generateFetchKey(Account account, final Avatar avatar) {
         return account.getJid().asBareJid() + "_" + avatar.owner + "_" + avatar.sha1sum;
@@ -2057,7 +2086,8 @@ public class XmppConnectionService extends Service {
         de.monocles.chat.AndroidLoggingHandler.reset(new de.monocles.chat.AndroidLoggingHandler());
         java.util.logging.Logger.getLogger("").setLevel(java.util.logging.Level.FINEST);
         LibIdnXmppStringprep.setup();
-        emojiSearch = new EmojiSearch(this);
+        final Context appCtx = getApplicationContext();
+        new Thread(() -> { emojiSearch = new EmojiSearch(appCtx); }, "emoji-init").start();
         setTheme(R.style.Theme_Conversations3);
         ThemeHelper.applyCustomColors(this);
         if (Compatibility.runsTwentySix()) {
@@ -2097,34 +2127,60 @@ public class XmppConnectionService extends Service {
                     getPreferences().getLong(SETTING_LAST_ACTIVITY_TS, System.currentTimeMillis());
         }
 
-        Log.d(Config.LOGTAG, "initializing database...");
+        Log.d(Config.LOGTAG, "starting database initialization in background...");
+        new Thread(this::initializeDatabaseInBackground, "db-init").start();
+    }
+
+    /**
+     * Opens the encrypted database on a background thread to avoid blocking the main thread with
+     * the AndroidKeyStore MasterKey build and SQLCipher Argon2id KDF. Posts back to the main
+     * thread when done (success or failure).
+     */
+    private void initializeDatabaseInBackground() {
+        final DatabaseBackend backend;
         try {
-            appSettings.checkEncryptionOrThrow();
-            this.databaseBackend = DatabaseBackend.getInstance(getApplicationContext());
-        } catch (eu.siacs.conversations.EncryptionException e) {
-            this.accounts = new java.util.ArrayList<>();
-            if (e.reason == eu.siacs.conversations.EncryptionException.Reason.NEEDS_SESSION_PASSWORD) {
-                Log.i(Config.LOGTAG, "Database requires startup password — waiting for user");
-                this.mNeedsPassword = true;
-            } else {
-                Log.e(Config.LOGTAG, "Critical keystore failure during service startup", e);
-                this.mCriticalError = e;
-            }
+            backend = DatabaseBackend.getInstance(getApplicationContext());
+        } catch (final eu.siacs.conversations.EncryptionException e) {
+            mLiveLocationHandler.post(() -> {
+                this.accounts = new java.util.ArrayList<>();
+                if (e.reason == eu.siacs.conversations.EncryptionException.Reason.NEEDS_SESSION_PASSWORD) {
+                    Log.i(Config.LOGTAG, "Database requires startup password — waiting for user");
+                    this.mNeedsPassword = true;
+                } else {
+                    Log.e(Config.LOGTAG, "Critical keystore failure during service startup", e);
+                    this.mCriticalError = e;
+                }
+                notifyDbReadyCallbacks();
+            });
             return;
         }
         Log.d(Config.LOGTAG, "restoring accounts...");
+        final List<Account> loadedAccounts;
         try {
-            this.accounts = databaseBackend.getAccounts();
-        } catch (net.zetetic.database.sqlcipher.SQLiteNotADatabaseException e) {
-            Log.e(Config.LOGTAG, "Wrong database key on getAccounts", e);
-            DatabaseBackend.closeInstance();
-            this.databaseBackend = null;
-            eu.siacs.conversations.AppSettings.clearSessionPassword();
-            this.mCriticalError = new eu.siacs.conversations.EncryptionException(
-                    "Wrong database key", e, eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY);
-            this.accounts = new java.util.ArrayList<>();
+            loadedAccounts = backend.getAccounts();
+        } catch (final net.zetetic.database.sqlcipher.SQLiteNotADatabaseException e) {
+            mLiveLocationHandler.post(() -> {
+                Log.e(Config.LOGTAG, "Wrong database key on getAccounts", e);
+                DatabaseBackend.closeInstance();
+                eu.siacs.conversations.AppSettings.clearSessionPassword();
+                this.mCriticalError = new eu.siacs.conversations.EncryptionException(
+                        "Wrong database key", e, eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY);
+                this.accounts = new java.util.ArrayList<>();
+                notifyDbReadyCallbacks();
+            });
             return;
         }
+        mLiveLocationHandler.post(() -> continueAfterDbInit(backend, loadedAccounts));
+    }
+
+    /**
+     * Continues service setup on the main thread once the database is open and accounts loaded.
+     * Mirrors what was previously the second half of onCreate().
+     */
+    private void continueAfterDbInit(final DatabaseBackend backend, final List<Account> loadedAccounts) {
+        this.databaseBackend = backend;
+        this.accounts = loadedAccounts;
+
         for (Account account : this.accounts) {
             final int color = getPreferences().getInt("account_color:" + account.getUuid(), 0);
             if (color != 0) account.setColor(color);
@@ -2149,6 +2205,7 @@ public class XmppConnectionService extends Service {
             eu.siacs.conversations.AppSettings.clearSessionPassword();
             this.mCriticalError = new eu.siacs.conversations.EncryptionException(
                     "Wrong database key", e, eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY);
+            notifyDbReadyCallbacks();
             return;
         }
 
@@ -2241,6 +2298,9 @@ public class XmppConnectionService extends Service {
                         }
                     }
                 });
+
+        mDatabaseReady = true;
+        notifyDbReadyCallbacks();
     }
 
     private void checkForDeletedFiles() {

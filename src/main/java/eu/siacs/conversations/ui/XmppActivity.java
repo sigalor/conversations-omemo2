@@ -173,37 +173,7 @@ public abstract class XmppActivity extends ActionBarActivity {
                     xmppConnectionService = binder.getService();
                     staticXmppConnectionService = binder.getService();
                     xmppConnectionServiceBound = true;
-                    final eu.siacs.conversations.EncryptionException err =
-                            xmppConnectionService.getCriticalError();
-                    if (xmppConnectionService.needsPassword() && AppSettings.isSessionUnlocked()) {
-                        // Service was already running without DB access; session pw now available
-                        // — restart so onCreate() re-runs with the password.
-                        unregisterListeners();
-                        unbindService(mConnection);
-                        xmppConnectionServiceBound = false;
-                        stopService(new Intent(XmppActivity.this, XmppConnectionService.class));
-                        connectToBackend();
-                    } else if (xmppConnectionService.needsPassword()) {
-                        // Service locked and user hasn't entered password yet (shouldn't normally
-                        // reach here; onStart guards it, but handle defensively).
-                        showStartupPasswordPrompt();
-                    } else if (err != null
-                            && err.reason == eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY
-                            && new AppSettings(XmppActivity.this).isPasswordOnStartupRequired()) {
-                        // Wrong startup password — clear and let the user retry
-                        AppSettings.clearSessionPassword();
-                        unregisterListeners();
-                        unbindService(mConnection);
-                        xmppConnectionServiceBound = false;
-                        stopService(new Intent(XmppActivity.this, XmppConnectionService.class));
-                        mStartupPasswordError = getString(R.string.toast_wrong_startup_password);
-                        showStartupPasswordPrompt();
-                    } else if (err != null) {
-                        showCriticalErrorDialog(err);
-                    } else {
-                        registerListeners();
-                        onBackendConnected();
-                    }
+                    handleServiceConnected();
                 }
 
                 @Override
@@ -386,6 +356,50 @@ public abstract class XmppActivity extends ActionBarActivity {
             Log.w(Config.LOGTAG, "unable to start service from " + getClass().getSimpleName());
         }
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
+     * Called once the service binder is available (and again via callback if the service is still
+     * opening the database in its background init thread). Guards against activity lifecycle races.
+     */
+    private void handleServiceConnected() {
+        if (isFinishing() || isDestroyed() || !xmppConnectionServiceBound) return;
+        if (xmppConnectionService.isInitializing()) {
+            // DB open is still running in the background — register a callback and wait.
+            xmppConnectionService.runWhenDatabaseReady(this::handleServiceConnected);
+            return;
+        }
+        final eu.siacs.conversations.EncryptionException err =
+                xmppConnectionService.getCriticalError();
+        if (xmppConnectionService.needsPassword() && AppSettings.isSessionUnlocked()) {
+            // Service was already running without DB access; session pw now available
+            // — restart so onCreate() re-runs with the password.
+            unregisterListeners();
+            unbindService(mConnection);
+            xmppConnectionServiceBound = false;
+            stopService(new Intent(XmppActivity.this, XmppConnectionService.class));
+            connectToBackend();
+        } else if (xmppConnectionService.needsPassword()) {
+            // Service locked and user hasn't entered password yet (shouldn't normally
+            // reach here; onStart guards it, but handle defensively).
+            showStartupPasswordPrompt();
+        } else if (err != null
+                && err.reason == eu.siacs.conversations.EncryptionException.Reason.DB_WRONG_KEY
+                && new AppSettings(XmppActivity.this).isPasswordOnStartupRequired()) {
+            // Wrong startup password — clear and let the user retry
+            AppSettings.clearSessionPassword();
+            unregisterListeners();
+            unbindService(mConnection);
+            xmppConnectionServiceBound = false;
+            stopService(new Intent(XmppActivity.this, XmppConnectionService.class));
+            mStartupPasswordError = getString(R.string.toast_wrong_startup_password);
+            showStartupPasswordPrompt();
+        } else if (err != null) {
+            showCriticalErrorDialog(err);
+        } else {
+            registerListeners();
+            onBackendConnected();
+        }
     }
 
     @Override

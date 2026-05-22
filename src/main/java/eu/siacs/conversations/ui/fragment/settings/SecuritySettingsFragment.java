@@ -203,8 +203,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                         .getDefaultSharedPreferences(requireContext())
                         .edit().putBoolean(AppSettings.REQUIRE_PASSWORD_ON_STARTUP, true).commit();
                 try {
-                    new AppSettings(requireContext()).getEncryptedPreferences()
-                            .edit().remove(AppSettings.DATABASE_PASSWORD).commit();
+                    new AppSettings(requireContext()).clearPersistedDatabasePassword();
                 } catch (Exception e) {
                     android.util.Log.e("SecuritySettings",
                             "Could not remove stored DB password", e);
@@ -239,7 +238,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
             androidx.preference.PreferenceManager
                     .getDefaultSharedPreferences(requireContext())
                     .edit().putBoolean(AppSettings.REQUIRE_PASSWORD_ON_STARTUP, false).commit();
-            // Write the password back to EncryptedSharedPreferences
+            // Write the password back to persistent storage (DataStore+Tink)
             new AppSettings(requireContext()).setDatabasePassword(sessionPw);
             // Clear the in-memory copy (persistent storage is now the source of truth again)
             AppSettings.clearSessionPassword();

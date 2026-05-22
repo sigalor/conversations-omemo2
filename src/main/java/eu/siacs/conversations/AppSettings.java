@@ -42,7 +42,6 @@ public class AppSettings {
     public static final String LOAD_PROVIDERS_EXTERNAL = "load_providers_list_external";
     public static final String RINGTONE = "call_ringtone";
     public static final String BTBV = "btbv";
-    public static final String DATABASE_PASSWORD = "database_password";
     public static final String APP_LOCK_PIN = "app_lock_pin";
 
     public static final String CONFIRM_MESSAGES = "confirm_messages";
@@ -356,27 +355,13 @@ public class AppSettings {
             }
             return sSessionPassword.clone(); // no String ever created in this path
         }
-        // Normal mode: SharedPreferences API returns a String — unavoidable at the OS boundary.
-        // Convert to char[] immediately and let the String reference go out of scope.
         try {
-            final SharedPreferences encryptedPrefs = getEncryptedPreferences();
-            String pw = encryptedPrefs.getString(DATABASE_PASSWORD, null);
-            if (pw == null) {
-                final SharedPreferences normalPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-                final String legacyPw = normalPrefs.getString(DATABASE_PASSWORD, null);
-                if (legacyPw != null) {
-                    encryptedPrefs.edit().putString(DATABASE_PASSWORD, legacyPw).commit();
-                    normalPrefs.edit().remove(DATABASE_PASSWORD).commit();
-                    Log.d("AppSettings", "Migrated database password to encrypted storage");
-                    pw = legacyPw;
-                }
-            }
-            return pw != null ? pw.toCharArray() : null;
+            return new SecurePasswordStorage(context).readPassword();
         } catch (EncryptionException e) {
             throw e;
         } catch (Exception e) {
-            Log.e("AppSettings", "Could not load encrypted shared preferences", e);
-            throw new EncryptionException("Could not load encrypted shared preferences", e);
+            Log.e("AppSettings", "Could not read secure password storage", e);
+            throw new EncryptionException("Could not read secure password storage", e);
         }
     }
 
@@ -394,27 +379,21 @@ public class AppSettings {
             } else {
                 setSessionPassword(password); // no String created
             }
-            // Purge any stale entry that might exist in encrypted storage.
-            try {
-                getEncryptedPreferences().edit().remove(DATABASE_PASSWORD).commit();
-            } catch (Exception ignored) {}
-            PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
+            // Purge any stale entry that might exist in persistent storage.
+            clearPersistedDatabasePassword();
             return;
         }
-        // Normal mode: SharedPreferences only supports putString — create the String inline so
-        // its scope is limited to this single call and no reference escapes this method.
         try {
-            final SharedPreferences encryptedPrefs = getEncryptedPreferences();
-            encryptedPrefs.edit()
-                    .putString(DATABASE_PASSWORD, password != null ? new String(password) : null)
-                    .commit();
-            PreferenceManager.getDefaultSharedPreferences(context).edit().remove(DATABASE_PASSWORD).apply();
-        } catch (EncryptionException e) {
-            throw e;
+            new SecurePasswordStorage(context).writePassword(password);
         } catch (Exception e) {
-            Log.e("AppSettings", "Could not save encrypted shared preferences", e);
-            throw new EncryptionException("Could not save encrypted shared preferences", e);
+            Log.e("AppSettings", "Could not write to secure password storage", e);
+            throw new EncryptionException("Could not write to secure password storage", e);
         }
+    }
+
+    /** Erase the database password from persistent storage. */
+    public void clearPersistedDatabasePassword() {
+        try { new SecurePasswordStorage(context).writePassword(null); } catch (Exception ignored) {}
     }
 
     public void checkEncryptionOrThrow() throws EncryptionException {
@@ -422,17 +401,17 @@ public class AppSettings {
         if (chars != null) java.util.Arrays.fill(chars, '\0');
     }
 
-    public SharedPreferences getEncryptedPreferences() throws Exception {
-        return getEncryptedPreferences("encrypted_settings");
-    }
-
+    /** Creates an EncryptedSharedPreferences instance for the given name. Used by EasylockSP ("Lockscreen"). */
     public SharedPreferences getEncryptedPreferences(String name) throws Exception {
-        MasterKey masterKey = new MasterKey.Builder(context)
+        final Context appContext = context.getApplicationContext();
+        final boolean hasStrongBox = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P
+                && appContext.getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_STRONGBOX_KEYSTORE);
+        final MasterKey masterKey = new MasterKey.Builder(appContext)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .setRequestStrongBoxBacked(true)
+                .setRequestStrongBoxBacked(hasStrongBox)
                 .build();
         return EncryptedSharedPreferences.create(
-                context,
+                appContext,
                 name,
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
