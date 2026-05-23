@@ -19,6 +19,7 @@ repositories {
     google()
     mavenCentral()
     maven { url='https://jitpack.io'}
+    maven { url='https://raw.githubusercontent.com/mollyim/maven/master/argon2/releases/' }
 }
 
 
@@ -138,6 +139,7 @@ dependencies {
     implementation "androidx.sqlite:sqlite:2.6.2"
     implementation "com.google.crypto.tink:tink-android:1.21.0"
     implementation "androidx.datastore:datastore-preferences:1.2.1"
+    implementation "im.molly:argon2:13.1-1"
 }
 
 ext {

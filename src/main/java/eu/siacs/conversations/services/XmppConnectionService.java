@@ -2154,6 +2154,18 @@ public class XmppConnectionService extends Service {
             });
             return;
         }
+        // Pre-warm UnifiedPushDatabase on this background thread so its Argon2id key derivation
+        // never runs on the main thread. UnifiedPushDatabase.getInstance() is called from
+        // BroadcastReceiver.onReceive() (main thread) and the XMPP connection thread; without
+        // pre-warming, the first call from either thread triggers 2-4s of Argon2id computation
+        // and can cause an ANR if it races with a main-thread caller holding the class lock.
+        try {
+            eu.siacs.conversations.persistance.UnifiedPushDatabase.getInstance(
+                    getApplicationContext());
+        } catch (final Exception e) {
+            Log.w(Config.LOGTAG, "Failed to pre-initialize UnifiedPushDatabase (non-fatal)", e);
+        }
+
         Log.d(Config.LOGTAG, "restoring accounts...");
         final List<Account> loadedAccounts;
         try {

@@ -80,6 +80,11 @@ public class AppSettings {
     public static final String CUSTOM_RESOURCE_NAME = "custom_resource_name";
     public static final int CUSTOM_RESOURCE_NAME_MAX_LENGTH = 64;
 
+    // KDF version preference: absent or "pbkdf2" means legacy SQLCipher PBKDF2;
+    // "argon2id" means the external Argon2id + KeyStore HMAC raw-key approach.
+    private static final String DB_KDF_VERSION = "db_kdf_version";
+    private static final String DB_KDF_ARGON2ID = "argon2id";
+
     // In-memory session password: the char[] the user typed at startup.
     // Never written to disk. Zeroed when no longer needed. Null when locked.
     private static volatile char[] sSessionPassword = null;
@@ -397,6 +402,113 @@ public class AppSettings {
     public void checkEncryptionOrThrow() throws EncryptionException {
         final char[] chars = getDatabasePasswordChars();
         if (chars != null) java.util.Arrays.fill(chars, '\0');
+    }
+
+    // ── Argon2id KDF state ─────────────────────────────────────────────────────────
+
+    /** Returns true if the database is encrypted using Argon2id + KeyStore HMAC raw key. */
+    public boolean isArgon2idKdf() {
+        return DB_KDF_ARGON2ID.equals(
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .getString(DB_KDF_VERSION, null));
+    }
+
+    /** Marks the database as using Argon2id KDF. Called after a successful migration. */
+    public void setArgon2idKdf() {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putString(DB_KDF_VERSION, DB_KDF_ARGON2ID).commit();
+    }
+
+    /**
+     * Clears Argon2id KDF state (KDF version preference + all stored salts).
+     * Call when disabling database encryption so the state does not persist.
+     */
+    public void clearArgon2State() {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().remove(DB_KDF_VERSION).commit();
+        final SecurePasswordStorage storage = new SecurePasswordStorage(context);
+        try { storage.writeSalt(null); } catch (Exception ignored) {}
+        try { storage.writeUpdbSalt(null); } catch (Exception ignored) {}
+    }
+
+    /**
+     * Clears the KDF version flag and the main database Argon2id salt only.
+     * Does NOT clear the UnifiedPush database salt, so that UnifiedPushDatabase.migrate()
+     * can still read its own salt to open the old file after this call.
+     */
+    public void clearMainDbArgon2State() {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().remove(DB_KDF_VERSION).commit();
+        try { new SecurePasswordStorage(context).writeSalt(null); } catch (Exception ignored) {}
+    }
+
+    /**
+     * Returns the stored Argon2id salt for the main database, or null if not yet generated.
+     * The salt is public (not secret) but must be persisted across restarts.
+     */
+    public byte[] getArgon2Salt() {
+        try {
+            return new SecurePasswordStorage(context).readSalt();
+        } catch (Exception e) {
+            Log.e("AppSettings", "Could not read Argon2id salt", e);
+            return null;
+        }
+    }
+
+    /**
+     * Returns the stored Argon2id salt for the UnifiedPush distributor database.
+     * Returns null when the UPDB has not yet been migrated to Argon2id.
+     */
+    public byte[] getArgon2SaltForUpdb() {
+        try {
+            return new SecurePasswordStorage(context).readUpdbSalt();
+        } catch (Exception e) {
+            Log.e("AppSettings", "Could not read Argon2id UPDB salt", e);
+            return null;
+        }
+    }
+
+    /**
+     * Atomically persists both the database password and the UnifiedPush DB Argon2id salt.
+     */
+    public void setUpdbPasswordAndSalt(final char[] password, final byte[] salt) {
+        try {
+            new SecurePasswordStorage(context).writeUpdbSalt(salt);
+        } catch (Exception e) {
+            Log.e("AppSettings", "Could not persist Argon2id UPDB salt", e);
+            throw new EncryptionException("Could not persist Argon2id UPDB salt", e);
+        }
+        // The shared password is already set by setDatabasePasswordAndSalt(); don't overwrite.
+    }
+
+    /**
+     * Atomically persists both the database password and the Argon2id salt so that
+     * neither can be written without the other.
+     */
+    public void setDatabasePasswordAndSalt(final char[] password, final byte[] salt) {
+        if (isPasswordOnStartupRequired()) {
+            // Startup-required mode: keep password off-disk, but persist the salt.
+            if (password != null) setSessionPassword(password);
+            else {
+                clearSessionPassword();
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().putBoolean(REQUIRE_PASSWORD_ON_STARTUP, false).commit();
+            }
+            clearPersistedDatabasePassword();
+            try {
+                new SecurePasswordStorage(context).writeSalt(salt);
+            } catch (Exception e) {
+                Log.e("AppSettings", "Could not persist Argon2id salt", e);
+                throw new EncryptionException("Could not persist Argon2id salt", e);
+            }
+            return;
+        }
+        try {
+            new SecurePasswordStorage(context).writePasswordAndSalt(password, salt);
+        } catch (Exception e) {
+            Log.e("AppSettings", "Could not write password and salt", e);
+            throw new EncryptionException("Could not write password and salt", e);
+        }
     }
 
 }

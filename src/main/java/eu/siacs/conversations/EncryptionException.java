@@ -1,7 +1,7 @@
 package eu.siacs.conversations;
 
 public class EncryptionException extends RuntimeException {
-    public enum Reason { GENERIC, NEEDS_SESSION_PASSWORD, DB_WRONG_KEY }
+    public enum Reason { GENERIC, NEEDS_SESSION_PASSWORD, DB_WRONG_KEY, KEYSTORE_ERROR }
 
     public final Reason reason;
 

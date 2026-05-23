@@ -42,33 +42,62 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
     public static synchronized void migrate(Context context, char[] oldPassword, char[] newPassword) throws Exception {
         closeInstance();
         System.loadLibrary("sqlcipher");
+        final AppSettings settings = new AppSettings(context);
         File dbFile = context.getDatabasePath(DATABASE_NAME);
+
+        final byte[] newSalt = (newPassword != null)
+                ? eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.generateSalt()
+                : null;
+        final byte[] newRawKey = (newPassword != null)
+                ? eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveRawKeyBytes(newPassword, newSalt)
+                : null;
+
         if (!dbFile.exists()) {
-            new AppSettings(context).setDatabasePassword(newPassword);
+            persistNewKeyState(settings, newPassword, newSalt, newRawKey);
+            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
             return;
         }
 
         File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
         if (tempFile.exists() && !tempFile.delete()) {
+            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
             throw new java.io.IOException("Failed to delete existing temporary database file");
         }
         if (tempFile.getParentFile() != null && !tempFile.getParentFile().exists() && !tempFile.getParentFile().mkdirs()) {
+            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
             throw new java.io.IOException("Failed to create database directory");
         }
         if (!tempFile.createNewFile()) {
+            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
             throw new java.io.IOException("Failed to create temporary database file");
         }
 
-        final byte[] oldPwBytes = oldPassword != null ? DatabaseBackend.charsToUtf8Bytes(oldPassword) : null;
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(
-                dbFile.getAbsolutePath(), oldPwBytes, null,
-                SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
-                oldPwBytes != null ? DatabaseBackend.DATABASE_HOOK : null);
-        if (oldPwBytes != null) java.util.Arrays.fill(oldPwBytes, (byte) 0);
+        // Open source DB with the old key.  Use the UPDB-specific salt (not the main DB's)
+        // so that a prior main-DB migration cannot corrupt this derivation.
+        final byte[] oldKeyBytes;
+        final byte[] oldUpdbSalt = settings.getArgon2SaltForUpdb();
+        if (oldUpdbSalt != null) {
+            // UPDB was already migrated to Argon2id — derive its key with the UPDB salt.
+            oldKeyBytes = (oldPassword != null)
+                    ? eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveRawKeyBytes(oldPassword, oldUpdbSalt)
+                    : null;
+        } else {
+            // UPDB not yet on Argon2id (or no encryption) — use PBKDF2 passphrase bytes.
+            oldKeyBytes = oldPassword != null ? DatabaseBackend.charsToUtf8Bytes(oldPassword) : null;
+        }
+
+        SQLiteDatabase db;
+        try {
+            db = SQLiteDatabase.openDatabase(
+                    dbFile.getAbsolutePath(), oldKeyBytes, null,
+                    SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+                    DatabaseBackend.hookForKey(oldKeyBytes));
+        } finally {
+            if (oldKeyBytes != null) java.util.Arrays.fill(oldKeyBytes, (byte) 0);
+        }
+
         int version = db.getVersion();
 
-        // Optimization: DB is just-created and empty (onCreate never ran). Delete it and set
-        // the password now; the next getInstance() will build the schema encrypted via onCreate.
         final boolean isEmpty;
         try (final Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table'", null)) {
             isEmpty = version == 0 && c != null && c.moveToFirst() && c.getInt(0) == 0;
@@ -79,38 +108,39 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             FileHelper.secureDelete(dbFile);
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
             FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
-            new AppSettings(context).setDatabasePassword(newPassword);
+            persistNewKeyState(settings, newPassword, newSalt, newRawKey);
+            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
             return;
         }
 
         try {
-            // Set Argon2id parameters as connection-wide defaults so the attached DB inherits them
-            db.rawExecSQL("PRAGMA cipher_default_kdf_algorithm = argon2id;");
-            db.rawExecSQL("PRAGMA cipher_default_memory_limit = 65536;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_iterations = 3;");
-            db.rawExecSQL("PRAGMA cipher_default_kdf_parallelism = 4;");
+            db.rawExecSQL("PRAGMA cipher_default_use_hmac = ON;");
+            db.rawExecSQL("PRAGMA cipher_default_memory_security = ON;");
 
-            // ATTACH KEY must be a SQL string literal — unavoidable String; null it immediately.
-            String newPwStr = newPassword == null ? "" : new String(newPassword);
-            final String escapedNewPassword = DatabaseUtils.sqlEscapeString(newPwStr);
-            newPwStr = null;
-            String attachSql = "ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath()) + " AS encrypted KEY " + escapedNewPassword;
-            db.rawExecSQL(attachSql);
+            // Wrap key in SQL string quotes — see DatabaseBackend.migrate() for the explanation
+            // of why a SQL blob literal (x'...') would silently use PBKDF2 instead of raw mode.
+            final String attachKeySql;
+            if (newRawKey != null) {
+                String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
+                attachKeySql = "'" + keyStr.replace("'", "''") + "'";
+            } else {
+                attachKeySql = "''";
+            }
+            db.rawExecSQL("ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
+                    + " AS encrypted KEY " + attachKeySql);
             db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
             db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
             db.rawExecSQL("DETACH DATABASE encrypted;");
         } finally {
             db.close();
+            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
         }
 
-        final AppSettings settings = new AppSettings(context);
         final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
         if (backupFile.exists() && !backupFile.delete()) {
             throw new java.io.IOException("Failed to delete existing backup file");
         }
 
-        // Sentinel mirrors the DatabaseBackend migration pattern — protects against process kill
-        // between the file rename and the prefs write.
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit().putBoolean("rekey_migration_updb_in_progress", true).commit();
 
@@ -125,7 +155,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                 }
                 throw new java.io.IOException("Failed to rename temporary database file");
             }
-            settings.setDatabasePassword(newPassword);
+            persistNewKeyState(settings, newPassword, newSalt, null);
             prefsUpdated = true;
             PreferenceManager.getDefaultSharedPreferences(context)
                     .edit().remove("rekey_migration_updb_in_progress").commit();
@@ -143,20 +173,54 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         }
     }
 
-    private UnifiedPushDatabase(@Nullable Context context) {
-        super(context, DATABASE_NAME, getPasswordBytes(context), null, DATABASE_VERSION, 0, null, DatabaseBackend.DATABASE_HOOK, true);
+    private static void persistNewKeyState(
+            AppSettings settings, char[] newPassword, byte[] newSalt, byte[] ignoredRawKey) {
+        if (newPassword != null) {
+            // Only update the UPDB-specific salt; the shared password and KDF flag are
+            // managed by DatabaseBackend.migrate() which always runs before this.
+            settings.setUpdbPasswordAndSalt(newPassword, newSalt);
+            settings.setArgon2idKdf(); // idempotent if already set by DatabaseBackend
+        } else {
+            // Disabling encryption — clear the UPDB salt and remaining Argon2 state.
+            // (Password and main DB salt are already cleared by DatabaseBackend.migrate().)
+            settings.setDatabasePassword(null); // idempotent
+            settings.clearArgon2State();        // clears UPDB salt + KDF flag
+        }
     }
 
-    private static byte[] getPasswordBytes(Context context) {
-        try {
-            final char[] chars = new AppSettings(context).getDatabasePasswordChars();
-            if (chars == null) return null;
-            final byte[] bytes = DatabaseBackend.charsToUtf8Bytes(chars);
-            java.util.Arrays.fill(chars, '\0');
-            return bytes;
-        } catch (eu.siacs.conversations.EncryptionException e) {
-            return null;
+    /**
+     * Derives the key bytes for the UnifiedPush distributor database.
+     * Uses the UPDB-specific Argon2id salt when available; falls back to the PBKDF2
+     * passphrase path when the UPDB has not yet been migrated or has no encryption.
+     */
+    private static byte[] getKeyBytesForUpdb(Context context) {
+        final AppSettings appSettings = new AppSettings(context);
+        final byte[] updbSalt = appSettings.getArgon2SaltForUpdb();
+        if (updbSalt != null) {
+            final char[] password = appSettings.getDatabasePasswordChars();
+            if (password == null) return null;
+            try {
+                return eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
+                        .deriveRawKeyBytes(password, updbSalt);
+            } finally {
+                java.util.Arrays.fill(password, '\0');
+            }
         }
+        // UPDB not yet migrated to Argon2id, or no encryption.
+        final char[] chars = appSettings.getDatabasePasswordChars();
+        if (chars == null) return null;
+        final byte[] bytes = DatabaseBackend.charsToUtf8Bytes(chars);
+        java.util.Arrays.fill(chars, '\0');
+        return bytes;
+    }
+
+    private UnifiedPushDatabase(@Nullable Context context) {
+        this(context, getKeyBytesForUpdb(context));
+    }
+
+    private UnifiedPushDatabase(@Nullable Context context, byte[] keyBytes) {
+        super(context, DATABASE_NAME, keyBytes, null, DATABASE_VERSION, 0, null,
+                DatabaseBackend.hookForKey(keyBytes), true);
     }
 
     public static UnifiedPushDatabase getInstance(final Context context) {

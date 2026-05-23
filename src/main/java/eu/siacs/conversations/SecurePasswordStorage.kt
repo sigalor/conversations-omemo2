@@ -2,6 +2,7 @@ package eu.siacs.conversations
 
 import android.content.Context
 import android.util.Base64
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -18,6 +19,11 @@ import java.nio.charset.StandardCharsets
 import java.util.Arrays
 
 private val Context.securePasswordDataStore by preferencesDataStore(name = "secure_db_password")
+
+// Raw bytes stored/retrieved using the same Tink AEAD as the password.
+// The salt is not secret (Argon2 salts are public) but encrypting it gives tamper protection
+// and is consistent with the rest of the store.
+
 
 /**
  * Stores the database password encrypted with Tink AES-256-GCM, keyed by the Android Keystore.
@@ -38,6 +44,10 @@ class SecurePasswordStorage(context: Context) {
         private const val KEYSET_PREF_FILE = "db_password_keyset_prefs"
         private const val MASTER_KEY_URI = "android-keystore://db_password_master_key"
         private val PASSWORD_KEY = stringPreferencesKey("encrypted_db_password")
+        private val ARGON2_SALT_KEY = stringPreferencesKey("argon2_salt")
+        // Per-database salt: each SQLCipher database derives its own Argon2id key so that
+        // migrating one database does not invalidate another database's key material.
+        private val ARGON2_UPDB_SALT_KEY = stringPreferencesKey("argon2_salt_updb")
     }
 
     private val aead: Aead by lazy {
@@ -89,6 +99,73 @@ class SecurePasswordStorage(context: Context) {
             runBlocking { dataStore.edit { it[PASSWORD_KEY] = encoded } }
         } finally {
             Arrays.fill(plainBytes, 0.toByte())
+        }
+    }
+
+    /**
+     * Reads the Argon2id salt for the main database.
+     * Returns null if not stored (DB not yet keyed with Argon2id).
+     */
+    fun readSalt(): ByteArray? = readEncryptedBytes(ARGON2_SALT_KEY)
+
+    /** Persists the Argon2id salt for the main database. Pass null to erase. */
+    fun writeSalt(salt: ByteArray?) = writeEncryptedBytes(ARGON2_SALT_KEY, salt)
+
+    /**
+     * Reads the Argon2id salt for the UnifiedPush distributor database.
+     * Returns null when the UPDB has not yet been migrated to Argon2id (still PBKDF2).
+     */
+    fun readUpdbSalt(): ByteArray? = readEncryptedBytes(ARGON2_UPDB_SALT_KEY)
+
+    /** Persists the Argon2id salt for the UPDB. Pass null to erase. */
+    fun writeUpdbSalt(salt: ByteArray?) = writeEncryptedBytes(ARGON2_UPDB_SALT_KEY, salt)
+
+    private fun readEncryptedBytes(key: Preferences.Key<String>): ByteArray? {
+        val encoded: String = runBlocking {
+            dataStore.data.map { it[key] }.first()
+        } ?: return null
+        val ciphertext = Base64.decode(encoded, Base64.NO_WRAP)
+        return aead.decrypt(ciphertext, aad)
+    }
+
+    private fun writeEncryptedBytes(key: Preferences.Key<String>, value: ByteArray?) {
+        if (value == null) {
+            runBlocking { dataStore.edit { it.remove(key) } }
+            return
+        }
+        val ciphertext = aead.encrypt(value, aad)
+        val encoded = Base64.encodeToString(ciphertext, Base64.NO_WRAP)
+        runBlocking { dataStore.edit { it[key] = encoded } }
+    }
+
+    /**
+     * Atomically writes both the password and the Argon2id salt in a single DataStore
+     * transaction. Call this when enabling or changing the password to avoid a partial
+     * state where one is updated but not the other.
+     */
+    fun writePasswordAndSalt(password: CharArray?, salt: ByteArray?) {
+        val encodedPassword: String? = if (password != null) {
+            val plainBytes = charsToBytes(password)
+            try {
+                val ciphertext = aead.encrypt(plainBytes, aad)
+                Base64.encodeToString(ciphertext, Base64.NO_WRAP)
+            } finally {
+                Arrays.fill(plainBytes, 0.toByte())
+            }
+        } else null
+
+        val encodedSalt: String? = if (salt != null) {
+            val ciphertext = aead.encrypt(salt, aad)
+            Base64.encodeToString(ciphertext, Base64.NO_WRAP)
+        } else null
+
+        runBlocking {
+            dataStore.edit { prefs ->
+                if (encodedPassword != null) prefs[PASSWORD_KEY] = encodedPassword
+                else prefs.remove(PASSWORD_KEY)
+                if (encodedSalt != null) prefs[ARGON2_SALT_KEY] = encodedSalt
+                else prefs.remove(ARGON2_SALT_KEY)
+            }
         }
     }
 
