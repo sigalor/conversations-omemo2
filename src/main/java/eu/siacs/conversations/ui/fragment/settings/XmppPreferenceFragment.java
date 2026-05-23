@@ -127,6 +127,7 @@ public abstract class XmppPreferenceFragment extends PreferenceFragmentCompat {
         }
         listPreference.setEntries(entries);
         listPreference.setEntryValues(entryValues);
+        final CharSequence staticSummary = listPreference.getSummary();
         listPreference.setSummaryProvider(
                 new Preference.SummaryProvider<ListPreference>() {
                     @Nullable
@@ -134,7 +135,11 @@ public abstract class XmppPreferenceFragment extends PreferenceFragmentCompat {
                     public CharSequence provideSummary(@NonNull ListPreference preference) {
                         final Integer value =
                                 Ints.tryParse(Strings.nullToEmpty(preference.getValue()));
-                        return valueToName.apply(value == null ? 0 : value);
+                        final CharSequence valueName = valueToName.apply(value == null ? 0 : value);
+                        if (staticSummary != null && staticSummary.length() > 0) {
+                            return staticSummary + "\n" + valueName;
+                        }
+                        return valueName;
                     }
                 });
     }

@@ -33,6 +33,7 @@
             android:defaultValue="@integer/omemo_auto_expiry"
             android:icon="@drawable/ic_auto_delete_24dp"
             android:key="omemo_auto_expiry"
+            android:summary="@string/pref_omemo_auto_expiry_summary"
             android:title="@string/pref_omemo_auto_expiry" />
 
     </PreferenceCategory>
