@@ -29,6 +29,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "unified-push-distributor";
     private static final int DATABASE_VERSION = 1;
+    private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_updb_in_progress";
 
     private static UnifiedPushDatabase instance;
 
@@ -162,7 +163,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             }
 
             PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit().putBoolean("rekey_migration_updb_in_progress", true).commit();
+                    .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
 
             boolean prefsUpdated = false;
             try {
@@ -178,7 +179,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                 persistNewKeyState(settings, newPassword, newSalt, newAutoKey);
                 prefsUpdated = true;
                 PreferenceManager.getDefaultSharedPreferences(context)
-                        .edit().remove("rekey_migration_updb_in_progress").commit();
+                        .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
                 FileHelper.secureDelete(backupFile);
                 FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
                 FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
@@ -187,7 +188,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             } catch (Exception e) {
                 if (!prefsUpdated) {
                     PreferenceManager.getDefaultSharedPreferences(context)
-                            .edit().remove("rekey_migration_updb_in_progress").apply();
+                            .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
                 }
                 throw e;
             }
@@ -256,10 +257,45 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
         synchronized (UnifiedPushDatabase.class) {
             if (instance == null) {
                 System.loadLibrary("sqlcipher");
+                resetOnInterruptedMigration(context);
                 instance = new UnifiedPushDatabase(context.getApplicationContext());
             }
             return instance;
         }
+    }
+
+    /**
+     * If the process was killed during a UPDB rekey migration, delete all UPDB files and reset
+     * the UPDB key state to auto mode. UPDB data (push endpoint registrations) is non-critical
+     * and repopulated automatically, so a full crash recovery is unnecessary.
+     *
+     * Clearing the UPDB Argon2id salt ensures getKeyBytesForUpdb() always falls back to auto
+     * mode on the next open, regardless of whether the crash happened before or after
+     * persistNewKeyState() updated the prefs.
+     */
+    private static void resetOnInterruptedMigration(Context context) {
+        if (!androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(REKEY_MIGRATION_IN_PROGRESS, false)) return;
+
+        Log.w(Config.LOGTAG, "updb rekey: sentinel set — resetting UPDB after interrupted migration");
+
+        final File dbFile     = context.getDatabasePath(DATABASE_NAME);
+        final File tempFile   = context.getDatabasePath(DATABASE_NAME + ".tmp");
+        final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
+
+        for (final File f : new File[]{
+                dbFile,     new File(dbFile.getAbsolutePath()     + "-wal"), new File(dbFile.getAbsolutePath()     + "-shm"),
+                tempFile,   new File(tempFile.getAbsolutePath()   + "-wal"), new File(tempFile.getAbsolutePath()   + "-shm"),
+                backupFile, new File(backupFile.getAbsolutePath() + "-wal"), new File(backupFile.getAbsolutePath() + "-shm"),
+        }) {
+            if (f.exists()) FileHelper.secureDelete(f);
+        }
+
+        // Reset UPDB to auto mode so a fresh DB is created with a consistent key state.
+        new eu.siacs.conversations.AppSettings(context).clearUpdbArgon2Salt();
+
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
     }
 
 
