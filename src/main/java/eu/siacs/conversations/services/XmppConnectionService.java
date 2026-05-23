@@ -3132,7 +3132,8 @@ public class XmppConnectionService extends Service {
     }
 
     public boolean isOnboarding() {
-        return getAccounts().size() == 1 && getAccounts().get(0).getJid().getDomain().equals(Config.ONBOARDING_DOMAIN);
+        final List<Account> accounts = getAccounts();
+        return accounts != null && accounts.size() == 1 && accounts.get(0).getJid().getDomain().equals(Config.ONBOARDING_DOMAIN);
     }
 
     public void requestEasyOnboardingInvite(
