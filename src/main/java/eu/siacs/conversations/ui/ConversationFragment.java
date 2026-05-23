@@ -6474,7 +6474,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void persistKeyboardHeight(final int height) {
-        if (height > 100) {
+        if (height > 100 && activity != null) {
             lastKnownKeyboardHeight = height;
             PreferenceManager.getDefaultSharedPreferences(activity)
                     .edit().putInt(PREF_KEYBOARD_HEIGHT, height).apply();
