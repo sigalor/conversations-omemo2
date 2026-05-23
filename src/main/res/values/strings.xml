@@ -1725,7 +1725,7 @@
     <string name="ephemeral_messages_warning">Ephemeral messages are not guaranteed to disappear on other clients.</string>
     <string name="dont_show_again">Don’t show again</string>
     <string name="pref_database_encryption">Database encryption</string>
-    <string name="pref_database_encryption_summary">Encrypt the local database with a password</string>
+    <string name="pref_database_encryption_summary">The database is always encrypted. Set a password for stronger protection.</string>
     <string name="dialog_set_db_password_title">Set database password</string>
     <string name="dialog_change_db_password_title">Change database password</string>
     <string name="dialog_db_password_hint">Password</string>
@@ -1735,9 +1735,10 @@
     <string name="toast_db_password_error_wrong">Wrong current password</string>
     <string name="toast_db_password_success_set">Database password set</string>
     <string name="toast_db_password_success_changed">Database password changed</string>
-    <string name="toast_db_password_success_disabled">Database encryption disabled</string>
-    <string name="pref_database_encryption_summary_enabled">Database is encrypted</string>
-    <string name="pref_database_encryption_summary_disabled">Database is not encrypted</string>
+    <string name="toast_db_password_success_disabled">Database password removed</string>
+    <string name="pref_database_encryption_summary_enabled">Encrypted with a user password</string>
+    <string name="pref_database_encryption_summary_disabled">Encrypted automatically (no password set)</string>
+    <string name="dialog_remove_db_password_title">Remove database password</string>
     <string name="dialog_db_password_policy_warning">Warning: A weak password provides effectively no protection against an offline attacker who has access to your database file. Use a long and complex password.</string>
     <string name="toast_db_password_error_too_short">Password must be at least 8 characters long</string>
     <string name="dialog_db_password_no_lock_warning">Warning: Your device does not have a secure lock screen (PIN, Pattern, or Password). For maximum security, we highly recommend setting one up.</string>

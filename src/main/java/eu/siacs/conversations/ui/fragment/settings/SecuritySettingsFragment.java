@@ -342,7 +342,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
     private void showEncryptionOptionsDialog(char[] currentPassword) {
         final var builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setTitle(R.string.pref_database_encryption);
-        String[] options = {getString(R.string.dialog_change_db_password_title), getString(R.string.pref_database_encryption_summary_disabled)};
+        String[] options = {getString(R.string.dialog_change_db_password_title), getString(R.string.dialog_remove_db_password_title)};
         builder.setItems(options, (dialog, which) -> {
             // Clone so the sub-dialog owns its copy; dismiss listener will zero this original.
             if (which == 0) {
@@ -434,7 +434,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
     private void showDisableEncryptionDialog(char[] currentPassword) {
         final var builder = new MaterialAlertDialogBuilder(requireActivity());
-        builder.setTitle(R.string.pref_database_encryption_summary_disabled);
+        builder.setTitle(R.string.dialog_remove_db_password_title);
 
         final var layout = new LinearLayout(requireContext());
         layout.setOrientation(LinearLayout.VERTICAL);
