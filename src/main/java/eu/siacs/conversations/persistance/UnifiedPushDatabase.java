@@ -258,6 +258,7 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             if (instance == null) {
                 System.loadLibrary("sqlcipher");
                 resetOnInterruptedMigration(context);
+                encryptLegacyPlaintextDatabase(context);
                 instance = new UnifiedPushDatabase(context.getApplicationContext());
             }
             return instance;
@@ -298,6 +299,86 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                 .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
     }
 
+    /** Encrypts a plaintext UPDB left over from a pre-encryption release. Mirrors DatabaseBackend. */
+    private static void encryptLegacyPlaintextDatabase(Context context) {
+        final File dbFile = context.getDatabasePath(DATABASE_NAME);
+        if (!dbFile.exists() || !DatabaseBackend.looksLikePlainSqlite(dbFile)) return;
+
+        Log.i(Config.LOGTAG, "updb rekey: plaintext database from pre-encryption release — encrypting");
+
+        final eu.siacs.conversations.AppSettings settings = new eu.siacs.conversations.AppSettings(context);
+        final byte[] newAutoKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.generateRandomKey();
+        final byte[] newRawKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveAutoRawKeyBytes(newAutoKey);
+        try {
+            final File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
+            if (tempFile.exists() && !tempFile.delete()) {
+                throw new java.io.IOException("Failed to delete existing temp file");
+            }
+            if (!tempFile.createNewFile()) {
+                throw new java.io.IOException("Failed to create temp file");
+            }
+
+            final net.zetetic.database.sqlcipher.SQLiteDatabase db =
+                    net.zetetic.database.sqlcipher.SQLiteDatabase.openDatabase(
+                            dbFile.getAbsolutePath(), (byte[]) null, null,
+                            net.zetetic.database.sqlcipher.SQLiteDatabase.OPEN_READWRITE
+                                    | net.zetetic.database.sqlcipher.SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+                            null);
+            try {
+                final int version = db.getVersion();
+                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
+                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
+                db.rawExecSQL("ATTACH DATABASE "
+                        + android.database.DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
+                        + " AS encrypted KEY " + attachKeySql);
+                db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+                db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
+                db.rawExecSQL("DETACH DATABASE encrypted;");
+            } finally {
+                db.close();
+            }
+
+            final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
+            if (backupFile.exists()) backupFile.delete();
+
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
+
+            boolean prefsUpdated = false;
+            try {
+                if (!dbFile.renameTo(backupFile)) {
+                    throw new java.io.IOException("Failed to rename DB to backup");
+                }
+                if (!tempFile.renameTo(dbFile)) {
+                    if (!backupFile.renameTo(dbFile)) {
+                        Log.e(Config.LOGTAG, "updb rekey: CRITICAL — could not roll back legacy encryption");
+                    }
+                    throw new java.io.IOException("Failed to rename temp to DB");
+                }
+                settings.writeAutoKeyForUpdb(newAutoKey);
+                prefsUpdated = true;
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
+                FileHelper.secureDelete(backupFile);
+                FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+                Log.i(Config.LOGTAG, "updb rekey: legacy database successfully encrypted");
+            } catch (Exception e) {
+                if (!prefsUpdated) {
+                    androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                            .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                }
+                throw e;
+            }
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "updb rekey: failed to encrypt legacy plaintext database", e);
+        } finally {
+            java.util.Arrays.fill(newRawKey, (byte) 0);
+            java.util.Arrays.fill(newAutoKey, (byte) 0);
+        }
+    }
 
     @Override
     public void onCreate(final SQLiteDatabase sqLiteDatabase) {

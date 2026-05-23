@@ -510,6 +510,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (instance == null) {
             System.loadLibrary("sqlcipher");
             recoverFromInterruptedMigration(context);
+            encryptLegacyPlaintextDatabase(context);
             instance = new DatabaseBackend(context);
         }
         return instance;
@@ -594,6 +595,114 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         if (tempFile.exists()) tempFile.delete();
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+    }
+
+    /**
+     * Called once on first open after an upgrade from a pre-encryption release.
+     * If the database file has the SQLite plaintext magic header, exports its content
+     * into a fresh SQLCipher-encrypted copy using the same crash-safe rename sequence
+     * as migrate(), then stores the new auto key in DataStore.
+     *
+     * If the process is killed between the file rename and the DataStore write,
+     * recoverFromInterruptedMigration() (which runs first on the next start) will find
+     * the encrypted dbFile unreadable with the current key, restore the plaintext .bak,
+     * and this method will run again on that start — converging safely.
+     */
+    private static void encryptLegacyPlaintextDatabase(Context context) {
+        final File dbFile = context.getDatabasePath(DATABASE_NAME);
+        if (!dbFile.exists() || !looksLikePlainSqlite(dbFile)) return;
+
+        Log.i(Config.LOGTAG, "rekey: plaintext database from pre-encryption release — encrypting");
+
+        final AppSettings settings = new AppSettings(context);
+        final byte[] newAutoKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.generateRandomKey();
+        final byte[] newRawKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveAutoRawKeyBytes(newAutoKey);
+        try {
+            final File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
+            if (tempFile.exists() && !tempFile.delete()) {
+                throw new java.io.IOException("Failed to delete existing temp file");
+            }
+            if (!tempFile.createNewFile()) {
+                throw new java.io.IOException("Failed to create temp file");
+            }
+
+            // Open with null key — SQLCipher accepts plaintext databases this way.
+            final SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                    dbFile.getAbsolutePath(), (byte[]) null, null,
+                    SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+                    null);
+            try {
+                final int version = db.getVersion();
+                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
+                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
+                db.rawExecSQL("ATTACH DATABASE "
+                        + android.database.DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
+                        + " AS encrypted KEY " + attachKeySql);
+                db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+                db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
+                db.rawExecSQL("DETACH DATABASE encrypted;");
+            } finally {
+                db.close();
+            }
+
+            final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
+            if (backupFile.exists()) backupFile.delete();
+
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
+
+            boolean prefsUpdated = false;
+            try {
+                if (!dbFile.renameTo(backupFile)) {
+                    throw new java.io.IOException("Failed to rename DB to backup");
+                }
+                if (!tempFile.renameTo(dbFile)) {
+                    if (!backupFile.renameTo(dbFile)) {
+                        Log.e(Config.LOGTAG, "rekey: CRITICAL — could not roll back legacy encryption");
+                    }
+                    throw new java.io.IOException("Failed to rename temp to DB");
+                }
+                // Key written AFTER rename: crash before here leaves .bak (plaintext) recoverable.
+                settings.writeAutoKey(newAutoKey);
+                settings.setAutoKeyMode();
+                prefsUpdated = true;
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
+                FileHelper.secureDelete(backupFile);
+                FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+                Log.i(Config.LOGTAG, "rekey: legacy database successfully encrypted");
+            } catch (Exception e) {
+                if (!prefsUpdated) {
+                    PreferenceManager.getDefaultSharedPreferences(context)
+                            .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                }
+                throw e;
+            }
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "rekey: failed to encrypt legacy plaintext database", e);
+        } finally {
+            java.util.Arrays.fill(newRawKey, (byte) 0);
+            java.util.Arrays.fill(newAutoKey, (byte) 0);
+        }
+    }
+
+    /** True if the file starts with the 16-byte SQLite magic header (i.e. it is not encrypted). */
+    static boolean looksLikePlainSqlite(File file) {
+        // "SQLite format 3\0" — the invariant first 16 bytes of every plain SQLite database.
+        // SQLCipher-encrypted pages have random-looking bytes here instead.
+        final byte[] magic = {
+            0x53,0x51,0x4c,0x69,0x74,0x65,0x20,0x66,
+            0x6f,0x72,0x6d,0x61,0x74,0x20,0x33,0x00
+        };
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+            final byte[] header = new byte[16];
+            return fis.read(header) == 16 && java.util.Arrays.equals(header, magic);
+        } catch (java.io.IOException e) {
+            return false;
+        }
     }
 
     public static synchronized void closeInstance() {
