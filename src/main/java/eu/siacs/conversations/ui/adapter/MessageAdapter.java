@@ -50,6 +50,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -864,6 +865,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                 } else {
                     viewHolder.inReplyToQuote().setText(body.subSequence(start, end));
                     viewHolder.inReplyToQuote().setVisibility(View.VISIBLE);
+                    viewHolder.inReplyToBox().setVisibility(View.VISIBLE);
                     body.delete(start, end);
                     while (body.length() > start && body.charAt(start) == '\n')
                         body.delete(start, 1); // Newlines after quote
@@ -2008,13 +2010,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         } else {
             viewHolder.inReplyToBox().setVisibility(View.VISIBLE);
             viewHolder.inReplyTo().setText(UIHelper.getMessageDisplayName(message.getInReplyTo()));
-            viewHolder.inReplyTo().setOnClickListener(v -> {
-                ReplyClickListener l = listener.get();
-                if (l != null) {
-                    l.onReplyClick(message);
-                }
-            });
-            viewHolder.inReplyToQuote().setOnClickListener(v -> {
+            viewHolder.inReplyToBox().setOnClickListener(v -> {
                 ReplyClickListener l = listener.get();
                 if (l != null) {
                     l.onReplyClick(message);
@@ -2779,7 +2775,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         protected abstract ListView linkDescriptions();
 
-        protected abstract LinearLayout inReplyToBox();
+        protected abstract CardView inReplyToBox();
 
         protected abstract TextView inReplyTo();
 
@@ -2905,7 +2901,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         }
 
         @Override
-        protected LinearLayout inReplyToBox() {
+        protected CardView inReplyToBox() {
             return this.binding.messageContent.inReplyToBox;
         }
 
@@ -3070,7 +3066,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         }
 
         @Override
-        protected LinearLayout inReplyToBox() {
+        protected CardView inReplyToBox() {
             return this.binding.messageContent.inReplyToBox;
         }
 
