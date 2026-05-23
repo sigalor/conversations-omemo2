@@ -1443,8 +1443,15 @@ public class ConversationFragment extends XmppFragment
                 messageSent();
                 return;
             } else {
+                // Preserve the original stanza ID before the UUID changes, so recipients
+                // can still look up this message by the ID they stored on their side.
+                if (message.getRemoteMsgId() == null) {
+                    message.setRemoteMsgId(message.getUuid());
+                }
                 message.putEdited(message.getUuid(), message.getServerMsgId());
-                message.setServerMsgId(null);
+                // Do not clear serverMsgId: the edit reflection sets reflectedServerMsgId=null
+                // for edits, so markMessage won't overwrite it, and keeping the original
+                // server-assigned ID lets recipients look up this message after editing.
                 message.setUuid(UUID.randomUUID().toString());
             }
         }
