@@ -53,7 +53,9 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.SpannableStringBuilder;
+import android.text.StaticLayout;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
@@ -114,6 +116,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 
 import de.monocles.chat.BobTransfer;
+import de.monocles.chat.ui.CollapsableTextView;
 import de.monocles.chat.EmojiSearch;
 import de.monocles.chat.GifsAdapter;
 import de.monocles.chat.KeyboardHeightProvider;
@@ -362,6 +365,7 @@ public class ConversationFragment extends XmppFragment
     private int lastKnownKeyboardHeight = 0;
     private boolean keyboardCurrentlyVisible = false;
     private boolean emojiPickerRequestedByUser = false;
+    private boolean contextPreviewExpanded = false;
     private static final String PINNED_MESSAGE_KEY_PREFIX = "pinned_message_";
     private Vibrator vibrator;
 
@@ -2379,6 +2383,37 @@ public class ConversationFragment extends XmppFragment
             binding.contextPreviewText.setTextAppearance(
                     com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
         }
+        contextPreviewExpanded = false;
+        final DisplayMetrics previewMetrics = getResources().getDisplayMetrics();
+        final int previewMaxWidth = (int) (previewMetrics.widthPixels - 120 * previewMetrics.density);
+        final StaticLayout previewLayout;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            previewLayout = StaticLayout.Builder
+                    .obtain(body, 0, body.length(), binding.contextPreviewText.getPaint(), previewMaxWidth)
+                    .setLineSpacing(binding.contextPreviewText.getLineSpacingExtra(), binding.contextPreviewText.getLineSpacingMultiplier())
+                    .setIncludePad(binding.contextPreviewText.getIncludeFontPadding())
+                    .build();
+        } else {
+            previewLayout = new StaticLayout(body, binding.contextPreviewText.getPaint(), previewMaxWidth,
+                    Layout.Alignment.ALIGN_NORMAL,
+                    binding.contextPreviewText.getLineSpacingMultiplier(),
+                    binding.contextPreviewText.getLineSpacingExtra(),
+                    binding.contextPreviewText.getIncludeFontPadding());
+        }
+        final boolean previewIsLong = previewLayout.getLineCount() > 3;
+        binding.contextPreviewText.setMaxLines(3);
+        binding.contextPreviewShowMore.setVisibility(previewIsLong ? View.VISIBLE : View.GONE);
+        binding.contextPreviewShowMore.setText(R.string.show_more);
+        binding.contextPreviewShowMore.setOnClickListener(v -> {
+            contextPreviewExpanded = !contextPreviewExpanded;
+            if (contextPreviewExpanded) {
+                binding.contextPreviewText.setMaxLines(12);
+                binding.contextPreviewShowMore.setText(R.string.show_less);
+            } else {
+                binding.contextPreviewText.setMaxLines(3);
+                binding.contextPreviewShowMore.setText(R.string.show_more);
+            }
+        });
         binding.contextPreview.setVisibility(View.VISIBLE);
     }
 

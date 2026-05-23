@@ -18,6 +18,13 @@ public class CollapsableTextView extends AppCompatTextView {
     }
 
     @Override
+    public void setMaxLines(int maxLines) {
+        super.setMaxLines(maxLines);
+        // Reset scroll on every maxLines change so recycled views never show a stale offset.
+        scrollTo(0, 0);
+    }
+
+    @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         if (getMaxLines() != Integer.MAX_VALUE) {
             if (l != 0 || t != 0) {

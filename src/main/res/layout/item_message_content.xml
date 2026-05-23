@@ -100,7 +100,7 @@
             android:layout_marginHorizontal="10dp"
             android:paddingTop="4dp"
             android:autoLink="web"
-            android:maxLines="8"
+            android:maxLines="10"
             android:ellipsize="end"
             android:longClickable="false"
             android:breakStrategy="simple"

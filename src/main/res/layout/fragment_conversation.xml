@@ -443,12 +443,7 @@
                             app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage"
                             android:visibility="gone" />
 
-                        <de.monocles.chat.ReadMoreTextView
-                            app:trimExpandedText="@string/show_less"
-                            app:trimCollapsedText="@string/show_more"
-                            app:trimMode="trimModeLength"
-                            app:colorClickableText="?colorPrimary"
-                            android:id="@+id/context_preview_text"
+                        <LinearLayout
                             android:layout_marginLeft="13dp"
                             android:layout_marginStart="13dp"
                             android:layout_marginEnd="15dp"
@@ -456,7 +451,29 @@
                             android:layout_weight="1"
                             android:layout_width="0dp"
                             android:layout_gravity="center_vertical"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <de.monocles.chat.ui.CollapsableTextView
+                                android:id="@+id/context_preview_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:maxLines="3" />
+
+                            <TextView
+                                android:id="@+id/context_preview_show_more"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/show_more"
+                                android:textColor="?colorPrimary"
+                                android:textStyle="bold"
+                                android:textAppearance="?textAppearanceBodySmall"
+                                android:paddingVertical="4dp"
+                                android:paddingHorizontal="4dp"
+                                android:background="?attr/selectableItemBackground"
+                                android:visibility="gone" />
+
+                        </LinearLayout>
 
                         <ImageButton
                             android:id="@+id/context_preview_cancel"

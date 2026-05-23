@@ -983,14 +983,14 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                         viewHolder.messageBody().getIncludeFontPadding());
             }
 
-            final boolean isLong = staticLayout.getLineCount() > 10 || (staticLayout.getLineCount() == 10 && staticLayout.getEllipsisCount(9) > 0);
+            final boolean isLong = staticLayout.getLineCount() > 10;
 
             if (message.isExpanded()) {
                 viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
                 viewHolder.showMore().setText(R.string.show_less);
                 viewHolder.showMore().setVisibility(View.VISIBLE);
             } else {
-                viewHolder.messageBody().setMaxLines(8);
+                viewHolder.messageBody().setMaxLines(10);
                 viewHolder.showMore().setText(R.string.show_more);
                 viewHolder.showMore().setVisibility(isLong ? View.VISIBLE : View.GONE);
             }
@@ -1008,7 +1008,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                     viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
                     viewHolder.showMore().setText(R.string.show_less);
                 } else {
-                    viewHolder.messageBody().setMaxLines(8);
+                    viewHolder.messageBody().setMaxLines(10);
                     viewHolder.showMore().setText(R.string.show_more);
                 }
             });
