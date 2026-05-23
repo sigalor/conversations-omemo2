@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
+import androidx.preference.PreferenceManager;
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -32,6 +33,7 @@ import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.FileHelper;
 import eu.siacs.conversations.xmpp.Jid;
 import p32929.easypasscodelock.Utils.EasyLock;
+import p32929.easypasscodelock.Utils.EasylockSP;
 
 import java.security.KeyStoreException;
 import java.util.ArrayList;
@@ -81,7 +83,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 } else {
                     EasyLock.disablePassword(requireContext(), ConversationsActivity.class);
                 }
-                return true;
+                // Don't save the preference here — sync it in onResume based on
+                // whether a password was actually stored.
+                return false;
             });
         }
 
@@ -106,6 +110,19 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                 }
                 return false; // applied manually after verification
             });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        final SwitchPreferenceCompat appLockPreference = findPreference("app_lock_enabled");
+        if (appLockPreference != null) {
+            EasylockSP.init(requireContext());
+            final boolean passwordSet = EasylockSP.getString("password", null) != null;
+            appLockPreference.setChecked(passwordSet);
+            PreferenceManager.getDefaultSharedPreferences(requireContext()).edit()
+                    .putBoolean("app_lock_enabled", passwordSet).apply();
         }
     }
 
