@@ -457,14 +457,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         final AppSettings appSettings = new AppSettings(context);
         if (appSettings.isArgon2idKdf()) {
             final char[] password = appSettings.getDatabasePasswordChars();
-            final byte[] salt = appSettings.getArgon2Salt();
-            if (salt == null) {
-                throw new eu.siacs.conversations.EncryptionException(
-                        "Argon2id KDF active but salt is missing — database cannot be opened",
-                        null,
-                        eu.siacs.conversations.EncryptionException.Reason.KEYSTORE_ERROR);
-            }
             try {
+                final byte[] salt = appSettings.getArgon2Salt();
+                if (salt == null) {
+                    throw new eu.siacs.conversations.EncryptionException(
+                            "Argon2id KDF active but salt is missing — database cannot be opened",
+                            null,
+                            eu.siacs.conversations.EncryptionException.Reason.KEYSTORE_ERROR);
+                }
                 return eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
                         .deriveRawKeyBytes(password, salt);
             } finally {
@@ -547,7 +547,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             return;
         }
 
-        // States C/D: both files exist — test dbFile with the current key (Argon2id or PBKDF2).
+        // States C/D: both files exist — test dbFile with the current key (Argon2id or auto).
         // getKeyBytes() picks the right derivation based on AppSettings.isArgon2idKdf().
         final byte[] currentKeyBytes;
         try {

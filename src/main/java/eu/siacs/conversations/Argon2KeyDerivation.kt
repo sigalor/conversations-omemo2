@@ -46,6 +46,9 @@ object Argon2KeyDerivation {
     // Salt length: 32 random bytes give 256 bits of salt entropy.
     const val SALT_LENGTH = 32
 
+    // Lookup table for hex encoding — avoids String.format() per byte in formatAsRawSqlCipherKey.
+    private val HEX_CHARS = ByteArray(16) { i -> "0123456789abcdef"[i].code.toByte() }
+
     // Argon2id tuning. At 64 MB memory the function is highly resistant to GPU/ASIC attacks.
     // 3 iterations and 4 parallelism are OWASP-recommended for interactive use.
     private const val MEMORY_MIB = 64
@@ -115,11 +118,18 @@ object Argon2KeyDerivation {
      */
     fun formatAsRawSqlCipherKey(keyBytes: ByteArray): ByteArray {
         require(keyBytes.size == KEY_BYTES) { "Raw key must be $KEY_BYTES bytes, got ${keyBytes.size}" }
-        val sb = StringBuilder(2 + KEY_BYTES * 2 + 1)
-        sb.append("x'")
-        for (b in keyBytes) sb.append("%02x".format(b.toInt() and 0xFF))
-        sb.append('\'')
-        return sb.toString().toByteArray(Charsets.UTF_8)
+        // Write directly into a byte array — avoids any String/StringBuilder on the heap
+        // that would contain the live SQLCipher key and could not be zeroed.
+        val out = ByteArray(2 + KEY_BYTES * 2 + 1)
+        out[0] = 'x'.code.toByte()
+        out[1] = '\''.code.toByte()
+        for (i in keyBytes.indices) {
+            val b = keyBytes[i].toInt() and 0xFF
+            out[2 + i * 2]     = HEX_CHARS[b ushr 4]
+            out[2 + i * 2 + 1] = HEX_CHARS[b and 0x0F]
+        }
+        out[out.size - 1] = '\''.code.toByte()
+        return out
     }
 
     // ── Private ──────────────────────────────────────────────────────────────────────
