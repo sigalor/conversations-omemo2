@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.crypto.tink.Aead
+import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.aead.AesGcmKeyManager
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
@@ -48,6 +49,10 @@ class SecurePasswordStorage(context: Context) {
         // Per-database salt: each SQLCipher database derives its own Argon2id key so that
         // migrating one database does not invalidate another database's key material.
         private val ARGON2_UPDB_SALT_KEY = stringPreferencesKey("argon2_salt_updb")
+        // Auto-encryption keys: random 32-byte inputs to HMAC-SHA256 (KeyStore) used when
+        // no user password is set. Stored separately per database for key independence.
+        private val AUTO_KEY = stringPreferencesKey("auto_db_key")
+        private val AUTO_KEY_UPDB = stringPreferencesKey("auto_db_key_updb")
     }
 
     private val aead: Aead by lazy {
@@ -58,7 +63,7 @@ class SecurePasswordStorage(context: Context) {
             .withMasterKeyUri(MASTER_KEY_URI)
             .build()
             .keysetHandle
-        handle.getPrimitive(Aead::class.java)
+        handle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)
     }
 
     // Binds ciphertext to this app: decryption fails if the blob is moved to a different package.
@@ -119,6 +124,24 @@ class SecurePasswordStorage(context: Context) {
 
     /** Persists the Argon2id salt for the UPDB. Pass null to erase. */
     fun writeUpdbSalt(salt: ByteArray?) = writeEncryptedBytes(ARGON2_UPDB_SALT_KEY, salt)
+
+    /**
+     * Reads the 32-byte random auto-key for the main database.
+     * Returns null if not yet generated (fresh install before first DB open).
+     */
+    fun readAutoKey(): ByteArray? = readEncryptedBytes(AUTO_KEY)
+
+    /** Persists the 32-byte random auto-key for the main database. Pass null to erase. */
+    fun writeAutoKey(key: ByteArray?) = writeEncryptedBytes(AUTO_KEY, key)
+
+    /**
+     * Reads the 32-byte random auto-key for the UnifiedPush distributor database.
+     * Returns null if not yet generated.
+     */
+    fun readAutoKeyForUpdb(): ByteArray? = readEncryptedBytes(AUTO_KEY_UPDB)
+
+    /** Persists the 32-byte random auto-key for the UPDB. Pass null to erase. */
+    fun writeAutoKeyForUpdb(key: ByteArray?) = writeEncryptedBytes(AUTO_KEY_UPDB, key)
 
     private fun readEncryptedBytes(key: Preferences.Key<String>): ByteArray? {
         val encoded: String = runBlocking {

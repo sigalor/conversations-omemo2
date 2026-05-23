@@ -83,6 +83,32 @@ object Argon2KeyDerivation {
     }
 
     /**
+     * Generates a cryptographically random 32-byte raw key for auto-encryption mode.
+     * This value is stored Tink-encrypted in DataStore and later passed to
+     * [deriveAutoRawKeyBytes] to produce the final SQLCipher key.
+     */
+    fun generateRandomKey(): ByteArray {
+        val key = ByteArray(KEY_BYTES)
+        SecureRandom().nextBytes(key)
+        return key
+    }
+
+    /**
+     * Derives a SQLCipher raw key from a stored auto-key (random 32 bytes).
+     * Applies HMAC-SHA256 with the hardware-backed KeyStore key to bind the result to this
+     * device, then formats as x'<64 hex chars>'. Caller must zero the returned array.
+     */
+    fun deriveAutoRawKeyBytes(rawKey: ByteArray): ByteArray {
+        require(rawKey.size == KEY_BYTES) { "Auto key must be $KEY_BYTES bytes, got ${rawKey.size}" }
+        val hmacOutput = hmacWithKeyStoreKey(rawKey)
+        try {
+            return formatAsRawSqlCipherKey(hmacOutput)
+        } finally {
+            Arrays.fill(hmacOutput, 0)
+        }
+    }
+
+    /**
      * Encodes 32 raw key bytes as x'<64 lowercase hex chars>' and returns the result as
      * UTF-8 bytes. SQLCipher recognises the x'...' prefix and uses the bytes as the
      * AES-256 cipher key directly, bypassing all KDF processing.

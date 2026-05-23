@@ -115,26 +115,9 @@ import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 
 public class DatabaseBackend extends SQLiteOpenHelper {
 
-    // Legacy hook: used only when opening a database that was encrypted with SQLCipher's
-    // built-in PBKDF2-HMAC-SHA512 (databases created before the Argon2id migration).
-    public static final SQLiteDatabaseHook DATABASE_HOOK = new SQLiteDatabaseHook() {
-        @Override
-        public void preKey(SQLiteConnection connection) {
-            connection.executeRaw(
-                    "PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;", null, null);
-        }
-
-        @Override
-        public void postKey(SQLiteConnection connection) {
-            connection.executeRaw("PRAGMA kdf_iter = 256000;", null, null);
-            connection.executeRaw("PRAGMA cipher_memory_security = ON;", null, null);
-            connection.executeRaw("PRAGMA secure_delete = ON;", null, null);
-        }
-    };
-
-    // Argon2id hook: used when the key is a pre-derived raw 256-bit key formatted as
-    // x'<64 hex chars>'. SQLCipher recognises the x'...' prefix and skips all KDF
-    // processing. preKey is a no-op; postKey retains the security-hardening PRAGMAs.
+    // Hook for all encrypted databases. The key is always a pre-derived raw 256-bit key
+    // formatted as x'<64 hex chars>'. SQLCipher recognises the x'...' prefix and skips all
+    // KDF processing. preKey is a no-op; postKey applies security-hardening PRAGMAs.
     public static final SQLiteDatabaseHook ARGON2_DATABASE_HOOK = new SQLiteDatabaseHook() {
         @Override
         public void preKey(SQLiteConnection connection) {
@@ -147,20 +130,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             connection.executeRaw("PRAGMA secure_delete = ON;", null, null);
         }
     };
-
-    /**
-     * Returns the SQLiteDatabaseHook appropriate for the given key bytes.
-     * Keys formatted as x'...' (Argon2id raw keys) use ARGON2_DATABASE_HOOK;
-     * all other keys (passphrase bytes) use the legacy PBKDF2 DATABASE_HOOK.
-     */
-    public static SQLiteDatabaseHook hookForKey(byte[] keyBytes) {
-        if (keyBytes == null) return null;
-        // Raw key indicator: UTF-8 bytes of x'<64 hex chars>'
-        if (keyBytes.length > 2 && keyBytes[0] == (byte) 'x' && keyBytes[1] == (byte) '\'') {
-            return ARGON2_DATABASE_HOOK;
-        }
-        return DATABASE_HOOK;
-    }
 
     private static final String DATABASE_NAME = "history";
     private static final int DATABASE_VERSION = 70;
@@ -465,35 +434,29 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     protected Context context;
 
     private DatabaseBackend(Context context) {
-        // getKeyBytes() returns either Argon2id raw key bytes (x'...') or legacy PBKDF2
-        // passphrase bytes, depending on the stored KDF version. hookForKey() picks the
-        // matching hook. SQLiteOpenHelper stores the byte[] by reference (no copy) and
-        // opens the database lazily — the array is not zeroed at construction time.
         this(context, getKeyBytes(context));
     }
 
     private DatabaseBackend(Context context, byte[] keyBytes) {
         super(context, DATABASE_NAME, keyBytes, null, DATABASE_VERSION, 0, null,
-                hookForKey(keyBytes), true);
+                ARGON2_DATABASE_HOOK, true);
         this.context = context;
     }
 
     /**
-     * Derives the key bytes that SQLCipher should receive.
+     * Derives the key bytes that SQLCipher should receive. The DB is always encrypted.
      *
      * <ul>
-     *   <li>Argon2id mode: derives a 32-byte key via Argon2id + KeyStore HMAC, then formats
-     *       it as x'<64 hex chars>' so SQLCipher uses it as a raw key (no internal KDF).
-     *   <li>PBKDF2 mode (legacy): returns the passphrase as UTF-8 bytes; SQLCipher runs its
-     *       built-in PBKDF2-HMAC-SHA512 with 256 000 iterations internally.
-     *   <li>Unencrypted: returns null.
+     *   <li>Argon2id mode (user password): derives via Argon2id + KeyStore HMAC, formats as
+     *       x'&lt;64 hex chars&gt;' so SQLCipher uses it as a raw key (no internal KDF).
+     *   <li>Auto mode (no user password): reads or generates a 32-byte random key from
+     *       hardware-backed DataStore, derives via KeyStore HMAC, formats the same way.
      * </ul>
      */
     static byte[] getKeyBytes(Context context) {
         final AppSettings appSettings = new AppSettings(context);
         if (appSettings.isArgon2idKdf()) {
             final char[] password = appSettings.getDatabasePasswordChars();
-            if (password == null) return null;
             final byte[] salt = appSettings.getArgon2Salt();
             if (salt == null) {
                 throw new eu.siacs.conversations.EncryptionException(
@@ -508,25 +471,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 java.util.Arrays.fill(password, '\0');
             }
         }
-        // Legacy PBKDF2 path: return raw passphrase bytes.
-        final char[] chars = appSettings.getDatabasePasswordChars();
-        if (chars == null) return null;
-        final byte[] bytes = charsToUtf8Bytes(chars);
-        java.util.Arrays.fill(chars, '\0');
-        return bytes;
-    }
-
-    static byte[] charsToUtf8Bytes(char[] chars) {
-        final java.nio.ByteBuffer bb =
-                java.nio.charset.StandardCharsets.UTF_8.encode(java.nio.CharBuffer.wrap(chars));
+        // Auto mode: use or generate a hardware-bound random key.
+        final byte[] rawAutoKey = appSettings.getOrCreateAutoKey();
         try {
-            final byte[] bytes = new byte[bb.remaining()];
-            bb.get(bytes);
-            return bytes;
+            return eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveAutoRawKeyBytes(rawAutoKey);
         } finally {
-            if (bb.hasArray()) {
-                java.util.Arrays.fill(bb.array(), (byte) 0);
-            }
+            java.util.Arrays.fill(rawAutoKey, (byte) 0);
         }
     }
 
@@ -561,51 +511,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             System.loadLibrary("sqlcipher");
             recoverFromInterruptedMigration(context);
             instance = new DatabaseBackend(context);
-            // Transparent KDF upgrade: if the DB is encrypted with the legacy PBKDF2 method,
-            // migrate it to Argon2id + KeyStore HMAC in the same background thread.
-            // migrate() is re-entrant (same synchronized lock, same thread), so this is safe.
-            if (shouldUpgradeKdf(context)) {
-                try {
-                    upgradeKdfToArgon2id(context);
-                    // upgradeKdfToArgon2id() called closeInstance() → instance = null.
-                    // Re-open with the new Argon2id key.
-                    instance = new DatabaseBackend(context);
-                } catch (Exception e) {
-                    Log.e(Config.LOGTAG, "Argon2id KDF upgrade failed — continuing with PBKDF2", e);
-                    // Ensure instance is valid even if migration failed mid-way.
-                    if (instance == null) instance = new DatabaseBackend(context);
-                }
-            }
         }
         return instance;
-    }
-
-    private static boolean shouldUpgradeKdf(Context context) {
-        final AppSettings appSettings = new AppSettings(context);
-        if (appSettings.isArgon2idKdf()) return false;
-        try {
-            final char[] pw = appSettings.getDatabasePasswordChars();
-            if (pw == null) return false;
-            java.util.Arrays.fill(pw, '\0');
-            return true;
-        } catch (eu.siacs.conversations.EncryptionException e) {
-            return false;
-        }
-    }
-
-    private static void upgradeKdfToArgon2id(Context context) throws Exception {
-        Log.i(Config.LOGTAG, "Upgrading database KDF from PBKDF2 to Argon2id...");
-        final char[] password = new AppSettings(context).getDatabasePasswordChars();
-        if (password == null) return;
-        final char[] passwordCopy = password.clone();
-        try {
-            // migrate(old, new) with old=PBKDF2 key and new=Argon2id key (same password).
-            migrate(context, password, passwordCopy);
-            Log.i(Config.LOGTAG, "Database KDF upgraded to Argon2id successfully");
-        } finally {
-            java.util.Arrays.fill(password, '\0');
-            java.util.Arrays.fill(passwordCopy, '\0');
-        }
     }
 
     private static void recoverFromInterruptedMigration(Context context) {
@@ -661,7 +568,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     currentKeyBytes,
                     null,
                     SQLiteDatabase.OPEN_READONLY,
-                    hookForKey(currentKeyBytes));
+                    ARGON2_DATABASE_HOOK);
             test.close();
             dbFileValid = true;
         } catch (Exception ignored) { /* dbFile not openable with current key */ } finally {
@@ -4013,227 +3920,207 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     /**
-     * Re-encrypts the database with a new password (or removes/adds encryption).
+     * Re-encrypts the database with a new password (Argon2id mode) or reverts to auto-encryption
+     * with a fresh random key (auto mode when {@code newPassword} is null).
      *
-     * <p>The source database is opened with the KDF that was active when it was created
-     * (PBKDF2 if {@code isArgon2idKdf()} is false, Argon2id raw key otherwise). The target
-     * database is <em>always</em> written with Argon2id + KeyStore HMAC, so every call to
-     * this method upgrades the KDF if it was still PBKDF2. Passing the same password as
-     * both arguments therefore upgrades PBKDF2 → Argon2id transparently.
+     * <ul>
+     *   <li>{@code oldPassword null}: old DB is auto-encrypted — auto key is read from storage.
+     *   <li>{@code newPassword null}: new DB uses auto-encryption — a fresh random key is generated.
+     *   <li>Both non-null: password change (Argon2id to Argon2id).
+     * </ul>
      *
      * <p>File operations are crash-safe: a sentinel flag is set before any file is moved, and
      * {@link #recoverFromInterruptedMigration} restores a consistent state on the next launch.
+     * New key material is kept in memory and written to persistent storage only AFTER the file
+     * rename succeeds, ensuring the stored key always matches the DB file on disk.
      */
     public static synchronized void migrate(Context context, char[] oldPassword, char[] newPassword) throws Exception {
-        // Keep the singleton alive during migration — service background threads may still be
-        // using it. closeInstance() is called at the end, once files and prefs are consistent.
         System.loadLibrary("sqlcipher");
         final AppSettings settings = new AppSettings(context);
-        File dbFile = context.getDatabasePath(DATABASE_NAME);
+        final File dbFile = context.getDatabasePath(DATABASE_NAME);
 
-        // ── Generate the new Argon2id salt and derive the new raw key ─────────────────
-        // A fresh random salt is always generated for the new DB, even for a KDF-only upgrade
-        // (same password, new KDF). This rotation is intentional: it invalidates any
-        // pre-computation an attacker may have done against the old key material.
-        final byte[] newSalt = (newPassword != null)
-                ? eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.generateSalt()
-                : null;
-        final byte[] newRawKey = (newPassword != null)
-                ? eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveRawKeyBytes(newPassword, newSalt)
-                : null;
-
-        if (!dbFile.exists()) {
-            persistNewKeyState(settings, newPassword, newSalt, newRawKey);
-            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-            closeInstance();
-            return;
-        }
-
-        File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
-        if (tempFile.exists() && !tempFile.delete()) {
-            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-            throw new java.io.IOException("Failed to delete existing temporary database file");
-        }
-        if (tempFile.getParentFile() != null
-                && !tempFile.getParentFile().exists()
-                && !tempFile.getParentFile().mkdirs()) {
-            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-            throw new java.io.IOException("Failed to create database directory");
-        }
-        if (!tempFile.createNewFile()) {
-            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-            throw new java.io.IOException("Failed to create temporary database file");
-        }
-
-        // ── Open the source DB with the OLD key (PBKDF2 or Argon2id) ─────────────────
-        // getKeyBytes() derives the correct key for whatever KDF was active before this call.
-        // We cannot use getKeyBytes(context) here because that reads isArgon2idKdf() from
-        // prefs — and prefs still reflect the OLD state. Build the old key manually instead.
-        final byte[] oldKeyBytes;
-        if (settings.isArgon2idKdf()) {
-            // Already Argon2id: derive old raw key from oldPassword + stored salt.
-            final byte[] oldSalt = settings.getArgon2Salt();
-            if (oldSalt == null) {
-                if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-                throw new eu.siacs.conversations.EncryptionException(
-                        "Cannot open old Argon2id DB: salt missing", null,
-                        eu.siacs.conversations.EncryptionException.Reason.KEYSTORE_ERROR);
-            }
-            oldKeyBytes = oldPassword != null
-                    ? eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveRawKeyBytes(oldPassword, oldSalt)
-                    : null;
+        // Generate new key material entirely in memory. It is persisted only AFTER the DB file
+        // rename succeeds (crash-safety: if we crash before persisting, recovery opens the
+        // backup with the OLD key and restores a consistent state).
+        final byte[] newSalt;
+        final byte[] newAutoKey;
+        final byte[] newRawKey;
+        if (newPassword != null) {
+            newSalt = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.generateSalt();
+            newAutoKey = null;
+            newRawKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
+                    .deriveRawKeyBytes(newPassword, newSalt);
         } else {
-            // PBKDF2 legacy: passphrase bytes; SQLCipher handles PBKDF2 internally.
-            oldKeyBytes = oldPassword != null ? charsToUtf8Bytes(oldPassword) : null;
-        }
-
-        // ENABLE_WRITE_AHEAD_LOGGING: the singleton already holds the DB in WAL mode;
-        // opening a second connection without this flag causes SQLCipher to attempt
-        // PRAGMA journal_mode=delete, which fails with SQLITE_BUSY on Android 8.1 and older.
-        SQLiteDatabase db;
-        try {
-            db = SQLiteDatabase.openDatabase(
-                    dbFile.getAbsolutePath(),
-                    oldKeyBytes,
-                    null,
-                    SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
-                    hookForKey(oldKeyBytes));
-        } finally {
-            if (oldKeyBytes != null) java.util.Arrays.fill(oldKeyBytes, (byte) 0);
-        }
-
-        int version = db.getVersion();
-
-        // Optimization: DB is just-created and empty (onCreate never ran). Delete it and set
-        // the password now; the next getInstance() will build the schema encrypted via onCreate.
-        final boolean isEmpty;
-        try (final Cursor c =
-                db.rawQuery(
-                        "SELECT count(*) FROM sqlite_master WHERE type='table'", null)) {
-            isEmpty = version == 0 && c != null && c.moveToFirst() && c.getInt(0) == 0;
-        }
-        if (isEmpty) {
-            db.close();
-            tempFile.delete();
-            // Delete before writing prefs so a crash here leaves a clean state.
-            FileHelper.secureDelete(dbFile);
-            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
-            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
-            persistNewKeyState(settings, newPassword, newSalt, newRawKey);
-            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-            closeInstance();
-            return;
+            newSalt = null;
+            newAutoKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.generateRandomKey();
+            newRawKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
+                    .deriveAutoRawKeyBytes(newAutoKey);
         }
 
         try {
-            // Security defaults for the attached (exported) DB. KDF-related defaults are not
-            // set because the Argon2id raw key bypasses SQLCipher's KDF entirely.
-            db.rawExecSQL("PRAGMA cipher_default_use_hmac = ON;");
-            db.rawExecSQL("PRAGMA cipher_default_memory_security = ON;");
-
-            // Build the ATTACH KEY clause.
-            // CRITICAL: the key must be a SQL *string* literal, not a blob literal.
-            // If we wrote   KEY x'aabbcc...'   the SQL parser evaluates x'...' as a blob and
-            // passes the 32 raw binary bytes to sqlite3_key. SQLCipher's x'...' detection
-            // looks for the ASCII prefix 'x' + '\'' and won't fire on raw binary bytes,
-            // so it falls back to PBKDF2 — producing a different key than sqlite3_key(x'...')
-            // used when opening the DB later. Wrapping in a SQL string literal
-            //   KEY 'x''aabbcc...'''
-            // makes SQLite pass the text x'aabbcc...' to sqlite3_key, which then correctly
-            // detects the x'...' prefix and uses the 32 bytes as a raw AES-256 key.
-            final String attachKeySql;
-            if (newRawKey != null) {
-                // newRawKey is the UTF-8 encoding of x'<64 hex chars>'. Wrap in SQL string quotes
-                // and escape the two internal single-quote characters (x' and trailing ').
-                String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
-                attachKeySql = "'" + keyStr.replace("'", "''") + "'";
-            } else {
-                attachKeySql = "''";
-            }
-            db.rawExecSQL(
-                    "ATTACH DATABASE "
-                            + android.database.DatabaseUtils.sqlEscapeString(
-                                    tempFile.getAbsolutePath())
-                            + " AS encrypted KEY "
-                            + attachKeySql);
-            db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
-            db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
-            db.rawExecSQL("DETACH DATABASE encrypted;");
-        } finally {
-            db.close();
-            if (newRawKey != null) java.util.Arrays.fill(newRawKey, (byte) 0);
-        }
-
-        final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
-        if (backupFile.exists() && !backupFile.delete()) {
-            throw new java.io.IOException("Failed to delete existing backup file");
-        }
-
-        // Write sentinel before touching any files. If the process dies mid-migration,
-        // recoverFromInterruptedMigration() will restore a consistent state on next launch.
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
-
-        boolean prefsUpdated = false;
-        try {
-            // Step 1: Move original DB to .bak
-            if (!dbFile.renameTo(backupFile)) {
-                throw new java.io.IOException("Failed to backup old database file");
+            if (!dbFile.exists()) {
+                persistNewKeyState(settings, newPassword, newSalt, newAutoKey);
+                closeInstance();
+                return;
             }
 
-            // Step 2: Move new (re-encrypted) DB into place
-            if (!tempFile.renameTo(dbFile)) {
-                if (!backupFile.renameTo(dbFile)) {
-                    Log.e(Config.LOGTAG, "rekey: CRITICAL — failed to rollback after temp rename failure");
+            final File tempFile = context.getDatabasePath(DATABASE_NAME + ".tmp");
+            if (tempFile.exists() && !tempFile.delete()) {
+                throw new java.io.IOException("Failed to delete existing temporary database file");
+            }
+            if (tempFile.getParentFile() != null
+                    && !tempFile.getParentFile().exists()
+                    && !tempFile.getParentFile().mkdirs()) {
+                throw new java.io.IOException("Failed to create database directory");
+            }
+            if (!tempFile.createNewFile()) {
+                throw new java.io.IOException("Failed to create temporary database file");
+            }
+
+            // Derive the OLD key. We cannot call getKeyBytes() here because it reads the current
+            // KDF state from prefs, which still reflects the OLD state.
+            final byte[] oldRawKey;
+            if (settings.isArgon2idKdf()) {
+                if (oldPassword == null) {
+                    throw new eu.siacs.conversations.EncryptionException(
+                            "Old password required to open Argon2id-encrypted database", null,
+                            eu.siacs.conversations.EncryptionException.Reason.NEEDS_SESSION_PASSWORD);
                 }
-                throw new java.io.IOException("Failed to rename temporary database file");
+                final byte[] oldSalt = settings.getArgon2Salt();
+                if (oldSalt == null) {
+                    throw new eu.siacs.conversations.EncryptionException(
+                            "Cannot open old Argon2id DB: salt missing", null,
+                            eu.siacs.conversations.EncryptionException.Reason.KEYSTORE_ERROR);
+                }
+                oldRawKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
+                        .deriveRawKeyBytes(oldPassword, oldSalt);
+            } else {
+                // Auto mode: read the stored auto key — never generate here to avoid overwriting.
+                final byte[] storedAutoKey =
+                        new eu.siacs.conversations.SecurePasswordStorage(context).readAutoKey();
+                if (storedAutoKey == null) {
+                    throw new eu.siacs.conversations.EncryptionException(
+                            "Cannot open auto-encrypted DB: auto key missing from storage", null,
+                            eu.siacs.conversations.EncryptionException.Reason.KEYSTORE_ERROR);
+                }
+                try {
+                    oldRawKey = eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
+                            .deriveAutoRawKeyBytes(storedAutoKey);
+                } finally {
+                    java.util.Arrays.fill(storedAutoKey, (byte) 0);
+                }
             }
 
-            // Step 3: Persist new key state — last write that changes observable state.
-            persistNewKeyState(settings, newPassword, newSalt, null /* already zeroed */);
-            prefsUpdated = true;
+            // ENABLE_WRITE_AHEAD_LOGGING: the singleton already holds the DB in WAL mode;
+            // opening a second connection without this flag causes SQLCipher to attempt
+            // PRAGMA journal_mode=delete, which fails with SQLITE_BUSY on Android 8.1 and older.
+            SQLiteDatabase db;
+            try {
+                db = SQLiteDatabase.openDatabase(
+                        dbFile.getAbsolutePath(), oldRawKey, null,
+                        SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+                        ARGON2_DATABASE_HOOK);
+            } finally {
+                java.util.Arrays.fill(oldRawKey, (byte) 0);
+            }
 
-            // Step 4: Clear sentinel now that both files and prefs are consistent
+            int version = db.getVersion();
+
+            // If the DB is brand-new and empty, skip the export and just configure prefs.
+            final boolean isEmpty;
+            try (final Cursor c = db.rawQuery(
+                    "SELECT count(*) FROM sqlite_master WHERE type='table'", null)) {
+                isEmpty = version == 0 && c != null && c.moveToFirst() && c.getInt(0) == 0;
+            }
+            if (isEmpty) {
+                db.close();
+                tempFile.delete();
+                FileHelper.secureDelete(dbFile);
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+                persistNewKeyState(settings, newPassword, newSalt, newAutoKey);
+                closeInstance();
+                return;
+            }
+
+            try {
+                db.rawExecSQL("PRAGMA cipher_default_use_hmac = ON;");
+                db.rawExecSQL("PRAGMA cipher_default_memory_security = ON;");
+                // CRITICAL: wrap in SQL string literal, not blob literal, so SQLCipher detects
+                // the x'...' prefix and uses raw-key mode (see SQLCipher API docs for KEY).
+                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
+                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
+                db.rawExecSQL("ATTACH DATABASE "
+                        + android.database.DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
+                        + " AS encrypted KEY " + attachKeySql);
+                db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
+                db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
+                db.rawExecSQL("DETACH DATABASE encrypted;");
+            } finally {
+                db.close();
+            }
+
+            final File backupFile = context.getDatabasePath(DATABASE_NAME + ".bak");
+            if (backupFile.exists() && !backupFile.delete()) {
+                throw new java.io.IOException("Failed to delete existing backup file");
+            }
+
             PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
+                    .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
 
-            // Step 5: Securely delete backup and auxiliary files (best-effort)
-            FileHelper.secureDelete(backupFile);
-            FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
-            FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
-            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
-            FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
-
-        } catch (Exception e) {
-            if (!prefsUpdated) {
+            boolean prefsUpdated = false;
+            try {
+                if (!dbFile.renameTo(backupFile)) {
+                    throw new java.io.IOException("Failed to backup old database file");
+                }
+                if (!tempFile.renameTo(dbFile)) {
+                    if (!backupFile.renameTo(dbFile)) {
+                        Log.e(Config.LOGTAG, "rekey: CRITICAL — failed to rollback after temp rename failure");
+                    }
+                    throw new java.io.IOException("Failed to rename temporary database file");
+                }
+                // Persist new key state AFTER the file rename so the stored key always matches
+                // the DB file on disk (crash-safety invariant for recoverFromInterruptedMigration).
+                persistNewKeyState(settings, newPassword, newSalt, newAutoKey);
+                prefsUpdated = true;
                 PreferenceManager.getDefaultSharedPreferences(context)
-                        .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                        .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
+                FileHelper.secureDelete(backupFile);
+                FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(backupFile.getAbsolutePath() + "-shm"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
+                FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
+            } catch (Exception e) {
+                if (!prefsUpdated) {
+                    PreferenceManager.getDefaultSharedPreferences(context)
+                            .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                }
+                throw e;
             }
-            throw e;
+        } finally {
+            java.util.Arrays.fill(newRawKey, (byte) 0);
+            if (newAutoKey != null) java.util.Arrays.fill(newAutoKey, (byte) 0);
         }
-        // Migration succeeded — close the old singleton now that files and prefs are consistent.
         closeInstance();
     }
 
     /**
-     * Atomically persists the new KDF state (password, salt, KDF version flag).
-     * Always switches to Argon2id when {@code newPassword != null}.
-     * Clears Argon2id state when disabling encryption ({@code newPassword == null}).
-     *
-     * @param newSalt    the newly generated Argon2id salt; may be null when disabling encryption
-     * @param newRawKey  already zeroed by caller; parameter kept for documentation clarity
+     * Persists the new KDF state after a successful DB file rename.
+     * For Argon2id mode: writes password + salt, sets KDF flag, clears any auto key.
+     * For auto mode: writes new auto key, sets auto KDF flag, clears old password + salt.
      */
     private static void persistNewKeyState(
-            AppSettings settings, char[] newPassword, byte[] newSalt, byte[] newRawKey) {
+            AppSettings settings, char[] newPassword, byte[] newSalt, byte[] newAutoKey) {
         if (newPassword != null) {
             settings.setDatabasePasswordAndSalt(newPassword, newSalt);
             settings.setArgon2idKdf();
+            settings.clearAutoKey(); // clean up any pre-existing auto key
         } else {
-            settings.setDatabasePassword(null);
-            // Clear only the main DB's Argon2 state (KDF flag + main salt).
-            // The UPDB salt must remain until UnifiedPushDatabase.migrate() has used it to
-            // open the old encrypted UPDB file; that migration clears the UPDB salt itself.
-            settings.clearMainDbArgon2State();
+            // Auto mode: write the new auto key first (crash-safe ordering), then update KDF.
+            settings.writeAutoKey(newAutoKey);
+            settings.setAutoKeyMode();
+            settings.clearPersistedDatabasePassword(); // clear any old user password
+            settings.clearMainDbArgon2Salt();           // clear old Argon2id salt
         }
     }
 
