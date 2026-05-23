@@ -885,6 +885,7 @@ public class XmppConnectionService extends Service {
             geoUriStr = String.format(java.util.Locale.US, "geo:%s,%s", initialLat, initialLon);
         }
         final Message message = new Message(conversation, geoUriStr, encryption);
+        message.setEphemeralTimer(0); // live location has its own lifetime; never expire via ephemeral timer
         if (getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             message.setThread(conversation.getThread());
         }

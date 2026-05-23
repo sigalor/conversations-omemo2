@@ -1323,6 +1323,12 @@ public class MessageParser extends AbstractParser
                             replacedMessage.setThread(message.getThread());
                             replacedMessage.putEdited(replacedMessage.getRemoteMsgId(), replacedMessage.getServerMsgId());
                             if (replaceElement != null && !replaceElement.getName().equals("replace")) {
+                                final String liveSessionId = eu.siacs.conversations.utils.LiveLocationManager
+                                        .getInstance().getSessionIdForMessage(replacedMessage.getUuid());
+                                if (liveSessionId != null) {
+                                    eu.siacs.conversations.utils.LiveLocationManager
+                                            .getInstance().expireIncomingSession(liveSessionId);
+                                }
                                 mXmppConnectionService.getFileBackend().deleteFile(replacedMessage);
                                 mXmppConnectionService.evictPreview(message.getUuid());
                                 List<Element> thumbs = replacedMessage.getFileParams() != null ? replacedMessage.getFileParams().getThumbnails() : null;

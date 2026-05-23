@@ -2836,6 +2836,10 @@ public class ConversationFragment extends XmppFragment
                         retractionMessage.setType(Message.TYPE_TEXT);
                         retractionMessage.setCounterpart(messageToRetract.getCounterpart());
                         retractionMessage.setRemoteMsgId(UUID.randomUUID().toString());
+                        if (eu.siacs.conversations.utils.LiveLocationManager.getInstance()
+                                .isActiveLiveLocationMessage(messageToRetract.getUuid())) {
+                            activity.xmppConnectionService.stopLiveLocationSharing(conversation.getUuid());
+                        }
                         if (messageToRetract.getStatus() >= Message.STATUS_SEND) {
                             sendMessage(retractionMessage);
                         }
