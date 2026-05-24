@@ -33,6 +33,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import androidx.core.content.res.ResourcesCompat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import androidx.core.widget.ImageViewCompat;
@@ -342,6 +343,8 @@ public class ConversationFragment extends XmppFragment
     private Toast messageLoaderToast;
     private ConversationsActivity activity;
     private boolean reInitRequiredOnStart = true;
+    private Typeface notoRegular;
+    private Typeface notoBold;
     private File savingAsSticker = null;
     private EmojiSearch emojiSearch = null;
     File dirStickers;
@@ -1832,6 +1835,8 @@ public class ConversationFragment extends XmppFragment
             throw new IllegalStateException(
                     "Trying to attach fragment to activity that is not the ConversationsActivity");
         }
+        notoRegular = ResourcesCompat.getFont(activity, R.font.noto_sans_regular);
+        notoBold = ResourcesCompat.getFont(activity, R.font.noto_sans_bold);
         dirStickers = StickersMigration.getStickersDir(activity);
         StickersMigration.requireMigration(activity);
         vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
@@ -6521,24 +6526,24 @@ public class ConversationFragment extends XmppFragment
     private void updateEmojiPickerTabStyles() {
         if (binding.emojiPicker.getVisibility() == VISIBLE) {
             binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-            binding.emojisButton.setTypeface(null, Typeface.BOLD);
+            binding.emojisButton.setTypeface(notoBold);
         } else {
             binding.emojisButton.setBackgroundColor(0);
-            binding.emojisButton.setTypeface(null, Typeface.NORMAL);
+            binding.emojisButton.setTypeface(notoRegular);
         }
         if (binding.stickersview.getVisibility() == VISIBLE) {
             binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-            binding.stickersButton.setTypeface(null, Typeface.BOLD);
+            binding.stickersButton.setTypeface(notoBold);
         } else {
             binding.stickersButton.setBackgroundColor(0);
-            binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+            binding.stickersButton.setTypeface(notoRegular);
         }
         if (binding.gifsview.getVisibility() == VISIBLE) {
             binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-            binding.gifsButton.setTypeface(null, Typeface.BOLD);
+            binding.gifsButton.setTypeface(notoBold);
         } else {
             binding.gifsButton.setBackgroundColor(0);
-            binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+            binding.gifsButton.setTypeface(notoRegular);
         }
     }
 
@@ -6623,24 +6628,24 @@ public class ConversationFragment extends XmppFragment
 
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.emojisButton.setTypeface(null, Typeface.BOLD);
+                binding.emojisButton.setTypeface(notoBold);
             } else {
                 binding.emojisButton.setBackgroundColor(0);
-                binding.emojisButton.setTypeface(null, Typeface.NORMAL);
+                binding.emojisButton.setTypeface(notoRegular);
             }
             if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.stickersButton.setTypeface(null, Typeface.BOLD);
+                binding.stickersButton.setTypeface(notoBold);
             } else {
                 binding.stickersButton.setBackgroundColor(0);
-                binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+                binding.stickersButton.setTypeface(notoRegular);
             }
             if (binding.gifsview.getVisibility() == VISIBLE) {
                 binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.gifsButton.setTypeface(null, Typeface.BOLD);
+                binding.gifsButton.setTypeface(notoBold);
             } else {
                 binding.gifsButton.setBackgroundColor(0);
-                binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+                binding.gifsButton.setTypeface(notoRegular);
             }
         }
     };
@@ -6665,24 +6670,24 @@ public class ConversationFragment extends XmppFragment
              */
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.emojisButton.setTypeface(null, Typeface.BOLD);
+                binding.emojisButton.setTypeface(notoBold);
             } else {
                 binding.emojisButton.setBackgroundColor(0);
-                binding.emojisButton.setTypeface(null, Typeface.NORMAL);
+                binding.emojisButton.setTypeface(notoRegular);
             }
             if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.stickersButton.setTypeface(null, Typeface.BOLD);
+                binding.stickersButton.setTypeface(notoBold);
             } else {
                 binding.stickersButton.setBackgroundColor(0);
-                binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+                binding.stickersButton.setTypeface(notoRegular);
             }
             if (binding.gifsview.getVisibility() == VISIBLE) {
                 binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.gifsButton.setTypeface(null, Typeface.BOLD);
+                binding.gifsButton.setTypeface(notoBold);
             } else {
                 binding.gifsButton.setBackgroundColor(0);
-                binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+                binding.gifsButton.setTypeface(notoRegular);
             }
         }
     };
@@ -6707,24 +6712,24 @@ public class ConversationFragment extends XmppFragment
              */
             if (binding.emojiPicker.getVisibility() == VISIBLE) {
                 binding.emojisButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.emojisButton.setTypeface(null, Typeface.BOLD);
+                binding.emojisButton.setTypeface(notoBold);
             } else {
                 binding.emojisButton.setBackgroundColor(0);
-                binding.emojisButton.setTypeface(null, Typeface.NORMAL);
+                binding.emojisButton.setTypeface(notoRegular);
             }
             if (binding.stickersview.getVisibility() == VISIBLE) {
                 binding.stickersButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.stickersButton.setTypeface(null, Typeface.BOLD);
+                binding.stickersButton.setTypeface(notoBold);
             } else {
                 binding.stickersButton.setBackgroundColor(0);
-                binding.stickersButton.setTypeface(null, Typeface.NORMAL);
+                binding.stickersButton.setTypeface(notoRegular);
             }
             if (binding.gifsview.getVisibility() == VISIBLE) {
                 binding.gifsButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.selector_bubble));
-                binding.gifsButton.setTypeface(null, Typeface.BOLD);
+                binding.gifsButton.setTypeface(notoBold);
             } else {
                 binding.gifsButton.setBackgroundColor(0);
-                binding.gifsButton.setTypeface(null, Typeface.NORMAL);
+                binding.gifsButton.setTypeface(notoRegular);
             }
         }
     };

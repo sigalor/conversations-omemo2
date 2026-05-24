@@ -69,6 +69,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.databinding.DataBindingUtil;
@@ -1628,7 +1629,7 @@ public class ConversationsActivity extends XmppActivity
                         if (state == ChatState.COMPOSING) {
                             binding.toolbarSubtitle.setText(getString(R.string.is_typing));
                             binding.toolbarSubtitle.setVisibility(View.VISIBLE);
-                            binding.toolbarSubtitle.setTypeface(null, Typeface.BOLD_ITALIC);
+                            binding.toolbarSubtitle.setTypeface(ResourcesCompat.getFont(this, R.font.noto_sans_bold_italic));
                             binding.toolbarSubtitle.setSelected(true);
                         } else {
                             if (showLastSeen && conversation.getContact().getLastseen() > 0 && conversation.getContact().getPresences().allOrNonSupport(Namespace.IDLE)) {

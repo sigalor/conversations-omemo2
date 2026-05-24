@@ -3,6 +3,7 @@ package eu.siacs.conversations.ui.adapter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import androidx.core.content.res.ResourcesCompat;
 import android.preference.PreferenceManager;
 import android.util.Pair;
 import android.view.MenuItem;
@@ -42,11 +43,20 @@ public class ConversationAdapter
 
     private boolean allowRelativeTimestamps = true;
 
+    private final Typeface notoRegular;
+    private final Typeface notoBold;
+    private final Typeface notoItalic;
+    private final Typeface notoBoldItalic;
+
     public ConversationAdapter(XmppActivity activity, List<Conversation> conversations) {
         this.activity = activity;
         this.conversations = conversations;
         final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(activity);
         allowRelativeTimestamps = !p.getBoolean("always_full_timestamps", activity.getResources().getBoolean(R.bool.always_full_timestamps));
+        notoRegular = ResourcesCompat.getFont(activity, R.font.noto_sans_regular);
+        notoBold = ResourcesCompat.getFont(activity, R.font.noto_sans_bold);
+        notoItalic = ResourcesCompat.getFont(activity, R.font.noto_sans_italic);
+        notoBoldItalic = ResourcesCompat.getFont(activity, R.font.noto_sans_bold_italic);
     }
 
     @NonNull
@@ -142,9 +152,9 @@ public class ConversationAdapter
         }
 
         if (isRead) {
-            viewHolder.binding.conversationName.setTypeface(null, Typeface.NORMAL);
+            viewHolder.binding.conversationName.setTypeface(notoRegular);
         } else {
-            viewHolder.binding.conversationName.setTypeface(null, Typeface.BOLD);
+            viewHolder.binding.conversationName.setTypeface(notoBold);
         }
 
         Contact contact = conversation.getContact();
@@ -160,8 +170,8 @@ public class ConversationAdapter
             viewHolder.binding.conversationLastmsg.setText(draft.getMessage());
             viewHolder.binding.senderName.setText(R.string.draft);
             viewHolder.binding.senderName.setVisibility(View.VISIBLE);
-            viewHolder.binding.conversationLastmsg.setTypeface(null, Typeface.NORMAL);
-            viewHolder.binding.senderName.setTypeface(null, Typeface.ITALIC);
+            viewHolder.binding.conversationLastmsg.setTypeface(notoRegular);
+            viewHolder.binding.senderName.setTypeface(notoItalic);
         } else {
             final boolean fileAvailable = !message.isDeleted();
             final boolean showPreviewText;
@@ -192,19 +202,19 @@ public class ConversationAdapter
                     showPreviewText ? View.VISIBLE : View.GONE);
             if (preview.second) {
                 if (isRead) {
-                    viewHolder.binding.conversationLastmsg.setTypeface(null, Typeface.ITALIC);
-                    viewHolder.binding.senderName.setTypeface(null, Typeface.NORMAL);
+                    viewHolder.binding.conversationLastmsg.setTypeface(notoItalic);
+                    viewHolder.binding.senderName.setTypeface(notoRegular);
                 } else {
-                    viewHolder.binding.conversationLastmsg.setTypeface(null, Typeface.BOLD_ITALIC);
-                    viewHolder.binding.senderName.setTypeface(null, Typeface.BOLD);
+                    viewHolder.binding.conversationLastmsg.setTypeface(notoBoldItalic);
+                    viewHolder.binding.senderName.setTypeface(notoBold);
                 }
             } else {
                 if (isRead) {
-                    viewHolder.binding.conversationLastmsg.setTypeface(null, Typeface.NORMAL);
-                    viewHolder.binding.senderName.setTypeface(null, Typeface.NORMAL);
+                    viewHolder.binding.conversationLastmsg.setTypeface(notoRegular);
+                    viewHolder.binding.senderName.setTypeface(notoRegular);
                 } else {
-                    viewHolder.binding.conversationLastmsg.setTypeface(null, Typeface.BOLD);
-                    viewHolder.binding.senderName.setTypeface(null, Typeface.BOLD);
+                    viewHolder.binding.conversationLastmsg.setTypeface(notoBold);
+                    viewHolder.binding.senderName.setTypeface(notoBold);
                 }
             }
             if (status == Message.STATUS_RECEIVED) {

@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:layout_gravity="center"
-            android:fontFamily="@font/archivoblack"
+            android:fontFamily="@font/noto_sans_bold"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
             android:text="@string/welcome_to_monocles_chat" />
@@ -47,7 +47,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            android:fontFamily="@font/poppins"
             android:text="@string/monocles_chat_intro_description" />
 
         <com.wefika.flowlayout.FlowLayout
@@ -146,7 +145,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:layout_gravity="center"
-            android:fontFamily="@font/archivoblack"
+            android:fontFamily="@font/noto_sans_bold"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
             android:text="@string/how_the_xmpp_network_works" />
@@ -155,15 +154,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            android:fontFamily="@font/poppins"
-            android:text="@string/xmpp_network_description" />
+android:text="@string/xmpp_network_description" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:layout_gravity="center"
-            android:fontFamily="@font/archivoblack"
+            android:fontFamily="@font/noto_sans_bold"
             android:textColor="?colorOnSecondaryContainer"
             android:textSize="18sp"
             android:text="@string/example_jid" />
@@ -194,7 +192,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="15dp"
                     android:layout_gravity="center"
-                    android:fontFamily="@font/archivoblack"
+                    android:fontFamily="@font/noto_sans_bold"
                     android:textColor="?colorOnSecondaryContainer"
                     android:textSize="18sp"
                     android:text="@string/set_preferences_title" />
@@ -203,7 +201,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="15dp"
-                    android:fontFamily="@font/poppins"
                     android:text="@string/set_preferences_summary" />
 
                 <!-- Table with preferences -->
