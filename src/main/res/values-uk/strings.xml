@@ -76,9 +76,7 @@
 \n
 \n<b>Увага:</b> Повідомлення, збережені на інших пристроях або серверах, і надалі залишаться там.</string>
     <string name="delete_file_dialog">Вилучити файл</string>
-    <string name="delete_file_dialog_msg">Ви впевнені, що хочете вилучити цей файл\?
-\n
-\n<b>Увага:</b> Це не вилучить копії цього файлу, які зберігаються на інших пристроях чи серверах. </string>
+    <string name="delete_file_dialog_msg">Ви впевнені, що хочете вилучити цей файл? \n \n<b>Увага:</b> Копії цього файлу, збережені на інших пристроях або серверах, і надалі залишаться там.</string>
     <string name="choose_presence">Вибрати пристрій</string>
     <string name="send_unencrypted_message">Незашифроване повідомлення</string>
     <string name="send_message">Надіслати повідомлення</string>
@@ -332,7 +330,7 @@
     <string name="sending_file">надсилання (%1$d%% завершено)</string>
     <string name="preparing_file">Підготовка до передачі файлу</string>
     <string name="x_file_offered_for_download">%s запропоновано для завантаження</string>
-    <string name="cancel_transmission">Припинити передачу</string>
+    <string name="cancel_transmission">Скасувати передачу</string>
     <string name="file_transmission_failed">передача файлу не вдалася</string>
     <string name="file_transmission_cancelled">передачу файлу скасовано</string>
     <string name="file_deleted">Файл видалено</string>
@@ -714,7 +712,7 @@
     <string name="gif">GIF</string>
     <string name="view_conversation">Переглянути розмову</string>
     <string name="pref_use_share_location_plugin">Додаток поширення місцезнаходження</string>
-    <string name="pref_use_share_location_plugin_summary">Використовувати додаток поширення місцезнаходження замість вбудованої карти</string>
+    <string name="pref_use_share_location_plugin_summary">Використовувати додаток поширення місцезнаходження замість вбудованої мапи</string>
     <string name="copy_link">Копіювати посилання</string>
     <string name="copy_jabber_id">Копіювати адресу XMPP</string>
     <string name="p1_s3_filetransfer">Доступ до файлів через HTTP для S3</string>
@@ -751,8 +749,8 @@
     <string name="security_violation_not_attaching_file">Файл не долучено через порушення безпеки.</string>
     <string name="pref_video_compression">Якість відео</string>
     <string name="pref_video_compression_summary">Менша якість означає менші файли</string>
-    <string name="video_360p">Середня (360 пікселів)</string>
-    <string name="video_720p">Висока (720 пікселів)</string>
+    <string name="video_360p">Середня (360p)</string>
+    <string name="video_720p">Висока (720p)</string>
     <string name="cancelled">скасовано</string>
     <string name="already_drafting_message">Ви вже маєте чернетку повідомлення.</string>
     <string name="feature_not_implemented">Функція в розробці</string>
@@ -861,7 +859,7 @@
     <string name="event">Подія</string>
     <string name="open_backup">Відкрити резервну копію</string>
     <string name="not_a_backup_file">Вибраний файл не є резервною копією monocles chat</string>
-    <string name="account_already_setup">Цей обліковий запис уже створено</string>
+    <string name="account_already_setup">Цей обліковий запис уже налаштовано</string>
     <string name="please_enter_password">Будь ласка, введіть пароль для цього облікового запису</string>
     <string name="unable_to_perform_this_action">Неможливо виконати цю дію</string>
     <string name="open_join_dialog">Приєднатися до відкритого каналу…</string>
@@ -1196,7 +1194,7 @@
     <string name="manage_permission_with_nick">Керувати правами для %s</string>
     <string name="server_info_bind2">XEP-0386: Bind 2</string>
     <string name="server_info_login_mechanism">Механізм авторизації</string>
-    <string name="pref_set_text_collapsable_summary">Згортати текст довший за 8 рядків</string>
+    <string name="pref_set_text_collapsable_summary">Згортати текст довший за 10 рядків</string>
     <string name="pref_send_link_previews_summary">Додавати метадані про посилання під час надсилання повідомлення</string>
     <string name="schedule_message">Надіслати пізніше</string>
     <string name="pref_show_thread_feature">Значок тем</string>
@@ -1217,7 +1215,7 @@
     <string name="flip_camera">Розвернути камеру</string>
     <string name="video_is_disabled_tap_to_enable">Відео вимкнено. Торкніться, щоб увімкнути.</string>
     <string name="do_you_really_want_to_retract_this_message">Ви впевнені, що хочете видалити це повідомлення? Запит на видалення буде надіслано, але клієнт одержувача може його не прийняти.</string>
-    <string name="pref_set_text_collapsable">Бета: Згортати довгий текст</string>
+    <string name="pref_set_text_collapsable">Згортати довгий текст</string>
     <string name="pref_show_show_nav_drawer_summary">Увімкнути навігаційну панель для кращого сортування розмов</string>
     <string name="pref_show_show_nav_drawer">Навігаційна панель</string>
     <string name="show_link_previews">Попередній перегляд посилань</string>
@@ -1401,7 +1399,7 @@
     <string name="pref_ring_from_strangers">Дзвонити при викликах від незнайомців</string>
     <string name="enter_a_new_password_txt">Уведіть новий пароль</string>
     <string name="please_enter_a_new_password_again_txt">Будь ласка, введіть новий пароль ще раз</string>
-    <string name="pref_app_lock_enable_summary">Увімкнути блокування застосунку. Майте на увазі, що Ви не зможете відкрити застосунок, якщо забудете PIN-код.</string>
+    <string name="pref_app_lock_enable_summary">Блокування запобігає випадковому доступу до інтерфейсу застосунку. Не захищає Ваші дані від зловмисників, які мають доступ до пристрою — для цього використовуйте пароль бази даних.</string>
     <string name="confirm_password_txt">Підтвердити пароль</string>
     <string name="password_changed_txt">Пароль змінено</string>
     <string name="max_8_characters_txt">Максимум 8 символів</string>
@@ -1747,4 +1745,70 @@
     <string name="omemo_identities_reset">Скинути ідентифікаційні дані OMEMO</string>
     <string name="failed_to_reset_omemo_identities">Не вдалося скинути ідентифікаційні дані OMEMO</string>
     <string name="ephemeral_messages_active_by_hint">%1$s активує одноразові повідомлення (%2$s)</string>
+    <string name="title_critical_keystore_error">Критична помилка шифрування</string>
+    <string name="message_critical_keystore_error">Апаратний модуль захисту на цьому пристрої не зміг надати ключі шифрування. Це могло статися через оновлення системи або після перенесення даних з іншого пристрою. На жаль, Ваші локальні дані недоступні. Ви можете очистити дані застосунку та почати з нуля або спробувати відновити їх із резервної копії.</string>
+    <string name="action_clear_app_data">Очистити дані застосунку</string>
+    <string name="action_exit">Вийти</string>
+    <string name="media_gallery">Галерея</string>
+    <string name="action_save_to_downloads">Зберегти в Завантаження</string>
+    <string name="save_to_downloads_warning">Ви впевнені, що хочете зберегти ці файли в теку «Завантаження»? До них матимуть доступ інші програми на Вашому пристрої.</string>
+    <string name="search_by_date">Пошук за датою</string>
+    <string name="clear_search">Очистити пошук</string>
+    <string name="tab_all">Усі</string>
+    <string name="tab_images">Зображення</string>
+    <string name="tab_videos">Відео</string>
+    <string name="tab_audio">Аудіо</string>
+    <string name="tab_files">Файли</string>
+    <string name="jump_to_message">Перейти до повідомлення</string>
+    <string name="delete_files_dialog_msg">Ви впевнені, що хочете вилучити ці %d файлів?\n\n<b>Увага:</b> Копії цих файлів, збережені на інших пристроях або серверах, і надалі залишаться там.</string>
+    <string name="share_live_location">Ділитися своїм місцезнаходженням у реальному часі</string>
+    <string name="live_location">Геодані в реальному часі</string>
+    <string name="live_location_active">Геодані в реальному часі</string>
+    <string name="live_location_stopped_toast">Передачу місцезнаходження в реальному часі припинено</string>
+    <string name="live_location_duration">Як довго ділитися місцезнаходженням?</string>
+    <string name="live_location_15min">15 хвилин</string>
+    <string name="live_location_1hour">1 година</string>
+    <string name="live_location_8hours">8 годин</string>
+    <string name="live_location_custom">Вказати…</string>
+    <string name="live_location_minutes_hint">Тривалість (хвилини)</string>
+    <string name="stop_live_location">Припинити передачу</string>
+    <string name="open_map">Відкрити мапу</string>
+    <string name="live_location_channel_name">Геодані в реальному часі</string>
+    <string name="live_location_notification_text">Передача даних про місцезнаходження</string>
+    <string name="pref_omemo_auto_expiry">Термін дії пристрою OMEMO</string>
+    <string name="pref_omemo_auto_expiry_summary">Тривалість зберігання пристрою OMEMO після того, як він став неактивним</string>
+    <string name="pref_delete_unused_files">Видаляти невикористані файли під час видалення</string>
+    <string name="pref_delete_unused_files_summary">Видаляти пов’язані файли, якщо вони не використовуються в інших розмовах</string>
+    <string name="pref_custom_resource_name_hint">Якщо порожнє, використовується значення за замовчуванням (не більше %d символів)</string>
+    <string name="pref_database_encryption">Шифрування бази даних</string>
+    <string name="pref_database_encryption_summary">База даних завжди зашифрована. Для надійнішого захисту варто встановити пароль.</string>
+    <string name="dialog_set_db_password_title">Установити пароль бази даних</string>
+    <string name="dialog_change_db_password_title">Змінити пароль бази даних</string>
+    <string name="dialog_db_password_hint">Пароль</string>
+    <string name="dialog_db_password_confirm_hint">Підтвердити пароль</string>
+    <string name="dialog_db_password_current_hint">Поточний пароль</string>
+    <string name="toast_db_password_error_mismatch">Паролі не збігаються</string>
+    <string name="toast_db_password_error_wrong">Неправильний поточний пароль</string>
+    <string name="toast_db_password_success_set">Пароль бази даних встановлено</string>
+    <string name="toast_db_password_success_changed">Пароль бази даних змінено</string>
+    <string name="toast_db_password_success_disabled">Пароль бази даних видалено</string>
+    <string name="pref_database_encryption_summary_enabled">Зашифровано паролем користувача</string>
+    <string name="pref_database_encryption_summary_disabled">Зашифровано автоматично (пароль не встановлено)</string>
+    <string name="dialog_remove_db_password_title">Видалити пароль бази даних</string>
+    <string name="dialog_db_password_policy_warning">Увага: cлабкий пароль практично не забезпечує захисту від зловмисників, які мають доступ до Ваших файлів бази даних в автономному режимі. Використовуйте довгий і складний пароль.</string>
+    <string name="toast_db_password_error_too_short">Пароль повинен містити мінімум 8 символів</string>
+    <string name="dialog_db_password_no_lock_warning">Увага: на Вашому пристрої не налаштовано безпечний екран блокування (PIN-код, графічний ключ або пароль). Для максимальної безпеки настійно рекомендуємо налаштувати його.</string>
+    <string name="dialog_db_password_no_recovery_checkbox">Я розумію, що втрата цього пароля призведе до остаточного видалення всіх моїх повідомлень</string>
+    <string name="setup">Налаштувати</string>
+    <string name="lockscreen_ui_only_warning">Примітка: PIN-код лише блокує інтерфейс користувача і не забезпечує додаткового шифрування бази даних.</string>
+    <string name="action_unlock_database">Розблокувати</string>
+    <string name="pref_require_startup_password_title">Запитувати пароль під час запуску</string>
+    <string name="pref_require_startup_password_summary">Пароль бази даних потрібно вводити під час кожного холодного запуску — пароль не зберігається на пристрої</string>
+    <string name="pref_require_startup_password_summary_needs_encryption">Спочатку ввімкніть шифрування бази даних</string>
+    <string name="dialog_startup_password_title">Розблокувати базу даних</string>
+    <string name="dialog_enable_startup_password_message">Для підтвердження введіть поточний пароль бази даних. Він більше не зберігатиметься на пристрої — Вам доведеться вводити його щоразу під час запуску застосунку.</string>
+    <string name="toast_wrong_startup_password">Неправильний пароль</string>
+    <string name="toast_startup_password_enabled">Потрібен пароль для запуску — пароль видалено з пам’яті пристрою</string>
+    <string name="toast_startup_password_disabled">Пароль для запуску більше не потрібен</string>
+    <string name="toast_startup_password_session_required">Розблокуйте застосунок, перш ніж змінювати цей параметр</string>
 </resources>
