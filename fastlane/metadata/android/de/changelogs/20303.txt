@@ -1,0 +1,11 @@
+* Mediengalerie
+* Lokale Datenbankverschlüsselung
+* Verbesserte Backup-Verschlüsselung & Zuverlässigkeit
+* Sichere Passwortbehandlung
+* Sicheres Löschen & Wiederherstellung bei Migrationen
+* Datenbankmigration & Stabilität
+* Live-Standortfreigabe
+* Suche & Auswahl von Nachrichten — Leistungsverbesserungen
+* UI/UX-Verbesserungen
+* Build- & Abhängigkeits-Updates
+* und mehr
