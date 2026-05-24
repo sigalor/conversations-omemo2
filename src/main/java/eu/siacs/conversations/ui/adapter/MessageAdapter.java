@@ -814,7 +814,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         viewHolder.messageBody().setVisibility(View.VISIBLE);
         setTextColor(viewHolder.messageBody(), bubbleColor);
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
-        setTextSize(viewHolder.inReplyTo(), this.bubbleDesign.largeFont);
+        setSmallTextSize(viewHolder.inReplyTo(), this.bubbleDesign.largeFont);
         setTextSize(viewHolder.inReplyToQuote(), this.bubbleDesign.largeFont);
         viewHolder.messageBody().setTypeface(notoRegular);
         viewHolder.messageBox().setBackgroundTintMode(PorterDuff.Mode.SRC);
@@ -2655,6 +2655,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
     private static void setTextSize(final TextView textView, final boolean largeFont) {
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, largeFont ? 18 : 14);
+    }
+
+    private static void setSmallTextSize(final TextView textView, final boolean largeFont) {
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, largeFont ? 16 : 12);
     }
 
     private static @ColorInt int bubbleToOnSurfaceVariant(

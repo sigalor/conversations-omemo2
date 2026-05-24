@@ -40,7 +40,7 @@
                         android:layout_marginBottom="2dp"
                         android:textStyle="bold"
                         android:longClickable="false"
-                        android:textAppearance="?textAppearanceBodyMedium" />
+                        android:textAppearance="?textAppearanceBodySmall" />
 
                     <TextView
                         android:id="@+id/in_reply_to_quote"
@@ -52,7 +52,7 @@
                         android:maxLines="6"
                         android:ellipsize="end"
                         android:visibility="gone"
-                        android:textAppearance="?textAppearanceBodyMedium" />
+                        android:textAppearance="?textAppearanceBodySmall" />
 
                 </LinearLayout>
             </LinearLayout>
